@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?><component name="dataSourceStorage">
+  <data-source source="LOCAL" name="Datasource" product="" version="" jdbc-version="" driver-version="" uuid="6c70a71e-2927-4920-a34f-57b3e709b76e">
+    <jdbc-driver>com.microsoft.sqlserver.jdbc.SQLServerDriver</jdbc-driver>
+    <jdbc-url>jdbc:microsoft:sqlserver://localhost:1433;databasename=MSSQL</jdbc-url>
+    <user-name>administrator</user-name>
+    <user-password>dfcedff5dfdadfcbdfd9dfd9dff5df9adf9b</user-password>
+    <libraries>
+      <library>
+        <url>jar://$PROJECT_DIR$/../DBNavigatorTest/lib/sqljdbc.jar!/</url>
+      </library>
+    </libraries>
+  </data-source>
+</component>

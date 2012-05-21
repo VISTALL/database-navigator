@@ -1,0 +1,430 @@
+package com.dci.intellij.dbn.ddl;
+
+import com.dci.intellij.dbn.common.AbstractProjectComponent;
+import com.dci.intellij.dbn.common.Constants;
+import com.dci.intellij.dbn.common.thread.WriteActionRunner;
+import com.dci.intellij.dbn.common.ui.ListUtil;
+import com.dci.intellij.dbn.common.util.MessageUtil;
+import com.dci.intellij.dbn.common.util.VirtualFileUtil;
+import com.dci.intellij.dbn.connection.ConnectionHandler;
+import com.dci.intellij.dbn.connection.ConnectionManager;
+import com.dci.intellij.dbn.ddl.ui.BindDDLFileDialog;
+import com.dci.intellij.dbn.ddl.ui.DDLFileNameListCellRenderer;
+import com.dci.intellij.dbn.ddl.ui.UnbindDDLFileDialog;
+import com.dci.intellij.dbn.object.DBSchema;
+import com.dci.intellij.dbn.object.common.DBSchemaObject;
+import com.dci.intellij.dbn.vfs.DatabaseEditableObjectFile;
+import com.dci.intellij.dbn.vfs.DatabaseFileSystem;
+import com.intellij.openapi.fileChooser.FileChooser;
+import com.intellij.openapi.fileChooser.FileChooserDescriptor;
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.ModuleRootManager;
+import com.intellij.openapi.roots.ProjectRootManager;
+import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.ui.SelectFromListDialog;
+import com.intellij.openapi.util.InvalidDataException;
+import com.intellij.openapi.util.JDOMExternalizable;
+import com.intellij.openapi.util.WriteExternalException;
+import com.intellij.openapi.vfs.*;
+import org.jdom.Element;
+import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import javax.swing.*;
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
+
+public class DDLFileBindingManager extends AbstractProjectComponent implements VirtualFileListener, JDOMExternalizable {
+
+    private Map<String, String> mappings = new HashMap<String, String>();
+    private Map<VirtualFile, DBSchemaObject> cache = new HashMap<VirtualFile, DBSchemaObject>();
+    private DDLFileBindingManager(Project project) {
+        super(project);
+        VirtualFileManager.getInstance().addVirtualFileListener(this);
+    }
+
+    @Nullable
+    public List<VirtualFile> getBoundDDLFiles(DBSchemaObject object) {
+        List<String> filePaths = getBoundFilePaths(object);
+        List<VirtualFile> virtualFiles = null;
+
+        if (filePaths.size() > 0) {
+            for (String filePath : filePaths) {
+                VirtualFile virtualFile = LocalFileSystem.getInstance().findFileByPath(filePath);
+                if (virtualFile == null || !virtualFile.isValid()) {
+                    mappings.remove(filePath);    
+                } else {
+                    if (virtualFiles == null) virtualFiles = new ArrayList<VirtualFile>();
+                    virtualFiles.add(virtualFile);
+                }
+            }
+        }
+        checkInvalidBoundFiles(virtualFiles, object);
+        return virtualFiles;
+    }
+
+    @Nullable
+    public DBSchemaObject getEditableObject(VirtualFile ddlFile) {
+        if (cache.containsKey(ddlFile)) {
+            return cache.get(ddlFile);
+        }
+
+        String objectPath = mappings.get(ddlFile.getPath());
+        if (objectPath != null) {
+            int startIndex = 1;
+            int endIndex = objectPath.indexOf(']');
+            String connectionId = objectPath.substring(startIndex, endIndex);
+
+            ConnectionHandler connectionHandler = ConnectionManager.getConnectionHandler(connectionId);
+            if (connectionHandler != null) {
+                startIndex = endIndex + 1;
+                endIndex = objectPath.indexOf('.', startIndex);
+                String schemaName = objectPath.substring(startIndex, endIndex);
+                DBSchema schema = connectionHandler.getObjectBundle().getSchema(schemaName);
+                if (schema != null) {
+                    startIndex = endIndex + 1;
+                    endIndex = objectPath.length();
+                    String objectName = objectPath.substring(startIndex, endIndex);
+                    DBSchemaObject object = (DBSchemaObject) schema.getChildObject(objectName, false);
+                    cache.put(ddlFile, object);
+                    return object;
+                }
+            }
+        }
+        cache.put(ddlFile, null);
+        return null;
+    }
+
+
+    public boolean hasBoundDDLFiles(DBSchemaObject object) {
+        String objectPath = object.getQualifiedNameWithConnectionId();
+        for (String filePath : mappings.keySet()) {
+            String path = mappings.get(filePath);
+            if (path.equals(objectPath)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    private void checkInvalidBoundFiles(List<VirtualFile> virtualFiles, DBSchemaObject object) {
+        if (virtualFiles != null && virtualFiles.size() > 0) {
+            List<VirtualFile> obsolete = null;
+            for (VirtualFile virtualFile : virtualFiles) {
+                if (!virtualFile.isValid() || !isValidDDLFile(virtualFile, object)) {
+                    if (obsolete == null) obsolete = new ArrayList<VirtualFile>();
+                    obsolete.add(virtualFile);
+                }
+            }
+            if (obsolete != null) {
+                virtualFiles.removeAll(obsolete);
+                for (VirtualFile virtualFile : obsolete) {
+                    unbindDDLFile(virtualFile);
+                }
+            }
+        }
+    }
+
+    private boolean isValidDDLFile(VirtualFile virtualFile, DBSchemaObject object) {
+        for (DDLFileType ddlFileType : object.getDDLFileTypes()) {
+            if (ddlFileType.getExtensions().contains(virtualFile.getExtension())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public int showFileBindingDialog(DBSchemaObject object, List<VirtualFile> virtualFiles) {
+        BindDDLFileDialog dialog = new BindDDLFileDialog(virtualFiles, object);
+        dialog.show();
+        return dialog.getExitCode();
+    }
+
+    public int showFileUnbindingDialog(DBSchemaObject object, List<VirtualFile> virtualFiles) {
+        UnbindDDLFileDialog dialog = new UnbindDDLFileDialog(virtualFiles, object);
+        dialog.show();
+        return dialog.getExitCode();
+    }
+
+    public void bindDDLFile(DBSchemaObject object, VirtualFile virtualFile) {
+        cache.put(virtualFile, object);
+        mappings.put(virtualFile.getPath(), object.getQualifiedNameWithConnectionId());
+    }
+
+    public void unbindDDLFile(VirtualFile virtualFile) {
+        cache.remove(virtualFile);
+        mappings.remove(virtualFile.getPath());
+    }
+
+    private List<VirtualFile> lookupApplicableDDLFiles(DBSchemaObject object) {
+        Module module = object.getConnectionHandler().getModule();
+        Project project = object.getConnectionHandler().getProject();
+        List<VirtualFile> fileList = new ArrayList<VirtualFile>();
+
+        for (DDLFileType ddlFileType : object.getDDLFileTypes()) {
+            for (String extension : ddlFileType.getExtensions()) {
+                String fileName = object.getName().toLowerCase() + "." + extension;
+
+                if (module == null) {
+                    VirtualFile[] files = VirtualFileUtil.lookupFilesForName(project, fileName);
+                    fileList.addAll(Arrays.asList(files));
+                } else {
+                    VirtualFile[] files = VirtualFileUtil.lookupFilesForName(module, fileName);
+                    fileList.addAll(Arrays.asList(files));
+                }
+            }
+        }
+        return fileList;
+    }
+
+    public List<VirtualFile> lookupUnboundDDLFiles(DBSchemaObject object) {
+        List<String> filePaths = getBoundFilePaths(object);
+        List<VirtualFile> virtualFiles = lookupApplicableDDLFiles(object);
+        List<VirtualFile> unboundVirtualFiles = new ArrayList<VirtualFile>();
+        for (VirtualFile virtualFile : virtualFiles) {
+            if (!filePaths.contains(virtualFile.getPath())) {
+                unboundVirtualFiles.add(virtualFile);
+            }
+        }
+
+        return unboundVirtualFiles;
+    }
+
+    public void createDDLFile(final DBSchemaObject object) {
+        ConnectionHandler connectionHandler = object.getConnectionHandler();
+        final Project project = object.getProject();
+        FileChooserDescriptor descriptor = new FileChooserDescriptor(false, true, false, false, false, false);
+        descriptor.setTitle("Select new ddl-file location");
+
+        VirtualFile[] contentRoots;
+
+        Module module = connectionHandler.getModule();
+        if (module == null) {
+            ProjectRootManager rootManager = ProjectRootManager.getInstance(project);
+            contentRoots = rootManager.getContentRoots();
+        } else {
+            ModuleRootManager rootManager = ModuleRootManager.getInstance(module);
+            contentRoots = rootManager.getContentRoots();
+        }
+        descriptor.setIsTreeRootVisible(contentRoots.length == 1);
+        for (VirtualFile contentRoot : contentRoots) {
+            descriptor.addRoot(contentRoot);
+        }
+
+        DDLFileNameProvider fileNameProvider = getDDLFileNameProvider(object);
+
+        if (fileNameProvider != null) {
+            VirtualFile[] selectedDirectories = FileChooser.chooseFiles(project, descriptor);
+            if (selectedDirectories.length > 0) {
+                final String fileName = fileNameProvider.getFileName();
+                final VirtualFile parentDirectory = selectedDirectories[0];
+                new WriteActionRunner() {
+                    @Override
+                    public void run() {
+                        try {
+                            VirtualFile virtualFile = parentDirectory.createChildData(this, fileName);
+                            bindDDLFile(object, virtualFile);
+                            DatabaseEditableObjectFile databaseFile = object.getVirtualFile();
+                            databaseFile.updateDDLFiles();
+                            DatabaseFileSystem.getInstance().reopenEditor(object);
+                        } catch (IOException e) {
+                            MessageUtil.showErrorDialog("Could not create file " + parentDirectory + File.separator + fileName + ".", e);
+                        }
+                    }
+                }.start();
+            }
+        }                                
+    }
+
+    public void bindDDLFiles(DBSchemaObject object) {
+        Project project = object.getProject();
+        List<VirtualFile> virtualFiles = lookupUnboundDDLFiles(object);
+        if (virtualFiles.size() == 0) {
+            Module module = object.getConnectionHandler().getModule();
+            List<String> boundFiles = getBoundFilePaths(object);
+
+            StringBuilder message = new StringBuilder();
+            message.append(boundFiles.size() == 0 ?
+                    "No DDL Files were found in " :
+                    "No additional DDL Files were found in ");
+            if (module == null) {
+                message.append("project scope.");
+            } else {
+                message.append("scope of module\"");
+                message.append(module.getName());
+                message.append("\".");
+            }
+
+
+            if (boundFiles.size() > 0) {
+                message.append("\n\nFollowing files are already bound to ");
+                message.append(object.getQualifiedNameWithType());
+                message.append(":");
+                for (String boundFile : boundFiles) {
+                    message.append("\n");
+                    message.append(boundFile);
+                }
+            }
+
+            String[] options = {"OK", "Create new..."};
+            int optionIndex = Messages.showDialog(project, message.toString(), Constants.DBN_TITLE_PREFIX + "No DDL Files found", options, 0, Messages.getInformationIcon() );
+            if (optionIndex == 1) {
+                createDDLFile(object);
+            }
+        } else {
+            int exitCode = showFileBindingDialog(object, virtualFiles);
+            if (exitCode != DialogWrapper.CANCEL_EXIT_CODE) {
+                DatabaseFileSystem.getInstance().reopenEditor(object);
+            }
+        }
+    }
+
+    public void unbindDDLFiles(DBSchemaObject object) {
+        List<VirtualFile> virtualFiles = getBoundDDLFiles(object);
+        int exitCode = showFileUnbindingDialog(object, virtualFiles);
+        if (exitCode != DialogWrapper.CANCEL_EXIT_CODE) {
+            DatabaseFileSystem.getInstance().reopenEditor(object);
+        }
+    }
+
+    private DDLFileNameProvider getDDLFileNameProvider(DBSchemaObject object) {
+        DDLFileType[] ddlFileTypes = object.getDDLFileTypes();
+        if (ddlFileTypes.length == 1 && ddlFileTypes[0].getExtensions().size() == 1) {
+            DDLFileType ddlFileType = ddlFileTypes[0];
+            return new DDLFileNameProvider(object, ddlFileType, ddlFileType.getExtensions().get(0));
+        } else {
+            List<DDLFileNameProvider> fileNameProviders = new ArrayList<DDLFileNameProvider>();
+            for (DDLFileType ddlFileType : ddlFileTypes) {
+                for (String extension : ddlFileType.getExtensions()) {
+                    DDLFileNameProvider fileNameProvider = new DDLFileNameProvider(object, ddlFileType, extension);
+                    fileNameProviders.add(fileNameProvider);
+                }
+            }
+
+            SelectFromListDialog fileTypeDialog = new SelectFromListDialog(
+                    object.getProject(), fileNameProviders.toArray(),
+                    ListUtil.BASIC_TO_STRING_ASPECT,
+                    "Select DDL file type",
+                    ListSelectionModel.SINGLE_SELECTION);
+            JList list = (JList) fileTypeDialog.getPreferredFocusedComponent();
+            list.setCellRenderer(new DDLFileNameListCellRenderer());
+            fileTypeDialog.show();
+            Object[] selectedFileTypes = fileTypeDialog.getSelection();
+            if (selectedFileTypes != null) {
+                return (DDLFileNameProvider) selectedFileTypes[0];
+            }
+        }
+        return null;
+    }
+
+    private List<String> getBoundFilePaths(DBSchemaObject object) {
+        String objectPath = object.getQualifiedNameWithConnectionId();
+        List<String> filePaths = new ArrayList<String>();
+        for (String filePath : mappings.keySet()) {
+            String path = mappings.get(filePath);
+            if (path.equals(objectPath)) {
+                filePaths.add(filePath);
+            }
+        }
+        return filePaths;
+    }
+
+    private String getObjectPath(String filePath) {
+        return mappings.get(filePath);
+    }
+
+
+    /***************************************
+     *            ProjectComponent         *
+     ***************************************/
+    public static DDLFileBindingManager getInstance(Project project) {
+        return project.getComponent(DDLFileBindingManager.class);
+    }
+
+    @NonNls
+    @NotNull
+    public String getComponentName() {
+        return "DBNavigator.Project.DDLFileBindingManager";
+    }
+    public void disposeComponent() {
+        super.disposeComponent();
+        mappings.clear();
+        cache.clear();
+    }
+    /************************************************
+     *               JDOMExternalizable             *
+     ************************************************/
+
+    @Override
+    public void propertyChanged(VirtualFilePropertyEvent event) {
+        
+    }
+
+    @Override
+    public void contentsChanged(VirtualFileEvent event) {
+    }
+
+    @Override
+    public void fileCreated(VirtualFileEvent event) {
+    }
+
+    @Override
+    public void fileDeleted(VirtualFileEvent event) {
+        DBSchemaObject object = cache.get(event.getFile());
+        if (object != null) {
+            unbindDDLFile(event.getFile());
+            DatabaseFileSystem.getInstance().reopenEditor(object);
+        }
+    }
+
+    @Override
+    public void fileMoved(VirtualFileMoveEvent event) {
+    }
+
+    @Override
+    public void fileCopied(VirtualFileCopyEvent event) {
+    }
+
+    @Override
+    public void beforePropertyChange(VirtualFilePropertyEvent event) {
+    }
+
+    @Override
+    public void beforeContentsChange(VirtualFileEvent event) {
+    }
+
+    @Override
+    public void beforeFileDeletion(VirtualFileEvent event) {
+    }
+
+    @Override
+    public void beforeFileMovement(VirtualFileMoveEvent event) {
+    }
+
+    /************************************************
+     *               JDOMExternalizable             *
+     ************************************************/
+    public void readExternal(Element element) throws InvalidDataException {
+        for (Object child : element.getChildren()) {
+            Element childElement = (Element) child;
+            String file = childElement.getAttributeValue("file");
+            String object = childElement.getAttributeValue("object");
+            mappings.put(file, object);
+        }
+    }
+
+    public void writeExternal(Element element) throws WriteExternalException {
+        for (String file : mappings.keySet()) {
+            Element childElement = new Element("mapping");
+            childElement.setAttribute("file", file);
+            childElement.setAttribute("object", mappings.get(file));
+            element.addContent(childElement);
+        }
+
+    }
+}
