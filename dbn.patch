@@ -1,0 +1,86 @@
+Index: src/com/dci/intellij/dbn/data/find/DataSearchResult.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>windows-1252
+===================================================================
+--- src/com/dci/intellij/dbn/data/find/DataSearchResult.java	(revision 2080)
++++ src/com/dci/intellij/dbn/data/find/DataSearchResult.java	(revision )
+@@ -93,7 +93,6 @@
+         } else {
+             return null;
+         }
+-
+     }
+ 
+     private DataSearchResultMatch findMatch(DataSearchResultMatch previous, DataModelCell cell) {
+@@ -108,6 +107,10 @@
+             }
+         }
+         return null;
++    }
++
++    public DataSearchResultMatch selectFirst(int fromRowIndex, int fromColumnIndex, DataSearchResultScrollPolicy scrollPolicy) {
++        return getNext(fromRowIndex, fromColumnIndex, scrollPolicy);
+     }
+     
+     public DataSearchResultMatch selectNext(DataSearchResultScrollPolicy scrollPolicy) {
+Index: src/com/dci/intellij/dbn/data/find/DataSearchResultController.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>windows-1252
+===================================================================
+--- src/com/dci/intellij/dbn/data/find/DataSearchResultController.java	(revision 2080)
++++ src/com/dci/intellij/dbn/data/find/DataSearchResultController.java	(revision )
+@@ -26,12 +26,28 @@
+         BasicTable table = searchableComponent.getTable();
+         DataModel dataModel = table.getModel();
+         DataSearchResult searchResult = dataModel.getSearchResult();
+-        DataSearchResultMatch oldSelection = searchResult.getSelectedMatch();
+         DataSearchResultScrollPolicy scrollPolicy = DataSearchResultScrollPolicy.HORIZONTAL;
++        DataSearchResultMatch oldSelection = searchResult.getSelectedMatch();
+         DataSearchResultMatch selection =
+                 direction == DataSearchDirection.DOWN ? searchResult.selectNext(scrollPolicy) :
+                 direction == DataSearchDirection.UP ? searchResult.selectPrevious(scrollPolicy) : null;
+-        
++
++        updateSelection(table, oldSelection, selection);
++    }
++
++    public void selectFirst(int selectedRowIndex, int selectedColumnIndex) {
++        BasicTable table = searchableComponent.getTable();
++        DataModel dataModel = table.getModel();
++        DataSearchResult searchResult = dataModel.getSearchResult();
++        DataSearchResultScrollPolicy scrollPolicy = DataSearchResultScrollPolicy.HORIZONTAL;
++
++        DataSearchResultMatch oldSelection = searchResult.getSelectedMatch();
++        DataSearchResultMatch selection = searchResult.selectFirst(selectedRowIndex, selectedColumnIndex, scrollPolicy);
++
++        updateSelection(table, oldSelection, selection);
++    }
++
++    private void updateSelection(BasicTable table, DataSearchResultMatch oldSelection, DataSearchResultMatch selection) {
+         if (oldSelection != null) {
+             DataModelCell cell = oldSelection.getCell();
+             Rectangle cellRectangle = table.getCellRect(cell);
+@@ -84,11 +100,18 @@
+                 }
+                 new SimpleLaterInvocator() {
+                     public void run() {
++                        BasicTable table = searchableComponent.getTable();
++                        int selectedRowIndex = table.getSelectedRow();
++                        int selectedColumnIndex = table.getSelectedRow();
++                        if (selectedRowIndex < 0) selectedRowIndex = 0;
++                        if (selectedColumnIndex < 0) selectedColumnIndex = 0;
+                         searchableComponent.cancelEditActions();
+-                        searchableComponent.getTable().clearSelection();
+-                        searchableComponent.getTable().repaint();
++
++                        table.clearSelection();
++                        table.repaint();
++                        selectFirst(selectedRowIndex, selectedColumnIndex);
+                         searchResult.notifyListeners();
+-                        moveCursor(DataSearchDirection.DOWN);
++
+                     }
+                 }.start();
+ 
