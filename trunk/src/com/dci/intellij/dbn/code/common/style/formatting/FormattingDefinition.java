@@ -7,9 +7,6 @@ import com.intellij.formatting.Wrap;
 import org.jdom.Element;
 
 public class FormattingDefinition {
-    public static final FormattingDefinition IDENTIFIER_DEFINITION_ATTRIBUTES = new FormattingDefinition(null, null, FormattingSpacing.ONE_SPACE, null);
-    public static final FormattingDefinition STATEMENT_ATTRIBUTES = new FormattingDefinition(null, FormattingIndent.NORMAL, FormattingSpacing.MIN_LINE_BREAK, null);
-
     public static final FormattingDefinition LINE_BREAK_BEFORE = new FormattingDefinition(null, null, FormattingSpacing.MIN_LINE_BREAK, null);
     public static final FormattingDefinition LINE_BREAK_AFTER = new FormattingDefinition(null, null, null, FormattingSpacing.MIN_LINE_BREAK);
 

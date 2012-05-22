@@ -177,15 +177,6 @@ public class FormattingBlock implements Block {
         if (rightPsiElement instanceof BasePsiElement) {
             BasePsiElement rightBasePsiElement = (BasePsiElement) rightPsiElement;
 
-/*
-            if (rightBasePsiElement instanceof IdentifierPsiElement) {
-                IdentifierPsiElement identifierPsiElement = (IdentifierPsiElement) rightBasePsiElement;
-                if (identifierPsiElement.isDefinition()) {
-                    return FormattingSpacing.ONE_SPACE.getValue();
-                }
-            }
-
-*/
             if (rightBasePsiElement instanceof TokenPsiElement || rightBasePsiElement instanceof NamedPsiElement) {
                 return null;
             }
