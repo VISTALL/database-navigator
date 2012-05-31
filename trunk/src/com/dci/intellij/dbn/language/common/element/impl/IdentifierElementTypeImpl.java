@@ -1,7 +1,7 @@
 package com.dci.intellij.dbn.language.common.element.impl;
 
 import com.dci.intellij.dbn.code.common.style.formatting.FormattingDefinition;
-import com.dci.intellij.dbn.code.common.style.formatting.FormattingSpacing;
+import com.dci.intellij.dbn.code.common.style.formatting.SpacingDefinition;
 import com.dci.intellij.dbn.language.common.element.ElementType;
 import com.dci.intellij.dbn.language.common.element.ElementTypeBundle;
 import com.dci.intellij.dbn.language.common.element.IdentifierElementType;
@@ -20,7 +20,7 @@ import org.jdom.Element;
 
 
 public class IdentifierElementTypeImpl extends LeafElementTypeImpl implements IdentifierElementType {
-    public static final FormattingDefinition FORMATTING = new FormattingDefinition(null, null, FormattingSpacing.ONE_SPACE, null);
+    public static final FormattingDefinition FORMATTING = new FormattingDefinition(null, null, SpacingDefinition.ONE_SPACE, null);
 
     private IdentifierType identifierType;
     private IdentifierRole identifierRole;

@@ -5,7 +5,7 @@ import com.dci.intellij.dbn.common.options.setting.SettingsUtil;
 import com.intellij.formatting.Spacing;
 import org.jdom.Element;
 
-public enum FormattingSpacing implements FormattingAttribute<Spacing>{
+public enum SpacingDefinition implements FormattingAttribute<Spacing>{
     NO_SPACE  (new Loader(){Spacing load(){return CodeStylePreset.SPACING_NO_SPACE;}}),
     ONE_SPACE (new Loader(){Spacing load(){return CodeStylePreset.SPACING_ONE_SPACE;}}),
 
@@ -19,7 +19,7 @@ public enum FormattingSpacing implements FormattingAttribute<Spacing>{
     private Spacing value;
     private Loader<Spacing> loader;
 
-    private FormattingSpacing(Loader<Spacing> loader) {
+    private SpacingDefinition(Loader<Spacing> loader) {
         this.loader = loader;
     }
 
@@ -31,9 +31,9 @@ public enum FormattingSpacing implements FormattingAttribute<Spacing>{
         return value;
     }
 
-    public static FormattingSpacing get(Element element, boolean before) {
+    public static SpacingDefinition get(Element element, boolean before) {
         return before ?
-                SettingsUtil.getEnumAttribute(element, "formatting-spacing-before", FormattingSpacing.class) :
-                SettingsUtil.getEnumAttribute(element, "formatting-spacing-after", FormattingSpacing.class);
+                SettingsUtil.getEnumAttribute(element, "formatting-spacing-before", SpacingDefinition.class) :
+                SettingsUtil.getEnumAttribute(element, "formatting-spacing-after", SpacingDefinition.class);
     }
 }
