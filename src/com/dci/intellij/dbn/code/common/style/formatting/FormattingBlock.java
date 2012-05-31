@@ -190,7 +190,7 @@ public class FormattingBlock implements Block {
                 }
             }
         }
-        return FormattingSpacing.ONE_SPACE.getValue();
+        return SpacingDefinition.ONE_SPACE.getValue();
     }
 
     private BasePsiElement getParentPsiElement(PsiElement psiElement) {

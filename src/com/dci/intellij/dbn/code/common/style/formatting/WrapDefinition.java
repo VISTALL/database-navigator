@@ -5,7 +5,7 @@ import com.dci.intellij.dbn.common.options.setting.SettingsUtil;
 import com.intellij.formatting.Wrap;
 import org.jdom.Element;
 
-public enum FormattingWrap implements FormattingAttribute<Wrap>{
+public enum WrapDefinition implements FormattingAttribute<Wrap>{
     NONE    (new Loader(){Wrap load(){return CodeStylePreset.WRAP_NONE;}}),
     NORMAL  (new Loader(){Wrap load(){return CodeStylePreset.WRAP_NORMAL;}}),
     ALWAYS  (new Loader(){Wrap load(){return CodeStylePreset.WRAP_ALWAYS;}}),
@@ -14,7 +14,7 @@ public enum FormattingWrap implements FormattingAttribute<Wrap>{
     private Wrap value;
     private Loader<Wrap> loader;
 
-    private FormattingWrap(Loader<Wrap> loader) {
+    private WrapDefinition(Loader<Wrap> loader) {
         this.loader = loader;
     }
 
@@ -26,7 +26,7 @@ public enum FormattingWrap implements FormattingAttribute<Wrap>{
         return value;
     }
 
-    public static FormattingWrap get(Element element) {
-        return SettingsUtil.getEnumAttribute(element, "formatting-wrap", FormattingWrap.class);
+    public static WrapDefinition get(Element element) {
+        return SettingsUtil.getEnumAttribute(element, "formatting-wrap", WrapDefinition.class);
     }
 }

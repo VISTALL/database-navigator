@@ -7,22 +7,22 @@ import com.intellij.formatting.Wrap;
 import org.jdom.Element;
 
 public class FormattingDefinition {
-    public static final FormattingDefinition LINE_BREAK_BEFORE = new FormattingDefinition(null, null, FormattingSpacing.MIN_LINE_BREAK, null);
-    public static final FormattingDefinition LINE_BREAK_AFTER = new FormattingDefinition(null, null, null, FormattingSpacing.MIN_LINE_BREAK);
+    public static final FormattingDefinition LINE_BREAK_BEFORE = new FormattingDefinition(null, null, SpacingDefinition.MIN_LINE_BREAK, null);
+    public static final FormattingDefinition LINE_BREAK_AFTER = new FormattingDefinition(null, null, null, SpacingDefinition.MIN_LINE_BREAK);
 
-    public static final FormattingDefinition ONE_SPACE_BEFORE = new FormattingDefinition(null, null, FormattingSpacing.ONE_SPACE, null);
-    public static final FormattingDefinition NO_SPACE_BEFORE = new FormattingDefinition(null, null, FormattingSpacing.NO_SPACE, null);
+    public static final FormattingDefinition ONE_SPACE_BEFORE = new FormattingDefinition(null, null, SpacingDefinition.ONE_SPACE, null);
+    public static final FormattingDefinition NO_SPACE_BEFORE = new FormattingDefinition(null, null, SpacingDefinition.NO_SPACE, null);
 
-    private FormattingWrap wrap;
-    private FormattingIndent indent;
-    private FormattingSpacing spacingBefore;
-    private FormattingSpacing spacingAfter;
+    private WrapDefinition wrap;
+    private IndentDefinition indent;
+    private SpacingDefinition spacingBefore;
+    private SpacingDefinition spacingAfter;
     private FormattingAttributes attributes;
 
     public FormattingDefinition(){
     }
 
-    public FormattingDefinition(FormattingWrap wrap, FormattingIndent indent, FormattingSpacing spacingBefore, FormattingSpacing spacingAfter) {
+    public FormattingDefinition(WrapDefinition wrap, IndentDefinition indent, SpacingDefinition spacingBefore, SpacingDefinition spacingAfter) {
         this.wrap = wrap;
         this.indent = indent;
         this.spacingBefore = spacingBefore;
@@ -37,10 +37,10 @@ public class FormattingDefinition {
     }
 
     protected FormattingDefinition(Element def) {
-        indent = FormattingIndent.get(def);
-        wrap = FormattingWrap.get(def);
-        spacingBefore = FormattingSpacing.get(def, true);
-        spacingAfter = FormattingSpacing.get(def, false);
+        indent = IndentDefinition.get(def);
+        wrap = WrapDefinition.get(def);
+        spacingBefore = SpacingDefinition.get(def, true);
+        spacingAfter = SpacingDefinition.get(def, false);
     }
 
     public void merge(FormattingDefinition defaults) {

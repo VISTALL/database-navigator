@@ -2,8 +2,8 @@ package com.dci.intellij.dbn.language.common.element.impl;
 
 import com.dci.intellij.dbn.code.common.style.formatting.FormattingDefinition;
 import com.dci.intellij.dbn.code.common.style.formatting.FormattingDefinitionFactory;
-import com.dci.intellij.dbn.code.common.style.formatting.FormattingIndent;
-import com.dci.intellij.dbn.code.common.style.formatting.FormattingSpacing;
+import com.dci.intellij.dbn.code.common.style.formatting.IndentDefinition;
+import com.dci.intellij.dbn.code.common.style.formatting.SpacingDefinition;
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.util.StringUtil;
 import com.dci.intellij.dbn.language.common.DBLanguageDialect;
@@ -24,7 +24,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.Icon;
 
 public abstract class AbstractElementType extends IElementType implements ElementType {
-    private static final FormattingDefinition STATEMENT_FORMATTING = new FormattingDefinition(null, FormattingIndent.NORMAL, FormattingSpacing.MIN_LINE_BREAK, null);
+    private static final FormattingDefinition STATEMENT_FORMATTING = new FormattingDefinition(null, IndentDefinition.NORMAL, SpacingDefinition.MIN_LINE_BREAK, null);
 
     private String id;
     private String description;

@@ -4,7 +4,7 @@ import com.dci.intellij.dbn.common.options.setting.SettingsUtil;
 import com.intellij.formatting.Indent;
 import org.jdom.Element;
 
-public enum FormattingIndent implements FormattingAttribute<Indent> {
+public enum IndentDefinition implements FormattingAttribute<Indent> {
     NORMAL       (new Loader(){Indent load() {return Indent.getNormalIndent();}}),
     CONTINUE     (new Loader(){Indent load() {return Indent.getContinuationIndent();}}),
     NONE         (new Loader(){Indent load() {return Indent.getNoneIndent();}}),
@@ -13,7 +13,7 @@ public enum FormattingIndent implements FormattingAttribute<Indent> {
     private Indent value;
     private Loader<Indent> loader;
 
-    private FormattingIndent(Loader<Indent> loader) {
+    private IndentDefinition(Loader<Indent> loader) {
         this.loader = loader;
     }
 
@@ -25,7 +25,7 @@ public enum FormattingIndent implements FormattingAttribute<Indent> {
         return value;
     }
 
-    public static FormattingIndent get(Element element) {
-        return SettingsUtil.getEnumAttribute(element, "formatting-indent", FormattingIndent.class);
+    public static IndentDefinition get(Element element) {
+        return SettingsUtil.getEnumAttribute(element, "formatting-indent", IndentDefinition.class);
     }
 }
