@@ -116,7 +116,7 @@ public class DatasetBasicFilter extends DatasetFilterImpl {
                         case JOIN_TYPE_OR: buffer.append(" or "); break;
                     }
                 }
-                buffer.append(condition.getConditionString(dataset));
+                condition.appendConditionString(buffer, dataset);
             }
         }
 

@@ -6,11 +6,8 @@ import com.dci.intellij.dbn.common.util.StringUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.data.type.BasicDataType;
 import com.dci.intellij.dbn.data.type.DBDataType;
-import com.dci.intellij.dbn.database.DatabaseCompatibilityInterface;
 import com.dci.intellij.dbn.database.DatabaseMetadataInterface;
 import com.dci.intellij.dbn.editor.data.filter.ui.DatasetBasicFilterConditionForm;
-import com.dci.intellij.dbn.language.common.DBLanguageDialect;
-import com.dci.intellij.dbn.language.sql.SQLLanguage;
 import com.dci.intellij.dbn.object.DBColumn;
 import com.dci.intellij.dbn.object.DBDataset;
 import com.intellij.openapi.util.InvalidDataException;
@@ -88,8 +85,7 @@ public class DatasetBasicFilterCondition extends Configuration<DatasetBasicFilte
         this.active = active;
     }
 
-    public String getConditionString(DBDataset dataset) {
-        char quotesChar = DatabaseCompatibilityInterface.getInstance(dataset).getIdentifierQuotes();
+    public void appendConditionString(StringBuilder buffer, DBDataset dataset) {
         DatasetBasicFilterConditionForm editorForm = getSettingsEditor();
 
         ConditionOperator conditionOperator = null;
@@ -105,25 +101,15 @@ public class DatasetBasicFilterCondition extends Configuration<DatasetBasicFilte
         }
 
         DBColumn column = dataset.getColumn(columnName);
-        if (column == null) {
-            column = dataset.getColumns().get(0);
-            columnName = column.getName();
-        }
 
-        if (columnName.indexOf('#') > -1) {
-            columnName = quotesChar + columnName + quotesChar;
-        } else {
-            DBLanguageDialect languageDialect = dataset.getLanguageDialect(SQLLanguage.INSTANCE);
-            columnName = languageDialect.isReservedWord(columnName) ? quotesChar + columnName + quotesChar : columnName;
-        }
         if (conditionOperator != null &&
                 conditionOperator.getValuePrefix() != null &&
                 conditionOperator.getValuePostfix() != null) {
             value = conditionOperator.getValuePrefix() + value + conditionOperator.getValuePostfix();
         }
         else if (StringUtil.isNotEmptyOrSpaces(value)) {
-            DBDataType dataType = column.getDataType();
-            if (dataType.isNative()) {
+            DBDataType dataType = column == null ? null : column.getDataType();
+            if (dataType != null && dataType.isNative()) {
                 ConnectionHandler connectionHandler = dataset.getConnectionHandler();
                 RegionalSettings regionalSettings = RegionalSettings.getInstance(connectionHandler.getProject());
                 BasicDataType basicDataType = dataType.getNativeDataType().getBasicDataType();
@@ -154,8 +140,11 @@ public class DatasetBasicFilterCondition extends Configuration<DatasetBasicFilte
                 }
             }
         }
-         
-        return columnName + " " + operator + " " + value;
+        buffer.append(column == null ? columnName : column.getQuotedName(false));
+        buffer.append(" ");
+        buffer.append(operator);
+        buffer.append(" ");
+        buffer.append(value);
     }
 
    /****************************************************

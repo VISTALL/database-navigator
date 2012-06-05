@@ -36,6 +36,7 @@ public interface DBObject extends BrowserTreeElement, PsiNamedElement, DynamicCo
 
     @NotNull
     String getName();
+    String getQuotedName(boolean quoteAlways);
     String getQualifiedName();
     String getQualifiedNameWithType();
     String getQualifiedNameWithConnectionId();

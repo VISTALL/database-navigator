@@ -4,7 +4,6 @@ import com.dci.intellij.dbn.code.common.completion.options.CodeCompletionSetting
 import com.dci.intellij.dbn.code.common.completion.options.filter.CodeCompletionFilterSettings;
 import com.dci.intellij.dbn.code.common.style.options.ProjectCodeStyleSettings;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
-import com.dci.intellij.dbn.database.DatabaseCompatibilityInterface;
 import com.dci.intellij.dbn.language.common.DBLanguage;
 import com.dci.intellij.dbn.language.common.DBLanguageFile;
 import com.dci.intellij.dbn.language.common.psi.BasePsiElement;
@@ -22,7 +21,6 @@ public class CodeCompletionContext {
     private CodeCompletionSettings codeCompletionSettings;
     private CompletionParameters parameters;
     private CompletionResultSet result;
-    private char identifierQuoteChar;
     private PsiElement elementAtCaret;
     private ConnectionHandler connectionHandler;
     private String userInput;
@@ -33,7 +31,6 @@ public class CodeCompletionContext {
         this.parameters = parameters;
         this.result = result;
         this.extended = parameters.getCompletionType() == CompletionType.SMART;
-        this.identifierQuoteChar = connectionHandler == null ? '"' : DatabaseCompatibilityInterface.getInstance(connectionHandler).getIdentifierQuotes();
         this.connectionHandler = file.getActiveConnection();
 
         PsiElement position = parameters.getPosition();
@@ -75,10 +72,6 @@ public class CodeCompletionContext {
 
     public boolean isExtended() {
         return extended;
-    }
-
-    public char getIdentifierQuoteChar() {
-        return identifierQuoteChar;
     }
 
     public ProjectCodeStyleSettings getCodeStyleSettings() {

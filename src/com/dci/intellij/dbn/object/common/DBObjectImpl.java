@@ -19,6 +19,7 @@ import com.dci.intellij.dbn.common.thread.ConditionalLaterInvocator;
 import com.dci.intellij.dbn.common.ui.tree.TreeUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.ConnectionUtil;
+import com.dci.intellij.dbn.database.DatabaseCompatibilityInterface;
 import com.dci.intellij.dbn.language.common.DBLanguage;
 import com.dci.intellij.dbn.language.common.DBLanguageDialect;
 import com.dci.intellij.dbn.language.psql.PSQLLanguage;
@@ -162,6 +163,20 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
     @NotNull
     public String getName() {
         return name;
+    }
+
+    @Override
+    public String getQuotedName(boolean quoteAlways) {
+        if (quoteAlways ||
+                name.indexOf('-') > 0 ||
+                name.indexOf('.') > 0 ||
+                name.indexOf('#') > 0 ||
+                getLanguageDialect(SQLLanguage.INSTANCE).isReservedWord(name)) {
+            char quoteChar = DatabaseCompatibilityInterface.getInstance(this).getIdentifierQuotes();
+            return quoteChar + name + quoteChar;
+        } else {
+            return name;
+        }
     }
 
     public Icon getIcon() {

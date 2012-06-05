@@ -6,11 +6,9 @@ import com.dci.intellij.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dci.intellij.dbn.common.thread.WriteActionRunner;
 import com.dci.intellij.dbn.common.util.ActionUtil;
 import com.dci.intellij.dbn.common.util.DocumentUtil;
-import com.dci.intellij.dbn.database.DatabaseCompatibilityInterface;
 import com.dci.intellij.dbn.editor.data.filter.DatasetBasicFilter;
 import com.dci.intellij.dbn.editor.data.filter.DatasetBasicFilterCondition;
 import com.dci.intellij.dbn.editor.data.filter.action.CreateBasicFilterConditionAction;
-import com.dci.intellij.dbn.language.common.DBLanguageDialect;
 import com.dci.intellij.dbn.language.sql.SQLFile;
 import com.dci.intellij.dbn.language.sql.SQLLanguage;
 import com.dci.intellij.dbn.object.DBDataset;
@@ -58,7 +56,6 @@ public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasic
     private List<DatasetBasicFilterConditionForm> conditionForms = new ArrayList<DatasetBasicFilterConditionForm>();
     private Document previewDocument;
     private boolean isCustomNamed;
-    char quotesChar;
     private EditorEx viewer;
 
 
@@ -67,7 +64,6 @@ public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasic
         conditionsPanel.setLayout(new BoxLayout(conditionsPanel, BoxLayout.Y_AXIS));
         this.dataset = dataset;
         nameTextField.setText(filter.getDisplayName());
-        quotesChar = DatabaseCompatibilityInterface.getInstance(dataset).getIdentifierQuotes();
 
         ActionToolbar actionToolbar = ActionUtil.createActionToolbar(
                 "DBNavigator.DataEditor.SimpleFilter.Add", true,
@@ -145,13 +141,9 @@ public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasic
 
     public void updateNameAndPreview() {
         updateGeneratedName();
-        String datasetName = dataset.getName();
-        DBLanguageDialect languageDialect = dataset.getLanguageDialect( SQLLanguage.INSTANCE);
-        datasetName = languageDialect.isReservedWord(datasetName) ? quotesChar + datasetName + quotesChar : datasetName;
-
         final StringBuilder selectStatement = new StringBuilder("select * from ");
-        selectStatement.append(dataset.getSchema().getName()).append('.');
-        selectStatement.append(datasetName);
+        selectStatement.append(dataset.getSchema().getQuotedName(false)).append('.');
+        selectStatement.append(dataset.getQuotedName(false));
         selectStatement.append(" where\n    ");
 
         boolean addJoin = false;
@@ -162,7 +154,7 @@ public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasic
                     selectStatement.append(joinAndRadioButton.isSelected() ? " and\n    " : " or\n    ");
                 }
                 addJoin = true;
-                selectStatement.append(condition.getConditionString(dataset));
+                condition.appendConditionString(selectStatement, dataset);
             }
         }
 

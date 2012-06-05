@@ -256,7 +256,7 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
     public Connection getStandaloneConnection(DBSchema schema) throws SQLException {
         Connection connection = connectionPool.getStandaloneConnection(true);
         if (!schema.isPublicSchema()) {
-            getInterfaceProvider().getMetadataInterface().setCurrentSchema(schema.getName(), connection);
+            getInterfaceProvider().getMetadataInterface().setCurrentSchema(schema.getQuotedName(false), connection);
         }
         return connection;
     }
@@ -269,7 +269,7 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
     public Connection getPoolConnection(DBSchema schema) throws SQLException {
         Connection connection = connectionPool.allocateConnection();
         if (!schema.isPublicSchema()) {
-            getInterfaceProvider().getMetadataInterface().setCurrentSchema(schema.getName(), connection);
+            getInterfaceProvider().getMetadataInterface().setCurrentSchema(schema.getQuotedName(false), connection);
         }
         return connection;
     }
