@@ -1,9 +1,6 @@
 package com.dci.intellij.dbn.editor.data.filter;
 
 import com.dci.intellij.dbn.common.ui.table.SortingState;
-import com.dci.intellij.dbn.database.DatabaseCompatibilityInterface;
-import com.dci.intellij.dbn.language.common.DBLanguageDialect;
-import com.dci.intellij.dbn.language.sql.SQLLanguage;
 import com.dci.intellij.dbn.object.DBColumn;
 import com.dci.intellij.dbn.object.DBDataset;
 import com.dci.intellij.dbn.object.DBTable;
@@ -17,6 +14,7 @@ public class DatasetFilterUtil {
             DBTable table = (DBTable) dataset;
             if (sortingState.isValid()) {
                 buffer.append(" order by ");
+                buffer.append(dataset.getQuotedName(false));
                 buffer.append(sortingState.getColumnName());
                 buffer.append(" ");
                 buffer.append(sortingState.getDirectionAsString());
@@ -50,40 +48,21 @@ public class DatasetFilterUtil {
             if (index > 0) {
                 buffer.append(", ");
             }
-            buffer.append(column.getName());
+            buffer.append(column.getQuotedName(false));
             index++;
         }
         buffer.append(" from ");
-        buffer.append(dataset.getSchema().getName());
+        buffer.append(dataset.getSchema().getQuotedName(false));
         buffer.append(".");
-
-        DBLanguageDialect languageDialect = dataset.getLanguageDialect(SQLLanguage.INSTANCE);
-        if (languageDialect.isReservedWord(dataset.getName())) {
-            char quotesChar = DatabaseCompatibilityInterface.getInstance(dataset).getIdentifierQuotes();
-            buffer.append(quotesChar);
-            buffer.append(dataset.getName());
-            buffer.append(quotesChar);
-        } else {
-            buffer.append(dataset.getName());
-        }
+        buffer.append(dataset.getQuotedName(false));
 
     }
 
     public static void createSimpleSelectStatement(DBDataset dataset, StringBuilder buffer) {
         buffer.append("select a.* from ");
-
-        buffer.append(dataset.getSchema().getName());
+        buffer.append(dataset.getSchema().getQuotedName(false));
         buffer.append(".");
-
-        DBLanguageDialect languageDialect = dataset.getLanguageDialect(SQLLanguage.INSTANCE);
-        if (languageDialect.isReservedWord(dataset.getName())) {
-            char quotesChar = DatabaseCompatibilityInterface.getInstance(dataset).getIdentifierQuotes();
-            buffer.append(quotesChar);
-            buffer.append(dataset.getName());
-            buffer.append(quotesChar);
-        } else {
-            buffer.append(dataset.getName());
-        }
+        buffer.append(dataset.getQuotedName(false));
         buffer.append(" a");
 
     }

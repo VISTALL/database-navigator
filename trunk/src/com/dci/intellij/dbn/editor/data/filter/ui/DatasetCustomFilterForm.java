@@ -5,9 +5,7 @@ import com.dci.intellij.dbn.common.compatibility.CompatibilityUtil;
 import com.dci.intellij.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dci.intellij.dbn.common.util.DocumentUtil;
 import com.dci.intellij.dbn.common.util.StringUtil;
-import com.dci.intellij.dbn.database.DatabaseCompatibilityInterface;
 import com.dci.intellij.dbn.editor.data.filter.DatasetCustomFilter;
-import com.dci.intellij.dbn.language.common.DBLanguageDialect;
 import com.dci.intellij.dbn.language.sql.SQLFile;
 import com.dci.intellij.dbn.language.sql.SQLLanguage;
 import com.dci.intellij.dbn.object.DBDataset;
@@ -21,9 +19,12 @@ import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFileFactory;
 
-import javax.swing.*;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
 import javax.swing.border.LineBorder;
-import java.awt.*;
+import java.awt.BorderLayout;
 
 public class DatasetCustomFilterForm extends ConfigurationEditorForm<DatasetCustomFilter> {
     private JPanel mainPanel;
@@ -42,14 +43,9 @@ public class DatasetCustomFilterForm extends ConfigurationEditorForm<DatasetCust
         nameTextField.setText(filter.getDisplayName());
         Project project = dataset.getProject();
 
-        String datasetName = dataset.getName();
-        DBLanguageDialect languageDialect = dataset.getLanguageDialect(SQLLanguage.INSTANCE);
-        char quoteChar = DatabaseCompatibilityInterface.getInstance(dataset).getIdentifierQuotes();
-        datasetName = languageDialect.isReservedWord(datasetName) ? quoteChar + datasetName + quoteChar : datasetName;
-
         StringBuilder selectStatement = new StringBuilder("select * from ");
-        selectStatement.append(dataset.getSchema().getName()).append('.');
-        selectStatement.append(datasetName);
+        selectStatement.append(dataset.getSchema().getQuotedName(false)).append('.');
+        selectStatement.append(dataset.getQuotedName(false));
         selectStatement.append(" where \n");
         conditionStartOffset = selectStatement.length();
 

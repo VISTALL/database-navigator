@@ -8,7 +8,6 @@ import com.dci.intellij.dbn.code.common.style.options.CodeStyleCaseOption;
 import com.dci.intellij.dbn.code.common.style.options.CodeStyleCaseSettings;
 import com.dci.intellij.dbn.common.util.StringUtil;
 import com.dci.intellij.dbn.language.common.DBLanguage;
-import com.dci.intellij.dbn.language.sql.SQLLanguage;
 import com.dci.intellij.dbn.object.DBSynonym;
 import com.dci.intellij.dbn.object.common.DBObject;
 import com.dci.intellij.dbn.object.common.DBVirtualObject;
@@ -31,10 +30,7 @@ public class DBObjectLookupItemFactory extends LookupItemFactory {
         DBLookupItem lookupItem = super.createLookupItem(source, consumer);
 
         if (lookupItem != null) {
-            if (needsQuotes()) {
-                char quoteChar = consumer.getContext().getIdentifierQuoteChar();
-                lookupItem.setLookupString(quoteChar + object.getName() + quoteChar);
-            }
+            lookupItem.setLookupString(object.getQuotedName(false));
 
 /*
             lookupItem.setInsertHandler(consumer.isAddParenthesis() ?
@@ -48,13 +44,6 @@ public class DBObjectLookupItemFactory extends LookupItemFactory {
 
     public DBObject getObject() {
         return object;
-    }
-
-    private boolean needsQuotes() {
-        String name = object.getName();
-        return  name.indexOf('#') > -1 ||
-                name.indexOf('.') > -1 ||
-                object.getLanguageDialect(SQLLanguage.INSTANCE).isReservedWord(name);
     }
 
     public String getTextHint() {
