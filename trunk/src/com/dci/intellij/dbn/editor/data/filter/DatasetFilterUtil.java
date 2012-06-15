@@ -14,7 +14,6 @@ public class DatasetFilterUtil {
             DBTable table = (DBTable) dataset;
             if (sortingState.isValid()) {
                 buffer.append(" order by ");
-                buffer.append(dataset.getQuotedName(false));
                 buffer.append(sortingState.getColumnName());
                 buffer.append(" ");
                 buffer.append(sortingState.getDirectionAsString());
