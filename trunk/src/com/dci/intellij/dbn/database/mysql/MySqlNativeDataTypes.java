@@ -32,9 +32,9 @@ public class MySqlNativeDataTypes implements DatabaseNativeDataTypes {
     public static final DataTypeDefinition BOOLEAN = new NumericDataTypeDefinition("BOOLEAN", Boolean.class, Types.BOOLEAN, BasicDataType.NUMERIC, ALL);
     public static final DataTypeDefinition SMALLINT = new NumericDataTypeDefinition("SMALLINT", Integer.class, Types.SMALLINT, BasicDataType.NUMERIC, ALL);
     public static final DataTypeDefinition MEDIUMINT = new NumericDataTypeDefinition("MEDIUMINT", Integer.class, Types.INTEGER, BasicDataType.NUMERIC, ALL);
-    public static final DataTypeDefinition INT = new NumericDataTypeDefinition("INT", Integer.class, Types.INTEGER, BasicDataType.NUMERIC, ALL);
-    public static final DataTypeDefinition INT_UNSIGNED = new NumericDataTypeDefinition("INT UNSIGNED", Integer.class, Types.INTEGER, BasicDataType.NUMERIC, ALL);
-    public static final DataTypeDefinition INTEGER = new NumericDataTypeDefinition("INTEGER", Integer.class, Types.INTEGER, BasicDataType.NUMERIC, ALL);
+    public static final DataTypeDefinition INT = new NumericDataTypeDefinition("INT", Long.class, Types.INTEGER, BasicDataType.NUMERIC, ALL);
+    public static final DataTypeDefinition INT_UNSIGNED = new NumericDataTypeDefinition("INT UNSIGNED", Long.class, Types.INTEGER, BasicDataType.NUMERIC, ALL);
+    public static final DataTypeDefinition INTEGER = new NumericDataTypeDefinition("INTEGER", Long.class, Types.INTEGER, BasicDataType.NUMERIC, ALL);
     public static final DataTypeDefinition BIGINT = new NumericDataTypeDefinition("BIGINT", Long.class, Types.BIGINT, BasicDataType.NUMERIC, ALL);
     public static final DataTypeDefinition FLOAT = new NumericDataTypeDefinition("FLOAT", Float.class, Types.FLOAT, BasicDataType.NUMERIC, ALL);
     public static final DataTypeDefinition DOUBLE = new NumericDataTypeDefinition("DOUBLE", Double.class, Types.DOUBLE, BasicDataType.NUMERIC, ALL);
