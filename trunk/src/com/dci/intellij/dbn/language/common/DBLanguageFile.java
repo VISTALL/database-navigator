@@ -25,7 +25,12 @@ import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.*;
+import com.intellij.psi.FileViewProvider;
+import com.intellij.psi.PsiDirectory;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiElementVisitor;
+import com.intellij.psi.PsiManager;
+import com.intellij.psi.SingleRootFileViewProvider;
 import com.intellij.psi.impl.source.PsiFileImpl;
 import com.intellij.psi.tree.IFileElementType;
 import com.intellij.testFramework.LightVirtualFile;
@@ -228,6 +233,10 @@ public abstract class DBLanguageFile extends PsiFileImpl implements FileConnecti
     @Override
     public Language getLanguage() {
         return language;
+    }
+
+    public DBLanguage getDBLanguage() {
+        return language instanceof DBLanguage ? (DBLanguage) language : null;
     }
 
     @Override
