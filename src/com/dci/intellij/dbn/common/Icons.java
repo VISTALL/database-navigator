@@ -4,7 +4,7 @@ import com.intellij.openapi.util.IconLoader;
 import com.intellij.ui.RowIcon;
 import gnu.trove.THashMap;
 
-import javax.swing.Icon;
+import javax.swing.*;
 import java.util.Map;
 
 public class Icons {
@@ -13,8 +13,8 @@ public class Icons {
     public static final Icon COMMON_INFO = load("/img/common/Info.png");
     public static final Icon COMMON_INFO_DISABLED = load("/img/common/InfoDisabled.png");
     public static final Icon COMMON_WARNING = load("/img/common/Warning.png");
-    public static final Icon COMMON_RIGHT = load("/img/common/SplitRight.png/");
-    public static final Icon COMMON_UP = load("/img/common/SplitUp.png/");
+    public static final Icon COMMON_RIGHT = load("/img/common/SplitRight.png");
+    public static final Icon COMMON_UP = load("/img/common/SplitUp.png");
 
 
     public static final Icon ACTION_COPY = load("/img/action/Copy.png");
