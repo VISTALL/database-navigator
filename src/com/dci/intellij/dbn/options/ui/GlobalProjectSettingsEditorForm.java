@@ -18,8 +18,9 @@ import com.dci.intellij.dbn.options.general.GeneralProjectSettings;
 import com.intellij.ui.tabs.TabInfo;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import java.awt.BorderLayout;
 
 public class GlobalProjectSettingsEditorForm extends CompositeConfigurationEditorForm<GlobalProjectSettings> {
     private JPanel mainPanel;
@@ -29,7 +30,7 @@ public class GlobalProjectSettingsEditorForm extends CompositeConfigurationEdito
         super(globalSettings);
 
         configurationTabs = new TabbedPane(globalSettings.getProject());
-        configurationTabs.setAdjustBorders(false);
+        //configurationTabs.setAdjustBorders(false);
 
         mainPanel.add(configurationTabs, BorderLayout.CENTER);
 

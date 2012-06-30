@@ -7,8 +7,10 @@ import com.dci.intellij.dbn.common.options.ui.CompositeConfigurationEditorForm;
 import com.dci.intellij.dbn.common.ui.tab.TabbedPane;
 import com.intellij.ui.tabs.TabInfo;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.Icon;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import java.awt.BorderLayout;
 
 public class CodeStyleSettingsForm extends CompositeConfigurationEditorForm<ProjectCodeStyleSettings> {
     private JPanel mainPanel;
@@ -17,7 +19,7 @@ public class CodeStyleSettingsForm extends CompositeConfigurationEditorForm<Proj
     public CodeStyleSettingsForm(ProjectCodeStyleSettings settings) {
         super(settings);
         languageTabs = new TabbedPane(settings.getProject());
-        languageTabs.setAdjustBorders(false);
+        //languageTabs.setAdjustBorders(false);
         mainPanel.add(languageTabs, BorderLayout.CENTER);
 
         addSettingsPanel(getConfiguration().getSQLCodeStyleSettings(), Icons.SQL_FILE);
