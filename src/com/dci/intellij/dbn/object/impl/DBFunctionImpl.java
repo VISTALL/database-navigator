@@ -56,18 +56,18 @@ public class DBFunctionImpl extends DBMethodImpl implements DBFunction {
             DBObjectStatusHolder objectStatus = getStatus();
             if (objectStatus.is(DBObjectStatus.VALID)) {
                 if (objectStatus.is(DBObjectStatus.DEBUG)){
-                    return Icons.DBOBJECT_FUNCTION_DEBUG;
+                    return Icons.DBO_FUNCTION_DEBUG;
                 }
             } else {
-                return Icons.DBOBJECT_FUNCTION_ERR;
+                return Icons.DBO_FUNCTION_ERR;
             }
 
         }
-        return Icons.DBOBJECT_FUNCTION;
+        return Icons.DBO_FUNCTION;
     }
 
     public Icon getOriginalIcon() {
-        return Icons.DBOBJECT_FUNCTION;
+        return Icons.DBO_FUNCTION;
     }
 
     public DBProgram getProgram() {

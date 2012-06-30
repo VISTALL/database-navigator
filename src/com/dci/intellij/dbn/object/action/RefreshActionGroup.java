@@ -11,7 +11,7 @@ import com.intellij.openapi.actionSystem.DefaultActionGroup;
 public class RefreshActionGroup  extends DefaultActionGroup {
     public RefreshActionGroup(DBObject object) {
         super("Refresh", true);
-        getTemplatePresentation().setIcon(Icons.COMMON_REFRESH);
+        getTemplatePresentation().setIcon(Icons.ACTION_REFRESH);
         DBObjectList objectList = (DBObjectList) object.getTreeParent();
         add(new ReloadObjectsAction(objectList));
         if (object instanceof DBSchemaObject &&

@@ -7,68 +7,68 @@ import com.dci.intellij.dbn.editor.DBContentType;
 import gnu.trove.THashMap;
 import gnu.trove.THashSet;
 
-import javax.swing.*;
+import javax.swing.Icon;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 public enum DBObjectType implements DynamicContentType {
     
-    ARGUMENT(DatabaseObjectTypeId.ARGUMENT, "argument", "arguments", Icons.DBOBJECT_ARGUMENT, Icons.DBOBJECT_ARGUMENTS, false),
+    ARGUMENT(DatabaseObjectTypeId.ARGUMENT, "argument", "arguments", Icons.DBO_ARGUMENT, Icons.DBO_ARGUMENTS, false),
     CATEGORY(DatabaseObjectTypeId.CATEGORY, "category", "categories", null, null, false),
     CHARSET(DatabaseObjectTypeId.CHARSET, "charset", "charsets", null, null, false),
-    CLUSTER(DatabaseObjectTypeId.CLUSTER, "cluster", "clusters", Icons.DBOBJECT_CLUSTER, Icons.DBOBJECT_CLUSTERS, false),
-    COLUMN(DatabaseObjectTypeId.COLUMN, "column", "columns", Icons.DBOBJECT_COLUMN, Icons.DBOBJECT_COLUMNS, false),
-    CONSTRAINT(DatabaseObjectTypeId.CONSTRAINT, "constraint", "constraints", Icons.DBOBJECT_CONSTRAINT, Icons.DBOBJECT_CONSTRAINT_DISABLED, Icons.DBOBJECT_CONSTRAINTS, false),
+    CLUSTER(DatabaseObjectTypeId.CLUSTER, "cluster", "clusters", Icons.DBO_CLUSTER, Icons.DBO_CLUSTERS, false),
+    COLUMN(DatabaseObjectTypeId.COLUMN, "column", "columns", Icons.DBO_COLUMN, Icons.DBO_COLUMNS, false),
+    CONSTRAINT(DatabaseObjectTypeId.CONSTRAINT, "constraint", "constraints", Icons.DBO_CONSTRAINT, Icons.DBO_CONSTRAINT_DISABLED, Icons.DBO_CONSTRAINTS, false),
     DATABASE(DatabaseObjectTypeId.DATABASE, "database", "databases", null, null, false),
     DATASET(DatabaseObjectTypeId.DATASET, "dataset", "datasets", null, null, true),
-    DBLINK(DatabaseObjectTypeId.DBLINK, "dblink", "database links", Icons.DBOBJECT_DATABASE_LINK, Icons.DBOBJECT_DATABASE_LINKS, false),
-    DIMENSION(DatabaseObjectTypeId.DIMENSION, "dimension", "dimensions", Icons.DBOBJECT_DIMENSION, Icons.DBOBJECT_DIMENSIONS, false),
+    DBLINK(DatabaseObjectTypeId.DBLINK, "dblink", "database links", Icons.DBO_DATABASE_LINK, Icons.DBO_DATABASE_LINKS, false),
+    DIMENSION(DatabaseObjectTypeId.DIMENSION, "dimension", "dimensions", Icons.DBO_DIMENSION, Icons.DBO_DIMENSIONS, false),
     DIMENSION_ATTRIBUTE(DatabaseObjectTypeId.DIMENSION_ATTRIBUTE, "dimension attribute", "dimension attributes", null, null, false),
     DIMENSION_HIERARCHY(DatabaseObjectTypeId.DIMENSION_HIERARCHY, "dimension hierarchy", "dimension hierarchies", null, null, false),
     DIMENSION_LEVEL(DatabaseObjectTypeId.DIMENSION_LEVEL, "dimension level", "dimension levels", null, null, false),
     DISKGROUP(DatabaseObjectTypeId.DISKGROUP, "diskgroup", "diskgroups", null, null, false),
     DOMAIN(DatabaseObjectTypeId.DOMAIN, "domain", "domains", null, null, false),
-    FUNCTION(DatabaseObjectTypeId.FUNCTION, "function", "functions", Icons.DBOBJECT_FUNCTION, Icons.DBOBJECT_FUNCTIONS, false),
-    GRANTED_ROLE(DatabaseObjectTypeId.GRANTED_ROLE, "granted role", "granted roles", Icons.DBOBJECT_ROLE, Icons.DBOBJECT_ROLES, false),
-    GRANTED_PRIVILEGE(DatabaseObjectTypeId.GRANTED_PRIVILEGE, "granted privilege", "granted privileges", Icons.DBOBJECT_PRIVILEGE, Icons.DBOBJECT_PRIVILEGES, false),
-    INDEX(DatabaseObjectTypeId.INDEX, "index", "indexes", Icons.DBOBJECT_INDEX, Icons.DBOBJECT_INDEX_DISABLED, Icons.DBOBJECT_INDEXES, false),
+    FUNCTION(DatabaseObjectTypeId.FUNCTION, "function", "functions", Icons.DBO_FUNCTION, Icons.DBO_FUNCTIONS, false),
+    GRANTED_ROLE(DatabaseObjectTypeId.GRANTED_ROLE, "granted role", "granted roles", Icons.DBO_ROLE, Icons.DBO_ROLES, false),
+    GRANTED_PRIVILEGE(DatabaseObjectTypeId.GRANTED_PRIVILEGE, "granted privilege", "granted privileges", Icons.DBO_PRIVILEGE, Icons.DBO_PRIVILEGES, false),
+    INDEX(DatabaseObjectTypeId.INDEX, "index", "indexes", Icons.DBO_INDEX, Icons.DBO_INDEX_DISABLED, Icons.DBO_INDEXES, false),
     INDEXTYPE(DatabaseObjectTypeId.INDEXTYPE, "indextype", "indextypes", null, null, false),
     JAVA_OBJECT(DatabaseObjectTypeId.JAVA_OBJECT, "java object", "java objects", null, null, false),
     LOB(DatabaseObjectTypeId.LOB, "lob", "lobs", null, null, false),
-    MATERIALIZED_VIEW(DatabaseObjectTypeId.MATERIALIZED_VIEW, "materialized view", "materialized views", Icons.DBOBJECT_MATERIALIZED_VIEW, Icons.DBOBJECT_MATERIALIZED_VIEWS, false),
+    MATERIALIZED_VIEW(DatabaseObjectTypeId.MATERIALIZED_VIEW, "materialized view", "materialized views", Icons.DBO_MATERIALIZED_VIEW, Icons.DBO_MATERIALIZED_VIEWS, false),
     METHOD(DatabaseObjectTypeId.METHOD, "method", "methods", null, null, true),
     MODEL(DatabaseObjectTypeId.MODEL, "model", "models", null, null, false),
-    NESTED_TABLE(DatabaseObjectTypeId.NESTED_TABLE, "nested table", "nested tables", Icons.DBOBJECT_NESTED_TABLE, Icons.DBOBJECT_NESTED_TABLES, false),
+    NESTED_TABLE(DatabaseObjectTypeId.NESTED_TABLE, "nested table", "nested tables", Icons.DBO_NESTED_TABLE, Icons.DBO_NESTED_TABLES, false),
     NESTED_TABLE_COLUMN(DatabaseObjectTypeId.NESTED_TABLE_COLUMN, "nested table column", "nested table columns", null, null, false),
     OPERATOR(DatabaseObjectTypeId.OPERATOR, "operator", "operators", null, null, false),
     OUTLINE(DatabaseObjectTypeId.OUTLINE, "outline", "outlines", null, null, false),
-    PACKAGE(DatabaseObjectTypeId.PACKAGE, "package", "packages", Icons.DBOBJECT_PACKAGE, Icons.DBOBJECT_PACKAGES, false),
-    PACKAGE_BODY(DatabaseObjectTypeId.PACKAGE_BODY, "package body", "package bodies", Icons.DBOBJECT_PACKAGE, Icons.DBOBJECT_PACKAGES, false),
-    PACKAGE_FUNCTION(DatabaseObjectTypeId.PACKAGE_FUNCTION, "package function", "functions", Icons.DBOBJECT_FUNCTION, Icons.DBOBJECT_FUNCTIONS, false),
-    PACKAGE_PROCEDURE(DatabaseObjectTypeId.PACKAGE_PROCEDURE, "package procedure", "procedures", Icons.DBOBJECT_PROCEDURE, Icons.DBOBJECT_PROCEDURES, false),
-    PACKAGE_TYPE(DatabaseObjectTypeId.PACKAGE_TYPE, "package type", "types", Icons.DBOBJECT_TYPE, Icons.DBOBJECT_TYPES, false),
+    PACKAGE(DatabaseObjectTypeId.PACKAGE, "package", "packages", Icons.DBO_PACKAGE, Icons.DBO_PACKAGES, false),
+    PACKAGE_BODY(DatabaseObjectTypeId.PACKAGE_BODY, "package body", "package bodies", Icons.DBO_PACKAGE, Icons.DBO_PACKAGES, false),
+    PACKAGE_FUNCTION(DatabaseObjectTypeId.PACKAGE_FUNCTION, "package function", "functions", Icons.DBO_FUNCTION, Icons.DBO_FUNCTIONS, false),
+    PACKAGE_PROCEDURE(DatabaseObjectTypeId.PACKAGE_PROCEDURE, "package procedure", "procedures", Icons.DBO_PROCEDURE, Icons.DBO_PROCEDURES, false),
+    PACKAGE_TYPE(DatabaseObjectTypeId.PACKAGE_TYPE, "package type", "types", Icons.DBO_TYPE, Icons.DBO_TYPES, false),
     PARTITION(DatabaseObjectTypeId.PARTITION, "partition", "partitions", null, null, false),
-    PRIVILEGE(DatabaseObjectTypeId.PRIVILEGE, "privilege", "privileges", Icons.DBOBJECT_PRIVILEGE, Icons.DBOBJECT_PRIVILEGES, false),
-    PROCEDURE(DatabaseObjectTypeId.PROCEDURE, "procedure", "procedures", Icons.DBOBJECT_PROCEDURE, Icons.DBOBJECT_PROCEDURES, false),
+    PRIVILEGE(DatabaseObjectTypeId.PRIVILEGE, "privilege", "privileges", Icons.DBO_PRIVILEGE, Icons.DBO_PRIVILEGES, false),
+    PROCEDURE(DatabaseObjectTypeId.PROCEDURE, "procedure", "procedures", Icons.DBO_PROCEDURE, Icons.DBO_PROCEDURES, false),
     PROFILE(DatabaseObjectTypeId.PROFILE, "profile", "profiles", null, null, false),
     ROLLBACK_SEGMENT(DatabaseObjectTypeId.ROLLBACK_SEGMENT, "rollback segment", "rollback segments", null, null, false),
-    ROLE(DatabaseObjectTypeId.ROLE, "role", "roles", Icons.DBOBJECT_ROLE, Icons.DBOBJECT_ROLES, false),
-    SCHEMA(DatabaseObjectTypeId.SCHEMA, "schema", "schemas", Icons.DBOBJECT_SCHEMA, Icons.DBOBJECT_SCHEMAS, false),
-    SEQUENCE(DatabaseObjectTypeId.SEQUENCE, "sequence", "sequences", Icons.DBOBJECT_SEQUENCE, Icons.DBOBJECT_SEQUENCES, false),
+    ROLE(DatabaseObjectTypeId.ROLE, "role", "roles", Icons.DBO_ROLE, Icons.DBO_ROLES, false),
+    SCHEMA(DatabaseObjectTypeId.SCHEMA, "schema", "schemas", Icons.DBO_SCHEMA, Icons.DBO_SCHEMAS, false),
+    SEQUENCE(DatabaseObjectTypeId.SEQUENCE, "sequence", "sequences", Icons.DBO_SEQUENCE, Icons.DBO_SEQUENCES, false),
     SUBPARTITION(DatabaseObjectTypeId.SUBPARTITION, "subpartition", "subpartitions", null, null, false),
-    SYNONYM(DatabaseObjectTypeId.SYNONYM, "synonym", "synonyms", Icons.DBOBJECT_SYNONYM, Icons.DBOBJECT_SYNONYMS, false),
-    TABLE(DatabaseObjectTypeId.TABLE, "table", "tables", Icons.DBOBJECT_TABLE, Icons.DBOBJECT_TABLES, false),
+    SYNONYM(DatabaseObjectTypeId.SYNONYM, "synonym", "synonyms", Icons.DBO_SYNONYM, Icons.DBO_SYNONYMS, false),
+    TABLE(DatabaseObjectTypeId.TABLE, "table", "tables", Icons.DBO_TABLE, Icons.DBO_TABLES, false),
     TABLESPACE(DatabaseObjectTypeId.TABLESPACE, "tablespace", "tablespaces", null, null, false),
-    TRIGGER(DatabaseObjectTypeId.TRIGGER, "trigger", "triggers", Icons.DBOBJECT_TRIGGER, Icons.DBOBJECT_TRIGGER_DISABLED, Icons.DBOBJECT_TRIGGERS, false),
-    TYPE(DatabaseObjectTypeId.TYPE, "type", "types", Icons.DBOBJECT_TYPE, Icons.DBOBJECT_TYPES, false),
-    TYPE_ATTRIBUTE(DatabaseObjectTypeId.TYPE_ATTRIBUTE, "type attribute", "attributes", Icons.DBOBJECT_ATTRIBUTE, Icons.DBOBJECT_ATTRIBUTES, false),
-    TYPE_FUNCTION(DatabaseObjectTypeId.TYPE_FUNCTION, "type function", "functions", Icons.DBOBJECT_FUNCTION, Icons.DBOBJECT_FUNCTIONS, false),
-    TYPE_PROCEDURE(DatabaseObjectTypeId.TYPE_PROCEDURE, "type procedure", "procedures", Icons.DBOBJECT_PROCEDURE, Icons.DBOBJECT_PROCEDURES, false),
-    USER(DatabaseObjectTypeId.USER, "user", "users", Icons.DBOBJECT_USER, Icons.DBOBJECT_USERS, false),
+    TRIGGER(DatabaseObjectTypeId.TRIGGER, "trigger", "triggers", Icons.DBO_TRIGGER, Icons.DBO_TRIGGER_DISABLED, Icons.DBO_TRIGGERS, false),
+    TYPE(DatabaseObjectTypeId.TYPE, "type", "types", Icons.DBO_TYPE, Icons.DBO_TYPES, false),
+    TYPE_ATTRIBUTE(DatabaseObjectTypeId.TYPE_ATTRIBUTE, "type attribute", "attributes", Icons.DBO_ATTRIBUTE, Icons.DBO_ATTRIBUTES, false),
+    TYPE_FUNCTION(DatabaseObjectTypeId.TYPE_FUNCTION, "type function", "functions", Icons.DBO_FUNCTION, Icons.DBO_FUNCTIONS, false),
+    TYPE_PROCEDURE(DatabaseObjectTypeId.TYPE_PROCEDURE, "type procedure", "procedures", Icons.DBO_PROCEDURE, Icons.DBO_PROCEDURES, false),
+    USER(DatabaseObjectTypeId.USER, "user", "users", Icons.DBO_USER, Icons.DBO_USERS, false),
     VARRAY(DatabaseObjectTypeId.VARRAY, "varray", "varrays", null, null, false),
     VARRAY_TYPE(DatabaseObjectTypeId.VARRAY_TYPE, "varray type", "varray types", null, null, false),
-    VIEW(DatabaseObjectTypeId.VIEW, "view", "views", Icons.DBOBJECT_VIEW, Icons.DBOBJECT_VIEWS, false),
+    VIEW(DatabaseObjectTypeId.VIEW, "view", "views", Icons.DBO_VIEW, Icons.DBO_VIEWS, false),
 
     CURSOR(DatabaseObjectTypeId.CURSOR, "cursor", "cursors", null, null, false),
     PARAMETER(DatabaseObjectTypeId.PARAMETER, "parameter", "parameters", null, null, false),
@@ -352,7 +352,7 @@ public enum DBObjectType implements DynamicContentType {
         TYPE_PROCEDURE.addParent(TYPE);
         VIEW.addParent(SCHEMA);
 
-        PACKAGE.addIcon(DBContentType.CODE_SPEC, Icons.DBOBJECT_PACKAGE_SPEC);
-        PACKAGE.addIcon(DBContentType.CODE_BODY, Icons.DBOBJECT_PACKAGE_BODY);
+        PACKAGE.addIcon(DBContentType.CODE_SPEC, Icons.DBO_PACKAGE_SPEC);
+        PACKAGE.addIcon(DBContentType.CODE_BODY, Icons.DBO_PACKAGE_BODY);
     }
 }

@@ -22,8 +22,8 @@ public class CodeStyleSettingsForm extends CompositeConfigurationEditorForm<Proj
         //languageTabs.setAdjustBorders(false);
         mainPanel.add(languageTabs, BorderLayout.CENTER);
 
-        addSettingsPanel(getConfiguration().getSQLCodeStyleSettings(), Icons.SQL_FILE);
-        addSettingsPanel(getConfiguration().getPSQLCodeStyleSettings(), Icons.PLSQL_FILE);
+        addSettingsPanel(getConfiguration().getSQLCodeStyleSettings(), Icons.FILE_SQL);
+        addSettingsPanel(getConfiguration().getPSQLCodeStyleSettings(), Icons.FILE_PLSQL);
     }
 
     private void addSettingsPanel(Configuration configuration, Icon icon) {

@@ -8,7 +8,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 public class MoveFilterDownAction extends AbstractFilterListAction {
 
     public MoveFilterDownAction(DatasetFilterList filterList) {
-        super(filterList, "Move selection down", Icons.COMMON_MOVE_DOWN);
+        super(filterList, "Move selection down", Icons.ACTION_MOVE_DOWN);
     }
 
     public void actionPerformed(AnActionEvent e) {

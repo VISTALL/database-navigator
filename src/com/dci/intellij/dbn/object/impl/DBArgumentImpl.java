@@ -123,9 +123,9 @@ public class DBArgumentImpl extends DBObjectImpl implements DBArgument {
 
     @Override
     public Icon getIcon() {
-        return isInput() && isOutput() ? Icons.DBOBJECT_ARGUMENT_IN_OUT :
-               isInput() ? Icons.DBOBJECT_ARGUMENT_IN :
-               isOutput() ? Icons.DBOBJECT_ARGUMENT_OUT : Icons.DBOBJECT_ARGUMENT;
+        return isInput() && isOutput() ? Icons.DBO_ARGUMENT_IN_OUT :
+               isInput() ? Icons.DBO_ARGUMENT_IN :
+               isOutput() ? Icons.DBO_ARGUMENT_OUT : Icons.DBO_ARGUMENT;
     }
 
     public DBObjectType getObjectType() {

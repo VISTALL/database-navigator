@@ -8,7 +8,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 public class CollapseMessagesTreeAction extends ExecutionMessagesAction {
 
     public CollapseMessagesTreeAction(MessagesTree messagesTree) {
-        super(messagesTree, "Collapse All", Icons.COMMON_COLLAPSE_ALL);
+        super(messagesTree, "Collapse All", Icons.ACTION_COLLAPSE_ALL);
     }
 
     public void actionPerformed(AnActionEvent e) {

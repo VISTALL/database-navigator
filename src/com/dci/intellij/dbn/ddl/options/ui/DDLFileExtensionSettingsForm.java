@@ -9,7 +9,9 @@ import com.dci.intellij.dbn.ddl.DDLFileTypeId;
 import com.dci.intellij.dbn.ddl.options.DDLFileExtensionSettings;
 import com.intellij.openapi.options.ConfigurationException;
 
-import javax.swing.*;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -46,12 +48,12 @@ public class DDLFileExtensionSettingsForm extends ConfigurationEditorForm<DDLFil
         packageIconLabel.setText(null);
         typeIconLabel.setText(null);
 
-        viewIconLabel.setIcon(Icons.DBOBJECT_VIEW);
-        triggerIconLabel.setIcon(Icons.DBOBJECT_TRIGGER);
-        procedureIconLabel.setIcon(Icons.DBOBJECT_PROCEDURE);
-        functionIconLabel.setIcon(Icons.DBOBJECT_FUNCTION);
-        packageIconLabel.setIcon(Icons.DBOBJECT_PACKAGE);
-        typeIconLabel.setIcon(Icons.DBOBJECT_TYPE);
+        viewIconLabel.setIcon(Icons.DBO_VIEW);
+        triggerIconLabel.setIcon(Icons.DBO_TRIGGER);
+        procedureIconLabel.setIcon(Icons.DBO_PROCEDURE);
+        functionIconLabel.setIcon(Icons.DBO_FUNCTION);
+        packageIconLabel.setIcon(Icons.DBO_PACKAGE);
+        typeIconLabel.setIcon(Icons.DBO_TYPE);
 
         registerComponent(viewTextField);
         registerComponent(triggerTextField);

@@ -12,7 +12,7 @@ public class ShowGroupedTreeAction extends ToggleAction {
     MethodExecutionHistoryTree tree;
 
     public ShowGroupedTreeAction(MethodExecutionHistoryTree tree) {
-        super("Group by Program", "Show grouped by program", Icons.COMMON_GROUP);
+        super("Group by Program", "Show grouped by program", Icons.ACTION_GROUP);
         this.tree = tree;
     }
 

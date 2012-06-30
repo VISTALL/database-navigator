@@ -13,7 +13,7 @@ import com.intellij.openapi.project.Project;
 public class AddConditionAction extends ObjectNameFilterAction{
 
     public AddConditionAction(ObjectNameFilterSettingsForm settingsForm) {
-        super("Add Filter Condition", Icons.COMMON_ADD, settingsForm);
+        super("Add Filter Condition", Icons.ACTION_ADD, settingsForm);
     }
 
     @Override
@@ -37,13 +37,13 @@ public class AddConditionAction extends ObjectNameFilterAction{
         if (selection instanceof CompoundFilterCondition) {
             presentation.setText("Add Condition");
             presentation.setEnabled(true);
-            presentation.setIcon(Icons.COMMON_ADD);
+            presentation.setIcon(Icons.ACTION_ADD);
         } else if (selection instanceof SimpleFilterCondition) {
             presentation.setText("Join Condition");
             presentation.setEnabled(true);
-            presentation.setIcon(Icons.COMMON_ADD_SPECIAL);
+            presentation.setIcon(Icons.ACTION_ADD_SPECIAL);
         } else {
-            presentation.setIcon(Icons.COMMON_ADD);
+            presentation.setIcon(Icons.ACTION_ADD);
             presentation.setEnabled(false);
         }
     }

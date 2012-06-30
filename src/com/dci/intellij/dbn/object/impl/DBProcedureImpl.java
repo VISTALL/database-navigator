@@ -44,18 +44,18 @@ public class DBProcedureImpl extends DBMethodImpl implements DBProcedure {
             DBObjectStatusHolder objectStatus = getStatus();
             if (objectStatus.is(DBObjectStatus.VALID)) {
                 if (objectStatus.is(DBObjectStatus.DEBUG)){
-                    return Icons.DBOBJECT_PROCEDURE_DEBUG;
+                    return Icons.DBO_PROCEDURE_DEBUG;
                 }
             } else {
-                return Icons.DBOBJECT_PROCEDURE_ERR;
+                return Icons.DBO_PROCEDURE_ERR;
             }
 
         }
-        return Icons.DBOBJECT_PROCEDURE;
+        return Icons.DBO_PROCEDURE;
     }
 
     public Icon getOriginalIcon() {
-        return Icons.DBOBJECT_PROCEDURE;
+        return Icons.DBO_PROCEDURE;
     }
 
     public void buildToolTip(HtmlToolTipBuilder ttb) {

@@ -11,7 +11,7 @@ import com.intellij.openapi.project.Project;
 public class ExpandTreeAction extends AnAction {
 
     public ExpandTreeAction() {
-        super("Expand all", null, Icons.COMMON_EXPAND_ALL);
+        super("Expand all", null, Icons.ACTION_EXPAND_ALL);
     }
 
     public void actionPerformed(AnActionEvent e) {

@@ -8,7 +8,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 public class ExpandMessagesTreeAction extends ExecutionMessagesAction {
 
     public ExpandMessagesTreeAction(MessagesTree messagesTree) {
-        super(messagesTree, "Expand All", Icons.COMMON_EXPAND_ALL);
+        super(messagesTree, "Expand All", Icons.ACTION_EXPAND_ALL);
     }
 
     public void actionPerformed(AnActionEvent e) {

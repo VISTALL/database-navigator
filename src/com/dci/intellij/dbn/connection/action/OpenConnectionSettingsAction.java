@@ -12,7 +12,7 @@ public class OpenConnectionSettingsAction extends DumbAwareAction {
     private ConnectionHandler connectionHandler;
 
     public OpenConnectionSettingsAction(ConnectionHandler connectionHandler) {
-        super("Settings", "Connection settings", Icons.COMMON_EDIT_CONFIGURATIONS);
+        super("Settings", "Connection settings", Icons.ACTION_EDIT);
         this.connectionHandler = connectionHandler;
     }
 

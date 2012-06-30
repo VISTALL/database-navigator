@@ -21,7 +21,7 @@ public class OpenSettingsAction extends DumbAwareAction {
 
     public void update(AnActionEvent e) {
         Presentation presentation = e.getPresentation();
-        presentation.setIcon(Icons.COMMON_SETTINGS);
+        presentation.setIcon(Icons.ACTION_SETTINGS);
         presentation.setText("Settings");
     }
 }

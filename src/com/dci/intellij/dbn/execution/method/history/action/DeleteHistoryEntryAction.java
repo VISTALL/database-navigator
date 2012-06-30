@@ -9,7 +9,7 @@ public class DeleteHistoryEntryAction extends DumbAwareAction {
     MethodExecutionHistoryTree tree;
 
     public DeleteHistoryEntryAction(MethodExecutionHistoryTree tree) {
-        super("Delete", null, Icons.COMMON_REMOVE);
+        super("Delete", null, Icons.ACTION_REMOVE);
         this.tree = tree;
     }
 

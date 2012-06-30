@@ -11,7 +11,7 @@ import com.intellij.openapi.project.Project;
 
 public class OpenSettingsAction extends AnAction {
     public OpenSettingsAction() {
-        super("Settings", null, Icons.COMMON_SETTINGS);
+        super("Settings", null, Icons.ACTION_SETTINGS);
     }
 
     public void actionPerformed(AnActionEvent e) {

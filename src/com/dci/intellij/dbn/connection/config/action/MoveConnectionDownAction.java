@@ -6,14 +6,14 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.ui.ListUtil;
 
-import javax.swing.*;
+import javax.swing.JList;
 
 public class MoveConnectionDownAction extends DumbAwareAction {
     private JList list;
     private ConnectionManager connectionManager;
 
     public MoveConnectionDownAction(JList list, ConnectionManager connectionManager) {
-        super("Move selection down", null, Icons.COMMON_MOVE_DOWN);
+        super("Move selection down", null, Icons.ACTION_MOVE_DOWN);
         this.list = list;
         this.connectionManager = connectionManager;
     }

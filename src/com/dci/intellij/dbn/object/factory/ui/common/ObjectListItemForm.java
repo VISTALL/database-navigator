@@ -46,7 +46,7 @@ public class ObjectListItemForm extends UIFormImpl implements UIForm {
 
     public class RemoveObjectAction extends AnAction {
         public RemoveObjectAction() {
-            super("Remove " + parent.getObjectType(), null, Icons.COMMON_DELETE);
+            super("Remove " + parent.getObjectType(), null, Icons.ACTION_DELETE);
         }
 
         public void actionPerformed(AnActionEvent e) {

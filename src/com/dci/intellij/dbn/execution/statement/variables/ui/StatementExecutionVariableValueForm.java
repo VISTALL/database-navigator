@@ -41,7 +41,7 @@ public class StatementExecutionVariableValueForm extends UIFormImpl implements U
         errorLabel.setIcon(Icons.STMT_EXECUTION_ERROR);
 
         variableNameLabel.setText(variable.getName().substring(1).trim());
-        variableNameLabel.setIcon(Icons.DBOBJECT_VARIABLE);
+        variableNameLabel.setIcon(Icons.DBO_VARIABLE);
 
         dataTypeComboBox.addItem(BasicDataType.LITERAL);
         dataTypeComboBox.addItem(BasicDataType.NUMERIC);

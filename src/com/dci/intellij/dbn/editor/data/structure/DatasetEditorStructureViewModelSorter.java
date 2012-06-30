@@ -40,7 +40,7 @@ public class DatasetEditorStructureViewModelSorter implements Sorter {
         }
 
         public Icon getIcon() {
-            return Icons.COMMON_ALPHABETIC_SORTING;
+            return Icons.ACTION_SORT_ALPHA;
         }
     };
 

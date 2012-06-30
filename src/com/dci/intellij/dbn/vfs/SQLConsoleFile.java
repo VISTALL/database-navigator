@@ -56,7 +56,7 @@ public class SQLConsoleFile extends VirtualFile implements DatabaseFile, DBVirtu
     }
 
     public Icon getIcon() {
-        return Icons.SQL_CONSOLE;
+        return Icons.FILE_SQL_CONSOLE;
     }
 
     public ConnectionHandler getConnectionHandler() {

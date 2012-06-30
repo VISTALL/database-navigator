@@ -252,7 +252,7 @@ public class LargeValuePreviewPopup extends UIFormImpl implements UIForm {
     public class WrapUnwrapContentAction extends ToggleAction {
 
         public WrapUnwrapContentAction() {
-            super("Wrap/Unwrap", "", Icons.COMMON_TEXT_WRAP);
+            super("Wrap/Unwrap", "", Icons.ACTION_WRAP_TEXT);
         }
 
 
@@ -280,7 +280,7 @@ public class LargeValuePreviewPopup extends UIFormImpl implements UIForm {
     public class PinUnpinPopupAction extends ToggleAction {
 
         public PinUnpinPopupAction() {
-            super("Pin/Unpin", "", Icons.COMMON_PIN);
+            super("Pin/Unpin", "", Icons.ACTION_PIN);
         }
 
         public boolean isSelected(AnActionEvent e) {
@@ -303,7 +303,7 @@ public class LargeValuePreviewPopup extends UIFormImpl implements UIForm {
 
     private class LoadReloadAction extends AnAction {
         private LoadReloadAction() {
-            super("Load / Reload content", null, Icons.COMMON_RERUN);
+            super("Load / Reload content", null, Icons.ACTION_RERUN);
         }
 
         public void actionPerformed(AnActionEvent e) {
@@ -320,7 +320,7 @@ public class LargeValuePreviewPopup extends UIFormImpl implements UIForm {
 
     private class CloseAction extends AnAction {
         private CloseAction() {
-            super("Close", null, Icons.COMMON_CLOSE);
+            super("Close", null, Icons.ACTION_CLOSE);
         }
 
         public void actionPerformed(AnActionEvent e) {

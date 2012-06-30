@@ -6,7 +6,11 @@ import com.dci.intellij.dbn.language.common.psi.BasePsiElement;
 import com.dci.intellij.dbn.language.common.psi.IdentifierPsiElement;
 import com.dci.intellij.dbn.object.common.DBObjectType;
 import com.intellij.ide.util.treeView.AbstractTreeNode;
-import com.intellij.ide.util.treeView.smartTree.*;
+import com.intellij.ide.util.treeView.smartTree.ActionPresentation;
+import com.intellij.ide.util.treeView.smartTree.ActionPresentationData;
+import com.intellij.ide.util.treeView.smartTree.Group;
+import com.intellij.ide.util.treeView.smartTree.Grouper;
+import com.intellij.ide.util.treeView.smartTree.TreeElement;
 import gnu.trove.THashMap;
 import org.jetbrains.annotations.NotNull;
 
@@ -15,7 +19,7 @@ import java.util.Collection;
 import java.util.Map;
 
 public class PSQLStructureViewModelGrouper implements Grouper {
-    private ActionPresentation actionPresentation = new ActionPresentationData("Object type", "", Icons.COMMON_GROUP);
+    private ActionPresentation actionPresentation = new ActionPresentationData("Object type", "", Icons.ACTION_GROUP);
 
     private static final Collection<Group> EMPTY_GROUPS = new ArrayList<Group>(0);
 

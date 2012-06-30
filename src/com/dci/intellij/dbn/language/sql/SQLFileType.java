@@ -4,9 +4,9 @@ import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.editor.DBContentType;
 import com.dci.intellij.dbn.language.common.DBLanguageFileType;
 import com.intellij.lang.Language;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Icon;
-import org.jetbrains.annotations.NotNull;
 
 public class SQLFileType extends DBLanguageFileType {
 
@@ -29,7 +29,7 @@ public class SQLFileType extends DBLanguageFileType {
     }
 
     public Icon getIcon() {
-        return Icons.SQL_FILE;
+        return Icons.FILE_SQL;
     }
 
 

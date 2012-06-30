@@ -13,7 +13,7 @@ public class MoveUpAction extends AnAction {
     private JList list;
 
     public MoveUpAction(JList list, CodeCompletionSortingSettings settings)  {
-        super("Move Up", null, Icons.COMMON_MOVE_UP);
+        super("Move Up", null, Icons.ACTION_MOVE_UP);
         this.list = list;
         this.settings = settings;
     }

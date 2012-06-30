@@ -12,7 +12,7 @@ import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.FileStatus;
 
-import javax.swing.*;
+import javax.swing.Icon;
 import java.util.List;
 
 public class SimpleBrowserTreeRoot implements BrowserTreeElement{
@@ -76,7 +76,7 @@ public class SimpleBrowserTreeRoot implements BrowserTreeElement{
     }
 
     public Icon getIcon(int flags) {
-        return Icons.DATABASE_BROWSER;
+        return Icons.WINDOW_DATABASE_BROWSER;
     }
 
     public String getPresentableText() {

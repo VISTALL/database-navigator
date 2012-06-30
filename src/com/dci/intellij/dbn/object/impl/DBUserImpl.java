@@ -76,8 +76,8 @@ public class DBUserImpl extends DBObjectImpl implements DBUser {
     @Override
     public Icon getIcon() {
         return isExpired() ?
-               (isLocked() ? Icons.DBOBJECT_USER_EXPIRED_LOCKED : Icons.DBOBJECT_USER_EXPIRED) :
-               (isLocked() ? Icons.DBOBJECT_USER_LOCKED : Icons.DBOBJECT_USER);
+               (isLocked() ? Icons.DBO_USER_EXPIRED_LOCKED : Icons.DBO_USER_EXPIRED) :
+               (isLocked() ? Icons.DBO_USER_LOCKED : Icons.DBO_USER);
     }
 
     @Override

@@ -31,7 +31,7 @@ public class SortableTableHeaderRenderer extends DefaultTableCellRenderer {
         setHorizontalTextPosition(JLabel.LEADING);
         setHorizontalAlignment(JLabel.CENTER);
         if (column == table.convertColumnIndexToView(model.getSortColumnIndex())) {
-            renderer.setIcon(model.getSortDirection() == SortDirection.ASCENDING ? Icons.COMMON_SORT_ASC : Icons.COMMON_SORT_DESC);
+            renderer.setIcon(model.getSortDirection() == SortDirection.ASCENDING ? Icons.ACTION_SORT_ASC : Icons.ACTION_SORT_DESC);
         }
         return renderer;
     }

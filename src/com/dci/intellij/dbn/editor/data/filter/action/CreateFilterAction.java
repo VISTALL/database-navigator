@@ -6,6 +6,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.ui.popup.ListPopup;
+
 import java.awt.Component;
 import java.awt.Point;
 
@@ -13,7 +14,7 @@ public class CreateFilterAction extends AbstractFilterListAction {
     private DefaultActionGroup actionGroup;
 
     public CreateFilterAction(DatasetFilterList filterList) {
-        super(filterList, "Create filter", Icons.COMMON_ADD);
+        super(filterList, "Create filter", Icons.ACTION_ADD);
         actionGroup = new DefaultActionGroup();
         actionGroup.add(new CreateBasicFilterAction(filterList));
         actionGroup.add(new CreateCustomFilterAction(filterList));

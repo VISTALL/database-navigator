@@ -24,7 +24,7 @@ public class JumpToExecutionResultIntentionAction extends GenericIntentionAction
 
     @Override
     public Icon getIcon(int flags) {
-        return Icons.DBOBJECT_TABLE;
+        return Icons.DBO_TABLE;
     }
 
     public boolean isAvailable(@NotNull Project project, Editor editor, PsiFile psiFile) {

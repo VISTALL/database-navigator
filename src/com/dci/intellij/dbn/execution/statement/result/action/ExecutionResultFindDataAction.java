@@ -6,7 +6,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 
 public class ExecutionResultFindDataAction extends AbstractExecutionResultAction {
     public ExecutionResultFindDataAction() {
-        super("Find data", Icons.COMMON_FIND);
+        super("Find data", Icons.ACTION_FIND);
     }
 
     @Override

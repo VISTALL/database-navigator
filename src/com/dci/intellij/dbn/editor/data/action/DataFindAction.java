@@ -11,7 +11,7 @@ import com.intellij.openapi.project.Project;
 
 public class DataFindAction extends DumbAwareAction {
     public DataFindAction() {
-        super("Find...", null, Icons.COMMON_FIND);
+        super("Find...", null, Icons.ACTION_FIND);
     }
 
     @Override

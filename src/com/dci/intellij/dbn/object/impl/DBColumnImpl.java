@@ -117,10 +117,10 @@ public class DBColumnImpl extends DBObjectImpl implements DBColumn {
     }
 
     public Icon getIcon() {
-        return isPrimaryKey() ? isForeignKey() ? Icons.DBOBJECT_COLUMN_PFK : Icons.DBOBJECT_COLUMN_PK :
-               isForeignKey() ? Icons.DBOBJECT_COLUMN_FK :
-               isHidden() ? Icons.DBOBJECT_COLUMN_HIDDEN :
-               Icons.DBOBJECT_COLUMN;
+        return isPrimaryKey() ? isForeignKey() ? Icons.DBO_COLUMN_PFK : Icons.DBO_COLUMN_PK :
+               isForeignKey() ? Icons.DBO_COLUMN_FK :
+               isHidden() ? Icons.DBO_COLUMN_HIDDEN :
+               Icons.DBO_COLUMN;
     }
 
     public boolean isNullable() {

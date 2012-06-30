@@ -16,7 +16,7 @@ import java.util.List;
 public class MoveConditionDownAction extends ObjectNameFilterAction{
 
     public MoveConditionDownAction(ObjectNameFilterSettingsForm settingsForm) {
-        super("Move down", Icons.COMMON_MOVE_DOWN, settingsForm);
+        super("Move down", Icons.ACTION_MOVE_DOWN, settingsForm);
     }
 
     @Override
