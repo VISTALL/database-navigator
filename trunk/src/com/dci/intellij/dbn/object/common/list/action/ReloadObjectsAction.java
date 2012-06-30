@@ -13,7 +13,7 @@ public class ReloadObjectsAction extends AnAction {
     private DBObjectList objectList;
 
     public ReloadObjectsAction(DBObjectList objectList) {
-        super("Reload", null, Icons.COMMON_REFRESH);
+        super("Reload", null, Icons.ACTION_REFRESH);
         this.objectList = objectList;
     }
 

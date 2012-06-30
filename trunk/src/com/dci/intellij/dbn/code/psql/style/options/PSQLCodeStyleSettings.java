@@ -9,7 +9,7 @@ import com.dci.intellij.dbn.common.Icons;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.Icon;
 
 public class PSQLCodeStyleSettings extends CodeStyleCustomSettings<PSQLCodeStyleSettingsEditorForm>{
 
@@ -19,7 +19,7 @@ public class PSQLCodeStyleSettings extends CodeStyleCustomSettings<PSQLCodeStyle
 
     @Nullable
     public Icon getIcon() {
-        return Icons.PLSQL_FILE;
+        return Icons.FILE_PLSQL;
     }
 
     public String getDisplayName() {

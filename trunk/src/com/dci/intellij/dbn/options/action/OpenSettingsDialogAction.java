@@ -17,7 +17,7 @@ public class OpenSettingsDialogAction extends DumbAwareAction {
 
     public void update(AnActionEvent e) {
         e.getPresentation().setText("Setup Connections...");
-        e.getPresentation().setIcon(Icons.COMMON_EDIT_CONFIGURATIONS);
+        e.getPresentation().setIcon(Icons.ACTION_EDIT);
 
     }
 

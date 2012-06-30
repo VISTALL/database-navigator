@@ -1,8 +1,8 @@
 package com.dci.intellij.dbn.object.factory.ui;
 
 import com.dci.intellij.dbn.common.Icons;
-import com.dci.intellij.dbn.data.type.ui.DataTypeEditor;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
+import com.dci.intellij.dbn.data.type.ui.DataTypeEditor;
 import com.dci.intellij.dbn.database.DatabaseCompatibilityInterface;
 import com.dci.intellij.dbn.database.DatabaseFeature;
 import com.dci.intellij.dbn.object.DBSchema;
@@ -11,7 +11,9 @@ import com.dci.intellij.dbn.object.factory.MethodFactoryInput;
 import com.dci.intellij.dbn.object.factory.ObjectFactoryInput;
 import com.dci.intellij.dbn.object.factory.ui.common.ObjectFactoryInputForm;
 
-import javax.swing.*;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 public abstract class MethodFactoryInputForm extends ObjectFactoryInputForm<MethodFactoryInput> {
     private JPanel mainPanel;
@@ -41,7 +43,7 @@ public abstract class MethodFactoryInputForm extends ObjectFactoryInputForm<Meth
         argumentListPanel.createObjectPanel();
 
         returnArgumentIconLabel.setText(null);
-        returnArgumentIconLabel.setIcon(Icons.DBOBJECT_ARGUMENT_OUT);
+        returnArgumentIconLabel.setIcon(Icons.DBO_ARGUMENT_OUT);
     }
 
     public MethodFactoryInput createFactoryInput(ObjectFactoryInput parent) {

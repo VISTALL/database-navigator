@@ -1,15 +1,14 @@
 package com.dci.intellij.dbn.editor.data.filter.action;
 
 import com.dci.intellij.dbn.common.Icons;
-import com.dci.intellij.dbn.editor.data.filter.ui.DatasetFilterList;
 import com.dci.intellij.dbn.editor.data.filter.DatasetFilter;
-import com.dci.intellij.dbn.editor.data.filter.action.AbstractFilterListAction;
+import com.dci.intellij.dbn.editor.data.filter.ui.DatasetFilterList;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 
 public class DeleteFilterAction extends AbstractFilterListAction {
 
     public DeleteFilterAction(DatasetFilterList filterList) {
-        super(filterList, "Delete filter", Icons.COMMON_REMOVE);
+        super(filterList, "Delete filter", Icons.ACTION_REMOVE);
     }
 
     public void actionPerformed(AnActionEvent e) {

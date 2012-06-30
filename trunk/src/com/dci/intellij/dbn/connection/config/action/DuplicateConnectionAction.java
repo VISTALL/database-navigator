@@ -15,7 +15,7 @@ public class DuplicateConnectionAction extends DumbAwareAction {
     protected JList list;
 
     public DuplicateConnectionAction(JList list, ConnectionManager connectionManager) {
-        super("Duplicate connection", null, Icons.CONNECTION_SETUP_DUPLICATE);
+        super("Duplicate connection", null, Icons.ACTION_COPY);
         this.list = list;
         this.connectionManager = connectionManager;
     }

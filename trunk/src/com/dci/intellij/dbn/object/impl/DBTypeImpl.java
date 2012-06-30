@@ -88,17 +88,17 @@ public class DBTypeImpl extends DBProgramImpl implements DBType {
     public Icon getIcon() {
         if (getStatus().is(DBObjectStatus.VALID)) {
             if (getStatus().is(DBObjectStatus.DEBUG))  {
-                return Icons.DBOBJECT_TYPE_DEBUG;
+                return Icons.DBO_TYPE_DEBUG;
             } else {
-                return isCollection() ? Icons.DBOBJECT_TYPE_COLLECTION : Icons.DBOBJECT_TYPE;
+                return isCollection() ? Icons.DBO_TYPE_COLLECTION : Icons.DBO_TYPE;
             }
         } else {
-            return isCollection() ? Icons.DBOBJECT_TYPE_COLLECTION_ERR : Icons.DBOBJECT_TYPE_ERR;
+            return isCollection() ? Icons.DBO_TYPE_COLLECTION_ERR : Icons.DBO_TYPE_ERR;
         }
     }
 
     public Icon getOriginalIcon() {
-        return isCollection() ? Icons.DBOBJECT_TYPE_COLLECTION : Icons.DBOBJECT_TYPE;
+        return isCollection() ? Icons.DBO_TYPE_COLLECTION : Icons.DBO_TYPE;
     }
 
     public List<DBTypeAttribute> getAttributes() {

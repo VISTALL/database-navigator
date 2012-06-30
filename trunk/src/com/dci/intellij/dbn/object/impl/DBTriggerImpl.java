@@ -103,22 +103,22 @@ public class DBTriggerImpl extends DBSchemaObjectImpl implements DBTrigger {
         if (status.is(DBObjectStatus.VALID)) {
             if (status.is(DBObjectStatus.ENABLED)) {
                 if (status.is(DBObjectStatus.DEBUG)) {
-                    return Icons.DBOBJECT_TRIGGER_DEBUG;
+                    return Icons.DBO_TRIGGER_DEBUG;
                 } else {
-                    return Icons.DBOBJECT_TRIGGER;
+                    return Icons.DBO_TRIGGER;
                 }
             } else {
                 if (status.is(DBObjectStatus.DEBUG)) {
-                    return Icons.DBOBJECT_TRIGGER_DISABLED_DEBUG;
+                    return Icons.DBO_TRIGGER_DISABLED_DEBUG;
                 } else {
-                    return Icons.DBOBJECT_TRIGGER_DISABLED;
+                    return Icons.DBO_TRIGGER_DISABLED;
                 }
             }
         } else {
             if (status.is(DBObjectStatus.ENABLED)) {
-                return Icons.DBOBJECT_TRIGGER_ERR;
+                return Icons.DBO_TRIGGER_ERR;
             } else {
-                return Icons.DBOBJECT_TRIGGER_ERR_DISABLED;
+                return Icons.DBO_TRIGGER_ERR_DISABLED;
             }
 
         }

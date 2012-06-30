@@ -9,7 +9,7 @@ import com.intellij.xdebugger.frame.XValueModifier;
 import com.intellij.xdebugger.frame.XValueNode;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
+import javax.swing.Icon;
 import java.sql.SQLException;
 
 public class DBProgramDebugValue extends XValue implements Comparable<DBProgramDebugValue>{
@@ -24,7 +24,7 @@ public class DBProgramDebugValue extends XValue implements Comparable<DBProgramD
     public DBProgramDebugValue(DBProgramDebugProcess debugProcess, String variableName, Icon icon, int frameIndex) {
         this.variableName = variableName;
         this.debugProcess = debugProcess;
-        this.icon = icon == null ? Icons.DBOBJECT_VARIABLE : icon;
+        this.icon = icon == null ? Icons.DBO_VARIABLE : icon;
         this.frameIndex = frameIndex;
         try {
             VariableInfo variableInfo = debugProcess.getDebuggerInterface().getVariableInfo(

@@ -26,7 +26,7 @@ public class SelectMethodAction extends AbstractSelectMethodAction{
         Presentation presentation = e.getPresentation();
         DBMethod method = executionInput.getMethod();
         if (method == null) {
-            presentation.setIcon(Icons.DBOBJECT_METHOD);
+            presentation.setIcon(Icons.DBO_METHOD);
         } else {
             presentation.setIcon(method.getOriginalIcon());
         }

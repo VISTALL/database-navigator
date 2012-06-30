@@ -64,17 +64,17 @@ public class DBPackageImpl extends DBProgramImpl implements DBPackage {
     public Icon getIcon() {
         if (getStatus().is(DBObjectStatus.VALID)) {
             if (getStatus().is(DBObjectStatus.DEBUG))  {
-                return Icons.DBOBJECT_PACKAGE_DEBUG;
+                return Icons.DBO_PACKAGE_DEBUG;
             } else {
-                return Icons.DBOBJECT_PACKAGE;
+                return Icons.DBO_PACKAGE;
             }
         } else {
-            return Icons.DBOBJECT_PACKAGE_ERR;
+            return Icons.DBO_PACKAGE_ERR;
         }
     }
 
     public Icon getOriginalIcon() {
-        return Icons.DBOBJECT_PACKAGE;
+        return Icons.DBO_PACKAGE;
     }
 
     public void buildToolTip(HtmlToolTipBuilder ttb) {

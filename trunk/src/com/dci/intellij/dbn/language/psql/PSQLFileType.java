@@ -4,8 +4,9 @@ import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.editor.DBContentType;
 import com.dci.intellij.dbn.language.common.DBLanguageFileType;
 import com.intellij.lang.Language;
-import javax.swing.Icon;
 import org.jetbrains.annotations.NotNull;
+
+import javax.swing.Icon;
 
 public class PSQLFileType extends DBLanguageFileType {
 
@@ -22,7 +23,7 @@ public class PSQLFileType extends DBLanguageFileType {
     }
 
     public Icon getIcon() {
-        return Icons.PLSQL_FILE;
+        return Icons.FILE_PLSQL;
     }
 
 

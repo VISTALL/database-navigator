@@ -16,7 +16,7 @@ public class AddConnectionAction extends DumbAwareAction {
     protected JList list;
 
     public AddConnectionAction(JList list, ConnectionManager connectionManager) {
-        super("Add connection", null, Icons.COMMON_ADD);
+        super("Add connection", null, Icons.ACTION_ADD);
         this.connectionManager = connectionManager;
         this.list = list;
     }

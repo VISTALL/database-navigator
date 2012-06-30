@@ -84,7 +84,7 @@ public class DBConstraintImpl extends DBSchemaObjectImpl implements DBConstraint
     @Override
     public Icon getIcon() {
         boolean enabled = getStatus().is(DBObjectStatus.ENABLED);
-        return enabled ? Icons.DBOBJECT_CONSTRAINT : Icons.DBOBJECT_CONSTRAINT_DISABLED;
+        return enabled ? Icons.DBO_CONSTRAINT : Icons.DBO_CONSTRAINT_DISABLED;
     }
 
     private void createLists() {

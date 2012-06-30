@@ -12,7 +12,7 @@ public class MoveDownAction extends AnAction {
     private JList list;
     private CodeCompletionSortingSettings settings;
     public MoveDownAction(JList list, CodeCompletionSortingSettings settings) {
-        super("Move Down", null, Icons.COMMON_MOVE_DOWN);
+        super("Move Down", null, Icons.ACTION_MOVE_DOWN);
         this.list = list;
         this.settings = settings;
     }

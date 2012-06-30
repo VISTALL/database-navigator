@@ -17,7 +17,7 @@ import com.dci.intellij.dbn.object.properties.DBObjectPresentableProperty;
 import com.dci.intellij.dbn.object.properties.PresentableProperty;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
+import javax.swing.Icon;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -56,14 +56,14 @@ public class DBSynonymImpl extends DBSchemaObjectImpl implements DBSynonym {
 
     public Icon getIcon() {
         if (getStatus().is(DBObjectStatus.VALID)) {
-            return Icons.DBOBJECT_SYNONYM;
+            return Icons.DBO_SYNONYM;
         } else {
-            return Icons.DBOBJECT_SYNONYM_ERR;
+            return Icons.DBO_SYNONYM_ERR;
         }
     }
 
     public Icon getOriginalIcon() {
-        return Icons.DBOBJECT_SYNONYM;
+        return Icons.DBO_SYNONYM;
     }
 
     public DBObject getUnderlyingObject() {

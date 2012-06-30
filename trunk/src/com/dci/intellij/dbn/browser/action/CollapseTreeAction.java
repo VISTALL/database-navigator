@@ -10,7 +10,7 @@ import com.intellij.openapi.project.Project;
 
 public class CollapseTreeAction extends AnAction {
     public CollapseTreeAction() {
-        super("Collapse all", null, Icons.COMMON_COLLAPSE_ALL);
+        super("Collapse all", null, Icons.ACTION_COLLAPSE_ALL);
     }
 
     public void actionPerformed(AnActionEvent e) {

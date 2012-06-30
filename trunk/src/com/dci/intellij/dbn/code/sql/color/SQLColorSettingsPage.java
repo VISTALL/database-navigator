@@ -8,7 +8,7 @@ import com.intellij.openapi.options.colors.AttributesDescriptor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.Icon;
 
 public class SQLColorSettingsPage extends DBLColorSettingsPage {
 
@@ -39,7 +39,7 @@ public class SQLColorSettingsPage extends DBLColorSettingsPage {
 
     @Nullable
     public Icon getIcon() {
-        return Icons.SQL_FILE;
+        return Icons.FILE_SQL;
     }
 
     @NotNull

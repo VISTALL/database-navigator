@@ -8,7 +8,7 @@ import com.intellij.ide.util.treeView.smartTree.Sorter;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
+import javax.swing.Icon;
 import java.util.Comparator;
 
 public class PSQLStructureViewModelSorter implements Sorter {
@@ -41,7 +41,7 @@ public class PSQLStructureViewModelSorter implements Sorter {
         }
 
         public Icon getIcon() {
-            return Icons.COMMON_ALPHABETIC_SORTING;
+            return Icons.ACTION_SORT_ALPHA;
         }
     };
 

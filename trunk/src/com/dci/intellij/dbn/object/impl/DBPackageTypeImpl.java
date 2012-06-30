@@ -50,7 +50,7 @@ public class DBPackageTypeImpl extends DBTypeImpl implements DBPackageType {
 
     @Override
     public Icon getIcon() {
-        return isCollection() ? Icons.DBOBJECT_TYPE_COLLECTION : Icons.DBOBJECT_TYPE;
+        return isCollection() ? Icons.DBO_TYPE_COLLECTION : Icons.DBO_TYPE;
     }
 
     @NotNull

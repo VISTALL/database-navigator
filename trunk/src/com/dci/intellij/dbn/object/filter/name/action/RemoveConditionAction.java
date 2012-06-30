@@ -13,7 +13,7 @@ import com.intellij.openapi.project.Project;
 public class RemoveConditionAction extends ObjectNameFilterAction{
 
     public RemoveConditionAction(ObjectNameFilterSettingsForm settingsForm) {
-        super("Remove", Icons.COMMON_REMOVE, settingsForm);
+        super("Remove", Icons.ACTION_REMOVE, settingsForm);
     }
 
     @Override

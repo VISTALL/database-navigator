@@ -115,7 +115,7 @@ public class ExportDataForm extends UIFormImpl implements UIForm {
                 headerPanel.setBackground(sourceObject.getEnvironmentType().getColor());
             }
         } else {
-            datasetLabel.setIcon(Icons.DBOBJECT_TABLE);
+            datasetLabel.setIcon(Icons.DBO_TABLE);
             datasetLabel.setText(instructions.getBaseName());
             if (getEnvironmentSettings(project).getVisibilitySettings().getDialogHeaders().value()) {
                 headerPanel.setBackground(connectionHandler.getEnvironmentType().getColor());

@@ -10,7 +10,7 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.Icon;
 
 public class SQLCodeStyleSettings extends CodeStyleCustomSettings<SQLCodeStyleSettingsEditorForm> {
 
@@ -25,7 +25,7 @@ public class SQLCodeStyleSettings extends CodeStyleCustomSettings<SQLCodeStyleSe
 
     @Nullable
     public Icon getIcon() {
-        return Icons.SQL_FILE;
+        return Icons.FILE_SQL;
     }
 
     protected CodeStyleCaseSettings createCaseSettings() {

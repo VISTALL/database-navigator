@@ -36,11 +36,11 @@ public class MethodExecutionHistoryTreeNode extends DefaultMutableTreeNode {
     public Icon getIcon() {
         return
             type == NODE_TYPE_CONNECTION? Icons.CONNECTION_ACTIVE :
-            type == NODE_TYPE_SCHEMA ? Icons.DBOBJECT_SCHEMA :
-            type == NODE_TYPE_PACKAGE ? Icons.DBOBJECT_PACKAGE :
-            type == NODE_TYPE_TYPE ? Icons.DBOBJECT_TYPE :
-            type == NODE_TYPE_PROCEDURE ? Icons.DBOBJECT_PROCEDURE :
-            type == NODE_TYPE_FUNCTION ? Icons.DBOBJECT_FUNCTION : null;
+            type == NODE_TYPE_SCHEMA ? Icons.DBO_SCHEMA :
+            type == NODE_TYPE_PACKAGE ? Icons.DBO_PACKAGE :
+            type == NODE_TYPE_TYPE ? Icons.DBO_TYPE :
+            type == NODE_TYPE_PROCEDURE ? Icons.DBO_PROCEDURE :
+            type == NODE_TYPE_FUNCTION ? Icons.DBO_FUNCTION : null;
     }
 
     public static int getNodeType(DBObjectType objectType) {

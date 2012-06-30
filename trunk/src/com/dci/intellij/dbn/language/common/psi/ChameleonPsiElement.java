@@ -51,7 +51,7 @@ public class ChameleonPsiElement extends ASTWrapperPsiElement implements Executa
 
     @Override
     public Icon getIcon(int flags) {
-        return Icons.PSQL_BLOCK; // todo make this dynamic
+        return Icons.FILE_BLOCK_PSQL; // todo make this dynamic
     }
 
     @Override

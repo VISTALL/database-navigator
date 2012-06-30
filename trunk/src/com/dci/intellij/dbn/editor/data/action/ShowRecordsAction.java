@@ -11,7 +11,7 @@ public abstract class ShowRecordsAction extends DumbAwareAction{
     private DatasetFilterInput filterInput;
 
     public ShowRecordsAction(String text, DatasetFilterInput filterInput) {
-        super(text, null, Icons.DBOBJECT_TABLE);
+        super(text, null, Icons.DBO_TABLE);
         this.filterInput = filterInput;
     }
 

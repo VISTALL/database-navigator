@@ -9,7 +9,7 @@ import java.awt.Component;
 
 public class ExecutionResultViewStatementAction extends AbstractExecutionResultAction {
     public ExecutionResultViewStatementAction() {
-        super("View SQL statement", Icons.SQL_BLOCK);
+        super("View SQL statement", Icons.FILE_BLOCK_SQL);
     }
 
     @Override

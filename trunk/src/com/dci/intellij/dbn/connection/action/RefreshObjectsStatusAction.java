@@ -10,7 +10,7 @@ public class RefreshObjectsStatusAction extends DumbAwareAction {
     private ConnectionHandler connectionHandler;
 
     public RefreshObjectsStatusAction(ConnectionHandler connectionHandler) {
-        super("Refresh objects status", "", Icons.COMMON_REFRESH);
+        super("Refresh objects status", "", Icons.ACTION_REFRESH);
         this.connectionHandler = connectionHandler;
     }
 

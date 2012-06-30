@@ -41,7 +41,7 @@ public class TableRecordViewerColumnForm extends UIFormImpl implements UIForm {
         DBDataType dataType = columnInfo.getDataType();
         regionalSettings = RegionalSettings.getInstance(project);
 
-        columnLabel.setIcon(Icons.DBOBJECT_COLUMN);
+        columnLabel.setIcon(Icons.DBO_COLUMN);
         columnLabel.setText(columnInfo.getName());
         dataTypeLabel.setText(dataType.getQualifiedName());
 

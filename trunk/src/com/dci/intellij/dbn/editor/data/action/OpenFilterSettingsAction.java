@@ -11,7 +11,7 @@ import com.intellij.openapi.project.DumbAwareAction;
 public class OpenFilterSettingsAction extends DumbAwareAction {
     private DatasetEditor datasetEditor;
     public OpenFilterSettingsAction(DatasetEditor datasetEditor) {
-        super("Manage Filters...", null, Icons.COMMON_EDIT_CONFIGURATIONS);
+        super("Manage Filters...", null, Icons.ACTION_EDIT);
         this.datasetEditor = datasetEditor;
     }
 

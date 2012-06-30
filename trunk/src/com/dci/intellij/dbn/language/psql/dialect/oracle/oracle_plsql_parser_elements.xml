@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--<!DOCTYPE element-defs SYSTEM "/../../../common/definition/language-parser-elements.dtd">-->
 <element-defs language="ORACLE-PLSQL" version="10.1">
-    <element-def attributes="ROOT" description="PLSQL block" icon="PSQL_BLOCK" id="plsql_block">
+    <element-def attributes="ROOT" description="PLSQL block" icon="FILE_BLOCK_PSQL" id="plsql_block">
         <iteration id="000000000">
             <one-of id="000000001">
                 <element ref-id="ddl_statement" />
@@ -237,7 +237,7 @@
         </sequence>
     </element-def>
 
-    <element-def attributes="OBJECT_SPECIFICATION, STRUCTURE, SCOPE_ISOLATION" description="PACKAGE spec" icon="DBOBJECT_PACKAGE_SPEC" id="package_spec">
+    <element-def attributes="OBJECT_SPECIFICATION, STRUCTURE, SCOPE_ISOLATION" description="PACKAGE spec" icon="DBO_PACKAGE_SPEC" id="package_spec">
         <token id="000000093" type-id="KW_PACKAGE" />
         <qualified-identifier id="000000094" separator="CHR_DOT">
             <variant>
@@ -272,7 +272,7 @@
         <token id="000000108" type-id="CHR_SEMICOLON" />
     </element-def>
 
-    <element-def attributes="OBJECT_DECLARATION, STRUCTURE, SCOPE_ISOLATION, STATEMENT" description="PACKAGE body" icon="DBOBJECT_PACKAGE_BODY" id="package_body">
+    <element-def attributes="OBJECT_DECLARATION, STRUCTURE, SCOPE_ISOLATION, STATEMENT" description="PACKAGE body" icon="DBO_PACKAGE_BODY" id="package_body">
         <token id="000000109" type-id="KW_PACKAGE" />
         <token exit="true" id="000000110" type-id="KW_BODY" />
         <qualified-identifier id="000000111" separator="CHR_DOT">

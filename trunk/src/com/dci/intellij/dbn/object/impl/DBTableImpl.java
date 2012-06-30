@@ -64,8 +64,8 @@ public class DBTableImpl extends DBDatasetImpl implements DBTable {
 
     public Icon getIcon() {
         return isTemporary() ?
-                Icons.DBOBJECT_TMP_TABLE :
-                Icons.DBOBJECT_TABLE;
+                Icons.DBO_TMP_TABLE :
+                Icons.DBO_TABLE;
     }
 
     public boolean isTemporary() {

@@ -29,7 +29,7 @@ public class ArgumentFactoryInputForm extends ObjectFactoryInputForm {
         super(connectionHandler, DBObjectType.ARGUMENT, index);
         this.enforceInArgument = enforceInArgument;
         iconLabel.setText(null);
-        iconLabel.setIcon(enforceInArgument ? Icons.DBOBJECT_ARGUMENT_IN : DBObjectType.ARGUMENT.getIcon());
+        iconLabel.setIcon(enforceInArgument ? Icons.DBO_ARGUMENT_IN : DBObjectType.ARGUMENT.getIcon());
         if (enforceInArgument) {
             inCheckBox.setVisible(false);
             outCheckBox.setVisible(false);
@@ -43,9 +43,9 @@ public class ArgumentFactoryInputForm extends ObjectFactoryInputForm {
         public void actionPerformed(ActionEvent e) {
             if (e.getSource() == inCheckBox || e.getSource() == outCheckBox) {
                 Icon icon =
-                     inCheckBox.isSelected() && outCheckBox.isSelected() ? Icons.DBOBJECT_ARGUMENT_IN_OUT :
-                     inCheckBox.isSelected() ? Icons.DBOBJECT_ARGUMENT_IN :
-                     outCheckBox.isSelected() ? Icons.DBOBJECT_ARGUMENT_OUT : Icons.DBOBJECT_ARGUMENT;
+                     inCheckBox.isSelected() && outCheckBox.isSelected() ? Icons.DBO_ARGUMENT_IN_OUT :
+                     inCheckBox.isSelected() ? Icons.DBO_ARGUMENT_IN :
+                     outCheckBox.isSelected() ? Icons.DBO_ARGUMENT_OUT : Icons.DBO_ARGUMENT;
 
                 iconLabel.setIcon(icon);
             }

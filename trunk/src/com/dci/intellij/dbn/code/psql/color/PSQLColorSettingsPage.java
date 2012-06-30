@@ -8,7 +8,7 @@ import com.intellij.openapi.options.colors.AttributesDescriptor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.Icon;
 
 public class PSQLColorSettingsPage extends DBLColorSettingsPage {
     public PSQLColorSettingsPage() {
@@ -34,7 +34,7 @@ public class PSQLColorSettingsPage extends DBLColorSettingsPage {
     }
     @Nullable
     public Icon getIcon() {
-        return Icons.PLSQL_FILE;
+        return Icons.FILE_PLSQL;
     }
 
     @NotNull

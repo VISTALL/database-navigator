@@ -7,14 +7,14 @@ import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.ui.ListUtil;
 
-import javax.swing.*;
+import javax.swing.JList;
 
 public class RemoveConnectionAction extends DumbAwareAction {
     private ConnectionManager connectionManager;
     private JList list;
 
     public RemoveConnectionAction(JList list, ConnectionManager connectionManager) {
-        super("Remove connection", null, Icons.COMMON_REMOVE);
+        super("Remove connection", null, Icons.ACTION_REMOVE);
         this.list = list;
         this.connectionManager = connectionManager;
     }

@@ -174,7 +174,7 @@ public class DatasetRecordEditorForm extends UIFormImpl implements UIForm {
      *********************************************************/
     private class SortAlphabeticallyAction extends ToggleAction {
         private SortAlphabeticallyAction() {
-            super("Sort columns alphabetically", null, Icons.COMMON_ALPHABETIC_SORTING);
+            super("Sort columns alphabetically", null, Icons.ACTION_SORT_ALPHA);
         }
 
         public boolean isSelected(AnActionEvent anActionEvent) {
