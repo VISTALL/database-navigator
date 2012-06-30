@@ -1,5 +1,6 @@
 package com.dci.intellij.dbn.language.editor.action;
 
+import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.util.ActionUtil;
 import com.dci.intellij.dbn.common.util.NamingUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
@@ -21,7 +22,8 @@ public class SelectConnectionAction extends DumbAwareAction {
     private final ConnectionHandler connectionHandler;
 
     public SelectConnectionAction(ConnectionHandler connectionHandler) {
-        super();
+        super(connectionHandler == null ? "No Connection" : NamingUtil.enhanceUnderscoresForDisplay(connectionHandler.getQualifiedName()), null,
+                connectionHandler == null ? Icons.SPACE : connectionHandler.getIcon());
         this.connectionHandler = connectionHandler;
     }
 
@@ -31,6 +33,7 @@ public class SelectConnectionAction extends DumbAwareAction {
     }
 
     public void update(AnActionEvent e) {
+        Presentation presentation = e.getPresentation();
         boolean enabled = true;
         Project project = ActionUtil.getProject(e);
         VirtualFile[] selectedFiles = FileEditorManager.getInstance(project).getSelectedFiles();
@@ -55,16 +58,8 @@ public class SelectConnectionAction extends DumbAwareAction {
                 }
             }
         }
-        Presentation presentation = e.getPresentation();
+
         presentation.setEnabled(enabled);
-        if (connectionHandler == null) {
-            presentation.setText("No Connection");
-            presentation.setIcon(null);
-            presentation.setDescription("");
-        } else {
-            presentation.setText(NamingUtil.enhanceUnderscoresForDisplay(connectionHandler.getQualifiedName()));
-            presentation.setIcon(connectionHandler.getIcon());
-            presentation.setDescription(connectionHandler.getDescription());
-        }
+
     }
 }
