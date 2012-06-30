@@ -2,14 +2,21 @@ package com.dci.intellij.dbn.common.util;
 
 import com.dci.intellij.dbn.common.editor.document.OverrideReadonlyFragmentModificationHandler;
 import com.dci.intellij.dbn.common.thread.CommandWriteActionRunner;
+import com.dci.intellij.dbn.connection.ConnectionHandler;
+import com.dci.intellij.dbn.language.common.DBLanguage;
+import com.dci.intellij.dbn.language.common.DBLanguageFile;
+import com.dci.intellij.dbn.language.common.DBLanguageSyntaxHighlighter;
 import com.dci.intellij.dbn.language.common.psi.PsiUtil;
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer;
+import com.intellij.ide.highlighter.HighlighterFactory;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.RangeMarker;
 import com.intellij.openapi.editor.colors.ColorKey;
 import com.intellij.openapi.editor.colors.EditorColorsScheme;
+import com.intellij.openapi.editor.ex.EditorEx;
+import com.intellij.openapi.editor.highlighter.EditorHighlighter;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -20,10 +27,28 @@ public class DocumentUtil {
 
 
     public static void touchDocument(final Editor editor) {
+        final Document document = editor.getDocument();
+
+        // restart highlighting
+        PsiFile file = DocumentUtil.getFile(editor);
+        if (file instanceof DBLanguageFile) {
+            DBLanguageFile dbLanguageFile = (DBLanguageFile) file;
+            DBLanguage dbLanguage = dbLanguageFile.getDBLanguage();
+            if (dbLanguage != null) {
+                ConnectionHandler connectionHandler = dbLanguageFile.getActiveConnection();
+                DBLanguageSyntaxHighlighter syntaxHighlighter = connectionHandler == null ?
+                        dbLanguage.getMainLanguageDialect().getSyntaxHighlighter() :
+                        connectionHandler.getLanguageDialect(dbLanguage).getSyntaxHighlighter();
+
+                EditorHighlighter editorHighlighter = HighlighterFactory.createHighlighter(syntaxHighlighter, editor.getColorsScheme());
+                ((EditorEx) editor).setHighlighter(editorHighlighter);
+            }
+        }
+
         new CommandWriteActionRunner(editor.getProject()) {
             public void run() {
-                // touch the editor to trigger parsing and highlighting
-                Document document = editor.getDocument();
+                // touch the editor to trigger parsing
+
                 int length = document.getTextLength();
                 document.insertString(length, " ");
                 document.deleteString(length, length + 1);
@@ -31,12 +56,7 @@ public class DocumentUtil {
             }
         }.start();
 
-/*        if (connectionHandler != null) {
-            DBLanguageSyntaxHighlighter syntaxHighlighter = connectionHandler.getLanguageDialect(SQLLanguage.INSTANCE).getSyntaxHighlighter();
-            EditorHighlighter editorHighlighter = HighlighterFactory.createHighlighter(syntaxHighlighter, editor.getColorsScheme());
-            ((EditorEx) editor).setHighlighter(editorHighlighter);
-        }
-        refreshEditorAnnotations(editor.getProject());*/
+        //refreshEditorAnnotations(editor.getProject());
     }
 
 
