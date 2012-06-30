@@ -50,7 +50,7 @@ public class EditorUtil {
     private static TabInfo getEditorTabInfo(JBTabsImpl tabs, FileEditor fileEditor) {
         if (tabs != null) {
             Component editorComponent = getParentComponent(fileEditor.getComponent(), TabbedPaneWrapper.TabWrapper.class);
-            List<TabInfo> tabInfos = tabs.getJBTabs().getTabs();
+            List<TabInfo> tabInfos = tabs.getTabs();
             for (TabInfo tabInfo : tabInfos) {
                 if (tabInfo.getComponent() == editorComponent) {
                     return tabInfo;
