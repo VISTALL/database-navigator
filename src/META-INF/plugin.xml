@@ -167,7 +167,7 @@
             <action id="DBNavigator.Actions.OpenSettings" class="com.dci.intellij.dbn.language.editor.action.OpenSettingsAction" text="Script Editor - Settings"/>
         </group>
         <group id="Dbnavigator.Actions.MainMenu" text="_DB Navigator">
-            <action class="com.dci.intellij.dbn.menu.action.OpenSQLConsoleAction" text="Open SQL console..." id="DBNavigator.Actions.MainMenu.OpenSQLConsole" icon="/img/SQLConsole.png"/>
+            <action class="com.dci.intellij.dbn.menu.action.OpenSQLConsoleAction" text="Open SQL console..." id="DBNavigator.Actions.MainMenu.OpenSQLConsole" icon="/img/file/SQLConsole.png"/>
             <action class="com.dci.intellij.dbn.menu.action.OpenMethodExecutionHistoryAction" text="Method execution history" id="DBNavigator.Actions.MainMenu.OpenMethodExecutionHistory" icon="/img/MethodExecutionHistory.png"/>
             <separator/>
             <action id="DBNavigator.Actions.MainMenu.OpenSettings" class="com.dci.intellij.dbn.menu.action.OpenSettingsAction" text="Settings" icon="/actions/properties.png"/>
