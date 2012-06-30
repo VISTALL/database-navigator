@@ -51,7 +51,7 @@ public class ExecutionConsoleForm extends UIFormImpl implements UIForm, Environm
         resultTabs = new TabbedPane(project);
         mainPanel.add(resultTabs, BorderLayout.CENTER);
         resultTabs.setFocusable(false);
-        resultTabs.setAdjustBorders(false);
+        //resultTabs.setAdjustBorders(false);
         resultTabs.addTabMouseListener(mouseListener);
         resultTabs.addListener(tabsListener);
         resultTabs.setPopupGroup(new ExecutionConsolePopupActionGroup(this), "place", false);
