@@ -6,8 +6,8 @@ import com.dci.intellij.dbn.language.common.element.lookup.ElementTypeLookupCach
 import com.dci.intellij.dbn.language.common.element.parser.ElementTypeParser;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeAttributesBundle;
-import com.dci.intellij.dbn.language.common.psi.InjectedLanguagePsiElement;
 import com.dci.intellij.dbn.object.common.DBObjectType;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
@@ -15,12 +15,9 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 
-/**
- * @deprecated
- */
-public class InjectedLanguageTokenType extends SimpleTokenType implements ElementType {
+public class ChameleonTokenType extends SimpleTokenType implements ElementType {
     private DBLanguageDialect injectedLanguage;
-    public InjectedLanguageTokenType(@Nullable DBLanguageDialect hostLanguage, DBLanguageDialect injectedLanguage) {
+    public ChameleonTokenType(@Nullable DBLanguageDialect hostLanguage, DBLanguageDialect injectedLanguage) {
         super(injectedLanguage.getID() + " block", hostLanguage);
         this.injectedLanguage = injectedLanguage;
     }
@@ -76,7 +73,7 @@ public class InjectedLanguageTokenType extends SimpleTokenType implements Elemen
     }
 
     public PsiElement createPsiElement(ASTNode astNode) {
-        return new InjectedLanguagePsiElement(astNode, this);
+        return new ASTWrapperPsiElement(astNode);
     }
 
     public String getResolveScopeId() {

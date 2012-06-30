@@ -1,8 +1,8 @@
 package com.dci.intellij.dbn.language.psql.dialect;
 
+import com.dci.intellij.dbn.language.common.ChameleonTokenType;
 import com.dci.intellij.dbn.language.common.DBLanguageDialect;
 import com.dci.intellij.dbn.language.common.DBLanguageDialectIdentifier;
-import com.dci.intellij.dbn.language.common.InjectedLanguageTokenType;
 import com.dci.intellij.dbn.language.psql.PSQLFileElementType;
 import com.dci.intellij.dbn.language.psql.PSQLLanguage;
 import com.intellij.psi.tree.IFileElementType;
@@ -17,7 +17,7 @@ public abstract class PSQLLanguageDialect extends DBLanguageDialect {
     }
 
     @Override
-    protected Set<InjectedLanguageTokenType> createInjectedLanguageTokens() {return null;}
+    protected Set<ChameleonTokenType> createChameleonTokenTypes() {return null;}
 
     public IFileElementType createFileElementType() {
         return new PSQLFileElementType(this);

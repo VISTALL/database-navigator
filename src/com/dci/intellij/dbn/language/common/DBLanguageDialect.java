@@ -1,6 +1,6 @@
 package com.dci.intellij.dbn.language.common;
 
-import com.dci.intellij.dbn.language.common.element.ChameleonTokenType;
+import com.dci.intellij.dbn.language.common.element.ChameleonElementType;
 import com.intellij.lang.LanguageDialect;
 import com.intellij.psi.tree.IFileElementType;
 import org.jetbrains.annotations.NonNls;
@@ -16,8 +16,8 @@ public abstract class DBLanguageDialect extends LanguageDialect implements DBFil
     private DBLanguageSyntaxHighlighter syntaxHighlighter;
     private DBLanguageParserDefinition parserDefinition;
     private IFileElementType fileElementType;
-    private Set<InjectedLanguageTokenType> injectedLanguageTokens;
-    private ChameleonTokenType chameleonTokenType;
+    private Set<ChameleonTokenType> chameleonTokens;
+    private ChameleonElementType chameleonElementType;
     private static Map<DBLanguageDialectIdentifier, DBLanguageDialect> register = new HashMap<DBLanguageDialectIdentifier, DBLanguageDialect>();
 
     public DBLanguageDialect(@NonNls @NotNull DBLanguageDialectIdentifier identifier, @NotNull DBLanguage baseLanguage) {
@@ -27,14 +27,14 @@ public abstract class DBLanguageDialect extends LanguageDialect implements DBFil
         parserDefinition = createParserDefinition();
         fileElementType = createFileElementType();
         register.put(identifier, this);
-        chameleonTokenType = new ChameleonTokenType(this);
+        chameleonElementType = new ChameleonElementType(this);
     }
 
-    protected abstract Set<InjectedLanguageTokenType> createInjectedLanguageTokens();
+    protected abstract Set<ChameleonTokenType> createChameleonTokenTypes();
     protected abstract DBLanguageSyntaxHighlighter createSyntaxHighlighter() ;
     protected abstract DBLanguageParserDefinition createParserDefinition();
     protected abstract IFileElementType createFileElementType();
-    public ChameleonTokenType getChameleonTokenType(DBLanguageDialectIdentifier dialectIdentifier) {
+    public ChameleonElementType getChameleonTokenType(DBLanguageDialectIdentifier dialectIdentifier) {
         throw new IllegalArgumentException("Language " + getID() + " does not support chameleons of type " + dialectIdentifier.getValue() );
     }
 
@@ -81,19 +81,19 @@ public abstract class DBLanguageDialect extends LanguageDialect implements DBFil
     }
 
     public TokenType getInjectedLanguageToken(DBLanguageDialectIdentifier dialectIdentifier) {
-        if (injectedLanguageTokens == null) {
-            injectedLanguageTokens = createInjectedLanguageTokens();
-            if (injectedLanguageTokens == null) injectedLanguageTokens = new HashSet<InjectedLanguageTokenType>();
+        if (chameleonTokens == null) {
+            chameleonTokens = createChameleonTokenTypes();
+            if (chameleonTokens == null) chameleonTokens = new HashSet<ChameleonTokenType>();
         }
-        for (InjectedLanguageTokenType injectedLanguageToken : injectedLanguageTokens) {
-            if (injectedLanguageToken.getInjectedLanguage().getIdentifier() == dialectIdentifier) {
-                return injectedLanguageToken;
+        for (ChameleonTokenType chameleonToken : chameleonTokens) {
+            if (chameleonToken.getInjectedLanguage().getIdentifier() == dialectIdentifier) {
+                return chameleonToken;
             }
         }
         return null;
     }
 
-    public ChameleonTokenType getChameleonTokenType() {
-        return chameleonTokenType;
+    public ChameleonElementType getChameleonElementType() {
+        return chameleonElementType;
     }
 }

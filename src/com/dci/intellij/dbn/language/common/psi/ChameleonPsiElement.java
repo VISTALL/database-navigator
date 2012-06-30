@@ -4,7 +4,7 @@ import com.dci.intellij.dbn.code.common.style.formatting.FormattingAttributes;
 import com.dci.intellij.dbn.code.common.style.formatting.FormattingProviderPsiElement;
 import com.dci.intellij.dbn.code.common.style.presets.CodeStylePreset;
 import com.dci.intellij.dbn.common.Icons;
-import com.dci.intellij.dbn.language.common.element.ChameleonTokenType;
+import com.dci.intellij.dbn.language.common.element.ChameleonElementType;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.intellij.formatting.Indent;
 import com.intellij.lang.ASTNode;
@@ -19,10 +19,10 @@ public class ChameleonPsiElement extends ASTWrapperPsiElement implements Executa
     public static final FormattingAttributes FORMATTING_ATTRIBUTES = new FormattingAttributes(null, Indent.getAbsoluteNoneIndent(), CodeStylePreset.SPACING_MIN_ONE_LINE, null);
 
 
-    private ChameleonTokenType tokenType;
-    public ChameleonPsiElement(@NotNull ASTNode node, ChameleonTokenType tokenType) {
+    private ChameleonElementType elementType;
+    public ChameleonPsiElement(@NotNull ASTNode node, ChameleonElementType elementType) {
         super(node);
-        this.tokenType = tokenType;
+        this.elementType = elementType;
     }
 
     public List<ExecutablePsiElement> getExecutablePsiElements() {
@@ -46,7 +46,7 @@ public class ChameleonPsiElement extends ASTWrapperPsiElement implements Executa
 
     @Override
     public String toString() {
-        return tokenType.getDebugName();
+        return elementType.getDebugName();
     }
 
     @Override

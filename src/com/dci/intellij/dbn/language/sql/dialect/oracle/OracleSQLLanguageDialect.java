@@ -1,34 +1,37 @@
 package com.dci.intellij.dbn.language.sql.dialect.oracle;
 
-import com.dci.intellij.dbn.language.common.*;
-import com.dci.intellij.dbn.language.common.element.ChameleonTokenType;
+import com.dci.intellij.dbn.language.common.ChameleonTokenType;
+import com.dci.intellij.dbn.language.common.DBLanguageDialect;
+import com.dci.intellij.dbn.language.common.DBLanguageDialectIdentifier;
+import com.dci.intellij.dbn.language.common.DBLanguageSyntaxHighlighter;
+import com.dci.intellij.dbn.language.common.element.ChameleonElementType;
 import com.dci.intellij.dbn.language.sql.dialect.SQLLanguageDialect;
 
 import java.util.HashSet;
 import java.util.Set;
 
 public class OracleSQLLanguageDialect extends SQLLanguageDialect {
-    ChameleonTokenType plsqlChameleonTokenType;
+    ChameleonElementType plsqlChameleonElementType;
     public OracleSQLLanguageDialect() {
         super(DBLanguageDialectIdentifier.ORACLE_SQL);
     }
 
     @Override
-    protected Set<InjectedLanguageTokenType> createInjectedLanguageTokens() {
-        Set<InjectedLanguageTokenType> tokenTypes = new HashSet<InjectedLanguageTokenType>();
+    protected Set<ChameleonTokenType> createChameleonTokenTypes() {
+        Set<ChameleonTokenType> tokenTypes = new HashSet<ChameleonTokenType>();
         DBLanguageDialect plsql = DBLanguageDialect.getLanguageDialect(DBLanguageDialectIdentifier.ORACLE_PLSQL);
-        tokenTypes.add(new InjectedLanguageTokenType(this, plsql));
+        tokenTypes.add(new ChameleonTokenType(this, plsql));
         return tokenTypes;
     }
 
     @Override
-    public ChameleonTokenType getChameleonTokenType(DBLanguageDialectIdentifier dialectIdentifier) {
+    public ChameleonElementType getChameleonTokenType(DBLanguageDialectIdentifier dialectIdentifier) {
         if (dialectIdentifier == DBLanguageDialectIdentifier.ORACLE_PLSQL) {
-            if (plsqlChameleonTokenType == null) {
+            if (plsqlChameleonElementType == null) {
                 DBLanguageDialect plsqlDialect = DBLanguageDialect.getLanguageDialect(DBLanguageDialectIdentifier.ORACLE_PLSQL);
-                plsqlChameleonTokenType = new ChameleonTokenType(plsqlDialect);
+                plsqlChameleonElementType = new ChameleonElementType(plsqlDialect);
             }
-            return plsqlChameleonTokenType;
+            return plsqlChameleonElementType;
         }
         return super.getChameleonTokenType(dialectIdentifier);
     }
