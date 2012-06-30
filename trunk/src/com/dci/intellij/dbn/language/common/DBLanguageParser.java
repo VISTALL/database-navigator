@@ -61,7 +61,7 @@ public abstract class DBLanguageParser implements PsiParser {
                         builder.advanceLexer();
                         injectedLanguageMarker.done((IElementType) tokenType);
                     }
-                    else*/ if (tokenType instanceof InjectedLanguageTokenType) {
+                    else*/ if (tokenType instanceof ChameleonTokenType) {
                         PsiBuilder.Marker injectedLanguageMarker = builder.mark();
                         builder.advanceLexer();
                         injectedLanguageMarker.done((IElementType) tokenType);

@@ -20,9 +20,6 @@ public class SimpleTokenType extends IElementType implements TokenType {
     private int hashCode;
     private FormattingDefinition formatting;
 
-    /**
-     * @deprecated
-     */
     public SimpleTokenType(@NotNull @NonNls String debugName, @Nullable Language language) {
         super(debugName, language);
     }
