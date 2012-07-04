@@ -174,8 +174,8 @@ public class TabbedBrowserForm extends UIFormImpl implements DatabaseBrowserForm
     }
 
     public void dispose() {
-        super.dispose();
         EventManager.unsubscribe(browserManager.getProject(), this);
+        super.dispose();
         for (TabInfo tabInfo : connectionTabs.getTabs()) {
             SimpleBrowserForm browserForm = (SimpleBrowserForm) tabInfo.getObject();
             browserForm.dispose();

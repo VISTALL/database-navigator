@@ -75,7 +75,7 @@ public class DatasetEditorModelCell extends ResultSetDataModelCell implements Ch
             if (!isLargeObject) {
                 setUserValue(userValue);
             }
-            if (!row.isInsert()) {
+            if (!row.isInsert() && !getConnectionHandler().isAutoCommit()) {
                 isModified = true;
                 row.setModified(true);
             }
@@ -102,7 +102,7 @@ public class DatasetEditorModelCell extends ResultSetDataModelCell implements Ch
             DatasetEditorError error = new DatasetEditorError(errorMessage, getColumnInfo().getColumn());
             getRow().notifyError(error, true, true);
             setUserValue(userValue);
-            if (!row.isInsert()) {
+            if (!row.isInsert() && !getConnectionHandler().isAutoCommit()) {
                 isModified = true;
                 row.setModified(true);
             }

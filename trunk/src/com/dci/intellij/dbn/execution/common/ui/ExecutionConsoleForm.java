@@ -330,8 +330,8 @@ public class ExecutionConsoleForm extends UIFormImpl implements UIForm, Environm
     }
 
     public void dispose() {
-        super.dispose();
         EventManager.unsubscribe(project, this);
+        super.dispose();
         project = null;
     }
 }

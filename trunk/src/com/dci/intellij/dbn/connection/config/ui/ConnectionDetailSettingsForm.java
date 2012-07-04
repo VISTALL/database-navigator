@@ -9,6 +9,7 @@ import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dci.intellij.dbn.common.properties.ui.PropertiesEditorForm;
 import com.dci.intellij.dbn.common.ui.ComboBoxUtil;
+import com.dci.intellij.dbn.connection.ConnectionSettingsChangeListener;
 import com.dci.intellij.dbn.connection.config.ConnectionDetailSettings;
 import com.dci.intellij.dbn.options.general.GeneralProjectSettings;
 import com.intellij.openapi.options.ConfigurationException;
@@ -137,17 +138,37 @@ public class ConnectionDetailSettingsForm extends ConfigurationEditorForm<Connec
     @Override
     public void applyChanges() throws ConfigurationException {
         ConnectionDetailSettings configuration = getConfiguration();
-        configuration.setProperties(propertiesEditorForm.getProperties());
-        configuration.setCharset((Charset) encodingComboBox.getSelectedItem());
-        configuration.setAutoCommit(autoCommitCheckBox.isSelected());
-        EnvironmentType environmentType = (EnvironmentType) environmentTypesComboBox.getSelectedItem();
 
-        EnvironmentType oldEnvironmentType = configuration.getEnvironmentType();
-        if (!oldEnvironmentType.equals(environmentType)) {
-            configuration.setEnvironmentType(environmentType);
-            EnvironmentChangeListener listener = EventManager.syncPublisher(getConfiguration().getProject(), EnvironmentChangeListener.TOPIC);
-            listener.environmentTypeChanged(environmentType);
+        Map<String, String> newProperties = propertiesEditorForm.getProperties();
+        Charset newCharset = (Charset) encodingComboBox.getSelectedItem();
+        boolean newAutoCommit = autoCommitCheckBox.isSelected();
+        EnvironmentType newEnvironmentType = (EnvironmentType) environmentTypesComboBox.getSelectedItem();
+
+        boolean settingsChanged =
+                !configuration.getProperties().equals(newProperties) ||
+                !configuration.getCharset().equals(newCharset) ||
+                configuration.isAutoCommit() != newAutoCommit;
+
+        boolean environmentChanged =
+                !configuration.getEnvironmentType().equals(newEnvironmentType);
+
+
+        configuration.setProperties(newProperties);
+        configuration.setCharset(newCharset);
+        configuration.setAutoCommit(newAutoCommit);
+        configuration.setEnvironmentType(newEnvironmentType);
+
+        Project project = getConfiguration().getProject();
+        if (environmentChanged) {
+            EnvironmentChangeListener listener = EventManager.syncPublisher(project, EnvironmentChangeListener.TOPIC);
+            listener.environmentTypeChanged(newEnvironmentType);
         }
+
+        if (settingsChanged) {
+            ConnectionSettingsChangeListener listener = EventManager.syncPublisher(project, ConnectionSettingsChangeListener.TOPIC);
+            listener.connectionSettingsChanged(connectionId);
+        }
+
     }
 
     @Override
