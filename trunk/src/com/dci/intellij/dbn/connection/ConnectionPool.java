@@ -41,10 +41,7 @@ public class ConnectionPool implements Disposable {
 
     private Connection createStandaloneConnection() throws SQLException {
         try {
-            standaloneConnection = ConnectionUtil.connect(
-                    connectionHandler.getSettings().getDatabaseSettings(),
-                    connectionHandler.getSettings().getDetailSettings().getProperties(),
-                    connectionHandler.getConnectionStatus());
+            standaloneConnection = ConnectionUtil.connect(connectionHandler.getSettings(), connectionHandler.getConnectionStatus());
             return standaloneConnection;
             //connectionHandler.getDataDictionary().setCurrentSchema(connectionHandler.getCurrentSchemaName(), standaloneConnection);
         } finally {
@@ -54,7 +51,7 @@ public class ConnectionPool implements Disposable {
     }
 
     public synchronized Connection allocateConnection() throws SQLException {
-            ConnectionStatus connectionStatus = connectionHandler.getConnectionStatus();
+        ConnectionStatus connectionStatus = connectionHandler.getConnectionStatus();
         while (connections.size() > 0) {
             ConnectionWrapper connectionWrapper = connections.remove(0);
             if (connectionWrapper.isValid()) {
@@ -66,9 +63,7 @@ public class ConnectionPool implements Disposable {
         }
 
         logger.debug("[DBN-INFO] Attempt to create new pool connection for '" + connectionHandler.getName() + "'");
-        Connection connection = ConnectionUtil.connect(
-                connectionHandler.getSettings().getDatabaseSettings(),
-                connectionHandler.getSettings().getDetailSettings().getProperties(), connectionStatus);
+        Connection connection = ConnectionUtil.connect(connectionHandler.getSettings(), connectionStatus);
 
         //connectionHandler.getConnectionManager().notifyConnectionStatusListeners(connectionHandler);
 
@@ -129,6 +124,18 @@ public class ConnectionPool implements Disposable {
 
     public void dispose() {
 
+    }
+
+    public void setAutoCommit(boolean autoCommit) throws SQLException {
+        if (standaloneConnection != null && !standaloneConnection.isClosed()) {
+            standaloneConnection.setAutoCommit(autoCommit);
+        }
+
+        for (ConnectionWrapper connection : connections) {
+            if (!connection.connection.isClosed()) {
+                connection.connection.setAutoCommit(autoCommit);
+            }
+        }
     }
 
     private class PoolCleanerTask extends TimerTask {

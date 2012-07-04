@@ -23,9 +23,7 @@ public class ShowDatabaseInformationAction extends DumbAwareAction {
             public void execute(@NotNull ProgressIndicator progressIndicator) {
                 initProgressIndicator(progressIndicator, true);
                 ConnectionManager connectionManager = connectionHandler.getConnectionManager();
-                connectionManager.showConnectionInfo(
-                        connectionHandler.getSettings().getDatabaseSettings(),
-                        connectionHandler.getSettings().getDetailSettings().getProperties(), null);
+                connectionManager.showConnectionInfo(connectionHandler.getSettings());
             }
         }.start();
 

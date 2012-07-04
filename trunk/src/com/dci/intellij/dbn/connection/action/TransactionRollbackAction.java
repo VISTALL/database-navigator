@@ -40,5 +40,6 @@ public class TransactionRollbackAction extends DumbAwareAction {
     @Override
     public void update(AnActionEvent e) {
         e.getPresentation().setEnabled(connectionHandler.hasOpenTransactions());
+        e.getPresentation().setVisible(!connectionHandler.isAutoCommit());
     }
 }

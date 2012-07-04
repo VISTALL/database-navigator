@@ -42,6 +42,8 @@ public interface ConnectionHandler extends Disposable{
     boolean isValid(boolean check);
     boolean isValid();
     boolean isVirtual();
+    boolean isAutoCommit();
+    void setAutoCommit(boolean autoCommit) throws SQLException;
     void disconnect();
 
     String getId();
