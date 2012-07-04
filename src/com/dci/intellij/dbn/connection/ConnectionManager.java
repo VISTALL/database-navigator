@@ -11,6 +11,8 @@ import com.dci.intellij.dbn.common.options.Configuration;
 import com.dci.intellij.dbn.common.ui.MessageDialog;
 import com.dci.intellij.dbn.common.util.EditorUtil;
 import com.dci.intellij.dbn.connection.config.ConnectionConfig;
+import com.dci.intellij.dbn.connection.config.ConnectionDatabaseSettings;
+import com.dci.intellij.dbn.connection.config.ConnectionDetailSettings;
 import com.dci.intellij.dbn.connection.config.ConnectionSettings;
 import com.dci.intellij.dbn.connection.config.ui.ConnectionManagerSettingsForm;
 import com.dci.intellij.dbn.connection.mapping.FileConnectionMappingManager;
@@ -85,9 +87,16 @@ public abstract class ConnectionManager
     /*********************************************************
     *                        Custom                         *
     *********************************************************/
-    public ConnectionInfo testConnectivity(ConnectionConfig connectionConfig, Map<String, String> connectionProperties, @Nullable ConnectionStatus connectionStatus, boolean showMessageDialog) {
+    public ConnectionInfo testConnectivity(ConnectionSettings connectionSettings, @Nullable ConnectionStatus connectionStatus, boolean showMessageDialog) {
+         ConnectionDatabaseSettings databaseSettings = connectionSettings.getDatabaseSettings();
+         ConnectionDetailSettings detailSettings = connectionSettings.getDetailSettings();
+         return testConnectivity(databaseSettings, detailSettings, connectionStatus, showMessageDialog);
+     }
+
+    public ConnectionInfo testConnectivity(ConnectionConfig connectionConfig, @Nullable ConnectionDetailSettings detailSettings, @Nullable ConnectionStatus connectionStatus, boolean showMessageDialog) {
         try {
-            Connection connection = ConnectionUtil.connect(connectionConfig, connectionProperties, connectionStatus);
+            Map<String, String> connectionProperties = detailSettings == null ? null : detailSettings.getProperties();
+            Connection connection = ConnectionUtil.connect(connectionConfig, connectionProperties, false, connectionStatus);
             ConnectionInfo connectionInfo = new ConnectionInfo(connection.getMetaData());
             ConnectionUtil.closeConnection(connection);
             connectionConfig.setConnectivityStatus(ConnectivityStatus.VALID);
@@ -113,9 +122,16 @@ public abstract class ConnectionManager
         }
     }
 
-    public ConnectionInfo showConnectionInfo(ConnectionConfig connectionConfig, Map<String, String> connectionProperties, @Nullable ConnectionStatus connectionStatus) {
+    public ConnectionInfo showConnectionInfo(ConnectionSettings connectionSettings) {
+        ConnectionDatabaseSettings databaseSettings = connectionSettings.getDatabaseSettings();
+        ConnectionDetailSettings detailSettings = connectionSettings.getDetailSettings();
+        return showConnectionInfo(databaseSettings, detailSettings);
+    }
+
+    public ConnectionInfo showConnectionInfo(ConnectionConfig connectionConfig, @Nullable ConnectionDetailSettings detailSettings) {
         try {
-            Connection connection = ConnectionUtil.connect(connectionConfig, connectionProperties, connectionStatus);
+            Map<String, String> connectionProperties = detailSettings == null ? null : detailSettings.getProperties();
+            Connection connection = ConnectionUtil.connect(connectionConfig, connectionProperties, false, null);
             ConnectionInfo connectionInfo = new ConnectionInfo(connection.getMetaData());
             ConnectionUtil.closeConnection(connection);
             MessageDialog.showInfoDialog(

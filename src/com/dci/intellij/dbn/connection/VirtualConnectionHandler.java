@@ -70,6 +70,9 @@ public class VirtualConnectionHandler implements ConnectionHandler {
     public String getDescription() {return "Virtual database connection"; }
     public Icon getIcon() { return Icons.CONNECTION_VIRTUAL; }
     public boolean isVirtual() {return true;}
+    public boolean isAutoCommit() {return false;}
+    public void setAutoCommit(boolean autoCommit) throws SQLException {}
+
     public Map<String, String> getProperties() {return properties;}
 
     public DatabaseInterfaceProvider getInterfaceProvider() {

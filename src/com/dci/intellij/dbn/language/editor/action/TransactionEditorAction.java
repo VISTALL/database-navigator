@@ -9,7 +9,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
 
-import javax.swing.*;
+import javax.swing.Icon;
 
 public abstract class TransactionEditorAction extends DumbAwareAction {
     protected TransactionEditorAction(String text, String description, Icon icon) {
@@ -32,5 +32,13 @@ public abstract class TransactionEditorAction extends DumbAwareAction {
                 MessageUtil.showErrorDialog(message);
             }
         }.start();
+    }
+
+    protected ConnectionHandler getConnectionHandler(Project project) {
+        if (project != null) {
+            FileConnectionMappingManager connectionMappingManager = FileConnectionMappingManager.getInstance(project);
+            return connectionMappingManager.lookupActiveConnectionForEditor();
+        }
+        return null;
     }
 }

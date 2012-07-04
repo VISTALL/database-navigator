@@ -1,7 +1,11 @@
 package com.dci.intellij.dbn.connection;
 
 import com.dci.intellij.dbn.connection.config.ConnectionConfig;
+import com.dci.intellij.dbn.connection.config.ConnectionDatabaseSettings;
+import com.dci.intellij.dbn.connection.config.ConnectionDetailSettings;
+import com.dci.intellij.dbn.connection.config.ConnectionSettings;
 import com.dci.intellij.dbn.driver.DatabaseDriverManager;
+import org.jetbrains.annotations.Nullable;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -50,7 +54,13 @@ public class ConnectionUtil {
         }
     }
 
-    public static Connection connect(ConnectionConfig connectionConfig, Map<String, String> connectionProperties, ConnectionStatus connectionStatus) throws SQLException {
+    public static Connection connect(ConnectionSettings connectionSettings, ConnectionStatus connectionStatus) throws SQLException {
+        ConnectionDatabaseSettings databaseSettings = connectionSettings.getDatabaseSettings();
+        ConnectionDetailSettings detailSettings = connectionSettings.getDetailSettings();
+        return connect(databaseSettings, detailSettings.getProperties(), detailSettings.isAutoCommit(), connectionStatus);
+    }
+
+    public static Connection connect(ConnectionConfig connectionConfig, Map<String, String> connectionProperties, boolean autoCommit, @Nullable ConnectionStatus connectionStatus) throws SQLException {
         try {
             Driver driver = DatabaseDriverManager.getInstance().getDriver(
                     connectionConfig.getDriverLibrary(),
@@ -69,7 +79,7 @@ public class ConnectionUtil {
             if (connection == null) {
                 throw new SQLException("Unknown reason.");
             }
-            connection.setAutoCommit(false);
+            connection.setAutoCommit(autoCommit);
             if (connectionStatus != null) {
                 connectionStatus.setStatusMessage(null);
                 connectionStatus.setConnected(true);

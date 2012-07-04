@@ -151,7 +151,7 @@ public class GenericConnectionConfigForm extends ConfigurationEditorForm<Generic
                     applyChanges(temporaryConfig);
 
                     if (source == testButton) connectionManager.testConnectivity(temporaryConfig, null, null, true);
-                    if (source == infoButton) connectionManager.showConnectionInfo(temporaryConfig, null, null);
+                    if (source == infoButton) connectionManager.showConnectionInfo(temporaryConfig, null);
                 }
                 else if (source == osAuthenticationCheckBox) {
                     userTextField.setEnabled(!osAuthenticationCheckBox.isSelected());

@@ -5,7 +5,6 @@ import com.dci.intellij.dbn.common.thread.ModalTask;
 import com.dci.intellij.dbn.common.util.ActionUtil;
 import com.dci.intellij.dbn.common.util.MessageUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
-import com.dci.intellij.dbn.connection.mapping.FileConnectionMappingManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
@@ -20,8 +19,7 @@ public class TransactionCommitEditorAction extends TransactionEditorAction {
 
     public void actionPerformed(AnActionEvent e) {
         final Project project = ActionUtil.getProject(e);
-        FileConnectionMappingManager connectionMappingManager = FileConnectionMappingManager.getInstance(project);
-        final ConnectionHandler activeConnection = connectionMappingManager.lookupActiveConnectionForEditor();
+        final ConnectionHandler activeConnection = getConnectionHandler(project);
 
         new ModalTask(project, "Performing commit on connection " + activeConnection.getName(), false) {
             @Override
@@ -40,5 +38,10 @@ public class TransactionCommitEditorAction extends TransactionEditorAction {
     public void update(AnActionEvent e) {
         super.update(e);
         e.getPresentation().setText("Commit");
+
+        Project project = ActionUtil.getProject(e);
+        ConnectionHandler connectionHandler = getConnectionHandler(project);
+        e.getPresentation().setVisible(connectionHandler != null && !connectionHandler.isAutoCommit());
     }
+
 }

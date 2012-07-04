@@ -200,10 +200,19 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
         return false;
     }
 
+    @Override
+    public boolean isAutoCommit() {
+        return connectionSettings.getDetailSettings().isAutoCommit();
+    }
+
+    @Override
+    public void setAutoCommit(boolean autoCommit) throws SQLException {
+        connectionSettings.getDetailSettings().setAutoCommit(autoCommit);
+        connectionPool.setAutoCommit(autoCommit);
+    }
+
     public ConnectionInfo testConnectivity(boolean showMessageDialog) {
-        return connectionManager.testConnectivity(
-                connectionSettings.getDatabaseSettings(), 
-                connectionSettings.getDetailSettings().getProperties(), connectionStatus, showMessageDialog);
+        return connectionManager.testConnectivity(connectionSettings, connectionStatus, showMessageDialog);
     }
 
     public void disconnect() {
@@ -377,9 +386,7 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
                 @Override
                 public void execute(@NotNull ProgressIndicator progressIndicator) {
                     initProgressIndicator(progressIndicator, true);
-                    connectionManager.testConnectivity(
-                            connectionSettings.getDatabaseSettings(), 
-                            connectionSettings.getDetailSettings().getProperties(), connectionStatus, false);
+                    connectionManager.testConnectivity(connectionSettings, connectionStatus, false);
                     //fixme check if the connection is pointing to a new database and reload if this is the case
                     //objectBundle.checkForDatabaseChange();
                     DatabaseBrowserManager.updateTree(getObjectBundle(), TreeUtil.NODES_CHANGED);
