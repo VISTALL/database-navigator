@@ -110,6 +110,11 @@ public class SQLConsoleFile extends VirtualFile implements DatabaseFile, DBVirtu
     }
 
     @Override
+    public boolean isInLocalFileSystem() {
+        return false;
+    }
+
+    @Override
     public VirtualFile getParent() {
         return null;
     }
