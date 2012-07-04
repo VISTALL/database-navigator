@@ -43,7 +43,7 @@ public class DatasetEditorModel extends ResultSetDataModel<DatasetEditorModelRow
         this.settings =  DataEditorSettings.getInstance(dataset.getProject());
     }
 
-    public void load(ProgressIndicator progressIndicator, boolean useCurrentFilter, boolean keepChanges) throws SQLException {
+    public synchronized void load(ProgressIndicator progressIndicator, boolean useCurrentFilter, boolean keepChanges) throws SQLException {
         progressIndicator.setText("Loading data for " + dataset.getQualifiedNameWithType());
         load(useCurrentFilter, keepChanges);
     }
