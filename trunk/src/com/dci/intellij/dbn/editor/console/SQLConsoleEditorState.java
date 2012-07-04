@@ -1,6 +1,7 @@
 package com.dci.intellij.dbn.editor.console;
 
 import com.dci.intellij.dbn.common.editor.BasicTextEditorState;
+import com.dci.intellij.dbn.common.thread.ConditionalLaterInvocator;
 import com.dci.intellij.dbn.common.thread.WriteActionRunner;
 import com.dci.intellij.dbn.common.util.DocumentUtil;
 import com.dci.intellij.dbn.object.DBSchema;
@@ -58,15 +59,20 @@ public class SQLConsoleEditorState extends BasicTextEditorState {
 
     @Override
     public void applyToEditor(@NotNull final TextEditor textEditor) {
-        new WriteActionRunner() {
+        new ConditionalLaterInvocator() {
+            @Override
             public void run() {
-                textEditor.getEditor().getDocument().setText(content);
-                SQLConsoleEditorState.super.applyToEditor(textEditor);
-                SQLConsoleFile file = (SQLConsoleFile) DocumentUtil.getVirtualFile(textEditor.getEditor());
-                if (currentSchema != null) {
-                    DBSchema schema = file.getConnectionHandler().getObjectBundle().getSchema(currentSchema);
-                    if (schema != null) file.setCurrentSchema(schema);
-                }
+                new WriteActionRunner() {
+                    public void run() {
+                        textEditor.getEditor().getDocument().setText(content);
+                        SQLConsoleEditorState.super.applyToEditor(textEditor);
+                        SQLConsoleFile file = (SQLConsoleFile) DocumentUtil.getVirtualFile(textEditor.getEditor());
+                        if (currentSchema != null) {
+                            DBSchema schema = file.getConnectionHandler().getObjectBundle().getSchema(currentSchema);
+                            if (schema != null) file.setCurrentSchema(schema);
+                        }
+                    }
+                }.start();
             }
         }.start();
     }
