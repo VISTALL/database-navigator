@@ -116,7 +116,7 @@ public class GenericConnectionConfigForm extends ConfigurationEditorForm<Generic
                connectivityStatus == ConnectivityStatus.INVALID ? Icons.CONNECTION_INVALID : Icons.CONNECTION_INACTIVE;
 
         ConnectionPresentationChangeListener listener = EventManager.syncPublisher(configuration.getProject(), ConnectionPresentationChangeListener.TOPIC);
-        listener.presentationChanged(name, icon, null, connectionId);
+        listener.presentationChanged(name, icon, headerPanel.getBackground(), connectionId);
 
     }
 
