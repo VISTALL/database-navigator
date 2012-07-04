@@ -109,6 +109,11 @@ public class  DatabaseObjectFile<T extends DBObject> extends VirtualFile impleme
         return true;
     }
 
+    @Override
+    public boolean isInLocalFileSystem() {
+        return false;
+    }
+
     @Nullable
     public VirtualFile getParent() {
         BrowserTreeElement treeParent = object.getTreeParent();

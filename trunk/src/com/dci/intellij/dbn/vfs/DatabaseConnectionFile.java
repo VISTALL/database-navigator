@@ -48,6 +48,11 @@ public class DatabaseConnectionFile extends VirtualFile implements DBVirtualFile
         return connectionHandler.getProject();
     }
 
+    @Override
+    public boolean isInLocalFileSystem() {
+        return false;
+    }
+
     /*********************************************************
      *                     VirtualFile                       *
      *********************************************************/

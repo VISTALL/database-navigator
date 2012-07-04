@@ -33,6 +33,11 @@ public abstract class DatabaseContentFile extends VirtualFile implements FileCon
         return getObject().getConnectionHandler();
     }
 
+    @Override
+    public boolean isInLocalFileSystem() {
+        return false;
+    }
+
     public DBSchema getCurrentSchema() {
         return getObject().getSchema();
     }

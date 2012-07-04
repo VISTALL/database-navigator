@@ -125,6 +125,11 @@ public class DatabaseObjectListFile<T extends DBObjectList> extends VirtualFile 
         return true;
     }
 
+    @Override
+    public boolean isInLocalFileSystem() {
+        return false;
+    }
+
     @Nullable
     public VirtualFile getParent() {
         GenericDatabaseElement parent = objectList.getParent();
