@@ -9,6 +9,7 @@ import com.intellij.util.messages.Topic;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.EventListener;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,7 +34,7 @@ public class EventManager extends AbstractProjectComponent implements Disposable
         return connection;
     }
     
-    public <T> void subscribe(Topic<T> topic, T handler) {
+    public <T extends EventListener> void subscribe(Topic<T> topic, T handler) {
         MessageBusConnection messageBusConnection = connect(handler);
         messageBusConnection.subscribe(topic, handler);
     }
@@ -47,20 +48,20 @@ public class EventManager extends AbstractProjectComponent implements Disposable
         }
     }
 
-    public <T> T syncPublisher(Topic<T> topic) {
+    public <T extends EventListener> T syncPublisher(Topic<T> topic) {
         MessageBus messageBus = getProject().getMessageBus();
         return messageBus.syncPublisher(topic);
     }
 
-    public static <T> void subscribe(Project project, Topic<T> topic, T handler) {
+    public static <T extends EventListener> void subscribe(Project project, Topic<T> topic, T handler) {
         getInstance(project).subscribe(topic, handler);
     }
 
-    public static <T> void unsubscribe(Project project, T handler) {
+    public static <T extends EventListener> void unsubscribe(Project project, T handler) {
         getInstance(project).unsubscribe(handler);
     }
 
-    public static <T> T syncPublisher(Project project, Topic<T> topic) {
+    public static <T extends EventListener> T syncPublisher(Project project, Topic<T> topic) {
         return getInstance(project).syncPublisher(topic);
     }
 
