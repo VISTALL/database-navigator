@@ -55,9 +55,11 @@ public class DatasetEditorModel extends ResultSetDataModel<DatasetEditorModelRow
         int minRowCount = settings.getGeneralSettings().getFetchBlockSize().value();
         int rowCount = Math.max(stateRowCount, Math.max(originalRowCount, minRowCount));
 
-        ConnectionUtil.closeResultSet(resultSet);
+
         Connection connection = connectionHandler.getStandaloneConnection();
-        resultSet = loadResultSet(connection, useCurrentFilter);
+        ResultSet newResultSet = loadResultSet(connection, useCurrentFilter);
+        ConnectionUtil.closeResultSet(resultSet);
+        resultSet = newResultSet;
         resultSetExhausted = false;
 
         if (keepChanges) snapshotChanges(); else clearChanges();

@@ -145,24 +145,26 @@ public class StringUtil extends com.intellij.openapi.util.text.StringUtil {
 
     public static String wrap(String string, int maxRowLength, String wrapCharacters) {
         StringBuilder builder = new StringBuilder();
-        StringTokenizer tokenizer = new StringTokenizer(string, wrapCharacters, true);
-        while (tokenizer.hasMoreTokens()) {
-            String token = tokenizer.nextToken();
-            int wrapIndex = builder.lastIndexOf("\n") + 1;
-            if (wrapCharacters.contains(token)) {
-                builder.append(token);
-            } else {
-                int tokenLength = token.length();
-                if (tokenLength >= maxRowLength) {
-                    if (wrapIndex != builder.length()) {
-                        builder.append("\n");
-                    }
-                    builder.append(token.trim());
-                } else {
-                    if (builder.length() - wrapIndex + tokenLength > maxRowLength) {
-                        builder.append("\n");
-                    }
+        if (string != null) {
+            StringTokenizer tokenizer = new StringTokenizer(string, wrapCharacters, true);
+            while (tokenizer.hasMoreTokens()) {
+                String token = tokenizer.nextToken();
+                int wrapIndex = builder.lastIndexOf("\n") + 1;
+                if (wrapCharacters.contains(token)) {
                     builder.append(token);
+                } else {
+                    int tokenLength = token.length();
+                    if (tokenLength >= maxRowLength) {
+                        if (wrapIndex != builder.length()) {
+                            builder.append("\n");
+                        }
+                        builder.append(token.trim());
+                    } else {
+                        if (builder.length() - wrapIndex + tokenLength > maxRowLength) {
+                            builder.append("\n");
+                        }
+                        builder.append(token);
+                    }
                 }
             }
         }

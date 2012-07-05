@@ -1,10 +1,9 @@
 package com.dci.intellij.dbn.editor.console;
 
 import com.dci.intellij.dbn.common.editor.BasicTextEditorProvider;
-import com.dci.intellij.dbn.common.util.ActionUtil;
 import com.dci.intellij.dbn.common.util.DocumentUtil;
+import com.dci.intellij.dbn.editor.console.ui.SQLConsoleEditorToolbarForm;
 import com.dci.intellij.dbn.vfs.SQLConsoleFile;
-import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorPolicy;
@@ -15,7 +14,7 @@ import org.jdom.Element;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
-import java.awt.*;
+import java.awt.BorderLayout;
 
 
 public class SQLConsoleEditorProvider extends BasicTextEditorProvider {
@@ -42,9 +41,8 @@ public class SQLConsoleEditorProvider extends BasicTextEditorProvider {
     @NotNull
     public FileEditor createEditor(@NotNull Project project, @NotNull VirtualFile file) {
         SQLConsoleEditor editor = new SQLConsoleEditor(project, (SQLConsoleFile) file, "SQL Console");
-        ActionToolbar actionToolbar = ActionUtil.createActionToolbar("", true, "DBNavigator.ActionGroup.FileEditor");
-        //FileEditorManager.getInstance(project).addTopComponent(editor, actionToolbar.getComponent());
-        editor.getComponent().add(actionToolbar.getComponent(), BorderLayout.NORTH);
+        SQLConsoleEditorToolbarForm toolbarForm = new SQLConsoleEditorToolbarForm(editor);
+        editor.getComponent().add(toolbarForm.getComponent(), BorderLayout.NORTH);
         editor.getEditor().putUserData(DBN_FILE_EDITOR_PROVIDER, Boolean.toString(true));
         return editor;
     }
