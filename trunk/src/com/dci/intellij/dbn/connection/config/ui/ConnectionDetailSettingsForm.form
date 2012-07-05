@@ -45,7 +45,7 @@
             </constraints>
             <properties>
               <enabled value="true"/>
-              <text value="&amp;Auto Commit"/>
+              <text value="&amp;Auto-Commit"/>
             </properties>
           </component>
           <component id="bb7bb" class="javax.swing.JLabel">

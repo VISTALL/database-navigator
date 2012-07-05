@@ -5,6 +5,7 @@ import com.dci.intellij.dbn.browser.model.BrowserTreeElement;
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.dispose.DisposeUtil;
 import com.dci.intellij.dbn.common.environment.EnvironmentType;
+import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.common.filter.Filter;
 import com.dci.intellij.dbn.common.thread.BackgroundTask;
 import com.dci.intellij.dbn.common.ui.tree.TreeUtil;
@@ -207,8 +208,11 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
 
     @Override
     public void setAutoCommit(boolean autoCommit) throws SQLException {
-        connectionSettings.getDetailSettings().setAutoCommit(autoCommit);
         connectionPool.setAutoCommit(autoCommit);
+        connectionSettings.getDetailSettings().setAutoCommit(autoCommit);
+        ConnectionSettingsChangeListener listener = EventManager.syncPublisher(getProject(), ConnectionSettingsChangeListener.TOPIC);
+        listener.connectionSettingsChanged(getId());
+
     }
 
     public ConnectionInfo testConnectivity(boolean showMessageDialog) {
