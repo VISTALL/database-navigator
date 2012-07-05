@@ -1,14 +1,13 @@
 package com.dci.intellij.dbn.editor.data.ui;
 
-import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.common.thread.ConditionalLaterInvocator;
+import com.dci.intellij.dbn.common.ui.AutoCommitLabel;
 import com.dci.intellij.dbn.common.ui.MessageDialog;
 import com.dci.intellij.dbn.common.ui.UIForm;
 import com.dci.intellij.dbn.common.ui.UIFormImpl;
 import com.dci.intellij.dbn.common.ui.table.BasicTable;
 import com.dci.intellij.dbn.common.util.ActionUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
-import com.dci.intellij.dbn.connection.ConnectionSettingsChangeListener;
 import com.dci.intellij.dbn.data.find.DataSearchComponent;
 import com.dci.intellij.dbn.data.find.SearchableDataComponent;
 import com.dci.intellij.dbn.editor.data.DatasetEditor;
@@ -25,17 +24,16 @@ import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.table.TableCellEditor;
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.sql.SQLException;
 
-public class DatasetEditorForm extends UIFormImpl implements UIForm, SearchableDataComponent, ConnectionSettingsChangeListener {
+public class DatasetEditorForm extends UIFormImpl implements UIForm, SearchableDataComponent {
     private JPanel actionsPanel;
     private JScrollPane datasetTableScrollPane;
     private JPanel mainPanel;
     private JLabel loadingLabel;
     private JPanel loadingIconPanel;
     private JPanel searchPanel;
-    private JLabel autoCommitLabel;
+    private AutoCommitLabel autoCommitLabel;
     private DatasetEditorTable datasetEditorTable;
     private DataSearchComponent dataSearchComponent;
 
@@ -64,8 +62,7 @@ public class DatasetEditorForm extends UIFormImpl implements UIForm, SearchableD
         }
 
         ConnectionHandler connectionHandler = getConnectionHandler();
-        updateAutoCommitInfo(connectionHandler);
-        EventManager.subscribe(project, ConnectionSettingsChangeListener.TOPIC, this);
+        autoCommitLabel.setConnectionHandler(connectionHandler);
     }
 
     public JPanel getComponent() {
@@ -96,7 +93,7 @@ public class DatasetEditorForm extends UIFormImpl implements UIForm, SearchableD
     }
 
     public void dispose() {
-        EventManager.unsubscribe(getConnectionHandler().getProject(), this);
+        autoCommitLabel.dispose();
         super.dispose();
         if (dataSearchComponent != null) {
             dataSearchComponent.dispose();
@@ -104,19 +101,6 @@ public class DatasetEditorForm extends UIFormImpl implements UIForm, SearchableD
         }
         datasetEditorTable.dispose();
         datasetEditorTable = null;
-    }
-
-    @Override
-    public void connectionSettingsChanged(String connectionId) {
-        ConnectionHandler connectionHandler = getConnectionHandler();
-        if (connectionHandler.getId().equals(connectionId)) {
-            updateAutoCommitInfo(connectionHandler);
-        }
-    }
-
-    private void updateAutoCommitInfo(ConnectionHandler connectionHandler) {
-        autoCommitLabel.setText(connectionHandler.isAutoCommit() ? "Auto Commit ON" : "Auto Commit OFF");
-        autoCommitLabel.setForeground(connectionHandler.isAutoCommit() ? new Color(190, 0, 0): new Color(0, 190, 0));
     }
 
     private ConnectionHandler getConnectionHandler() {
