@@ -1,8 +1,7 @@
 package com.dci.intellij.dbn.language.editor;
 
-import com.dci.intellij.dbn.common.util.ActionUtil;
 import com.dci.intellij.dbn.language.common.DBLanguageFileType;
-import com.intellij.openapi.actionSystem.ActionToolbar;
+import com.dci.intellij.dbn.language.editor.ui.DBLanguageFileEditorToolbarForm;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
@@ -14,14 +13,26 @@ import java.awt.BorderLayout;
 public class DBLanguageFileEditorListener implements FileEditorManagerListener{
     public void fileOpened(FileEditorManager source, VirtualFile file) {
         if (file.isInLocalFileSystem() && file.getFileType() instanceof DBLanguageFileType) {
-            ActionToolbar actionToolbar = ActionUtil.createActionToolbar("", true, "DBNavigator.ActionGroup.FileEditor");
-            //FileEditorManager.getInstance(editor.getProject()).addTopComponent(fileEditor, actionToolbar.getComponent());
             FileEditor editor = source.getSelectedEditor(file);
-            editor.getComponent().add(actionToolbar.getComponent(), BorderLayout.NORTH);
+            if (editor != null) {
+                DBLanguageFileEditorToolbarForm toolbarForm = new DBLanguageFileEditorToolbarForm(source.getProject(), file);
+                editor.getComponent().add(toolbarForm.getComponent(), BorderLayout.NORTH);
+                editor.putUserData(DBLanguageFileEditorToolbarForm.USER_DATA_KEY, toolbarForm);
+            }
         }
     }
 
     public void fileClosed(FileEditorManager source, VirtualFile file) {
+        if (file.isInLocalFileSystem() && file.getFileType() instanceof DBLanguageFileType) {
+            FileEditor editor = source.getSelectedEditor(file);
+            if (editor != null) {
+                DBLanguageFileEditorToolbarForm toolbarForm = editor.getUserData(DBLanguageFileEditorToolbarForm.USER_DATA_KEY);
+                if (toolbarForm != null) {
+                    toolbarForm.dispose();
+                }
+            }
+        }
+
     }
 
     public void selectionChanged(FileEditorManagerEvent event) {

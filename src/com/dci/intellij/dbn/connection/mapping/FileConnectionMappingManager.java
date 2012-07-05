@@ -9,6 +9,7 @@ import com.dci.intellij.dbn.connection.ConnectionManager;
 import com.dci.intellij.dbn.connection.ProjectConnectionManager;
 import com.dci.intellij.dbn.ddl.DDLFileBindingManager;
 import com.dci.intellij.dbn.editor.data.DatasetEditor;
+import com.dci.intellij.dbn.language.editor.ui.DBLanguageFileEditorToolbarForm;
 import com.dci.intellij.dbn.object.DBSchema;
 import com.dci.intellij.dbn.object.common.DBSchemaObject;
 import com.dci.intellij.dbn.vfs.DatabaseContentFile;
@@ -25,7 +26,12 @@ import com.intellij.openapi.util.InvalidDataException;
 import com.intellij.openapi.util.JDOMExternalizable;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.WriteExternalException;
-import com.intellij.openapi.vfs.*;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileAdapter;
+import com.intellij.openapi.vfs.VirtualFileEvent;
+import com.intellij.openapi.vfs.VirtualFileManager;
+import com.intellij.openapi.vfs.VirtualFileMoveEvent;
+import com.intellij.openapi.vfs.VirtualFilePropertyEvent;
 import gnu.trove.THashSet;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
@@ -265,6 +271,12 @@ public class FileConnectionMappingManager extends VirtualFileAdapter implements 
                 boolean changed = setActiveConnection(virtualFile, connectionHandler);
                 if (changed) {
                     DocumentUtil.touchDocument(editor);
+
+                    FileEditor fileEditor = FileEditorManager.getInstance(project).getSelectedEditor(virtualFile);
+                    DBLanguageFileEditorToolbarForm toolbarForm = fileEditor.getUserData(DBLanguageFileEditorToolbarForm.USER_DATA_KEY);
+                    if (toolbarForm != null) {
+                        toolbarForm.getAutoCommitLabel().setConnectionHandler(connectionHandler);
+                    }
                 }
             }
         }
