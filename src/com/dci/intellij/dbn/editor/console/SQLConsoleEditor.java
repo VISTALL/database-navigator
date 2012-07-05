@@ -14,4 +14,5 @@ public class SQLConsoleEditor extends BasicTextEditorImpl<SQLConsoleFile>{
     protected BasicTextEditorState createEditorState() {
         return new SQLConsoleEditorState();
     }
+
 }
