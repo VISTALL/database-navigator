@@ -34,7 +34,8 @@
             <li><b>3.0.2270</b>
             <ul>
                 - Code formatting (Experimental - work in progress)<br>
-                - Support for IntelliJ 11.1 release<br>
+                - Connection Auto Commit support<br>
+                - Support for IntelliJ 12 EAP release<br>
                 - Fixed broken user interface with PyCharm and RubyMine<br>
                 - Minor bug fixes<br>
             </ul>

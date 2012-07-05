@@ -1,6 +1,7 @@
 package com.dci.intellij.dbn.execution.method.ui;
 
 import com.dci.intellij.dbn.common.dispose.DisposeUtil;
+import com.dci.intellij.dbn.common.ui.AutoCommitLabel;
 import com.dci.intellij.dbn.common.ui.UIForm;
 import com.dci.intellij.dbn.common.ui.UIFormImpl;
 import com.dci.intellij.dbn.common.util.ActionUtil;
@@ -47,6 +48,7 @@ public class MethodExecutionForm extends UIFormImpl implements UIForm {
     private JSeparator spacer;
     private JLabel connectionLabel;
     private JScrollPane argumentsScrollPane;
+    private AutoCommitLabel autoCommitLabel;
 
 
     private List<MethodExecutionArgumentForm> argumentForms = new ArrayList<MethodExecutionArgumentForm>();
@@ -70,7 +72,7 @@ public class MethodExecutionForm extends UIFormImpl implements UIForm {
         }
         connectionLabel.setText(connectionHandler.getPresentableText());
         connectionLabel.setIcon(connectionHandler.getIcon());
-
+        autoCommitLabel.setConnectionHandler(connectionHandler);
 
         //objectPanel.add(new ObjectDetailsPanel(method).getComponent(), BorderLayout.NORTH);
 
@@ -113,6 +115,7 @@ public class MethodExecutionForm extends UIFormImpl implements UIForm {
         int height = (int) Math.min(preferredSize.getHeight(), 380);
         mainPanel.setPreferredSize(new Dimension(width, height));
         commitCheckBox.setSelected(executionInput.isCommitAfterExecution());
+        commitCheckBox.setEnabled(!connectionHandler.isAutoCommit());
         usePoolConnectionCheckBox.setSelected(executionInput.isUsePoolConnection());
 
         for (MethodExecutionArgumentForm argumentComponent : argumentForms){
@@ -188,6 +191,7 @@ public class MethodExecutionForm extends UIFormImpl implements UIForm {
 
     public void dispose() {
         super.dispose();
+        autoCommitLabel.dispose();
         DisposeUtil.disposeCollection(argumentForms);
         changeListeners.clear();
         argumentForms = null;
