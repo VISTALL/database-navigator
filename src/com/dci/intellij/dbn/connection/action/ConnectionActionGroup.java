@@ -9,6 +9,7 @@ public class ConnectionActionGroup extends DefaultActionGroup {
         //add(new ConnectAction(connectionHandler));
         add(new TransactionCommitAction(connectionHandler));
         add(new TransactionRollbackAction(connectionHandler));
+        add(new ToggleAutoCommitAction(connectionHandler));
         add(new OpenSQLConsoleAction(connectionHandler));
         addSeparator();
         add(new ShowDatabaseInformationAction(connectionHandler));

@@ -312,7 +312,8 @@ public class DBObjectBundleImpl implements DBObjectBundle {
     }
 
     public String getPresentableTextDetails() {
-        return getConnectionHandler().isAutoCommit() ? "[Auto Commit]" : null;
+        //return getConnectionHandler().isAutoCommit() ? "[Auto Commit]" : null;
+        return null;
     }
 
     public String getPresentableTextConditionalDetails() {

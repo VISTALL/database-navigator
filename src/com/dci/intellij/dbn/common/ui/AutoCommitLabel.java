@@ -39,11 +39,11 @@ public class AutoCommitLabel extends JLabel implements ConnectionSettingsChangeL
         if (connectionHandler != null) {
             setVisible(true);
             boolean autoCommit = connectionHandler.isAutoCommit();
-            setText(autoCommit ? "Auto Commit ON" : "Auto Commit OFF");
+            setText(autoCommit ? "Auto-Commit ON" : "Auto-Commit OFF");
             setForeground(autoCommit ? new Color(210, 0, 0): new Color(0, 190, 0));
             setToolTipText(autoCommit ?
-                    "Auto Commit is enabled for connection \"" + connectionHandler + "\". Data changes will be automatically committed to the database." :
-                    "Auto Commit is disabled for connection \"" + connectionHandler + "\". Data changes will need to be manually committed to the database.");
+                    "Auto-Commit is enabled for connection \"" + connectionHandler + "\". Data changes will be automatically committed to the database." :
+                    "Auto-Commit is disabled for connection \"" + connectionHandler + "\". Data changes will need to be manually committed to the database.");
         } else {
             setVisible(false);
         }
