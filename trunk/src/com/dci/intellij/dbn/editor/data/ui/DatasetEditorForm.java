@@ -10,6 +10,7 @@ import com.dci.intellij.dbn.common.util.ActionUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.data.find.DataSearchComponent;
 import com.dci.intellij.dbn.data.find.SearchableDataComponent;
+import com.dci.intellij.dbn.editor.DBContentType;
 import com.dci.intellij.dbn.editor.data.DatasetEditor;
 import com.dci.intellij.dbn.editor.data.ui.table.DatasetEditorTable;
 import com.dci.intellij.dbn.editor.data.ui.table.cell.DatasetTableCellEditor;
@@ -18,12 +19,9 @@ import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.AsyncProcessIcon;
 import com.intellij.util.ui.UIUtil;
 
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.ScrollPaneConstants;
+import javax.swing.*;
 import javax.swing.table.TableCellEditor;
-import java.awt.BorderLayout;
+import java.awt.*;
 import java.sql.SQLException;
 
 public class DatasetEditorForm extends UIFormImpl implements UIForm, SearchableDataComponent {
@@ -61,8 +59,10 @@ public class DatasetEditorForm extends UIFormImpl implements UIForm, SearchableD
                     "Error opening data editor for " + datasetEditor.getDataset().getQualifiedNameWithType(), e.getMessage(), false);
         }
 
-        ConnectionHandler connectionHandler = getConnectionHandler();
-        autoCommitLabel.setConnectionHandler(connectionHandler);
+        if (datasetEditor.getDataset().isEditable(DBContentType.DATA)) {
+            ConnectionHandler connectionHandler = getConnectionHandler();
+            autoCommitLabel.setConnectionHandler(connectionHandler);
+        }
     }
 
     public JPanel getComponent() {
