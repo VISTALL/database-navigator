@@ -11,7 +11,7 @@ public class DatasetRecordEditorDialog extends DBNDialog {
     private DatasetRecordEditorForm editorForm;
 
     public DatasetRecordEditorDialog(DatasetEditorModelRow row) {
-        super(row.getModel().getDataset().getProject(), "Edit Record", true);
+        super(row.getModel().getDataset().getProject(), row.getModel().isEditable() ? "Edit Record" : "View Record", true);
         setModal(true);
         setResizable(true);
         editorForm = new DatasetRecordEditorForm(row);
