@@ -12,6 +12,7 @@
  import com.dci.intellij.dbn.editor.data.ui.table.DatasetEditorTable;
  import com.dci.intellij.dbn.editor.data.ui.table.model.DatasetEditorModelCell;
  import com.dci.intellij.dbn.object.DBColumn;
+ import com.intellij.ui.SimpleTextAttributes;
 
  import javax.swing.JTextField;
  import javax.swing.border.Border;
@@ -42,6 +43,11 @@ public class DatasetTableCellEditor extends AbstractDatasetTableCellEditor imple
 
     public DatasetTableCellEditor(DatasetEditorTable table) {
         this(table, new BasicDataEditorComponent());
+        SimpleTextAttributes selectionTextAttributes = table.getConfigTextAttributes().getSelection();
+
+        JTextField textField = getTextField();
+        textField.setSelectionColor(selectionTextAttributes.getBgColor());
+        textField.setSelectedTextColor(selectionTextAttributes.getFgColor());
     }
 
     public DatasetTableCellEditor(DatasetEditorTable table, DataEditorComponent editorComponent) {
@@ -50,6 +56,10 @@ public class DatasetTableCellEditor extends AbstractDatasetTableCellEditor imple
         JTextField textField = getTextField();
         textField.addKeyListener(this);
         textField.addMouseListener(mouseListener);
+
+        SimpleTextAttributes selectionTextAttributes = table.getConfigTextAttributes().getSelection();
+        textField.setSelectionColor(selectionTextAttributes.getBgColor());
+        textField.setSelectedTextColor(selectionTextAttributes.getFgColor());
     }
 
     public DatasetEditorTable getTable() {
@@ -76,7 +86,8 @@ public class DatasetTableCellEditor extends AbstractDatasetTableCellEditor imple
             } else {
                 setEditable(false);
             }
-            selectText(getTextField());
+            JTextField textField = getTextField();
+            selectText(textField);
         }
     }
 

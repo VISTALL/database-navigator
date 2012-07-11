@@ -11,7 +11,7 @@ public class ToggleAutoCommitAction extends DumbAwareAction {
     private ConnectionHandler connectionHandler;
 
     public ToggleAutoCommitAction(ConnectionHandler connectionHandler) {
-        super("Enable/Disable Auto-Commit");
+        super("Turn Auto-Commit ON/OFF");
         this.connectionHandler = connectionHandler;
 
     }
@@ -29,7 +29,7 @@ public class ToggleAutoCommitAction extends DumbAwareAction {
     public void update(AnActionEvent e) {
         e.getPresentation().setText(
                 connectionHandler.isAutoCommit() ?
-                        "Disable Auto-Commit" :
-                        "Enable Auto-Commit");
+                        "Turn Auto-Commit OFF" :
+                        "Turn Auto-Commit ON");
     }
 }

@@ -6,13 +6,10 @@ import com.dci.intellij.dbn.common.ui.table.SortableTable;
 import com.dci.intellij.dbn.common.ui.table.model.BasicDataModel;
 import com.dci.intellij.dbn.common.ui.table.model.DataModel;
 import com.dci.intellij.dbn.common.ui.table.model.DataModelCell;
-import com.dci.intellij.dbn.common.util.TextAttributesUtil;
+import com.dci.intellij.dbn.data.editor.color.DataGridTextAttributes;
 import com.dci.intellij.dbn.data.find.DataSearchResult;
 import com.dci.intellij.dbn.data.find.DataSearchResultMatch;
 import com.dci.intellij.dbn.data.value.LazyLoadedValue;
-import com.intellij.openapi.editor.colors.ColorKey;
-import com.intellij.openapi.editor.colors.EditorColors;
-import com.intellij.openapi.editor.colors.EditorColorsManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.ColoredTableCellRenderer;
 import com.intellij.ui.SimpleTextAttributes;
@@ -24,27 +21,29 @@ import java.util.Iterator;
 
 
 public class BasicTableCellRenderer extends ColoredTableCellRenderer {
-    private Color ROW_HIGHLIGHT = EditorColorsManager.getInstance().getGlobalScheme().getColor(ColorKey.find("CARET_ROW_COLOR"));
-
     public BasicTableCellRenderer(Project project) {
     }
 
     protected void customizeCellRenderer(JTable table, Object value, boolean selected, boolean hasFocus, int row, int column) {
+        DataGridTextAttributes configTextAttributes = ((BasicTable) table).getConfigTextAttributes();
+
         SortableTable sortableTable = (SortableTable) table;
         DataModelCell cell = (DataModelCell) value;
         if (cell != null && cell.getUserValue() != null) {
             //append(cell.getFormattedUserValue(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
             SimpleTextAttributes textAttributes = cell.getUserValue() instanceof LazyLoadedValue ?
                     SimpleTextAttributes.GRAYED_ATTRIBUTES :
-                    SimpleTextAttributes.REGULAR_ATTRIBUTES;
-            writeUserValue(cell, textAttributes);
+                    configTextAttributes.getPlainData();
+            writeUserValue(cell, textAttributes, configTextAttributes);
         }
 
         //updateBorder(cell, sortableTable);
-        if (table.getSelectedRow() == row && !match(table.getSelectedColumns(), column) && table.getCellSelectionEnabled()) {
-            setBackground(ROW_HIGHLIGHT);
-        } else if (sortableTable.isLoading() && !selected) {
-            setBackground(Colors.DSE_CELL_BACKGROUND_DISABLED);
+        if (!selected) {
+            if (table.getSelectedRow() == row && !match(table.getSelectedColumns(), column) && table.getCellSelectionEnabled()) {
+                setBackground(configTextAttributes.getCaretRow().getBgColor());
+            } else if (sortableTable.isLoading()) {
+                setBackground(Colors.DSE_CELL_BACKGROUND_DISABLED);
+            }
         }
     }
 
@@ -60,7 +59,7 @@ public class BasicTableCellRenderer extends ColoredTableCellRenderer {
         }
     }
 
-    protected void writeUserValue(DataModelCell cell, SimpleTextAttributes textAttributes) {
+    protected void writeUserValue(DataModelCell cell, SimpleTextAttributes textAttributes, DataGridTextAttributes configTextAttributes) {
          String formattedUserValue;
          if (cell.getUserValue() instanceof String) {
              formattedUserValue = (String) cell.getUserValue();
@@ -79,13 +78,10 @@ public class BasicTableCellRenderer extends ColoredTableCellRenderer {
              Iterator<DataSearchResultMatch> matches = searchResult.getMatches(cell);
              if (matches != null) {
                  int lastEndOffset = 0;
-                 SimpleTextAttributes searchResultAttributes = TextAttributesUtil.getSimpleTextAttributes(EditorColors.TEXT_SEARCH_RESULT_ATTRIBUTES);
+                 SimpleTextAttributes searchResultAttributes = configTextAttributes.getSearchResult();
                  DataSearchResultMatch selectedMatch = searchResult.getSelectedMatch();
                  if (selectedMatch != null && selectedMatch.getCell() == cell) {
-                    searchResultAttributes = new SimpleTextAttributes(
-                            TextAttributesUtil.getColor(EditorColors.SELECTION_BACKGROUND_COLOR),
-                            TextAttributesUtil.getColor(EditorColors.SELECTION_FOREGROUND_COLOR),
-                            null, SimpleTextAttributes.STYLE_PLAIN);
+                    searchResultAttributes = configTextAttributes.getSelection();
                  }
                  
                  while (matches.hasNext()) {

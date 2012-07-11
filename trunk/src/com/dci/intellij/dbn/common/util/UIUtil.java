@@ -39,4 +39,15 @@ public class UIUtil {
                 (int) (locationOnScreen.getY() - componentLocation.getY()));
         return relativeLocation;
     }
+
+    public static boolean isChildOf(Component component, Component child) {
+        Component parent = child == null ? null : child.getParent();
+        while (parent != null) {
+            if (parent == component) {
+                return true;
+            }
+            parent = parent.getParent();
+        }
+        return false;
+    }
 }
