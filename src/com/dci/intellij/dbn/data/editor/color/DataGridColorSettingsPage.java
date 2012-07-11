@@ -16,22 +16,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class DataEditorColorSettingsPage implements ColorSettingsPage {
+public class DataGridColorSettingsPage implements ColorSettingsPage {
     protected final List<AttributesDescriptor> attributeDescriptors = new ArrayList<AttributesDescriptor>();
 
-    public DataEditorColorSettingsPage() {
-        attributeDescriptors.add(new AttributesDescriptor("Line Comment", DataEditorTextAttributesKeys.LINE_COMMENT));
-        attributeDescriptors.add(new AttributesDescriptor("Block Comment", DataEditorTextAttributesKeys.BLOCK_COMMENT));
-        attributeDescriptors.add(new AttributesDescriptor("String Literal", DataEditorTextAttributesKeys.STRING));
-        attributeDescriptors.add(new AttributesDescriptor("Numeric Literal", DataEditorTextAttributesKeys.NUMBER));
-        attributeDescriptors.add(new AttributesDescriptor("Alias", DataEditorTextAttributesKeys.ALIAS));
-        attributeDescriptors.add(new AttributesDescriptor("Identifier", DataEditorTextAttributesKeys.IDENTIFIER));
-        attributeDescriptors.add(new AttributesDescriptor("Quoted Identifier", DataEditorTextAttributesKeys.QUOTED_IDENTIFIER));
-        attributeDescriptors.add(new AttributesDescriptor("Keyword", DataEditorTextAttributesKeys.KEYWORD));
-        attributeDescriptors.add(new AttributesDescriptor("Function", DataEditorTextAttributesKeys.FUNCTION));
-        attributeDescriptors.add(new AttributesDescriptor("DataType", DataEditorTextAttributesKeys.DATA_TYPE));
-        attributeDescriptors.add(new AttributesDescriptor("Exception", DataEditorTextAttributesKeys.EXCEPTION));
-        attributeDescriptors.add(new AttributesDescriptor("Operator", DataEditorTextAttributesKeys.OPERATOR));
+    public DataGridColorSettingsPage() {
+        attributeDescriptors.add(new AttributesDescriptor("Plain Data", DataGridTextAttributesKeys.PLAIN_DATA));
+        attributeDescriptors.add(new AttributesDescriptor("Modified Data", DataGridTextAttributesKeys.MODIFIED_DATA));
+        attributeDescriptors.add(new AttributesDescriptor("Deleted Data", DataGridTextAttributesKeys.DELETED_DATA));
+        attributeDescriptors.add(new AttributesDescriptor("Error Data", DataGridTextAttributesKeys.ERROR_DATA));
+        attributeDescriptors.add(new AttributesDescriptor("Foreign Reference", DataGridTextAttributesKeys.FOREIGN_REFERENCE));
+        attributeDescriptors.add(new AttributesDescriptor("Caret Row", DataGridTextAttributesKeys.CARET_ROW));
+        attributeDescriptors.add(new AttributesDescriptor("Selection", DataGridTextAttributesKeys.SELECTION));
     }
 
     @Override
@@ -64,7 +59,7 @@ public class DataEditorColorSettingsPage implements ColorSettingsPage {
     @NotNull
     @Override
     public String getDisplayName() {
-        return "Dataset Editor (DBN)";
+        return "Data Grid (DBN)";
     }
 
     @Nullable

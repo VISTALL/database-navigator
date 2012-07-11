@@ -35,9 +35,9 @@ public class DatasetEditorErrorForm extends UIFormImpl implements UIForm, Change
         errorIconLabel.setIcon(Icons.EXEC_MESSAGES_ERROR);
         errorIconLabel.setText("");
         errorMessageTextArea.setText(StringUtil.wrap(error.getMessage(), 60, ": ,."));
-        errorMessageTextArea.setBackground(Colors.DSE_POPUP_BACKGROUD_ERROR);
+        errorMessageTextArea.setBackground(Colors.DSE_POPUP_BACKGROUND_ERROR);
         errorMessageTextArea.setFont(mainPanel.getFont());
-        mainPanel.setBackground(Colors.DSE_POPUP_BACKGROUD_ERROR);
+        mainPanel.setBackground(Colors.DSE_POPUP_BACKGROUND_ERROR);
 
         ComponentPopupBuilder popupBuilder = JBPopupFactory.getInstance().createComponentPopupBuilder(mainPanel, mainPanel);
         popup = popupBuilder.createPopup();

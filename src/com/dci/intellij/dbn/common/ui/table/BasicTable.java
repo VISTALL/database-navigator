@@ -5,6 +5,7 @@ import com.dci.intellij.dbn.common.ui.table.model.BasicDataModel;
 import com.dci.intellij.dbn.common.ui.table.model.DataModelCell;
 import com.dci.intellij.dbn.common.ui.table.model.DataModelRow;
 import com.dci.intellij.dbn.common.ui.table.renderer.BasicTableCellRenderer;
+import com.dci.intellij.dbn.data.editor.color.DataGridTextAttributes;
 import com.dci.intellij.dbn.data.preview.LargeValuePreviewPopup;
 import com.dci.intellij.dbn.data.value.LazyLoadedValue;
 import com.intellij.openapi.Disposable;
@@ -22,6 +23,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 
 public class BasicTable extends DBNTable implements Disposable {
+    protected DataGridTextAttributes configTextAttributes = new DataGridTextAttributes();
     protected BasicTableCellRenderer cellRenderer;
     private BasicTableGutter tableGutter;
     private JBPopup valuePopup;
@@ -30,6 +32,12 @@ public class BasicTable extends DBNTable implements Disposable {
 
     public BasicTable(Project project, BasicDataModel dataModel) {
         super(project, dataModel);
+        setSelectionForeground(configTextAttributes.getSelection().getFgColor());
+        setSelectionBackground(configTextAttributes.getSelection().getBgColor());
+    }
+
+    public DataGridTextAttributes getConfigTextAttributes() {
+        return configTextAttributes;
     }
 
     @Override
