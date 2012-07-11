@@ -15,4 +15,9 @@ public class BasicDataEditorComponent extends JTextField implements DataEditorCo
     public UserValueHolder getUserValueHolder() {
         return userValueHolder;
     }
+
+    @Override
+    public void setEnabled(boolean enabled) {
+        setEditable(enabled);
+    }
 }

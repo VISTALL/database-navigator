@@ -22,6 +22,7 @@ import com.dci.intellij.dbn.editor.data.ui.table.model.DatasetEditorModelRow;
 import com.dci.intellij.dbn.object.DBColumn;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.DocumentAdapter;
+import com.intellij.util.ui.UIUtil;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -146,6 +147,7 @@ public class DatasetRecordEditorColumnForm extends UIFormImpl implements UIForm 
             String formattedUserValue = formatter.formatObject(cell.getUserValue());
             valueTextField.setText(formattedUserValue);
         }
+        valueTextField.setBackground(UIUtil.getTextFieldBackground());
     }
 
     public DatasetEditorModelCell getCell() {
