@@ -1,6 +1,5 @@
 package com.dci.intellij.dbn.editor.data.ui.table.renderer;
 
-import com.dci.intellij.dbn.common.Colors;
 import com.dci.intellij.dbn.common.ui.table.BasicTable;
 import com.dci.intellij.dbn.common.ui.table.renderer.BasicTableCellRenderer;
 import com.dci.intellij.dbn.data.editor.color.DataGridTextAttributes;
@@ -24,8 +23,6 @@ public class DatasetEditorTableCellRenderer extends BasicTableCellRenderer {
     }
 
     protected void customizeCellRenderer(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-        super.customizeCellRenderer(table, null, isSelected, hasFocus, row, column);
-
         DataGridTextAttributes configTextAttributes = ((BasicTable) table).getConfigTextAttributes();
 
         DatasetEditorModelCell cell = (DatasetEditorModelCell) value;
@@ -46,6 +43,7 @@ public class DatasetEditorTableCellRenderer extends BasicTableCellRenderer {
             if (cell.getUserValue() != null) {
                 SimpleTextAttributes textAttributes =
                         isSelected ? configTextAttributes.getSelection() :
+                        isLoading ? configTextAttributes.getLoadingData() :
                         isDeletedRow || isLob ? configTextAttributes.getDeletedData() :
                         cell.getColumnInfo().getColumn().isForeignKey() ? configTextAttributes.getForeignReference() :
                         cell.isModified() ? configTextAttributes.getModifiedData() :
@@ -64,23 +62,28 @@ public class DatasetEditorTableCellRenderer extends BasicTableCellRenderer {
 
             if (!isSelected) {
                 if (isLoading) {
-                    setBackground(Colors.DSE_CELL_BACKGROUND_DISABLED);
+                    setBackground(configTextAttributes.getLoadingData().getBgColor());
                 } else {
                     if (cell.hasError()) {
                         setBorder(CELL_ERROR_BORDER);
                         setBackground(configTextAttributes.getErrorData().getBgColor());
                     }
-                    else if (isDeletedRow) {
+
+                    if (isDeletedRow) {
                         setBackground(configTextAttributes.getDeletedData().getBgColor());
                     }
 
-                    else if (isInserting && !isInsertRow) {
-                        setBackground(Colors.DSE_CELL_BACKGROUND_DISABLED);
+                    if (isInserting && !isInsertRow) {
+                        setBackground(configTextAttributes.getReadonlyData().getBgColor());
                     }
 
-                    else if (isInsertRow) {
+                    if (isInsertRow) {
                         setBackground(UIUtil.getTableBackground());
                     }
+                    if (table.getSelectedRow() == row && !match(table.getSelectedColumns(), column) && table.getCellSelectionEnabled()) {
+                        setBackground(configTextAttributes.getCaretRow().getBgColor());
+                    }
+
                 }
             }
         }

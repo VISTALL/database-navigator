@@ -1,6 +1,5 @@
 package com.dci.intellij.dbn.common.ui.table.renderer;
 
-import com.dci.intellij.dbn.common.Colors;
 import com.dci.intellij.dbn.common.ui.table.BasicTable;
 import com.dci.intellij.dbn.common.ui.table.SortableTable;
 import com.dci.intellij.dbn.common.ui.table.model.BasicDataModel;
@@ -28,12 +27,15 @@ public class BasicTableCellRenderer extends ColoredTableCellRenderer {
         DataGridTextAttributes configTextAttributes = ((BasicTable) table).getConfigTextAttributes();
 
         SortableTable sortableTable = (SortableTable) table;
+        boolean isLoading = sortableTable.isLoading();
+
         DataModelCell cell = (DataModelCell) value;
         if (cell != null && cell.getUserValue() != null) {
+            boolean isLazyValue = cell.getUserValue() instanceof LazyLoadedValue;
             //append(cell.getFormattedUserValue(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
-            SimpleTextAttributes textAttributes = cell.getUserValue() instanceof LazyLoadedValue ?
-                    SimpleTextAttributes.GRAYED_ATTRIBUTES :
-                    configTextAttributes.getPlainData();
+            SimpleTextAttributes textAttributes =
+                    isLoading ? configTextAttributes.getLoadingData() :
+                    isLazyValue ? configTextAttributes.getReadonlyData() : configTextAttributes.getPlainData();
             writeUserValue(cell, textAttributes, configTextAttributes);
         }
 
@@ -41,8 +43,8 @@ public class BasicTableCellRenderer extends ColoredTableCellRenderer {
         if (!selected) {
             if (table.getSelectedRow() == row && !match(table.getSelectedColumns(), column) && table.getCellSelectionEnabled()) {
                 setBackground(configTextAttributes.getCaretRow().getBgColor());
-            } else if (sortableTable.isLoading()) {
-                setBackground(Colors.DSE_CELL_BACKGROUND_DISABLED);
+            } else if (isLoading) {
+                setBackground(configTextAttributes.getLoadingData().getBgColor());
             }
         }
     }
@@ -105,7 +107,7 @@ public class BasicTableCellRenderer extends ColoredTableCellRenderer {
          }
      }
 
-    boolean match(int[] indexes, int index) {
+    protected boolean match(int[] indexes, int index) {
         for (int idx : indexes) {
             if (idx == index) return true;
         }

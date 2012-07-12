@@ -9,6 +9,8 @@ public class DataGridTextAttributes {
     private SimpleTextAttributes modifiedData;
     private SimpleTextAttributes deletedData;
     private SimpleTextAttributes errorData;
+    private SimpleTextAttributes readonlyData;
+    private SimpleTextAttributes loadingData;
     private SimpleTextAttributes foreignReference;
     private SimpleTextAttributes caretRow;
     private SimpleTextAttributes selection;
@@ -23,6 +25,8 @@ public class DataGridTextAttributes {
         modifiedData = TextAttributesUtil.getSimpleTextAttributes(DataGridTextAttributesKeys.MODIFIED_DATA);
         deletedData = TextAttributesUtil.getSimpleTextAttributes(DataGridTextAttributesKeys.DELETED_DATA);
         errorData = TextAttributesUtil.getSimpleTextAttributes(DataGridTextAttributesKeys.ERROR_DATA);
+        readonlyData = TextAttributesUtil.getSimpleTextAttributes(DataGridTextAttributesKeys.READONLY_DATA);
+        loadingData = TextAttributesUtil.getSimpleTextAttributes(DataGridTextAttributesKeys.LOADING_DATA);
         foreignReference = TextAttributesUtil.getSimpleTextAttributes(DataGridTextAttributesKeys.FOREIGN_REFERENCE);
         caretRow = TextAttributesUtil.getSimpleTextAttributes(DataGridTextAttributesKeys.CARET_ROW);
         selection = TextAttributesUtil.getSimpleTextAttributes(DataGridTextAttributesKeys.SELECTION);
@@ -43,6 +47,14 @@ public class DataGridTextAttributes {
 
     public SimpleTextAttributes getErrorData() {
         return errorData;
+    }
+
+    public SimpleTextAttributes getReadonlyData() {
+        return readonlyData;
+    }
+
+    public SimpleTextAttributes getLoadingData() {
+        return loadingData;
     }
 
     public SimpleTextAttributes getForeignReference() {
