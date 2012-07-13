@@ -139,8 +139,8 @@ public class StatementExecutionBasicProcessor implements StatementExecutionProce
                 statement.execute(executeStatementText);
                 executionResult = createExecutionResult(statement, executionInput);
                 if (executablePsiElement != null) {
-                    if (executablePsiElement.isTransactional()) activeConnection.notifyOpenTransactions(true);
-                    if (executablePsiElement.isTransactionControl()) activeConnection.notifyOpenTransactions(false);
+                    if (executablePsiElement.isTransactional()) activeConnection.notifyChanges(file.getVirtualFile());
+                    if (executablePsiElement.isTransactionControl()) activeConnection.resetChanges();
                 }
             } catch (SQLException e) {
                 executionResult = createErrorExecutionResult(executionInput, e.getMessage());

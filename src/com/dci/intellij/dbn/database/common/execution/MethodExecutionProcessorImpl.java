@@ -70,7 +70,7 @@ public abstract class MethodExecutionProcessorImpl<T extends DBMethod> implement
         prepareCall(executionInput, callableStatement);
         callableStatement.execute();
         callableStatement.setQueryTimeout(10);
-        if (!usePoolConnection) connectionHandler.notifyOpenTransactions(true);
+        if (!usePoolConnection) connectionHandler.notifyChanges(executionInput.getMethod().getVirtualFile());
 
         MethodExecutionResult executionResult = executionInput.getExecutionResult();
         loadValues(executionResult, callableStatement);

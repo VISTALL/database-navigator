@@ -10,6 +10,7 @@ import com.dci.intellij.dbn.common.filter.Filter;
 import com.dci.intellij.dbn.common.thread.BackgroundTask;
 import com.dci.intellij.dbn.common.ui.tree.TreeUtil;
 import com.dci.intellij.dbn.connection.config.ConnectionSettings;
+import com.dci.intellij.dbn.connection.transaction.UncommittedChangeBundle;
 import com.dci.intellij.dbn.database.DatabaseInterfaceProvider;
 import com.dci.intellij.dbn.language.common.DBLanguage;
 import com.dci.intellij.dbn.language.common.DBLanguageDialect;
@@ -21,6 +22,7 @@ import com.dci.intellij.dbn.vfs.SQLConsoleFile;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -43,9 +45,9 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
     private ConnectionInfo connectionInfo;
     private DBObjectBundle objectBundle;
     private DatabaseInterfaceProvider interfaceProvider;
+    private UncommittedChangeBundle changesBundle;
 
     LoadMonitor loadMonitor = new LoadMonitor();
-    private boolean hasOpenTransactions;
     private boolean isDisposed;
 
     private SQLConsoleFile sqlConsoleFile;
@@ -129,8 +131,8 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
         }
     }
 
-    public boolean hasOpenTransactions() {
-        return hasOpenTransactions;
+    public boolean hasUncommittedChanges() {
+        return changesBundle != null && !changesBundle.isEmpty();
     }
 
     public void commit() throws SQLException {
@@ -138,7 +140,7 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
         try {
             notifyPreCommitRollback(TransactionListener.COMMIT);
             connectionPool.getStandaloneConnection(false).commit();
-            hasOpenTransactions = false;
+            changesBundle = null;
         } catch (SQLException e) {
             success = false;
             throw e;
@@ -152,7 +154,7 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
         try {
             notifyPreCommitRollback(TransactionListener.ROLLBACK);
             connectionPool.getStandaloneConnection(false).rollback();
-            hasOpenTransactions = false;
+            changesBundle = null;
         } catch (SQLException e) {
             success = false;
             throw e;
@@ -161,8 +163,23 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
         }
     }
 
-    public void notifyOpenTransactions(boolean openTransactions) {
-        hasOpenTransactions = openTransactions;
+    public void notifyChanges(VirtualFile virtualFile) {
+        if (!isAutoCommit()) {
+            if (changesBundle == null) {
+                changesBundle = new UncommittedChangeBundle();
+            }
+            changesBundle.notifyChange(virtualFile);
+        }
+    }
+
+    @Override
+    public void resetChanges() {
+        changesBundle = null;
+    }
+
+    @Override
+    public UncommittedChangeBundle getUncommittedChanges() {
+        return changesBundle;
     }
 
     public String toString() {
