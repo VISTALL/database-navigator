@@ -1,4 +1,4 @@
-package com.dci.intellij.dbn.connection.action;
+package com.dci.intellij.dbn.connection.transaction.action;
 
 import com.dci.intellij.dbn.common.util.MessageUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;

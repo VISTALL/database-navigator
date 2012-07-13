@@ -4,6 +4,7 @@ import com.dci.intellij.dbn.browser.model.BrowserTreeElement;
 import com.dci.intellij.dbn.common.environment.EnvironmentType;
 import com.dci.intellij.dbn.common.filter.Filter;
 import com.dci.intellij.dbn.connection.config.ConnectionSettings;
+import com.dci.intellij.dbn.connection.transaction.UncommittedChangeBundle;
 import com.dci.intellij.dbn.database.DatabaseInterfaceProvider;
 import com.dci.intellij.dbn.language.common.DBLanguage;
 import com.dci.intellij.dbn.language.common.DBLanguageDialect;
@@ -14,6 +15,7 @@ import com.dci.intellij.dbn.vfs.SQLConsoleFile;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VirtualFile;
 
 import javax.swing.Icon;
 import java.sql.Connection;
@@ -58,8 +60,9 @@ public interface ConnectionHandler extends Disposable{
 
     void addTransactionListener(TransactionListener transactionListener);
     void removeTransactionListener(TransactionListener transactionListener);
-    void notifyOpenTransactions(boolean openTransactions);
-    boolean hasOpenTransactions();
+    void notifyChanges(VirtualFile virtualFile);
+    void resetChanges();
+    boolean hasUncommittedChanges();
     void commit() throws SQLException;
     void rollback() throws SQLException;
     DBLanguageDialect getLanguageDialect(DBLanguage language);
@@ -71,4 +74,6 @@ public interface ConnectionHandler extends Disposable{
 
     NavigationPsiCache getPsiCache();
     EnvironmentType getEnvironmentType();
+
+    UncommittedChangeBundle getUncommittedChanges();
 }

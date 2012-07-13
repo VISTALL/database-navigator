@@ -227,7 +227,7 @@ public class DatasetEditorModel extends ResultSetDataModel<DatasetEditorModelRow
                 }
             }
         }
-        getConnectionHandler().notifyOpenTransactions(true);
+        getConnectionHandler().notifyChanges(getDataset().getVirtualFile());
     }
 
     public void insertRecord(int rowIndex) {
@@ -241,7 +241,7 @@ public class DatasetEditorModel extends ResultSetDataModel<DatasetEditorModelRow
 
             editorTable.selectCell(rowIndex, editorTable.getSelectedColumn() == -1 ? 0 : editorTable.getSelectedColumn());
             isInserting = true;
-            getConnectionHandler().notifyOpenTransactions(true);
+            getConnectionHandler().notifyChanges(getDataset().getVirtualFile());
         } catch (SQLException e) {
             MessageUtil.showErrorDialog("Could not insert record for " + getDataset().getQualifiedNameWithType() + ".", e);
         }
@@ -261,7 +261,7 @@ public class DatasetEditorModel extends ResultSetDataModel<DatasetEditorModelRow
 
             editorTable.selectCell(insertIndex, editorTable.getSelectedColumn());
             isInserting = true;
-            getConnectionHandler().notifyOpenTransactions(true);
+            getConnectionHandler().notifyChanges(getDataset().getVirtualFile());
         } catch (SQLException e) {
             MessageUtil.showErrorDialog("Could not duplicate record in " + getDataset().getQualifiedNameWithType() + ".", e);
         }

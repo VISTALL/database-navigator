@@ -37,7 +37,7 @@ public class SQLConsoleFile extends VirtualFile implements DatabaseFile, DBVirtu
     public SQLConsoleFile(ConnectionHandler connectionHandler) {
         this.connectionHandler = connectionHandler;
         this.currentSchema = connectionHandler.getUserSchema();
-        path = DatabaseFileSystem.createPath(connectionHandler);
+        path = DatabaseFileSystem.createPath(connectionHandler) + " CONSOLE";
         url = DatabaseFileSystem.createUrl(connectionHandler);
         setCharset(connectionHandler.getSettings().getDetailSettings().getCharset());
     }

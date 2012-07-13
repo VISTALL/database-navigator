@@ -1,4 +1,4 @@
-package com.dci.intellij.dbn.connection.action;
+package com.dci.intellij.dbn.connection.transaction.action;
 
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.thread.ModalTask;
@@ -13,25 +13,25 @@ import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
 
-public class TransactionRollbackAction extends DumbAwareAction {
+public class TransactionCommitAction extends DumbAwareAction {
     private ConnectionHandler connectionHandler;
 
-    public TransactionRollbackAction(ConnectionHandler connectionHandler) {
-        super("Rollback", "Rollback connection", Icons.CONNECTION_ROLLBACK);
+    public TransactionCommitAction(ConnectionHandler connectionHandler) {
+        super("Commit", "Commit connection", Icons.CONNECTION_COMMIT);
         this.connectionHandler = connectionHandler;
 
     }
 
     public void actionPerformed(AnActionEvent e) {
         Project project = ActionUtil.getProject(e);
-        new ModalTask(project, "Performing rollback on connection " + connectionHandler.getName(), false){
+        new ModalTask(project, "Performing commit on connection " + connectionHandler.getName(), false) {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
                 try {
                     indicator.setIndeterminate(true);
                     connectionHandler.rollback();
                 } catch (SQLException ex) {
-                    MessageUtil.showErrorDialog("Could not perform rollback operation.", ex);
+                    MessageUtil.showErrorDialog("Could not perform commit operation.", ex);
                 }
             }
         }.start();
@@ -39,7 +39,7 @@ public class TransactionRollbackAction extends DumbAwareAction {
 
     @Override
     public void update(AnActionEvent e) {
-        e.getPresentation().setEnabled(connectionHandler.hasOpenTransactions());
+        e.getPresentation().setEnabled(connectionHandler.hasUncommittedChanges());
         e.getPresentation().setVisible(!connectionHandler.isAutoCommit());
     }
 }

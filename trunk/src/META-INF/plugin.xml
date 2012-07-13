@@ -34,6 +34,7 @@
             <li><b>3.0.2289</b>
             <ul>
                 - Code formatting (Experimental - work in progress)<br>
+                - Uncommitted changes overview / notifications<br>
                 - Connection Auto-Commit support<br>
                 - Support for IntelliJ 12 EAP release<br>
                 - Fixed broken user interface with PyCharm and RubyMine<br>
@@ -151,6 +152,7 @@
         <component><implementation-class>com.dci.intellij.dbn.generator.StatementGenerationManager</implementation-class></component>
         <component><implementation-class>com.dci.intellij.dbn.common.environment.EnvironmentManager</implementation-class></component>
         <component><implementation-class>com.dci.intellij.dbn.common.event.EventManager</implementation-class></component>
+        <component><implementation-class>com.dci.intellij.dbn.connection.transaction.DatabaseTransactionManager</implementation-class></component>
     </project-components>
     <module-components>
         <component><implementation-class>com.dci.intellij.dbn.connection.ModuleConnectionManager</implementation-class></component>

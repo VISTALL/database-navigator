@@ -21,7 +21,7 @@ public abstract class TransactionEditorAction extends DumbAwareAction {
         boolean enabled = false;
         if (project != null) {
             ConnectionHandler activeConnection = FileConnectionMappingManager.getInstance(project).lookupActiveConnectionForEditor();
-            enabled = activeConnection != null && activeConnection.hasOpenTransactions();
+            enabled = activeConnection != null && activeConnection.hasUncommittedChanges();
         }
         e.getPresentation().setEnabled(enabled);
     }

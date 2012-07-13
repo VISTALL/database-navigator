@@ -69,7 +69,7 @@ public class DatasetEditorModelCell extends ResultSetDataModelCell implements Ch
                 // if error was not notified yet on row level, notify it on cell isolation level
                 if (!error.isNotified()) notifyError(error, !bulk);
             } finally {
-                getConnectionHandler().notifyOpenTransactions(true);
+                getConnectionHandler().notifyChanges(getDataset().getVirtualFile());
             }
 
             if (!isLargeObject) {
@@ -81,7 +81,11 @@ public class DatasetEditorModelCell extends ResultSetDataModelCell implements Ch
             }
         }
     }
-    
+
+    protected DBDataset getDataset() {
+        return getRow().getModel().getDataset();
+    }
+
     private boolean compareUserValues(Object value1, Object value2) {
         if (value1 != null && value2 != null) {
             if (value1.equals(value2)) {
@@ -230,7 +234,7 @@ public class DatasetEditorModelCell extends ResultSetDataModelCell implements Ch
                 if (!isDisposed()) {
                     DatasetEditorModel model = getRow().getModel();
                     if (!model.getEditorTable().isShowing()) {
-                        DBDataset dataset = model.getDataset();
+                        DBDataset dataset = getDataset();
                         DatabaseFileSystem.getInstance().openEditor(dataset);
                     }
                     DatasetEditorErrorForm errorForm = new DatasetEditorErrorForm(DatasetEditorModelCell.this);
