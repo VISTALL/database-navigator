@@ -3,6 +3,7 @@ package com.dci.intellij.dbn.common.ui.table.model;
 import com.dci.intellij.dbn.common.locale.Formatter;
 import com.dci.intellij.dbn.common.locale.options.RegionalSettings;
 import com.dci.intellij.dbn.data.editor.text.TextContentType;
+import com.dci.intellij.dbn.data.value.LazyLoadedValue;
 import com.dci.intellij.dbn.editor.data.options.DataEditorQualifiedEditorSettings;
 import com.dci.intellij.dbn.editor.data.options.DataEditorSettings;
 import com.intellij.openapi.project.Project;
@@ -52,6 +53,10 @@ public class BasicDataModelCell implements DataModelCell{
 
     public Object getUserValue() {
         return userValue;
+    }
+
+    public boolean isLobValue() {
+        return getUserValue() instanceof LazyLoadedValue;
     }
 
     @Override

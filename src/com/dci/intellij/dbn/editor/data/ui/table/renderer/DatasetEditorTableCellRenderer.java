@@ -3,7 +3,6 @@ package com.dci.intellij.dbn.editor.data.ui.table.renderer;
 import com.dci.intellij.dbn.common.ui.table.BasicTable;
 import com.dci.intellij.dbn.common.ui.table.renderer.BasicTableCellRenderer;
 import com.dci.intellij.dbn.data.editor.color.DataGridTextAttributes;
-import com.dci.intellij.dbn.data.value.LazyLoadedValue;
 import com.dci.intellij.dbn.editor.data.ui.table.DatasetEditorTable;
 import com.dci.intellij.dbn.editor.data.ui.table.model.DatasetEditorModelCell;
 import com.intellij.openapi.project.Project;
@@ -35,7 +34,6 @@ public class DatasetEditorTableCellRenderer extends BasicTableCellRenderer {
 
             boolean isDeletedRow = cell.getRow().isDeleted();
             boolean isInsertRow = cell.getRow().isInsert();
-            boolean isLob = cell.getUserValue() instanceof LazyLoadedValue;
 
 
             //DataModelCell cellAtMouseLocation = datasetEditorTable.getCellAtMouseLocation();
@@ -44,9 +42,10 @@ public class DatasetEditorTableCellRenderer extends BasicTableCellRenderer {
                 SimpleTextAttributes textAttributes =
                         isSelected ? configTextAttributes.getSelection() :
                         isLoading ? configTextAttributes.getLoadingData() :
-                        isDeletedRow || isLob ? configTextAttributes.getDeletedData() :
+                        isDeletedRow ? configTextAttributes.getDeletedData() :
                         cell.getColumnInfo().getColumn().isForeignKey() ? configTextAttributes.getForeignReference() :
                         cell.isModified() ? configTextAttributes.getModifiedData() :
+                        cell.isLobValue() ? configTextAttributes.getReadonlyData() :
                                             configTextAttributes.getPlainData();
 
                 writeUserValue(cell, textAttributes, configTextAttributes);

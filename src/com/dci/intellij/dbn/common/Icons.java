@@ -4,7 +4,7 @@ import com.intellij.openapi.util.IconLoader;
 import com.intellij.ui.RowIcon;
 import gnu.trove.THashMap;
 
-import javax.swing.*;
+import javax.swing.Icon;
 import java.util.Map;
 
 public class Icons {
@@ -40,6 +40,7 @@ public class Icons {
     public static final Icon ACTION_WRAP_TEXT = load("/img/action/WrapText.png");
     public static final Icon ACTION_RERUN = load("/img/action/Rerun.png");
     public static final Icon ACTION_PIN = load("/img/action/Pin.png");
+    public static final Icon ACTION_REVERT_CHANGES = load("/img/action/RevertChanges.png");
 
 
     public static final Icon DATABASE_NAVIGATOR = load("/img/project/DatabaseNavigator.png");
