@@ -44,6 +44,10 @@ public class DatasetEditorTableActionGroup extends DefaultActionGroup {
         isHeaderAction = cell == null;
         columnValue = cell == null ? null : cell.getUserValue();
 
+        if (cell != null && cell.isModified() && !cell.isLobValue()) {
+            RevertChangesAction revertChangesAction = new RevertChangesAction(cell);
+            add(revertChangesAction);
+        }
 
         DefaultActionGroup filterActionGroup = new DefaultActionGroup("Filter", true);
         filterActionGroup.getTemplatePresentation().setIcon(Icons.DATASET_FILTER_NEW);

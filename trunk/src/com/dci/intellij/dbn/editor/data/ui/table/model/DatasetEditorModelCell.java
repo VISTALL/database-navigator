@@ -257,4 +257,9 @@ public class DatasetEditorModelCell extends ResultSetDataModelCell implements Ch
         originalUserValue = null;
         error = null;
     }
+
+    public void revertChanges() {
+        updateUserValue(originalUserValue, false);
+        this.isModified = false;
+    }
 }
