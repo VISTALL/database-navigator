@@ -38,10 +38,13 @@ public class AutoCommitLabel extends JLabel implements ConnectionSettingsChangeL
     private void update() {
         if (connectionHandler != null) {
             setVisible(true);
+            boolean disconnected = !connectionHandler.isConnected();
             boolean autoCommit = connectionHandler.isAutoCommit();
-            setText(autoCommit ? "Auto-Commit ON" : "Auto-Commit OFF");
-            setForeground(autoCommit ? new Color(210, 0, 0): new Color(0, 160, 0));
-            setToolTipText(autoCommit ?
+            setText(disconnected ? "[disconnected]" : autoCommit ? "Auto-Commit ON" : "Auto-Commit OFF");
+            setForeground(disconnected ? Color.BLACK : autoCommit ? new Color(210, 0, 0) : new Color(0, 160, 0));
+            setToolTipText(
+                    disconnected ? "The connection to database has been closed. No editing possible" :
+                    autoCommit ?
                     "Auto-Commit is enabled for connection \"" + connectionHandler + "\". Data changes will be automatically committed to the database." :
                     "Auto-Commit is disabled for connection \"" + connectionHandler + "\". Data changes will need to be manually committed to the database.");
         } else {
@@ -62,4 +65,6 @@ public class AutoCommitLabel extends JLabel implements ConnectionSettingsChangeL
             EventManager.unsubscribe(project, this);
         }
     }
+
+
 }

@@ -3,6 +3,7 @@ package com.dci.intellij.dbn.connection.transaction.ui;
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.ui.DBNDialog;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
+import com.dci.intellij.dbn.connection.ConnectionOperation;
 import com.dci.intellij.dbn.connection.transaction.DatabaseTransactionManager;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.Nullable;
@@ -15,10 +16,12 @@ import java.util.List;
 
 public class UncommittedChangesOverviewDialog extends DBNDialog{
     private UncommittedChangesOverviewForm mainComponent;
+    private ConnectionOperation additionalOperation;
 
-    public UncommittedChangesOverviewDialog(Project project, @Nullable String hintText) {
+    public UncommittedChangesOverviewDialog(Project project, ConnectionOperation additionalOperation) {
         super(project, "Uncommitted changes overview", true);
-        mainComponent = new UncommittedChangesOverviewForm(project, hintText);
+        this.additionalOperation = additionalOperation;
+        mainComponent = new UncommittedChangesOverviewForm(project);
         setModal(false);
         setResizable(true);
         init();
@@ -53,7 +56,7 @@ public class UncommittedChangesOverviewDialog extends DBNDialog{
 
             doOKAction();
             for (ConnectionHandler connectionHandler : connectionHandlers) {
-                transactionManager.commit(connectionHandler, true);
+                transactionManager.execute(connectionHandler, true, ConnectionOperation.COMMIT, additionalOperation);
             }
         }
 
@@ -74,7 +77,7 @@ public class UncommittedChangesOverviewDialog extends DBNDialog{
 
             doOKAction();
             for (ConnectionHandler connectionHandler : connectionHandlers) {
-                transactionManager.rollback(connectionHandler, true);
+                transactionManager.execute(connectionHandler, true, ConnectionOperation.ROLLBACK, additionalOperation);
             }
         }
 

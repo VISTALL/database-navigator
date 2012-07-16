@@ -27,6 +27,7 @@ public class EditRecordAction extends DumbAwareAction {
 
         boolean enabled =
                 datasetEditor != null &&
+                datasetEditor.getActiveConnection().isConnected() &&
                 datasetEditor.getEditorTable() != null &&
                 datasetEditor.getEditorTable().getSelectedRow() != -1 &&
                 !datasetEditor.isInserting() &&

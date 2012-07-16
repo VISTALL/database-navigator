@@ -141,6 +141,15 @@ public class DatasetEditorModelRow extends ResultSetDataModelRow<DatasetEditorMo
         }
     }
 
+    public void revertChanges() {
+        if (isModified()) {
+            for (DatasetEditorModelCell cell : getCells()) {
+                cell.revertChanges();
+            }
+        }
+    }
+
+
     public int getResultSetRowIndex() {
         return isDeleted ? -1 : resultSetRowIndex;
     }

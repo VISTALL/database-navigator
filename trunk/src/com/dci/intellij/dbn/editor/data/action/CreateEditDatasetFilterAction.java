@@ -45,7 +45,7 @@ public class CreateEditDatasetFilterAction extends DumbAwareAction {
         Presentation presentation = e.getPresentation();
 
         DatasetEditor datasetEditor = e.getData(DBNDataKeys.DATASET_EDITOR);
-        if (datasetEditor == null) {
+        if (datasetEditor == null || !datasetEditor.getActiveConnection().isConnected()) {
             presentation.setEnabled(false);
         } else {
             DBDataset dataset = datasetEditor.getDataset();

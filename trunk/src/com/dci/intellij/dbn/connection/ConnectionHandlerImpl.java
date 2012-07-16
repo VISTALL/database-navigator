@@ -10,6 +10,7 @@ import com.dci.intellij.dbn.common.filter.Filter;
 import com.dci.intellij.dbn.common.thread.BackgroundTask;
 import com.dci.intellij.dbn.common.ui.tree.TreeUtil;
 import com.dci.intellij.dbn.connection.config.ConnectionSettings;
+import com.dci.intellij.dbn.connection.transaction.TransactionAction;
 import com.dci.intellij.dbn.connection.transaction.TransactionListener;
 import com.dci.intellij.dbn.connection.transaction.UncommittedChangeBundle;
 import com.dci.intellij.dbn.database.DatabaseInterfaceProvider;
@@ -102,20 +103,14 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
         return getSettings().getDetailSettings().getEnvironmentType();
     }
 
-    private void notifyPreCommitRollback(int operation) throws SQLException {
+    private void notifyTransactionPreAction(TransactionAction action) throws SQLException {
         TransactionListener listener = EventManager.syncPublisher(getProject(), TransactionListener.TOPIC);
-        switch(operation) {
-            case TransactionListener.COMMIT : listener.beforeCommit(this); break;
-            case TransactionListener.ROLLBACK : listener.beforeRollback(this); break;
-        }
+        listener.beforeAction(this, action);
     }
 
-    private void notifyPostCommitRollback(int operation, boolean successful) throws SQLException {
+    private void notifyTransactionPostAction(TransactionAction action, boolean successful) throws SQLException {
         TransactionListener listener = EventManager.syncPublisher(getProject(), TransactionListener.TOPIC);
-        switch(operation) {
-            case TransactionListener.COMMIT : listener.afterCommit(this, successful); break;
-            case TransactionListener.ROLLBACK : listener.afterRollback(this, successful); break;
-        }
+        listener.afterAction(this, action, successful);
     }
 
     public boolean hasUncommittedChanges() {
@@ -125,28 +120,28 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
     public void commit() throws SQLException {
         boolean success = true;
         try {
-            notifyPreCommitRollback(TransactionListener.COMMIT);
+            notifyTransactionPreAction(TransactionAction.COMMIT);
             connectionPool.getStandaloneConnection(false).commit();
             changesBundle = null;
         } catch (SQLException e) {
             success = false;
             throw e;
         } finally {
-            notifyPostCommitRollback(TransactionListener.COMMIT, success);
+            notifyTransactionPostAction(TransactionAction.COMMIT, success);
         }
     }
 
     public void rollback() throws SQLException {
         boolean success = true;
         try {
-            notifyPreCommitRollback(TransactionListener.ROLLBACK);
+            notifyTransactionPreAction(TransactionAction.ROLLBACK);
             connectionPool.getStandaloneConnection(false).rollback();
             changesBundle = null;
         } catch (SQLException e) {
             success = false;
             throw e;
         } finally {
-            notifyPostCommitRollback(TransactionListener.ROLLBACK, success);
+            notifyTransactionPostAction(TransactionAction.ROLLBACK, success);
         }
     }
 
@@ -167,6 +162,11 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
     @Override
     public UncommittedChangeBundle getUncommittedChanges() {
         return changesBundle;
+    }
+
+    @Override
+    public boolean isConnected() {
+        return connectionStatus.isConnected();
     }
 
     public String toString() {
@@ -225,6 +225,17 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
 
     public void disconnect() {
         connectionPool.closeConnections();
+        try {
+            TransactionListener transactionListener = EventManager.syncPublisher(getProject(), TransactionListener.TOPIC);
+            transactionListener.afterAction(this, TransactionAction.DISCONNECT, true);
+
+            ConnectionSettingsChangeListener changeListener = EventManager.syncPublisher(getProject(), ConnectionSettingsChangeListener.TOPIC);
+            changeListener.connectionSettingsChanged(getId());
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
     }
 
     public String getId() {
