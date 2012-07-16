@@ -9,8 +9,10 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.project.ProjectManagerListener;
+import com.intellij.openapi.ui.DialogWrapper;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.sql.SQLException;
 
@@ -56,9 +58,21 @@ public class DatabaseTransactionManager extends AbstractProjectComponent impleme
     }
 
 
-    public void showUncommittedChangesDialog(ConnectionHandler connectionHandler) {
-        UncommittedChangesDialog executionDialog = new UncommittedChangesDialog(connectionHandler);
+    public boolean showUncommittedChangesDialog(ConnectionHandler connectionHandler, @Nullable String hintText) {
+        UncommittedChangesDialog executionDialog = new UncommittedChangesDialog(connectionHandler, hintText);
         executionDialog.show();
+        return executionDialog.getExitCode() == DialogWrapper.OK_EXIT_CODE;
+    }
+
+    public void disconnect(ConnectionHandler connectionHandler) {
+        boolean disconnect = true;
+        if (connectionHandler.hasUncommittedChanges()) {
+            disconnect = showUncommittedChangesDialog(connectionHandler,
+                    "You have uncommitted changes on this connection. Please specify whether changes should be committed or rolled back prior to disconnecting from the database.");
+        }
+        if (disconnect) {
+            connectionHandler.disconnect();
+        }
     }
 
     /**********************************************

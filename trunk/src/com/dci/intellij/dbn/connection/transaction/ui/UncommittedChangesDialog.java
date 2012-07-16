@@ -16,10 +16,10 @@ public class UncommittedChangesDialog extends DBNDialog {
     private UncommittedChangesForm mainComponent;
     private ConnectionHandler connectionHandler;
 
-    public UncommittedChangesDialog(ConnectionHandler connectionHandler) {
+    public UncommittedChangesDialog(ConnectionHandler connectionHandler, @Nullable String hintText) {
         super(connectionHandler.getProject(), "Uncommitted Changes", true);
         this.connectionHandler = connectionHandler;
-        mainComponent = new UncommittedChangesForm(connectionHandler);
+        mainComponent = new UncommittedChangesForm(connectionHandler, hintText);
         setModal(false);
         setResizable(true);
         init();
