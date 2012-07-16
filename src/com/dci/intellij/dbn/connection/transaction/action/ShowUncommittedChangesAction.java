@@ -18,7 +18,7 @@ public class ShowUncommittedChangesAction extends DumbAwareAction {
     public void actionPerformed(AnActionEvent e) {
         Project project = connectionHandler.getProject();
         DatabaseTransactionManager transactionManager = DatabaseTransactionManager.getInstance(project);
-        transactionManager.showUncommittedChangesDialog(connectionHandler);
+        transactionManager.showUncommittedChangesDialog(connectionHandler, null);
     }
 
     @Override

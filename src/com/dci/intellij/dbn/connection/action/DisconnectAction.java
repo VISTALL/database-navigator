@@ -1,6 +1,7 @@
 package com.dci.intellij.dbn.connection.action;
 
 import com.dci.intellij.dbn.connection.ConnectionHandler;
+import com.dci.intellij.dbn.connection.transaction.DatabaseTransactionManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAwareAction;
 
@@ -14,6 +15,7 @@ public class DisconnectAction extends DumbAwareAction {
     }
 
     public void actionPerformed(AnActionEvent anActionEvent) {
-        connectionHandler.disconnect();
+        DatabaseTransactionManager transactionManager = DatabaseTransactionManager.getInstance(connectionHandler.getProject());
+        transactionManager.disconnect(connectionHandler);
     }
 }
