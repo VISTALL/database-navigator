@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="com.dci.intellij.dbn.execution.method.history.ui.MethodExecutionHistoryForm">
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="com.dci.intellij.dbn.connection.transaction.ui.UncommittedChangesOverviewForm">
   <grid id="27dc6" binding="mainPanel" layout-manager="GridLayoutManager" row-count="3" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
@@ -22,7 +22,7 @@
         </constraints>
         <properties/>
       </component>
-      <grid id="f640d" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+      <grid id="a4315" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
         <margin top="0" left="0" bottom="0" right="0"/>
         <constraints>
           <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
@@ -37,11 +37,11 @@
               </grid>
             </constraints>
             <properties>
-              <dividerLocation value="271"/>
+              <dividerLocation value="200"/>
             </properties>
             <border type="none"/>
             <children>
-              <grid id="cfd5b" binding="argumentsPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
+              <grid id="cfd5b" binding="detailsPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
                 <constraints>
                   <splitpane position="right"/>
                 </constraints>
@@ -58,10 +58,10 @@
                   <color color="-52429"/>
                 </border>
                 <children>
-                  <component id="dcddd" class="javax.swing.JTree" binding="executionInputsTree" custom-create="true">
+                  <component id="2d1a6" class="javax.swing.JList" binding="connectionsList">
                     <constraints/>
                     <properties>
-                      <rootVisible value="false"/>
+                      <selectionMode value="0"/>
                     </properties>
                   </component>
                 </children>

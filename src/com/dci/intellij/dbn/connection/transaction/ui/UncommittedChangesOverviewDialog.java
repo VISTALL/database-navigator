@@ -11,28 +11,27 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JComponent;
 import java.awt.event.ActionEvent;
+import java.util.List;
 
-public class UncommittedChangesDialog extends DBNDialog {
-    private UncommittedChangesForm mainComponent;
-    private ConnectionHandler connectionHandler;
+public class UncommittedChangesOverviewDialog extends DBNDialog {
+    private UncommittedChangesOverviewForm mainComponent;
 
-    public UncommittedChangesDialog(ConnectionHandler connectionHandler, @Nullable String hintText) {
-        super(connectionHandler.getProject(), "Uncommitted Changes", true);
-        this.connectionHandler = connectionHandler;
-        mainComponent = new UncommittedChangesForm(connectionHandler, hintText);
+    public UncommittedChangesOverviewDialog(Project project, @Nullable String hintText) {
+        super(project, "Uncommitted changes overview", true);
+        mainComponent = new UncommittedChangesOverviewForm(project, hintText);
         setModal(false);
         setResizable(true);
         init();
     }
 
     protected String getDimensionServiceKey() {
-        return "DBNavigator.UncommittedChanges";
+        return "DBNavigator.UncommittedChangesOverview";
     }
 
     protected final Action[] createActions() {
         return new Action[]{
-                new CommitAction(),
-                new RollbackAction(),
+                new CommitAllAction(),
+                new RollbackAllAction(),
                 getCancelAction(),
                 getHelpAction()
         };
@@ -43,35 +42,40 @@ public class UncommittedChangesDialog extends DBNDialog {
         super.doOKAction();
     }
 
-    private class CommitAction extends AbstractAction {
-        public CommitAction() {
-            super("Commit", Icons.CONNECTION_COMMIT);
+    private class CommitAllAction extends AbstractAction {
+        public CommitAllAction() {
+            super("Commit all", Icons.CONNECTION_COMMIT);
         }
 
         public void actionPerformed(ActionEvent e) {
-            ConnectionHandler commitConnectionHandler = connectionHandler;
             DatabaseTransactionManager transactionManager = getTransactionManager();
+            List<ConnectionHandler> connectionHandlers = mainComponent.getConnectionHandlers();
+
             doOKAction();
-            transactionManager.commit(commitConnectionHandler, false);
+            for (ConnectionHandler connectionHandler : connectionHandlers) {
+                transactionManager.commit(connectionHandler, true);
+            }
         }
     }
 
-    private class RollbackAction extends AbstractAction {
-        public RollbackAction() {
-            super("Rollback", Icons.CONNECTION_ROLLBACK);
+    private class RollbackAllAction extends AbstractAction {
+        public RollbackAllAction() {
+            super("Rollback all", Icons.CONNECTION_ROLLBACK);
         }
 
         public void actionPerformed(ActionEvent e) {
-            ConnectionHandler commitConnectionHandler = connectionHandler;
             DatabaseTransactionManager transactionManager = getTransactionManager();
+            List<ConnectionHandler> connectionHandlers = mainComponent.getConnectionHandlers();
+
             doOKAction();
-            transactionManager.rollback(commitConnectionHandler, false);
+            for (ConnectionHandler connectionHandler : connectionHandlers) {
+                transactionManager.rollback(connectionHandler, true);
+            }
         }
     }
 
     private DatabaseTransactionManager getTransactionManager() {
-        Project project = connectionHandler.getProject();
-        return DatabaseTransactionManager.getInstance(project);
+        return DatabaseTransactionManager.getInstance(getProject());
     }
 
 
@@ -85,6 +89,5 @@ public class UncommittedChangesDialog extends DBNDialog {
         super.dispose();
         mainComponent.dispose();
         mainComponent = null;
-        connectionHandler = null;
     }
 }
