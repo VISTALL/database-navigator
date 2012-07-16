@@ -20,7 +20,7 @@ public class UncommittedChangesDialog extends DBNDialog {
         super(connectionHandler.getProject(), "Uncommitted Changes", true);
         this.connectionHandler = connectionHandler;
         mainComponent = new UncommittedChangesForm(connectionHandler);
-        setModal(true);
+        setModal(false);
         setResizable(true);
         init();
     }

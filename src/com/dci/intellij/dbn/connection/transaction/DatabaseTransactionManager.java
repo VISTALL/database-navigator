@@ -7,14 +7,18 @@ import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.transaction.ui.UncommittedChangesDialog;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
+import com.intellij.openapi.project.ProjectManagerListener;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
 
-public class DatabaseTransactionManager extends AbstractProjectComponent{
+public class DatabaseTransactionManager extends AbstractProjectComponent implements ProjectManagerListener{
     private DatabaseTransactionManager(Project project) {
         super(project);
+        ProjectManager projectManager = ProjectManager.getInstance();
+        projectManager.addProjectManagerListener(project, this);
     }
 
     public static DatabaseTransactionManager getInstance(Project project) {
@@ -57,9 +61,31 @@ public class DatabaseTransactionManager extends AbstractProjectComponent{
         executionDialog.show();
     }
 
-    /****************************************
-    *            ProjectComponent           *
-    *****************************************/
+    /**********************************************
+    *            ProjectManagerListener           *
+    ***********************************************/
+
+    @Override
+    public void projectOpened(Project project) {
+
+    }
+
+    @Override
+    public boolean canCloseProject(Project project) {
+        return true;
+    }
+
+    @Override
+    public void projectClosed(Project project) {
+    }
+
+    @Override
+    public void projectClosing(Project project) {
+    }
+
+    /**********************************************
+    *                ProjectComponent             *
+    ***********************************************/
     @NonNls
     @NotNull
     public String getComponentName() {
