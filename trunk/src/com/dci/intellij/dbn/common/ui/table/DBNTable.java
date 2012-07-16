@@ -11,6 +11,7 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.MouseInfo;
 import java.awt.Point;
 
@@ -20,10 +21,14 @@ public class DBNTable extends JTable {
     private Project project;
 
 
-    public DBNTable(Project project, TableModel tableModel) {
+    public DBNTable(Project project, TableModel tableModel, boolean showHeader) {
         super(tableModel);
         this.project = project;
         setGridColor(Color.LIGHT_GRAY);
+        if (!showHeader) {
+            getTableHeader().setVisible(false);
+            getTableHeader().setPreferredSize(new Dimension(-1, 0));
+        }
     }
 
     public Project getProject() {

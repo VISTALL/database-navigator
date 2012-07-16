@@ -17,7 +17,7 @@ public class ArgumentValueTable extends DBNTable {
     private static final Border EMPTY_BORDER = new EmptyBorder(0, 2, 0, 2);
 
     public ArgumentValueTable(ArgumentValueTableModel model) {
-        super(model.getProject(), model);
+        super(model.getProject(), model, true);
         setDefaultRenderer(String.class, new CellRenderer());
         setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         setCellSelectionEnabled(true);

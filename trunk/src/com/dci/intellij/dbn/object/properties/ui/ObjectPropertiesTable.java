@@ -23,7 +23,7 @@ import java.awt.event.MouseListener;
 public class ObjectPropertiesTable extends DBNTable {
 
     public ObjectPropertiesTable(Project project, TableModel tableModel) {
-        super(project, tableModel);
+        super(project, tableModel, false);
         setDefaultRenderer(String.class, cellRenderer);
         setDefaultRenderer(PresentableProperty.class, cellRenderer);
 

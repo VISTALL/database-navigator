@@ -2,7 +2,7 @@ package com.dci.intellij.dbn.browser.options.ui;
 
 import com.dci.intellij.dbn.browser.options.BrowserDisplayMode;
 import com.dci.intellij.dbn.browser.options.DatabaseBrowserGeneralSettings;
-import com.dci.intellij.dbn.browser.options.ObjectDisplayDetailsChangeListener;
+import com.dci.intellij.dbn.browser.options.ObjectDisplaySettingsChangeListener;
 import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dci.intellij.dbn.common.options.ui.ConfigurationEditorUtil;
@@ -52,7 +52,7 @@ public class DatabaseBrowserGeneralSettingsForm extends ConfigurationEditorForm<
         
         if (repaintTree) {
             Project project = configuration.getProject();
-            ObjectDisplayDetailsChangeListener listener = EventManager.syncPublisher(project, ObjectDisplayDetailsChangeListener.TOPIC);
+            ObjectDisplaySettingsChangeListener listener = EventManager.syncPublisher(project, ObjectDisplaySettingsChangeListener.TOPIC);
             listener.displayDetailsChanged();
         }
         

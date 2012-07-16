@@ -10,6 +10,7 @@ import com.dci.intellij.dbn.common.filter.Filter;
 import com.dci.intellij.dbn.common.thread.BackgroundTask;
 import com.dci.intellij.dbn.common.ui.tree.TreeUtil;
 import com.dci.intellij.dbn.connection.config.ConnectionSettings;
+import com.dci.intellij.dbn.connection.transaction.TransactionListener;
 import com.dci.intellij.dbn.connection.transaction.UncommittedChangeBundle;
 import com.dci.intellij.dbn.database.DatabaseInterfaceProvider;
 import com.dci.intellij.dbn.language.common.DBLanguage;
@@ -31,13 +32,9 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class ConnectionHandlerImpl implements ConnectionHandler {
-    private Set<TransactionListener> transactionListeners = new HashSet<TransactionListener>();
-
     private ConnectionSettings connectionSettings;
     private ConnectionManager connectionManager;
     private ConnectionStatus connectionStatus;
@@ -105,29 +102,19 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
         return getSettings().getDetailSettings().getEnvironmentType();
     }
 
-    public void addTransactionListener(TransactionListener transactionListener) {
-        transactionListeners.add(transactionListener);
-    }
-
-    public void removeTransactionListener(TransactionListener transactionListener) {
-        transactionListeners.remove(transactionListener);
-    }
-
     private void notifyPreCommitRollback(int operation) throws SQLException {
-        for (TransactionListener transactionListener : transactionListeners) {
-            switch(operation) {
-                case TransactionListener.COMMIT : transactionListener.beforeCommit(); break;
-                case TransactionListener.ROLLBACK : transactionListener.beforeRollback(); break;
-            }
+        TransactionListener listener = EventManager.syncPublisher(getProject(), TransactionListener.TOPIC);
+        switch(operation) {
+            case TransactionListener.COMMIT : listener.beforeCommit(this); break;
+            case TransactionListener.ROLLBACK : listener.beforeRollback(this); break;
         }
     }
 
     private void notifyPostCommitRollback(int operation, boolean successful) throws SQLException {
-        for (TransactionListener transactionListener : transactionListeners) {
-            switch(operation) {
-                case TransactionListener.COMMIT : transactionListener.afterCommit(successful); break;
-                case TransactionListener.ROLLBACK : transactionListener.afterRollback(successful); break;
-            }
+        TransactionListener listener = EventManager.syncPublisher(getProject(), TransactionListener.TOPIC);
+        switch(operation) {
+            case TransactionListener.COMMIT : listener.afterCommit(this, successful); break;
+            case TransactionListener.ROLLBACK : listener.afterRollback(this, successful); break;
         }
     }
 

@@ -37,18 +37,10 @@
               </grid>
             </constraints>
             <properties>
-              <dividerLocation value="200"/>
+              <dividerLocation value="256"/>
             </properties>
             <border type="none"/>
             <children>
-              <grid id="cfd5b" binding="detailsPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
-                <constraints>
-                  <splitpane position="right"/>
-                </constraints>
-                <properties/>
-                <border type="none"/>
-                <children/>
-              </grid>
               <scrollpane id="db28f" class="com.intellij.ui.components.JBScrollPane">
                 <constraints>
                   <splitpane position="left"/>
@@ -66,6 +58,14 @@
                   </component>
                 </children>
               </scrollpane>
+              <grid id="4d885" binding="detailsPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
+                <constraints>
+                  <splitpane position="right"/>
+                </constraints>
+                <properties/>
+                <border type="none"/>
+                <children/>
+              </grid>
             </children>
           </splitpane>
         </children>

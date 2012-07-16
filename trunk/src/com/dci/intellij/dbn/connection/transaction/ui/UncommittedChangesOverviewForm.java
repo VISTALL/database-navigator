@@ -1,10 +1,14 @@
 package com.dci.intellij.dbn.connection.transaction.ui;
 
 import com.dci.intellij.dbn.browser.DatabaseBrowserManager;
+import com.dci.intellij.dbn.common.event.EventManager;
+import com.dci.intellij.dbn.common.thread.SimpleLaterInvocator;
 import com.dci.intellij.dbn.common.ui.UIForm;
 import com.dci.intellij.dbn.common.ui.UIFormImpl;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.ConnectionManager;
+import com.dci.intellij.dbn.connection.transaction.TransactionListener;
+import com.dci.intellij.dbn.connection.transaction.UncommittedChangeBundle;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.ColoredListCellRenderer;
 import com.intellij.ui.GuiUtils;
@@ -16,12 +20,13 @@ import javax.swing.JPanel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.BorderLayout;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class UncommittedChangesOverviewForm extends UIFormImpl implements UIForm {
+public class UncommittedChangesOverviewForm extends UIFormImpl implements UIForm, TransactionListener {
     private JPanel mainPanel;
     private JPanel actionsPanel;
     private JPanel detailsPanel;
@@ -29,8 +34,10 @@ public class UncommittedChangesOverviewForm extends UIFormImpl implements UIForm
     private List<ConnectionHandler> connectionHandlers = new ArrayList<ConnectionHandler>();
 
     private Map<ConnectionHandler, UncommittedChangesForm> uncommittedChangeForms = new HashMap<ConnectionHandler, UncommittedChangesForm>();
+    private Project project;
 
     public UncommittedChangesOverviewForm(Project project, String hintText) {
+        this.project = project;
         DefaultListModel model = new DefaultListModel();
 
         DatabaseBrowserManager browserManager = DatabaseBrowserManager.getInstance(project);
@@ -43,7 +50,7 @@ public class UncommittedChangesOverviewForm extends UIFormImpl implements UIForm
             }
         }
 
-
+        GuiUtils.replaceJSplitPaneWithIDEASplitter(mainPanel);
         connectionsList.setModel(model);
         connectionsList.addListSelectionListener(new ListSelectionListener() {
             @Override
@@ -53,16 +60,18 @@ public class UncommittedChangesOverviewForm extends UIFormImpl implements UIForm
             }
         });
         connectionsList.setCellRenderer(new ListCellRenderer());
+        connectionsList.setSelectedIndex(0);
 
-/*
-        ActionToolbar actionToolbar = ActionUtil.createActionToolbar("", true,
-                new ShowGroupedTreeAction(tree),
-                new DeleteHistoryEntryAction(tree),
-                ActionUtil.SEPARATOR,
-                new OpenSettingsAction());
-        actionsPanel.add(actionToolbar.getComponent());
-*/
-        GuiUtils.replaceJSplitPaneWithIDEASplitter(mainPanel);
+        EventManager.subscribe(project, TransactionListener.TOPIC, this);
+    }
+
+    public boolean hasUncommittedChanges() {
+        for (ConnectionHandler connectionHandler : connectionHandlers) {
+            if (connectionHandler.hasUncommittedChanges()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public JPanel getComponent() {
@@ -71,6 +80,8 @@ public class UncommittedChangesOverviewForm extends UIFormImpl implements UIForm
 
     public void dispose() {
         super.dispose();
+        EventManager.unsubscribe(project, this);
+        connectionHandlers = null;
     }
 
     public List<ConnectionHandler> getConnectionHandlers (){
@@ -82,7 +93,7 @@ public class UncommittedChangesOverviewForm extends UIFormImpl implements UIForm
         if (connectionHandler != null) {
             UncommittedChangesForm uncommittedChangesForm = uncommittedChangeForms.get(connectionHandler);
             if (uncommittedChangesForm == null) {
-                uncommittedChangesForm = new UncommittedChangesForm(connectionHandler, null);
+                uncommittedChangesForm = new UncommittedChangesForm(connectionHandler, null, true);
                 uncommittedChangeForms.put(connectionHandler, uncommittedChangesForm);
             }
             detailsPanel.add(uncommittedChangesForm.getComponent(), BorderLayout.CENTER);
@@ -97,8 +108,43 @@ public class UncommittedChangesOverviewForm extends UIFormImpl implements UIForm
             ConnectionHandler connectionHandler = (ConnectionHandler) value;
             setIcon(connectionHandler.getIcon());
             append(connectionHandler.getName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
-            append(" (" + connectionHandler.getUncommittedChanges().size() + ")", SimpleTextAttributes.GRAY_ATTRIBUTES);
+            UncommittedChangeBundle uncommittedChanges = connectionHandler.getUncommittedChanges();
+            int changes = uncommittedChanges == null ? 0 : uncommittedChanges.size();
+            append(" (" + changes + ")", SimpleTextAttributes.GRAY_ATTRIBUTES);
 
         }
+    }
+
+    /********************************************************
+     *                Transaction Listener                  *
+     ********************************************************/
+    @Override
+    public void beforeCommit(ConnectionHandler connectionHandler) throws SQLException {
+    }
+
+    @Override
+    public void beforeRollback(ConnectionHandler connectionHandler) throws SQLException {
+    }
+
+    @Override
+    public void afterCommit(ConnectionHandler connectionHandler, boolean succeeded) throws SQLException {
+        refreshForm();
+    }
+
+    @Override
+    public void afterRollback(ConnectionHandler connectionHandler, boolean succeeded) throws SQLException {
+        refreshForm();
+    }
+
+    private void refreshForm() {
+        new SimpleLaterInvocator() {
+            @Override
+            public void run() {
+                if (!isDisposed()) {
+                    connectionsList.repaint();
+                }
+            }
+        }.start();
+
     }
 }

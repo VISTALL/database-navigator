@@ -17,7 +17,7 @@ public class TransactionRollbackAction extends DumbAwareAction {
     private ConnectionHandler connectionHandler;
 
     public TransactionRollbackAction(ConnectionHandler connectionHandler) {
-        super("Rollback", "Rollback connection", Icons.CONNECTION_ROLLBACK);
+        super("Roll-back", "Roll back connection", Icons.CONNECTION_ROLLBACK);
         this.connectionHandler = connectionHandler;
 
     }

@@ -27,7 +27,7 @@ import java.awt.event.MouseListener;
 public class EnvironmentTypesEditorTable extends DBNTable {
 
     public EnvironmentTypesEditorTable(Project project, EnvironmentTypeBundle environmentTypes) {
-        super(project, new EnvironmentTypesTableModel(project, environmentTypes));
+        super(project, new EnvironmentTypesTableModel(project, environmentTypes), true);
         setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
         getSelectionModel().addListSelectionListener(selectionListener);
         setSelectionBackground(UIUtil.getTableBackground());

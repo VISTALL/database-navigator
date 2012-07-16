@@ -19,7 +19,7 @@ public class UncommittedChangesDialog extends DBNDialog {
     public UncommittedChangesDialog(ConnectionHandler connectionHandler, @Nullable String hintText) {
         super(connectionHandler.getProject(), "Uncommitted Changes", true);
         this.connectionHandler = connectionHandler;
-        mainComponent = new UncommittedChangesForm(connectionHandler, hintText);
+        mainComponent = new UncommittedChangesForm(connectionHandler, hintText, false);
         setModal(false);
         setResizable(true);
         init();
@@ -58,7 +58,7 @@ public class UncommittedChangesDialog extends DBNDialog {
 
     private class RollbackAction extends AbstractAction {
         public RollbackAction() {
-            super("Rollback", Icons.CONNECTION_ROLLBACK);
+            super("Roll-back", Icons.CONNECTION_ROLLBACK);
         }
 
         public void actionPerformed(ActionEvent e) {
