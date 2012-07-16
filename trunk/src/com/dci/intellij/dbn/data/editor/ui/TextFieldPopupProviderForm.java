@@ -30,28 +30,28 @@ import java.util.Set;
 public abstract class TextFieldPopupProviderForm extends KeyAdapter implements UIForm{
     public static final Border EMPTY_BORDER = new EmptyBorder(2, 2, 2, 2);
 
-    private TextFieldWithPopup textField;
+    protected TextFieldWithPopup editorComponent;
     private boolean isAutoPopup;
     private boolean isEnabled = true;
     private JBPopup popup;
     private Set<AnAction> actions = new HashSet<AnAction>();
     private boolean disposed;
 
-    protected TextFieldPopupProviderForm(TextFieldWithPopup textField, boolean isAutoPopup) {
-        this.textField = textField;
+    protected TextFieldPopupProviderForm(TextFieldWithPopup editorComponent, boolean isAutoPopup) {
+        this.editorComponent = editorComponent;
         this.isAutoPopup = isAutoPopup;
     }
 
-    public TextFieldWithPopup getTextEditor() {
-        return textField;
+    public TextFieldWithPopup getEditorComponent() {
+        return editorComponent;
     }
 
     public JTextField getTextField() {
-        return textField.getTextField();
+        return editorComponent.getTextField();
     }
 
     public Project getProject() {
-        return textField.getProject();
+        return editorComponent.getProject();
     }
 
     public JBPopup getPopup() {
@@ -123,12 +123,12 @@ public abstract class TextFieldPopupProviderForm extends KeyAdapter implements U
                         JPanel panel = (JPanel) popup.getContent();
                         panel.setBorder(new LineBorder(Color.DARK_GRAY));
 
-                        textField.clearSelection();
+                        editorComponent.clearSelection();
 
-                        if (textField.isShowing()) {
-                            Point location = textField.getLocationOnScreen();
-                            location.setLocation(location.getX() + 4 , location.getY() + textField.getHeight() + 4);
-                            popup.showInScreenCoordinates(textField, location);
+                        if (editorComponent.isShowing()) {
+                            Point location = editorComponent.getLocationOnScreen();
+                            location.setLocation(location.getX() + 4 , location.getY() + editorComponent.getHeight() + 4);
+                            popup.showInScreenCoordinates(editorComponent, location);
                             //cellEditor.highlight(TextCellEditor.HIGHLIGHT_TYPE_POPUP);
                         }
                     }

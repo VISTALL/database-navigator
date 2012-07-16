@@ -1,9 +1,9 @@
 package com.dci.intellij.dbn.data.editor.ui;
 
 import com.dci.intellij.dbn.common.Icons;
+import com.dci.intellij.dbn.common.ui.KeyUtil;
 import com.dci.intellij.dbn.data.editor.text.TextEditorAdapter;
 import com.dci.intellij.dbn.data.editor.text.ui.TextEditorDialog;
-import com.dci.intellij.dbn.common.ui.KeyUtil;
 import com.intellij.openapi.actionSystem.IdeActions;
 import com.intellij.openapi.actionSystem.Shortcut;
 import com.intellij.openapi.keymap.KeymapUtil;
@@ -88,6 +88,16 @@ public class TextFieldWithTextEditor extends JPanel implements DataEditorCompone
         return textField;
     }
 
+    @Override
+    public String getText() {
+        return textField.getText();
+    }
+
+    @Override
+    public void setText(String text) {
+        textField.setText(text);
+    }
+
     public JButton getButton() {
         return button;
     }
@@ -131,9 +141,8 @@ public class TextFieldWithTextEditor extends JPanel implements DataEditorCompone
     public void afterUpdate() {
         if (userValueHolder.getUserValue() instanceof String) {
             String text = (String) userValueHolder.getUserValue();
-            JTextField textField = getTextField();
             setEditable(text == null || (text.length() < 1000 && text.indexOf('\n') == -1));
-            textField.setText(text);
+            setText(text);
         }
     }
 }

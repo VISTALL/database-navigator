@@ -100,6 +100,16 @@ public class TextFieldWithPopup extends JPanel implements DataEditorComponent {
         return textField;
     }
 
+    @Override
+    public String getText() {
+        return textField.getText();
+    }
+
+    @Override
+    public void setText(String text) {
+        textField.setText(text);
+    }
+
     public JButton getButton() {
         return button;
     }

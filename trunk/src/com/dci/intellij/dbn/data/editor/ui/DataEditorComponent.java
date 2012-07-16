@@ -7,9 +7,13 @@ public interface DataEditorComponent {
 
     void setEditable(boolean editable);
 
-    void setUserValueHolder(UserValueHolder userValueHolder);
-
     void setEnabled(boolean enabled);
 
     UserValueHolder getUserValueHolder();
+
+    void setUserValueHolder(UserValueHolder userValueHolder);
+
+    String getText();
+
+    void setText(String text);
 }

@@ -122,15 +122,15 @@ public class CalendarPopupProviderForm extends TextFieldPopupProviderForm implem
     }
 
     private Date getDateForPopup() {
-        if (getTextEditor().getUserValueHolder() == null) {
-            String dateString = getTextEditor().getTextField().getText();
+        if (getEditorComponent().getUserValueHolder() == null) {
+            String dateString = getEditorComponent().getTextField().getText();
             try {
                 return getFormatter().parseDateTime(dateString);
             } catch (ParseException e) {
                 return new Date();
             }
         } else {
-            Object userValue = getTextEditor().getUserValueHolder().getUserValue();
+            Object userValue = getEditorComponent().getUserValueHolder().getUserValue();
             return userValue instanceof Date ? (Date) userValue : new Date();
         }
     }
@@ -181,7 +181,7 @@ public class CalendarPopupProviderForm extends TextFieldPopupProviderForm implem
     private void selectDate() {
         CalendarTableModel model = (CalendarTableModel) daysTable.getModel();
         Date date = model.getTimestamp(daysTable.getSelectedRow(), daysTable.getSelectedColumn());
-        getTextField().setText(getFormatter().formatDateTime(date));
+        editorComponent.setText(getFormatter().formatDateTime(date));
         disposePopup();
         getTextField().requestFocus();
     }

@@ -185,7 +185,7 @@ public class ValuesListPopupProviderForm extends TextFieldPopupProviderForm {
 
     private class DynamicFilter extends Filter<String> {
         public boolean accepts(String string) {
-            if (getTextEditor().isSelected()) return true;
+            if (getEditorComponent().isSelected()) return true;
 
             JTextField textField = getTextField();
             int caretOffset = textField.getCaretPosition();

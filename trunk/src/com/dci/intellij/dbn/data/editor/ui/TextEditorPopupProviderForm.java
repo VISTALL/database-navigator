@@ -63,7 +63,7 @@ public class TextEditorPopupProviderForm extends TextFieldPopupProviderForm {
         if (textField.isEditable()) {
             text = textField.getText();
         } else {
-            Object userValue = getTextEditor().getUserValueHolder().getUserValue();
+            Object userValue = getEditorComponent().getUserValueHolder().getUserValue();
             if (userValue instanceof String) {
                 text = (String) userValue;
             } else if (userValue instanceof LazyLoadedValue) {
@@ -132,12 +132,12 @@ public class TextEditorPopupProviderForm extends TextFieldPopupProviderForm {
 
         public void actionPerformed(AnActionEvent e) {
             String text = editorTextArea.getText().trim();
-            UserValueHolder userValueHolder = getTextEditor().getUserValueHolder();
+            UserValueHolder userValueHolder = getEditorComponent().getUserValueHolder();
             userValueHolder.updateUserValue(text, false);
 
             if (userValueHolder.getUserValue() instanceof String) {
                 JTextField textField = getTextField();
-                getTextEditor().setEditable(text.indexOf('\n') == -1);
+                getEditorComponent().setEditable(text.indexOf('\n') == -1);
 
                 textField.setText(text);
             }
@@ -176,8 +176,8 @@ public class TextEditorPopupProviderForm extends TextFieldPopupProviderForm {
 
         public void actionPerformed(AnActionEvent e) {
             JTextField textField = getTextField();
-            getTextEditor().getUserValueHolder().updateUserValue(null, false);
-            getTextEditor().setEditable(true);
+            getEditorComponent().getUserValueHolder().updateUserValue(null, false);
+            getEditorComponent().setEditable(true);
             textField.setText("");
             disposePopup();
         }

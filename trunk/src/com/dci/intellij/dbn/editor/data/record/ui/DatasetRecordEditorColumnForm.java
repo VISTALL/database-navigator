@@ -130,7 +130,7 @@ public class DatasetRecordEditorColumnForm extends UIFormImpl implements UIForm 
         boolean editable = !row.isDeleted() && row.getModel().isEditable();
         editorComponent.setEnabled(editable);
         editorComponent.setUserValueHolder(cell);
-        JTextField valueTextField = editorComponent.getTextField();
+
         Formatter formatter = regionalSettings.getFormatter();
         if (cell.getUserValue() instanceof String) {
             String userValue = (String) cell.getUserValue();
@@ -140,13 +140,14 @@ public class DatasetRecordEditorColumnForm extends UIFormImpl implements UIForm 
             } else {
                 editorComponent.setEditable(editable);
             }
-            valueTextField.setText(userValue);
+            editorComponent.setText(userValue);
         } else {
             editable = editable && !(cell.getUserValue() instanceof LazyLoadedValue);
             editorComponent.setEditable(editable);
             String formattedUserValue = formatter.formatObject(cell.getUserValue());
-            valueTextField.setText(formattedUserValue);
+            editorComponent.setText(formattedUserValue);
         }
+        JTextField valueTextField = editorComponent.getTextField();
         valueTextField.setBackground(UIUtil.getTextFieldBackground());
     }
 
@@ -172,9 +173,8 @@ public class DatasetRecordEditorColumnForm extends UIFormImpl implements UIForm 
 
     public Object getEditorValue() throws ParseException {
         DBDataType dataType = cell.getColumnInfo().getDataType();
-        JTextField valueTextField = editorComponent.getTextField();
         Class clazz = dataType.getTypeClass();
-        String textValue = valueTextField.getText().trim();
+        String textValue = editorComponent.getText().trim();
         if (textValue.length() > 0) {
             Object value = getFormatter().parseObject(clazz, textValue);
             return dataType.getNativeDataType().getDataTypeDefinition().convert(value);
