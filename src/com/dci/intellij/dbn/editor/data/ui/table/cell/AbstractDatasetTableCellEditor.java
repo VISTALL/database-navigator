@@ -26,18 +26,16 @@ import java.util.EventObject;
 
 public abstract class AbstractDatasetTableCellEditor extends AbstractCellEditor implements TableCellEditor {
     private DataEditorComponent editorComponent;
-    private JTextField textField;
     private int clickCountToStart = 1;
     private DatasetEditorModelCell cell;
     protected DataEditorSettings settings;
 
     public AbstractDatasetTableCellEditor(DataEditorComponent editorComponent, Project project) {
         this.editorComponent = editorComponent;
-        this.textField = editorComponent.getTextField();
         this.settings = DataEditorSettings.getInstance(project);
 
         this.clickCountToStart = 2;
-        textField.addActionListener(new EditorDelegate());
+        editorComponent.getTextField().addActionListener(new EditorDelegate());
     }
 
     public JComponent getEditorComponent() {
@@ -45,7 +43,7 @@ public abstract class AbstractDatasetTableCellEditor extends AbstractCellEditor 
     }
 
     public JTextField getTextField() {
-        return textField;
+        return editorComponent.getTextField();
     }
 
     public boolean isCellEditable(EventObject event) {
@@ -74,13 +72,13 @@ public abstract class AbstractDatasetTableCellEditor extends AbstractCellEditor 
         if (cell != null) {
             Object userValue = cell.getUserValue();
             if (userValue instanceof String) {
-                textField.setText((String) userValue);
+                editorComponent.setText((String) userValue);
             } else {
                 String stringValue = getFormatter().formatObject(userValue);
-                textField.setText(stringValue);
+                editorComponent.setText(stringValue);
             }
         } else {
-            textField.setText("");
+            editorComponent.setText("");
         }
         return (Component) editorComponent;
     }
@@ -89,7 +87,7 @@ public abstract class AbstractDatasetTableCellEditor extends AbstractCellEditor 
         DBDataType dataType = cell.getColumnInfo().getDataType();
         Class clazz = dataType.getTypeClass();
         try {
-            String textValue = textField.getText();
+            String textValue = editorComponent.getText();
             
             
             boolean trim = true;
@@ -109,12 +107,12 @@ public abstract class AbstractDatasetTableCellEditor extends AbstractCellEditor 
                 return null;
             }
         } catch (ParseException e) {
-            throw new IllegalArgumentException("Can not convert " + textField.getText() + " to " + dataType.getName());
+            throw new IllegalArgumentException("Can not convert " + editorComponent.getText() + " to " + dataType.getName());
         }
     }
 
     public Object getCellEditorValueLenient() {
-        return textField.getText().trim();        
+        return editorComponent.getText().trim();
     }
 
     private Formatter getFormatter() {

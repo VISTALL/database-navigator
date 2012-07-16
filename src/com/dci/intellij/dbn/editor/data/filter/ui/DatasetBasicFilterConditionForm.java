@@ -158,7 +158,7 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
 
 
     public String getValue() {
-        return editorComponent.getTextField().getText();
+        return editorComponent.getText();
     }
 
     public DatasetBasicFilterCondition getCondition() {
@@ -169,7 +169,7 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
         return new DatasetBasicFilterCondition(
                 basicFilterForm.getConfiguration(),
                 getSelectedColumn().getName(),
-                editorComponent.getTextField().getText(), getSelectedOperator(),
+                editorComponent.getText(), getSelectedOperator(),
                 active);
     }
 
@@ -211,7 +211,7 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
         DatasetBasicFilterCondition condition = getConfiguration();
         DBColumn column = (DBColumn) columnComboBox.getSelectedItem();
         ConditionOperator operator = getSelectedOperator();
-        String value = editorComponent.getTextField().getText();
+        String value = editorComponent.getText();
 
         condition.setColumnName(column.getName());
         condition.setOperator(operator == null ? "" : operator.toString());
