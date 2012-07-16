@@ -26,7 +26,7 @@ public class UncommittedChangesDialog extends DBNDialog {
     }
 
     protected String getDimensionServiceKey() {
-        return "DBNavigator.UncommittedChanges";
+        return null;//"DBNavigator.UncommittedChanges";
     }
 
     protected final Action[] createActions() {
