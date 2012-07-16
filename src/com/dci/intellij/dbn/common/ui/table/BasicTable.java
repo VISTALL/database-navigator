@@ -31,7 +31,7 @@ public class BasicTable extends DBNTable implements Disposable {
     protected RegionalSettings regionalSettings;
 
     public BasicTable(Project project, BasicDataModel dataModel) {
-        super(project, dataModel);
+        super(project, dataModel, true);
         setSelectionForeground(configTextAttributes.getSelection().getFgColor());
         setSelectionBackground(configTextAttributes.getSelection().getBgColor());
     }

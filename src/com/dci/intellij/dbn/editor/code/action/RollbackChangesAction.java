@@ -12,7 +12,7 @@ import java.sql.SQLException;
 
 public class RollbackChangesAction extends AbstractSourceCodeEditorAction {
     public RollbackChangesAction() {
-        super("Rollback changes", null, Icons.CODE_EDITOR_RESET);
+        super("Roll-back changes", null, Icons.CODE_EDITOR_RESET);
     }
 
     public void actionPerformed(AnActionEvent e) {
@@ -38,6 +38,6 @@ public class RollbackChangesAction extends AbstractSourceCodeEditorAction {
         SourceCodeFile virtualFile = getSourcecodeFile(e);
         Presentation presentation = e.getPresentation();
         presentation.setEnabled(virtualFile!= null && virtualFile.isModified());
-        presentation.setText("Rollback changes");
+        presentation.setText("Roll-back changes");
     }
 }

@@ -2,6 +2,7 @@ package com.dci.intellij.dbn.connection.transaction.ui;
 
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.transaction.UncommittedChange;
+import com.dci.intellij.dbn.connection.transaction.UncommittedChangeBundle;
 import com.intellij.openapi.project.Project;
 
 import javax.swing.event.TableModelListener;
@@ -19,7 +20,8 @@ public class UncommittedChangesTableModel implements TableModel {
     }
 
     public int getRowCount() {
-        return connectionHandler.getUncommittedChanges().size();
+        UncommittedChangeBundle uncommittedChanges = connectionHandler.getUncommittedChanges();
+        return uncommittedChanges == null ? 0 : uncommittedChanges.size();
     }
 
     public int getColumnCount() {

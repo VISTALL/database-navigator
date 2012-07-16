@@ -58,8 +58,6 @@ public interface ConnectionHandler extends Disposable{
 
     LoadMonitor getLoadMonitor();
 
-    void addTransactionListener(TransactionListener transactionListener);
-    void removeTransactionListener(TransactionListener transactionListener);
     void notifyChanges(VirtualFile virtualFile);
     void resetChanges();
     boolean hasUncommittedChanges();

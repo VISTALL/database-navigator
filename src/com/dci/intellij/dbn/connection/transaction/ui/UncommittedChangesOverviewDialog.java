@@ -13,7 +13,7 @@ import javax.swing.JComponent;
 import java.awt.event.ActionEvent;
 import java.util.List;
 
-public class UncommittedChangesOverviewDialog extends DBNDialog {
+public class UncommittedChangesOverviewDialog extends DBNDialog{
     private UncommittedChangesOverviewForm mainComponent;
 
     public UncommittedChangesOverviewDialog(Project project, @Nullable String hintText) {
@@ -56,11 +56,16 @@ public class UncommittedChangesOverviewDialog extends DBNDialog {
                 transactionManager.commit(connectionHandler, true);
             }
         }
+
+        @Override
+        public boolean isEnabled() {
+            return mainComponent.hasUncommittedChanges();
+        }
     }
 
     private class RollbackAllAction extends AbstractAction {
         public RollbackAllAction() {
-            super("Rollback all", Icons.CONNECTION_ROLLBACK);
+            super("Roll-back all", Icons.CONNECTION_ROLLBACK);
         }
 
         public void actionPerformed(ActionEvent e) {
@@ -71,6 +76,11 @@ public class UncommittedChangesOverviewDialog extends DBNDialog {
             for (ConnectionHandler connectionHandler : connectionHandlers) {
                 transactionManager.rollback(connectionHandler, true);
             }
+        }
+
+        @Override
+        public boolean isEnabled() {
+            return mainComponent.hasUncommittedChanges();
         }
     }
 

@@ -2,13 +2,14 @@ package com.dci.intellij.dbn.editor.data;
 
 import com.dci.intellij.dbn.common.Constants;
 import com.dci.intellij.dbn.common.action.DBNDataKeys;
+import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.common.thread.BackgroundTask;
 import com.dci.intellij.dbn.common.thread.SimpleLaterInvocator;
 import com.dci.intellij.dbn.common.util.EditorUtil;
 import com.dci.intellij.dbn.common.util.MessageUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
-import com.dci.intellij.dbn.connection.TransactionListener;
 import com.dci.intellij.dbn.connection.mapping.FileConnectionMappingProvider;
+import com.dci.intellij.dbn.connection.transaction.TransactionListener;
 import com.dci.intellij.dbn.database.DatabaseMessageParserInterface;
 import com.dci.intellij.dbn.editor.data.filter.DatasetFilter;
 import com.dci.intellij.dbn.editor.data.filter.DatasetFilterManager;
@@ -29,7 +30,11 @@ import com.intellij.ide.structureView.StructureViewModel;
 import com.intellij.ide.structureView.TreeBasedStructureViewBuilder;
 import com.intellij.openapi.actionSystem.DataProvider;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
-import com.intellij.openapi.fileEditor.*;
+import com.intellij.openapi.fileEditor.FileEditor;
+import com.intellij.openapi.fileEditor.FileEditorLocation;
+import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.fileEditor.FileEditorState;
+import com.intellij.openapi.fileEditor.FileEditorStateLevel;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
@@ -38,7 +43,7 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.JComponent;
 import java.beans.PropertyChangeListener;
 import java.sql.SQLException;
 import java.util.HashSet;
@@ -64,12 +69,12 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
 
         connectionHandler = dataset.getConnectionHandler();
         editorForm = new DatasetEditorForm(this);
-        getActiveConnection().addTransactionListener(this);
 
 
         if (!EditorUtil.hasEditingHistory(databaseFile, project)) {
             load(true, true);
         }
+        EventManager.subscribe(project, TransactionListener.TOPIC, this);
     }
 
     public DBDataset getDataset() {
@@ -214,7 +219,7 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
     public void dispose() {
         if (!isDisposed) {
             isDisposed = true;
-            getActiveConnection().removeTransactionListener(this);
+            EventManager.unsubscribe(getProject(), this);
             editorForm.dispose();
             editorForm = null;
             dataset = null;
@@ -429,9 +434,10 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
 
     /*********************************************************
      *               CommitRollbackListener                  *
-     *********************************************************/
+     ********************************************************
+     * @param connectionHandler*/
 
-    public void beforeCommit() throws SQLException {
+    public void beforeCommit(ConnectionHandler connectionHandler) throws SQLException {
         DatasetEditorModel model = getTableModel();
         DatasetEditorTable editorTable = getEditorTable();
         if (editorTable != null && editorTable.isEditing()) {
@@ -443,18 +449,18 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
         }
     }
 
-    public void beforeRollback() throws SQLException {
+    public void beforeRollback(ConnectionHandler connectionHandler) throws SQLException {
         DatasetEditorModel model = getTableModel();
         if (isInserting() && model != null) {
             model.cancelInsert(true);
         }
     }
 
-    public void afterCommit(boolean succeeded) throws SQLException {
+    public void afterCommit(ConnectionHandler connectionHandler, boolean succeeded) throws SQLException {
         if (succeeded && isModified()) load(true, false);
     }
 
-    public void afterRollback(boolean succeeded) throws SQLException {
+    public void afterRollback(ConnectionHandler connectionHandler, boolean succeeded) throws SQLException {
         if (succeeded && isModified()) load(true, false);
     }
     

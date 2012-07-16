@@ -5,7 +5,7 @@ import com.dci.intellij.dbn.browser.model.BrowserTreeModel;
 import com.dci.intellij.dbn.browser.model.TabbedBrowserTreeModel;
 import com.dci.intellij.dbn.browser.options.BrowserDisplayMode;
 import com.dci.intellij.dbn.browser.options.DatabaseBrowserSettings;
-import com.dci.intellij.dbn.browser.options.ObjectDisplayDetailsChangeListener;
+import com.dci.intellij.dbn.browser.options.ObjectDisplaySettingsChangeListener;
 import com.dci.intellij.dbn.browser.options.ObjectFilterChangeListener;
 import com.dci.intellij.dbn.browser.ui.BrowserToolWindowForm;
 import com.dci.intellij.dbn.browser.ui.DatabaseBrowserTree;
@@ -193,7 +193,7 @@ public class DatabaseBrowserManager extends AbstractProjectComponent implements 
         eventManager.subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, fileEditorManagerListener);
         eventManager.subscribe(ConnectionSetupChangeListener.TOPIC, connectionSetupListener);
         eventManager.subscribe(ObjectFilterChangeListener.TOPIC, filterChangeListener);
-        eventManager.subscribe(ObjectDisplayDetailsChangeListener.TOPIC, objectDisplayDetailsChangeListener);
+        eventManager.subscribe(ObjectDisplaySettingsChangeListener.TOPIC, objectDisplaySettingsChangeListener);
         eventManager.subscribe(ProjectTopics.MODULES, moduleListener);
     }
 
@@ -244,7 +244,7 @@ public class DatabaseBrowserManager extends AbstractProjectComponent implements 
                 fileEditorManagerListener,
                 connectionSetupListener,
                 filterChangeListener,
-                objectDisplayDetailsChangeListener,
+                objectDisplaySettingsChangeListener,
                 moduleListener);
     }
 
@@ -346,7 +346,7 @@ public class DatabaseBrowserManager extends AbstractProjectComponent implements 
         return browserSettings.getFilterSettings().getObjectTypeFilterSettings().getElementFilter();
     }
 
-    private ObjectDisplayDetailsChangeListener objectDisplayDetailsChangeListener = new ObjectDisplayDetailsChangeListener() {
+    private ObjectDisplaySettingsChangeListener objectDisplaySettingsChangeListener = new ObjectDisplaySettingsChangeListener() {
         public void displayDetailsChanged() {
             getToolWindowForm().getBrowserForm().repaintTree();
         }
