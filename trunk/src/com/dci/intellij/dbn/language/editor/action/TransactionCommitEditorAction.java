@@ -16,7 +16,7 @@ public class TransactionCommitEditorAction extends TransactionEditorAction {
         Project project = ActionUtil.getProject(e);
         DatabaseTransactionManager transactionManager = DatabaseTransactionManager.getInstance(project);
         ConnectionHandler activeConnection = getConnectionHandler(project);
-        transactionManager.commit(activeConnection);
+        transactionManager.commit(activeConnection, false);
     }
 
     @Override

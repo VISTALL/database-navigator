@@ -5,6 +5,7 @@ import com.dci.intellij.dbn.common.thread.ModalTask;
 import com.dci.intellij.dbn.common.util.MessageUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.transaction.ui.UncommittedChangesDialog;
+import com.dci.intellij.dbn.connection.transaction.ui.UncommittedChangesOverviewDialog;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
@@ -27,9 +28,9 @@ public class DatabaseTransactionManager extends AbstractProjectComponent impleme
         return project.getComponent(DatabaseTransactionManager.class);
     }
 
-    public void commit(final ConnectionHandler connectionHandler) {
+    public void commit(final ConnectionHandler connectionHandler, boolean background) {
         Project project = connectionHandler.getProject();
-        new ModalTask(project, "Performing commit on connection " + connectionHandler.getName(), false) {
+        new ModalTask(project, "Performing commit on connection " + connectionHandler.getName(), background) {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
                 try {
@@ -42,9 +43,9 @@ public class DatabaseTransactionManager extends AbstractProjectComponent impleme
         }.start();
     }
 
-    public void rollback(final ConnectionHandler connectionHandler) {
+    public void rollback(final ConnectionHandler connectionHandler, boolean background) {
         Project project = connectionHandler.getProject();
-        new ModalTask(project, "Performing rollback on connection " + connectionHandler.getName(), false) {
+        new ModalTask(project, "Performing rollback on connection " + connectionHandler.getName(), background) {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
                 try {
@@ -57,6 +58,11 @@ public class DatabaseTransactionManager extends AbstractProjectComponent impleme
         }.start();
     }
 
+    public boolean showUncommittedChangesOverviewDialog(@Nullable String hintText) {
+        UncommittedChangesOverviewDialog executionDialog = new UncommittedChangesOverviewDialog(getProject(), hintText);
+        executionDialog.show();
+        return executionDialog.getExitCode() == DialogWrapper.OK_EXIT_CODE;
+    }
 
     public boolean showUncommittedChangesDialog(ConnectionHandler connectionHandler, @Nullable String hintText) {
         UncommittedChangesDialog executionDialog = new UncommittedChangesDialog(connectionHandler, hintText);
