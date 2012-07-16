@@ -30,6 +30,7 @@ public class InsertRecordAction extends DumbAwareAction {
         } else {
             presentation.setVisible(!datasetEditor.isReadonlyData());
             presentation.setEnabled(
+                    datasetEditor.getActiveConnection().isConnected() &&
                     !datasetEditor.isReadonly() &&
                     !datasetEditor.isInserting() && 
                     !datasetEditor.isLoading());

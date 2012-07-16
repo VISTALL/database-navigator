@@ -7,6 +7,7 @@ import com.dci.intellij.dbn.common.ui.UIForm;
 import com.dci.intellij.dbn.common.ui.UIFormImpl;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.ConnectionManager;
+import com.dci.intellij.dbn.connection.transaction.TransactionAction;
 import com.dci.intellij.dbn.connection.transaction.TransactionListener;
 import com.dci.intellij.dbn.connection.transaction.UncommittedChangeBundle;
 import com.intellij.openapi.project.Project;
@@ -36,7 +37,7 @@ public class UncommittedChangesOverviewForm extends UIFormImpl implements UIForm
     private Map<ConnectionHandler, UncommittedChangesForm> uncommittedChangeForms = new HashMap<ConnectionHandler, UncommittedChangesForm>();
     private Project project;
 
-    public UncommittedChangesOverviewForm(Project project, String hintText) {
+    public UncommittedChangesOverviewForm(Project project) {
         this.project = project;
         DefaultListModel model = new DefaultListModel();
 
@@ -93,7 +94,7 @@ public class UncommittedChangesOverviewForm extends UIFormImpl implements UIForm
         if (connectionHandler != null) {
             UncommittedChangesForm uncommittedChangesForm = uncommittedChangeForms.get(connectionHandler);
             if (uncommittedChangesForm == null) {
-                uncommittedChangesForm = new UncommittedChangesForm(connectionHandler, null, true);
+                uncommittedChangesForm = new UncommittedChangesForm(connectionHandler, null, false);
                 uncommittedChangeForms.put(connectionHandler, uncommittedChangesForm);
             }
             detailsPanel.add(uncommittedChangesForm.getComponent(), BorderLayout.CENTER);
@@ -119,20 +120,11 @@ public class UncommittedChangesOverviewForm extends UIFormImpl implements UIForm
      *                Transaction Listener                  *
      ********************************************************/
     @Override
-    public void beforeCommit(ConnectionHandler connectionHandler) throws SQLException {
+    public void beforeAction(ConnectionHandler connectionHandler, TransactionAction action) throws SQLException {
     }
 
     @Override
-    public void beforeRollback(ConnectionHandler connectionHandler) throws SQLException {
-    }
-
-    @Override
-    public void afterCommit(ConnectionHandler connectionHandler, boolean succeeded) throws SQLException {
-        refreshForm();
-    }
-
-    @Override
-    public void afterRollback(ConnectionHandler connectionHandler, boolean succeeded) throws SQLException {
+    public void afterAction(ConnectionHandler connectionHandler, TransactionAction action, boolean succeeded) throws SQLException {
         refreshForm();
     }
 

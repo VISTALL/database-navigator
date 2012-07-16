@@ -26,7 +26,7 @@ public class DuplicateRecordAction extends DumbAwareAction {
         presentation.setText("Duplicate record");
         DatasetEditor datasetEditor = e.getData(DBNDataKeys.DATASET_EDITOR);
 
-        if (datasetEditor == null) {
+        if (datasetEditor == null ||!datasetEditor.getActiveConnection().isConnected()) {
             presentation.setEnabled(false);
         } else {
             presentation.setEnabled(true);

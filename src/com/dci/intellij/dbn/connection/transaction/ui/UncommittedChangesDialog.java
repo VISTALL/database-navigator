@@ -3,6 +3,7 @@ package com.dci.intellij.dbn.connection.transaction.ui;
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.ui.DBNDialog;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
+import com.dci.intellij.dbn.connection.ConnectionOperation;
 import com.dci.intellij.dbn.connection.transaction.DatabaseTransactionManager;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.Nullable;
@@ -15,11 +16,13 @@ import java.awt.event.ActionEvent;
 public class UncommittedChangesDialog extends DBNDialog {
     private UncommittedChangesForm mainComponent;
     private ConnectionHandler connectionHandler;
+    private ConnectionOperation additionalOperation;
 
-    public UncommittedChangesDialog(ConnectionHandler connectionHandler, @Nullable String hintText) {
+    public UncommittedChangesDialog(ConnectionHandler connectionHandler, ConnectionOperation additionalOperation, boolean showActions) {
         super(connectionHandler.getProject(), "Uncommitted Changes", true);
         this.connectionHandler = connectionHandler;
-        mainComponent = new UncommittedChangesForm(connectionHandler, hintText, false);
+        this.additionalOperation = additionalOperation;
+        mainComponent = new UncommittedChangesForm(connectionHandler, additionalOperation, showActions);
         setModal(false);
         setResizable(true);
         init();
@@ -52,7 +55,7 @@ public class UncommittedChangesDialog extends DBNDialog {
             ConnectionHandler commitConnectionHandler = connectionHandler;
             DatabaseTransactionManager transactionManager = getTransactionManager();
             doOKAction();
-            transactionManager.commit(commitConnectionHandler, false);
+            transactionManager.execute(commitConnectionHandler, true, ConnectionOperation.COMMIT, additionalOperation);
         }
     }
 
@@ -65,7 +68,7 @@ public class UncommittedChangesDialog extends DBNDialog {
             ConnectionHandler commitConnectionHandler = connectionHandler;
             DatabaseTransactionManager transactionManager = getTransactionManager();
             doOKAction();
-            transactionManager.rollback(commitConnectionHandler, false);
+            transactionManager.execute(commitConnectionHandler, true, ConnectionOperation.ROLLBACK, additionalOperation);
         }
     }
 

@@ -5,7 +5,6 @@ import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.environment.EnvironmentType;
 import com.dci.intellij.dbn.common.filter.Filter;
 import com.dci.intellij.dbn.connection.config.ConnectionSettings;
-import com.dci.intellij.dbn.connection.transaction.TransactionListener;
 import com.dci.intellij.dbn.connection.transaction.UncommittedChangeBundle;
 import com.dci.intellij.dbn.database.DatabaseInterfaceProvider;
 import com.dci.intellij.dbn.language.common.DBLanguage;
@@ -76,6 +75,7 @@ public class VirtualConnectionHandler implements ConnectionHandler {
     public boolean isAutoCommit() {return false;}
     public void setAutoCommit(boolean autoCommit) throws SQLException {}
     public UncommittedChangeBundle getUncommittedChanges() {return null;}
+    public boolean isConnected() {return false;}
 
     public Map<String, String> getProperties() {return properties;}
 
@@ -120,8 +120,6 @@ public class VirtualConnectionHandler implements ConnectionHandler {
     public void disconnect() {}
     public ConnectionHandler clone() {return null;}
     public LoadMonitor getLoadMonitor() {return null;}
-    public void addTransactionListener(TransactionListener transactionListener) {}
-    public void removeTransactionListener(TransactionListener transactionListener) {}
     public void notifyChanges(VirtualFile virtualFile) {}
     public void resetChanges() {}
     public boolean hasUncommittedChanges() {return false;}

@@ -60,7 +60,7 @@ public class DatasetEditorTableCellRenderer extends BasicTableCellRenderer {
 
 
             if (!isSelected) {
-                if (isLoading) {
+                if (isLoading || !datasetEditorTable.getDataset().getConnectionHandler().isConnected()) {
                     setBackground(configTextAttributes.getLoadingData().getBgColor());
                 } else {
                     if (cell.hasError()) {

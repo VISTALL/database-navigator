@@ -6,6 +6,7 @@ import com.dci.intellij.dbn.editor.data.filter.DatasetFilter;
 import com.dci.intellij.dbn.editor.data.filter.DatasetFilterManager;
 import com.dci.intellij.dbn.object.DBDataset;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
 
@@ -30,8 +31,10 @@ public class SelectDatasetFilterAction extends DumbAwareAction {
 
     @Override
     public void update(AnActionEvent e) {
-        e.getPresentation().setIcon(filter.getIcon());
-        e.getPresentation().setText(NamingUtil.enhanceNameForDisplay(filter.getName()));
+        Presentation presentation = e.getPresentation();
+        presentation.setIcon(filter.getIcon());
+        presentation.setText(NamingUtil.enhanceNameForDisplay(filter.getName()));
+        presentation.setEnabled(dataset.getConnectionHandler().isConnected());
         //e.getPresentation().setText(filter.getName());
     }
 }

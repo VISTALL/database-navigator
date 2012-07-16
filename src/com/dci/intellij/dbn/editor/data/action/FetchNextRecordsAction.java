@@ -38,6 +38,7 @@ public class FetchNextRecordsAction extends DumbAwareAction {
         boolean enabled =
                 datasetEditor != null &&
                 datasetEditor.getEditorTable() != null &&
+                datasetEditor.getActiveConnection().isConnected() &&
                 !datasetEditor.isInserting() &&
                 !datasetEditor.isLoading() &&        
                 !datasetEditor.getEditorTable().getModel().isResultSetExhausted();

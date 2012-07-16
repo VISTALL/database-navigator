@@ -9,6 +9,7 @@ import com.dci.intellij.dbn.common.util.EditorUtil;
 import com.dci.intellij.dbn.common.util.MessageUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.mapping.FileConnectionMappingProvider;
+import com.dci.intellij.dbn.connection.transaction.TransactionAction;
 import com.dci.intellij.dbn.connection.transaction.TransactionListener;
 import com.dci.intellij.dbn.database.DatabaseMessageParserInterface;
 import com.dci.intellij.dbn.editor.data.filter.DatasetFilter;
@@ -435,35 +436,52 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
     /*********************************************************
      *               CommitRollbackListener                  *
      ********************************************************
-     * @param connectionHandler*/
+     * @param connectionHandler
+     * @param action*/
 
-    public void beforeCommit(ConnectionHandler connectionHandler) throws SQLException {
-        DatasetEditorModel model = getTableModel();
-        DatasetEditorTable editorTable = getEditorTable();
-        if (editorTable != null && editorTable.isEditing()) {
-            editorTable.stopCellEditing();
+    public void beforeAction(ConnectionHandler connectionHandler, TransactionAction action) throws SQLException {
+        if (connectionHandler == getDataset().getConnectionHandler()) {
+            DatasetEditorModel model = getTableModel();
+            DatasetEditorTable editorTable = getEditorTable();
+            if (model != null && editorTable != null) {
+                if (action == TransactionAction.COMMIT) {
+
+                    if (editorTable.isEditing()) {
+                        editorTable.stopCellEditing();
+                    }
+
+                    if (isInserting()) {
+                        model.postInsertRecord(true, false);
+                    }
+                }
+
+                if (action == TransactionAction.ROLLBACK) {
+                    if (isInserting()) {
+                        model.cancelInsert(true);
+                    }
+                }
+            }
         }
+    }
 
-        if (isInserting() && model != null) {
-            model.postInsertRecord(true, false);
+    public void afterAction(ConnectionHandler connectionHandler, TransactionAction action, boolean succeeded) throws SQLException {
+        if (connectionHandler == getDataset().getConnectionHandler()) {
+            DatasetEditorModel model = getTableModel();
+            DatasetEditorTable editorTable = getEditorTable();
+            if (model != null && editorTable != null) {
+                if (action == TransactionAction.COMMIT || action == TransactionAction.ROLLBACK){
+                    if (succeeded && isModified()) load(true, false);
+                }
+
+                if (action == TransactionAction.DISCONNECT) {
+                    editorTable.stopCellEditing();
+                    model.revertChanges();
+                    editorTable.repaint();
+                }
+            }
         }
     }
 
-    public void beforeRollback(ConnectionHandler connectionHandler) throws SQLException {
-        DatasetEditorModel model = getTableModel();
-        if (isInserting() && model != null) {
-            model.cancelInsert(true);
-        }
-    }
-
-    public void afterCommit(ConnectionHandler connectionHandler, boolean succeeded) throws SQLException {
-        if (succeeded && isModified()) load(true, false);
-    }
-
-    public void afterRollback(ConnectionHandler connectionHandler, boolean succeeded) throws SQLException {
-        if (succeeded && isModified()) load(true, false);
-    }
-    
     /********************************************************
      *                    Data Provider                     *
      ********************************************************/
@@ -486,6 +504,6 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
 
     public boolean isEditable() {
         DatasetEditorModel tableModel = getTableModel();
-        return tableModel != null && tableModel.isEditable();
+        return tableModel != null && tableModel.isEditable() && tableModel.getConnectionHandler().isConnected();
     }
 }

@@ -330,6 +330,12 @@ public class DatasetEditorModel extends ResultSetDataModel<DatasetEditorModelRow
         return getInsertRow().getIndex();
     }
 
+    public void revertChanges() {
+        for (DatasetEditorModelRow row : getRows()) {
+            row.revertChanges();
+        }
+    }
+
     /*********************************************************
      *                      DataModel                       *
      *********************************************************/
@@ -385,6 +391,4 @@ public class DatasetEditorModel extends ResultSetDataModel<DatasetEditorModelRow
         changedRows.clear();
         settings = null;
     }
-
-
 }
