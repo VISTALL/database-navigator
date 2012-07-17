@@ -70,7 +70,7 @@ public class ObjectTypeFilterSettingsForm extends ConfigurationEditorForm<Object
         boolean notifyFilterListeners = objectFilterSettings.isModified();
         visibleObjectsList.applyChanges();
         if (notifyFilterListeners) {
-            ObjectFilterChangeListener listener = EventManager.syncPublisher(objectFilterSettings.getProject(), ObjectFilterChangeListener.TOPIC);
+            ObjectFilterChangeListener listener = EventManager.notify(objectFilterSettings.getProject(), ObjectFilterChangeListener.TOPIC);
             listener.filterChanged(objectFilterSettings.getElementFilter());
         }
 

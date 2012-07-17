@@ -1,6 +1,6 @@
 package com.dci.intellij.dbn.execution.common.message.ui.tree;
 
-import com.dci.intellij.dbn.common.ui.tree.TreeUtil;
+import com.dci.intellij.dbn.common.ui.tree.TreeEventType;
 import com.dci.intellij.dbn.execution.method.MethodExecutionMessage;
 import com.intellij.openapi.vfs.VirtualFile;
 
@@ -26,7 +26,7 @@ public class MethodExecutionMessagesNode extends BundleTreeNode {
         if (objectNode == null) {
             objectNode = new MethodExecutionMessagesObjectNode(this, executionMessage.getDatabaseFile());
             children.add(objectNode);
-            getTreeModel().notifyTreeModelListeners(this, TreeUtil.STRUCTURE_CHANGED);
+            getTreeModel().notifyTreeModelListeners(this, TreeEventType.STRUCTURE_CHANGED);
         }
         return objectNode.addCompilerMessage(executionMessage);
     }

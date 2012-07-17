@@ -6,13 +6,13 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
+import javax.swing.Icon;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ProjectConnectionManager extends ConnectionManager implements ProjectComponent {
+public class ProjectConnectionBundle extends ConnectionBundle implements ProjectComponent {
     private List<ConnectionHandler> virtualConnections = new ArrayList<ConnectionHandler>();
-    private ProjectConnectionManager(Project project) {
+    private ProjectConnectionBundle(Project project) {
         super(project);
 
         virtualConnections.add(new VirtualConnectionHandler(
@@ -42,11 +42,11 @@ public class ProjectConnectionManager extends ConnectionManager implements Proje
     @NotNull
     @Override
     public String getId() {
-        return "DBNavigator.Project.ConnectionManager";
+        return "DBNavigator.Project.ConnectionBundle";
     }
 
-    public static ProjectConnectionManager getInstance(Project project) {
-        return project.getComponent(ProjectConnectionManager.class);
+    public static ProjectConnectionBundle getInstance(Project project) {
+        return project.getComponent(ProjectConnectionBundle.class);
     }
 
     public List<ConnectionHandler> getVirtualConnections() {
@@ -83,7 +83,7 @@ public class ProjectConnectionManager extends ConnectionManager implements Proje
 
     @Override
     public String toString() {
-        return "ProjectConnectionManager";
+        return "ProjectConnectionBundle";
     }
 
     public int compareTo(Object o) {

@@ -1,6 +1,6 @@
 package com.dci.intellij.dbn.object.common.list;
 
-import com.dci.intellij.dbn.browser.model.BrowserTreeElement;
+import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
 import com.dci.intellij.dbn.common.content.DynamicContentType;
 import com.dci.intellij.dbn.common.content.dependency.BasicDependencyAdapter;
 import com.dci.intellij.dbn.common.content.dependency.ContentDependencyAdapter;
@@ -163,7 +163,7 @@ public class DBObjectListContainer implements Disposable {
 
      public <T extends DBObject> DBObjectList<T>  createObjectList(
              DBObjectType objectType,
-             BrowserTreeElement treeParent,
+             BrowserTreeNode treeParent,
              DynamicContentLoader loader,
              boolean indexed,
              boolean hidden) {
@@ -176,7 +176,7 @@ public class DBObjectListContainer implements Disposable {
 
     public <T extends DBObject> DBObjectList<T>  createObjectList(
             DBObjectType objectType,
-            BrowserTreeElement treeParent,
+            BrowserTreeNode treeParent,
             DynamicContentLoader loader,
             DBObjectList[] sourceContents,
             boolean indexed, boolean hidden) {
@@ -189,7 +189,7 @@ public class DBObjectListContainer implements Disposable {
 
     public <T extends DBObject> DBObjectList<T> createSubcontentObjectList(
             DBObjectType objectType,
-            BrowserTreeElement treeParent,
+            BrowserTreeNode treeParent,
             DynamicContentLoader loader,
             GenericDatabaseElement sourceContentHolder,
             DynamicContentType sourceContentType,
@@ -210,7 +210,7 @@ public class DBObjectListContainer implements Disposable {
 
     public <T extends DBObject> DBObjectList<T> createSubcontentObjectList(
             DBObjectType objectType,
-            BrowserTreeElement treeParent,
+            BrowserTreeNode treeParent,
             DynamicContentLoader loader,
             DBObject sourceContentHolder,
             boolean weakDependency,
@@ -230,7 +230,7 @@ public class DBObjectListContainer implements Disposable {
 
     private <T extends DBObject> DBObjectList<T> createObjectList(
             DBObjectType objectType,
-            BrowserTreeElement treeParent,
+            BrowserTreeNode treeParent,
             DynamicContentLoader<T> loader,
             ContentDependencyAdapter dependencyAdapter,
             boolean indexed,

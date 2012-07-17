@@ -3,8 +3,8 @@ package com.dci.intellij.dbn.browser.ui;
 import com.dci.intellij.dbn.browser.DatabaseBrowserManager;
 import com.dci.intellij.dbn.browser.DatabaseBrowserUtils;
 import com.dci.intellij.dbn.browser.TreeNavigationHistory;
-import com.dci.intellij.dbn.browser.model.BrowserTreeElement;
 import com.dci.intellij.dbn.browser.model.BrowserTreeModel;
+import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
 import com.dci.intellij.dbn.browser.model.TabbedBrowserTreeModel;
 import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.common.filter.Filter;
@@ -12,6 +12,7 @@ import com.dci.intellij.dbn.common.thread.ModalTask;
 import com.dci.intellij.dbn.common.thread.SimpleLaterInvocator;
 import com.dci.intellij.dbn.common.ui.tree.DBNTree;
 import com.dci.intellij.dbn.common.util.UIUtil;
+import com.dci.intellij.dbn.connection.ConnectionBundle;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.ConnectionManager;
 import com.dci.intellij.dbn.connection.action.ConnectionActionGroup;
@@ -49,7 +50,7 @@ import java.awt.event.MouseListener;
 import java.util.List;
 
 public class DatabaseBrowserTree extends DBNTree implements Disposable {
-    private BrowserTreeElement targetSelection;
+    private BrowserTreeNode targetSelection;
     private BrowserTreeModel treeModel;
     private JPopupMenu popupMenu;
     private TreeNavigationHistory navigationHistory = new TreeNavigationHistory();
@@ -90,23 +91,24 @@ public class DatabaseBrowserTree extends DBNTree implements Disposable {
     public void expandConnectionManagers() {
         new SimpleLaterInvocator() {
             public void run() {
-                List<ConnectionManager> connectionManagers = DatabaseBrowserManager.getInstance(getProject()).getConnectionManagers();
-                for (ConnectionManager connectionManager : connectionManagers) {
-                    TreePath treePath = DatabaseBrowserUtils.createTreePath(connectionManager);
+                ConnectionManager connectionManager = ConnectionManager.getInstance(getProject());
+                List<ConnectionBundle> connectionBundles = connectionManager.getConnectionBundles();
+                for (ConnectionBundle connectionBundle : connectionBundles) {
+                    TreePath treePath = DatabaseBrowserUtils.createTreePath(connectionBundle);
                     setExpandedState(treePath, true);
                 }
             }
         }.start();
     }
 
-    public void selectElement(BrowserTreeElement treeElement, boolean requestFocus) {
-        ConnectionHandler connectionHandler = treeElement.getConnectionHandler();
-        Filter<BrowserTreeElement> filter = connectionHandler == null ?
+    public void selectElement(BrowserTreeNode treeNode, boolean requestFocus) {
+        ConnectionHandler connectionHandler = treeNode.getConnectionHandler();
+        Filter<BrowserTreeNode> filter = connectionHandler == null ?
                 DatabaseBrowserManager.getInstance(getProject()).getObjectFilter() :
                 connectionHandler.getObjectFilter();
 
-        if (filter.accepts(treeElement)) {
-            targetSelection = treeElement;
+        if (filter.accepts(treeNode)) {
+            targetSelection = treeNode;
             scrollToSelectedElement();
             if (requestFocus) requestFocus();
         }
@@ -115,7 +117,7 @@ public class DatabaseBrowserTree extends DBNTree implements Disposable {
 
     public synchronized void scrollToSelectedElement() {
         if (getProject().isOpen() && targetSelection != null) {
-            targetSelection = (BrowserTreeElement) targetSelection.getUndisposedElement();
+            targetSelection = (BrowserTreeNode) targetSelection.getUndisposedElement();
             TreePath treePath = DatabaseBrowserUtils.createTreePath(targetSelection);
             for (Object object : treePath.getPath()) {
                 if (object == null) {
@@ -123,14 +125,14 @@ public class DatabaseBrowserTree extends DBNTree implements Disposable {
                     return;
                 }
 
-                BrowserTreeElement treeElement = (BrowserTreeElement) object;
-                if (treeElement.equals(targetSelection)) {
+                BrowserTreeNode treeNode = (BrowserTreeNode) object;
+                if (treeNode.equals(targetSelection)) {
                     break;
                 }
 
-                if (!treeElement.isLeafTreeElement() && !treeElement.isTreeStructureLoaded()) {
-                    selectPath(DatabaseBrowserUtils.createTreePath(treeElement));
-                    treeElement.getTreeChildren();
+                if (!treeNode.isLeafTreeElement() && !treeNode.isTreeStructureLoaded()) {
+                    selectPath(DatabaseBrowserUtils.createTreePath(treeNode));
+                    treeNode.getTreeChildren();
                     return;
                 }
             }
@@ -142,12 +144,12 @@ public class DatabaseBrowserTree extends DBNTree implements Disposable {
 
 
 
-    public BrowserTreeElement getSelectedElement() {
+    public BrowserTreeNode getSelectedNode() {
         TreePath selectionPath = getSelectionPath();
-        return selectionPath == null ? null : (BrowserTreeElement) selectionPath.getLastPathComponent();
+        return selectionPath == null ? null : (BrowserTreeNode) selectionPath.getLastPathComponent();
     }
 
-    public BrowserTreeElement getTargetSelection() {
+    public BrowserTreeNode getTargetSelection() {
         return targetSelection;
     }
 
@@ -180,13 +182,13 @@ public class DatabaseBrowserTree extends DBNTree implements Disposable {
     }
 
     public void navigateBack() {
-        BrowserTreeElement treeElement = navigationHistory.previous();
-        selectPathSilently(DatabaseBrowserUtils.createTreePath(treeElement));
+        BrowserTreeNode treeNode = navigationHistory.previous();
+        selectPathSilently(DatabaseBrowserUtils.createTreePath(treeNode));
     }
 
     public void navigateForward() {
-        BrowserTreeElement treeElement = navigationHistory.next();
-        selectPathSilently(DatabaseBrowserUtils.createTreePath(treeElement));
+        BrowserTreeNode treeNode = navigationHistory.next();
+        selectPathSilently(DatabaseBrowserUtils.createTreePath(treeNode));
     }
 
 
@@ -200,31 +202,31 @@ public class DatabaseBrowserTree extends DBNTree implements Disposable {
     private boolean listenersEnabled = true;
 
     public void expandAll() {
-        BrowserTreeElement root = getModel().getRoot();
+        BrowserTreeNode root = getModel().getRoot();
         expand(root);
     }
 
-    public void expand(BrowserTreeElement treeElement) {
-        if (treeElement.canExpand()) {
-            expandPath(DatabaseBrowserUtils.createTreePath(treeElement));
-            for (int i = 0; i < treeElement.getTreeChildCount(); i++) {
-                BrowserTreeElement childTreeElement = treeElement.getTreeChild(i);
-                expand(childTreeElement);
+    public void expand(BrowserTreeNode treeNode) {
+        if (treeNode.canExpand()) {
+            expandPath(DatabaseBrowserUtils.createTreePath(treeNode));
+            for (int i = 0; i < treeNode.getTreeChildCount(); i++) {
+                BrowserTreeNode childTreeNode = treeNode.getTreeChild(i);
+                expand(childTreeNode);
             }
         }
     }
 
     public void collapseAll() {
-        BrowserTreeElement root = getModel().getRoot();
+        BrowserTreeNode root = getModel().getRoot();
         collapse(root);
     }
 
-    public void collapse(BrowserTreeElement treeElement) {
-        if (!treeElement.isLeafTreeElement() && treeElement.isTreeStructureLoaded()) {
-            for (int i = 0; i < treeElement.getTreeChildCount(); i++) {
-                BrowserTreeElement childTreeElement = treeElement.getTreeChild(i);
-                collapse(childTreeElement);
-                collapsePath(DatabaseBrowserUtils.createTreePath(childTreeElement));
+    public void collapse(BrowserTreeNode treeNode) {
+        if (!treeNode.isLeafTreeElement() && treeNode.isTreeStructureLoaded()) {
+            for (int i = 0; i < treeNode.getTreeChildCount(); i++) {
+                BrowserTreeNode childTreeNode = treeNode.getTreeChild(i);
+                collapse(childTreeNode);
+                collapsePath(DatabaseBrowserUtils.createTreePath(childTreeNode));
             }
         }
     }
@@ -292,14 +294,14 @@ public class DatabaseBrowserTree extends DBNTree implements Disposable {
         public void valueChanged(TreeSelectionEvent e) {
             if (!isDisposed && listenersEnabled) {
                 Object object = e.getPath().getLastPathComponent();
-                if (object != null && object instanceof BrowserTreeElement) {
-                    BrowserTreeElement treeElement = (BrowserTreeElement) object;
-                    if (targetSelection == null || treeElement.equals(targetSelection)) {
-                        navigationHistory.add(treeElement);
+                if (object != null && object instanceof BrowserTreeNode) {
+                    BrowserTreeNode treeNode = (BrowserTreeNode) object;
+                    if (targetSelection == null || treeNode.equals(targetSelection)) {
+                        navigationHistory.add(treeNode);
                     }
                 }
 
-                BrowserSelectionChangeListener listener = EventManager.syncPublisher(getProject(), BrowserSelectionChangeListener.TOPIC);
+                BrowserSelectionChangeListener listener = EventManager.notify(getProject(), BrowserSelectionChangeListener.TOPIC);
                 listener.browserSelectionChanged();
 
             }
@@ -324,7 +326,7 @@ public class DatabaseBrowserTree extends DBNTree implements Disposable {
             if (event.getButton() == MouseEvent.BUTTON3) {
                 final TreePath path = getPathForLocation(event.getX(), event.getY());
                 if (path != null) {
-                    final BrowserTreeElement lastPathEntity = (BrowserTreeElement) path.getLastPathComponent();
+                    final BrowserTreeNode lastPathEntity = (BrowserTreeNode) path.getLastPathComponent();
                     if (lastPathEntity.isDisposed()) return;
 
                     new ModalTask(lastPathEntity.getProject(), "Loading object information", true) {

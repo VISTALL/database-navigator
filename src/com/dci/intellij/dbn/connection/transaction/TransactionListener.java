@@ -7,7 +7,7 @@ import java.sql.SQLException;
 import java.util.EventListener;
 
 public interface TransactionListener extends EventListener{
-    public static final Topic<TransactionListener> TOPIC = Topic.create("Transaction event fired", TransactionListener.class);
+    Topic<TransactionListener> TOPIC = Topic.create("Transaction event fired", TransactionListener.class);
 
     /**
      * This is typically called before the connection has been operationally committed

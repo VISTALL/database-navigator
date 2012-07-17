@@ -1,13 +1,14 @@
 package com.dci.intellij.dbn.object.common;
 
-import com.dci.intellij.dbn.browser.model.BrowserTreeElement;
+import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.util.IncorrectOperationException;
-import java.util.List;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
 
 public class DBFictiveObject extends DBObjectImpl implements PsiReference {
     private DBObjectType objectType;
@@ -33,8 +34,8 @@ public class DBFictiveObject extends DBObjectImpl implements PsiReference {
     }
 
     @NotNull
-    public List<BrowserTreeElement> buildAllPossibleTreeChildren() {
-        return BrowserTreeElement.EMPTY_LIST;
+    public List<BrowserTreeNode> buildAllPossibleTreeChildren() {
+        return BrowserTreeNode.EMPTY_LIST;
     }
 
     public void navigate(boolean requestFocus) {

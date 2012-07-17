@@ -1,18 +1,30 @@
 package com.dci.intellij.dbn.browser.ui;
 
-import com.dci.intellij.dbn.browser.model.BrowserTreeElement;
-import com.dci.intellij.dbn.common.ui.UIForm;
+import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
+import com.dci.intellij.dbn.common.ui.UIFormImpl;
+import com.intellij.openapi.project.Project;
 
-public interface DatabaseBrowserForm extends UIForm {
-    DatabaseBrowserTree getBrowserTree();
+public abstract class DatabaseBrowserForm extends UIFormImpl {
+    private Project project;
 
-    void selectElement(BrowserTreeElement treeElement, boolean requestFocus);
+    protected DatabaseBrowserForm(Project project) {
+        this.project = project;
+    }
 
-    void updateTreeNode(BrowserTreeElement treeElement, int eventType);
+    public Project getProject() {
+        return project;
+    }
 
-    void updateTree();
+    public abstract DatabaseBrowserTree getBrowserTree();
 
-    void repaintTree();
+    public abstract void selectElement(BrowserTreeNode treeNode, boolean requestFocus);
 
-    void rebuild();
+    public abstract void updateTree();
+
+    public abstract void rebuild();
+
+    @Override
+    public void dispose() {
+        project = null;
+    }
 }

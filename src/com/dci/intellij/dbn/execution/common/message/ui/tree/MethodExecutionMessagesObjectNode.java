@@ -1,5 +1,6 @@
 package com.dci.intellij.dbn.execution.common.message.ui.tree;
 
+import com.dci.intellij.dbn.common.ui.tree.TreeEventType;
 import com.dci.intellij.dbn.common.ui.tree.TreeUtil;
 import com.dci.intellij.dbn.execution.method.MethodExecutionMessage;
 import com.dci.intellij.dbn.object.common.DBSchemaObject;
@@ -27,7 +28,7 @@ public class MethodExecutionMessagesObjectNode extends BundleTreeNode {
         children.clear();
         MethodExecutionMessageNode messageNode = new MethodExecutionMessageNode(this, executionMessage);
         children.add(messageNode);
-        getTreeModel().notifyTreeModelListeners(this, TreeUtil.STRUCTURE_CHANGED);
+        getTreeModel().notifyTreeModelListeners(this, TreeEventType.STRUCTURE_CHANGED);
         return TreeUtil.createTreePath(messageNode);
     }
 

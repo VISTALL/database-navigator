@@ -1,11 +1,11 @@
 package com.dci.intellij.dbn.browser.ui;
 
-import com.dci.intellij.dbn.browser.model.BrowserTreeElement;
-import com.dci.intellij.dbn.browser.model.LoadInProgressTreeElement;
+import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
+import com.dci.intellij.dbn.browser.model.LoadInProgressTreeNode;
 import com.dci.intellij.dbn.browser.options.DatabaseBrowserSettings;
 import com.dci.intellij.dbn.common.util.StringUtil;
-import com.dci.intellij.dbn.connection.ModuleConnectionManager;
-import com.dci.intellij.dbn.connection.ProjectConnectionManager;
+import com.dci.intellij.dbn.connection.ModuleConnectionBundle;
+import com.dci.intellij.dbn.connection.ProjectConnectionBundle;
 import com.dci.intellij.dbn.object.DBSchema;
 import com.dci.intellij.dbn.object.common.DBObject;
 import com.dci.intellij.dbn.object.common.DBObjectType;
@@ -34,16 +34,16 @@ public class DatabaseBrowserTreeCellRenderer implements TreeCellRenderer {
     }
 
     public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
-        if (value instanceof LoadInProgressTreeElement) {
-            return new LoaderCellRendererComponent((LoadInProgressTreeElement) value);
+        if (value instanceof LoadInProgressTreeNode) {
+            return new LoaderCellRendererComponent((LoadInProgressTreeNode) value);
         } else {
             return cellRenderer.getTreeCellRendererComponent(tree, value, selected, expanded, leaf, row, hasFocus);
         }
     }
 
     private static class LoaderCellRendererComponent extends JPanel {
-        LoadInProgressTreeElement treeElement;
-        private LoaderCellRendererComponent(LoadInProgressTreeElement treeElement) {
+        LoadInProgressTreeNode treeElement;
+        private LoaderCellRendererComponent(LoadInProgressTreeNode treeElement) {
             setLayout(new BorderLayout());
             add(new JLabel("Loading...", treeElement.getIcon(0), SwingConstants.LEFT), BorderLayout.WEST);
             setBackground(UIUtil.getTreeTextBackground());
@@ -57,21 +57,21 @@ public class DatabaseBrowserTreeCellRenderer implements TreeCellRenderer {
         }
 
         public void customizeCellRenderer(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
-            BrowserTreeElement treeElement = (BrowserTreeElement) value;
-            setIcon(treeElement.getIcon(0));
+            BrowserTreeNode treeNode = (BrowserTreeNode) value;
+            setIcon(treeNode.getIcon(0));
 
             String displayName;
-            if (treeElement instanceof ModuleConnectionManager) {
-                ModuleConnectionManager connectionManager = (ModuleConnectionManager) treeElement;
+            if (treeNode instanceof ModuleConnectionBundle) {
+                ModuleConnectionBundle connectionManager = (ModuleConnectionBundle) treeNode;
                 displayName = connectionManager.getModule().getName();
-            } else if (treeElement instanceof ProjectConnectionManager) {
+            } else if (treeNode instanceof ProjectConnectionBundle) {
                 displayName = "PROJECT";
             } else {
-                displayName = treeElement.getPresentableText();
+                displayName = treeNode.getPresentableText();
             }
 
-            if (treeElement instanceof DBObjectList) {
-                DBObjectList objectsList = (DBObjectList) treeElement;
+            if (treeNode instanceof DBObjectList) {
+                DBObjectList objectsList = (DBObjectList) treeNode;
                 SimpleTextAttributes textAttributes =
                         //objectsList.isDirty() ? SimpleTextAttributes.ERROR_ATTRIBUTES :
                         objectsList.getTreeChildCount() == 0 ? SimpleTextAttributes.REGULAR_ATTRIBUTES :
@@ -95,8 +95,8 @@ public class DatabaseBrowserTreeCellRenderer implements TreeCellRenderer {
             } else {
                 boolean showBold = false;
                 boolean isError = false;
-                if (treeElement instanceof DBObject) {
-                    DBObject object = (DBObject) treeElement;
+                if (treeNode instanceof DBObject) {
+                    DBObject object = (DBObject) treeNode;
                     if (object.isOfType(DBObjectType.SCHEMA)) {
                         DBSchema schema = (DBSchema) object;
                         showBold = schema.isUserSchema();
@@ -114,13 +114,13 @@ public class DatabaseBrowserTreeCellRenderer implements TreeCellRenderer {
 
                 append(displayName, textAttributes);
             }
-            String displayDetails = treeElement.getPresentableTextDetails();
+            String displayDetails = treeNode.getPresentableTextDetails();
             if (!StringUtil.isEmptyOrSpaces(displayDetails)) {
                 append(" " + displayDetails, SimpleTextAttributes.GRAY_ATTRIBUTES);
             }
 
             if (browserSettings.getGeneralSettings().getShowObjectDetails().value()) {
-                String conditionalDetails = treeElement.getPresentableTextConditionalDetails();
+                String conditionalDetails = treeNode.getPresentableTextConditionalDetails();
                 if (!StringUtil.isEmptyOrSpaces(conditionalDetails)) {
                     append(" - " + conditionalDetails, SimpleTextAttributes.GRAY_ATTRIBUTES);
                 }

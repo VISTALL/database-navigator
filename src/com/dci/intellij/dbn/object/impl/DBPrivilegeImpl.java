@@ -1,6 +1,6 @@
 package com.dci.intellij.dbn.object.impl;
 
-import com.dci.intellij.dbn.browser.model.BrowserTreeElement;
+import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.object.DBPrivilege;
 import com.dci.intellij.dbn.object.DBRole;
@@ -64,7 +64,7 @@ public class DBPrivilegeImpl extends DBObjectImpl implements DBPrivilege {
 
 
     @NotNull
-    public List<BrowserTreeElement> buildAllPossibleTreeChildren() {
-        return BrowserTreeElement.EMPTY_LIST;
+    public List<BrowserTreeNode> buildAllPossibleTreeChildren() {
+        return BrowserTreeNode.EMPTY_LIST;
     }
 }

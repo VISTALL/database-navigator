@@ -3,6 +3,7 @@ package com.dci.intellij.dbn.connection.config.ui;
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.common.options.ui.ConfigurationEditorForm;
+import com.dci.intellij.dbn.connection.ConnectionBundle;
 import com.dci.intellij.dbn.connection.ConnectionManager;
 import com.dci.intellij.dbn.connection.ConnectivityStatus;
 import com.dci.intellij.dbn.connection.config.ConnectionDatabaseSettings;
@@ -98,8 +99,8 @@ public class GenericDatabaseSettingsForm extends ConfigurationEditorForm<Generic
                 }
 
                 if (document == nameTextField.getDocument()) {
-                    ConnectionManager connectionManager = connectionConfig.getConnectionManager();
-                    connectionManager.getSettingsEditor().getList().repaint();
+                    ConnectionBundle connectionBundle = connectionConfig.getConnectionBundle();
+                    connectionBundle.getSettingsEditor().getList().repaint();
                     notifyPresentationChanges();
                 }
             }
@@ -115,7 +116,7 @@ public class GenericDatabaseSettingsForm extends ConfigurationEditorForm<Generic
                connectivityStatus == ConnectivityStatus.VALID ? Icons.CONNECTION_ACTIVE :
                connectivityStatus == ConnectivityStatus.INVALID ? Icons.CONNECTION_INVALID : Icons.CONNECTION_INACTIVE;
 
-        ConnectionPresentationChangeListener listener = EventManager.syncPublisher(configuration.getProject(), ConnectionPresentationChangeListener.TOPIC);
+        ConnectionPresentationChangeListener listener = EventManager.notify(configuration.getProject(), ConnectionPresentationChangeListener.TOPIC);
         listener.presentationChanged(name, icon, headerPanel.getBackground(), connectionId);
 
     }
@@ -144,11 +145,12 @@ public class GenericDatabaseSettingsForm extends ConfigurationEditorForm<Generic
             public void actionPerformed(ActionEvent e) {
                 Object source = e.getSource();
                 ConnectionDatabaseSettings databaseSettings = getConfiguration();
-                ConnectionManager connectionManager = databaseSettings.getConnectionManager();
+                ConnectionBundle connectionBundle = databaseSettings.getConnectionBundle();
 
                 if (source == testButton || source == infoButton) {
-                    temporaryConfig = new GenericConnectionDatabaseSettings(connectionManager);
+                    temporaryConfig = new GenericConnectionDatabaseSettings(connectionBundle);
                     applyChanges(temporaryConfig);
+                    ConnectionManager connectionManager = ConnectionManager.getInstance(connectionBundle.getProject());
 
                     if (source == testButton) connectionManager.testConfigConnection(temporaryConfig, true);
                     if (source == infoButton) connectionManager.showConnectionInfo(temporaryConfig, null);
@@ -162,7 +164,7 @@ public class GenericDatabaseSettingsForm extends ConfigurationEditorForm<Generic
                 }
 
                 if (source == activeCheckBox || source == nameTextField || source == testButton || source == infoButton) {
-                    connectionManager.getSettingsEditor().getList().repaint();
+                    connectionBundle.getSettingsEditor().getList().repaint();
                     notifyPresentationChanges();
                 }
             }

@@ -2,8 +2,9 @@ package com.dci.intellij.dbn.object.common;
 
 import com.dci.intellij.dbn.browser.DatabaseBrowserManager;
 import com.dci.intellij.dbn.browser.DatabaseBrowserUtils;
-import com.dci.intellij.dbn.browser.model.BrowserTreeElement;
-import com.dci.intellij.dbn.browser.model.LoadInProgressTreeElement;
+import com.dci.intellij.dbn.browser.model.BrowserTreeChangeListener;
+import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
+import com.dci.intellij.dbn.browser.model.LoadInProgressTreeNode;
 import com.dci.intellij.dbn.browser.ui.HtmlToolTipBuilder;
 import com.dci.intellij.dbn.code.sql.color.SQLTextAttributesKeys;
 import com.dci.intellij.dbn.common.content.DynamicContent;
@@ -11,18 +12,19 @@ import com.dci.intellij.dbn.common.content.DynamicContentElement;
 import com.dci.intellij.dbn.common.content.DynamicContentType;
 import com.dci.intellij.dbn.common.content.loader.DynamicContentLoader;
 import com.dci.intellij.dbn.common.content.loader.DynamicContentResultSetLoader;
+import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.common.filter.Filter;
 import com.dci.intellij.dbn.common.lookup.ConsumerStoppedException;
 import com.dci.intellij.dbn.common.lookup.LookupConsumer;
 import com.dci.intellij.dbn.common.thread.BackgroundTask;
 import com.dci.intellij.dbn.common.thread.ConditionalLaterInvocator;
-import com.dci.intellij.dbn.common.ui.tree.TreeUtil;
+import com.dci.intellij.dbn.common.ui.tree.TreeEventType;
 import com.dci.intellij.dbn.common.util.CommonUtil;
+import com.dci.intellij.dbn.connection.ConnectionBundle;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
-import com.dci.intellij.dbn.connection.ConnectionManager;
 import com.dci.intellij.dbn.connection.ConnectionPool;
 import com.dci.intellij.dbn.connection.GenericDatabaseElement;
-import com.dci.intellij.dbn.connection.ModuleConnectionManager;
+import com.dci.intellij.dbn.connection.ModuleConnectionBundle;
 import com.dci.intellij.dbn.data.type.DBNativeDataType;
 import com.dci.intellij.dbn.data.type.DataTypeDefinition;
 import com.dci.intellij.dbn.database.DatabaseCompatibilityInterface;
@@ -68,9 +70,9 @@ import java.util.Set;
 
 public class DBObjectBundleImpl implements DBObjectBundle {
     private ConnectionHandler connectionHandler;
-    private BrowserTreeElement treeParent;
-    private List<BrowserTreeElement> allPossibleTreeChildren;
-    private List<BrowserTreeElement> visibleTreeChildren;
+    private BrowserTreeNode treeParent;
+    private List<BrowserTreeNode> allPossibleTreeChildren;
+    private List<BrowserTreeNode> visibleTreeChildren;
     private int treeDepth;
     private boolean treeChildrenLoaded;
     private boolean isDisposed;
@@ -87,7 +89,7 @@ public class DBObjectBundleImpl implements DBObjectBundle {
     protected DBObjectRelationListContainer objectRelationLists;
     private int connectionConfigHash;
 
-    public DBObjectBundleImpl(ConnectionHandler connectionHandler, BrowserTreeElement treeParent) {
+    public DBObjectBundleImpl(ConnectionHandler connectionHandler, BrowserTreeNode treeParent) {
         this.connectionHandler = connectionHandler;
         this.treeParent = treeParent;
         this.treeDepth = treeParent.getTreeDepth() + 1;
@@ -222,18 +224,18 @@ public class DBObjectBundleImpl implements DBObjectBundle {
         return treeDepth;
     }
 
-    public BrowserTreeElement getTreeChild(int index) {
+    public BrowserTreeNode getTreeChild(int index) {
         return getTreeChildren().get(index);
     }
 
-    public BrowserTreeElement getTreeParent() {
+    public BrowserTreeNode getTreeParent() {
         return treeParent;
     }
 
-    public List<? extends BrowserTreeElement> getTreeChildren() {
+    public List<? extends BrowserTreeNode> getTreeChildren() {
         if (visibleTreeChildren == null) {
-            visibleTreeChildren = new ArrayList<BrowserTreeElement>();
-            visibleTreeChildren.add(new LoadInProgressTreeElement(this));
+            visibleTreeChildren = new ArrayList<BrowserTreeNode>();
+            visibleTreeChildren.add(new LoadInProgressTreeNode(this));
             new BackgroundTask(getProject(), "Loading data dictionary", true) {
                 public void execute(@NotNull ProgressIndicator progressIndicator) {
                     buildTreeChildren();
@@ -245,33 +247,34 @@ public class DBObjectBundleImpl implements DBObjectBundle {
     }
 
     private void buildTreeChildren() {
-        List<BrowserTreeElement> newTreeChildren = allPossibleTreeChildren;
-        Filter<BrowserTreeElement> filter = connectionHandler.getObjectFilter();
+        List<BrowserTreeNode> newTreeChildren = allPossibleTreeChildren;
+        Filter<BrowserTreeNode> filter = connectionHandler.getObjectFilter();
         if (!filter.acceptsAll(allPossibleTreeChildren)) {
-            newTreeChildren = new ArrayList<BrowserTreeElement>();
-            for (BrowserTreeElement treeElement : allPossibleTreeChildren) {
-                if (treeElement != null && filter.accepts(treeElement)) {
-                    DBObjectList objectList = (DBObjectList) treeElement;
+            newTreeChildren = new ArrayList<BrowserTreeNode>();
+            for (BrowserTreeNode treeNode : allPossibleTreeChildren) {
+                if (treeNode != null && filter.accepts(treeNode)) {
+                    DBObjectList objectList = (DBObjectList) treeNode;
                     newTreeChildren.add(objectList);
                 }
             }
         }
 
-        for (BrowserTreeElement treeElement : newTreeChildren) {
-            DBObjectList objectList = (DBObjectList) treeElement;
+        for (BrowserTreeNode treeNode : newTreeChildren) {
+            DBObjectList objectList = (DBObjectList) treeNode;
             objectList.initTreeElement();
         }
 
-        if (visibleTreeChildren.size() == 1 && visibleTreeChildren.get(0) instanceof LoadInProgressTreeElement) {
+        if (visibleTreeChildren.size() == 1 && visibleTreeChildren.get(0) instanceof LoadInProgressTreeNode) {
             visibleTreeChildren.get(0).dispose();
         }
 
         visibleTreeChildren = newTreeChildren;
         treeChildrenLoaded = true;
 
+        EventManager.notify(getProject(), BrowserTreeChangeListener.TOPIC).nodeChanged(this, TreeEventType.STRUCTURE_CHANGED);
+
         new ConditionalLaterInvocator() {
             public void run() {
-                DatabaseBrowserManager.updateTree(DBObjectBundleImpl.this, TreeUtil.STRUCTURE_CHANGED);
                 DatabaseBrowserManager.scrollToSelectedElement(getConnectionHandler());
 
             }
@@ -279,14 +282,14 @@ public class DBObjectBundleImpl implements DBObjectBundle {
     }
 
     public void rebuildTreeChildren() {
-        Filter<BrowserTreeElement> filter = connectionHandler.getObjectFilter();
+        Filter<BrowserTreeNode> filter = connectionHandler.getObjectFilter();
         if (visibleTreeChildren != null && DatabaseBrowserUtils.treeVisibilityChanged(allPossibleTreeChildren, visibleTreeChildren, filter)) {
             buildTreeChildren();
         }
 
         if (visibleTreeChildren != null) {
-            for (BrowserTreeElement treeElement : visibleTreeChildren) {
-                treeElement.rebuildTreeChildren();
+            for (BrowserTreeNode treeNode : visibleTreeChildren) {
+                treeNode.rebuildTreeChildren();
             }
         }
     }
@@ -299,7 +302,7 @@ public class DBObjectBundleImpl implements DBObjectBundle {
         return false;
     }
 
-    public int getIndexOfTreeChild(BrowserTreeElement child) {
+    public int getIndexOfTreeChild(BrowserTreeNode child) {
         return getTreeChildren().indexOf(child);
     }
 
@@ -337,9 +340,9 @@ public class DBObjectBundleImpl implements DBObjectBundle {
 
                 append(true, getConnectionHandler().getProject().getName(), false);
                 append(false, "/", false);
-                ConnectionManager connectionManager = getConnectionHandler().getConnectionManager();
-                if (connectionManager instanceof ModuleConnectionManager) {
-                    ModuleConnectionManager moduleConnectionManager = (ModuleConnectionManager) connectionManager;
+                ConnectionBundle connectionBundle = getConnectionHandler().getConnectionBundle();
+                if (connectionBundle instanceof ModuleConnectionBundle) {
+                    ModuleConnectionBundle moduleConnectionManager = (ModuleConnectionBundle) connectionBundle;
                     append(false, moduleConnectionManager.getModule().getName(), false);
                     append(false, "/", false);
                 }

@@ -1,8 +1,8 @@
 package com.dci.intellij.dbn.navigation;
 
 import com.dci.intellij.dbn.common.content.loader.DynamicContentLoaderRegistry;
+import com.dci.intellij.dbn.connection.ConnectionBundle;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
-import com.dci.intellij.dbn.connection.ConnectionManager;
 import com.dci.intellij.dbn.connection.VirtualConnectionHandler;
 import com.dci.intellij.dbn.navigation.options.ObjectsLookupSettings;
 import com.dci.intellij.dbn.object.common.DBObject;
@@ -109,7 +109,7 @@ public class GoToDatabaseObjectModel implements ChooseByNameModel {
 
     private void scanObjectLists(DBObjectListVisitor visitor) {
         if (connectionHandler == null || connectionHandler instanceof VirtualConnectionHandler) {
-            Set<ConnectionHandler> connectionHandlers = ConnectionManager.getConnectionHandlers(project);
+            Set<ConnectionHandler> connectionHandlers = ConnectionBundle.getConnectionHandlers(project);
             for (ConnectionHandler connectionHandler : connectionHandlers) {
                 if (breakLoad()) break;
                 DBObjectListContainer objectListContainer = connectionHandler.getObjectBundle().getObjectListContainer();

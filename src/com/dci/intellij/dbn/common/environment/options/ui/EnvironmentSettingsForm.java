@@ -130,7 +130,7 @@ public class EnvironmentSettingsForm extends ConfigurationEditorForm<Environment
             visibilitySettings.getExecutionResultTabs().applyChanges(executionResultTabsCheckBox);
         
         if (changed) {
-            EnvironmentChangeListener listener = EventManager.syncPublisher(getConfiguration().getProject(), EnvironmentChangeListener.TOPIC);
+            EnvironmentChangeListener listener = EventManager.notify(getConfiguration().getProject(), EnvironmentChangeListener.TOPIC);
             listener.environmentVisibilitySettingsChanged();
         }
     }

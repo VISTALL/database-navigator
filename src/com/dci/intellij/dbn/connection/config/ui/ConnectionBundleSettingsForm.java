@@ -4,12 +4,12 @@ import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dci.intellij.dbn.common.util.ActionUtil;
 import com.dci.intellij.dbn.common.util.UIUtil;
+import com.dci.intellij.dbn.connection.ConnectionBundle;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.ConnectionHandlerImpl;
-import com.dci.intellij.dbn.connection.ConnectionManager;
+import com.dci.intellij.dbn.connection.config.ConnectionBundleSettingsListener;
 import com.dci.intellij.dbn.connection.config.ConnectionConfigListCellRenderer;
 import com.dci.intellij.dbn.connection.config.ConnectionDatabaseSettings;
-import com.dci.intellij.dbn.connection.config.ConnectionManagerSettingsListener;
 import com.dci.intellij.dbn.connection.config.ConnectionSettings;
 import com.dci.intellij.dbn.connection.config.action.AddConnectionAction;
 import com.dci.intellij.dbn.connection.config.action.DuplicateConnectionAction;
@@ -36,7 +36,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ConnectionManagerSettingsForm extends ConfigurationEditorForm<ConnectionManager> implements ListSelectionListener {
+public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<ConnectionBundle> implements ListSelectionListener {
     private static final String BLANK_PANEL_ID = "BLANK_PANEL";
 
     private JPanel mainPanel;
@@ -53,24 +53,24 @@ public class ConnectionManagerSettingsForm extends ConfigurationEditorForm<Conne
         return connectionsList;
     }
 
-    public ConnectionManagerSettingsForm(ConnectionManager connectionManager) {
-        super(connectionManager);
+    public ConnectionBundleSettingsForm(ConnectionBundle connectionBundle) {
+        super(connectionBundle);
         ActionToolbar actionToolbar = ActionUtil.createActionToolbar(
                 "DBNavigator.Connections.Setup", true,
-                new AddConnectionAction(connectionsList, connectionManager),
-                new RemoveConnectionAction(connectionsList, connectionManager),
-                new DuplicateConnectionAction(connectionsList, connectionManager),
+                new AddConnectionAction(connectionsList, connectionBundle),
+                new RemoveConnectionAction(connectionsList, connectionBundle),
+                new DuplicateConnectionAction(connectionsList, connectionBundle),
                 ActionUtil.SEPARATOR,
-                new MoveConnectionUpAction(connectionsList, connectionManager),
-                new MoveConnectionDownAction(connectionsList, connectionManager),
-                new SortConnectionsAction(connectionsList, connectionManager));
+                new MoveConnectionUpAction(connectionsList, connectionBundle),
+                new MoveConnectionDownAction(connectionsList, connectionBundle),
+                new SortConnectionsAction(connectionsList, connectionBundle));
         actionsPanel.add(actionToolbar.getComponent(), BorderLayout.CENTER);
 
-        connectionsList.setModel(new ConnectionListModel(connectionManager));
+        connectionsList.setModel(new ConnectionListModel(connectionBundle));
         connectionsList.addListSelectionListener(this);
         connectionsList.setCellRenderer(new ConnectionConfigListCellRenderer());
-        if (connectionManager.getConnectionHandlers().size() > 0) {
-            selectConnection(connectionManager.getConnectionHandlers().get(0));
+        if (connectionBundle.getConnectionHandlers().size() > 0) {
+            selectConnection(connectionBundle.getConnectionHandlers().get(0));
         }
         JPanel emptyPanel = new JPanel();
         connectionSetupPanel.setPreferredSize(new Dimension(500, -1));
@@ -88,9 +88,9 @@ public class ConnectionManagerSettingsForm extends ConfigurationEditorForm<Conne
     }
 
     public void applyChanges() throws ConfigurationException {
-        ConnectionManager connectionManager = getConfiguration();
+        ConnectionBundle connectionBundle = getConfiguration();
 
-        List<ConnectionHandler> oldConnections = new ArrayList<ConnectionHandler>(connectionManager.getConnectionHandlers().getFullList());
+        List<ConnectionHandler> oldConnections = new ArrayList<ConnectionHandler>(connectionBundle.getConnectionHandlers().getFullList());
         List<ConnectionHandler> newConnections = new ArrayList<ConnectionHandler>();
 
         boolean listChanged = false;
@@ -113,9 +113,9 @@ public class ConnectionManagerSettingsForm extends ConfigurationEditorForm<Conne
             ConnectionSettings connectionSettings = (ConnectionSettings) listModel.getElementAt(i);
             connectionSettings.apply();
 
-            ConnectionHandler connectionHandler = connectionManager.getConnection(connectionSettings.getDatabaseSettings().getId());
+            ConnectionHandler connectionHandler = connectionBundle.getConnection(connectionSettings.getDatabaseSettings().getId());
             if (connectionHandler == null) {
-                connectionHandler = new ConnectionHandlerImpl(connectionManager, connectionSettings);
+                connectionHandler = new ConnectionHandlerImpl(connectionBundle, connectionSettings);
                 connectionSettings.getDatabaseSettings().setNew(false);
             } else {
                 oldConnections.remove(connectionHandler);
@@ -125,7 +125,7 @@ public class ConnectionManagerSettingsForm extends ConfigurationEditorForm<Conne
             newConnections.add(connectionHandler);
 
         }
-        connectionManager.setConnectionHandlers(newConnections);
+        connectionBundle.setConnectionHandlers(newConnections);
 
         // dispose old list
         for (ConnectionHandler connectionHandler : oldConnections) {
@@ -134,7 +134,7 @@ public class ConnectionManagerSettingsForm extends ConfigurationEditorForm<Conne
         }
 
         if (listChanged) {
-            EventManager.syncPublisher(connectionManager.getProject(), ConnectionManagerSettingsListener.TOPIC).settingsChanged();
+            EventManager.notify(connectionBundle.getProject(), ConnectionBundleSettingsListener.TOPIC).settingsChanged();
         }
     }
 

@@ -2,7 +2,7 @@ package com.dci.intellij.dbn.connection.config;
 
 import com.dci.intellij.dbn.common.options.CompositeConfiguration;
 import com.dci.intellij.dbn.common.options.Configuration;
-import com.dci.intellij.dbn.connection.ConnectionManager;
+import com.dci.intellij.dbn.connection.ConnectionBundle;
 import com.dci.intellij.dbn.connection.config.ui.ConnectionSettingsForm;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.InvalidDataException;
@@ -15,9 +15,9 @@ public class ConnectionSettings extends CompositeConfiguration<ConnectionSetting
     private ConnectionDetailSettings detailSettings;
     private ConnectionFilterSettings filterSettings;
 
-    public ConnectionSettings(ConnectionManager connectionManager) {
-        Project project = connectionManager.getProject();
-        databaseSettings = new GenericConnectionDatabaseSettings(connectionManager);
+    public ConnectionSettings(ConnectionBundle connectionBundle) {
+        Project project = connectionBundle.getProject();
+        databaseSettings = new GenericConnectionDatabaseSettings(connectionBundle);
         detailSettings = new ConnectionDetailSettings(project);
         filterSettings = new ConnectionFilterSettings(project);
     }
@@ -60,7 +60,7 @@ public class ConnectionSettings extends CompositeConfiguration<ConnectionSetting
         try {
             Element connectionElement = new Element("Connection");
             writeConfiguration(connectionElement);
-            ConnectionSettings clone = new ConnectionSettings(databaseSettings.getConnectionManager());
+            ConnectionSettings clone = new ConnectionSettings(databaseSettings.getConnectionBundle());
             clone.readConfiguration(connectionElement);
             clone.getDatabaseSettings().setConnectivityStatus(databaseSettings.getConnectivityStatus());
             clone.getDatabaseSettings().generateNewId();

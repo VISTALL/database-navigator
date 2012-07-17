@@ -1,6 +1,6 @@
 package com.dci.intellij.dbn.browser;
 
-import com.dci.intellij.dbn.browser.model.BrowserTreeElement;
+import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
 import com.dci.intellij.dbn.common.filter.Filter;
 import com.dci.intellij.dbn.object.common.DBObjectBundle;
 
@@ -9,44 +9,44 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DatabaseBrowserUtils {
-    public static TreePath createTreePath(BrowserTreeElement treeElement) {
-        boolean isTabbedMode = DatabaseBrowserManager.getInstance(treeElement.getProject()).isTabbedMode();
+    public static TreePath createTreePath(BrowserTreeNode treeNode) {
+        boolean isTabbedMode = DatabaseBrowserManager.getInstance(treeNode.getProject()).isTabbedMode();
 
-        int treeDepth = treeElement.getTreeDepth();
-        BrowserTreeElement[] path = new BrowserTreeElement[isTabbedMode ? treeDepth -1 : treeDepth + 1];
-        while (treeElement != null) {
-            treeDepth = treeElement.getTreeDepth();
-            path[isTabbedMode ? treeDepth -2 : treeDepth] = treeElement;
-            if (treeElement instanceof DatabaseBrowserManager) break;
-            if (isTabbedMode && treeElement instanceof DBObjectBundle) break;
-            treeElement = treeElement.getTreeParent();
+        int treeDepth = treeNode.getTreeDepth();
+        BrowserTreeNode[] path = new BrowserTreeNode[isTabbedMode ? treeDepth -1 : treeDepth + 1];
+        while (treeNode != null) {
+            treeDepth = treeNode.getTreeDepth();
+            path[isTabbedMode ? treeDepth -2 : treeDepth] = treeNode;
+            if (treeNode instanceof DatabaseBrowserManager) break;
+            if (isTabbedMode && treeNode instanceof DBObjectBundle) break;
+            treeNode = treeNode.getTreeParent();
         }
         return new TreePath(path);
     }
 
     public static boolean treeVisibilityChanged(
-            List<BrowserTreeElement> possibleTreeElements,
-            List<BrowserTreeElement> actualTreeElements,
-            Filter<BrowserTreeElement> filter) {
-        for (BrowserTreeElement treeElement : possibleTreeElements) {
-            if (treeElement != null) {
-                if (filter.accepts(treeElement)) {
-                    if (!actualTreeElements.contains(treeElement)) return true;
+            List<BrowserTreeNode> possibleTreeNodes,
+            List<BrowserTreeNode> actualTreeNodes,
+            Filter<BrowserTreeNode> filter) {
+        for (BrowserTreeNode treeNode : possibleTreeNodes) {
+            if (treeNode != null) {
+                if (filter.accepts(treeNode)) {
+                    if (!actualTreeNodes.contains(treeNode)) return true;
                 } else {
-                    if (actualTreeElements.contains(treeElement)) return true;
+                    if (actualTreeNodes.contains(treeNode)) return true;
                 }
             }
         }
         return false;
     }
 
-    public static List<BrowserTreeElement> createList(BrowserTreeElement ... treeElements) {
-        List<BrowserTreeElement> treeElementList = new ArrayList<BrowserTreeElement>(treeElements.length);
-        for (BrowserTreeElement treeElement : treeElements) {
-            if (treeElement != null) {
-                treeElementList.add(treeElement);
+    public static List<BrowserTreeNode> createList(BrowserTreeNode... treeNodes) {
+        List<BrowserTreeNode> treeNodeList = new ArrayList<BrowserTreeNode>(treeNodes.length);
+        for (BrowserTreeNode treeNode : treeNodes) {
+            if (treeNode != null) {
+                treeNodeList.add(treeNode);
             }
         }
-        return treeElementList;
+        return treeNodeList;
     }
 }

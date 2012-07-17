@@ -128,7 +128,8 @@
     </application-components>
     <project-components>
         <component><implementation-class>com.dci.intellij.dbn.options.GlobalProjectSettings</implementation-class></component>
-        <component><implementation-class>com.dci.intellij.dbn.connection.ProjectConnectionManager</implementation-class></component>
+        <component><implementation-class>com.dci.intellij.dbn.connection.ConnectionManager</implementation-class></component>
+        <component><implementation-class>com.dci.intellij.dbn.connection.ProjectConnectionBundle</implementation-class></component>
         <component><implementation-class>com.dci.intellij.dbn.connection.mapping.FileConnectionMappingManager</implementation-class></component>
         <component><implementation-class>com.dci.intellij.dbn.browser.DatabaseBrowserManager</implementation-class></component>
         <component><implementation-class>com.dci.intellij.dbn.browser.cache.ProjectBrowserCacheComponent</implementation-class></component>
@@ -155,7 +156,7 @@
         <component><implementation-class>com.dci.intellij.dbn.connection.transaction.DatabaseTransactionManager</implementation-class></component>
     </project-components>
     <module-components>
-        <component><implementation-class>com.dci.intellij.dbn.connection.ModuleConnectionManager</implementation-class></component>
+        <component><implementation-class>com.dci.intellij.dbn.connection.ModuleConnectionBundle</implementation-class></component>
         <component><implementation-class>com.dci.intellij.dbn.browser.cache.ModuleBrowserCacheComponent</implementation-class></component>
     </module-components>
 

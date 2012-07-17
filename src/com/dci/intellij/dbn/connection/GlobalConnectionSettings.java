@@ -32,7 +32,7 @@ public class GlobalConnectionSettings extends ProjectConfiguration<GlobalConnect
     }
 
     public String getHelpTopic() {
-        return "connectionManager";
+        return "connectionBundle";
     }
 
     /*********************************************************
@@ -43,47 +43,47 @@ public class GlobalConnectionSettings extends ProjectConfiguration<GlobalConnect
     }
 
     public boolean isModified() {
-        ProjectConnectionManager projectConnectionManager = ProjectConnectionManager.getInstance(getProject());
+        ProjectConnectionBundle projectConnectionManager = ProjectConnectionBundle.getInstance(getProject());
         if (projectConnectionManager.isModified()) return true;
 
         Module[] modules =  ModuleManager.getInstance(getProject()).getModules();
         for (Module module : modules) {
-            ModuleConnectionManager moduleConnectionManager = ModuleConnectionManager.getInstance(module);
+            ModuleConnectionBundle moduleConnectionManager = ModuleConnectionBundle.getInstance(module);
             if (moduleConnectionManager.isModified()) return true;
         }
         return false;
     }
 
     public void apply() throws ConfigurationException {
-        ProjectConnectionManager projectConnectionManager = ProjectConnectionManager.getInstance(getProject());
+        ProjectConnectionBundle projectConnectionManager = ProjectConnectionBundle.getInstance(getProject());
         projectConnectionManager.apply();
 
         Module[] modules =  ModuleManager.getInstance(getProject()).getModules();
         for (Module module : modules) {
-            ModuleConnectionManager moduleConnectionManager = ModuleConnectionManager.getInstance(module);
+            ModuleConnectionBundle moduleConnectionManager = ModuleConnectionBundle.getInstance(module);
             moduleConnectionManager.apply();
         }
     }
 
     public void reset() {
-        ProjectConnectionManager projectConnectionManager = ProjectConnectionManager.getInstance(getProject());
+        ProjectConnectionBundle projectConnectionManager = ProjectConnectionBundle.getInstance(getProject());
         projectConnectionManager.reset();
 
         Module[] modules =  ModuleManager.getInstance(getProject()).getModules();
         for (Module module : modules) {
-            ModuleConnectionManager moduleConnectionManager = ModuleConnectionManager.getInstance(module);
+            ModuleConnectionBundle moduleConnectionManager = ModuleConnectionBundle.getInstance(module);
             moduleConnectionManager.reset();
         }
     }
 
     @Override
     public void disposeUIResources() {
-        ProjectConnectionManager projectConnectionManager = ProjectConnectionManager.getInstance(getProject());
+        ProjectConnectionBundle projectConnectionManager = ProjectConnectionBundle.getInstance(getProject());
         projectConnectionManager.disposeUIResources();
 
         Module[] modules =  ModuleManager.getInstance(getProject()).getModules();
         for (Module module : modules) {
-            ModuleConnectionManager moduleConnectionManager = ModuleConnectionManager.getInstance(module);
+            ModuleConnectionBundle moduleConnectionManager = ModuleConnectionBundle.getInstance(module);
             moduleConnectionManager.disposeUIResources();
         }
         super.disposeUIResources();

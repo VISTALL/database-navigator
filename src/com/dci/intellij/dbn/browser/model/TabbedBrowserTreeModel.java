@@ -10,6 +10,11 @@ public class TabbedBrowserTreeModel extends BrowserTreeModel {
         this.connectionHandler = connectionHandler;
     }
 
+    @Override
+    public boolean contains(BrowserTreeNode node) {
+        return connectionHandler == node.getConnectionHandler();
+    }
+
     public ConnectionHandler getConnectionHandler() {
         return connectionHandler;
     }

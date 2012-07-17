@@ -1,15 +1,17 @@
 package com.dci.intellij.dbn.object.common.list;
 
 import com.dci.intellij.dbn.browser.DatabaseBrowserManager;
-import com.dci.intellij.dbn.browser.model.BrowserTreeElement;
+import com.dci.intellij.dbn.browser.model.BrowserTreeChangeListener;
+import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
 import com.dci.intellij.dbn.code.sql.color.SQLTextAttributesKeys;
 import com.dci.intellij.dbn.common.content.DynamicContent;
 import com.dci.intellij.dbn.common.content.DynamicContentImpl;
 import com.dci.intellij.dbn.common.content.DynamicContentType;
 import com.dci.intellij.dbn.common.content.dependency.ContentDependencyAdapter;
 import com.dci.intellij.dbn.common.content.loader.DynamicContentLoader;
+import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.common.filter.Filter;
-import com.dci.intellij.dbn.common.ui.tree.TreeUtil;
+import com.dci.intellij.dbn.common.ui.tree.TreeEventType;
 import com.dci.intellij.dbn.connection.GenericDatabaseElement;
 import com.dci.intellij.dbn.object.common.DBObject;
 import com.dci.intellij.dbn.object.common.DBObjectType;
@@ -30,7 +32,7 @@ public class DBObjectListImpl<T extends DBObject> extends DynamicContentImpl<T> 
 
     private DBObjectType objectType = DBObjectType.UNKNOWN;
 
-    public DBObjectListImpl(DBObjectType objectType, BrowserTreeElement treeParent, DynamicContentLoader<T> loader, ContentDependencyAdapter dependencyAdapter, boolean indexed) {
+    public DBObjectListImpl(DBObjectType objectType, BrowserTreeNode treeParent, DynamicContentLoader<T> loader, ContentDependencyAdapter dependencyAdapter, boolean indexed) {
         super(treeParent, loader, dependencyAdapter, indexed);
         this.treeDepth = treeParent.getTreeDepth() + 1;
         this.objectType = objectType;
@@ -107,7 +109,7 @@ public class DBObjectListImpl<T extends DBObject> extends DynamicContentImpl<T> 
 
     public void notifyChangeListeners() {
         if (isTouched) {
-            DatabaseBrowserManager.updateTree(DBObjectListImpl.this, TreeUtil.STRUCTURE_CHANGED);
+            EventManager.notify(getProject(), BrowserTreeChangeListener.TOPIC).nodeChanged(this, TreeEventType.STRUCTURE_CHANGED);
         }
     }
 
@@ -138,15 +140,15 @@ public class DBObjectListImpl<T extends DBObject> extends DynamicContentImpl<T> 
         return treeDepth;
     }
 
-    public BrowserTreeElement getTreeChild(int index) {
+    public BrowserTreeNode getTreeChild(int index) {
         return getTreeChildren().get(index);
     }
 
-    public BrowserTreeElement getTreeParent() {
-        return (BrowserTreeElement) getParent();
+    public BrowserTreeNode getTreeParent() {
+        return (BrowserTreeNode) getParent();
     }
 
-    public List<? extends BrowserTreeElement> getTreeChildren() {
+    public List<? extends BrowserTreeNode> getTreeChildren() {
         if (isLoading()) {
             return elements;
         } else {
@@ -175,7 +177,7 @@ public class DBObjectListImpl<T extends DBObject> extends DynamicContentImpl<T> 
         return getTreeChildren().size() == 0;
     }
 
-    public int getIndexOfTreeChild(BrowserTreeElement child) {
+    public int getIndexOfTreeChild(BrowserTreeNode child) {
         return getTreeChildren().indexOf(child);
     }
 

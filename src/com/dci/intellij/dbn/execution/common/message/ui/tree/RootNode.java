@@ -1,8 +1,8 @@
 package com.dci.intellij.dbn.execution.common.message.ui.tree;
 
+import com.dci.intellij.dbn.common.ui.tree.TreeEventType;
 import com.dci.intellij.dbn.execution.compiler.CompilerMessage;
 import com.dci.intellij.dbn.execution.statement.StatementExecutionMessage;
-import com.dci.intellij.dbn.common.ui.tree.TreeUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 
 import javax.swing.tree.TreeNode;
@@ -27,7 +27,7 @@ public class RootNode extends BundleTreeNode {
         if (execMessagesNode == null) {
             execMessagesNode = new StatementExecutionMessagesNode(this);
             children.add(execMessagesNode);
-            getTreeModel().notifyTreeModelListeners(this, TreeUtil.STRUCTURE_CHANGED);
+            getTreeModel().notifyTreeModelListeners(this, TreeEventType.STRUCTURE_CHANGED);
         }
 
         return execMessagesNode.addExecutionMessage(executionMessage);
@@ -38,7 +38,7 @@ public class RootNode extends BundleTreeNode {
         if (compilerMessagesNode == null) {
             compilerMessagesNode = new CompilerMessagesNode(this);
             children.add(compilerMessagesNode);
-            getTreeModel().notifyTreeModelListeners(this, TreeUtil.STRUCTURE_CHANGED);
+            getTreeModel().notifyTreeModelListeners(this, TreeEventType.STRUCTURE_CHANGED);
         }
         return compilerMessagesNode.addCompilerMessage(compilerMessage);
     }

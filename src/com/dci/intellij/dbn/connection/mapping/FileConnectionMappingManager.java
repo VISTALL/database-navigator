@@ -4,9 +4,9 @@ import com.dci.intellij.dbn.common.util.DocumentUtil;
 import com.dci.intellij.dbn.common.util.EditorUtil;
 import com.dci.intellij.dbn.common.util.StringUtil;
 import com.dci.intellij.dbn.common.util.VirtualFileUtil;
+import com.dci.intellij.dbn.connection.ConnectionBundle;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
-import com.dci.intellij.dbn.connection.ConnectionManager;
-import com.dci.intellij.dbn.connection.ProjectConnectionManager;
+import com.dci.intellij.dbn.connection.ProjectConnectionBundle;
 import com.dci.intellij.dbn.ddl.DDLFileBindingManager;
 import com.dci.intellij.dbn.editor.data.DatasetEditor;
 import com.dci.intellij.dbn.language.editor.ui.DBLanguageFileEditorToolbarForm;
@@ -125,9 +125,9 @@ public class FileConnectionMappingManager extends VirtualFileAdapter implements 
             if (connectionHandler == null) {
                 FileConnectionMapping mapping = lookupMapping(virtualFile);
                 if (mapping != null) {
-                    connectionHandler = ConnectionManager.getConnectionHandler(project, mapping.getConnectionId());
+                    connectionHandler = ConnectionBundle.getConnectionHandler(project, mapping.getConnectionId());
                     if (connectionHandler == null) connectionHandler =
-                            ProjectConnectionManager.getInstance(project).getVirtualConnection(mapping.getConnectionId());
+                            ProjectConnectionBundle.getInstance(project).getVirtualConnection(mapping.getConnectionId());
 
                     if (connectionHandler != null)
                         virtualFile.putUserData(ACTIVE_CONNECTION_KEY, connectionHandler);

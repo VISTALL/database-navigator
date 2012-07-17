@@ -2,7 +2,7 @@ package com.dci.intellij.dbn.connection.config;
 
 import com.dci.intellij.dbn.common.options.ProjectConfiguration;
 import com.dci.intellij.dbn.common.options.setting.SettingsUtil;
-import com.dci.intellij.dbn.connection.ConnectionManager;
+import com.dci.intellij.dbn.connection.ConnectionBundle;
 import com.dci.intellij.dbn.connection.ConnectivityStatus;
 import com.dci.intellij.dbn.connection.DatabaseType;
 import com.dci.intellij.dbn.connection.config.ui.GenericDatabaseSettingsForm;
@@ -23,13 +23,13 @@ public abstract class ConnectionDatabaseSettings extends ProjectConfiguration<Ge
     protected String user;
     protected String password;
     protected int hashCode;
-    protected ConnectionManager connectionManager;
+    protected ConnectionBundle connectionBundle;
 
     private boolean isNew;
 
-    public ConnectionDatabaseSettings(Project project, ConnectionManager connectionManager) {
+    public ConnectionDatabaseSettings(Project project, ConnectionBundle connectionBundle) {
         super(project);
-        this.connectionManager = connectionManager;
+        this.connectionBundle = connectionBundle;
     }
 
     public boolean isNew() {
@@ -44,8 +44,8 @@ public abstract class ConnectionDatabaseSettings extends ProjectConfiguration<Ge
         return (String) (value == null ? "" : value);
     }
 
-    public ConnectionManager getConnectionManager() {
-        return connectionManager;
+    public ConnectionBundle getConnectionBundle() {
+        return connectionBundle;
     }
 
     public ConnectivityStatus getConnectivityStatus() {

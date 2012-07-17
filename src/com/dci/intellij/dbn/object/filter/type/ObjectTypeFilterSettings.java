@@ -1,6 +1,6 @@
 package com.dci.intellij.dbn.object.filter.type;
 
-import com.dci.intellij.dbn.browser.model.BrowserTreeElement;
+import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
 import com.dci.intellij.dbn.common.filter.Filter;
 import com.dci.intellij.dbn.common.options.ProjectConfiguration;
 import com.dci.intellij.dbn.common.options.setting.BooleanSetting;
@@ -40,7 +40,7 @@ public class ObjectTypeFilterSettings extends ProjectConfiguration<ObjectTypeFil
         return new ObjectTypeFilterSettingsForm(this);
     }
 
-    public Filter<BrowserTreeElement> getElementFilter() {
+    public Filter<BrowserTreeNode> getElementFilter() {
         return elementFilter;
     }
 
@@ -48,20 +48,20 @@ public class ObjectTypeFilterSettings extends ProjectConfiguration<ObjectTypeFil
         return typeFilter;
     }
 
-    private Filter<BrowserTreeElement> elementFilter = new Filter<BrowserTreeElement>() {
-        public boolean accepts(BrowserTreeElement treeElement) {
-            if (treeElement == null) {
+    private Filter<BrowserTreeNode> elementFilter = new Filter<BrowserTreeNode>() {
+        public boolean accepts(BrowserTreeNode treeNode) {
+            if (treeNode == null) {
                 return false;
             }
 
-            if (treeElement instanceof DBObject) {
-                DBObject object = (DBObject) treeElement;
+            if (treeNode instanceof DBObject) {
+                DBObject object = (DBObject) treeNode;
                 DBObjectType objectType = object.getObjectType();
                 return isVisible(objectType);
             }
 
-            if (treeElement instanceof DBObjectList) {
-                DBObjectList objectList = (DBObjectList) treeElement;
+            if (treeNode instanceof DBObjectList) {
+                DBObjectList objectList = (DBObjectList) treeNode;
                 return isVisible(objectList.getObjectType());
             }
 

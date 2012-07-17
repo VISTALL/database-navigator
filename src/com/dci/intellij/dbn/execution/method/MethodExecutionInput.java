@@ -3,8 +3,8 @@ package com.dci.intellij.dbn.execution.method;
 import com.dci.intellij.dbn.common.options.PersistentConfiguration;
 import com.dci.intellij.dbn.common.options.setting.SettingsUtil;
 import com.dci.intellij.dbn.common.util.CommonUtil;
+import com.dci.intellij.dbn.connection.ConnectionBundle;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
-import com.dci.intellij.dbn.connection.ConnectionManager;
 import com.dci.intellij.dbn.execution.method.result.MethodExecutionResult;
 import com.dci.intellij.dbn.execution.method.result.ui.MethodExecutionResultForm;
 import com.dci.intellij.dbn.object.DBArgument;
@@ -76,7 +76,7 @@ public class MethodExecutionInput implements Disposable, PersistentConfiguration
 
     public synchronized ConnectionHandler getConnectionHandler() {
         if (connectionHandler == null) {
-            connectionHandler = ConnectionManager.getConnectionHandler(methodIdentifier.getConnectionId());
+            connectionHandler = ConnectionBundle.getConnectionHandler(methodIdentifier.getConnectionId());
         }
         return connectionHandler;
     }

@@ -1,6 +1,6 @@
 package com.dci.intellij.dbn.object.impl;
 
-import com.dci.intellij.dbn.browser.model.BrowserTreeElement;
+import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.object.DBCharset;
 import com.dci.intellij.dbn.object.common.DBObjectImpl;
@@ -25,8 +25,8 @@ public class DBCharsetImpl extends DBObjectImpl implements DBCharset {
     }
 
     @NotNull
-    public List<BrowserTreeElement> buildAllPossibleTreeChildren() {
-        return BrowserTreeElement.EMPTY_LIST;
+    public List<BrowserTreeNode> buildAllPossibleTreeChildren() {
+        return BrowserTreeNode.EMPTY_LIST;
     }
 
     public int getMaxLength() {

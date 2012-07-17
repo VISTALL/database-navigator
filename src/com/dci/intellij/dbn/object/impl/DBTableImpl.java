@@ -1,7 +1,7 @@
 package com.dci.intellij.dbn.object.impl;
 
 import com.dci.intellij.dbn.browser.DatabaseBrowserUtils;
-import com.dci.intellij.dbn.browser.model.BrowserTreeElement;
+import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.content.DynamicContent;
 import com.dci.intellij.dbn.common.content.DynamicContentElement;
@@ -183,7 +183,7 @@ public class DBTableImpl extends DBDatasetImpl implements DBTable {
      *                     TreeElement                       *
      *********************************************************/
     @NotNull
-    public List<BrowserTreeElement> buildAllPossibleTreeChildren() {
+    public List<BrowserTreeNode> buildAllPossibleTreeChildren() {
         return DatabaseBrowserUtils.createList(
                 columns,
                 constraints,

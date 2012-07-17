@@ -1,14 +1,14 @@
 package com.dci.intellij.dbn.connection;
 
-import com.dci.intellij.dbn.browser.DatabaseBrowserManager;
-import com.dci.intellij.dbn.browser.model.BrowserTreeElement;
+import com.dci.intellij.dbn.browser.model.BrowserTreeChangeListener;
+import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.dispose.DisposeUtil;
 import com.dci.intellij.dbn.common.environment.EnvironmentType;
 import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.common.filter.Filter;
 import com.dci.intellij.dbn.common.thread.BackgroundTask;
-import com.dci.intellij.dbn.common.ui.tree.TreeUtil;
+import com.dci.intellij.dbn.common.ui.tree.TreeEventType;
 import com.dci.intellij.dbn.connection.config.ConnectionSettings;
 import com.dci.intellij.dbn.connection.transaction.TransactionAction;
 import com.dci.intellij.dbn.connection.transaction.TransactionListener;
@@ -28,7 +28,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.Icon;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
@@ -37,7 +37,7 @@ import java.util.List;
 
 public class ConnectionHandlerImpl implements ConnectionHandler {
     private ConnectionSettings connectionSettings;
-    private ConnectionManager connectionManager;
+    private ConnectionBundle connectionBundle;
     private ConnectionStatus connectionStatus;
     private ConnectionPool connectionPool;
     private ConnectionInfo connectionInfo;
@@ -51,15 +51,15 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
     private SQLConsoleFile sqlConsoleFile;
     private NavigationPsiCache psiCache = new NavigationPsiCache(this);
 
-    public ConnectionHandlerImpl(ConnectionManager connectionManager, ConnectionSettings connectionSettings) {
-        this.connectionManager = connectionManager;
+    public ConnectionHandlerImpl(ConnectionBundle connectionBundle, ConnectionSettings connectionSettings) {
+        this.connectionBundle = connectionBundle;
         this.connectionSettings = connectionSettings;
         connectionStatus = new ConnectionStatus();
         connectionPool = new ConnectionPool(this);
     }
 
-    public ConnectionManager getConnectionManager() {
-        return connectionManager;
+    public ConnectionBundle getConnectionBundle() {
+        return connectionBundle;
     }
 
     public ConnectionSettings getSettings() {
@@ -78,7 +78,7 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
         return connectionSettings.getDatabaseSettings().getDatabaseType();
     }
 
-    public Filter<BrowserTreeElement> getObjectFilter() {
+    public Filter<BrowserTreeNode> getObjectFilter() {
         return getSettings().getFilterSettings().getObjectTypeFilterSettings().getElementFilter();
     }
 
@@ -104,17 +104,17 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
     }
 
     private void notifyTransactionPreAction(TransactionAction action) throws SQLException {
-        TransactionListener listener = EventManager.syncPublisher(getProject(), TransactionListener.TOPIC);
+        TransactionListener listener = EventManager.notify(getProject(), TransactionListener.TOPIC);
         listener.beforeAction(this, action);
     }
 
     private void notifyTransactionPostAction(TransactionAction action, boolean successful) throws SQLException {
-        TransactionListener listener = EventManager.syncPublisher(getProject(), TransactionListener.TOPIC);
+        TransactionListener listener = EventManager.notify(getProject(), TransactionListener.TOPIC);
         listener.afterAction(this, action, successful);
     }
 
     private void notifyStatusChange() {
-        ConnectionStatusListener changeListener = EventManager.syncPublisher(getProject(), ConnectionStatusListener.TOPIC);
+        ConnectionStatusListener changeListener = EventManager.notify(getProject(), ConnectionStatusListener.TOPIC);
         changeListener.statusChanged(getId());
     }
 
@@ -179,12 +179,12 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
     }
 
     public Project getProject() {
-        return connectionManager.getProject();
+        return connectionBundle.getProject();
     }
 
     public Module getModule() {
-        if (connectionManager instanceof ModuleConnectionManager) {
-            ModuleConnectionManager moduleConnectionManager = (ModuleConnectionManager) connectionManager;
+        if (connectionBundle instanceof ModuleConnectionBundle) {
+            ModuleConnectionBundle moduleConnectionManager = (ModuleConnectionBundle) connectionBundle;
             return moduleConnectionManager.getModule();
         }
         return null;
@@ -203,7 +203,7 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
     }
 
     public boolean isValid() {
-        return connectionStatus.isValid() && connectionManager.containsConnection(this);
+        return connectionStatus.isValid() && connectionBundle.containsConnection(this);
     }
 
     public boolean isVirtual() {
@@ -225,7 +225,7 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
     public void disconnect() {
         connectionPool.closeConnections();
         try {
-            TransactionListener transactionListener = EventManager.syncPublisher(getProject(), TransactionListener.TOPIC);
+            TransactionListener transactionListener = EventManager.notify(getProject(), TransactionListener.TOPIC);
             transactionListener.afterAction(this, TransactionAction.DISCONNECT, true);
 
             notifyStatusChange();
@@ -257,7 +257,7 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
 
     public DBObjectBundle getObjectBundle() {
         if (objectBundle == null) {
-            objectBundle = new DBObjectBundleImpl(this, connectionManager);
+            objectBundle = new DBObjectBundleImpl(this, connectionBundle);
         }
         return objectBundle;
     }
@@ -350,10 +350,10 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
      *                       TreeElement                     *
      *********************************************************/
     public String getQualifiedName() {
-        if (connectionManager instanceof ProjectConnectionManager) {
+        if (connectionBundle instanceof ProjectConnectionBundle) {
             return "Project - " + getPresentableText();
         } else {
-            ModuleConnectionManager connectionManager = (ModuleConnectionManager) this.connectionManager;
+            ModuleConnectionBundle connectionManager = (ModuleConnectionBundle) this.connectionBundle;
             Module module = connectionManager.getModule();
             return module.getName() + " - " + getPresentableText();
         }
@@ -399,14 +399,17 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
             connectionSettings.getDatabaseSettings().setDatabaseType(null);
             disconnect();
 
+            final Project project = getProject();
             new BackgroundTask(getProject(), "Trying to connect to " + getName(), false) {
                 @Override
                 public void execute(@NotNull ProgressIndicator progressIndicator) {
                     initProgressIndicator(progressIndicator, true);
+                    ConnectionManager connectionManager = ConnectionManager.getInstance(project);
                     connectionManager.testConnection(ConnectionHandlerImpl.this, false);
                     //fixme check if the connection is pointing to a new database and reload if this is the case
                     //objectBundle.checkForDatabaseChange();
-                    DatabaseBrowserManager.updateTree(getObjectBundle(), TreeUtil.NODES_CHANGED);
+
+                    EventManager.notify(project, BrowserTreeChangeListener.TOPIC).nodeChanged(getObjectBundle(), TreeEventType.NODES_CHANGED);
                 }
             }.start();
         }

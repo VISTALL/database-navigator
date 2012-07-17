@@ -1,6 +1,6 @@
 package com.dci.intellij.dbn.object.common;
 
-import com.dci.intellij.dbn.browser.model.BrowserTreeElement;
+import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
 import com.dci.intellij.dbn.common.lookup.ConsumerStoppedException;
 import com.dci.intellij.dbn.common.lookup.LookupConsumer;
 import com.dci.intellij.dbn.data.type.DBNativeDataType;
@@ -15,7 +15,7 @@ import com.intellij.openapi.Disposable;
 
 import java.util.List;
 
-public interface DBObjectBundle extends BrowserTreeElement, Disposable {
+public interface DBObjectBundle extends BrowserTreeNode, Disposable {
     List<DBSchema> getSchemas();
     List<DBUser> getUsers();
     List<DBRole> getRoles();

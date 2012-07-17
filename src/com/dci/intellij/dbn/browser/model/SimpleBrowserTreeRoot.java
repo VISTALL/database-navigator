@@ -4,8 +4,8 @@ import com.dci.intellij.dbn.code.sql.color.SQLTextAttributesKeys;
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.content.DynamicContent;
 import com.dci.intellij.dbn.common.content.DynamicContentType;
+import com.dci.intellij.dbn.connection.ConnectionBundle;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
-import com.dci.intellij.dbn.connection.ConnectionManager;
 import com.dci.intellij.dbn.connection.GenericDatabaseElement;
 import com.intellij.navigation.ItemPresentation;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
@@ -15,13 +15,13 @@ import com.intellij.openapi.vcs.FileStatus;
 import javax.swing.Icon;
 import java.util.List;
 
-public class SimpleBrowserTreeRoot implements BrowserTreeElement{
-    private List<ConnectionManager> connectionManagers;
+public class SimpleBrowserTreeRoot implements BrowserTreeNode {
+    private List<ConnectionBundle> connectionBundles;
     private Project project;
 
-    public SimpleBrowserTreeRoot(Project project, List<ConnectionManager> connectionManagers) {
+    public SimpleBrowserTreeRoot(Project project, List<ConnectionBundle> connectionBundles) {
         this.project = project;
-        this.connectionManagers = connectionManagers;
+        this.connectionBundles = connectionBundles;
     }
 
     public Project getProject() {
@@ -29,7 +29,7 @@ public class SimpleBrowserTreeRoot implements BrowserTreeElement{
     }
 
     /**************************************************
-     *              BrowserTreeElement            *
+     *              BrowserTreeNode            *
      **************************************************/
     public boolean isTreeStructureLoaded() {
         return true;
@@ -45,34 +45,34 @@ public class SimpleBrowserTreeRoot implements BrowserTreeElement{
         return 0;
     }
 
-    public BrowserTreeElement getTreeParent() {
+    public BrowserTreeNode getTreeParent() {
         return null;
     }
 
-    public List<? extends BrowserTreeElement> getTreeChildren() {
-        return connectionManagers;
+    public List<? extends BrowserTreeNode> getTreeChildren() {
+        return connectionBundles;
     }
 
     public void rebuildTreeChildren() {
-        for (ConnectionManager connectionManager : connectionManagers) {
-            connectionManager.rebuildTreeChildren();
+        for (ConnectionBundle connectionBundle : connectionBundles) {
+            connectionBundle.rebuildTreeChildren();
         }
     }
 
-    public BrowserTreeElement getTreeChild(int index) {
-        return connectionManagers.get(index);
+    public BrowserTreeNode getTreeChild(int index) {
+        return connectionBundles.get(index);
     }
 
     public int getTreeChildCount() {
-        return connectionManagers.size();
+        return connectionBundles.size();
     }
 
     public boolean isLeafTreeElement() {
         return false;
     }
 
-    public int getIndexOfTreeChild(BrowserTreeElement child) {
-        return connectionManagers.indexOf(child);
+    public int getIndexOfTreeChild(BrowserTreeNode child) {
+        return connectionBundles.indexOf(child);
     }
 
     public Icon getIcon(int flags) {
@@ -161,6 +161,6 @@ public class SimpleBrowserTreeRoot implements BrowserTreeElement{
      *                       Disposable                      *
      *********************************************************/
     public void dispose() {
-        connectionManagers = null;
+        connectionBundles = null;
     }
 }

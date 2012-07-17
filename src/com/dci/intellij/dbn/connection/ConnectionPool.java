@@ -49,7 +49,7 @@ public class ConnectionPool implements Disposable {
     }
 
     private void notifyStatusChange() {
-        ConnectionStatusListener changeListener = EventManager.syncPublisher(connectionHandler.getProject(), ConnectionStatusListener.TOPIC);
+        ConnectionStatusListener changeListener = EventManager.notify(connectionHandler.getProject(), ConnectionStatusListener.TOPIC);
         changeListener.statusChanged(connectionHandler.getId());
     }
 
@@ -68,7 +68,7 @@ public class ConnectionPool implements Disposable {
         logger.debug("[DBN-INFO] Attempt to create new pool connection for '" + connectionHandler.getName() + "'");
         Connection connection = ConnectionUtil.connect(connectionHandler);
 
-        //connectionHandler.getConnectionManager().notifyConnectionStatusListeners(connectionHandler);
+        //connectionHandler.getConnectionBundle().notifyConnectionStatusListeners(connectionHandler);
 
         // pool connections do not need to have current schema set
         //connectionHandler.getDataDictionary().setCurrentSchema(connectionHandler.getCurrentSchemaName(), connection);
@@ -114,7 +114,7 @@ public class ConnectionPool implements Disposable {
         ConnectionUtil.closeConnection(standaloneConnection);
 
         connectionHandler.getConnectionStatus().setConnected(false);
-        //connectionHandler.getConnectionManager().notifyConnectionStatusListeners(connectionHandler);
+        //connectionHandler.getConnectionBundle().notifyConnectionStatusListeners(connectionHandler);
     }
 
     public int getSize() {
