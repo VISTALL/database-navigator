@@ -21,7 +21,7 @@ public class TestConnectivityAction extends DumbAwareAction {
             @Override
             public void execute(@NotNull ProgressIndicator progressIndicator) {
                 initProgressIndicator(progressIndicator, true);
-                connectionHandler.testConnectivity(true);
+                connectionHandler.getConnectionManager().testConnection(connectionHandler, true);
             }
         }.start();
 

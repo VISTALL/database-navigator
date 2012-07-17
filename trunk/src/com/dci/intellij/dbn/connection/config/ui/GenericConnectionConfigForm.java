@@ -14,18 +14,11 @@ import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.ui.DocumentAdapter;
 import com.intellij.util.ui.UIUtil;
 
-import javax.swing.Icon;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.JTextField;
+import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.Document;
-import java.awt.Color;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -150,7 +143,7 @@ public class GenericConnectionConfigForm extends ConfigurationEditorForm<Generic
                     temporaryConfig = new GenericConnectionDatabaseSettings(connectionManager);
                     applyChanges(temporaryConfig);
 
-                    if (source == testButton) connectionManager.testConnectivity(temporaryConfig, null, null, true);
+                    if (source == testButton) connectionManager.testConfigConnection(temporaryConfig, true);
                     if (source == infoButton) connectionManager.showConnectionInfo(temporaryConfig, null);
                 }
                 else if (source == osAuthenticationCheckBox) {

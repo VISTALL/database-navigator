@@ -17,7 +17,7 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 
-import javax.swing.Icon;
+import javax.swing.*;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -114,7 +114,6 @@ public class VirtualConnectionHandler implements ConnectionHandler {
         return null;
     }
 
-    public ConnectionInfo testConnectivity(boolean showMessageDialog) {return null;}
     public boolean isValid(boolean check) {return true;}
     public boolean isValid() {return true;}
     public void disconnect() {}

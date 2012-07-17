@@ -10,6 +10,7 @@ import com.dci.intellij.dbn.common.ui.table.model.ColumnInfo;
 import com.dci.intellij.dbn.common.ui.table.model.DataModelCell;
 import com.dci.intellij.dbn.common.util.ActionUtil;
 import com.dci.intellij.dbn.common.util.MessageUtil;
+import com.dci.intellij.dbn.connection.ConnectionStatusListener;
 import com.dci.intellij.dbn.data.preview.LargeValuePreviewPopup;
 import com.dci.intellij.dbn.data.ui.table.ResultSetTable;
 import com.dci.intellij.dbn.data.ui.table.record.RecordViewInfo;
@@ -36,20 +37,17 @@ import com.intellij.openapi.project.Project;
 import com.intellij.ui.awt.RelativePoint;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.JPopupMenu;
+import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
-import java.awt.Component;
-import java.awt.Cursor;
-import java.awt.Point;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.sql.SQLException;
 
-public class DatasetEditorTable extends ResultSetTable{
+public class DatasetEditorTable extends ResultSetTable implements ConnectionStatusListener {
     private DatasetTableCellEditorFactory cellEditorFactory = new DatasetTableCellEditorFactory();
     private TableCellRenderer cellRenderer;
     private DatasetEditor datasetEditor;
@@ -369,7 +367,7 @@ public class DatasetEditorTable extends ResultSetTable{
     }
 
     private void startCellEditing(ListSelectionEvent e) {
-        if (!isLoading() && isEditingEnabled && getSelectedColumnCount() == 1 && getSelectedRowCount() == 1 && !isEditing() && !e.getValueIsAdjusting()) {
+        if (!isLoading() && isEditingEnabled && getSelectedColumnCount() == 1 && getSelectedRowCount() == 1 && !isEditing() && !e.getValueIsAdjusting() && getDataset().getConnectionHandler().isConnected()) {
             editCellAt(getSelectedRows()[0], getSelectedColumns()[0]);
         }
     }
@@ -390,7 +388,15 @@ public class DatasetEditorTable extends ResultSetTable{
     }
 
     /********************************************************
-     *                        Popup                        *
+     *            ConnectionStatusListener                  *
+     ********************************************************/
+    @Override
+    public void statusChanged(String connectionId) {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    /********************************************************
+     *                        Popup                         *
      ********************************************************/
     public void showPopupMenu(
             final MouseEvent event,

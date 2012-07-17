@@ -34,7 +34,7 @@ import gnu.trove.THashSet;
 import org.jdom.Element;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.Icon;
+import javax.swing.*;
 import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
@@ -87,17 +87,31 @@ public abstract class ConnectionManager
     /*********************************************************
     *                        Custom                         *
     *********************************************************/
-    public ConnectionInfo testConnectivity(ConnectionSettings connectionSettings, @Nullable ConnectionStatus connectionStatus, boolean showMessageDialog) {
-         ConnectionDatabaseSettings databaseSettings = connectionSettings.getDatabaseSettings();
-         ConnectionDetailSettings detailSettings = connectionSettings.getDetailSettings();
-         return testConnectivity(databaseSettings, detailSettings, connectionStatus, showMessageDialog);
-     }
-
-    public ConnectionInfo testConnectivity(ConnectionConfig connectionConfig, @Nullable ConnectionDetailSettings detailSettings, @Nullable ConnectionStatus connectionStatus, boolean showMessageDialog) {
+    public void testConnection(ConnectionHandler connectionHandler, boolean showMessageDialog) {
+        ConnectionDatabaseSettings databaseSettings = connectionHandler.getSettings().getDatabaseSettings();
         try {
-            Map<String, String> connectionProperties = detailSettings == null ? null : detailSettings.getProperties();
-            Connection connection = ConnectionUtil.connect(connectionConfig, connectionProperties, false, connectionStatus);
-            ConnectionInfo connectionInfo = new ConnectionInfo(connection.getMetaData());
+            connectionHandler.getStandaloneConnection();
+            if (showMessageDialog) {
+                MessageDialog.showInfoDialog(
+                        getProject(),
+                        "Successfully connected to \"" + connectionHandler.getName() + "\".",
+                        databaseSettings.getConnectionDetails(),
+                        false);
+            }
+        } catch (Exception e) {
+            if (showMessageDialog) {
+                MessageDialog.showErrorDialog(
+                        getProject(),
+                        "Could not connect to \"" + connectionHandler.getName() + "\".",
+                        databaseSettings.getConnectionDetails() + "\n\n" + e.getMessage(),
+                        false);
+            }
+        }
+    }
+
+    public void testConfigConnection(ConnectionConfig connectionConfig, boolean showMessageDialog) {
+        try {
+            Connection connection = ConnectionUtil.connect(connectionConfig, null, false, null);
             ConnectionUtil.closeConnection(connection);
             connectionConfig.setConnectivityStatus(ConnectivityStatus.VALID);
             if (showMessageDialog) {
@@ -107,7 +121,6 @@ public abstract class ConnectionManager
                         connectionConfig.getConnectionDetails(),
                         false);
             }
-            return connectionInfo;
 
         } catch (Exception e) {
             connectionConfig.setConnectivityStatus(ConnectivityStatus.INVALID);
@@ -118,7 +131,6 @@ public abstract class ConnectionManager
                         connectionConfig.getConnectionDetails() + "\n\n" + e.getMessage(),
                         false);
             }
-            return null;
         }
     }
 

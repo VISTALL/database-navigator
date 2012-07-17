@@ -7,12 +7,7 @@ import com.dci.intellij.dbn.connection.config.ConnectionSettings;
 import com.dci.intellij.dbn.driver.DatabaseDriverManager;
 import org.jetbrains.annotations.Nullable;
 
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.Driver;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.Map;
 import java.util.Properties;
 
@@ -54,13 +49,15 @@ public class ConnectionUtil {
         }
     }
 
-    public static Connection connect(ConnectionSettings connectionSettings, ConnectionStatus connectionStatus) throws SQLException {
+    public static Connection connect(ConnectionHandler connectionHandler) throws SQLException {
+        ConnectionStatus connectionStatus = connectionHandler.getConnectionStatus();
+        ConnectionSettings connectionSettings = connectionHandler.getSettings();
         ConnectionDatabaseSettings databaseSettings = connectionSettings.getDatabaseSettings();
         ConnectionDetailSettings detailSettings = connectionSettings.getDetailSettings();
         return connect(databaseSettings, detailSettings.getProperties(), detailSettings.isAutoCommit(), connectionStatus);
     }
 
-    public static Connection connect(ConnectionConfig connectionConfig, Map<String, String> connectionProperties, boolean autoCommit, @Nullable ConnectionStatus connectionStatus) throws SQLException {
+    public static Connection connect(ConnectionConfig connectionConfig, @Nullable Map<String, String> connectionProperties, boolean autoCommit, @Nullable ConnectionStatus connectionStatus) throws SQLException {
         try {
             Driver driver = DatabaseDriverManager.getInstance().getDriver(
                     connectionConfig.getDriverLibrary(),
