@@ -22,7 +22,7 @@ public class ConnectionSettings extends CompositeConfiguration<ConnectionSetting
         filterSettings = new ConnectionFilterSettings(project);
     }
 
-    public ConnectionSettings(ConnectionDatabaseSettings databaseSettings, ConnectionDetailSettings detailSettings, ConnectionFilterSettings filterSettings) {
+    public ConnectionSettings(GenericConnectionDatabaseSettings databaseSettings, ConnectionDetailSettings detailSettings, ConnectionFilterSettings filterSettings) {
         this.databaseSettings = databaseSettings;
         this.detailSettings = detailSettings;
         this.filterSettings = filterSettings;

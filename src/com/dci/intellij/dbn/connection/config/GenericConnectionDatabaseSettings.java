@@ -3,7 +3,7 @@ package com.dci.intellij.dbn.connection.config;
 import com.dci.intellij.dbn.common.util.FileUtil;
 import com.dci.intellij.dbn.common.util.StringUtil;
 import com.dci.intellij.dbn.connection.ConnectionManager;
-import com.dci.intellij.dbn.connection.config.ui.GenericConnectionConfigForm;
+import com.dci.intellij.dbn.connection.config.ui.GenericDatabaseSettingsForm;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jdom.Element;
 
@@ -12,14 +12,14 @@ import java.io.File;
 public class GenericConnectionDatabaseSettings extends ConnectionDatabaseSettings {
     protected String driverLibrary;
     protected String driver;
-    protected String url;
+    protected String databaseUrl;
 
     public GenericConnectionDatabaseSettings(ConnectionManager connectionManager) {
         super(connectionManager.getProject(), connectionManager);
     }
 
-    public GenericConnectionConfigForm createConfigurationEditor() {
-        return new GenericConnectionConfigForm(this);
+    public GenericDatabaseSettingsForm createConfigurationEditor() {
+        return new GenericDatabaseSettingsForm(this);
     }
 
     public String getDriverLibrary() {
@@ -38,16 +38,16 @@ public class GenericConnectionDatabaseSettings extends ConnectionDatabaseSetting
         this.driver = driver;
     }
 
-    public String getUrl() {
-        return url;
+    public String getDatabaseUrl() {
+        return databaseUrl;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setDatabaseUrl(String databaseUrl) {
+        this.databaseUrl = databaseUrl;
     }
 
     public void updateHashCode() {
-        hashCode = (name + driver + driverLibrary + url + user + osAuthentication).hashCode();
+        hashCode = (name + driver + driverLibrary + databaseUrl + user + osAuthentication).hashCode();
     }
 
     public GenericConnectionDatabaseSettings clone() {
@@ -63,7 +63,7 @@ public class GenericConnectionDatabaseSettings extends ConnectionDatabaseSetting
     public String getConnectionDetails() {
         return "Name:\t"      + name + "\n" +
                "Description:\t" + description + "\n" +
-               "URL:\t"       + url + "\n" +
+               "URL:\t"       + databaseUrl + "\n" +
                "User:\t"      + user;
     }
 
@@ -73,14 +73,14 @@ public class GenericConnectionDatabaseSettings extends ConnectionDatabaseSetting
     public void readConfiguration(Element element) {
         driverLibrary = convertToAbsolutePath(element.getAttributeValue("driver-library"));
         driver = element.getAttributeValue("driver");
-        url = element.getAttributeValue("url");
+        databaseUrl = element.getAttributeValue("url");
         super.readConfiguration(element);
     }
 
     public void writeConfiguration(Element element) {
         element.setAttribute("driver-library", nvl(convertToRelativePath(driverLibrary)));
         element.setAttribute("driver",         nvl(driver));
-        element.setAttribute("url",            nvl(url));
+        element.setAttribute("url",            nvl(databaseUrl));
         super.writeConfiguration(element);
     }
 

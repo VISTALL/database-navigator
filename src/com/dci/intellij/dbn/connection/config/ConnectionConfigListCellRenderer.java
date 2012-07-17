@@ -2,7 +2,7 @@ package com.dci.intellij.dbn.connection.config;
 
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.connection.ConnectivityStatus;
-import com.dci.intellij.dbn.connection.config.ui.GenericConnectionConfigForm;
+import com.dci.intellij.dbn.connection.config.ui.GenericDatabaseSettingsForm;
 import com.intellij.ui.DottedBorder;
 import com.intellij.util.ui.UIUtil;
 
@@ -18,7 +18,7 @@ public class ConnectionConfigListCellRenderer extends DefaultListCellRenderer{
         ConnectionSettings connectionSettings = (ConnectionSettings) value;
         ConnectionDatabaseSettings databaseSettings = connectionSettings.getDatabaseSettings();
         JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus );
-        GenericConnectionConfigForm settingsEditor = databaseSettings.getSettingsEditor();
+        GenericDatabaseSettingsForm settingsEditor = databaseSettings.getSettingsEditor();
         String name = settingsEditor == null ?
                 databaseSettings.getName() :
                 settingsEditor.getConnectionName();

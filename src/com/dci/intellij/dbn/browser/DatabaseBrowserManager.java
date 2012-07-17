@@ -16,9 +16,9 @@ import com.dci.intellij.dbn.common.options.setting.BooleanSetting;
 import com.dci.intellij.dbn.common.thread.ConditionalLaterInvocator;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.ConnectionManager;
-import com.dci.intellij.dbn.connection.ConnectionSetupChangeListener;
 import com.dci.intellij.dbn.connection.ModuleConnectionManager;
 import com.dci.intellij.dbn.connection.ProjectConnectionManager;
+import com.dci.intellij.dbn.connection.config.ConnectionManagerSettingsListener;
 import com.dci.intellij.dbn.object.common.DBObject;
 import com.dci.intellij.dbn.vfs.DatabaseEditableObjectFile;
 import com.dci.intellij.dbn.vfs.SQLConsoleFile;
@@ -191,7 +191,7 @@ public class DatabaseBrowserManager extends AbstractProjectComponent implements 
     public void initComponent() {
         EventManager eventManager = getEventManager();
         eventManager.subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, fileEditorManagerListener);
-        eventManager.subscribe(ConnectionSetupChangeListener.TOPIC, connectionSetupListener);
+        eventManager.subscribe(ConnectionManagerSettingsListener.TOPIC, connectionSetupListener);
         eventManager.subscribe(ObjectFilterChangeListener.TOPIC, filterChangeListener);
         eventManager.subscribe(ObjectDisplaySettingsChangeListener.TOPIC, objectDisplaySettingsChangeListener);
         eventManager.subscribe(ProjectTopics.MODULES, moduleListener);
@@ -307,8 +307,8 @@ public class DatabaseBrowserManager extends AbstractProjectComponent implements 
         }
     };
 
-    private ConnectionSetupChangeListener connectionSetupListener = new ConnectionSetupChangeListener() {
-        public void connectionSetupChanged() {
+    private ConnectionManagerSettingsListener connectionSetupListener = new ConnectionManagerSettingsListener() {
+        public void settingsChanged() {
             if (!isRebuilding) {
                 isRebuilding = true;
                 rebuildConnectionLists();

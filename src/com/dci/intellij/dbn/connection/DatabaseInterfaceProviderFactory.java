@@ -1,6 +1,6 @@
 package com.dci.intellij.dbn.connection;
 
-import com.dci.intellij.dbn.connection.config.ConnectionConfig;
+import com.dci.intellij.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dci.intellij.dbn.database.DatabaseInterfaceProvider;
 import com.dci.intellij.dbn.database.generic.GenericInterfaceProvider;
 import com.dci.intellij.dbn.database.mysql.MySqlInterfaceProvider;
@@ -19,14 +19,14 @@ public class DatabaseInterfaceProviderFactory {
         if (connectionHandler != null && connectionHandler.isVirtual()) {
             databaseType = connectionHandler.getDatabaseType();
         } else {
-            ConnectionConfig connectionConfig = connectionHandler.getSettings().getDatabaseSettings();
-            databaseType = connectionConfig.getDatabaseType();
+            ConnectionDatabaseSettings databaseSettings = connectionHandler.getSettings().getDatabaseSettings();
+            databaseType = databaseSettings.getDatabaseType();
             if (databaseType == null) {
                 try {
                     databaseType = ConnectionUtil.getDatabaseType(connectionHandler.getStandaloneConnection());
-                    connectionConfig.setDatabaseType(databaseType);
+                    databaseSettings.setDatabaseType(databaseType);
                 } catch (SQLException e) {
-                    connectionConfig.setDatabaseType(DatabaseType.UNKNOWN);
+                    databaseSettings.setDatabaseType(DatabaseType.UNKNOWN);
                     throw e;
                 }
             }
