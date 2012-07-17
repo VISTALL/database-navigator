@@ -1,13 +1,17 @@
 package com.dci.intellij.dbn.connection;
 
-import com.dci.intellij.dbn.connection.config.ConnectionConfig;
 import com.dci.intellij.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dci.intellij.dbn.connection.config.ConnectionDetailSettings;
 import com.dci.intellij.dbn.connection.config.ConnectionSettings;
 import com.dci.intellij.dbn.driver.DatabaseDriverManager;
 import org.jetbrains.annotations.Nullable;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.Driver;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Map;
 import java.util.Properties;
 
@@ -57,22 +61,22 @@ public class ConnectionUtil {
         return connect(databaseSettings, detailSettings.getProperties(), detailSettings.isAutoCommit(), connectionStatus);
     }
 
-    public static Connection connect(ConnectionConfig connectionConfig, @Nullable Map<String, String> connectionProperties, boolean autoCommit, @Nullable ConnectionStatus connectionStatus) throws SQLException {
+    public static Connection connect(ConnectionDatabaseSettings databaseSettings, @Nullable Map<String, String> connectionProperties, boolean autoCommit, @Nullable ConnectionStatus connectionStatus) throws SQLException {
         try {
             Driver driver = DatabaseDriverManager.getInstance().getDriver(
-                    connectionConfig.getDriverLibrary(),
-                    connectionConfig.getDriver());
+                    databaseSettings.getDriverLibrary(),
+                    databaseSettings.getDriver());
 
             Properties properties = new Properties();
-            if (!connectionConfig.isOsAuthentication()) {
-                properties.put("user", connectionConfig.getUser());
-                properties.put("password", connectionConfig.getPassword());
+            if (!databaseSettings.isOsAuthentication()) {
+                properties.put("user", databaseSettings.getUser());
+                properties.put("password", databaseSettings.getPassword());
             }
             if (connectionProperties != null) {
                 properties.putAll(connectionProperties);
             }
 
-            Connection connection = driver.connect(connectionConfig.getUrl(), properties);
+            Connection connection = driver.connect(databaseSettings.getDatabaseUrl(), properties);
             if (connection == null) {
                 throw new SQLException("Unknown reason.");
             }
@@ -83,17 +87,17 @@ public class ConnectionUtil {
                 connectionStatus.setValid(true);
             }
 
-            DatabaseType databaseType = connectionConfig.getDatabaseType();
+            DatabaseType databaseType = databaseSettings.getDatabaseType();
             if (databaseType == null || databaseType.equals(DatabaseType.UNKNOWN)) {
                 databaseType = getDatabaseType(connection);
-                connectionConfig.setDatabaseType(databaseType);
+                databaseSettings.setDatabaseType(databaseType);
             }
 
-            connectionConfig.setConnectivityStatus(ConnectivityStatus.VALID);
+            databaseSettings.setConnectivityStatus(ConnectivityStatus.VALID);
 
             return connection;
         } catch (Exception e) {
-            connectionConfig.setConnectivityStatus(ConnectivityStatus.INVALID);
+            databaseSettings.setConnectivityStatus(ConnectivityStatus.INVALID);
             if (connectionStatus != null) {
                 connectionStatus.setStatusMessage(e.getMessage());
                 connectionStatus.setConnected(false);

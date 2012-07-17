@@ -5,14 +5,14 @@ import com.dci.intellij.dbn.common.options.setting.SettingsUtil;
 import com.dci.intellij.dbn.connection.ConnectionManager;
 import com.dci.intellij.dbn.connection.ConnectivityStatus;
 import com.dci.intellij.dbn.connection.DatabaseType;
-import com.dci.intellij.dbn.connection.config.ui.GenericConnectionConfigForm;
+import com.dci.intellij.dbn.connection.config.ui.GenericDatabaseSettingsForm;
 import com.intellij.openapi.project.Project;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
-public abstract class ConnectionDatabaseSettings extends ProjectConfiguration<GenericConnectionConfigForm> implements ConnectionConfig {
+public abstract class ConnectionDatabaseSettings extends ProjectConfiguration<GenericDatabaseSettingsForm>{
     private transient ConnectivityStatus connectivityStatus = ConnectivityStatus.UNKNOWN;
     protected boolean active = true;
     protected boolean osAuthentication = false;
@@ -132,7 +132,13 @@ public abstract class ConnectionDatabaseSettings extends ProjectConfiguration<Ge
                "User:\t"      + user;
     }
 
+    public abstract String getDriverLibrary();
+
     public abstract void updateHashCode();
+
+    public abstract String getDriver();
+
+    public abstract String getDatabaseUrl();
 
     @Override
     public int hashCode() {
@@ -165,4 +171,7 @@ public abstract class ConnectionDatabaseSettings extends ProjectConfiguration<Ge
         element.setAttribute("user",           nvl(user));
         element.setAttribute("password",       nvl(password));
     }
+
+
+
 }

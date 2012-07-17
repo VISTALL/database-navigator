@@ -10,7 +10,6 @@ import com.dci.intellij.dbn.common.list.FiltrableList;
 import com.dci.intellij.dbn.common.options.Configuration;
 import com.dci.intellij.dbn.common.ui.MessageDialog;
 import com.dci.intellij.dbn.common.util.EditorUtil;
-import com.dci.intellij.dbn.connection.config.ConnectionConfig;
 import com.dci.intellij.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dci.intellij.dbn.connection.config.ConnectionDetailSettings;
 import com.dci.intellij.dbn.connection.config.ConnectionSettings;
@@ -34,7 +33,7 @@ import gnu.trove.THashSet;
 import org.jdom.Element;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.Icon;
 import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
@@ -109,26 +108,26 @@ public abstract class ConnectionManager
         }
     }
 
-    public void testConfigConnection(ConnectionConfig connectionConfig, boolean showMessageDialog) {
+    public void testConfigConnection(ConnectionDatabaseSettings databaseSettings, boolean showMessageDialog) {
         try {
-            Connection connection = ConnectionUtil.connect(connectionConfig, null, false, null);
+            Connection connection = ConnectionUtil.connect(databaseSettings, null, false, null);
             ConnectionUtil.closeConnection(connection);
-            connectionConfig.setConnectivityStatus(ConnectivityStatus.VALID);
+            databaseSettings.setConnectivityStatus(ConnectivityStatus.VALID);
             if (showMessageDialog) {
                 MessageDialog.showInfoDialog(
                         getProject(),
-                        "Test connection to \"" + connectionConfig.getName() + "\" succeeded. Configuration is valid.",
-                        connectionConfig.getConnectionDetails(),
+                        "Test connection to \"" + databaseSettings.getName() + "\" succeeded. Configuration is valid.",
+                        databaseSettings.getConnectionDetails(),
                         false);
             }
 
         } catch (Exception e) {
-            connectionConfig.setConnectivityStatus(ConnectivityStatus.INVALID);
+            databaseSettings.setConnectivityStatus(ConnectivityStatus.INVALID);
             if (showMessageDialog) {
                 MessageDialog.showErrorDialog(
                         getProject(),
-                        "Could not connect to \"" + connectionConfig.getName() + "\".",
-                        connectionConfig.getConnectionDetails() + "\n\n" + e.getMessage(),
+                        "Could not connect to \"" + databaseSettings.getName() + "\".",
+                        databaseSettings.getConnectionDetails() + "\n\n" + e.getMessage(),
                         false);
             }
         }
@@ -140,15 +139,15 @@ public abstract class ConnectionManager
         return showConnectionInfo(databaseSettings, detailSettings);
     }
 
-    public ConnectionInfo showConnectionInfo(ConnectionConfig connectionConfig, @Nullable ConnectionDetailSettings detailSettings) {
+    public ConnectionInfo showConnectionInfo(ConnectionDatabaseSettings databaseSettings, @Nullable ConnectionDetailSettings detailSettings) {
         try {
             Map<String, String> connectionProperties = detailSettings == null ? null : detailSettings.getProperties();
-            Connection connection = ConnectionUtil.connect(connectionConfig, connectionProperties, false, null);
+            Connection connection = ConnectionUtil.connect(databaseSettings, connectionProperties, false, null);
             ConnectionInfo connectionInfo = new ConnectionInfo(connection.getMetaData());
             ConnectionUtil.closeConnection(connection);
             MessageDialog.showInfoDialog(
                     getProject(),
-                    "Database details for connection \"" + connectionConfig.getName() + "\"",
+                    "Database details for connection \"" + databaseSettings.getName() + "\"",
                     connectionInfo.toString(),
                     false);
             return connectionInfo;
@@ -156,8 +155,8 @@ public abstract class ConnectionManager
         } catch (Exception e) {
             MessageDialog.showErrorDialog(
                     getProject(),
-                    "Could not connect to \"" + connectionConfig.getName() + "\".",
-                    connectionConfig.getConnectionDetails() + "\n\n" + e.getMessage(),
+                    "Could not connect to \"" + databaseSettings.getName() + "\".",
+                    databaseSettings.getConnectionDetails() + "\n\n" + e.getMessage(),
                     false);
             return null;
         }

@@ -40,13 +40,13 @@ public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<Con
         String connectionId = connectionSettings.getId();
         ConnectionDetailSettingsForm detailSettingsForm = detailSettings.getSettingsEditor();
         ConnectionFilterSettingsForm filterSettingsForm = filterSettings.getSettingsEditor();
-        GenericConnectionConfigForm connectionConfigForm = databaseSettings.getSettingsEditor();
+        GenericDatabaseSettingsForm databaseSettingsForm = databaseSettings.getSettingsEditor();
 
         filterSettingsForm.setConnectionId(connectionId);
-        connectionConfigForm.setConnectionId(connectionId);
+        databaseSettingsForm.setConnectionId(connectionId);
         detailSettingsForm.setConnectionId(connectionId);
 
-        connectionConfigForm.notifyPresentationChanges();
+        databaseSettingsForm.notifyPresentationChanges();
         detailSettingsForm.notifyPresentationChanges();
     }
 

@@ -7,9 +7,9 @@ import com.dci.intellij.dbn.common.util.UIUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.ConnectionHandlerImpl;
 import com.dci.intellij.dbn.connection.ConnectionManager;
-import com.dci.intellij.dbn.connection.ConnectionSetupChangeListener;
 import com.dci.intellij.dbn.connection.config.ConnectionConfigListCellRenderer;
 import com.dci.intellij.dbn.connection.config.ConnectionDatabaseSettings;
+import com.dci.intellij.dbn.connection.config.ConnectionManagerSettingsListener;
 import com.dci.intellij.dbn.connection.config.ConnectionSettings;
 import com.dci.intellij.dbn.connection.config.action.AddConnectionAction;
 import com.dci.intellij.dbn.connection.config.action.DuplicateConnectionAction;
@@ -96,10 +96,10 @@ public class ConnectionManagerSettingsForm extends ConfigurationEditorForm<Conne
         ConnectionListModel listModel = (ConnectionListModel) connectionsList.getModel();
         if (oldConnections.size() == listModel.getSize()) {
             for (int i=0; i<oldConnections.size(); i++) {
-                ConnectionDatabaseSettings oldDatabaseSettings = oldConnections.get(i).getSettings().getDatabaseSettings();
-                ConnectionDatabaseSettings newDatabaseSettings = ((ConnectionSettings) listModel.get(i)).getDatabaseSettings();
-                if (!oldDatabaseSettings.getId().equals(newDatabaseSettings.getId()) ||
-                        (newDatabaseSettings.getSettingsEditor() != null && newDatabaseSettings.getSettingsEditor().isConnectionActive() != oldDatabaseSettings.isActive())) {
+                ConnectionDatabaseSettings oldConfig = oldConnections.get(i).getSettings().getDatabaseSettings();
+                ConnectionDatabaseSettings newConfig = ((ConnectionSettings) listModel.get(i)).getDatabaseSettings();
+                if (!oldConfig.getId().equals(newConfig.getId()) ||
+                        (newConfig.getSettingsEditor() != null && newConfig.getSettingsEditor().isConnectionActive() != oldConfig.isActive())) {
                     listChanged = true;
                     break;
                 }
@@ -133,7 +133,7 @@ public class ConnectionManagerSettingsForm extends ConfigurationEditorForm<Conne
         }
 
         if (listChanged) {
-            EventManager.syncPublisher(connectionManager.getProject(), ConnectionSetupChangeListener.TOPIC).connectionSetupChanged();
+            EventManager.syncPublisher(connectionManager.getProject(), ConnectionManagerSettingsListener.TOPIC).settingsChanged();
         }
     }
 
