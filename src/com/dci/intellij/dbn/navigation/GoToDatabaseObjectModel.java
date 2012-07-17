@@ -82,6 +82,10 @@ public class GoToDatabaseObjectModel implements ChooseByNameModel {
         return false;
     }
 
+    public boolean useMiddleMatching() {
+        return true;
+    }
+
     public String[] getNames(boolean checkBoxState) {
         boolean databaseLoadActive = objectsLookupSettings.getForceDatabaseLoad().value();
 
