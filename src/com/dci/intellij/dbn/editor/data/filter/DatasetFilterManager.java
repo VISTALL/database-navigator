@@ -2,7 +2,7 @@ package com.dci.intellij.dbn.editor.data.filter;
 
 import com.dci.intellij.dbn.common.AbstractProjectComponent;
 import com.dci.intellij.dbn.common.ui.table.model.ColumnInfo;
-import com.dci.intellij.dbn.connection.ConnectionBundle;
+import com.dci.intellij.dbn.connection.ConnectionManager;
 import com.dci.intellij.dbn.editor.data.DatasetEditorManager;
 import com.dci.intellij.dbn.editor.data.filter.ui.DatasetFilterDialog;
 import com.dci.intellij.dbn.object.DBColumn;
@@ -187,7 +187,8 @@ public class DatasetFilterManager extends AbstractProjectComponent implements JD
 
     public void writeExternal(Element element) throws WriteExternalException {
         for (String connectionId : filters.keySet()){
-            if (ConnectionBundle.getConnectionHandler(connectionId) != null) {
+            ConnectionManager connectionManager = ConnectionManager.getInstance(getProject());
+            if (connectionManager.getConnectionHandler(connectionId) != null) {
                 Map<String, DatasetFilterGroup> filterLists = filters.get(connectionId);
                 for (String datasetName : filterLists.keySet()) {
                     DatasetFilterGroup filterGroup = filterLists.get(datasetName);

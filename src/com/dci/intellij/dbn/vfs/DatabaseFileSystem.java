@@ -5,8 +5,8 @@ import com.dci.intellij.dbn.common.thread.BackgroundTask;
 import com.dci.intellij.dbn.common.thread.ReadActionRunner;
 import com.dci.intellij.dbn.common.thread.SimpleLaterInvocator;
 import com.dci.intellij.dbn.common.util.EditorUtil;
-import com.dci.intellij.dbn.connection.ConnectionBundle;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
+import com.dci.intellij.dbn.connection.ConnectionManager;
 import com.dci.intellij.dbn.ddl.DDLFileType;
 import com.dci.intellij.dbn.editor.DBContentType;
 import com.dci.intellij.dbn.editor.code.SourceCodeMainEditor;
@@ -63,7 +63,7 @@ public class DatabaseFileSystem extends VirtualFileSystem implements Application
         int index = url.indexOf("/", startIndex);
 
         String connectionId = url.substring(startIndex, index == -1 ? url.length() : index);
-        ConnectionHandler connectionHandler = ConnectionBundle.getConnectionHandler(connectionId);
+        ConnectionHandler connectionHandler = ConnectionManager.findConnectionHandler(connectionId);
         if (connectionHandler != null) {
             if (index > -1) {
                 StringTokenizer path = new StringTokenizer(url.substring(index + 1), ".");

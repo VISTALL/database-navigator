@@ -1,12 +1,15 @@
 package com.dci.intellij.dbn.connection;
 
+import com.dci.intellij.dbn.browser.DatabaseBrowserManager;
 import com.dci.intellij.dbn.common.AbstractProjectComponent;
 import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.common.ui.MessageDialog;
+import com.dci.intellij.dbn.common.util.EditorUtil;
 import com.dci.intellij.dbn.connection.config.ConnectionBundleSettingsListener;
 import com.dci.intellij.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dci.intellij.dbn.connection.config.ConnectionDetailSettings;
 import com.dci.intellij.dbn.connection.config.ConnectionSettings;
+import com.dci.intellij.dbn.connection.mapping.FileConnectionMappingManager;
 import com.intellij.ProjectTopics;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
@@ -15,6 +18,8 @@ import com.intellij.openapi.project.ModuleListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.project.ProjectManagerListener;
+import com.intellij.openapi.vfs.VirtualFile;
+import gnu.trove.THashSet;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -24,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class ConnectionManager extends AbstractProjectComponent implements ProjectManagerListener{
     private List<ConnectionBundle> connectionBundles = new ArrayList<ConnectionBundle>();;
@@ -191,6 +197,53 @@ public class ConnectionManager extends AbstractProjectComponent implements Proje
             return null;
         }
     }
+
+    /*********************************************************
+     *                     Miscellaneous                     *
+     *********************************************************/
+     public static ConnectionHandler findConnectionHandler(String connectionId) {
+         for (Project project : ProjectManager.getInstance().getOpenProjects()) {
+             ConnectionManager connectionManager = ConnectionManager.getInstance(project);
+             ConnectionHandler connectionHandler = connectionManager.getConnectionHandler(connectionId);
+             if (connectionHandler != null) {
+                 return connectionHandler;
+             }
+         }
+         return null;
+     }
+
+     public ConnectionHandler getConnectionHandler(String connectionId) {
+         for (ConnectionBundle connectionBundle : connectionBundles) {
+             for (ConnectionHandler connectionHandler : connectionBundle.getConnectionHandlers().getFullList()) {
+                if (connectionHandler.getId().endsWith(connectionId)) {
+                    return connectionHandler;
+                }
+             }
+         }
+         return null;
+     }
+
+     public Set<ConnectionHandler> getConnectionHandlers() {
+         Set<ConnectionHandler> connectionHandlers = new THashSet<ConnectionHandler>();
+         for (ConnectionBundle connectionBundle : connectionBundles) {
+             connectionHandlers.addAll(connectionBundle.getConnectionHandlers());
+         }
+         return connectionHandlers;
+     }
+
+     public ConnectionHandler getActiveConnection(Project project) {
+         ConnectionHandler connectionHandler = null;
+         VirtualFile virtualFile = EditorUtil.getSelectedFile(project);
+         if (DatabaseBrowserManager.getInstance(project).getBrowserToolWindow().isActive() || virtualFile == null) {
+             connectionHandler = DatabaseBrowserManager.getInstance(project).getActiveConnection();
+         }
+
+         if (connectionHandler == null && virtualFile!= null) {
+             connectionHandler = FileConnectionMappingManager.getInstance(project).getActiveConnection(virtualFile);
+         }
+
+         return connectionHandler;
+     }
 
 
     /**********************************************

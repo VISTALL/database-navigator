@@ -73,7 +73,8 @@ public class GoToDatabaseObjectAction extends GotoActionBase implements DumbAwar
                 showLookupPopup(event, project, singleConnectionHandler);
             }
         } else {
-            ConnectionHandler connectionHandler = ConnectionBundle.getActiveConnection(project);
+            ConnectionManager connectionManager = ConnectionManager.getInstance(project);
+            ConnectionHandler connectionHandler = connectionManager.getActiveConnection(project);
             showLookupPopup(event, project, connectionHandler);
         }
 

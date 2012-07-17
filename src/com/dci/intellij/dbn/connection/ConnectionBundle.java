@@ -8,31 +8,22 @@ import com.dci.intellij.dbn.common.content.DynamicContentType;
 import com.dci.intellij.dbn.common.filter.Filter;
 import com.dci.intellij.dbn.common.list.FiltrableList;
 import com.dci.intellij.dbn.common.options.Configuration;
-import com.dci.intellij.dbn.common.util.EditorUtil;
 import com.dci.intellij.dbn.connection.config.ConnectionSettings;
 import com.dci.intellij.dbn.connection.config.ui.ConnectionBundleSettingsForm;
-import com.dci.intellij.dbn.connection.mapping.FileConnectionMappingManager;
 import com.dci.intellij.dbn.object.common.DBObjectBundle;
 import com.intellij.navigation.ItemPresentation;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.util.InvalidDataException;
 import com.intellij.openapi.util.JDOMExternalizable;
 import com.intellij.openapi.util.WriteExternalException;
 import com.intellij.openapi.vcs.FileStatus;
-import com.intellij.openapi.vfs.VirtualFile;
-import gnu.trove.THashSet;
 import org.jdom.Element;
-import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 import java.util.List;
-import java.util.Set;
 
 public abstract class ConnectionBundle
         extends Configuration<ConnectionBundleSettingsForm>
@@ -277,54 +268,4 @@ public abstract class ConnectionBundle
     public String getToolTip() {
         return "";
     }    
-
-   /*********************************************************
-    *                     Miscellaneous                     *
-    *********************************************************/
-    @Nullable
-    public static ConnectionHandler getConnectionHandler(String connectionId) {
-        for (Project project : ProjectManager.getInstance().getOpenProjects()) {
-            ConnectionHandler connectionHandler = getConnectionHandler(project, connectionId);
-            if(connectionHandler != null) return connectionHandler;
-        }
-        return null;
-    }
-
-    public static ConnectionHandler getConnectionHandler(Project project, String connectionId) {
-        ConnectionHandler connectionHandler = ProjectConnectionBundle.getInstance(project).getConnection(connectionId);
-        if (connectionHandler == null) {
-            for (Module module : ModuleManager.getInstance(project).getModules()) {
-                connectionHandler = ModuleConnectionBundle.getInstance(module).getConnection(connectionId);
-                if(connectionHandler != null) return connectionHandler;
-            }
-        }
-        return connectionHandler;
-    }
-
-    public static Set<ConnectionHandler> getConnectionHandlers(Project project) {
-        Set<ConnectionHandler> connectionHandlers = new THashSet<ConnectionHandler>();
-        connectionHandlers.addAll(ProjectConnectionBundle.getInstance(project).getConnectionHandlers());
-        for (Module module : ModuleManager.getInstance(project).getModules()) {
-            connectionHandlers.addAll(ModuleConnectionBundle.getInstance(module).getConnectionHandlers());
-        }
-
-        return connectionHandlers;
-    }
-
-    public static ConnectionHandler getActiveConnection(Project project) {
-        ConnectionHandler connectionHandler = null;
-        VirtualFile virtualFile = EditorUtil.getSelectedFile(project);
-        if (DatabaseBrowserManager.getInstance(project).getBrowserToolWindow().isActive() || virtualFile == null) {
-            connectionHandler = DatabaseBrowserManager.getInstance(project).getActiveConnection();
-        }
-
-        if (connectionHandler == null && virtualFile!= null) {
-            connectionHandler = FileConnectionMappingManager.getInstance(project).getActiveConnection(virtualFile);
-        }
-
-        return connectionHandler;
-    }
-
-
-
 }

@@ -3,8 +3,8 @@ package com.dci.intellij.dbn.editor.data.filter;
 import com.dci.intellij.dbn.common.options.Configuration;
 import com.dci.intellij.dbn.common.ui.ListUtil;
 import com.dci.intellij.dbn.common.util.NamingUtil;
-import com.dci.intellij.dbn.connection.ConnectionBundle;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
+import com.dci.intellij.dbn.connection.ConnectionManager;
 import com.dci.intellij.dbn.editor.data.filter.ui.DatasetFilterForm;
 import com.dci.intellij.dbn.object.DBDataset;
 import com.dci.intellij.dbn.object.DBSchema;
@@ -191,7 +191,8 @@ public class DatasetFilterGroup extends Configuration<DatasetFilterForm> impleme
 
     @Nullable
     public DBDataset lookupDataset() {
-        ConnectionHandler connectionHandler = ConnectionBundle.getConnectionHandler(getConnectionId());
+        ConnectionManager connectionManager = ConnectionManager.getInstance(project);
+        ConnectionHandler connectionHandler = connectionManager.getConnectionHandler(getConnectionId());
         if (connectionHandler != null) {
             int index = getDatasetName().lastIndexOf('.');
             String schemaName = getDatasetName().substring(0, index);

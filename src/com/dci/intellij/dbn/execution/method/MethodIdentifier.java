@@ -1,8 +1,8 @@
 package com.dci.intellij.dbn.execution.method;
 
 import com.dci.intellij.dbn.common.options.PersistentConfiguration;
-import com.dci.intellij.dbn.connection.ConnectionBundle;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
+import com.dci.intellij.dbn.connection.ConnectionManager;
 import com.dci.intellij.dbn.object.DBMethod;
 import com.dci.intellij.dbn.object.DBProgram;
 import com.dci.intellij.dbn.object.DBSchema;
@@ -37,7 +37,7 @@ public class MethodIdentifier implements PersistentConfiguration {
     }
 
     public DBMethod lookupMethod() {
-        ConnectionHandler connectionHandler = ConnectionBundle.getConnectionHandler(connectionId);
+        ConnectionHandler connectionHandler = ConnectionManager.findConnectionHandler(connectionId);
         if (connectionHandler == null) return null;
 
         DBSchema schema = connectionHandler.getObjectBundle().getSchema(schemaName);
