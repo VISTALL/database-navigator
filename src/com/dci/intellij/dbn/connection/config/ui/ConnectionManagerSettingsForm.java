@@ -28,6 +28,7 @@ import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Dimension;
 import java.util.ArrayList;
@@ -63,7 +64,7 @@ public class ConnectionManagerSettingsForm extends ConfigurationEditorForm<Conne
                 new MoveConnectionUpAction(connectionsList, connectionManager),
                 new MoveConnectionDownAction(connectionsList, connectionManager),
                 new SortConnectionsAction(connectionsList, connectionManager));
-        actionsPanel.add(actionToolbar.getComponent());
+        actionsPanel.add(actionToolbar.getComponent(), BorderLayout.CENTER);
 
         connectionsList.setModel(new ConnectionListModel(connectionManager));
         connectionsList.addListSelectionListener(this);
