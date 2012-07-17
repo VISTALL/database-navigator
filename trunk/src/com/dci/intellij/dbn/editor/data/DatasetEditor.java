@@ -8,6 +8,7 @@ import com.dci.intellij.dbn.common.thread.SimpleLaterInvocator;
 import com.dci.intellij.dbn.common.util.EditorUtil;
 import com.dci.intellij.dbn.common.util.MessageUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
+import com.dci.intellij.dbn.connection.ConnectionStatusListener;
 import com.dci.intellij.dbn.connection.mapping.FileConnectionMappingProvider;
 import com.dci.intellij.dbn.connection.transaction.TransactionAction;
 import com.dci.intellij.dbn.connection.transaction.TransactionListener;
@@ -31,11 +32,7 @@ import com.intellij.ide.structureView.StructureViewModel;
 import com.intellij.ide.structureView.TreeBasedStructureViewBuilder;
 import com.intellij.openapi.actionSystem.DataProvider;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
-import com.intellij.openapi.fileEditor.FileEditor;
-import com.intellij.openapi.fileEditor.FileEditorLocation;
-import com.intellij.openapi.fileEditor.FileEditorManager;
-import com.intellij.openapi.fileEditor.FileEditorState;
-import com.intellij.openapi.fileEditor.FileEditorStateLevel;
+import com.intellij.openapi.fileEditor.*;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
@@ -44,13 +41,13 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.JComponent;
+import javax.swing.*;
 import java.beans.PropertyChangeListener;
 import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
 
-public class DatasetEditor extends UserDataHolderBase implements FileEditor, FileConnectionMappingProvider, TransactionListener {
+public class DatasetEditor extends UserDataHolderBase implements FileEditor, FileConnectionMappingProvider, ConnectionStatusListener, TransactionListener {
     private DatabaseEditableObjectFile databaseFile;
     private DBDataset dataset;
     private DatasetEditorForm editorForm;
@@ -76,6 +73,7 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
             load(true, true);
         }
         EventManager.subscribe(project, TransactionListener.TOPIC, this);
+        EventManager.subscribe(project, ConnectionStatusListener.TOPIC, this);
     }
 
     public DBDataset getDataset() {
@@ -433,14 +431,26 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
         return getEditorTable().getRowCount();
     }
 
-    /*********************************************************
-     *               CommitRollbackListener                  *
-     ********************************************************
-     * @param connectionHandler
-     * @param action*/
+    public ConnectionHandler getConnectionHandler() {
+        return getDataset().getConnectionHandler();
+    }
 
+    /********************************************************
+     *            ConnectionStatusListener                  *
+     ********************************************************/
+    @Override
+    public void statusChanged(String connectionId) {
+        DatasetEditorTable editorTable = getEditorTable();
+        if (editorTable != null && getConnectionHandler().getId().equals(connectionId)) {
+            editorTable.repaint();
+        }
+    }
+
+    /*********************************************************
+     *               TransactionListener                     *
+     ********************************************************/
     public void beforeAction(ConnectionHandler connectionHandler, TransactionAction action) throws SQLException {
-        if (connectionHandler == getDataset().getConnectionHandler()) {
+        if (connectionHandler == getConnectionHandler()) {
             DatasetEditorModel model = getTableModel();
             DatasetEditorTable editorTable = getEditorTable();
             if (model != null && editorTable != null) {
@@ -465,7 +475,7 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
     }
 
     public void afterAction(ConnectionHandler connectionHandler, TransactionAction action, boolean succeeded) throws SQLException {
-        if (connectionHandler == getDataset().getConnectionHandler()) {
+        if (connectionHandler == getConnectionHandler()) {
             DatasetEditorModel model = getTableModel();
             DatasetEditorTable editorTable = getEditorTable();
             if (model != null && editorTable != null) {
