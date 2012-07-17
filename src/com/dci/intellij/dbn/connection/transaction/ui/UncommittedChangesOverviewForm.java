@@ -15,12 +15,10 @@ import com.intellij.ui.ColoredListCellRenderer;
 import com.intellij.ui.GuiUtils;
 import com.intellij.ui.SimpleTextAttributes;
 
-import javax.swing.DefaultListModel;
-import javax.swing.JList;
-import javax.swing.JPanel;
+import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import java.awt.BorderLayout;
+import java.awt.*;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -94,7 +92,7 @@ public class UncommittedChangesOverviewForm extends UIFormImpl implements UIForm
         if (connectionHandler != null) {
             UncommittedChangesForm uncommittedChangesForm = uncommittedChangeForms.get(connectionHandler);
             if (uncommittedChangesForm == null) {
-                uncommittedChangesForm = new UncommittedChangesForm(connectionHandler, null, false);
+                uncommittedChangesForm = new UncommittedChangesForm(connectionHandler, null, true);
                 uncommittedChangeForms.put(connectionHandler, uncommittedChangesForm);
             }
             detailsPanel.add(uncommittedChangesForm.getComponent(), BorderLayout.CENTER);
