@@ -10,7 +10,6 @@ import com.dci.intellij.dbn.common.ui.table.model.ColumnInfo;
 import com.dci.intellij.dbn.common.ui.table.model.DataModelCell;
 import com.dci.intellij.dbn.common.util.ActionUtil;
 import com.dci.intellij.dbn.common.util.MessageUtil;
-import com.dci.intellij.dbn.connection.ConnectionStatusListener;
 import com.dci.intellij.dbn.data.preview.LargeValuePreviewPopup;
 import com.dci.intellij.dbn.data.ui.table.ResultSetTable;
 import com.dci.intellij.dbn.data.ui.table.record.RecordViewInfo;
@@ -47,7 +46,7 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.sql.SQLException;
 
-public class DatasetEditorTable extends ResultSetTable implements ConnectionStatusListener {
+public class DatasetEditorTable extends ResultSetTable {
     private DatasetTableCellEditorFactory cellEditorFactory = new DatasetTableCellEditorFactory();
     private TableCellRenderer cellRenderer;
     private DatasetEditor datasetEditor;
@@ -73,7 +72,6 @@ public class DatasetEditorTable extends ResultSetTable implements ConnectionStat
         ActionUtil.registerDataProvider(this, dataProvider, false);
         ActionUtil.registerDataProvider(getTableGutter(), dataProvider, false);
         ActionUtil.registerDataProvider(getTableHeader(), dataProvider, false);
-        
     }
 
     public Project getProject() {
@@ -385,14 +383,6 @@ public class DatasetEditorTable extends ResultSetTable implements ConnectionStat
                 (int) (rectangle.getX() + rectangle.getWidth() - 20),
                 (int) (rectangle.getY() + rectangle.getHeight()) + 20);
         return new RelativePoint(getTableHeader(), point);
-    }
-
-    /********************************************************
-     *            ConnectionStatusListener                  *
-     ********************************************************/
-    @Override
-    public void statusChanged(String connectionId) {
-        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     /********************************************************
