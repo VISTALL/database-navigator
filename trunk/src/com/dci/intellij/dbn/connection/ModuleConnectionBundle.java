@@ -12,16 +12,16 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Icon;
 
-public class ModuleConnectionManager extends ConnectionManager implements ModuleComponent, Configurable {
+public class ModuleConnectionBundle extends ConnectionBundle implements ModuleComponent, Configurable {
 
     private Module module;
-    public ModuleConnectionManager(Module module) {
+    public ModuleConnectionBundle(Module module) {
         super(module == null ? null : module.getProject());
         this.module = module;
     }
 
-    public static ModuleConnectionManager getInstance(Module module) {
-        return module.getComponent(ModuleConnectionManager.class);
+    public static ModuleConnectionBundle getInstance(Module module) {
+        return module.getComponent(ModuleConnectionBundle.class);
     }
 
     public Module getModule() {
@@ -39,7 +39,7 @@ public class ModuleConnectionManager extends ConnectionManager implements Module
     @NotNull
     @Override
     public String getId() {
-        return "DBNavigator.Module.ConnectionManager";
+        return "DBNavigator.Module.ConnectionBundle";
     }
 
     @Nls
@@ -71,12 +71,12 @@ public class ModuleConnectionManager extends ConnectionManager implements Module
 
     @Override
     public String toString() {
-        return "ModuleConnectionManager[" + getModule().getName() + "]";
+        return "ModuleConnectionBundle[" + getModule().getName() + "]";
     }
 
     public int compareTo(Object o) {
-        if (o instanceof ModuleConnectionManager) {
-            ModuleConnectionManager connectionManager = (ModuleConnectionManager) o;
+        if (o instanceof ModuleConnectionBundle) {
+            ModuleConnectionBundle connectionManager = (ModuleConnectionBundle) o;
             return getModule().getName().compareTo(connectionManager.getModule().getName());
         }
         return -1;

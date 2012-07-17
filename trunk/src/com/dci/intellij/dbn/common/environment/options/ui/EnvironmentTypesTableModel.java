@@ -44,7 +44,7 @@ public class EnvironmentTypesTableModel implements TableModel, Disposable {
     TableModelListener defaultModelListener = new TableModelListener() {
         @Override
         public void tableChanged(TableModelEvent e) {
-            EnvironmentPresentationChangeListener listener = EventManager.syncPublisher(project, EnvironmentPresentationChangeListener.TOPIC);
+            EnvironmentPresentationChangeListener listener = EventManager.notify(project, EnvironmentPresentationChangeListener.TOPIC);
             listener.settingsChanged(environmentTypes);
         }
     };    

@@ -2,7 +2,7 @@ package com.dci.intellij.dbn.connection.config.action;
 
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.sorting.SortDirection;
-import com.dci.intellij.dbn.connection.ConnectionManager;
+import com.dci.intellij.dbn.connection.ConnectionBundle;
 import com.dci.intellij.dbn.connection.config.ui.ConnectionListModel;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -13,12 +13,12 @@ import javax.swing.JList;
 
 public class SortConnectionsAction extends DumbAwareAction {
     private SortDirection currentSortDirection = SortDirection.ASCENDING;
-    private ConnectionManager connectionManager;
+    private ConnectionBundle connectionBundle;
     private JList list;
 
-    public SortConnectionsAction(JList list, ConnectionManager connectionManager) {
+    public SortConnectionsAction(JList list, ConnectionBundle connectionBundle) {
         this.list = list;
-        this.connectionManager = connectionManager;
+        this.connectionBundle = connectionBundle;
     }
 
     public void actionPerformed(AnActionEvent anActionEvent) {
@@ -28,7 +28,7 @@ public class SortConnectionsAction extends DumbAwareAction {
 
         if (list.getModel().getSize() > 0) {
             Object selectedValue = list.getSelectedValue();
-            connectionManager.setModified(true);
+            connectionBundle.setModified(true);
             ConnectionListModel model = (ConnectionListModel) list.getModel();
             model.sort(currentSortDirection);
             list.setSelectedValue(selectedValue, true);

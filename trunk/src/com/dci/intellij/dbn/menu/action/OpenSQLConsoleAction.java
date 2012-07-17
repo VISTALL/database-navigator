@@ -1,8 +1,8 @@
 package com.dci.intellij.dbn.menu.action;
 
-import com.dci.intellij.dbn.browser.DatabaseBrowserManager;
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.util.ActionUtil;
+import com.dci.intellij.dbn.connection.ConnectionBundle;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.ConnectionManager;
 import com.dci.intellij.dbn.options.ui.GlobalProjectSettingsDialog;
@@ -31,16 +31,16 @@ public class OpenSQLConsoleAction extends DumbAwareAction {
     public void actionPerformed(AnActionEvent e) {
         //FeatureUsageTracker.getInstance().triggerFeatureUsed("navigation.popup.file");
         Project project = ActionUtil.getProject(e);
-        DatabaseBrowserManager browserManager = DatabaseBrowserManager.getInstance(project);
-        List<ConnectionManager> connectionManagers = browserManager.getConnectionManagers();
+        ConnectionManager connectionManager = ConnectionManager.getInstance(project);
+        List<ConnectionBundle> connectionBundles = connectionManager.getConnectionBundles();
 
 
         ConnectionHandler singleConnectionHandler = null;
         DefaultActionGroup actionGroup = new DefaultActionGroup();
-        for (ConnectionManager connectionManager : connectionManagers) {
-            if (connectionManager.getConnectionHandlers().size() > 0) {
+        for (ConnectionBundle connectionBundle : connectionBundles) {
+            if (connectionBundle.getConnectionHandlers().size() > 0) {
                 actionGroup.addSeparator();
-                for (ConnectionHandler connectionHandler : connectionManager.getConnectionHandlers()) {
+                for (ConnectionHandler connectionHandler : connectionBundle.getConnectionHandlers()) {
                     SelectConnectionAction connectionAction = new SelectConnectionAction(connectionHandler);
                     actionGroup.add(connectionAction);
                     singleConnectionHandler = connectionHandler;

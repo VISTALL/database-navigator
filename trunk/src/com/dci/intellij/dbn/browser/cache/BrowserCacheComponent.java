@@ -1,6 +1,6 @@
 package com.dci.intellij.dbn.browser.cache;
 
-import com.dci.intellij.dbn.connection.ConnectionManager;
+import com.dci.intellij.dbn.connection.ConnectionBundle;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.adapters.XML4JDOMAdapter;
@@ -16,11 +16,11 @@ import java.io.OutputStream;
 public class BrowserCacheComponent {
     public static final String FILE_EXTENSION = ".dbi";
     private final File file;
-    private final ConnectionManager connectionManager;
+    private final ConnectionBundle connectionBundle;
 
-    public BrowserCacheComponent(File file, ConnectionManager connectionManager) {
+    public BrowserCacheComponent(File file, ConnectionBundle connectionBundle) {
         this.file = file;
-        this.connectionManager = connectionManager;
+        this.connectionBundle = connectionBundle;
     }
 
     public void read() {

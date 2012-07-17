@@ -1,11 +1,10 @@
 package com.dci.intellij.dbn.browser;
 
-import com.dci.intellij.dbn.browser.model.BrowserTreeElement;
 import com.dci.intellij.dbn.browser.model.BrowserTreeModel;
+import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
 import com.dci.intellij.dbn.browser.model.TabbedBrowserTreeModel;
 import com.dci.intellij.dbn.browser.options.BrowserDisplayMode;
 import com.dci.intellij.dbn.browser.options.DatabaseBrowserSettings;
-import com.dci.intellij.dbn.browser.options.ObjectDisplaySettingsChangeListener;
 import com.dci.intellij.dbn.browser.options.ObjectFilterChangeListener;
 import com.dci.intellij.dbn.browser.ui.BrowserToolWindowForm;
 import com.dci.intellij.dbn.browser.ui.DatabaseBrowserTree;
@@ -14,24 +13,17 @@ import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.common.filter.Filter;
 import com.dci.intellij.dbn.common.options.setting.BooleanSetting;
 import com.dci.intellij.dbn.common.thread.ConditionalLaterInvocator;
+import com.dci.intellij.dbn.connection.ConnectionBundle;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.ConnectionManager;
-import com.dci.intellij.dbn.connection.ModuleConnectionManager;
-import com.dci.intellij.dbn.connection.ProjectConnectionManager;
-import com.dci.intellij.dbn.connection.config.ConnectionManagerSettingsListener;
+import com.dci.intellij.dbn.connection.ConnectionManagerListener;
 import com.dci.intellij.dbn.object.common.DBObject;
 import com.dci.intellij.dbn.vfs.DatabaseEditableObjectFile;
 import com.dci.intellij.dbn.vfs.SQLConsoleFile;
-import com.intellij.ProjectTopics;
-import com.intellij.openapi.Disposable;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.FileEditorManagerAdapter;
 import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
 import com.intellij.openapi.fileEditor.FileEditorManagerListener;
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.ModuleManager;
-import com.intellij.openapi.project.ModuleAdapter;
-import com.intellij.openapi.project.ModuleListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.InvalidDataException;
 import com.intellij.openapi.util.JDOMExternalizable;
@@ -45,45 +37,21 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.tree.TreePath;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-public class DatabaseBrowserManager extends AbstractProjectComponent implements JDOMExternalizable, Disposable {
+public class DatabaseBrowserManager extends AbstractProjectComponent implements JDOMExternalizable{
     private static final String TOOL_WINDOW_ID = "DB Browser";
 
-    private List<ConnectionManager> connectionManagers = new ArrayList<ConnectionManager>();
     private BooleanSetting autoscrollFromEditor = new BooleanSetting("autoscroll-from-editor", true);
     private BooleanSetting autoscrollToEditor   = new BooleanSetting("autoscroll-to-editor", false);
     private BooleanSetting showObjectProperties = new BooleanSetting("show-object-properties", true);
     public static final ThreadLocal<Boolean> AUTOSCROLL_FROM_EDITOR = new ThreadLocal<Boolean>();
-    private boolean isRebuilding;
     private BrowserToolWindowForm toolWindowForm;
 
     private DatabaseBrowserManager(Project project) {
         super(project);
-        //FileEditorManager.getInstance(project).addFileEditorManagerListener(fileEditorManagerListener);
-        //ModuleManager.getInstance(project).addModuleListener(moduleListener);
-
     }
 
-    private void rebuildConnectionLists() {
-        connectionManagers.clear();
-        ProjectConnectionManager projectConnectionManager = ProjectConnectionManager.getInstance(getProject());
-        if (projectConnectionManager.getConnectionHandlers().size() > 0) {
-            connectionManagers.add(projectConnectionManager);
-        }
-        Module[] modules = ModuleManager.getInstance(getProject()).getModules();
-        for (Module module : modules) {
-            ModuleConnectionManager moduleConnectionManager = ModuleConnectionManager.getInstance(module);
-            if (moduleConnectionManager.getConnectionHandlers().size() > 0) {
-                connectionManagers.add(moduleConnectionManager);
-            }
-        }
-        Collections.sort(connectionManagers);
-        if (toolWindowForm != null) {
-            toolWindowForm.getBrowserForm().rebuild();
-        }
-    }
 
     public DatabaseBrowserTree getActiveBrowserTree() {
         return getToolWindowForm().getActiveBrowserTree();
@@ -98,9 +66,9 @@ public class DatabaseBrowserManager extends AbstractProjectComponent implements 
                 return tabbedBrowserTreeModel.getConnectionHandler();
             }
 
-            BrowserTreeElement browserTreeElement = activeBrowserTree.getSelectedElement();
-            if (browserTreeElement != null) {
-                return browserTreeElement.getConnectionHandler();
+            BrowserTreeNode browserTreeNode = activeBrowserTree.getSelectedNode();
+            if (browserTreeNode != null) {
+                return browserTreeNode.getConnectionHandler();
             }
         }
 
@@ -118,10 +86,6 @@ public class DatabaseBrowserManager extends AbstractProjectComponent implements 
             toolWindowForm = new BrowserToolWindowForm(getProject());
         }
         return toolWindowForm;
-    }
-
-    public List<ConnectionManager> getConnectionManagers() {
-        return connectionManagers;
     }
 
     public BooleanSetting getAutoscrollFromEditor() {
@@ -144,18 +108,18 @@ public class DatabaseBrowserManager extends AbstractProjectComponent implements 
         return "DB Browser";
     }
 
-    public synchronized void navigateToElement(BrowserTreeElement treeElement, boolean requestFocus) {
+    public synchronized void navigateToElement(BrowserTreeNode treeNode, boolean requestFocus) {
         ToolWindow toolWindow = getBrowserToolWindow();
 
         toolWindow.show(null);
-        if (treeElement != null) {
-            getToolWindowForm().getBrowserForm().selectElement(treeElement, requestFocus);
+        if (treeNode != null) {
+            getToolWindowForm().getBrowserForm().selectElement(treeNode, requestFocus);
         }
     }
 
-    public synchronized void navigateToElement(BrowserTreeElement treeElement) {
-        if (treeElement != null) {
-            getToolWindowForm().getBrowserForm().selectElement(treeElement, false);
+    public synchronized void navigateToElement(BrowserTreeNode treeNode) {
+        if (treeNode != null) {
+            getToolWindowForm().getBrowserForm().selectElement(treeNode, false);
         }
     }
 
@@ -184,21 +148,21 @@ public class DatabaseBrowserManager extends AbstractProjectComponent implements 
         return "DBNavigator.Project.DatabaseBrowserManager";
     }
 
-    public void projectOpened() {
-        rebuildConnectionLists();
-    }
-    
     public void initComponent() {
         EventManager eventManager = getEventManager();
         eventManager.subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, fileEditorManagerListener);
-        eventManager.subscribe(ConnectionManagerSettingsListener.TOPIC, connectionSetupListener);
         eventManager.subscribe(ObjectFilterChangeListener.TOPIC, filterChangeListener);
-        eventManager.subscribe(ObjectDisplaySettingsChangeListener.TOPIC, objectDisplaySettingsChangeListener);
-        eventManager.subscribe(ProjectTopics.MODULES, moduleListener);
+        eventManager.subscribe(ConnectionManagerListener.TOPIC, connectionManagerListener);
     }
 
     public void disposeComponent() {
-        connectionManagers.clear();
+        EventManager eventManager = getEventManager();
+        eventManager.unsubscribe(
+                fileEditorManagerListener,
+                filterChangeListener,
+                connectionManagerListener);
+
+
         if (toolWindowForm != null) {
             toolWindowForm.dispose();
             toolWindowForm = null;
@@ -210,18 +174,6 @@ public class DatabaseBrowserManager extends AbstractProjectComponent implements 
      *
      * @deprecated
      */
-    public static void updateTree(final BrowserTreeElement treeElement, final int eventType) {
-        new ConditionalLaterInvocator() {
-            public void run() {
-                DatabaseBrowserManager browserManager = DatabaseBrowserManager.getInstance(treeElement.getProject());
-                BrowserToolWindowForm toolWindowForm = browserManager.getToolWindowForm();
-                if (toolWindowForm != null) {
-                    toolWindowForm.getBrowserForm().updateTreeNode(treeElement, eventType);
-                }
-            }
-        }.start();
-    }
-
     public static void scrollToSelectedElement(final ConnectionHandler connectionHandler) {
         DatabaseBrowserManager browserManager = DatabaseBrowserManager.getInstance(connectionHandler.getProject());
         BrowserToolWindowForm toolWindowForm = browserManager.getToolWindowForm();
@@ -238,14 +190,6 @@ public class DatabaseBrowserManager extends AbstractProjectComponent implements 
     }
 
     public void dispose() {
-        connectionManagers.clear();
-        EventManager eventManager = getEventManager();
-        eventManager.unsubscribe(
-                fileEditorManagerListener,
-                connectionSetupListener,
-                filterChangeListener,
-                objectDisplaySettingsChangeListener,
-                moduleListener);
     }
 
     public boolean isTabbedMode() {
@@ -276,49 +220,17 @@ public class DatabaseBrowserManager extends AbstractProjectComponent implements 
     /**********************************************************
      *                       Listeners                        *
      **********************************************************/
-    private ModuleListener moduleListener = new ModuleAdapter() {
-        public void moduleAdded(Project project, Module module) {
-            ModuleConnectionManager connectionManager = ModuleConnectionManager.getInstance(module);
-            if (connectionManager.getConnectionHandlers().size() > 0) {
-                connectionManagers.add(connectionManager);
-                Collections.sort(connectionManagers);
-                rebuildConnectionLists();
-            }
-        }
-
-        public void moduleRemoved(Project project, Module module) {
-            ModuleConnectionManager connectionManager = ModuleConnectionManager.getInstance(module);
-            if (connectionManagers.remove(connectionManager)) {
-                rebuildConnectionLists();
-            }
-        }
-
-        public void modulesRenamed(Project project, List<Module> modules) {
-            boolean rebuild = false;
-            for (Module module : modules) {
-                ModuleConnectionManager connectionManager = ModuleConnectionManager.getInstance(module);
-                if (connectionManager.getConnectionHandlers().size() > 0) {
-                    rebuild = true;
-                    break;
-                }
-            }
-
-            if (rebuild) rebuildConnectionLists();
-        }
-    };
-
-    private ConnectionManagerSettingsListener connectionSetupListener = new ConnectionManagerSettingsListener() {
-        public void settingsChanged() {
-            if (!isRebuilding) {
-                isRebuilding = true;
-                rebuildConnectionLists();
-                isRebuilding = false;
+    private ConnectionManagerListener connectionManagerListener = new ConnectionManagerListener() {
+        @Override
+        public void connectionsChanged() {
+            if (toolWindowForm != null) {
+                toolWindowForm.getBrowserForm().rebuild();
             }
         }
     };
 
     private ObjectFilterChangeListener filterChangeListener = new ObjectFilterChangeListener() {
-        public void filterChanged(Filter<BrowserTreeElement> filter) {
+        public void filterChanged(Filter<BrowserTreeNode> filter) {
             if (filter == getObjectFilter()) {
                 getToolWindowForm().getBrowserForm().updateTree();
             } else {
@@ -329,9 +241,10 @@ public class DatabaseBrowserManager extends AbstractProjectComponent implements 
             }
         }
 
-        private ConnectionHandler getConnectionHandler(Filter<BrowserTreeElement> filter) {
-            for (ConnectionManager connectionManager : getConnectionManagers()) {
-                for (ConnectionHandler connectionHandler : connectionManager.getConnectionHandlers()) {
+        private ConnectionHandler getConnectionHandler(Filter<BrowserTreeNode> filter) {
+            ConnectionManager connectionManager = ConnectionManager.getInstance(getProject());
+            for (ConnectionBundle connectionBundle : connectionManager.getConnectionBundles()) {
+                for (ConnectionHandler connectionHandler : connectionBundle.getConnectionHandlers()) {
                     if (filter == connectionHandler.getObjectFilter()) {
                         return connectionHandler;
                     }
@@ -341,16 +254,10 @@ public class DatabaseBrowserManager extends AbstractProjectComponent implements 
         }
     };
 
-    public Filter<BrowserTreeElement> getObjectFilter() {
+    public Filter<BrowserTreeNode> getObjectFilter() {
         DatabaseBrowserSettings browserSettings = DatabaseBrowserSettings.getInstance(getProject());
         return browserSettings.getFilterSettings().getObjectTypeFilterSettings().getElementFilter();
     }
-
-    private ObjectDisplaySettingsChangeListener objectDisplaySettingsChangeListener = new ObjectDisplaySettingsChangeListener() {
-        public void displayDetailsChanged() {
-            getToolWindowForm().getBrowserForm().repaintTree();
-        }
-    };
 
     private FileEditorManagerListener fileEditorManagerListener = new FileEditorManagerAdapter() {
         public void fileOpened(FileEditorManager source, VirtualFile file) {

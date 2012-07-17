@@ -1,27 +1,27 @@
 package com.dci.intellij.dbn.browser.ui;
 
-import com.dci.intellij.dbn.browser.model.BrowserTreeElement;
-import com.dci.intellij.dbn.connection.ModuleConnectionManager;
-import com.dci.intellij.dbn.connection.ProjectConnectionManager;
+import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
+import com.dci.intellij.dbn.connection.ModuleConnectionBundle;
+import com.dci.intellij.dbn.connection.ProjectConnectionBundle;
 import com.intellij.ui.ColoredListCellRenderer;
 import com.intellij.ui.SimpleTextAttributes;
 
-import javax.swing.*;
+import javax.swing.JList;
 
 public class ModuleListCellRenderer extends ColoredListCellRenderer {
 
     protected void customizeCellRenderer(JList list, Object value, int index, boolean selected, boolean hasFocus) {
-        BrowserTreeElement treeElement = (BrowserTreeElement) value;
-        setIcon(treeElement.getIcon(0));
+        BrowserTreeNode treeNode = (BrowserTreeNode) value;
+        setIcon(treeNode.getIcon(0));
 
         String displayName;
-        if (treeElement instanceof ModuleConnectionManager) {
-            ModuleConnectionManager connectionManager = (ModuleConnectionManager) treeElement;
+        if (treeNode instanceof ModuleConnectionBundle) {
+            ModuleConnectionBundle connectionManager = (ModuleConnectionBundle) treeNode;
             displayName = connectionManager.getModule().getName();
-        } else if (treeElement instanceof ProjectConnectionManager) {
+        } else if (treeNode instanceof ProjectConnectionBundle) {
             displayName = "PROJECT";
         } else {
-            displayName = treeElement.getPresentableText();
+            displayName = treeNode.getPresentableText();
         }
 
         append(displayName, SimpleTextAttributes.REGULAR_ATTRIBUTES);

@@ -1,6 +1,6 @@
 package com.dci.intellij.dbn.browser.cache;
 
-import com.dci.intellij.dbn.connection.ProjectConnectionManager;
+import com.dci.intellij.dbn.connection.ProjectConnectionBundle;
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
@@ -11,7 +11,7 @@ public class ProjectBrowserCacheComponent extends BrowserCacheComponent implemen
 
     private ProjectBrowserCacheComponent(Project project) {
         super( ProjectBrowserCacheComponent.createProjectConfigFile(project),
-               project.getComponent(ProjectConnectionManager.class));
+               project.getComponent(ProjectConnectionBundle.class));
     }
 
 

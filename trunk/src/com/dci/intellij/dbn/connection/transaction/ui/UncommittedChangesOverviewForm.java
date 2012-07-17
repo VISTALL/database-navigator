@@ -1,10 +1,10 @@
 package com.dci.intellij.dbn.connection.transaction.ui;
 
-import com.dci.intellij.dbn.browser.DatabaseBrowserManager;
 import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.common.thread.SimpleLaterInvocator;
 import com.dci.intellij.dbn.common.ui.UIForm;
 import com.dci.intellij.dbn.common.ui.UIFormImpl;
+import com.dci.intellij.dbn.connection.ConnectionBundle;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.ConnectionManager;
 import com.dci.intellij.dbn.connection.transaction.TransactionAction;
@@ -15,10 +15,12 @@ import com.intellij.ui.ColoredListCellRenderer;
 import com.intellij.ui.GuiUtils;
 import com.intellij.ui.SimpleTextAttributes;
 
-import javax.swing.*;
+import javax.swing.DefaultListModel;
+import javax.swing.JList;
+import javax.swing.JPanel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import java.awt.*;
+import java.awt.BorderLayout;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,9 +41,9 @@ public class UncommittedChangesOverviewForm extends UIFormImpl implements UIForm
         this.project = project;
         DefaultListModel model = new DefaultListModel();
 
-        DatabaseBrowserManager browserManager = DatabaseBrowserManager.getInstance(project);
-        for (ConnectionManager connectionManager : browserManager.getConnectionManagers()) {
-            for (ConnectionHandler connectionHandler : connectionManager.getConnectionHandlers()) {
+        ConnectionManager connectionManager = ConnectionManager.getInstance(project);
+        for (ConnectionBundle connectionBundle : connectionManager.getConnectionBundles()) {
+            for (ConnectionHandler connectionHandler : connectionBundle.getConnectionHandlers()) {
                 if (connectionHandler.hasUncommittedChanges()) {
                     connectionHandlers.add(connectionHandler);
                     model.addElement(connectionHandler);

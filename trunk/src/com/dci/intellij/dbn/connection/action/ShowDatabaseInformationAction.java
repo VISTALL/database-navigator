@@ -6,6 +6,7 @@ import com.dci.intellij.dbn.connection.ConnectionManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.DumbAwareAction;
+import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 public class ShowDatabaseInformationAction extends DumbAwareAction {
@@ -18,11 +19,13 @@ public class ShowDatabaseInformationAction extends DumbAwareAction {
     }
 
     public void actionPerformed(AnActionEvent anActionEvent) {
-        new BackgroundTask(connectionHandler.getProject(), "Loading database information for " + connectionHandler.getName(), false) {
+        final Project project = connectionHandler.getProject();
+        new BackgroundTask(project, "Loading database information for " + connectionHandler.getName(), false) {
             @Override
             public void execute(@NotNull ProgressIndicator progressIndicator) {
                 initProgressIndicator(progressIndicator, true);
-                ConnectionManager connectionManager = connectionHandler.getConnectionManager();
+
+                ConnectionManager connectionManager = ConnectionManager.getInstance(project);
                 connectionManager.showConnectionInfo(connectionHandler.getSettings());
             }
         }.start();

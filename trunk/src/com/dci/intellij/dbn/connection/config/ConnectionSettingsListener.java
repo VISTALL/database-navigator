@@ -5,6 +5,6 @@ import com.intellij.util.messages.Topic;
 import java.util.EventListener;
 
 public interface ConnectionSettingsListener extends EventListener {
-    public static Topic<ConnectionSettingsListener> TOPIC = Topic.create("Connection changed", ConnectionSettingsListener.class);
+    Topic<ConnectionSettingsListener> TOPIC = Topic.create("Connection changed", ConnectionSettingsListener.class);
     void settingsChanged(String connectionId);
 }

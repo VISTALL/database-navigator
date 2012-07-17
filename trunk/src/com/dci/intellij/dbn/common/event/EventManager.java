@@ -39,8 +39,8 @@ public class EventManager extends AbstractProjectComponent implements Disposable
         messageBusConnection.subscribe(topic, handler);
     }
 
-    public void unsubscribe(Object ... handlers) {
-        for (Object handler : handlers) {
+    public void unsubscribe(EventListener ... handlers) {
+        for (EventListener handler : handlers) {
             MessageBusConnection connection = connectionCache.remove(handler);
             if (connection != null) {
                 connection.disconnect();
@@ -48,7 +48,7 @@ public class EventManager extends AbstractProjectComponent implements Disposable
         }
     }
 
-    public <T extends EventListener> T syncPublisher(Topic<T> topic) {
+    public <T extends EventListener> T notify(Topic<T> topic) {
         MessageBus messageBus = getProject().getMessageBus();
         return messageBus.syncPublisher(topic);
     }
@@ -57,12 +57,12 @@ public class EventManager extends AbstractProjectComponent implements Disposable
         getInstance(project).subscribe(topic, handler);
     }
 
-    public static <T extends EventListener> void unsubscribe(Project project, T handler) {
-        getInstance(project).unsubscribe(handler);
+    public static <T extends EventListener> void unsubscribe(Project project, T ... handlers) {
+        getInstance(project).unsubscribe(handlers);
     }
 
-    public static <T extends EventListener> T syncPublisher(Project project, Topic<T> topic) {
-        return getInstance(project).syncPublisher(topic);
+    public static <T extends EventListener> T notify(Project project, Topic<T> topic) {
+        return getInstance(project).notify(topic);
     }
 
     @NonNls

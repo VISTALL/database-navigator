@@ -1,15 +1,12 @@
 package com.dci.intellij.dbn.browser.ui;
 
-import com.dci.intellij.dbn.browser.DatabaseBrowserManager;
-import com.dci.intellij.dbn.browser.model.BrowserTreeElement;
-import com.dci.intellij.dbn.browser.model.BrowserTreeModel;
-import com.dci.intellij.dbn.browser.model.TabbedBrowserTreeModel;
+import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
 import com.dci.intellij.dbn.common.environment.EnvironmentChangeListener;
 import com.dci.intellij.dbn.common.environment.EnvironmentType;
 import com.dci.intellij.dbn.common.environment.options.EnvironmentVisibilitySettings;
 import com.dci.intellij.dbn.common.event.EventManager;
-import com.dci.intellij.dbn.common.ui.UIFormImpl;
 import com.dci.intellij.dbn.common.ui.tab.TabbedPane;
+import com.dci.intellij.dbn.connection.ConnectionBundle;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.ConnectionManager;
 import com.intellij.openapi.project.Project;
@@ -21,14 +18,12 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 
-public class TabbedBrowserForm extends UIFormImpl implements DatabaseBrowserForm, EnvironmentChangeListener {
+public class TabbedBrowserForm extends DatabaseBrowserForm{
     private TabbedPane connectionTabs;
     private JPanel mainPanel;
-    private DatabaseBrowserManager browserManager;
 
-    public TabbedBrowserForm(final DatabaseBrowserManager browserManager) {
-        this.browserManager = browserManager;
-        Project project = browserManager.getProject();
+    public TabbedBrowserForm(Project project) {
+        super(project);
         connectionTabs = new TabbedPane(project);
         //connectionTabs.setBackground(UIUtil.getListBackground());
         mainPanel.add(connectionTabs, BorderLayout.CENTER);
@@ -51,43 +46,17 @@ public class TabbedBrowserForm extends UIFormImpl implements DatabaseBrowserForm
             }
         });
 
-        EventManager.subscribe(project, EnvironmentChangeListener.TOPIC, this);
+        EventManager.subscribe(project, EnvironmentChangeListener.TOPIC, environmentChangeListener);
     }
 
-    @Override
-    public void environmentTypeChanged(EnvironmentType environmentType) {
-        for (TabInfo tabInfo : connectionTabs.getTabs()) {
-            SimpleBrowserForm browserForm = (SimpleBrowserForm) tabInfo.getObject();
-            if (browserForm.getConnectionHandler().getEnvironmentType().equals(environmentType)) {
-                EnvironmentVisibilitySettings visibilitySettings = getEnvironmentSettings(browserManager.getProject()).getVisibilitySettings();
-                if (visibilitySettings.getConnectionTabs().value()) {
-                    tabInfo.setTabColor(environmentType.getColor());
-                } else {
-                    tabInfo.setTabColor(null);
-                }
-            }
-        }
-    }
-
-    @Override
-    public void environmentVisibilitySettingsChanged() {
-        for (TabInfo tabInfo : connectionTabs.getTabs()) {
-            SimpleBrowserForm browserForm = (SimpleBrowserForm) tabInfo.getObject();
-            EnvironmentType environmentType = browserForm.getConnectionHandler().getEnvironmentType();
-            EnvironmentVisibilitySettings visibilitySettings = getEnvironmentSettings(browserManager.getProject()).getVisibilitySettings();
-            if (visibilitySettings.getConnectionTabs().value()) {
-                tabInfo.setTabColor(environmentType.getColor());
-            } else {
-                tabInfo.setTabColor(null);
-            }
-        }
-    }
 
     private void initTabs() {
+        Project project = getProject();
         connectionTabs.removeAllTabs();
-        for (ConnectionManager connectionManager: browserManager.getConnectionManagers()) {
-            for (ConnectionHandler connectionHandler: connectionManager.getConnectionHandlers()) {
-                SimpleBrowserForm browserForm = new SimpleBrowserForm(new TabbedBrowserTreeModel(connectionHandler));
+        ConnectionManager connectionManager = ConnectionManager.getInstance(project);
+        for (ConnectionBundle connectionBundle : connectionManager.getConnectionBundles()) {
+            for (ConnectionHandler connectionHandler: connectionBundle.getConnectionHandlers()) {
+                SimpleBrowserForm browserForm = new SimpleBrowserForm(connectionHandler);
                 JComponent component = browserForm.getComponent();
                 TabInfo tabInfo = new TabInfo(component);
                 tabInfo.setText(connectionHandler.getName());
@@ -136,22 +105,12 @@ public class TabbedBrowserForm extends UIFormImpl implements DatabaseBrowserForm
         return null;
     }
 
-    public void selectElement(BrowserTreeElement treeElement, boolean requestFocus) {
-        ConnectionHandler connectionHandler = treeElement.getConnectionHandler();
+    public void selectElement(BrowserTreeNode treeNode, boolean requestFocus) {
+        ConnectionHandler connectionHandler = treeNode.getConnectionHandler();
         SimpleBrowserForm browserForm = getBrowserForm(connectionHandler);
         if (browserForm != null) {
             connectionTabs.select(browserForm.getComponent(), requestFocus);
-            browserForm.selectElement(treeElement, requestFocus);
-        }
-    }
-
-
-    public void updateTreeNode(BrowserTreeElement treeElement, int eventType) {
-        ConnectionHandler connectionHandler = treeElement.getConnectionHandler();
-        DatabaseBrowserTree browserTree = getBrowserTree(connectionHandler);
-        if (browserTree != null) {
-            BrowserTreeModel treeModel = browserTree.getModel();
-            treeModel.notifyTreeModelListeners(treeElement, eventType);
+            browserForm.selectElement(treeNode, requestFocus);
         }
     }
 
@@ -162,26 +121,56 @@ public class TabbedBrowserForm extends UIFormImpl implements DatabaseBrowserForm
         }
     }
 
-    public void repaintTree() {
-        for (TabInfo tabInfo : connectionTabs.getTabs()) {
-            SimpleBrowserForm browserForm = (SimpleBrowserForm) tabInfo.getObject();
-            browserForm.repaintTree();
-        }
-    }
-
     public void rebuild() {
         initTabs();
     }
 
     public void dispose() {
-        EventManager.unsubscribe(browserManager.getProject(), this);
-        super.dispose();
+        Project project = getProject();
+        EventManager.unsubscribe(project, environmentChangeListener);
         for (TabInfo tabInfo : connectionTabs.getTabs()) {
             SimpleBrowserForm browserForm = (SimpleBrowserForm) tabInfo.getObject();
             browserForm.dispose();
         }
         connectionTabs.dispose();
-        browserManager = null;
+        super.dispose();
     }
+
+
+    /********************************************************
+     *                       Listeners                      *
+     ********************************************************/
+    private EnvironmentChangeListener environmentChangeListener = new EnvironmentChangeListener() {
+        @Override
+        public void environmentTypeChanged(EnvironmentType environmentType) {
+            Project project = getProject();
+            for (TabInfo tabInfo : connectionTabs.getTabs()) {
+                SimpleBrowserForm browserForm = (SimpleBrowserForm) tabInfo.getObject();
+                if (browserForm.getConnectionHandler().getEnvironmentType().equals(environmentType)) {
+                    EnvironmentVisibilitySettings visibilitySettings = getEnvironmentSettings(project).getVisibilitySettings();
+                    if (visibilitySettings.getConnectionTabs().value()) {
+                        tabInfo.setTabColor(environmentType.getColor());
+                    } else {
+                        tabInfo.setTabColor(null);
+                    }
+                }
+            }
+        }
+
+        @Override
+        public void environmentVisibilitySettingsChanged() {
+            Project project = getProject();
+            for (TabInfo tabInfo : connectionTabs.getTabs()) {
+                SimpleBrowserForm browserForm = (SimpleBrowserForm) tabInfo.getObject();
+                EnvironmentType environmentType = browserForm.getConnectionHandler().getEnvironmentType();
+                EnvironmentVisibilitySettings visibilitySettings = getEnvironmentSettings(project).getVisibilitySettings();
+                if (visibilitySettings.getConnectionTabs().value()) {
+                    tabInfo.setTabColor(environmentType.getColor());
+                } else {
+                    tabInfo.setTabColor(null);
+                }
+            }
+        }
+    };
 }
 

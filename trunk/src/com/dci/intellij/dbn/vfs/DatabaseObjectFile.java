@@ -1,6 +1,6 @@
 package com.dci.intellij.dbn.vfs;
 
-import com.dci.intellij.dbn.browser.model.BrowserTreeElement;
+import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
 import com.dci.intellij.dbn.common.DevNullStreams;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.navigation.psi.NavigationPsiCache;
@@ -116,7 +116,7 @@ public class  DatabaseObjectFile<T extends DBObject> extends VirtualFile impleme
 
     @Nullable
     public VirtualFile getParent() {
-        BrowserTreeElement treeParent = object.getTreeParent();
+        BrowserTreeNode treeParent = object.getTreeParent();
         if (treeParent instanceof DBObjectList<?>) {
             DBObjectList objectList = (DBObjectList) treeParent;
             return NavigationPsiCache.getPsiDirectory(objectList).getVirtualFile();

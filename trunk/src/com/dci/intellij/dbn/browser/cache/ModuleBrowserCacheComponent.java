@@ -1,6 +1,6 @@
 package com.dci.intellij.dbn.browser.cache;
 
-import com.dci.intellij.dbn.connection.ModuleConnectionManager;
+import com.dci.intellij.dbn.connection.ModuleConnectionBundle;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleComponent;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -14,7 +14,7 @@ public class ModuleBrowserCacheComponent extends BrowserCacheComponent implement
     private final Module module;
     private ModuleBrowserCacheComponent(Module module) {
         super( createModuleConfigFile(module),
-               module.getComponent(ModuleConnectionManager.class));
+               module.getComponent(ModuleConnectionBundle.class));
         this.module = module;
     }
 

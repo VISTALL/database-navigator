@@ -1,11 +1,11 @@
 package com.dci.intellij.dbn.code.common.intention;
 
-import com.dci.intellij.dbn.browser.DatabaseBrowserManager;
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.util.ActionUtil;
+import com.dci.intellij.dbn.connection.ConnectionBundle;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.ConnectionManager;
-import com.dci.intellij.dbn.connection.ProjectConnectionManager;
+import com.dci.intellij.dbn.connection.ProjectConnectionBundle;
 import com.dci.intellij.dbn.language.common.DBLanguageFile;
 import com.dci.intellij.dbn.object.DBSchema;
 import com.dci.intellij.dbn.options.ui.GlobalProjectSettingsDialog;
@@ -22,7 +22,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
+import javax.swing.Icon;
 import java.util.List;
 
 public class SelectConnectionIntentionAction extends GenericIntentionAction {
@@ -50,17 +50,17 @@ public class SelectConnectionIntentionAction extends GenericIntentionAction {
     }
 
     public void invoke(@NotNull Project project, Editor editor, PsiFile psiFile) throws IncorrectOperationException {
-        DatabaseBrowserManager browserManager = DatabaseBrowserManager.getInstance(project);
-        List<ConnectionManager> connectionManagers = browserManager.getConnectionManagers();
+        ConnectionManager connectionManager = ConnectionManager.getInstance(project);
+        List<ConnectionBundle> connectionBundles = connectionManager.getConnectionBundles();
 
         DefaultActionGroup actionGroup = new DefaultActionGroup();
         DBLanguageFile dbLanguageFile = (DBLanguageFile) psiFile;
 
         boolean connectionsFound = false;
-        for (ConnectionManager connectionManager : connectionManagers) {
-            if (connectionManager.getConnectionHandlers().size() > 0) {
+        for (ConnectionBundle connectionBundle : connectionBundles) {
+            if (connectionBundle.getConnectionHandlers().size() > 0) {
                 actionGroup.addSeparator();
-                for (ConnectionHandler connectionHandler : connectionManager.getConnectionHandlers()) {
+                for (ConnectionHandler connectionHandler : connectionBundle.getConnectionHandlers()) {
 
                     SelectConnectionAction connectionAction = new SelectConnectionAction(connectionHandler, dbLanguageFile);
                     actionGroup.add(connectionAction);
@@ -70,7 +70,7 @@ public class SelectConnectionIntentionAction extends GenericIntentionAction {
         }
 
         if (connectionsFound) actionGroup.addSeparator();
-        ProjectConnectionManager projectConnectionManager = ProjectConnectionManager.getInstance(browserManager.getProject());
+        ProjectConnectionBundle projectConnectionManager = ProjectConnectionBundle.getInstance(project);
         for (ConnectionHandler virtualConnectionHandler : projectConnectionManager.getVirtualConnections()) {
             SelectConnectionAction connectionAction = new SelectConnectionAction(virtualConnectionHandler, dbLanguageFile);
             actionGroup.add(connectionAction);

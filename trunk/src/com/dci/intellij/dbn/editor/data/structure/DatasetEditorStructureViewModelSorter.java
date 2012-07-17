@@ -1,6 +1,6 @@
 package com.dci.intellij.dbn.editor.data.structure;
 
-import com.dci.intellij.dbn.browser.model.BrowserTreeElement;
+import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.language.psql.structure.PSQLStructureViewElement;
 import com.intellij.ide.util.treeView.smartTree.ActionPresentation;
@@ -49,9 +49,9 @@ public class DatasetEditorStructureViewModelSorter implements Sorter {
             if (object1 instanceof DatasetEditorStructureViewElement && object2 instanceof DatasetEditorStructureViewElement) {
                 DatasetEditorStructureViewElement structureViewElement1 = (DatasetEditorStructureViewElement) object1;
                 DatasetEditorStructureViewElement structureViewElement2 = (DatasetEditorStructureViewElement) object2;
-                BrowserTreeElement treeElement1 = structureViewElement1.getValue();
-                BrowserTreeElement treeElement2 = structureViewElement2.getValue();
-                return treeElement1.getName().compareTo(treeElement2.getName());
+                BrowserTreeNode treeNode1 = structureViewElement1.getValue();
+                BrowserTreeNode treeNode2 = structureViewElement2.getValue();
+                return treeNode1.getName().compareTo(treeNode2.getName());
             } else {
                 return object1 instanceof PSQLStructureViewElement ? 1 : -1;
             }

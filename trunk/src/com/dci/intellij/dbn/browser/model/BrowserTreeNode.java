@@ -6,13 +6,13 @@ import com.intellij.navigation.ItemPresentation;
 import com.intellij.navigation.NavigationItem;
 import com.intellij.openapi.Disposable;
 
-import javax.swing.*;
+import javax.swing.Icon;
 import java.util.ArrayList;
 import java.util.List;
 
-public interface BrowserTreeElement extends NavigationItem, ItemPresentation, ToolTipProvider, Disposable, GenericDatabaseElement {
+public interface BrowserTreeNode extends NavigationItem, ItemPresentation, ToolTipProvider, Disposable, GenericDatabaseElement {
 
-    List<BrowserTreeElement> EMPTY_LIST = new ArrayList<BrowserTreeElement>();
+    List<BrowserTreeNode> EMPTY_LIST = new ArrayList<BrowserTreeNode>();
 
     void initTreeElement();
 
@@ -22,11 +22,11 @@ public interface BrowserTreeElement extends NavigationItem, ItemPresentation, To
 
     boolean isTreeStructureLoaded();
 
-    BrowserTreeElement getTreeChild(int index);
+    BrowserTreeNode getTreeChild(int index);
 
-    BrowserTreeElement getTreeParent();
+    BrowserTreeNode getTreeParent();
 
-    List<? extends BrowserTreeElement> getTreeChildren();
+    List<? extends BrowserTreeNode> getTreeChildren();
 
     void rebuildTreeChildren();
 
@@ -34,7 +34,7 @@ public interface BrowserTreeElement extends NavigationItem, ItemPresentation, To
 
     boolean isLeafTreeElement();
 
-    int getIndexOfTreeChild(BrowserTreeElement child);
+    int getIndexOfTreeChild(BrowserTreeNode child);
 
     Icon getIcon(int flags);
 

@@ -1,6 +1,5 @@
 package com.dci.intellij.dbn.language.editor.action;
 
-import com.dci.intellij.dbn.browser.DatabaseBrowserManager;
 import com.dci.intellij.dbn.common.ui.DBNComboBoxAction;
 import com.dci.intellij.dbn.common.util.ActionUtil;
 import com.dci.intellij.dbn.common.util.NamingUtil;
@@ -24,8 +23,7 @@ public class SelectConnectionComboBoxAction extends DBNComboBoxAction {
     @NotNull
     protected DefaultActionGroup createPopupActionGroup(JComponent component) {
         Project project = ActionUtil.getProject(component);
-        DatabaseBrowserManager browserManager = DatabaseBrowserManager.getInstance(project);
-        return new SelectConnectionActionGroup(browserManager);
+        return new SelectConnectionActionGroup(project);
     }
 
     public synchronized void update(AnActionEvent e) {

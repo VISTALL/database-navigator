@@ -1,6 +1,6 @@
 package com.dci.intellij.dbn.object.common;
 
-import com.dci.intellij.dbn.browser.model.BrowserTreeElement;
+import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
 import com.dci.intellij.dbn.code.common.lookup.LookupValueProvider;
 import com.dci.intellij.dbn.common.content.DynamicContentElement;
 import com.dci.intellij.dbn.common.environment.EnvironmentType;
@@ -23,7 +23,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public interface DBObject extends BrowserTreeElement, PsiNamedElement, DynamicContentElement, LookupValueProvider {
+public interface DBObject extends BrowserTreeNode, PsiNamedElement, DynamicContentElement, LookupValueProvider {
     List<DBObject> EMPTY_LIST = new ArrayList<DBObject>();
 
     DBObjectType getObjectType();

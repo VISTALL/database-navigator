@@ -1,10 +1,8 @@
 package com.dci.intellij.dbn.browser.model;
 
-import com.dci.intellij.dbn.browser.DatabaseBrowserManager;
 import com.dci.intellij.dbn.code.sql.color.SQLTextAttributesKeys;
 import com.dci.intellij.dbn.common.content.DynamicContent;
 import com.dci.intellij.dbn.common.content.DynamicContentType;
-import com.dci.intellij.dbn.common.ui.tree.TreeUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.GenericDatabaseElement;
 import com.intellij.navigation.ItemPresentation;
@@ -13,17 +11,14 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.IconLoader;
 import com.intellij.openapi.vcs.FileStatus;
 
-import javax.swing.*;
+import javax.swing.Icon;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
-public class LoadInProgressTreeElement implements BrowserTreeElement {
-    private BrowserTreeElement parent;
-    private ImageRefreshTask imageRefreshTask;
+public class LoadInProgressTreeNode implements BrowserTreeNode {
+    private BrowserTreeNode parent;
     private int iconIndex;
+    private boolean disposed;
 
-    private Timer reloader = new Timer("Load in progress tree leaf reloader");
     private static Icon[] icons = new Icon[12];
     static {
         for (int i = 0; i <= 12 - 1; i++) {
@@ -31,10 +26,8 @@ public class LoadInProgressTreeElement implements BrowserTreeElement {
         }
     }
 
-    public LoadInProgressTreeElement(BrowserTreeElement parent) {
+    public LoadInProgressTreeNode(BrowserTreeNode parent) {
         this.parent = parent;
-        imageRefreshTask = new ImageRefreshTask();
-        reloader.schedule(imageRefreshTask, 0, 100);
     }
 
     public boolean isTreeStructureLoaded() {
@@ -51,15 +44,15 @@ public class LoadInProgressTreeElement implements BrowserTreeElement {
         return parent.getTreeDepth() + 1;
     }
 
-    public BrowserTreeElement getTreeChild(int index) {
+    public BrowserTreeNode getTreeChild(int index) {
         return null;
     }
 
-    public BrowserTreeElement getTreeParent() {
+    public BrowserTreeNode getTreeParent() {
         return parent;
     }
 
-    public List<? extends BrowserTreeElement> getTreeChildren() {
+    public List<? extends BrowserTreeNode> getTreeChildren() {
         return null;
     }
 
@@ -74,7 +67,7 @@ public class LoadInProgressTreeElement implements BrowserTreeElement {
         return true;
     }
 
-    public int getIndexOfTreeChild(BrowserTreeElement child) {
+    public int getIndexOfTreeChild(BrowserTreeNode child) {
         return -1;
     }
 
@@ -113,7 +106,7 @@ public class LoadInProgressTreeElement implements BrowserTreeElement {
     }
 
     public boolean isDisposed() {
-        return parent.isDisposed();
+        return disposed;
     }
 
     /*********************************************************
@@ -158,20 +151,6 @@ public class LoadInProgressTreeElement implements BrowserTreeElement {
     }
 
     public void dispose() {
-        imageRefreshTask.cancel();
-    }
-
-    private class ImageRefreshTask extends TimerTask {
-        int iterations = 0;
-        public void run() {
-            // do not allow more than 2000 iterations.
-            if (iterations > 2000) {
-                cancel();
-            }
-            iterations++;
-            if (!isDisposed()) {
-                DatabaseBrowserManager.updateTree(LoadInProgressTreeElement.this, TreeUtil.NODES_CHANGED);
-            }
-        }
+        disposed = true;
     }
 }

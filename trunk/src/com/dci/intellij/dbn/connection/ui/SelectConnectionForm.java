@@ -4,8 +4,8 @@ import com.dci.intellij.dbn.common.ui.UIForm;
 import com.dci.intellij.dbn.common.ui.UIFormImpl;
 import com.dci.intellij.dbn.common.util.VirtualFileUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
-import com.dci.intellij.dbn.connection.ModuleConnectionManager;
-import com.dci.intellij.dbn.connection.ProjectConnectionManager;
+import com.dci.intellij.dbn.connection.ModuleConnectionBundle;
+import com.dci.intellij.dbn.connection.ProjectConnectionBundle;
 import com.dci.intellij.dbn.connection.mapping.FileConnectionMappingManager;
 import com.dci.intellij.dbn.language.common.DBLanguageFile;
 import com.dci.intellij.dbn.object.DBSchema;
@@ -45,13 +45,13 @@ public class SelectConnectionForm extends UIFormImpl implements UIForm {
         currentSchema = connectionMappingManager.getCurrentSchema(virtualFile);
 
         DefaultListModel connectionListModel = new DefaultListModel();
-        List<ConnectionHandler> connectionHandlers = ProjectConnectionManager.getInstance(project).getConnectionHandlers();
+        List<ConnectionHandler> connectionHandlers = ProjectConnectionBundle.getInstance(project).getConnectionHandlers();
         for (ConnectionHandler connectionHandler : connectionHandlers) {
             connectionListModel.addElement(connectionHandler);
         }
 
         Module currentModule = ModuleUtil.findModuleForFile(virtualFile, project);
-        connectionHandlers = ModuleConnectionManager.getInstance(currentModule).getConnectionHandlers();
+        connectionHandlers = ModuleConnectionBundle.getInstance(currentModule).getConnectionHandlers();
         for (ConnectionHandler connectionHandler : connectionHandlers) {
             connectionListModel.addElement(connectionHandler);
         }

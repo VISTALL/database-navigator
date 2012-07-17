@@ -1,6 +1,7 @@
 package com.dci.intellij.dbn.common.ui.tree;
 
 import com.dci.intellij.dbn.common.LoggerFactory;
+import com.dci.intellij.dbn.common.thread.ConditionalLaterInvocator;
 import com.intellij.openapi.diagnostic.Logger;
 
 import javax.swing.JTree;
@@ -14,10 +15,6 @@ import java.util.Set;
 
 public class TreeUtil {
     private static final Logger LOGGER = LoggerFactory.createLogger();
-    public static final int NODES_ADDED = 0;
-    public static final int NODES_REMOVED = 1;
-    public static final int NODES_CHANGED = 2;
-    public static final int STRUCTURE_CHANGED = 3;
 
     public static TreePath createTreePath(TreeNode treeNode) {
         List<TreeNode> list =  new ArrayList<TreeNode>();
@@ -52,29 +49,28 @@ public class TreeUtil {
         while (true);
     }
 
-    public static void notifyTreeModelListeners(Object source, Set<TreeModelListener> treeModelListeners, TreeNode node, int eventType) {
-        TreePath treePath = createTreePath(node);
-        notifyTreeModelListeners(source, treeModelListeners, treePath, eventType);
-    }
-
-    public static void notifyTreeModelListeners(Object source, Set<TreeModelListener> treeModelListeners, TreePath path, int eventType) {
+    public static void notifyTreeModelListeners(Object source, Set<TreeModelListener> treeModelListeners, TreePath path, TreeEventType eventType) {
         TreeModelEvent event = new TreeModelEvent(source, path);
         notifyTreeModelListeners(treeModelListeners, eventType, event);
     }
 
-    private static void notifyTreeModelListeners(final Set<TreeModelListener> treeModelListeners, final int eventType, final TreeModelEvent event) {
-        try {
-            for (TreeModelListener treeModelListener : treeModelListeners) {
-                switch (eventType) {
-                    case TreeUtil.NODES_ADDED:       treeModelListener.treeNodesInserted(event);    break;
-                    case TreeUtil.NODES_REMOVED:     treeModelListener.treeNodesRemoved(event);     break;
-                    case TreeUtil.NODES_CHANGED:     treeModelListener.treeNodesChanged(event);     break;
-                    case TreeUtil.STRUCTURE_CHANGED: treeModelListener.treeStructureChanged(event); break;
+    private static void notifyTreeModelListeners(final Set<TreeModelListener> treeModelListeners, final TreeEventType eventType, final TreeModelEvent event) {
+        new ConditionalLaterInvocator() {
+            @Override
+            public void run() {
+                try {
+                    for (TreeModelListener treeModelListener : treeModelListeners) {
+                        switch (eventType) {
+                            case NODES_ADDED:       treeModelListener.treeNodesInserted(event);    break;
+                            case NODES_REMOVED:     treeModelListener.treeNodesRemoved(event);     break;
+                            case NODES_CHANGED:     treeModelListener.treeNodesChanged(event);     break;
+                            case STRUCTURE_CHANGED: treeModelListener.treeStructureChanged(event); break;
+                        }
+                    }
+                } catch (Exception e) {
+                    LOGGER.error("Error notifying tree model listeners", e);
                 }
             }
-        } catch (Exception e) {
-            LOGGER.error("Error notifying tree model listeners", e);
-        }
-
+        }.start();
     }
 }

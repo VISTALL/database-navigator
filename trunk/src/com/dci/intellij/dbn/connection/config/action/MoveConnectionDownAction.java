@@ -1,7 +1,7 @@
 package com.dci.intellij.dbn.connection.config.action;
 
 import com.dci.intellij.dbn.common.Icons;
-import com.dci.intellij.dbn.connection.ConnectionManager;
+import com.dci.intellij.dbn.connection.ConnectionBundle;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.ui.ListUtil;
@@ -10,16 +10,16 @@ import javax.swing.JList;
 
 public class MoveConnectionDownAction extends DumbAwareAction {
     private JList list;
-    private ConnectionManager connectionManager;
+    private ConnectionBundle connectionBundle;
 
-    public MoveConnectionDownAction(JList list, ConnectionManager connectionManager) {
+    public MoveConnectionDownAction(JList list, ConnectionBundle connectionBundle) {
         super("Move selection down", null, Icons.ACTION_MOVE_DOWN);
         this.list = list;
-        this.connectionManager = connectionManager;
+        this.connectionBundle = connectionBundle;
     }
 
     public void actionPerformed(AnActionEvent anActionEvent) {
-        connectionManager.setModified(true);
+        connectionBundle.setModified(true);
         ListUtil.moveSelectedItemsDown(list);
     }
 

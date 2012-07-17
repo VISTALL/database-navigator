@@ -1,13 +1,13 @@
 package com.dci.intellij.dbn.object.common.list;
 
-import com.dci.intellij.dbn.browser.model.BrowserTreeElement;
+import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
 import com.dci.intellij.dbn.common.content.DynamicContent;
 import com.dci.intellij.dbn.object.common.DBObject;
 import com.dci.intellij.dbn.object.common.DBObjectType;
 
 import java.util.List;
 
-public interface DBObjectList<T extends DBObject> extends BrowserTreeElement, DynamicContent<T> {
+public interface DBObjectList<T extends DBObject> extends BrowserTreeNode, DynamicContent<T> {
     String getName();
     DBObjectType getObjectType();
     boolean isHidden();

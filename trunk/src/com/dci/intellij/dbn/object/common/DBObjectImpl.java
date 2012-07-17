@@ -2,8 +2,9 @@ package com.dci.intellij.dbn.object.common;
 
 import com.dci.intellij.dbn.browser.DatabaseBrowserManager;
 import com.dci.intellij.dbn.browser.DatabaseBrowserUtils;
-import com.dci.intellij.dbn.browser.model.BrowserTreeElement;
-import com.dci.intellij.dbn.browser.model.LoadInProgressTreeElement;
+import com.dci.intellij.dbn.browser.model.BrowserTreeChangeListener;
+import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
+import com.dci.intellij.dbn.browser.model.LoadInProgressTreeNode;
 import com.dci.intellij.dbn.browser.ui.HtmlToolTipBuilder;
 import com.dci.intellij.dbn.browser.ui.ToolTipProvider;
 import com.dci.intellij.dbn.code.common.lookup.DBObjectLookupItemFactory;
@@ -13,10 +14,11 @@ import com.dci.intellij.dbn.common.content.DynamicContent;
 import com.dci.intellij.dbn.common.content.DynamicContentType;
 import com.dci.intellij.dbn.common.dispose.DisposeUtil;
 import com.dci.intellij.dbn.common.environment.EnvironmentType;
+import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.common.filter.Filter;
 import com.dci.intellij.dbn.common.thread.BackgroundTask;
 import com.dci.intellij.dbn.common.thread.ConditionalLaterInvocator;
-import com.dci.intellij.dbn.common.ui.tree.TreeUtil;
+import com.dci.intellij.dbn.common.ui.tree.TreeEventType;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.ConnectionUtil;
 import com.dci.intellij.dbn.database.DatabaseCompatibilityInterface;
@@ -58,9 +60,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBObject, ToolTipProvider {
-    private List<BrowserTreeElement> allPossibleTreeChildren;
-    private List<BrowserTreeElement> visibleTreeChildren;
-    private BrowserTreeElement treeParent;
+    private List<BrowserTreeNode> allPossibleTreeChildren;
+    private List<BrowserTreeNode> visibleTreeChildren;
+    private BrowserTreeNode treeParent;
     private int treeDepth;
     private boolean treeChildrenLoaded;
     private boolean isDisposed = false;
@@ -111,8 +113,8 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
         updateProperties();
     }
 
-    protected void initPossibleTreeChildren(BrowserTreeElement ... treeElements) {
-        allPossibleTreeChildren = DatabaseBrowserUtils.createList(treeElements);
+    protected void initPossibleTreeChildren(BrowserTreeNode... treeNodes) {
+        allPossibleTreeChildren = DatabaseBrowserUtils.createList(treeNodes);
     }
 
     public void updateProperties() {}
@@ -449,7 +451,7 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
     }
 
     /*********************************************************
-     *                  BrowserTreeElement                   *
+     *                  BrowserTreeNode                   *
      *********************************************************/
     public void initTreeElement() {}
 
@@ -477,7 +479,7 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
         return null;
     }
 
-    public BrowserTreeElement getTreeParent() {
+    public BrowserTreeNode getTreeParent() {
         if (treeParent != null && treeParent.isDisposed()) {
             updateTreeInfo();
         }
@@ -489,17 +491,17 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
     }
 
     @NotNull
-    public synchronized List<BrowserTreeElement> getAllPossibleTreeChildren() {
+    public synchronized List<BrowserTreeNode> getAllPossibleTreeChildren() {
         if (allPossibleTreeChildren == null) {
             allPossibleTreeChildren = buildAllPossibleTreeChildren();
         }
         return allPossibleTreeChildren;
     }
 
-    public List<? extends BrowserTreeElement> getTreeChildren() {
+    public List<? extends BrowserTreeNode> getTreeChildren() {
         if (visibleTreeChildren == null) {
-            visibleTreeChildren = new ArrayList<BrowserTreeElement>();
-            visibleTreeChildren.add(new LoadInProgressTreeElement(this));
+            visibleTreeChildren = new ArrayList<BrowserTreeNode>();
+            visibleTreeChildren.add(new LoadInProgressTreeNode(this));
 
             new BackgroundTask(getProject(), "Loading data dictionary", true) {
                 public void execute(@NotNull ProgressIndicator progressIndicator) {
@@ -512,36 +514,38 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
     }
 
     private void buildTreeChildren() {
-        Filter<BrowserTreeElement> filter = connectionHandler.getObjectFilter();
-        List<BrowserTreeElement> allPossibleTreeChildren = getAllPossibleTreeChildren();
-        List<BrowserTreeElement> newTreeChildren = allPossibleTreeChildren;
+        Filter<BrowserTreeNode> filter = connectionHandler.getObjectFilter();
+        List<BrowserTreeNode> allPossibleTreeChildren = getAllPossibleTreeChildren();
+        List<BrowserTreeNode> newTreeChildren = allPossibleTreeChildren;
         if (allPossibleTreeChildren.size() > 0) {
             if (!filter.acceptsAll(allPossibleTreeChildren)) {
-                newTreeChildren = new ArrayList<BrowserTreeElement>();
-                for (BrowserTreeElement treeElement : allPossibleTreeChildren) {
-                    if (treeElement != null && filter.accepts(treeElement)) {
-                        DBObjectList objectList = (DBObjectList) treeElement;
+                newTreeChildren = new ArrayList<BrowserTreeNode>();
+                for (BrowserTreeNode treeNode : allPossibleTreeChildren) {
+                    if (treeNode != null && filter.accepts(treeNode)) {
+                        DBObjectList objectList = (DBObjectList) treeNode;
                         newTreeChildren.add(objectList);
                     }
                 }
             }
 
-            for (BrowserTreeElement treeElement : newTreeChildren) {
-                DBObjectList objectList = (DBObjectList) treeElement;
+            for (BrowserTreeNode treeNode : newTreeChildren) {
+                DBObjectList objectList = (DBObjectList) treeNode;
                 objectList.initTreeElement();
             }
 
-            if (visibleTreeChildren.size() == 1 && visibleTreeChildren.get(0) instanceof LoadInProgressTreeElement) {
+            if (visibleTreeChildren.size() == 1 && visibleTreeChildren.get(0) instanceof LoadInProgressTreeNode) {
                 visibleTreeChildren.get(0).dispose();
             }
         }
         visibleTreeChildren = newTreeChildren;
         treeChildrenLoaded = true;
 
+
+        EventManager.notify(getProject(), BrowserTreeChangeListener.TOPIC).nodeChanged(this, TreeEventType.STRUCTURE_CHANGED);
+
         new ConditionalLaterInvocator() {
             public void run() {
                 if (!isDisposed()) {
-                    DatabaseBrowserManager.updateTree(DBObjectImpl.this, TreeUtil.STRUCTURE_CHANGED);
                     DatabaseBrowserManager.scrollToSelectedElement(getConnectionHandler());
                 }
             }
@@ -549,31 +553,31 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
     }
 
     public void rebuildTreeChildren() {
-        Filter<BrowserTreeElement> filter = connectionHandler.getObjectFilter();
+        Filter<BrowserTreeNode> filter = connectionHandler.getObjectFilter();
         if (visibleTreeChildren != null && DatabaseBrowserUtils.treeVisibilityChanged(getAllPossibleTreeChildren(), visibleTreeChildren, filter)) {
             buildTreeChildren();
         }
         if (visibleTreeChildren != null) {
-            for (BrowserTreeElement treeElement : visibleTreeChildren) {
-                treeElement.rebuildTreeChildren();
+            for (BrowserTreeNode treeNode : visibleTreeChildren) {
+                treeNode.rebuildTreeChildren();
             }
         }
     }
 
     @NotNull
-    public abstract List<BrowserTreeElement> buildAllPossibleTreeChildren();
+    public abstract List<BrowserTreeNode> buildAllPossibleTreeChildren();
 
     public boolean isLeafTreeElement() {
-        Filter<BrowserTreeElement> filter = connectionHandler.getObjectFilter();
-        for (BrowserTreeElement treeElement : getAllPossibleTreeChildren() ) {
-            if (treeElement != null && filter.accepts(treeElement)) {
+        Filter<BrowserTreeNode> filter = connectionHandler.getObjectFilter();
+        for (BrowserTreeNode treeNode : getAllPossibleTreeChildren() ) {
+            if (treeNode != null && filter.accepts(treeNode)) {
                 return false;
             }
         }
         return true;
     }
 
-    public BrowserTreeElement getTreeChild(int index) {
+    public BrowserTreeNode getTreeChild(int index) {
         return getTreeChildren().get(index);
     }
 
@@ -581,7 +585,7 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
         return getTreeChildren().size();
     }
 
-    public int getIndexOfTreeChild(BrowserTreeElement child) {
+    public int getIndexOfTreeChild(BrowserTreeNode child) {
         return getTreeChildren().indexOf(child);
     }
 

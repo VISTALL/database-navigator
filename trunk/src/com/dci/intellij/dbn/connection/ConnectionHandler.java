@@ -1,6 +1,6 @@
 package com.dci.intellij.dbn.connection;
 
-import com.dci.intellij.dbn.browser.model.BrowserTreeElement;
+import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
 import com.dci.intellij.dbn.common.environment.EnvironmentType;
 import com.dci.intellij.dbn.common.filter.Filter;
 import com.dci.intellij.dbn.connection.config.ConnectionSettings;
@@ -17,7 +17,7 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 
-import javax.swing.*;
+import javax.swing.Icon;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -32,7 +32,7 @@ public interface ConnectionHandler extends Disposable{
     void closePoolConnection(Connection connection);
     ConnectionSettings getSettings();
     ConnectionStatus getConnectionStatus();
-    ConnectionManager getConnectionManager();
+    ConnectionBundle getConnectionBundle();
     ConnectionInfo getConnectionInfo() throws SQLException;
     ConnectionPool getConnectionPool();
     DatabaseInterfaceProvider getInterfaceProvider();
@@ -67,7 +67,7 @@ public interface ConnectionHandler extends Disposable{
     boolean isActive();
     DatabaseType getDatabaseType();
 
-    Filter<BrowserTreeElement> getObjectFilter();
+    Filter<BrowserTreeNode> getObjectFilter();
 
     NavigationPsiCache getPsiCache();
     EnvironmentType getEnvironmentType();

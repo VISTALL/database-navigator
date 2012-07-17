@@ -3,9 +3,9 @@ package com.dci.intellij.dbn.language.editor.action;
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.util.ActionUtil;
 import com.dci.intellij.dbn.common.util.NamingUtil;
+import com.dci.intellij.dbn.connection.ConnectionBundle;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
-import com.dci.intellij.dbn.connection.ConnectionManager;
-import com.dci.intellij.dbn.connection.ModuleConnectionManager;
+import com.dci.intellij.dbn.connection.ModuleConnectionBundle;
 import com.dci.intellij.dbn.connection.mapping.FileConnectionMappingManager;
 import com.dci.intellij.dbn.language.common.DBLanguageFileType;
 import com.dci.intellij.dbn.vfs.DatabaseEditableObjectFile;
@@ -46,10 +46,10 @@ public class SelectConnectionAction extends DumbAwareAction {
                     if (connectionHandler == null) {
                         enabled = true;
                     } else {
-                        ConnectionManager connectionManager = connectionHandler.getConnectionManager();
-                        if (connectionManager instanceof ModuleConnectionManager) {
+                        ConnectionBundle connectionBundle = connectionHandler.getConnectionBundle();
+                        if (connectionBundle instanceof ModuleConnectionBundle) {
                             Module currentModule = ModuleUtil.findModuleForFile(virtualFile, project);
-                            Module connectionModule = ((ModuleConnectionManager) connectionManager).getModule();
+                            Module connectionModule = ((ModuleConnectionBundle) connectionBundle).getModule();
                             enabled = connectionModule == currentModule;
                         }
                     }

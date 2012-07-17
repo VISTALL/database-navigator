@@ -1,6 +1,6 @@
 package com.dci.intellij.dbn.object.impl;
 
-import com.dci.intellij.dbn.browser.model.BrowserTreeElement;
+import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
 import com.dci.intellij.dbn.browser.ui.HtmlToolTipBuilder;
 import com.dci.intellij.dbn.editor.DBContentType;
 import com.dci.intellij.dbn.object.DBSchema;
@@ -45,7 +45,7 @@ public class DBSequenceImpl extends DBSchemaObjectImpl implements DBSequence {
     }
 
     @NotNull
-    public List<BrowserTreeElement> buildAllPossibleTreeChildren() {
-        return BrowserTreeElement.EMPTY_LIST;
+    public List<BrowserTreeNode> buildAllPossibleTreeChildren() {
+        return BrowserTreeNode.EMPTY_LIST;
     }
 }

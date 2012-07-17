@@ -1,7 +1,7 @@
 package com.dci.intellij.dbn.object.properties.ui;
 
 import com.dci.intellij.dbn.browser.DatabaseBrowserManager;
-import com.dci.intellij.dbn.browser.model.BrowserTreeElement;
+import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
 import com.dci.intellij.dbn.browser.ui.BrowserSelectionChangeListener;
 import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.common.thread.BackgroundTask;
@@ -52,9 +52,9 @@ public class ObjectPropertiesForm extends UIFormImpl implements UIForm, BrowserS
     public void browserSelectionChanged() {
         DatabaseBrowserManager browserManager = DatabaseBrowserManager.getInstance(project);
         if (browserManager.getShowObjectProperties().value()) {
-            BrowserTreeElement treeElement = browserManager.getActiveBrowserTree().getSelectedElement();
-            if (treeElement instanceof DBObject) {
-                DBObject object = (DBObject) treeElement;
+            BrowserTreeNode treeNode = browserManager.getActiveBrowserTree().getSelectedNode();
+            if (treeNode instanceof DBObject) {
+                DBObject object = (DBObject) treeNode;
                 setObject(object);
             }
         }

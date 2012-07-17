@@ -1,13 +1,13 @@
 package com.dci.intellij.dbn.browser.ui;
 
-import com.dci.intellij.dbn.browser.model.BrowserTreeElement;
+import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
+import com.dci.intellij.dbn.connection.ConnectionBundle;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
-import com.dci.intellij.dbn.connection.ConnectionManager;
 import com.dci.intellij.dbn.object.common.DBObject;
 import com.dci.intellij.dbn.object.common.DBObjectBundle;
 import com.intellij.ui.SpeedSearchBase;
 
-import javax.swing.*;
+import javax.swing.JTree;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
 import javax.swing.tree.TreePath;
@@ -27,10 +27,10 @@ public class DatabaseBrowserTreeSpeedSearch extends SpeedSearchBase<JTree> {
 
     protected int getSelectedIndex() {
         Object[] elements = getAllElements();
-        BrowserTreeElement treeElement = getSelectedTreeElement();
-        if (treeElement != null) {
+        BrowserTreeNode treeNode = getSelectedTreeElement();
+        if (treeNode != null) {
             for (int i=0; i<elements.length; i++) {
-                if (treeElement == elements[i]) {
+                if (treeNode == elements[i]) {
                     return i;
                 }
             }
@@ -38,55 +38,55 @@ public class DatabaseBrowserTreeSpeedSearch extends SpeedSearchBase<JTree> {
         return -1;
     }
 
-    private BrowserTreeElement getSelectedTreeElement() {
+    private BrowserTreeNode getSelectedTreeElement() {
         TreePath selectionPath = tree.getSelectionPath();
         if (selectionPath != null) {
-            return (BrowserTreeElement) selectionPath.getLastPathComponent();
+            return (BrowserTreeNode) selectionPath.getLastPathComponent();
         }
         return null;
     }
 
     protected Object[] getAllElements() {
         if (elements == null) {
-            List<BrowserTreeElement> elements = new ArrayList<BrowserTreeElement>();
-            BrowserTreeElement root = tree.getModel().getRoot();
-            loadElements(elements, root);
-            this.elements = elements.toArray();
+            List<BrowserTreeNode> nodes = new ArrayList<BrowserTreeNode>();
+            BrowserTreeNode root = tree.getModel().getRoot();
+            loadElements(nodes, root);
+            this.elements = nodes.toArray();
         }
         return elements;
     }
 
-    private void loadElements(List<BrowserTreeElement> elements, BrowserTreeElement browserTreeElement) {
-        if (browserTreeElement.isTreeStructureLoaded()) {
-            if (browserTreeElement instanceof ConnectionManager) {
-                ConnectionManager connectionManager = (ConnectionManager) browserTreeElement;
-                for (ConnectionHandler connectionHandler : connectionManager.getConnectionHandlers()){
+    private void loadElements(List<BrowserTreeNode> nodes, BrowserTreeNode browserTreeNode) {
+        if (browserTreeNode.isTreeStructureLoaded()) {
+            if (browserTreeNode instanceof ConnectionBundle) {
+                ConnectionBundle connectionBundle = (ConnectionBundle) browserTreeNode;
+                for (ConnectionHandler connectionHandler : connectionBundle.getConnectionHandlers()){
                     DBObjectBundle objectBundle = connectionHandler.getObjectBundle();
-                    loadElements(elements, objectBundle);
+                    loadElements(nodes, objectBundle);
                 }
             }
             else {
-                for (BrowserTreeElement treeElement : browserTreeElement.getTreeChildren()) {
-                    if (treeElement instanceof DBObject) {
-                        elements.add(treeElement);
+                for (BrowserTreeNode treeNode : browserTreeNode.getTreeChildren()) {
+                    if (treeNode instanceof DBObject) {
+                        nodes.add(treeNode);
                     }
-                    loadElements(elements, treeElement);
+                    loadElements(nodes, treeNode);
                 }
             }
         }
     }
 
     protected String getElementText(Object o) {
-        BrowserTreeElement treeElement = (BrowserTreeElement) o;
-        return treeElement.getPresentableText();
+        BrowserTreeNode treeNode = (BrowserTreeNode) o;
+        return treeNode.getPresentableText();
     }
 
     protected void selectElement(Object o, String s) {
-        BrowserTreeElement treeElement = (BrowserTreeElement) o;
-        tree.selectElement(treeElement, false);
+        BrowserTreeNode treeNode = (BrowserTreeNode) o;
+        tree.selectElement(treeNode, false);
 
 /*
-        TreePath treePath = DatabaseBrowserUtils.createTreePath(treeElement);
+        TreePath treePath = DatabaseBrowserUtils.createTreePath(treeNode);
         tree.setSelectionPath(treePath);
         tree.scrollPathToVisible(treePath);
 */

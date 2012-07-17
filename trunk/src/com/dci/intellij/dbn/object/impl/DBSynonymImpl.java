@@ -1,6 +1,6 @@
 package com.dci.intellij.dbn.object.impl;
 
-import com.dci.intellij.dbn.browser.model.BrowserTreeElement;
+import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
 import com.dci.intellij.dbn.browser.ui.HtmlToolTipBuilder;
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.editor.DBContentType;
@@ -139,8 +139,8 @@ public class DBSynonymImpl extends DBSchemaObjectImpl implements DBSynonym {
     }
 
     @NotNull
-    public List<BrowserTreeElement> buildAllPossibleTreeChildren() {
-        return BrowserTreeElement.EMPTY_LIST;
+    public List<BrowserTreeNode> buildAllPossibleTreeChildren() {
+        return BrowserTreeNode.EMPTY_LIST;
     }
 
 

@@ -1,6 +1,6 @@
 package com.dci.intellij.dbn.navigation.action;
 
-import com.dci.intellij.dbn.browser.DatabaseBrowserManager;
+import com.dci.intellij.dbn.connection.ConnectionBundle;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.ConnectionManager;
 import com.dci.intellij.dbn.navigation.GoToDatabaseObjectModel;
@@ -30,18 +30,18 @@ public class GoToDatabaseObjectAction extends GotoActionBase implements DumbAwar
     public void gotoActionPerformed(AnActionEvent event) {
         //FeatureUsageTracker.getInstance().triggerFeatureUsed("navigation.popup.file");
         Project project = event.getData(PlatformDataKeys.PROJECT);
-        DatabaseBrowserManager browserManager = DatabaseBrowserManager.getInstance(project);
-        List<ConnectionManager> connectionManagers = browserManager.getConnectionManagers();
-
 
         ObjectsLookupSettings objectsLookupSettings = GlobalProjectSettings.getInstance(project).getNavigationSettings().getObjectsLookupSettings();
         if (objectsLookupSettings.getPromptConnectionSelection().value()) {
             ConnectionHandler singleConnectionHandler = null;
             DefaultActionGroup actionGroup = new DefaultActionGroup();
-            for (ConnectionManager connectionManager : connectionManagers) {
-                if (connectionManager.getConnectionHandlers().size() > 0) {
+
+            ConnectionManager connectionManager = ConnectionManager.getInstance(project);
+            List<ConnectionBundle> connectionBundles = connectionManager.getConnectionBundles();
+            for (ConnectionBundle connectionBundle : connectionBundles) {
+                if (connectionBundle.getConnectionHandlers().size() > 0) {
                     actionGroup.addSeparator();
-                    for (ConnectionHandler connectionHandler : connectionManager.getConnectionHandlers()) {
+                    for (ConnectionHandler connectionHandler : connectionBundle.getConnectionHandlers()) {
                         SelectConnectionAction connectionAction = new SelectConnectionAction(connectionHandler);
                         actionGroup.add(connectionAction);
                         singleConnectionHandler = connectionHandler;
@@ -73,7 +73,7 @@ public class GoToDatabaseObjectAction extends GotoActionBase implements DumbAwar
                 showLookupPopup(event, project, singleConnectionHandler);
             }
         } else {
-            ConnectionHandler connectionHandler = ConnectionManager.getActiveConnection(project);
+            ConnectionHandler connectionHandler = ConnectionBundle.getActiveConnection(project);
             showLookupPopup(event, project, connectionHandler);
         }
 

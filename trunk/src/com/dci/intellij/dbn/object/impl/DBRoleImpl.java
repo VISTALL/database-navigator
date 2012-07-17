@@ -1,7 +1,7 @@
 package com.dci.intellij.dbn.object.impl;
 
 import com.dci.intellij.dbn.browser.DatabaseBrowserUtils;
-import com.dci.intellij.dbn.browser.model.BrowserTreeElement;
+import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
 import com.dci.intellij.dbn.common.content.loader.DynamicContentLoader;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.object.DBGrantedPrivilege;
@@ -111,7 +111,7 @@ public class DBRoleImpl extends DBObjectImpl implements DBRole {
      *                     TreeElement                       *
      *********************************************************/
     @NotNull
-    public List<BrowserTreeElement> buildAllPossibleTreeChildren() {
+    public List<BrowserTreeNode> buildAllPossibleTreeChildren() {
         return DatabaseBrowserUtils.createList(privileges, grantedRoles);
     }
 

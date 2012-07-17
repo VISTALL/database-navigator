@@ -1,5 +1,6 @@
 package com.dci.intellij.dbn.execution.common.message.ui.tree;
 
+import com.dci.intellij.dbn.common.ui.tree.TreeEventType;
 import com.dci.intellij.dbn.common.ui.tree.TreeUtil;
 import com.dci.intellij.dbn.execution.compiler.CompilerMessage;
 import com.dci.intellij.dbn.execution.statement.StatementExecutionMessage;
@@ -29,8 +30,9 @@ public class MessagesTreeModel implements TreeModel {
     }
 
 
-    public void notifyTreeModelListeners(TreeNode node, int eventType) {
-        TreeUtil.notifyTreeModelListeners(this, treeModelListeners, node, eventType);
+    public void notifyTreeModelListeners(TreeNode node, TreeEventType eventType) {
+        TreePath treePath = TreeUtil.createTreePath(node);
+        TreeUtil.notifyTreeModelListeners(this, treeModelListeners, treePath, eventType);
     }
 
     public void invalidate() {

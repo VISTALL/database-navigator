@@ -2,9 +2,11 @@ package com.dci.intellij.dbn.connection.action;
 
 import com.dci.intellij.dbn.common.thread.BackgroundTask;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
+import com.dci.intellij.dbn.connection.ConnectionManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.DumbAwareAction;
+import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 public class TestConnectivityAction extends DumbAwareAction {
@@ -17,11 +19,13 @@ public class TestConnectivityAction extends DumbAwareAction {
     }
 
     public void actionPerformed(AnActionEvent anActionEvent) {
-        new BackgroundTask(connectionHandler.getProject(), "Trying to connect to " + connectionHandler.getName(), false) {
+        final Project project = connectionHandler.getProject();
+        new BackgroundTask(project, "Trying to connect to " + connectionHandler.getName(), false) {
             @Override
             public void execute(@NotNull ProgressIndicator progressIndicator) {
                 initProgressIndicator(progressIndicator, true);
-                connectionHandler.getConnectionManager().testConnection(connectionHandler, true);
+                ConnectionManager connectionManager = ConnectionManager.getInstance(project);
+                connectionManager.testConnection(connectionHandler, true);
             }
         }.start();
 

@@ -32,7 +32,8 @@ public class ObjectNavigationListShowAllAction extends AnAction {
                 true, null, 10);
 
         Project project = e.getData(PlatformDataKeys.PROJECT);
-        popup.showInCenterOf(DatabaseBrowserManager.getInstance(project).getActiveBrowserTree());
+        DatabaseBrowserManager browserManager = DatabaseBrowserManager.getInstance(project);
+        popup.showInCenterOf(browserManager.getActiveBrowserTree());
         //popup.show(DatabaseBrowserComponent.getInstance(project).getBrowserPanel().getTree());
     }
 }

@@ -1,7 +1,7 @@
 package com.dci.intellij.dbn.object.impl;
 
 import com.dci.intellij.dbn.browser.DatabaseBrowserUtils;
-import com.dci.intellij.dbn.browser.model.BrowserTreeElement;
+import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
 import com.dci.intellij.dbn.browser.ui.HtmlToolTipBuilder;
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.content.DynamicContent;
@@ -140,9 +140,9 @@ public class DBTypeImpl extends DBProgramImpl implements DBType {
      *                     TreeElement                       *
      *********************************************************/
     @NotNull
-    public List<BrowserTreeElement> buildAllPossibleTreeChildren() {
+    public List<BrowserTreeNode> buildAllPossibleTreeChildren() {
         return isCollection() ? 
-                BrowserTreeElement.EMPTY_LIST :
+                BrowserTreeNode.EMPTY_LIST :
                 DatabaseBrowserUtils.createList(attributes, procedures, functions);
     }
 

@@ -18,8 +18,16 @@ import com.intellij.ui.ColoredListCellRenderer;
 import com.intellij.util.ui.ColorIcon;
 import com.intellij.util.ui.UIUtil;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.Icon;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.nio.charset.Charset;
@@ -76,7 +84,7 @@ public class ConnectionDetailSettingsForm extends ConfigurationEditorForm<Connec
 
     public void notifyPresentationChanges() {
         Project project = getConfiguration().getProject();
-        ConnectionPresentationChangeListener listener = EventManager.syncPublisher(project, ConnectionPresentationChangeListener.TOPIC);
+        ConnectionPresentationChangeListener listener = EventManager.notify(project, ConnectionPresentationChangeListener.TOPIC);
         EnvironmentType environmentType = (EnvironmentType) environmentTypesComboBox.getSelectedItem();
         Color color = environmentType == null ? null : environmentType.getColor();
         listener.presentationChanged(null, null, color, connectionId);
@@ -152,12 +160,12 @@ public class ConnectionDetailSettingsForm extends ConfigurationEditorForm<Connec
 
         Project project = getConfiguration().getProject();
         if (environmentChanged) {
-            EnvironmentChangeListener listener = EventManager.syncPublisher(project, EnvironmentChangeListener.TOPIC);
+            EnvironmentChangeListener listener = EventManager.notify(project, EnvironmentChangeListener.TOPIC);
             listener.environmentTypeChanged(newEnvironmentType);
         }
 
         if (settingsChanged) {
-            ConnectionStatusListener listener = EventManager.syncPublisher(project, ConnectionStatusListener.TOPIC);
+            ConnectionStatusListener listener = EventManager.notify(project, ConnectionStatusListener.TOPIC);
             listener.statusChanged(connectionId);
         }
 

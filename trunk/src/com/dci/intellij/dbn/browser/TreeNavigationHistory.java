@@ -1,30 +1,30 @@
 package com.dci.intellij.dbn.browser;
 
-import com.dci.intellij.dbn.browser.model.BrowserTreeElement;
+import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
 import com.dci.intellij.dbn.browser.options.DatabaseBrowserSettings;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class TreeNavigationHistory{
-    private List<BrowserTreeElement> history = new ArrayList<BrowserTreeElement>();
+    private List<BrowserTreeNode> history = new ArrayList<BrowserTreeNode>();
     private int offset;
 
-    public void add(BrowserTreeElement treeElement) {
-        if (history.size() > 0 && treeElement == history.get(offset)) {
+    public void add(BrowserTreeNode treeNode) {
+        if (history.size() > 0 && treeNode == history.get(offset)) {
             return;
         }
         while (history.size() - 1  > offset) {
             history.remove(offset);
         }
 
-        DatabaseBrowserSettings browserSettings = DatabaseBrowserSettings.getInstance(treeElement.getProject());
+        DatabaseBrowserSettings browserSettings = DatabaseBrowserSettings.getInstance(treeNode.getProject());
 
         int historySize = browserSettings.getGeneralSettings().getNavigationHistorySize().value();
         while (history.size() > historySize) {
             history.remove(0);
         }
-        history.add(treeElement);
+        history.add(treeNode);
         offset = history.size() -1;
     }
 
@@ -40,12 +40,12 @@ public class TreeNavigationHistory{
         return offset > 0;
     }
 
-    public BrowserTreeElement next() {
+    public BrowserTreeNode next() {
         offset = offset + 1;
         return history.get(offset);
     }
 
-    public BrowserTreeElement previous() {
+    public BrowserTreeNode previous() {
         offset = offset -1;
         return history.get(offset);
     }

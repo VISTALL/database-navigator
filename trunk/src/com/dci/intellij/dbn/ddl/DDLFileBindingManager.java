@@ -6,8 +6,8 @@ import com.dci.intellij.dbn.common.thread.WriteActionRunner;
 import com.dci.intellij.dbn.common.ui.ListUtil;
 import com.dci.intellij.dbn.common.util.MessageUtil;
 import com.dci.intellij.dbn.common.util.VirtualFileUtil;
+import com.dci.intellij.dbn.connection.ConnectionBundle;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
-import com.dci.intellij.dbn.connection.ConnectionManager;
 import com.dci.intellij.dbn.ddl.ui.BindDDLFileDialog;
 import com.dci.intellij.dbn.ddl.ui.DDLFileNameListCellRenderer;
 import com.dci.intellij.dbn.ddl.ui.UnbindDDLFileDialog;
@@ -27,16 +27,28 @@ import com.intellij.openapi.ui.SelectFromListDialog;
 import com.intellij.openapi.util.InvalidDataException;
 import com.intellij.openapi.util.JDOMExternalizable;
 import com.intellij.openapi.util.WriteExternalException;
-import com.intellij.openapi.vfs.*;
+import com.intellij.openapi.vfs.LocalFileSystem;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileCopyEvent;
+import com.intellij.openapi.vfs.VirtualFileEvent;
+import com.intellij.openapi.vfs.VirtualFileListener;
+import com.intellij.openapi.vfs.VirtualFileManager;
+import com.intellij.openapi.vfs.VirtualFileMoveEvent;
+import com.intellij.openapi.vfs.VirtualFilePropertyEvent;
 import org.jdom.Element;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.JList;
+import javax.swing.ListSelectionModel;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class DDLFileBindingManager extends AbstractProjectComponent implements VirtualFileListener, JDOMExternalizable {
 
@@ -79,7 +91,7 @@ public class DDLFileBindingManager extends AbstractProjectComponent implements V
             int endIndex = objectPath.indexOf(']');
             String connectionId = objectPath.substring(startIndex, endIndex);
 
-            ConnectionHandler connectionHandler = ConnectionManager.getConnectionHandler(connectionId);
+            ConnectionHandler connectionHandler = ConnectionBundle.getConnectionHandler(connectionId);
             if (connectionHandler != null) {
                 startIndex = endIndex + 1;
                 endIndex = objectPath.indexOf('.', startIndex);

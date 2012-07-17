@@ -1,15 +1,15 @@
 package com.dci.intellij.dbn.object.impl;
 
-import com.dci.intellij.dbn.browser.DatabaseBrowserManager;
 import com.dci.intellij.dbn.browser.DatabaseBrowserUtils;
-import com.dci.intellij.dbn.browser.model.BrowserTreeElement;
+import com.dci.intellij.dbn.browser.model.BrowserTreeChangeListener;
+import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
 import com.dci.intellij.dbn.browser.ui.HtmlToolTipBuilder;
 import com.dci.intellij.dbn.common.content.DynamicContent;
 import com.dci.intellij.dbn.common.content.DynamicContentElement;
 import com.dci.intellij.dbn.common.content.loader.DynamicContentLoader;
 import com.dci.intellij.dbn.common.content.loader.DynamicContentResultSetLoader;
-import com.dci.intellij.dbn.common.thread.ConditionalLaterInvocator;
-import com.dci.intellij.dbn.common.ui.tree.TreeUtil;
+import com.dci.intellij.dbn.common.event.EventManager;
+import com.dci.intellij.dbn.common.ui.tree.TreeEventType;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.ConnectionUtil;
 import com.dci.intellij.dbn.database.DatabaseCompatibilityInterface;
@@ -386,7 +386,7 @@ public class DBSchemaImpl extends DBObjectImpl implements DBSchema {
     }
 
     public synchronized void refreshObjectsStatus() {
-        final Set<BrowserTreeElement> refreshNodes = resetObjectsStatus();
+        final Set<BrowserTreeNode> refreshNodes = resetObjectsStatus();
         Connection connection = null;
         ResultSet resultSet = null;
         try {
@@ -444,23 +444,19 @@ public class DBSchemaImpl extends DBObjectImpl implements DBSchema {
             getConnectionHandler().freePoolConnection(connection);
         }
 
-        new ConditionalLaterInvocator() {
-            public void run() {
-                for (BrowserTreeElement treeElement: refreshNodes) {
-                    DatabaseBrowserManager.updateTree(treeElement, TreeUtil.NODES_CHANGED);
-                }
-            }
-        }.start();
+        for (BrowserTreeNode treeNode : refreshNodes) {
+            EventManager.notify(getProject(), BrowserTreeChangeListener.TOPIC).nodeChanged(treeNode, TreeEventType.NODES_CHANGED);
+        }
     }
 
-    private Set<BrowserTreeElement> resetObjectsStatus() {
+    private Set<BrowserTreeNode> resetObjectsStatus() {
         ObjectStatusUpdater updater = new ObjectStatusUpdater();
         getChildObjects().visitLists(updater, true);
         return updater.getRefreshNodes();
     }
 
     class ObjectStatusUpdater implements DBObjectListVisitor {
-        private Set<BrowserTreeElement> refreshNodes = new HashSet<BrowserTreeElement>();
+        private Set<BrowserTreeNode> refreshNodes = new HashSet<BrowserTreeNode>();
 
         public void visitObjectList(DBObjectList<DBObject> objectList) {
             if (objectList.isLoaded() && !objectList.isDirty() && !objectList.isLoading()) {
@@ -487,7 +483,7 @@ public class DBSchemaImpl extends DBObjectImpl implements DBSchema {
         }
 
 
-        public Set<BrowserTreeElement> getRefreshNodes() {
+        public Set<BrowserTreeNode> getRefreshNodes() {
             return refreshNodes;
         }
     }
@@ -502,7 +498,7 @@ public class DBSchemaImpl extends DBObjectImpl implements DBSchema {
      *                     TreeElement                       *
      *********************************************************/
     @NotNull
-    public List<BrowserTreeElement> buildAllPossibleTreeChildren() {
+    public List<BrowserTreeNode> buildAllPossibleTreeChildren() {
         return DatabaseBrowserUtils.createList(
                 tables,
                 views,
