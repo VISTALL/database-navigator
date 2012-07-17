@@ -28,7 +28,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.Icon;
+import javax.swing.*;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
@@ -111,6 +111,11 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
     private void notifyTransactionPostAction(TransactionAction action, boolean successful) throws SQLException {
         TransactionListener listener = EventManager.syncPublisher(getProject(), TransactionListener.TOPIC);
         listener.afterAction(this, action, successful);
+    }
+
+    private void notifyStatusChange() {
+        ConnectionStatusListener changeListener = EventManager.syncPublisher(getProject(), ConnectionStatusListener.TOPIC);
+        changeListener.statusChanged(getId());
     }
 
     public boolean hasUncommittedChanges() {
@@ -214,13 +219,7 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
     public void setAutoCommit(boolean autoCommit) throws SQLException {
         connectionPool.setAutoCommit(autoCommit);
         connectionSettings.getDetailSettings().setAutoCommit(autoCommit);
-        ConnectionSettingsChangeListener listener = EventManager.syncPublisher(getProject(), ConnectionSettingsChangeListener.TOPIC);
-        listener.connectionSettingsChanged(getId());
-
-    }
-
-    public ConnectionInfo testConnectivity(boolean showMessageDialog) {
-        return connectionManager.testConnectivity(connectionSettings, connectionStatus, showMessageDialog);
+        notifyStatusChange();
     }
 
     public void disconnect() {
@@ -229,8 +228,7 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
             TransactionListener transactionListener = EventManager.syncPublisher(getProject(), TransactionListener.TOPIC);
             transactionListener.afterAction(this, TransactionAction.DISCONNECT, true);
 
-            ConnectionSettingsChangeListener changeListener = EventManager.syncPublisher(getProject(), ConnectionSettingsChangeListener.TOPIC);
-            changeListener.connectionSettingsChanged(getId());
+            notifyStatusChange();
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -405,7 +403,7 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
                 @Override
                 public void execute(@NotNull ProgressIndicator progressIndicator) {
                     initProgressIndicator(progressIndicator, true);
-                    connectionManager.testConnectivity(connectionSettings, connectionStatus, false);
+                    connectionManager.testConnection(ConnectionHandlerImpl.this, false);
                     //fixme check if the connection is pointing to a new database and reload if this is the case
                     //objectBundle.checkForDatabaseChange();
                     DatabaseBrowserManager.updateTree(getObjectBundle(), TreeUtil.NODES_CHANGED);

@@ -1,5 +1,6 @@
 package com.dci.intellij.dbn.connection;
 
+import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.database.DatabaseMetadataInterface;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.Logger;
@@ -29,25 +30,27 @@ public class ConnectionPool implements Disposable {
     }
 
     public Connection getStandaloneConnection(boolean recover) throws SQLException {
+        if (standaloneConnection != null) {
+            DatabaseMetadataInterface metadataInterface = connectionHandler.getInterfaceProvider().getMetadataInterface();
+            if (recover && !metadataInterface.isValid(standaloneConnection)) {
+                standaloneConnection = null;
+            }
+        }
+
         if (standaloneConnection == null) {
-            return createStandaloneConnection();
+            try {
+                standaloneConnection = ConnectionUtil.connect(connectionHandler);
+            } finally {
+                notifyStatusChange();
+            }
         }
-        DatabaseMetadataInterface metadataInterface = connectionHandler.getInterfaceProvider().getMetadataInterface();
-        if (recover && !metadataInterface.isValid(standaloneConnection)) {
-            return createStandaloneConnection();
-        }
+
         return standaloneConnection;
     }
 
-    private Connection createStandaloneConnection() throws SQLException {
-        try {
-            standaloneConnection = ConnectionUtil.connect(connectionHandler.getSettings(), connectionHandler.getConnectionStatus());
-            return standaloneConnection;
-            //connectionHandler.getDataDictionary().setCurrentSchema(connectionHandler.getCurrentSchemaName(), standaloneConnection);
-        } finally {
-            //connectionHandler.getConnectionManager().notifyConnectionStatusListeners(connectionHandler);
-        }
-
+    private void notifyStatusChange() {
+        ConnectionStatusListener changeListener = EventManager.syncPublisher(connectionHandler.getProject(), ConnectionStatusListener.TOPIC);
+        changeListener.statusChanged(connectionHandler.getId());
     }
 
     public synchronized Connection allocateConnection() throws SQLException {
@@ -63,7 +66,7 @@ public class ConnectionPool implements Disposable {
         }
 
         logger.debug("[DBN-INFO] Attempt to create new pool connection for '" + connectionHandler.getName() + "'");
-        Connection connection = ConnectionUtil.connect(connectionHandler.getSettings(), connectionStatus);
+        Connection connection = ConnectionUtil.connect(connectionHandler);
 
         //connectionHandler.getConnectionManager().notifyConnectionStatusListeners(connectionHandler);
 

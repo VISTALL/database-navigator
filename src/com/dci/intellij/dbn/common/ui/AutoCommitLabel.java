@@ -4,7 +4,7 @@ import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.common.thread.ConditionalLaterInvocator;
 import com.dci.intellij.dbn.common.util.UIUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
-import com.dci.intellij.dbn.connection.ConnectionSettingsChangeListener;
+import com.dci.intellij.dbn.connection.ConnectionStatusListener;
 import com.dci.intellij.dbn.connection.VirtualConnectionHandler;
 import com.intellij.openapi.project.Project;
 import org.picocontainer.Disposable;
@@ -12,7 +12,7 @@ import org.picocontainer.Disposable;
 import javax.swing.*;
 import java.awt.*;
 
-public class AutoCommitLabel extends JLabel implements ConnectionSettingsChangeListener, Disposable {
+public class AutoCommitLabel extends JLabel implements ConnectionStatusListener, Disposable {
     private Project project;
     private ConnectionHandler connectionHandler;
     private boolean subscribed = false;
@@ -30,7 +30,7 @@ public class AutoCommitLabel extends JLabel implements ConnectionSettingsChangeL
             if (!subscribed) {
                 subscribed = true;
                 project = connectionHandler.getProject();
-                EventManager.subscribe(project, ConnectionSettingsChangeListener.TOPIC, this);
+                EventManager.subscribe(project, ConnectionStatusListener.TOPIC, this);
             }
         }
         update();
@@ -59,8 +59,8 @@ public class AutoCommitLabel extends JLabel implements ConnectionSettingsChangeL
     }
 
     @Override
-    public void connectionSettingsChanged(String connectionId) {
-        if (connectionHandler != null && connectionId.equals(connectionHandler.getId())) {
+    public void statusChanged(String connectionId) {
+        if (connectionHandler != null && connectionHandler.getId().equals(connectionId)) {
             update();
         }
     }

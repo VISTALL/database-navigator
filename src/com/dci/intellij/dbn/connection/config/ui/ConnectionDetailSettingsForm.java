@@ -9,7 +9,7 @@ import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dci.intellij.dbn.common.properties.ui.PropertiesEditorForm;
 import com.dci.intellij.dbn.common.ui.ComboBoxUtil;
-import com.dci.intellij.dbn.connection.ConnectionSettingsChangeListener;
+import com.dci.intellij.dbn.connection.ConnectionStatusListener;
 import com.dci.intellij.dbn.connection.config.ConnectionDetailSettings;
 import com.dci.intellij.dbn.options.general.GeneralProjectSettings;
 import com.intellij.openapi.options.ConfigurationException;
@@ -18,16 +18,8 @@ import com.intellij.ui.ColoredListCellRenderer;
 import com.intellij.util.ui.ColorIcon;
 import com.intellij.util.ui.UIUtil;
 
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.Icon;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import java.awt.BorderLayout;
-import java.awt.Color;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.nio.charset.Charset;
@@ -165,8 +157,8 @@ public class ConnectionDetailSettingsForm extends ConfigurationEditorForm<Connec
         }
 
         if (settingsChanged) {
-            ConnectionSettingsChangeListener listener = EventManager.syncPublisher(project, ConnectionSettingsChangeListener.TOPIC);
-            listener.connectionSettingsChanged(connectionId);
+            ConnectionStatusListener listener = EventManager.syncPublisher(project, ConnectionStatusListener.TOPIC);
+            listener.statusChanged(connectionId);
         }
 
     }

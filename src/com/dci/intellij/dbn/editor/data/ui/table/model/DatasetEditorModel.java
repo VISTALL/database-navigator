@@ -18,7 +18,7 @@ import com.dci.intellij.dbn.object.DBDataset;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 
-import javax.swing.ListSelectionModel;
+import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.sql.Connection;
@@ -354,7 +354,7 @@ public class DatasetEditorModel extends ResultSetDataModel<DatasetEditorModelRow
     }
 
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        if (!isReadonly() && ! getState().isReadonly()) {
+        if (!isReadonly() && ! getState().isReadonly() && getConnectionHandler().isConnected()) {
             if (!editorTable.isLoading() && editorTable.getSelectedColumnCount() <= 1 && editorTable.getSelectedRowCount() <= 1) {
                 DatasetEditorModelRow row = getRowAtIndex(rowIndex);
                 return row != null && !(isInserting && !row.isInsert()) && !row.isDeleted();
