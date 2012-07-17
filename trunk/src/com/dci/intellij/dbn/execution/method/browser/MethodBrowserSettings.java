@@ -1,8 +1,8 @@
 package com.dci.intellij.dbn.execution.method.browser;
 
 import com.dci.intellij.dbn.common.options.PersistentConfiguration;
-import com.dci.intellij.dbn.connection.ConnectionBundle;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
+import com.dci.intellij.dbn.connection.ConnectionManager;
 import com.dci.intellij.dbn.execution.method.MethodIdentifier;
 import com.dci.intellij.dbn.object.DBMethod;
 import com.dci.intellij.dbn.object.DBSchema;
@@ -33,7 +33,7 @@ public class MethodBrowserSettings implements PersistentConfiguration {
 
     public ConnectionHandler getConnectionHandler() {
         if (connectionHandler == null) {
-            connectionHandler = ConnectionBundle.getConnectionHandler(connectionId);
+            connectionHandler = ConnectionManager.findConnectionHandler(connectionId);
         }
         return connectionHandler;
     }

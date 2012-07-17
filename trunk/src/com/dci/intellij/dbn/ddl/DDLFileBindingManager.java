@@ -6,8 +6,8 @@ import com.dci.intellij.dbn.common.thread.WriteActionRunner;
 import com.dci.intellij.dbn.common.ui.ListUtil;
 import com.dci.intellij.dbn.common.util.MessageUtil;
 import com.dci.intellij.dbn.common.util.VirtualFileUtil;
-import com.dci.intellij.dbn.connection.ConnectionBundle;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
+import com.dci.intellij.dbn.connection.ConnectionManager;
 import com.dci.intellij.dbn.ddl.ui.BindDDLFileDialog;
 import com.dci.intellij.dbn.ddl.ui.DDLFileNameListCellRenderer;
 import com.dci.intellij.dbn.ddl.ui.UnbindDDLFileDialog;
@@ -91,7 +91,8 @@ public class DDLFileBindingManager extends AbstractProjectComponent implements V
             int endIndex = objectPath.indexOf(']');
             String connectionId = objectPath.substring(startIndex, endIndex);
 
-            ConnectionHandler connectionHandler = ConnectionBundle.getConnectionHandler(connectionId);
+            ConnectionManager connectionManager = ConnectionManager.getInstance(getProject());
+            ConnectionHandler connectionHandler = connectionManager.getConnectionHandler(connectionId);
             if (connectionHandler != null) {
                 startIndex = endIndex + 1;
                 endIndex = objectPath.indexOf('.', startIndex);
