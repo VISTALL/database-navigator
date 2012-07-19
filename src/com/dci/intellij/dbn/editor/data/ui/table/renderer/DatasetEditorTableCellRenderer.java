@@ -83,6 +83,11 @@ public class DatasetEditorTableCellRenderer extends BasicTableCellRenderer {
                         setBackground(configTextAttributes.getCaretRow().getBgColor());
                     }
 
+                    Color foreignReferenceBackground = configTextAttributes.getForeignReference().getBgColor();
+                    if (foreignReferenceBackground != null && cell.getColumnInfo().getColumn().isForeignKey()) {
+                        setBackground(foreignReferenceBackground);
+                    }
+
                 }
             }
         }

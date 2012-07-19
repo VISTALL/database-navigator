@@ -1,12 +1,15 @@
 package com.dci.intellij.dbn.data.record.ui;
 
 import com.dci.intellij.dbn.common.ui.MouseUtil;
+import com.dci.intellij.dbn.common.util.TextAttributesUtil;
+import com.dci.intellij.dbn.data.editor.color.DataGridTextAttributesKeys;
 import com.dci.intellij.dbn.data.record.DatasetRecord;
 import com.dci.intellij.dbn.editor.data.DatasetEditorManager;
 import com.dci.intellij.dbn.editor.data.filter.DatasetFilterInput;
 import com.dci.intellij.dbn.object.DBColumn;
 import com.dci.intellij.dbn.object.DBConstraint;
 import com.dci.intellij.dbn.object.DBDataset;
+import com.intellij.ui.SimpleTextAttributes;
 
 import javax.swing.JDialog;
 import javax.swing.JTextField;
@@ -25,7 +28,12 @@ public class ColumnValueTextField extends JTextField {
         this.column = column;
         if (column.isForeignKey()) {
             addMouseListener(mouseListener);
-            setForeground(new Color(0, 0, 128));
+            SimpleTextAttributes textAttributes = TextAttributesUtil.getSimpleTextAttributes(DataGridTextAttributesKeys.FOREIGN_REFERENCE);
+            setForeground(textAttributes.getFgColor());
+            Color background = textAttributes.getBgColor();
+            if (background != null) {
+                setBackground(background);
+            }
         }
 
     }
