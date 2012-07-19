@@ -2,7 +2,7 @@
     <name>Database Navigator</name>
     <id>DBN</id>
     <!--2250-->
-    <version>3.0.2289</version>
+    <version>3.0.2324</version>
     <category>Database</category>
     <depends>com.intellij.modules.lang</depends>
     <vendor email="dancioca@bluewin.ch" logo="/img/project/DatabaseNavigator.png">Dan Cioca</vendor>
@@ -31,7 +31,7 @@
     ]]></description>
     <change-notes><![CDATA[
         <ul>
-            <li><b>3.0.2289</b>
+            <li><b>3.0.2324</b>
             <ul>
                 - Code formatting (Experimental - work in progress)<br>
                 - Uncommitted changes overview / notifications<br>
