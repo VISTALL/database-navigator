@@ -9,7 +9,7 @@ import java.awt.Color;
 
 public interface DataGridTextAttributesKeys {
     Color DEFAULT_CARET_ROW_BG_COLOR = new Color(255, 255, 215);
-    Color DEFAULT_FOREIGN_REFERENCE_FG_COLOR = new Color(0, 0, 128);
+    Color DEFAULT_FOREIGN_REFERENCE_FG_COLOR = new Color(0, 0, 160);
     Color DEFAULT_SELECTION_FG_COLOR = new Color(255, 255, 255);
     Color DEFAULT_SELECTION_BG_COLOR = new Color(82, 109, 165);
     Color DEFAULT_ERROR_BG_COLOR = new Color(255, 240, 240);
