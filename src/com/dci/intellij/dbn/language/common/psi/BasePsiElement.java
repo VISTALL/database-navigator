@@ -198,7 +198,7 @@ public abstract class BasePsiElement extends ASTWrapperPsiElement implements Ite
     }
 
     public void accept(@NotNull PsiElementVisitor visitor) {
-        //super.accept(visitor);
+        super.accept(visitor);
     }
 
     public String getText() {
