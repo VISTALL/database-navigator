@@ -23,11 +23,7 @@ public abstract class DBLanguageDialect extends LanguageDialect implements DBFil
     public DBLanguageDialect(@NonNls @NotNull DBLanguageDialectIdentifier identifier, @NotNull DBLanguage baseLanguage) {
         super(identifier.getValue(), baseLanguage);
         this.identifier = identifier;
-        syntaxHighlighter = createSyntaxHighlighter();
-        parserDefinition = createParserDefinition();
-        fileElementType = createFileElementType();
         register.put(identifier, this);
-        chameleonElementType = new ChameleonElementType(this);
     }
 
     protected abstract Set<ChameleonTokenType> createChameleonTokenTypes();
@@ -59,25 +55,34 @@ public abstract class DBLanguageDialect extends LanguageDialect implements DBFil
         return getBaseLanguage().getSharedTokenTypes();
     }
 
-    public DBLanguageSyntaxHighlighter getSyntaxHighlighter() {
+    public synchronized DBLanguageSyntaxHighlighter getSyntaxHighlighter() {
+        if (syntaxHighlighter == null) {
+            syntaxHighlighter = createSyntaxHighlighter();
+        }
         return syntaxHighlighter;
     }
 
     @NotNull
-    public DBLanguageParserDefinition getParserDefinition() {
+    public synchronized DBLanguageParserDefinition getParserDefinition() {
+        if (parserDefinition == null) {
+            parserDefinition = createParserDefinition();
+        }
         return parserDefinition;
     }
 
-    public IFileElementType getFileElementType() {
+    public synchronized IFileElementType getFileElementType() {
+        if (fileElementType == null) {
+            fileElementType = createFileElementType();
+        }
         return fileElementType;
     }
 
     public TokenTypeBundle getParserTokenTypes() {
-        return parserDefinition.getParser().getTokenTypes();
+        return getParserDefinition().getParser().getTokenTypes();
     }
 
     public TokenTypeBundle getHighlighterTokenTypes() {
-        return syntaxHighlighter.getTokenTypes();
+        return getSyntaxHighlighter().getTokenTypes();
     }
 
     public TokenType getInjectedLanguageToken(DBLanguageDialectIdentifier dialectIdentifier) {
@@ -93,7 +98,10 @@ public abstract class DBLanguageDialect extends LanguageDialect implements DBFil
         return null;
     }
 
-    public ChameleonElementType getChameleonElementType() {
+    public synchronized ChameleonElementType getChameleonElementType() {
+        if (chameleonElementType == null) {
+            chameleonElementType = new ChameleonElementType(this);
+        }
         return chameleonElementType;
     }
 }

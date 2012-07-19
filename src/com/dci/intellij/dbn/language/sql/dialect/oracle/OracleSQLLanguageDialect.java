@@ -29,7 +29,7 @@ public class OracleSQLLanguageDialect extends SQLLanguageDialect {
         if (dialectIdentifier == DBLanguageDialectIdentifier.ORACLE_PLSQL) {
             if (plsqlChameleonElementType == null) {
                 DBLanguageDialect plsqlDialect = DBLanguageDialect.getLanguageDialect(DBLanguageDialectIdentifier.ORACLE_PLSQL);
-                plsqlChameleonElementType = new ChameleonElementType(plsqlDialect);
+                plsqlChameleonElementType = plsqlDialect.getChameleonElementType();
             }
             return plsqlChameleonElementType;
         }
