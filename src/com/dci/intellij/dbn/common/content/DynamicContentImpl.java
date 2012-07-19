@@ -115,7 +115,7 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
         isDirty = dirty;
     }
 
-    public final void loadInBackground() {
+    public final synchronized void loadInBackground() {
         if (!isLoading && !isLoadingInBackground && shouldLoad()) {
             isLoadingInBackground = true;
             new BackgroundTask(getProject(), "Loading data dictionary", true) {
@@ -132,24 +132,23 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
     }
 
 
-    public final void load() {
-        synchronized (this) {
-            if (!isLoading && shouldLoad()) {
-                isLoading = true;
-                performLoad();
-                isLoaded = true;
-                updateChangeTimestamp();
+    public final synchronized void load() {
+        if (!isLoading && shouldLoad()) {
+            isLoading = true;
+            performLoad();
+            isLoaded = true;
+            updateChangeTimestamp();
 
-                // load queued contents
-                if (queuedForLoading != null) {
-                    for (DynamicContent dynamicContent : queuedForLoading) {
-                        dynamicContent.loadInBackground();
-                    }
-                    queuedForLoading.clear();
-                    queuedForLoading = null;
+
+            // load queued contents
+            if (queuedForLoading != null) {
+                for (DynamicContent dynamicContent : queuedForLoading) {
+                    dynamicContent.loadInBackground();
                 }
-                isLoading = false;
+                queuedForLoading.clear();
+                queuedForLoading = null;
             }
+            isLoading = false;
         }
     }
 
@@ -178,15 +177,13 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
         }
     }
 
-    public final void reload(boolean recursive) {
-        synchronized (this) {
-            if (!isDisposed) {
-                isLoading = true;
-                performReload(recursive);
-                isLoaded = true;
-                isLoading = false;
-                updateChangeTimestamp();
-            }
+    public final synchronized void reload(boolean recursive) {
+        if (!isDisposed) {
+            isLoading = true;
+            performReload(recursive);
+            isLoaded = true;
+            isLoading = false;
+            updateChangeTimestamp();
         }
     }
 
@@ -220,7 +217,7 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
      */
     public abstract void notifyChangeListeners();
 
-    public void setElements(List<T> elements, boolean markAsOwner) {
+    public synchronized void setElements(List<T> elements, boolean markAsOwner) {
         filterHashCode = getFilter() == null ? 0 : getFilter().hashCode();
 
         if (elements == null || elements.size() == 0) {
