@@ -215,7 +215,7 @@ public class ConnectionManager extends AbstractProjectComponent implements Proje
      public ConnectionHandler getConnectionHandler(String connectionId) {
          for (ConnectionBundle connectionBundle : connectionBundles) {
              for (ConnectionHandler connectionHandler : connectionBundle.getConnectionHandlers().getFullList()) {
-                if (connectionHandler.getId().endsWith(connectionId)) {
+                if (connectionHandler.getId().equals(connectionId)) {
                     return connectionHandler;
                 }
              }
