@@ -9,6 +9,9 @@ import com.dci.intellij.dbn.data.editor.color.DataGridTextAttributes;
 import com.dci.intellij.dbn.data.preview.LargeValuePreviewPopup;
 import com.dci.intellij.dbn.data.value.LazyLoadedValue;
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.editor.colors.EditorColorsListener;
+import com.intellij.openapi.editor.colors.EditorColorsManager;
+import com.intellij.openapi.editor.colors.EditorColorsScheme;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.JBPopup;
 
@@ -22,7 +25,7 @@ import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.Rectangle;
 
-public class BasicTable extends DBNTable implements Disposable {
+public class BasicTable extends DBNTable implements EditorColorsListener, Disposable {
     protected DataGridTextAttributes configTextAttributes = new DataGridTextAttributes();
     protected BasicTableCellRenderer cellRenderer;
     private BasicTableGutter tableGutter;
@@ -34,6 +37,7 @@ public class BasicTable extends DBNTable implements Disposable {
         super(project, dataModel, true);
         setSelectionForeground(configTextAttributes.getSelection().getFgColor());
         setSelectionBackground(configTextAttributes.getSelection().getBgColor());
+        EditorColorsManager.getInstance().addEditorColorsListener(this);
     }
 
     public DataGridTextAttributes getConfigTextAttributes() {
@@ -103,6 +107,14 @@ public class BasicTable extends DBNTable implements Disposable {
         DataModelRow row = getModel().getRowAtIndex(rowIndex);
         int modelColumnIndex = getModelColumnIndex(columnIndex);
         return row.getCellAtIndex(modelColumnIndex);
+    }
+    /*********************************************************
+     *                EditorColorsListener                  *
+     *********************************************************/
+    @Override
+    public void globalSchemeChange(EditorColorsScheme scheme) {
+        configTextAttributes.load();
+        repaint();
     }
 
     /*********************************************************
@@ -177,6 +189,7 @@ public class BasicTable extends DBNTable implements Disposable {
     }
 
     public void dispose() {
+        EditorColorsManager.getInstance().removeEditorColorsListener(this);
         getModel().dispose();
         tableGutter = null;
     }
