@@ -81,7 +81,7 @@ public class DatabaseTransactionManager extends AbstractProjectComponent impleme
         if (connectionHandler.hasUncommittedChanges()) {
             int result = Messages.showDialog(
                     connectionHandler.getProject(),
-                    "You have uncommitted changes on this connection. \nYour changes will be lost if you disconnect form the database without committing.",
+                    "You have uncommitted changes on the connection \"" + connectionHandler.getName() + "\" . \nYour changes will be lost if you disconnect form the database without committing.",
                     Constants.DBN_TITLE_PREFIX + "Uncommitted changes",
                     new String[]{"Disconnect", "Commit", "Review Changes", "Cancel"}, 0, Icons.DIALOG_WARNING);
 
