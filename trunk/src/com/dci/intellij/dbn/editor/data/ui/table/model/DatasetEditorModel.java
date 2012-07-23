@@ -44,8 +44,10 @@ public class DatasetEditorModel extends ResultSetDataModel<DatasetEditorModelRow
     }
 
     public synchronized void load(ProgressIndicator progressIndicator, boolean useCurrentFilter, boolean keepChanges) throws SQLException {
-        progressIndicator.setText("Loading data for " + dataset.getQualifiedNameWithType());
-        load(useCurrentFilter, keepChanges);
+        if (!isDisposed()) {
+            progressIndicator.setText("Loading data for " + dataset.getQualifiedNameWithType());
+            load(useCurrentFilter, keepChanges);
+        }
     }
 
     private void load(boolean useCurrentFilter, boolean keepChanges) throws SQLException {

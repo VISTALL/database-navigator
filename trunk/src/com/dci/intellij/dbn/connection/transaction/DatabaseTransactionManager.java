@@ -1,8 +1,7 @@
 package com.dci.intellij.dbn.connection.transaction;
 
 import com.dci.intellij.dbn.common.AbstractProjectComponent;
-import com.dci.intellij.dbn.common.Constants;
-import com.dci.intellij.dbn.common.Icons;
+import com.dci.intellij.dbn.common.option.PersistableOption;
 import com.dci.intellij.dbn.common.thread.ModalTask;
 import com.dci.intellij.dbn.common.util.MessageUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
@@ -14,13 +13,16 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.project.ProjectManagerListener;
 import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.openapi.ui.Messages;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
 
 public class DatabaseTransactionManager extends AbstractProjectComponent implements ProjectManagerListener{
+    private PersistableOption toggleAutoCommitOption = new PersistableOption(2, "Commit", "Roll Back", "Review Changes", "Cancel");
+    private PersistableOption disconnectOption = new PersistableOption(2, "Commit", "Roll Back", "Review Changes", "Cancel");
+
+
     private DatabaseTransactionManager(Project project) {
         super(project);
         ProjectManager projectManager = ProjectManager.getInstance();
@@ -77,17 +79,32 @@ public class DatabaseTransactionManager extends AbstractProjectComponent impleme
         return executionDialog.getExitCode() == DialogWrapper.OK_EXIT_CODE;
     }
 
-    public void disconnect(ConnectionHandler connectionHandler) {
-        if (connectionHandler.hasUncommittedChanges()) {
-            int result = Messages.showDialog(
-                    connectionHandler.getProject(),
-                    "You have uncommitted changes on the connection \"" + connectionHandler.getName() + "\" . \nYour changes will be lost if you disconnect form the database without committing.",
-                    Constants.DBN_TITLE_PREFIX + "Uncommitted changes",
-                    new String[]{"Disconnect", "Commit", "Review Changes", "Cancel"}, 0, Icons.DIALOG_WARNING);
+    public void toggleAutoCommit(ConnectionHandler connectionHandler) {
+        boolean isAutoCommit = connectionHandler.isAutoCommit();
+        if (!isAutoCommit) {
+            int result = toggleAutoCommitOption.resolve(
+                    "You have uncommitted changes on the connection \"" + connectionHandler.getName() + "\" . \n" +
+                            "Please specify whether to commit or rollback these changes before switching Auto-Commit ON.", "Uncommitted changes");
 
             switch (result) {
-                case 0: execute(connectionHandler, false, ConnectionOperation.DISCONNECT); break;
-                case 1: execute(connectionHandler, false, ConnectionOperation.COMMIT, ConnectionOperation.DISCONNECT); break;
+                case 0: execute(connectionHandler, true, ConnectionOperation.COMMIT, ConnectionOperation.TOGGLE_AUTO_COMMIT); break;
+                case 1: execute(connectionHandler, true, ConnectionOperation.ROLLBACK, ConnectionOperation.TOGGLE_AUTO_COMMIT); break;
+                case 2: showUncommittedChangesDialog(connectionHandler, ConnectionOperation.TOGGLE_AUTO_COMMIT);
+            }
+        } else {
+            execute(connectionHandler, false, ConnectionOperation.TOGGLE_AUTO_COMMIT);
+        }
+    }
+
+    public void disconnect(ConnectionHandler connectionHandler) {
+        if (connectionHandler.hasUncommittedChanges()) {
+            int result = disconnectOption.resolve(
+                    "You have uncommitted changes on the connection \"" + connectionHandler.getName() + "\" . \n" +
+                            "Please specify whether to commit or rollback these changes before disconnecting", "Uncommitted changes");
+
+            switch (result) {
+                case 0: execute(connectionHandler, false, ConnectionOperation.COMMIT, ConnectionOperation.DISCONNECT); break;
+                case 1: execute(connectionHandler, false, ConnectionOperation.DISCONNECT); break;
                 case 2: showUncommittedChangesDialog(connectionHandler, ConnectionOperation.DISCONNECT);
             }
         } else {

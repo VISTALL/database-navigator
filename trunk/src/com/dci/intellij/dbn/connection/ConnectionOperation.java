@@ -20,7 +20,16 @@ public enum ConnectionOperation {
         void execute(ConnectionHandler connectionHandler) throws SQLException {
             connectionHandler.disconnect();
         }
+    }),
+
+    TOGGLE_AUTO_COMMIT("Toggle Auto-Commit", new Executor() {
+        @Override
+        void execute(ConnectionHandler connectionHandler) throws SQLException {
+            boolean isAutoCommit = connectionHandler.isAutoCommit();
+            connectionHandler.setAutoCommit(!isAutoCommit);
+        }
     });
+
 
     private String name;
     private Executor executor;
