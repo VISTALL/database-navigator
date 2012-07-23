@@ -40,11 +40,13 @@ public class ColumnValueTextField extends JTextField {
 
     protected void processMouseMotionEvent(MouseEvent e) {
         if (column.isForeignKey()) {
-            if (e.isControlDown() && e.getID() != MouseEvent.MOUSE_DRAGGED && column.isForeignKey()) {
+            if (e.isControlDown() && e.getID() != MouseEvent.MOUSE_DRAGGED && record.getColumnValue(column) != null) {
                 setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                setToolTipText("<html>Show referenced <b>" + column.getForeignKeyColumn().getDataset().getQualifiedName() + "</b> record<html>");
             } else {
                 super.processMouseMotionEvent(e);
                 setCursor(Cursor.getDefaultCursor());
+                setToolTipText(null);
             }
         } else {
             super.processMouseMotionEvent(e);
@@ -75,7 +77,7 @@ public class ColumnValueTextField extends JTextField {
     MouseListener mouseListener = new MouseAdapter() {
         public void mouseClicked(MouseEvent event) {
             if (MouseUtil.isNavigationEvent(event)) {
-                if (column.isForeignKey()) {
+                if (column.isForeignKey() && record.getColumnValue(column) != null) {
                     DatasetFilterInput filterInput = resolveForeignKeyRecord();
                     DatasetEditorManager datasetEditorManager = DatasetEditorManager.getInstance(column.getProject());
                     datasetEditorManager.navigateToRecord(filterInput, event);

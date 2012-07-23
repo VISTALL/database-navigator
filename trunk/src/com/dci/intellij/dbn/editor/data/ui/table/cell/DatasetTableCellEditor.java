@@ -21,6 +21,7 @@
  import javax.swing.border.LineBorder;
  import javax.swing.text.Document;
  import java.awt.Color;
+ import java.awt.Cursor;
  import java.awt.MouseInfo;
  import java.awt.Point;
  import java.awt.event.KeyEvent;
@@ -28,8 +29,10 @@
  import java.awt.event.MouseAdapter;
  import java.awt.event.MouseEvent;
  import java.awt.event.MouseListener;
+ import java.awt.event.MouseMotionAdapter;
+ import java.awt.event.MouseMotionListener;
 
-public class DatasetTableCellEditor extends AbstractDatasetTableCellEditor implements KeyListener{
+ public class DatasetTableCellEditor extends AbstractDatasetTableCellEditor implements KeyListener{
     public static final Border EMPTY_BORDER = new EmptyBorder(0, 3, 0, 3);
     private static final Border ERROR_BORDER = new CompoundBorder(new LineBorder(Color.RED, 1), new EmptyBorder(0, 2, 0, 2));
     private static final Border POPUP_BORDER = new CompoundBorder(new LineBorder(Color.BLUE, 1), new EmptyBorder(0, 2, 0, 2));
@@ -56,6 +59,7 @@ public class DatasetTableCellEditor extends AbstractDatasetTableCellEditor imple
         JTextField textField = getTextField();
         textField.addKeyListener(this);
         textField.addMouseListener(mouseListener);
+        textField.addMouseMotionListener(mouseMotionListener);
 
         SimpleTextAttributes selectionTextAttributes = table.getConfigTextAttributes().getSelection();
         textField.setSelectionColor(selectionTextAttributes.getBgColor());
@@ -196,6 +200,21 @@ public class DatasetTableCellEditor extends AbstractDatasetTableCellEditor imple
     /********************************************************
      *                    MouseListener                     *
      ********************************************************/
+    private MouseMotionListener mouseMotionListener = new MouseMotionAdapter() {
+        @Override
+        public void mouseMoved(MouseEvent e) {
+            JTextField textField = getTextField();
+            if (e.isControlDown() && cell.isNavigable()) {
+                DBColumn foreignKeyColumn = cell.getColumnInfo().getColumn().getForeignKeyColumn();
+                textField.setToolTipText("<html>Show referenced <b>" + foreignKeyColumn.getDataset().getQualifiedName() + "</b> record<html>");
+                textField.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            } else {
+                textField.setCursor(Cursor.getDefaultCursor());
+                textField.setToolTipText(null);
+            }
+        }
+    };
+
     private MouseListener mouseListener = new MouseAdapter() {
         public void mouseReleased(MouseEvent event) {
             if (event.getButton() == MouseEvent.BUTTON3 ) {
@@ -207,11 +226,9 @@ public class DatasetTableCellEditor extends AbstractDatasetTableCellEditor imple
 
         public void mouseClicked(MouseEvent event) {
             if (MouseUtil.isNavigationEvent(event)) {
-                DBColumn column = cell.getColumnInfo().getColumn();
-
-                if (column.isForeignKey()) {
+                if (cell.isNavigable()) {
                     DatasetFilterInput filterInput = table.getModel().resolveForeignKeyRecord(cell);
-                    DatasetEditorManager datasetEditorManager = DatasetEditorManager.getInstance(column.getProject());
+                    DatasetEditorManager datasetEditorManager = DatasetEditorManager.getInstance(table.getProject());
                     datasetEditorManager.navigateToRecord(filterInput, event);
                     event.consume();
                 }

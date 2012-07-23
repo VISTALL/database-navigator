@@ -36,13 +36,16 @@ import com.intellij.openapi.project.Project;
 import com.intellij.ui.awt.RelativePoint;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
+import javax.swing.JPopupMenu;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
-import java.awt.*;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.sql.SQLException;
 
@@ -247,7 +250,7 @@ public class DatasetEditorTable extends ResultSetTable {
                 return text.toString();
             }
 
-            if (editorTableCell.isModified()) {
+            if (editorTableCell.isModified() && !event.isControlDown()) {
                 if (editorTableCell.getUserValue() instanceof LazyLoadedValue) {
                     return "LOB content has changed";
                 } else {
@@ -317,21 +320,20 @@ public class DatasetEditorTable extends ResultSetTable {
     protected void processMouseMotionEvent(MouseEvent e) {
         if (e.isControlDown() && e.getID() != MouseEvent.MOUSE_DRAGGED && isNavigableCellAtMousePosition()) {
             setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            DatasetEditorModelCell cell = (DatasetEditorModelCell) getCellAtMouseLocation();
+            DBColumn column = cell.getColumnInfo().getColumn();
+            DBColumn foreignKeyColumn = column.getForeignKeyColumn();
+            setToolTipText("<html>Show referenced <b>" + foreignKeyColumn.getDataset().getQualifiedName() + "</b> record<html>");
         } else {
             super.processMouseMotionEvent(e);
             setCursor(Cursor.getDefaultCursor());
+            setToolTipText(null);
         }
     }
 
     private boolean isNavigableCellAtMousePosition() {
         DatasetEditorModelCell cell = (DatasetEditorModelCell) getCellAtMouseLocation();
-        if (cell != null) {
-            DBColumn column = cell.getColumnInfo().getColumn();
-            if (column.isForeignKey()) {
-                return true;
-            }
-        }
-        return false;
+        return cell != null && cell.isNavigable();
     }
 
     /**********************************************************
