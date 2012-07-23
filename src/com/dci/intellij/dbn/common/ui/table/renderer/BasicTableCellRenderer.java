@@ -23,7 +23,7 @@ public class BasicTableCellRenderer extends ColoredTableCellRenderer {
     public BasicTableCellRenderer(Project project) {
     }
 
-    protected void customizeCellRenderer(JTable table, Object value, boolean selected, boolean hasFocus, int row, int column) {
+    protected void customizeCellRenderer(JTable table, Object value, boolean selected, boolean hasFocus, int rowIndex, int columnIndex) {
         DataGridTextAttributes configTextAttributes = ((BasicTable) table).getConfigTextAttributes();
 
         SortableTable sortableTable = (SortableTable) table;
@@ -41,7 +41,8 @@ public class BasicTableCellRenderer extends ColoredTableCellRenderer {
 
         //updateBorder(cell, sortableTable);
         if (!selected) {
-            if (table.getSelectedRow() == row && !match(table.getSelectedColumns(), column) && table.getCellSelectionEnabled()) {
+            boolean isCaretRow = table.getCellSelectionEnabled() && table.getSelectedRow() == rowIndex && table.getSelectedRowCount() == 1;
+            if (isCaretRow) {
                 setBackground(configTextAttributes.getCaretRow().getBgColor());
             } else if (isLoading) {
                 setBackground(configTextAttributes.getLoadingData().getBgColor());
