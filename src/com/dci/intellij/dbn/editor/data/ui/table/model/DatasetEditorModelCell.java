@@ -179,6 +179,10 @@ public class DatasetEditorModelCell extends ResultSetDataModelCell implements Ch
                table.isCellSelected(getRow().getIndex(), getIndex());
     }
 
+    public boolean isNavigable() {
+        return getColumnInfo().getColumn().isForeignKey() && getUserValue() != null;
+    }
+
     public void notifyCellUpdated() {
         getRow().getModel().notifyCellUpdated(getRow().getIndex(), getIndex());
     }
