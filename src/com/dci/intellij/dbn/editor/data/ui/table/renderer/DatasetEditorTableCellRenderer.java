@@ -5,6 +5,7 @@ import com.dci.intellij.dbn.common.ui.table.renderer.BasicTableCellRenderer;
 import com.dci.intellij.dbn.data.editor.color.DataGridTextAttributes;
 import com.dci.intellij.dbn.editor.data.ui.table.DatasetEditorTable;
 import com.dci.intellij.dbn.editor.data.ui.table.model.DatasetEditorModelCell;
+import com.dci.intellij.dbn.object.DBColumn;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.util.ui.UIUtil;
@@ -21,7 +22,7 @@ public class DatasetEditorTableCellRenderer extends BasicTableCellRenderer {
         super(project);
     }
 
-    protected void customizeCellRenderer(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+    protected void customizeCellRenderer(JTable table, Object value, boolean isSelected, boolean hasFocus, int rowIndex, int columnIndex) {
         DataGridTextAttributes configTextAttributes = ((BasicTable) table).getConfigTextAttributes();
 
         DatasetEditorModelCell cell = (DatasetEditorModelCell) value;
@@ -38,12 +39,14 @@ public class DatasetEditorTableCellRenderer extends BasicTableCellRenderer {
 
             //DataModelCell cellAtMouseLocation = datasetEditorTable.getCellAtMouseLocation();
 
+            DBColumn column = cell.getColumnInfo().getColumn();
             if (cell.getUserValue() != null) {
                 SimpleTextAttributes textAttributes =
                         isSelected ? configTextAttributes.getSelection() :
                         isLoading ? configTextAttributes.getLoadingData() :
                         isDeletedRow ? configTextAttributes.getDeletedData() :
-                        cell.getColumnInfo().getColumn().isForeignKey() ? configTextAttributes.getForeignReference() :
+                        column.isPrimaryKey() ? configTextAttributes.getPrimaryKey() :
+                        column.isForeignKey() ? configTextAttributes.getForeignKey() :
                         cell.isModified() ? configTextAttributes.getModifiedData() :
                         cell.isLobValue() ? configTextAttributes.getReadonlyData() :
                                             configTextAttributes.getPlainData();
@@ -79,15 +82,21 @@ public class DatasetEditorTableCellRenderer extends BasicTableCellRenderer {
                     if (isInsertRow) {
                         setBackground(UIUtil.getTableBackground());
                     }
-                    if (table.getSelectedRow() == row && !match(table.getSelectedColumns(), column) && table.getCellSelectionEnabled()) {
+                    if (table.getSelectedRow() == rowIndex && !match(table.getSelectedColumns(), columnIndex) && table.getCellSelectionEnabled()) {
                         setBackground(configTextAttributes.getCaretRow().getBgColor());
                     }
 
-                    Color foreignReferenceBackground = configTextAttributes.getForeignReference().getBgColor();
-                    if (foreignReferenceBackground != null && cell.getColumnInfo().getColumn().isForeignKey()) {
-                        setBackground(foreignReferenceBackground);
+                    if (column.isPrimaryKey()) {
+                        Color primaryKeyBackground = configTextAttributes.getPrimaryKey().getBgColor();
+                        if (primaryKeyBackground != null) {
+                            setBackground(primaryKeyBackground);
+                        }
+                    } else if (column.isForeignKey()) {
+                        Color foreignKeyBackground = configTextAttributes.getForeignKey().getBgColor();
+                        if (foreignKeyBackground != null) {
+                            setBackground(foreignKeyBackground);
+                        }
                     }
-
                 }
             }
         }

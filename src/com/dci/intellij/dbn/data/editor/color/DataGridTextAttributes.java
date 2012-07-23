@@ -11,7 +11,8 @@ public class DataGridTextAttributes {
     private SimpleTextAttributes errorData;
     private SimpleTextAttributes readonlyData;
     private SimpleTextAttributes loadingData;
-    private SimpleTextAttributes foreignReference;
+    private SimpleTextAttributes primaryKey;
+    private SimpleTextAttributes foreignKey;
     private SimpleTextAttributes caretRow;
     private SimpleTextAttributes selection;
     private SimpleTextAttributes searchResult;
@@ -27,7 +28,8 @@ public class DataGridTextAttributes {
         errorData = TextAttributesUtil.getSimpleTextAttributes(DataGridTextAttributesKeys.ERROR_DATA);
         readonlyData = TextAttributesUtil.getSimpleTextAttributes(DataGridTextAttributesKeys.READONLY_DATA);
         loadingData = TextAttributesUtil.getSimpleTextAttributes(DataGridTextAttributesKeys.LOADING_DATA);
-        foreignReference = TextAttributesUtil.getSimpleTextAttributes(DataGridTextAttributesKeys.FOREIGN_REFERENCE);
+        primaryKey= TextAttributesUtil.getSimpleTextAttributes(DataGridTextAttributesKeys.PRIMARY_KEY);
+        foreignKey = TextAttributesUtil.getSimpleTextAttributes(DataGridTextAttributesKeys.FOREIGN_KEY);
         caretRow = TextAttributesUtil.getSimpleTextAttributes(DataGridTextAttributesKeys.CARET_ROW);
         selection = TextAttributesUtil.getSimpleTextAttributes(DataGridTextAttributesKeys.SELECTION);
         searchResult = TextAttributesUtil.getSimpleTextAttributes(EditorColors.TEXT_SEARCH_RESULT_ATTRIBUTES);
@@ -57,8 +59,12 @@ public class DataGridTextAttributes {
         return loadingData;
     }
 
-    public SimpleTextAttributes getForeignReference() {
-        return foreignReference;
+    public SimpleTextAttributes getForeignKey() {
+        return foreignKey;
+    }
+
+    public SimpleTextAttributes getPrimaryKey() {
+        return primaryKey;
     }
 
     public SimpleTextAttributes getCaretRow() {
