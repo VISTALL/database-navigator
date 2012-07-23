@@ -35,6 +35,7 @@ public class DatasetEditorTableCellRenderer extends BasicTableCellRenderer {
 
             boolean isDeletedRow = cell.getRow().isDeleted();
             boolean isInsertRow = cell.getRow().isInsert();
+            boolean isCaretRow = table.getCellSelectionEnabled() && table.getSelectedRow() == rowIndex && table.getSelectedRowCount() == 1;
 
 
             //DataModelCell cellAtMouseLocation = datasetEditorTable.getCellAtMouseLocation();
@@ -45,8 +46,8 @@ public class DatasetEditorTableCellRenderer extends BasicTableCellRenderer {
                         isSelected ? configTextAttributes.getSelection() :
                         isLoading ? configTextAttributes.getLoadingData() :
                         isDeletedRow ? configTextAttributes.getDeletedData() :
-                        column.isPrimaryKey() ? configTextAttributes.getPrimaryKey() :
-                        column.isForeignKey() ? configTextAttributes.getForeignKey() :
+                        column.isPrimaryKey() ? (isCaretRow ? configTextAttributes.getPrimaryKeyAtCaretRow() : configTextAttributes.getPrimaryKey()) :
+                        column.isForeignKey() ? (isCaretRow ? configTextAttributes.getForeignKeyAtCaretRow() : configTextAttributes.getForeignKey()) :
                         cell.isModified() ? configTextAttributes.getModifiedData() :
                         cell.isLobValue() ? configTextAttributes.getReadonlyData() :
                                             configTextAttributes.getPlainData();
@@ -66,6 +67,7 @@ public class DatasetEditorTableCellRenderer extends BasicTableCellRenderer {
                 if (isLoading || !datasetEditorTable.getDataset().getConnectionHandler().isConnected()) {
                     setBackground(configTextAttributes.getLoadingData().getBgColor());
                 } else {
+                    Color background = null;
                     if (cell.hasError()) {
                         setBorder(CELL_ERROR_BORDER);
                         setBackground(configTextAttributes.getErrorData().getBgColor());
@@ -82,21 +84,19 @@ public class DatasetEditorTableCellRenderer extends BasicTableCellRenderer {
                     if (isInsertRow) {
                         setBackground(UIUtil.getTableBackground());
                     }
-                    if (table.getSelectedRow() == rowIndex && !match(table.getSelectedColumns(), columnIndex) && table.getCellSelectionEnabled()) {
-                        setBackground(configTextAttributes.getCaretRow().getBgColor());
+
+                    if (isCaretRow) {
+                        background = configTextAttributes.getCaretRow().getBgColor();
+                    } else if (column.isPrimaryKey()) {
+                        background = configTextAttributes.getPrimaryKey().getBgColor();
+                    } else if (column.isForeignKey()) {
+                        background = configTextAttributes.getForeignKey().getBgColor();
                     }
 
-                    if (column.isPrimaryKey()) {
-                        Color primaryKeyBackground = configTextAttributes.getPrimaryKey().getBgColor();
-                        if (primaryKeyBackground != null) {
-                            setBackground(primaryKeyBackground);
-                        }
-                    } else if (column.isForeignKey()) {
-                        Color foreignKeyBackground = configTextAttributes.getForeignKey().getBgColor();
-                        if (foreignKeyBackground != null) {
-                            setBackground(foreignKeyBackground);
-                        }
+                    if (background != null) {
+                        setBackground(background);
                     }
+
                 }
             }
         }
