@@ -12,7 +12,7 @@ public interface DataGridTextAttributesKeys {
     Color DEFAULT_FOREIGN_KEY_FG_COLOR = new Color(0, 0, 160);
     Color DEFAULT_FOREIGN_KEY_BG_COLOR = new Color(250, 253, 255);
     Color DEFAULT_PRIMARY_KEY_FG_COLOR = new Color(40, 40, 40);
-    Color DEFAULT_PRIMARY_KEY_BG_COLOR = new Color(250, 250, 250);
+    Color DEFAULT_PRIMARY_KEY_BG_COLOR = new Color(245, 245, 245);
     Color DEFAULT_SELECTION_FG_COLOR = new Color(255, 255, 255);
     Color DEFAULT_SELECTION_BG_COLOR = new Color(82, 109, 165);
     Color DEFAULT_ERROR_BG_COLOR = new Color(255, 240, 240);
