@@ -26,9 +26,16 @@ public class ColumnValueTextField extends JTextField {
     public ColumnValueTextField(DatasetRecord record, DBColumn column) {
         this.record = record;
         this.column = column;
-        if (column.isForeignKey()) {
+        if (column.isPrimaryKey()) {
+            SimpleTextAttributes textAttributes = TextAttributesUtil.getSimpleTextAttributes(DataGridTextAttributesKeys.PRIMARY_KEY);
+            setForeground(textAttributes.getFgColor());
+            Color background = textAttributes.getBgColor();
+            if (background != null) {
+                setBackground(background);
+            }
+        } else if (column.isForeignKey()) {
             addMouseListener(mouseListener);
-            SimpleTextAttributes textAttributes = TextAttributesUtil.getSimpleTextAttributes(DataGridTextAttributesKeys.FOREIGN_REFERENCE);
+            SimpleTextAttributes textAttributes = TextAttributesUtil.getSimpleTextAttributes(DataGridTextAttributesKeys.FOREIGN_KEY);
             setForeground(textAttributes.getFgColor());
             Color background = textAttributes.getBgColor();
             if (background != null) {

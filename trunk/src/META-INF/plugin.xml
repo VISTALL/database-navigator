@@ -34,6 +34,7 @@
             <li><b>3.0.2324</b>
             <ul>
                 - Code formatting (Experimental - work in progress)<br>
+                - Customizable data-grid colors and fonts<br>
                 - Uncommitted changes overview / notifications<br>
                 - Connection Auto-Commit support<br>
                 - Support for IntelliJ 12 EAP release<br>
