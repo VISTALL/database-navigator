@@ -38,8 +38,24 @@ public class UncommittedChangesOverviewForm extends UIFormImpl implements UIForm
 
     public UncommittedChangesOverviewForm(Project project) {
         this.project = project;
-        DefaultListModel model = new DefaultListModel();
+        GuiUtils.replaceJSplitPaneWithIDEASplitter(mainPanel);
 
+        connectionsList.addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                ConnectionHandler connectionHandler = (ConnectionHandler) connectionsList.getSelectedValue();
+                showChangesForm(connectionHandler);
+            }
+        });
+        connectionsList.setCellRenderer(new ListCellRenderer());
+        connectionsList.setSelectedIndex(0);
+        updateListModel();
+
+        EventManager.subscribe(project, TransactionListener.TOPIC, this);
+    }
+
+    private void updateListModel() {
+        DefaultListModel model = new DefaultListModel();
         ConnectionManager connectionManager = ConnectionManager.getInstance(project);
         for (ConnectionBundle connectionBundle : connectionManager.getConnectionBundles()) {
             for (ConnectionHandler connectionHandler : connectionBundle.getConnectionHandlers()) {
@@ -50,19 +66,10 @@ public class UncommittedChangesOverviewForm extends UIFormImpl implements UIForm
             }
         }
 
-        GuiUtils.replaceJSplitPaneWithIDEASplitter(mainPanel);
         connectionsList.setModel(model);
-        connectionsList.addListSelectionListener(new ListSelectionListener() {
-            @Override
-            public void valueChanged(ListSelectionEvent e) {
-                ConnectionHandler connectionHandler = (ConnectionHandler) connectionsList.getSelectedValue();
-                showChangesForm(connectionHandler);
-            }
-        });
-        connectionsList.setCellRenderer(new ListCellRenderer());
-        connectionsList.setSelectedIndex(0);
-
-        EventManager.subscribe(project, TransactionListener.TOPIC, this);
+        if (model.size() > 0) {
+            connectionsList.setSelectedIndex(0);
+        }
     }
 
     public boolean hasUncommittedChanges() {
@@ -132,7 +139,7 @@ public class UncommittedChangesOverviewForm extends UIFormImpl implements UIForm
             @Override
             public void run() {
                 if (!isDisposed()) {
-                    connectionsList.repaint();
+                    updateListModel();
                 }
             }
         }.start();
