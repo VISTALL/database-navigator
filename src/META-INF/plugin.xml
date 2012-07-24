@@ -35,7 +35,8 @@
             <ul>
                 - Code formatting (Experimental - work in progress)<br>
                 - Customizable data-grid colors and fonts<br>
-                - Uncommitted changes overview / notifications<br>
+                - Uncommitted changes overview / prompt dialogs<br>
+                - Balloon notifications and activiy log entries for several operations<br>
                 - Connection Auto-Commit support<br>
                 - Support for IntelliJ 12 EAP release<br>
                 - Fixed broken user interface with PyCharm and RubyMine<br>
