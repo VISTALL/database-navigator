@@ -19,8 +19,8 @@ import org.jetbrains.annotations.NotNull;
 import java.sql.SQLException;
 
 public class DatabaseTransactionManager extends AbstractProjectComponent implements ProjectManagerListener{
-    private PersistableOption toggleAutoCommitOption = new PersistableOption(2, "Commit", "Roll Back", "Review Changes", "Cancel");
-    private PersistableOption disconnectOption = new PersistableOption(2, "Commit", "Roll Back", "Review Changes", "Cancel");
+    private PersistableOption toggleAutoCommitOption = new PersistableOption(2, "Commit", "Rollback", "Review Changes", "Cancel");
+    private PersistableOption disconnectOption = new PersistableOption(2, "Commit", "Rollback", "Review Changes", "Cancel");
 
 
     private DatabaseTransactionManager(Project project) {

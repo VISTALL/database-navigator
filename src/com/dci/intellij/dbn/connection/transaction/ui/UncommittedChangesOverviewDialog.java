@@ -68,7 +68,7 @@ public class UncommittedChangesOverviewDialog extends DBNDialog{
 
     private class RollbackAllAction extends AbstractAction {
         public RollbackAllAction() {
-            super("Roll-back all", Icons.CONNECTION_ROLLBACK);
+            super("Rollback all", Icons.CONNECTION_ROLLBACK);
         }
 
         public void actionPerformed(ActionEvent e) {
