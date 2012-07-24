@@ -51,12 +51,12 @@ public class InteractiveOptionHandler implements DialogWrapper.DoNotAskOption{
         return "Remember option";
     }
 
-    public int resolve(Object subject) {
+    public int resolve(String ... messageArgs) {
         if (selectedOption != null) {
             return selectedOption;
         } else {
             return Messages.showDialog(
-                    MessageFormat.format(message, subject),
+                    MessageFormat.format(message, messageArgs),
                     Constants.DBN_TITLE_PREFIX + title, options, 0, Icons.DIALOG_WARNING, this);
         }
     }

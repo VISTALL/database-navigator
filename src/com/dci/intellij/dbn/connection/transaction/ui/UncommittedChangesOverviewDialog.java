@@ -1,10 +1,13 @@
 package com.dci.intellij.dbn.connection.transaction.ui;
 
 import com.dci.intellij.dbn.common.Icons;
+import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.common.ui.DBNDialog;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
+import com.dci.intellij.dbn.connection.ConnectionManager;
 import com.dci.intellij.dbn.connection.transaction.DatabaseTransactionManager;
 import com.dci.intellij.dbn.connection.transaction.TransactionAction;
+import com.dci.intellij.dbn.connection.transaction.TransactionListener;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.Nullable;
 
@@ -14,7 +17,7 @@ import javax.swing.JComponent;
 import java.awt.event.ActionEvent;
 import java.util.List;
 
-public class UncommittedChangesOverviewDialog extends DBNDialog{
+public class UncommittedChangesOverviewDialog extends DBNDialog implements TransactionListener {
     private UncommittedChangesOverviewForm mainComponent;
     private TransactionAction additionalOperation;
 
@@ -25,6 +28,7 @@ public class UncommittedChangesOverviewDialog extends DBNDialog{
         setModal(false);
         setResizable(true);
         init();
+        EventManager.subscribe(project, TransactionListener.TOPIC, this);
     }
 
     protected String getDimensionServiceKey() {
@@ -33,8 +37,8 @@ public class UncommittedChangesOverviewDialog extends DBNDialog{
 
     protected final Action[] createActions() {
         return new Action[]{
-                new CommitAllAction(),
-                new RollbackAllAction(),
+                commitAllAction,
+                rollbackAllAction,
                 getCancelAction(),
                 getHelpAction()
         };
@@ -45,11 +49,7 @@ public class UncommittedChangesOverviewDialog extends DBNDialog{
         super.doOKAction();
     }
 
-    private class CommitAllAction extends AbstractAction {
-        public CommitAllAction() {
-            super("Commit all", Icons.CONNECTION_COMMIT);
-        }
-
+    private AbstractAction commitAllAction = new AbstractAction("Commit all", Icons.CONNECTION_COMMIT) {
         public void actionPerformed(ActionEvent e) {
             DatabaseTransactionManager transactionManager = getTransactionManager();
             List<ConnectionHandler> connectionHandlers = mainComponent.getConnectionHandlers();
@@ -64,13 +64,9 @@ public class UncommittedChangesOverviewDialog extends DBNDialog{
         public boolean isEnabled() {
             return mainComponent.hasUncommittedChanges();
         }
-    }
+    };
 
-    private class RollbackAllAction extends AbstractAction {
-        public RollbackAllAction() {
-            super("Rollback all", Icons.CONNECTION_ROLLBACK);
-        }
-
+    private AbstractAction rollbackAllAction = new AbstractAction("Rollback all", Icons.CONNECTION_ROLLBACK) {
         public void actionPerformed(ActionEvent e) {
             DatabaseTransactionManager transactionManager = getTransactionManager();
             List<ConnectionHandler> connectionHandlers = mainComponent.getConnectionHandlers();
@@ -85,7 +81,7 @@ public class UncommittedChangesOverviewDialog extends DBNDialog{
         public boolean isEnabled() {
             return mainComponent.hasUncommittedChanges();
         }
-    }
+    };
 
     private DatabaseTransactionManager getTransactionManager() {
         return DatabaseTransactionManager.getInstance(getProject());
@@ -98,7 +94,23 @@ public class UncommittedChangesOverviewDialog extends DBNDialog{
     }
 
     @Override
+    public void beforeAction(ConnectionHandler connectionHandler, TransactionAction action) {
+
+    }
+
+    @Override
+    public void afterAction(ConnectionHandler connectionHandler, TransactionAction action, boolean succeeded) {
+        ConnectionManager connectionManager = ConnectionManager.getInstance(getProject());
+        if (!connectionManager.hasUncommittedChanges()) {
+            getCancelAction().putValue(Action.NAME, "Close");
+            commitAllAction.setEnabled(false);
+            rollbackAllAction.setEnabled(false);
+        }
+    }
+
+    @Override
     protected void dispose() {
+        EventManager.unsubscribe(getProject(), this);
         super.dispose();
         mainComponent.dispose();
         mainComponent = null;
