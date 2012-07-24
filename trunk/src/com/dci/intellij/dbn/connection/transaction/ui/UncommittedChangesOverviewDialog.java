@@ -2,6 +2,7 @@ package com.dci.intellij.dbn.connection.transaction.ui;
 
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.event.EventManager;
+import com.dci.intellij.dbn.common.thread.ConditionalLaterInvocator;
 import com.dci.intellij.dbn.common.ui.DBNDialog;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.ConnectionManager;
@@ -102,9 +103,15 @@ public class UncommittedChangesOverviewDialog extends DBNDialog implements Trans
     public void afterAction(ConnectionHandler connectionHandler, TransactionAction action, boolean succeeded) {
         ConnectionManager connectionManager = ConnectionManager.getInstance(getProject());
         if (!connectionManager.hasUncommittedChanges()) {
-            getCancelAction().putValue(Action.NAME, "Close");
-            commitAllAction.setEnabled(false);
-            rollbackAllAction.setEnabled(false);
+            new ConditionalLaterInvocator() {
+                @Override
+                public void run() {
+                    getCancelAction().putValue(Action.NAME, "Close");
+                    commitAllAction.setEnabled(false);
+                    rollbackAllAction.setEnabled(false);
+
+                }
+            }.start();
         }
     }
 
