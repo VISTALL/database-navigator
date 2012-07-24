@@ -17,6 +17,11 @@ public class BasicDataEditorComponent extends JTextField implements DataEditorCo
     }
 
     @Override
+    public void setEditable(boolean editable) {
+        super.setEditable(editable);
+    }
+
+    @Override
     public void setEnabled(boolean enabled) {
         setEditable(enabled);
     }

@@ -33,6 +33,7 @@ import javax.swing.event.DocumentListener;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.event.FocusAdapter;
@@ -115,6 +116,7 @@ public class DatasetRecordEditorColumnForm extends UIFormImpl implements UIForm 
 
 
         valueFieldPanel.add((Component) editorComponent, BorderLayout.CENTER);
+        editorComponent.getTextField().setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
         setCell(cell);
     }
 
