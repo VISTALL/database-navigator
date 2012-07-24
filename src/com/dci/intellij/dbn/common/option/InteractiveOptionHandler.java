@@ -6,22 +6,20 @@ import com.dci.intellij.dbn.common.Icons;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Messages;
 
-public class PersistableOption implements DialogWrapper.DoNotAskOption{
+import java.text.MessageFormat;
+
+public class InteractiveOptionHandler implements DialogWrapper.DoNotAskOption{
+    private String title;
+    private String message;
     private Integer selectedOption;
     private String[] options;
     private int maxPersistableOption;
 
-    public PersistableOption(int maxPersistableOption, String... options) {
+    public InteractiveOptionHandler(String title, String message, int maxPersistableOption, String... options) {
+        this.title = title;
+        this.message = message;
         this.options = options;
         this.maxPersistableOption = maxPersistableOption;
-    }
-
-    public String[] getOptions() {
-        return options;
-    }
-
-    public Integer getSelectedOption() {
-        return selectedOption;
     }
 
     @Override
@@ -53,11 +51,13 @@ public class PersistableOption implements DialogWrapper.DoNotAskOption{
         return "Remember option";
     }
 
-    public int resolve(String message, String title) {
+    public int resolve(Object subject) {
         if (selectedOption != null) {
             return selectedOption;
         } else {
-            return Messages.showDialog(message, Constants.DBN_TITLE_PREFIX + title, options, 0, Icons.DIALOG_WARNING, this);
+            return Messages.showDialog(
+                    MessageFormat.format(message, subject),
+                    Constants.DBN_TITLE_PREFIX + title, options, 0, Icons.DIALOG_WARNING, this);
         }
     }
 }

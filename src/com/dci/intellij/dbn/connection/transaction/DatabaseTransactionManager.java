@@ -1,9 +1,9 @@
 package com.dci.intellij.dbn.connection.transaction;
 
 import com.dci.intellij.dbn.common.AbstractProjectComponent;
-import com.dci.intellij.dbn.common.option.PersistableOption;
+import com.dci.intellij.dbn.common.notification.NotificationUtil;
+import com.dci.intellij.dbn.common.option.InteractiveOptionHandler;
 import com.dci.intellij.dbn.common.thread.ModalTask;
-import com.dci.intellij.dbn.common.util.MessageUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.ConnectionOperation;
 import com.dci.intellij.dbn.connection.transaction.ui.UncommittedChangesDialog;
@@ -19,8 +19,17 @@ import org.jetbrains.annotations.NotNull;
 import java.sql.SQLException;
 
 public class DatabaseTransactionManager extends AbstractProjectComponent implements ProjectManagerListener{
-    private PersistableOption toggleAutoCommitOption = new PersistableOption(2, "Commit", "Rollback", "Review Changes", "Cancel");
-    private PersistableOption disconnectOption = new PersistableOption(2, "Commit", "Rollback", "Review Changes", "Cancel");
+    private InteractiveOptionHandler toggleAutoCommitOptionHandler = new InteractiveOptionHandler(
+            "Uncommitted changes",
+            "You have uncommitted changes on the connection \"{0}\". \n" +
+            "Please specify whether to commit or rollback these changes before switching Auto-Commit ON.",
+            2, "Commit", "Rollback", "Review Changes", "Cancel");
+
+    private InteractiveOptionHandler disconnectOptionHandler = new InteractiveOptionHandler(
+            "Uncommitted changes",
+            "You have uncommitted changes on the connection \"{0}\". \n" +
+            "Please specify whether to commit or rollback these changes before disconnecting",
+            2, "Commit", "Rollback", "Review Changes", "Cancel");
 
 
     private DatabaseTransactionManager(Project project) {
@@ -34,18 +43,22 @@ public class DatabaseTransactionManager extends AbstractProjectComponent impleme
     }
 
     public void execute(final ConnectionHandler connectionHandler, boolean inBackground, final ConnectionOperation ... operations) {
-        Project project = connectionHandler.getProject();
-        new ModalTask(project, "Performing " + operations[0].getName() + " on connection " + connectionHandler.getName(), inBackground) {
+        final Project project = connectionHandler.getProject();
+        final String connectionName = connectionHandler.getName();
+        new ModalTask(project, "Performing " + operations[0].getName() + " on connection " + connectionName, inBackground) {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
                 for (ConnectionOperation operation : operations) {
                     if (operation != null) {
+
                         try {
                             indicator.setIndeterminate(true);
-                            indicator.setText("Performing " + operation.getName() + " on connection ");
+                            indicator.setText("Performing " + operation.getName() + " on connection " + connectionName);
                             operation.execute(connectionHandler);
+                            NotificationUtil.sendInfoNotification(project, operation.getName(), operation.getSuccessMessage(), connectionName);
                         } catch (SQLException ex) {
-                            MessageUtil.showErrorDialog("Could not perform " + operation.getName() + " operation.", ex);
+                            //MessageUtil.showErrorDialog("Could not perform " + operation.getName() + " operation.", ex);
+                            NotificationUtil.sendErrorNotification(project, operation.getName(), operation.getFailureMessage(), connectionName, ex.getMessage());
                         }
                     }
                 }
@@ -82,10 +95,7 @@ public class DatabaseTransactionManager extends AbstractProjectComponent impleme
     public void toggleAutoCommit(ConnectionHandler connectionHandler) {
         boolean isAutoCommit = connectionHandler.isAutoCommit();
         if (!isAutoCommit) {
-            int result = toggleAutoCommitOption.resolve(
-                    "You have uncommitted changes on the connection \"" + connectionHandler.getName() + "\" . \n" +
-                            "Please specify whether to commit or rollback these changes before switching Auto-Commit ON.", "Uncommitted changes");
-
+            int result = toggleAutoCommitOptionHandler.resolve(connectionHandler.getName());
             switch (result) {
                 case 0: execute(connectionHandler, true, ConnectionOperation.COMMIT, ConnectionOperation.TOGGLE_AUTO_COMMIT); break;
                 case 1: execute(connectionHandler, true, ConnectionOperation.ROLLBACK, ConnectionOperation.TOGGLE_AUTO_COMMIT); break;
@@ -98,9 +108,7 @@ public class DatabaseTransactionManager extends AbstractProjectComponent impleme
 
     public void disconnect(ConnectionHandler connectionHandler) {
         if (connectionHandler.hasUncommittedChanges()) {
-            int result = disconnectOption.resolve(
-                    "You have uncommitted changes on the connection \"" + connectionHandler.getName() + "\" . \n" +
-                            "Please specify whether to commit or rollback these changes before disconnecting", "Uncommitted changes");
+            int result = disconnectOptionHandler.resolve(connectionHandler.getName());
 
             switch (result) {
                 case 0: execute(connectionHandler, false, ConnectionOperation.COMMIT, ConnectionOperation.DISCONNECT); break;

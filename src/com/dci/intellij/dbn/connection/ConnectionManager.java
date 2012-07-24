@@ -32,7 +32,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class ConnectionManager extends AbstractProjectComponent implements ProjectManagerListener{
-    private List<ConnectionBundle> connectionBundles = new ArrayList<ConnectionBundle>();;
+    private List<ConnectionBundle> connectionBundles = new ArrayList<ConnectionBundle>();
 
     public static ConnectionManager getInstance(Project project) {
         return project.getComponent(ConnectionManager.class);
@@ -64,23 +64,17 @@ public class ConnectionManager extends AbstractProjectComponent implements Proje
     *********************************************************/
     private ModuleListener moduleListener = new ModuleAdapter() {
         public void moduleAdded(Project project, Module module) {
-            ModuleConnectionBundle connectionBundle = ModuleConnectionBundle.getInstance(module);
-            if (connectionBundle.getConnectionHandlers().size() > 0) {
-                connectionBundles = null;
-            }
+            initConnectionBundles();
         }
 
         public void moduleRemoved(Project project, Module module) {
-            ModuleConnectionBundle connectionManager = ModuleConnectionBundle.getInstance(module);
-            if (connectionBundles.remove(connectionManager)) {
-                connectionBundles = null;
-            }
+            initConnectionBundles();
         }
 
         public void modulesRenamed(Project project, List<Module> modules) {
             for (Module module : modules) {
-                ModuleConnectionBundle connectionManager = ModuleConnectionBundle.getInstance(module);
-                if (connectionManager.getConnectionHandlers().size() > 0) {
+                ModuleConnectionBundle connectionBundle = ModuleConnectionBundle.getInstance(module);
+                if (connectionBundle.getConnectionHandlers().size() > 0) {
                     initConnectionBundles();
                     break;
                 }
