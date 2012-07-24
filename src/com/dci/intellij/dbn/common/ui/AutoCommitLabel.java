@@ -9,8 +9,8 @@ import com.dci.intellij.dbn.connection.VirtualConnectionHandler;
 import com.intellij.openapi.project.Project;
 import org.picocontainer.Disposable;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JLabel;
+import java.awt.Color;
 
 public class AutoCommitLabel extends JLabel implements ConnectionStatusListener, Disposable {
     private Project project;
@@ -44,7 +44,7 @@ public class AutoCommitLabel extends JLabel implements ConnectionStatusListener,
                     setVisible(true);
                     boolean disconnected = !connectionHandler.isConnected();
                     boolean autoCommit = connectionHandler.isAutoCommit();
-                    setText(disconnected ? "[disconnected]" : autoCommit ? "Auto-Commit ON" : "Auto-Commit OFF");
+                    setText(disconnected ? "Not connected to database" : autoCommit ? "Auto-Commit ON" : "Auto-Commit OFF");
                     setForeground(disconnected ? Color.BLACK : autoCommit ? new Color(210, 0, 0) : new Color(0, 160, 0));
                     setToolTipText(
                             disconnected ? "The connection to database has been closed. No editing possible" :
