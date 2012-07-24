@@ -40,7 +40,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DatabaseBrowserManager extends AbstractProjectComponent implements JDOMExternalizable{
-    private static final String TOOL_WINDOW_ID = "DB Browser";
+    public static final String TOOL_WINDOW_ID = "DB Browser";
 
     private BooleanSetting autoscrollFromEditor = new BooleanSetting("autoscroll-from-editor", true);
     private BooleanSetting autoscrollToEditor   = new BooleanSetting("autoscroll-to-editor", false);

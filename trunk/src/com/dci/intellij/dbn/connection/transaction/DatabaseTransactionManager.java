@@ -5,8 +5,8 @@ import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.common.notification.NotificationUtil;
 import com.dci.intellij.dbn.common.option.InteractiveOptionHandler;
 import com.dci.intellij.dbn.common.thread.ModalTask;
+import com.dci.intellij.dbn.common.util.EditorUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
-import com.dci.intellij.dbn.connection.ConnectionManager;
 import com.dci.intellij.dbn.connection.ConnectionStatusListener;
 import com.dci.intellij.dbn.connection.transaction.ui.UncommittedChangesDialog;
 import com.dci.intellij.dbn.connection.transaction.ui.UncommittedChangesOverviewDialog;
@@ -15,6 +15,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.project.ProjectManagerListener;
 import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -34,11 +35,17 @@ public class DatabaseTransactionManager extends AbstractProjectComponent impleme
             "Please specify whether to commit or rollback these changes before disconnecting",
             2, "Commit", "Rollback", "Review Changes", "Cancel");
 
-    private InteractiveOptionHandler closeProjectOptionHandler = new InteractiveOptionHandler(
-            "Uncommitted changes",
-            "You have uncommitted changes on one or more connections for project \"{0}\". \n" +
-            "Please specify whether to commit or rollback these changes before closing the project",
-            2, "Commit", "Rollback", "Review Changes", "Cancel");
+    private InteractiveOptionHandler commitMultipleChangesOptionHandler = new InteractiveOptionHandler(
+            "Commit multiple changes",
+            "This commit action will affect several other changes on the connection \"{0}\", " +
+                    "\nnot only the ones done in \"{1}\"",
+            1, "Commit", "Review Changes", "Cancel");
+
+    private InteractiveOptionHandler rollbackMultipleChangesOptionHandler = new InteractiveOptionHandler(
+            "Rollback multiple changes",
+            "This rollback action will affect several other changes on the connection \"{0}\", " +
+                    "\nnot only the ones done in \"{1}\"",
+            1, "Rollback", "Review Changes", "Cancel");
 
 
     private DatabaseTransactionManager(Project project) {
@@ -51,11 +58,11 @@ public class DatabaseTransactionManager extends AbstractProjectComponent impleme
         return project.getComponent(DatabaseTransactionManager.class);
     }
 
-    public void execute(final ConnectionHandler connectionHandler, boolean inBackground, final TransactionAction... actions) {
+    public void execute(final ConnectionHandler connectionHandler, boolean background, final TransactionAction... actions) {
         final Project project = connectionHandler.getProject();
         final String connectionName = connectionHandler.getName();
         final TransactionListener transactionListener = EventManager.notify(getProject(), TransactionListener.TOPIC);
-        new ModalTask(project, "Performing " + actions[0].getName() + " on connection " + connectionName, inBackground) {
+        new ModalTask(project, "Performing " + actions[0].getName() + " on connection " + connectionName, background) {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
                 for (TransactionAction action : actions) {
@@ -97,12 +104,32 @@ public class DatabaseTransactionManager extends AbstractProjectComponent impleme
         }.start();
     }
 
-    public void commit(final ConnectionHandler connectionHandler, boolean background) {
-        execute(connectionHandler, background, TransactionAction.COMMIT);
+    public void commit(final ConnectionHandler connectionHandler, boolean fromEditor, boolean background) {
+        if (fromEditor && connectionHandler.getUncommittedChanges().size() > 1) {
+            Project project = connectionHandler.getProject();
+            VirtualFile selectedFile = EditorUtil.getSelectedFile(project);
+            int result = commitMultipleChangesOptionHandler.resolve(connectionHandler.getName(), selectedFile.getPresentableUrl());
+            switch (result) {
+                case 0: execute(connectionHandler, background, TransactionAction.COMMIT); break;
+                case 1: showUncommittedChangesDialog(connectionHandler, null);
+            }
+        } else {
+            execute(connectionHandler, background, TransactionAction.COMMIT);
+        }
     }
 
-    public void rollback(final ConnectionHandler connectionHandler, boolean background) {
-        execute(connectionHandler, background, TransactionAction.ROLLBACK);
+    public void rollback(final ConnectionHandler connectionHandler, boolean fromEditor, boolean background) {
+        if (fromEditor && connectionHandler.getUncommittedChanges().size() > 1) {
+            Project project = connectionHandler.getProject();
+            VirtualFile selectedFile = EditorUtil.getSelectedFile(project);
+            int result = rollbackMultipleChangesOptionHandler.resolve(connectionHandler.getName(), selectedFile.getPresentableUrl());
+            switch (result) {
+                case 0: execute(connectionHandler, background, TransactionAction.ROLLBACK); break;
+                case 1: showUncommittedChangesDialog(connectionHandler, null);
+            }
+        } else {
+            execute(connectionHandler, background, TransactionAction.ROLLBACK);
+        }
     }
 
     public void disconnect(final ConnectionHandler connectionHandler, boolean background) {
@@ -116,7 +143,7 @@ public class DatabaseTransactionManager extends AbstractProjectComponent impleme
         return executionDialog.getExitCode() == DialogWrapper.OK_EXIT_CODE;
     }
 
-    public boolean showUncommittedChangesDialog(ConnectionHandler connectionHandler, TransactionAction additionalOperation) {
+    public boolean showUncommittedChangesDialog(ConnectionHandler connectionHandler, @Nullable TransactionAction additionalOperation) {
         UncommittedChangesDialog executionDialog = new UncommittedChangesDialog(connectionHandler, additionalOperation, false);
         executionDialog.show();
         return executionDialog.getExitCode() == DialogWrapper.OK_EXIT_CODE;
@@ -165,16 +192,6 @@ public class DatabaseTransactionManager extends AbstractProjectComponent impleme
 
     @Override
     public boolean canCloseProject(Project project) {
-        ConnectionManager connectionManager = ConnectionManager.getInstance(project);
-        if (connectionManager.hasUncommittedChanges()) {
-            int result = closeProjectOptionHandler.resolve(project.getName());
-            switch (result) {
-                case 0: connectionManager.commitAll(); return true;
-                case 1: connectionManager.rollbackAll(); return true;
-                case 2: return showUncommittedChangesOverviewDialog(null);
-                case 3: return false;
-            }
-        }
         return true;
     }
 

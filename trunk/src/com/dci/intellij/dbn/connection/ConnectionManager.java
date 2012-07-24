@@ -3,6 +3,7 @@ package com.dci.intellij.dbn.connection;
 import com.dci.intellij.dbn.browser.DatabaseBrowserManager;
 import com.dci.intellij.dbn.common.AbstractProjectComponent;
 import com.dci.intellij.dbn.common.event.EventManager;
+import com.dci.intellij.dbn.common.option.InteractiveOptionHandler;
 import com.dci.intellij.dbn.common.ui.MessageDialog;
 import com.dci.intellij.dbn.common.util.EditorUtil;
 import com.dci.intellij.dbn.connection.config.ConnectionBundleSettingsListener;
@@ -34,6 +35,13 @@ import java.util.Set;
 
 public class ConnectionManager extends AbstractProjectComponent implements ProjectManagerListener{
     private List<ConnectionBundle> connectionBundles = new ArrayList<ConnectionBundle>();
+
+    private InteractiveOptionHandler closeProjectOptionHandler =
+            new InteractiveOptionHandler(
+                    "Uncommitted changes",
+                    "You have uncommitted changes on one or more connections for project \"{0}\". \n" +
+                    "Please specify whether to commit or rollback these changes before closing the project",
+                    2, "Commit", "Rollback", "Review Changes", "Cancel");
 
 
     public static ConnectionManager getInstance(Project project) {
@@ -257,7 +265,7 @@ public class ConnectionManager extends AbstractProjectComponent implements Proje
         for (ConnectionBundle connectionBundle : getConnectionBundles()) {
             for (ConnectionHandler connectionHandler : connectionBundle.getConnectionHandlers()) {
                 if (connectionHandler.hasUncommittedChanges()) {
-                    transactionManager.commit(connectionHandler, false);
+                    transactionManager.commit(connectionHandler, false, false);
                 }
             }
         }
@@ -268,7 +276,7 @@ public class ConnectionManager extends AbstractProjectComponent implements Proje
         for (ConnectionBundle connectionBundle : getConnectionBundles()) {
             for (ConnectionHandler connectionHandler : connectionBundle.getConnectionHandlers()) {
                 if (connectionHandler.hasUncommittedChanges()) {
-                    transactionManager.rollback(connectionHandler, false);
+                    transactionManager.rollback(connectionHandler, false, false);
                 }
             }
         }
@@ -285,6 +293,15 @@ public class ConnectionManager extends AbstractProjectComponent implements Proje
 
     @Override
     public boolean canCloseProject(Project project) {
+        if (hasUncommittedChanges()) {
+            int result = closeProjectOptionHandler.resolve(project.getName());
+            switch (result) {
+                case 0: commitAll(); return true;
+                case 1: rollbackAll(); return true;
+                case 2: return DatabaseTransactionManager.getInstance(project).showUncommittedChangesOverviewDialog(null);
+                case 3: return false;
+            }
+        }
         return true;
     }
 

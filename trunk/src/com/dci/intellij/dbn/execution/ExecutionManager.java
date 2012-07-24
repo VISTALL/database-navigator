@@ -36,6 +36,11 @@ public class ExecutionManager extends AbstractProjectComponent implements JDOMEx
         return project.getComponent(ExecutionManager.class);
     }
 
+    private void showExecutionConsole() {
+        ToolWindow toolWindow = initExecutionConsole();
+        toolWindow.show(null);
+    }
+
     public void hideExecutionConsole() {
         ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(getProject());
         ToolWindow toolWindow = toolWindowManager.getToolWindow(TOOL_WINDOW_ID);
@@ -45,7 +50,15 @@ public class ExecutionManager extends AbstractProjectComponent implements JDOMEx
         }
     }
 
-    private void showExecutionConsole() {
+    @Override
+    public void projectOpened() {
+        ToolWindow toolWindow = initExecutionConsole();
+        toolWindow.getContentManager().removeAllContents(false);
+        toolWindow.setAvailable(false, null);
+
+    }
+
+    private ToolWindow initExecutionConsole() {
         ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(getProject());
         ToolWindow toolWindow = toolWindowManager.getToolWindow(TOOL_WINDOW_ID);
         if (toolWindow == null) {
@@ -61,8 +74,7 @@ public class ExecutionManager extends AbstractProjectComponent implements JDOMEx
             toolWindow.getContentManager().addContent(content);
             toolWindow.setAvailable(true, null);
         }
-
-        toolWindow.show(null);
+        return toolWindow;
     }
 
     public void showExecutionConsole(final CompilerResult compilerResult) {
