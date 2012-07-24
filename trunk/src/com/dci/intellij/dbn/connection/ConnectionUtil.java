@@ -1,9 +1,11 @@
 package com.dci.intellij.dbn.connection;
 
+import com.dci.intellij.dbn.common.LoggerFactory;
 import com.dci.intellij.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dci.intellij.dbn.connection.config.ConnectionDetailSettings;
 import com.dci.intellij.dbn.connection.config.ConnectionSettings;
 import com.dci.intellij.dbn.driver.DatabaseDriverManager;
+import com.intellij.openapi.diagnostic.Logger;
 import org.jetbrains.annotations.Nullable;
 
 import java.sql.Connection;
@@ -16,6 +18,8 @@ import java.util.Map;
 import java.util.Properties;
 
 public class ConnectionUtil {
+    private static final Logger LOGGER = LoggerFactory.createLogger();
+
     public static void closeResultSet(ResultSet resultSet) {
         if (resultSet != null) {
             try {
@@ -24,12 +28,12 @@ public class ConnectionUtil {
                     statement.close();
                 }
             } catch (Exception e) {
-                //e.printStackTrace();
+                LOGGER.warn("Error closing statement", e);
             }
             try {
                 resultSet.close();
             } catch (Exception e) {
-                //e.printStackTrace();
+                LOGGER.warn("Error closing result set", e);
             }
         }
     }
@@ -39,16 +43,17 @@ public class ConnectionUtil {
             try {
                 statement.close();
             } catch (SQLException e) {
-                e.printStackTrace();
+                LOGGER.warn("Error closing statement", e);
             }
         }
     }
 
-    public static void closeConnection(Connection connection)  {
+    public static void closeConnection(Connection connection) {
         if (connection != null) {
             try {
                 connection.close();
             } catch (SQLException e) {
+                LOGGER.warn("Error closing connection", e);
             }
         }
     }
@@ -87,12 +92,8 @@ public class ConnectionUtil {
                 connectionStatus.setValid(true);
             }
 
-            DatabaseType databaseType = databaseSettings.getDatabaseType();
-            if (databaseType == null || databaseType.equals(DatabaseType.UNKNOWN)) {
-                databaseType = getDatabaseType(connection);
-                databaseSettings.setDatabaseType(databaseType);
-            }
-
+            DatabaseType databaseType = getDatabaseType(connection);
+            databaseSettings.setDatabaseType(databaseType);
             databaseSettings.setConnectivityStatus(ConnectivityStatus.VALID);
 
             return connection;

@@ -15,27 +15,29 @@ public class DatabaseInterfaceProviderFactory {
     public static final DatabaseInterfaceProvider MYAQL_INTERFACE_PROVIDER = new MySqlInterfaceProvider();
 
     public static DatabaseInterfaceProvider createInterfaceProvider(ConnectionHandler connectionHandler) throws SQLException {
-        DatabaseType databaseType = null;
+        DatabaseType databaseType;
         if (connectionHandler != null && connectionHandler.isVirtual()) {
             databaseType = connectionHandler.getDatabaseType();
         } else {
             ConnectionDatabaseSettings databaseSettings = connectionHandler.getSettings().getDatabaseSettings();
             databaseType = databaseSettings.getDatabaseType();
-            if (databaseType == null) {
+            if (databaseType == null || databaseType == DatabaseType.UNKNOWN) {
                 try {
                     databaseType = ConnectionUtil.getDatabaseType(connectionHandler.getStandaloneConnection());
                     databaseSettings.setDatabaseType(databaseType);
                 } catch (SQLException e) {
-                    databaseSettings.setDatabaseType(DatabaseType.UNKNOWN);
+                    if (databaseSettings.getDatabaseType() == null) {
+                        databaseSettings.setDatabaseType(DatabaseType.UNKNOWN);
+                    }
                     throw e;
                 }
             }
         }
 
 
-        if (DatabaseType.ORACLE.equals(databaseType)) {
+        if (databaseType == DatabaseType.ORACLE) {
             return ORACLE_INTERFACE_PROVIDER;
-        } else if (DatabaseType.MYSQL.equals(databaseType)) {
+        } else if (databaseType == DatabaseType.MYSQL) {
             return MYAQL_INTERFACE_PROVIDER;
         }
         return GENERIC_INTERFACE_PROVIDER;

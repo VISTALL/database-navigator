@@ -129,7 +129,6 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
 
         // dispose old list
         for (ConnectionHandler connectionHandler : oldConnections) {
-            connectionHandler.disconnect();
             connectionHandler.dispose();
         }
 

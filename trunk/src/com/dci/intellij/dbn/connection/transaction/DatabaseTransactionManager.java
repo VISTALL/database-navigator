@@ -1,11 +1,12 @@
 package com.dci.intellij.dbn.connection.transaction;
 
 import com.dci.intellij.dbn.common.AbstractProjectComponent;
+import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.common.notification.NotificationUtil;
 import com.dci.intellij.dbn.common.option.InteractiveOptionHandler;
 import com.dci.intellij.dbn.common.thread.ModalTask;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
-import com.dci.intellij.dbn.connection.ConnectionOperation;
+import com.dci.intellij.dbn.connection.ConnectionStatusListener;
 import com.dci.intellij.dbn.connection.transaction.ui.UncommittedChangesDialog;
 import com.dci.intellij.dbn.connection.transaction.ui.UncommittedChangesOverviewDialog;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -42,51 +43,62 @@ public class DatabaseTransactionManager extends AbstractProjectComponent impleme
         return project.getComponent(DatabaseTransactionManager.class);
     }
 
-    public void execute(final ConnectionHandler connectionHandler, boolean inBackground, final ConnectionOperation ... operations) {
+    public void execute(final ConnectionHandler connectionHandler, boolean inBackground, final TransactionAction... actions) {
         final Project project = connectionHandler.getProject();
         final String connectionName = connectionHandler.getName();
-        new ModalTask(project, "Performing " + operations[0].getName() + " on connection " + connectionName, inBackground) {
+        final TransactionListener transactionListener = EventManager.notify(getProject(), TransactionListener.TOPIC);
+        new ModalTask(project, "Performing " + actions[0].getName() + " on connection " + connectionName, inBackground) {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
-                for (ConnectionOperation operation : operations) {
-                    if (operation != null) {
-
+                for (TransactionAction action : actions) {
+                    if (action != null) {
+                        boolean success = true;
                         try {
+                            // notify pre-action
+                            transactionListener.beforeAction(connectionHandler, action);
+
                             indicator.setIndeterminate(true);
-                            indicator.setText("Performing " + operation.getName() + " on connection " + connectionName);
-                            operation.execute(connectionHandler);
-                            NotificationUtil.sendInfoNotification(project, operation.getName(), operation.getSuccessMessage(), connectionName);
+                            indicator.setText("Performing " + action.getName() + " on connection " + connectionName);
+                            action.execute(connectionHandler);
+                            NotificationUtil.sendInfoNotification(project, action.getName(), action.getSuccessMessage(), connectionName);
                         } catch (SQLException ex) {
-                            //MessageUtil.showErrorDialog("Could not perform " + operation.getName() + " operation.", ex);
-                            NotificationUtil.sendErrorNotification(project, operation.getName(), operation.getFailureMessage(), connectionName, ex.getMessage());
+                            NotificationUtil.sendErrorNotification(project, action.getName(), action.getFailureMessage(), connectionName, ex.getMessage());
+                            success = false;
+                        } finally {
+                            // notify post-action
+                            transactionListener.afterAction(connectionHandler, action, success);
+
+                            if (action.isStatusChange()) {
+                                ConnectionStatusListener statusListener = EventManager.notify(getProject(), ConnectionStatusListener.TOPIC);
+                                statusListener.statusChanged(connectionHandler.getId());
+                            }
                         }
                     }
                 }
             }
         }.start();
-
     }
 
     public void commit(final ConnectionHandler connectionHandler, boolean background) {
-        execute(connectionHandler, background, ConnectionOperation.COMMIT);
+        execute(connectionHandler, background, TransactionAction.COMMIT);
     }
 
     public void rollback(final ConnectionHandler connectionHandler, boolean background) {
-        execute(connectionHandler, background, ConnectionOperation.ROLLBACK);
+        execute(connectionHandler, background, TransactionAction.ROLLBACK);
     }
 
     public void disconnect(final ConnectionHandler connectionHandler, boolean background) {
-        execute(connectionHandler, background, ConnectionOperation.DISCONNECT);
+        execute(connectionHandler, background, TransactionAction.DISCONNECT);
     }
 
 
-    public boolean showUncommittedChangesOverviewDialog(ConnectionOperation additionalOperation) {
+    public boolean showUncommittedChangesOverviewDialog(TransactionAction additionalOperation) {
         UncommittedChangesOverviewDialog executionDialog = new UncommittedChangesOverviewDialog(getProject(), additionalOperation);
         executionDialog.show();
         return executionDialog.getExitCode() == DialogWrapper.OK_EXIT_CODE;
     }
 
-    public boolean showUncommittedChangesDialog(ConnectionHandler connectionHandler, ConnectionOperation additionalOperation) {
+    public boolean showUncommittedChangesDialog(ConnectionHandler connectionHandler, TransactionAction additionalOperation) {
         UncommittedChangesDialog executionDialog = new UncommittedChangesDialog(connectionHandler, additionalOperation, false);
         executionDialog.show();
         return executionDialog.getExitCode() == DialogWrapper.OK_EXIT_CODE;
@@ -94,15 +106,15 @@ public class DatabaseTransactionManager extends AbstractProjectComponent impleme
 
     public void toggleAutoCommit(ConnectionHandler connectionHandler) {
         boolean isAutoCommit = connectionHandler.isAutoCommit();
-        if (!isAutoCommit) {
+        if (!isAutoCommit && connectionHandler.hasUncommittedChanges()) {
             int result = toggleAutoCommitOptionHandler.resolve(connectionHandler.getName());
             switch (result) {
-                case 0: execute(connectionHandler, true, ConnectionOperation.COMMIT, ConnectionOperation.TOGGLE_AUTO_COMMIT); break;
-                case 1: execute(connectionHandler, true, ConnectionOperation.ROLLBACK, ConnectionOperation.TOGGLE_AUTO_COMMIT); break;
-                case 2: showUncommittedChangesDialog(connectionHandler, ConnectionOperation.TOGGLE_AUTO_COMMIT);
+                case 0: execute(connectionHandler, true, TransactionAction.COMMIT, TransactionAction.TOGGLE_AUTO_COMMIT); break;
+                case 1: execute(connectionHandler, true, TransactionAction.ROLLBACK, TransactionAction.TOGGLE_AUTO_COMMIT); break;
+                case 2: showUncommittedChangesDialog(connectionHandler, TransactionAction.TOGGLE_AUTO_COMMIT);
             }
         } else {
-            execute(connectionHandler, false, ConnectionOperation.TOGGLE_AUTO_COMMIT);
+            execute(connectionHandler, false, TransactionAction.TOGGLE_AUTO_COMMIT);
         }
     }
 
@@ -111,12 +123,12 @@ public class DatabaseTransactionManager extends AbstractProjectComponent impleme
             int result = disconnectOptionHandler.resolve(connectionHandler.getName());
 
             switch (result) {
-                case 0: execute(connectionHandler, false, ConnectionOperation.COMMIT, ConnectionOperation.DISCONNECT); break;
-                case 1: execute(connectionHandler, false, ConnectionOperation.DISCONNECT); break;
-                case 2: showUncommittedChangesDialog(connectionHandler, ConnectionOperation.DISCONNECT);
+                case 0: execute(connectionHandler, false, TransactionAction.COMMIT, TransactionAction.DISCONNECT); break;
+                case 1: execute(connectionHandler, false, TransactionAction.DISCONNECT); break;
+                case 2: showUncommittedChangesDialog(connectionHandler, TransactionAction.DISCONNECT);
             }
         } else {
-            execute(connectionHandler, false, ConnectionOperation.DISCONNECT);
+            execute(connectionHandler, false, TransactionAction.DISCONNECT);
         }
     }
 

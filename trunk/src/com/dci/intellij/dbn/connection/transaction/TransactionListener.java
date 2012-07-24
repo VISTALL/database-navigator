@@ -3,7 +3,6 @@ package com.dci.intellij.dbn.connection.transaction;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.intellij.util.messages.Topic;
 
-import java.sql.SQLException;
 import java.util.EventListener;
 
 public interface TransactionListener extends EventListener{
@@ -14,13 +13,13 @@ public interface TransactionListener extends EventListener{
      * @param connectionHandler
      * @param action
      */
-    void beforeAction(ConnectionHandler connectionHandler, TransactionAction action) throws SQLException;
+    void beforeAction(ConnectionHandler connectionHandler, TransactionAction action);
 
     /**
      * This is typically called after the connection has been operationally committed
      * @param connectionHandler indicates if the commit operation was successful or not
      * @param succeeded indicates if the commit operation was successful or not
      */
-    void afterAction(ConnectionHandler connectionHandler, TransactionAction action, boolean succeeded) throws SQLException;
+    void afterAction(ConnectionHandler connectionHandler, TransactionAction action, boolean succeeded);
 
 }

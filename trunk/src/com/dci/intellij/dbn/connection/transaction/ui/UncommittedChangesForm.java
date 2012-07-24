@@ -4,7 +4,6 @@ import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.common.thread.SimpleLaterInvocator;
 import com.dci.intellij.dbn.common.ui.UIFormImpl;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
-import com.dci.intellij.dbn.connection.ConnectionOperation;
 import com.dci.intellij.dbn.connection.transaction.DatabaseTransactionManager;
 import com.dci.intellij.dbn.connection.transaction.TransactionAction;
 import com.dci.intellij.dbn.connection.transaction.TransactionListener;
@@ -18,7 +17,6 @@ import javax.swing.JPanel;
 import javax.swing.JTable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.SQLException;
 
 public class UncommittedChangesForm extends UIFormImpl implements TransactionListener {
     private JTable changesTable;
@@ -32,7 +30,7 @@ public class UncommittedChangesForm extends UIFormImpl implements TransactionLis
 
     private ConnectionHandler connectionHandler;
 
-    public UncommittedChangesForm(final ConnectionHandler connectionHandler, final ConnectionOperation additionalOperation, boolean showActions) {
+    public UncommittedChangesForm(final ConnectionHandler connectionHandler, final TransactionAction additionalOperation, boolean showActions) {
         this.connectionHandler = connectionHandler;
         Project project = connectionHandler.getProject();
         if (getEnvironmentSettings(project).getVisibilitySettings().getDialogHeaders().value()) {
@@ -50,9 +48,9 @@ public class UncommittedChangesForm extends UIFormImpl implements TransactionLis
                     DatabaseTransactionManager transactionManager = DatabaseTransactionManager.getInstance(connectionHandler.getProject());
                     Object source = e.getSource();
                     if (source == commitButton) {
-                        transactionManager.execute(connectionHandler, false, ConnectionOperation.COMMIT, additionalOperation);
+                        transactionManager.execute(connectionHandler, false, TransactionAction.COMMIT, additionalOperation);
                     } else if (source == rollbackButton) {
-                        transactionManager.execute(connectionHandler, false, ConnectionOperation.ROLLBACK, additionalOperation);
+                        transactionManager.execute(connectionHandler, false, TransactionAction.ROLLBACK, additionalOperation);
                     }
                 }
             };
@@ -85,11 +83,11 @@ public class UncommittedChangesForm extends UIFormImpl implements TransactionLis
      *                Transaction Listener                  *
      ********************************************************/
     @Override
-    public void beforeAction(ConnectionHandler connectionHandler, TransactionAction action) throws SQLException {
+    public void beforeAction(ConnectionHandler connectionHandler, TransactionAction action) {
     }
 
     @Override
-    public void afterAction(ConnectionHandler connectionHandler, TransactionAction action, boolean succeeded) throws SQLException {
+    public void afterAction(ConnectionHandler connectionHandler, TransactionAction action, boolean succeeded) {
         if (connectionHandler == this.connectionHandler && succeeded) {
             refreshForm(connectionHandler);
         }
