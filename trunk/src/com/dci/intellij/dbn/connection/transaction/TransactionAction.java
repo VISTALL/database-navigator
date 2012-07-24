@@ -1,14 +1,15 @@
 package com.dci.intellij.dbn.connection.transaction;
 
 import com.dci.intellij.dbn.connection.ConnectionHandler;
+import com.intellij.notification.NotificationType;
 
 import java.sql.SQLException;
 
 public enum TransactionAction {
     COMMIT(
             "Commit",
-            "Connection \"{0}\" successfully committed",
-            "Commit on connection \"{0}\" failed. Cause: {1}",
+            "Connection \"{0}\" committed",
+            "Error committing connection \"{0}\". Details: {1}",
             false,
             new Executor() {
                 @Override
@@ -18,8 +19,8 @@ public enum TransactionAction {
             }),
     ROLLBACK(
             "Rollback",
-            "Connection \"{0}\" successfully rolled back.",
-            "Rollback on connection \"{0}\" failed. Cause: {1}",
+            "Connection \"{0}\" rolled back.",
+            "Error rolling back connection \"{0}\". Details: {1}",
             false,
             new Executor() {
                 @Override
@@ -28,8 +29,8 @@ public enum TransactionAction {
                 }
             }),
     DISCONNECT("Disconnect",
-            "Successfully disconnected from \"{0}\"",
-            "Error disconnecting from \"{0}\". Cause: {1}",
+            "Disconnected from \"{0}\"",
+            "Error disconnecting from \"{0}\". Details: {1}",
             true,
             new Executor() {
                 @Override
@@ -38,44 +39,69 @@ public enum TransactionAction {
                 }
             }),
 
-    TOGGLE_AUTO_COMMIT(
-            "Toggle Auto-Commit",
-            "Successfully switched Auto-Commit option for \"{0}\".",
-            "Could not switch Auto-Commit option for \"{0}\". Cause: {1}",
+    TURN_AUTO_COMMIT_ON(
+            "Auto-Commit",
+            "Auto-Commit turned ON for \"{0}\".", NotificationType.WARNING,
+            "Error turning Auto-Commit ON for \"{0}\". Details: {1}",
             true,
             new Executor() {
         @Override
         void execute(ConnectionHandler connectionHandler) throws SQLException {
-            boolean isAutoCommit = connectionHandler.isAutoCommit();
-            connectionHandler.setAutoCommit(!isAutoCommit);
+            assert !connectionHandler.isAutoCommit();
+            connectionHandler.setAutoCommit(true);
+        }
+    }),
+
+    TURN_AUTO_COMMIT_OFF(
+            "Auto-Commit",
+            "Auto-Commit turned OFF for \"{0}\".",
+            "Error turning Auto-Commit OFF for \"{0}\". Details: {1}",
+            true,
+            new Executor() {
+        @Override
+        void execute(ConnectionHandler connectionHandler) throws SQLException {
+            assert connectionHandler.isAutoCommit();
+            connectionHandler.setAutoCommit(false);
         }
     });
 
 
     private String name;
-    private String successMessage;
-    private String failureMessage;
+    private String successNotificationMessage;
+    private String errorNotificationMessage;
+    private NotificationType successNotificationType = NotificationType.INFORMATION;
     private Executor executor;
     private boolean isStatusChange;
 
-    private TransactionAction(String name, String successMessage, String failureMessage, boolean isStatusChange, Executor executor) {
+    private TransactionAction(String name, String successNotificationMessage, String errorNotificationMessage, boolean isStatusChange, Executor executor) {
+        this(name, successNotificationMessage, null, errorNotificationMessage, isStatusChange, executor);
+
+    }
+    private TransactionAction(String name, String successNotificationMessage, NotificationType successNotificationType, String errorNotificationMessage, boolean isStatusChange, Executor executor) {
         this.name = name;
-        this.successMessage = successMessage;
-        this.failureMessage = failureMessage;
+        this.errorNotificationMessage = errorNotificationMessage;
+        this.successNotificationMessage = successNotificationMessage;
         this.executor = executor;
         this.isStatusChange = isStatusChange;
+        if (successNotificationType != null){
+            this.successNotificationType = successNotificationType;
+        }
     }
 
     public String getName() {
         return name;
     }
 
-    public String getSuccessMessage() {
-        return successMessage;
+    public String getSuccessNotificationMessage() {
+        return successNotificationMessage;
     }
 
-    public String getFailureMessage() {
-        return failureMessage;
+    public String getErrorNotificationMessage() {
+        return errorNotificationMessage;
+    }
+
+    public NotificationType getSuccessNotificationType() {
+        return successNotificationType;
     }
 
     public boolean isStatusChange() {

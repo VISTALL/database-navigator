@@ -60,9 +60,19 @@ public class DatabaseTransactionManager extends AbstractProjectComponent impleme
                             indicator.setIndeterminate(true);
                             indicator.setText("Performing " + action.getName() + " on connection " + connectionName);
                             action.execute(connectionHandler);
-                            NotificationUtil.sendInfoNotification(project, action.getName(), action.getSuccessMessage(), connectionName);
+                            NotificationUtil.sendNotification(
+                                    project,
+                                    action.getSuccessNotificationType(),
+                                    action.getName(),
+                                    action.getSuccessNotificationMessage(),
+                                    connectionName);
                         } catch (SQLException ex) {
-                            NotificationUtil.sendErrorNotification(project, action.getName(), action.getFailureMessage(), connectionName, ex.getMessage());
+                            NotificationUtil.sendErrorNotification(
+                                    project,
+                                    action.getName(),
+                                    action.getErrorNotificationMessage(),
+                                    connectionName,
+                                    ex.getMessage());
                             success = false;
                         } finally {
                             // notify post-action
@@ -106,15 +116,19 @@ public class DatabaseTransactionManager extends AbstractProjectComponent impleme
 
     public void toggleAutoCommit(ConnectionHandler connectionHandler) {
         boolean isAutoCommit = connectionHandler.isAutoCommit();
+        TransactionAction autoCommitAction = isAutoCommit ?
+                TransactionAction.TURN_AUTO_COMMIT_OFF :
+                TransactionAction.TURN_AUTO_COMMIT_ON;
+
         if (!isAutoCommit && connectionHandler.hasUncommittedChanges()) {
             int result = toggleAutoCommitOptionHandler.resolve(connectionHandler.getName());
             switch (result) {
-                case 0: execute(connectionHandler, true, TransactionAction.COMMIT, TransactionAction.TOGGLE_AUTO_COMMIT); break;
-                case 1: execute(connectionHandler, true, TransactionAction.ROLLBACK, TransactionAction.TOGGLE_AUTO_COMMIT); break;
-                case 2: showUncommittedChangesDialog(connectionHandler, TransactionAction.TOGGLE_AUTO_COMMIT);
+                case 0: execute(connectionHandler, true, TransactionAction.COMMIT, autoCommitAction); break;
+                case 1: execute(connectionHandler, true, TransactionAction.ROLLBACK, autoCommitAction); break;
+                case 2: showUncommittedChangesDialog(connectionHandler, autoCommitAction);
             }
         } else {
-            execute(connectionHandler, false, TransactionAction.TOGGLE_AUTO_COMMIT);
+            execute(connectionHandler, false, autoCommitAction);
         }
     }
 
