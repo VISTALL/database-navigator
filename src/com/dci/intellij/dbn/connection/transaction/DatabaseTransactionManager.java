@@ -6,6 +6,7 @@ import com.dci.intellij.dbn.common.notification.NotificationUtil;
 import com.dci.intellij.dbn.common.option.InteractiveOptionHandler;
 import com.dci.intellij.dbn.common.thread.ModalTask;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
+import com.dci.intellij.dbn.connection.ConnectionManager;
 import com.dci.intellij.dbn.connection.ConnectionStatusListener;
 import com.dci.intellij.dbn.connection.transaction.ui.UncommittedChangesDialog;
 import com.dci.intellij.dbn.connection.transaction.ui.UncommittedChangesOverviewDialog;
@@ -16,6 +17,7 @@ import com.intellij.openapi.project.ProjectManagerListener;
 import com.intellij.openapi.ui.DialogWrapper;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.sql.SQLException;
 
@@ -30,6 +32,12 @@ public class DatabaseTransactionManager extends AbstractProjectComponent impleme
             "Uncommitted changes",
             "You have uncommitted changes on the connection \"{0}\". \n" +
             "Please specify whether to commit or rollback these changes before disconnecting",
+            2, "Commit", "Rollback", "Review Changes", "Cancel");
+
+    private InteractiveOptionHandler closeProjectOptionHandler = new InteractiveOptionHandler(
+            "Uncommitted changes",
+            "You have uncommitted changes on one or more connections for project \"{0}\". \n" +
+            "Please specify whether to commit or rollback these changes before closing the project",
             2, "Commit", "Rollback", "Review Changes", "Cancel");
 
 
@@ -102,7 +110,7 @@ public class DatabaseTransactionManager extends AbstractProjectComponent impleme
     }
 
 
-    public boolean showUncommittedChangesOverviewDialog(TransactionAction additionalOperation) {
+    public boolean showUncommittedChangesOverviewDialog(@Nullable TransactionAction additionalOperation) {
         UncommittedChangesOverviewDialog executionDialog = new UncommittedChangesOverviewDialog(getProject(), additionalOperation);
         executionDialog.show();
         return executionDialog.getExitCode() == DialogWrapper.OK_EXIT_CODE;
@@ -157,6 +165,16 @@ public class DatabaseTransactionManager extends AbstractProjectComponent impleme
 
     @Override
     public boolean canCloseProject(Project project) {
+        ConnectionManager connectionManager = ConnectionManager.getInstance(project);
+        if (connectionManager.hasUncommittedChanges()) {
+            int result = closeProjectOptionHandler.resolve(project.getName());
+            switch (result) {
+                case 0: connectionManager.commitAll(); return true;
+                case 1: connectionManager.rollbackAll(); return true;
+                case 2: return showUncommittedChangesOverviewDialog(null);
+                case 3: return false;
+            }
+        }
         return true;
     }
 

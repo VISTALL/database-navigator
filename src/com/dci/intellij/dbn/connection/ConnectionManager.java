@@ -10,6 +10,7 @@ import com.dci.intellij.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dci.intellij.dbn.connection.config.ConnectionDetailSettings;
 import com.dci.intellij.dbn.connection.config.ConnectionSettings;
 import com.dci.intellij.dbn.connection.mapping.FileConnectionMappingManager;
+import com.dci.intellij.dbn.connection.transaction.DatabaseTransactionManager;
 import com.intellij.ProjectTopics;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
@@ -33,6 +34,7 @@ import java.util.Set;
 
 public class ConnectionManager extends AbstractProjectComponent implements ProjectManagerListener{
     private List<ConnectionBundle> connectionBundles = new ArrayList<ConnectionBundle>();
+
 
     public static ConnectionManager getInstance(Project project) {
         return project.getComponent(ConnectionManager.class);
@@ -239,6 +241,38 @@ public class ConnectionManager extends AbstractProjectComponent implements Proje
          return connectionHandler;
      }
 
+    public boolean hasUncommittedChanges() {
+        for (ConnectionBundle connectionBundle : getConnectionBundles()) {
+            for (ConnectionHandler connectionHandler : connectionBundle.getConnectionHandlers()) {
+                if (connectionHandler.hasUncommittedChanges()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public void commitAll() {
+        DatabaseTransactionManager transactionManager = DatabaseTransactionManager.getInstance(getProject());
+        for (ConnectionBundle connectionBundle : getConnectionBundles()) {
+            for (ConnectionHandler connectionHandler : connectionBundle.getConnectionHandlers()) {
+                if (connectionHandler.hasUncommittedChanges()) {
+                    transactionManager.commit(connectionHandler, false);
+                }
+            }
+        }
+    }
+
+    public void rollbackAll() {
+        DatabaseTransactionManager transactionManager = DatabaseTransactionManager.getInstance(getProject());
+        for (ConnectionBundle connectionBundle : getConnectionBundles()) {
+            for (ConnectionHandler connectionHandler : connectionBundle.getConnectionHandlers()) {
+                if (connectionHandler.hasUncommittedChanges()) {
+                    transactionManager.rollback(connectionHandler, false);
+                }
+            }
+        }
+    }
 
     /**********************************************
     *            ProjectManagerListener           *
