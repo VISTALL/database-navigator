@@ -31,6 +31,4 @@ public abstract class AbstractProjectComponent implements ProjectComponent{
     public void disposeComponent() {
         project = null;
     }
-
-
 }
