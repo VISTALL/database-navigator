@@ -25,7 +25,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 public class ExecutionManager extends AbstractProjectComponent implements JDOMExternalizable, Disposable {
-    private static final String TOOL_WINDOW_ID = "DB Execution Console";
+    public static final String TOOL_WINDOW_ID = "DB Execution Console";
     private ExecutionConsoleForm executionConsoleForm;
 
     private ExecutionManager(Project project) {
