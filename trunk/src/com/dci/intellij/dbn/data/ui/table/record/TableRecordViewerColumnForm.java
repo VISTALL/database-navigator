@@ -15,6 +15,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import java.awt.BorderLayout;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -51,6 +52,7 @@ public class TableRecordViewerColumnForm extends UIFormImpl implements UIForm {
 
         valueFieldPanel.add(valueTextField, BorderLayout.CENTER);
         valueTextField.setEditable(false);
+        valueTextField.setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
         valueTextField.setBackground(UIUtil.getTextFieldBackground());
         setCell(cell);
     }
