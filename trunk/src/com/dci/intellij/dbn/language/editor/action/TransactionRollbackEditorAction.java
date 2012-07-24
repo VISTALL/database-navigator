@@ -9,7 +9,7 @@ import com.intellij.openapi.project.Project;
 
 public class TransactionRollbackEditorAction extends TransactionEditorAction {
     public TransactionRollbackEditorAction() {
-        super("Roll-back", "Rollback changes", Icons.CONNECTION_ROLLBACK);
+        super("Rollback", "Rollback changes", Icons.CONNECTION_ROLLBACK);
     }
 
     public void actionPerformed(AnActionEvent e) {
@@ -22,7 +22,7 @@ public class TransactionRollbackEditorAction extends TransactionEditorAction {
     @Override
     public void update(AnActionEvent e) {
         super.update(e);
-        e.getPresentation().setText("Roll-back");
+        e.getPresentation().setText("Rollback");
 
         Project project = ActionUtil.getProject(e);
         ConnectionHandler connectionHandler = getConnectionHandler(project);
