@@ -3,8 +3,8 @@ package com.dci.intellij.dbn.connection.transaction.ui;
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.ui.DBNDialog;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
-import com.dci.intellij.dbn.connection.ConnectionOperation;
 import com.dci.intellij.dbn.connection.transaction.DatabaseTransactionManager;
+import com.dci.intellij.dbn.connection.transaction.TransactionAction;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.Nullable;
 
@@ -16,9 +16,9 @@ import java.util.List;
 
 public class UncommittedChangesOverviewDialog extends DBNDialog{
     private UncommittedChangesOverviewForm mainComponent;
-    private ConnectionOperation additionalOperation;
+    private TransactionAction additionalOperation;
 
-    public UncommittedChangesOverviewDialog(Project project, ConnectionOperation additionalOperation) {
+    public UncommittedChangesOverviewDialog(Project project, TransactionAction additionalOperation) {
         super(project, "Uncommitted changes overview", true);
         this.additionalOperation = additionalOperation;
         mainComponent = new UncommittedChangesOverviewForm(project);
@@ -56,7 +56,7 @@ public class UncommittedChangesOverviewDialog extends DBNDialog{
 
             doOKAction();
             for (ConnectionHandler connectionHandler : connectionHandlers) {
-                transactionManager.execute(connectionHandler, true, ConnectionOperation.COMMIT, additionalOperation);
+                transactionManager.execute(connectionHandler, true, TransactionAction.COMMIT, additionalOperation);
             }
         }
 
@@ -77,7 +77,7 @@ public class UncommittedChangesOverviewDialog extends DBNDialog{
 
             doOKAction();
             for (ConnectionHandler connectionHandler : connectionHandlers) {
-                transactionManager.execute(connectionHandler, true, ConnectionOperation.ROLLBACK, additionalOperation);
+                transactionManager.execute(connectionHandler, true, TransactionAction.ROLLBACK, additionalOperation);
             }
         }
 

@@ -30,22 +30,24 @@ public class ConnectionPool implements Disposable {
     }
 
     public Connection getStandaloneConnection(boolean recover) throws SQLException {
-        if (standaloneConnection != null) {
-            DatabaseMetadataInterface metadataInterface = connectionHandler.getInterfaceProvider().getMetadataInterface();
-            if (recover && !metadataInterface.isValid(standaloneConnection)) {
-                standaloneConnection = null;
+        synchronized (this) {
+            if (standaloneConnection != null) {
+                DatabaseMetadataInterface metadataInterface = connectionHandler.getInterfaceProvider().getMetadataInterface();
+                if (recover && !metadataInterface.isValid(standaloneConnection)) {
+                    standaloneConnection = null;
+                }
             }
-        }
 
-        if (standaloneConnection == null) {
-            try {
-                standaloneConnection = ConnectionUtil.connect(connectionHandler);
-            } finally {
-                notifyStatusChange();
+            if (standaloneConnection == null) {
+                try {
+                    standaloneConnection = ConnectionUtil.connect(connectionHandler);
+                } finally {
+                    notifyStatusChange();
+                }
             }
-        }
 
-        return standaloneConnection;
+            return standaloneConnection;
+        }
     }
 
     private void notifyStatusChange() {
@@ -53,68 +55,71 @@ public class ConnectionPool implements Disposable {
         changeListener.statusChanged(connectionHandler.getId());
     }
 
-    public synchronized Connection allocateConnection() throws SQLException {
-        ConnectionStatus connectionStatus = connectionHandler.getConnectionStatus();
-        while (connections.size() > 0) {
-            ConnectionWrapper connectionWrapper = connections.remove(0);
-            if (connectionWrapper.isValid()) {
-                connectionStatus.setConnected(true);
-                connectionStatus.setValid(true);
-                allocatedConnections.add(connectionWrapper);
-                return connectionWrapper.getConnection();
-            }
-        }
-
-        logger.debug("[DBN-INFO] Attempt to create new pool connection for '" + connectionHandler.getName() + "'");
-        Connection connection = ConnectionUtil.connect(connectionHandler);
-
-        //connectionHandler.getConnectionBundle().notifyConnectionStatusListeners(connectionHandler);
-
-        // pool connections do not need to have current schema set
-        //connectionHandler.getDataDictionary().setCurrentSchema(connectionHandler.getCurrentSchemaName(), connection);
-        ConnectionWrapper connectionWrapper = new ConnectionWrapper(connectionHandler.getInterfaceProvider().getMetadataInterface(), connection);
-        allocatedConnections.add(connectionWrapper);
-        int size = allocatedConnections.size();
-        if (size > peakSize) peakSize = size;
-        logger.debug("[DBN-INFO] Pool connection for '" + connectionHandler.getName() + "' created. Pool size = " + getSize());
-        return connection;
-    }
-
-    public synchronized void releaseConnection(Connection connection) {
-        if (connection != null) {
-            for (ConnectionWrapper connectionWrapper : allocatedConnections) {
-                if (connectionWrapper.getConnection() == connection) {
-                    allocatedConnections.remove(connectionWrapper);
-                    connections.add(connectionWrapper);
-                    break;
+    public Connection allocateConnection() throws SQLException {
+        synchronized (this) {
+            ConnectionStatus connectionStatus = connectionHandler.getConnectionStatus();
+            while (connections.size() > 0) {
+                ConnectionWrapper connectionWrapper = connections.remove(0);
+                if (connectionWrapper.isValid()) {
+                    connectionStatus.setConnected(true);
+                    connectionStatus.setValid(true);
+                    allocatedConnections.add(connectionWrapper);
+                    return connectionWrapper.getConnection();
                 }
             }
 
+            logger.debug("[DBN-INFO] Attempt to create new pool connection for '" + connectionHandler.getName() + "'");
+            Connection connection = ConnectionUtil.connect(connectionHandler);
+
+            //connectionHandler.getConnectionBundle().notifyConnectionStatusListeners(connectionHandler);
+
+            // pool connections do not need to have current schema set
+            //connectionHandler.getDataDictionary().setCurrentSchema(connectionHandler.getCurrentSchemaName(), connection);
+            ConnectionWrapper connectionWrapper = new ConnectionWrapper(connectionHandler.getInterfaceProvider().getMetadataInterface(), connection);
+            allocatedConnections.add(connectionWrapper);
+            int size = allocatedConnections.size();
+            if (size > peakSize) peakSize = size;
+            logger.debug("[DBN-INFO] Pool connection for '" + connectionHandler.getName() + "' created. Pool size = " + getSize());
+            return connection;
         }
     }
 
-    public synchronized void disposedConnection(Connection connection) {
-        if (connection != null) {
-            for (ConnectionWrapper connectionWrapper : allocatedConnections) {
-                if (connectionWrapper.getConnection() == connection) {
-                    allocatedConnections.remove(connectionWrapper);
-                    ConnectionUtil.closeConnection(connection);
-                    break;
+    public void releaseConnection(Connection connection) {
+        synchronized (this) {
+            if (connection != null) {
+                for (ConnectionWrapper connectionWrapper : allocatedConnections) {
+                    if (connectionWrapper.getConnection() == connection) {
+                        allocatedConnections.remove(connectionWrapper);
+                        connections.add(connectionWrapper);
+                        break;
+                    }
                 }
             }
-
         }
     }
 
-    public synchronized void closeConnections() {
-        while (connections.size() > 0) {
-            ConnectionWrapper connectionWrapper = connections.remove(0);
-            ConnectionUtil.closeConnection(connectionWrapper.getConnection());
-        }
-        ConnectionUtil.closeConnection(standaloneConnection);
+    public void disconnect() throws SQLException {
+        synchronized (this) {
+            while (connections.size() > 0) {
+                ConnectionWrapper connectionWrapper = connections.remove(0);
+                ConnectionUtil.closeConnection(connectionWrapper.getConnection());
+            }
 
-        connectionHandler.getConnectionStatus().setConnected(false);
-        //connectionHandler.getConnectionBundle().notifyConnectionStatusListeners(connectionHandler);
+            if (standaloneConnection != null) {
+                standaloneConnection.close();
+            }
+        }
+    }
+
+    public void disconnectSilently(){
+        synchronized (this) {
+            while (connections.size() > 0) {
+                ConnectionWrapper connectionWrapper = connections.remove(0);
+                ConnectionUtil.closeConnection(connectionWrapper.getConnection());
+            }
+
+            ConnectionUtil.closeConnection(standaloneConnection);
+        }
     }
 
     public int getSize() {
@@ -149,16 +154,14 @@ public class ConnectionPool implements Disposable {
 
         public void run() {
             // close connections only if pool is passive
-            if (connectionPool.allocatedConnections.isEmpty() && !connectionPool.connections.isEmpty()) {
-                try {
+            synchronized (ConnectionPool.this) {
+                if (connectionPool.allocatedConnections.isEmpty() && !connectionPool.connections.isEmpty()) {
                     for (ConnectionWrapper connectionWrapper : connectionPool.connections) {
                         ConnectionUtil.closeConnection(connectionWrapper.getConnection());
                     }
-                } catch (Exception e) {
-
+                    connectionPool.connections.clear();
+                    logger.debug("[DBN-INFO] Clearing pool for connection '" + connectionHandler.getName() + "'");
                 }
-                connectionPool.connections.clear();
-                logger.debug("[DBN-INFO] Clearing pool for connection '" + connectionHandler.getName() + "'");
             }
         }
     }

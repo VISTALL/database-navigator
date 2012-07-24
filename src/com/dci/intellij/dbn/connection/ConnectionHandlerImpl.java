@@ -10,8 +10,6 @@ import com.dci.intellij.dbn.common.filter.Filter;
 import com.dci.intellij.dbn.common.thread.BackgroundTask;
 import com.dci.intellij.dbn.common.ui.tree.TreeEventType;
 import com.dci.intellij.dbn.connection.config.ConnectionSettings;
-import com.dci.intellij.dbn.connection.transaction.TransactionAction;
-import com.dci.intellij.dbn.connection.transaction.TransactionListener;
 import com.dci.intellij.dbn.connection.transaction.UncommittedChangeBundle;
 import com.dci.intellij.dbn.database.DatabaseInterfaceProvider;
 import com.dci.intellij.dbn.language.common.DBLanguage;
@@ -103,51 +101,18 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
         return getSettings().getDetailSettings().getEnvironmentType();
     }
 
-    private void notifyTransactionPreAction(TransactionAction action) throws SQLException {
-        TransactionListener listener = EventManager.notify(getProject(), TransactionListener.TOPIC);
-        listener.beforeAction(this, action);
-    }
-
-    private void notifyTransactionPostAction(TransactionAction action, boolean successful) throws SQLException {
-        TransactionListener listener = EventManager.notify(getProject(), TransactionListener.TOPIC);
-        listener.afterAction(this, action, successful);
-    }
-
-    private void notifyStatusChange() {
-        ConnectionStatusListener changeListener = EventManager.notify(getProject(), ConnectionStatusListener.TOPIC);
-        changeListener.statusChanged(getId());
-    }
-
     public boolean hasUncommittedChanges() {
         return changesBundle != null && !changesBundle.isEmpty();
     }
 
     public void commit() throws SQLException {
-        boolean success = true;
-        try {
-            notifyTransactionPreAction(TransactionAction.COMMIT);
-            connectionPool.getStandaloneConnection(false).commit();
-            changesBundle = null;
-        } catch (SQLException e) {
-            success = false;
-            throw e;
-        } finally {
-            notifyTransactionPostAction(TransactionAction.COMMIT, success);
-        }
+        connectionPool.getStandaloneConnection(false).commit();
+        changesBundle = null;
     }
 
     public void rollback() throws SQLException {
-        boolean success = true;
-        try {
-            notifyTransactionPreAction(TransactionAction.ROLLBACK);
-            connectionPool.getStandaloneConnection(false).rollback();
-            changesBundle = null;
-        } catch (SQLException e) {
-            success = false;
-            throw e;
-        } finally {
-            notifyTransactionPostAction(TransactionAction.ROLLBACK, success);
-        }
+        connectionPool.getStandaloneConnection(false).rollback();
+        changesBundle = null;
     }
 
     public void notifyChanges(VirtualFile virtualFile) {
@@ -219,21 +184,14 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
     public void setAutoCommit(boolean autoCommit) throws SQLException {
         connectionPool.setAutoCommit(autoCommit);
         connectionSettings.getDetailSettings().setAutoCommit(autoCommit);
-        notifyStatusChange();
     }
 
-    public void disconnect() {
-        connectionPool.closeConnections();
+    public void disconnect() throws SQLException {
         try {
-            TransactionListener transactionListener = EventManager.notify(getProject(), TransactionListener.TOPIC);
-            transactionListener.afterAction(this, TransactionAction.DISCONNECT, true);
-
-            notifyStatusChange();
-
-        } catch (SQLException e) {
-            e.printStackTrace();
+            connectionPool.disconnect();
+        } finally {
+            getConnectionStatus().setConnected(false);
         }
-
     }
 
     public String getId() {
@@ -385,7 +343,7 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
     public void dispose() {
         if (!isDisposed) {
             isDisposed = true;
-            disconnect();
+            connectionPool.disconnectSilently();
             DisposeUtil.dispose(objectBundle);
             DisposeUtil.dispose(connectionPool);
             connectionPool = null;
@@ -396,8 +354,7 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
         boolean refresh = this.connectionSettings.getDatabaseSettings().hashCode() != connectionSettings.getDatabaseSettings().hashCode();
         this.connectionSettings = connectionSettings;
         if (refresh) {
-            connectionSettings.getDatabaseSettings().setDatabaseType(null);
-            disconnect();
+            connectionPool.disconnectSilently();
 
             final Project project = getProject();
             new BackgroundTask(getProject(), "Trying to connect to " + getName(), false) {

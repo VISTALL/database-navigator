@@ -32,7 +32,11 @@ import com.intellij.ide.structureView.StructureViewModel;
 import com.intellij.ide.structureView.TreeBasedStructureViewBuilder;
 import com.intellij.openapi.actionSystem.DataProvider;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
-import com.intellij.openapi.fileEditor.*;
+import com.intellij.openapi.fileEditor.FileEditor;
+import com.intellij.openapi.fileEditor.FileEditorLocation;
+import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.fileEditor.FileEditorState;
+import com.intellij.openapi.fileEditor.FileEditorStateLevel;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
@@ -41,7 +45,7 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.JComponent;
 import java.beans.PropertyChangeListener;
 import java.sql.SQLException;
 import java.util.HashSet;
@@ -449,7 +453,7 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
     /*********************************************************
      *               TransactionListener                     *
      ********************************************************/
-    public void beforeAction(ConnectionHandler connectionHandler, TransactionAction action) throws SQLException {
+    public void beforeAction(ConnectionHandler connectionHandler, TransactionAction action) {
         if (connectionHandler == getConnectionHandler()) {
             DatasetEditorModel model = getTableModel();
             DatasetEditorTable editorTable = getEditorTable();
@@ -461,7 +465,11 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
                     }
 
                     if (isInserting()) {
-                        model.postInsertRecord(true, false);
+                        try {
+                            model.postInsertRecord(true, false);
+                        } catch (SQLException e1) {
+                            MessageUtil.showErrorDialog("Could not create row in " + getDataset().getQualifiedNameWithType() + ".", e1);
+                        }
                     }
                 }
 
@@ -474,7 +482,7 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
         }
     }
 
-    public void afterAction(ConnectionHandler connectionHandler, TransactionAction action, boolean succeeded) throws SQLException {
+    public void afterAction(ConnectionHandler connectionHandler, TransactionAction action, boolean succeeded) {
         if (connectionHandler == getConnectionHandler()) {
             DatasetEditorModel model = getTableModel();
             DatasetEditorTable editorTable = getEditorTable();

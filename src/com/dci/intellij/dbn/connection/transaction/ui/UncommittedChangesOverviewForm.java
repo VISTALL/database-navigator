@@ -21,7 +21,6 @@ import javax.swing.JPanel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.BorderLayout;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -120,11 +119,11 @@ public class UncommittedChangesOverviewForm extends UIFormImpl implements UIForm
      *                Transaction Listener                  *
      ********************************************************/
     @Override
-    public void beforeAction(ConnectionHandler connectionHandler, TransactionAction action) throws SQLException {
+    public void beforeAction(ConnectionHandler connectionHandler, TransactionAction action) {
     }
 
     @Override
-    public void afterAction(ConnectionHandler connectionHandler, TransactionAction action, boolean succeeded) throws SQLException {
+    public void afterAction(ConnectionHandler connectionHandler, TransactionAction action, boolean succeeded) {
         refreshForm();
     }
 
