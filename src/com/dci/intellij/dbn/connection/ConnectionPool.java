@@ -1,6 +1,8 @@
 package com.dci.intellij.dbn.connection;
 
+import com.dci.intellij.dbn.common.Constants;
 import com.dci.intellij.dbn.common.event.EventManager;
+import com.dci.intellij.dbn.common.notification.NotificationUtil;
 import com.dci.intellij.dbn.database.DatabaseMetadataInterface;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.Logger;
@@ -41,6 +43,11 @@ public class ConnectionPool implements Disposable {
             if (standaloneConnection == null) {
                 try {
                     standaloneConnection = ConnectionUtil.connect(connectionHandler);
+                    NotificationUtil.sendInfoNotification(
+                            connectionHandler.getProject(),
+                            Constants.DBN_TITLE_PREFIX + "Connected",
+                            "Connected to database \"{0}\"",
+                            connectionHandler.getName());
                 } finally {
                     notifyStatusChange();
                 }

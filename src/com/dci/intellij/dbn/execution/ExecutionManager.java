@@ -49,7 +49,7 @@ public class ExecutionManager extends AbstractProjectComponent implements JDOMEx
         ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(getProject());
         ToolWindow toolWindow = toolWindowManager.getToolWindow(TOOL_WINDOW_ID);
         if (toolWindow == null) {
-            toolWindow = toolWindowManager.registerToolWindow(TOOL_WINDOW_ID, false, ToolWindowAnchor.BOTTOM, this, true);
+            toolWindow = toolWindowManager.registerToolWindow(TOOL_WINDOW_ID, true, ToolWindowAnchor.BOTTOM, this, true);
             toolWindow.setIcon(Icons.WINDOW_EXECUTION_CONSOLE);
             toolWindow.setToHideOnEmptyContent(true);
         }

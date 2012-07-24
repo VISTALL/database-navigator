@@ -1,13 +1,15 @@
 package com.dci.intellij.dbn.connection.transaction;
 
+import com.dci.intellij.dbn.common.Constants;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.intellij.notification.NotificationType;
 
+import java.io.Serializable;
 import java.sql.SQLException;
 
-public enum TransactionAction {
+public enum TransactionAction implements Serializable {
     COMMIT(
-            "Commit",
+            Constants.DBN_TITLE_PREFIX + "Commit",
             "Connection \"{0}\" committed",
             "Error committing connection \"{0}\". Details: {1}",
             false,
@@ -18,7 +20,7 @@ public enum TransactionAction {
                 }
             }),
     ROLLBACK(
-            "Rollback",
+            Constants.DBN_TITLE_PREFIX + "Rollback",
             "Connection \"{0}\" rolled back.",
             "Error rolling back connection \"{0}\". Details: {1}",
             false,
@@ -28,7 +30,8 @@ public enum TransactionAction {
                     connectionHandler.rollback();
                 }
             }),
-    DISCONNECT("Disconnect",
+    DISCONNECT(
+            Constants.DBN_TITLE_PREFIX + "Disconnect",
             "Disconnected from \"{0}\"",
             "Error disconnecting from \"{0}\". Details: {1}",
             true,
@@ -40,9 +43,9 @@ public enum TransactionAction {
             }),
 
     TURN_AUTO_COMMIT_ON(
-            "Auto-Commit",
-            "Auto-Commit turned ON for \"{0}\".", NotificationType.WARNING,
-            "Error turning Auto-Commit ON for \"{0}\". Details: {1}",
+            Constants.DBN_TITLE_PREFIX + "Auto-Commit ON",
+            "Auto-Commit turned ON for connection \"{0}\".", NotificationType.WARNING,
+            "Error turning Auto-Commit ON for connection \"{0}\". Details: {1}",
             true,
             new Executor() {
         @Override
@@ -53,9 +56,9 @@ public enum TransactionAction {
     }),
 
     TURN_AUTO_COMMIT_OFF(
-            "Auto-Commit",
-            "Auto-Commit turned OFF for \"{0}\".",
-            "Error turning Auto-Commit OFF for \"{0}\". Details: {1}",
+            Constants.DBN_TITLE_PREFIX + "Auto-Commit OFF",
+            "Auto-Commit turned OFF for connection \"{0}\".",
+            "Error turning Auto-Commit OFF for connection\"{0}\". Details: {1}",
             true,
             new Executor() {
         @Override

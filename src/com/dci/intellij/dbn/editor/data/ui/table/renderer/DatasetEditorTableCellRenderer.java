@@ -44,7 +44,7 @@ public class DatasetEditorTableCellRenderer extends BasicTableCellRenderer {
             if (cell.getUserValue() != null) {
                 SimpleTextAttributes textAttributes =
                         isSelected ? configTextAttributes.getSelection() :
-                        isLoading ? configTextAttributes.getLoadingData() :
+                        isLoading || !datasetEditorTable.getDataset().getConnectionHandler().isConnected() ? configTextAttributes.getLoadingData() :
                         isDeletedRow ? configTextAttributes.getDeletedData() :
                         column.isPrimaryKey() ? (isCaretRow ? configTextAttributes.getPrimaryKeyAtCaretRow() : configTextAttributes.getPrimaryKey()) :
                         column.isForeignKey() ? (isCaretRow ? configTextAttributes.getForeignKeyAtCaretRow() : configTextAttributes.getForeignKey()) :
