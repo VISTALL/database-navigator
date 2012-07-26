@@ -3,6 +3,7 @@ package com.dci.intellij.dbn.common.notification;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationListener;
 import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
@@ -32,6 +33,6 @@ public class NotificationUtil {
 
         message = MessageFormat.format(message, args);
         Notification notification = new Notification("Database Navigator", title, message, type);
-        notification.notify(project);
+        Notifications.Bus.notify(notification, project);
     }
 }
