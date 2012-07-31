@@ -1,6 +1,7 @@
 package com.dci.intellij.dbn.editor.data.ui.table.model;
 
 
+import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.common.locale.Formatter;
 import com.dci.intellij.dbn.common.thread.SimpleLaterInvocator;
 import com.dci.intellij.dbn.common.util.CommonUtil;
@@ -38,7 +39,8 @@ public class DatasetEditorModelCell extends ResultSetDataModelCell implements Ch
     }
 
     public void updateUserValue(Object userValue, boolean bulk) {
-        if (hasError() || !compareUserValues(userValue, getUserValue())) {
+        boolean sameValue = compareUserValues(userValue, getUserValue());
+        if (hasError() || !sameValue) {
             DatasetEditorModelRow row = getRow();
             ResultSet resultSet;
             try {
@@ -69,12 +71,16 @@ public class DatasetEditorModelCell extends ResultSetDataModelCell implements Ch
                 // if error was not notified yet on row level, notify it on cell isolation level
                 if (!error.isNotified()) notifyError(error, !bulk);
             } finally {
-                getConnectionHandler().notifyChanges(getDataset().getVirtualFile());
+                if (!sameValue) {
+                    if (!isLargeObject) {
+                        setUserValue(userValue);
+                    }
+                    getConnectionHandler().notifyChanges(getDataset().getVirtualFile());
+                    EventManager.notify(getProject(), DatasetEditorModelCellValueListener.TOPIC).valueChanged(this);
+                }
+
             }
 
-            if (!isLargeObject) {
-                setUserValue(userValue);
-            }
             if (!row.isInsert() && !getConnectionHandler().isAutoCommit()) {
                 isModified = true;
                 row.setModified(true);

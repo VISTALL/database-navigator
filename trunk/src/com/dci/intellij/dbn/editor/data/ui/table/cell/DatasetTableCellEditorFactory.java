@@ -90,6 +90,11 @@ public class DatasetTableCellEditorFactory implements Disposable {
     }
 
     public void dispose() {
-
+        for (TableCellEditor cellEditor : cache.values()) {
+            if (cellEditor instanceof Disposable) {
+                Disposable disposable = (Disposable) cellEditor;
+                disposable.dispose();
+            }
+        }
     }
 }
