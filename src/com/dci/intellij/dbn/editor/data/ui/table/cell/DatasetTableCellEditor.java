@@ -42,7 +42,6 @@
     public static final int HIGHLIGHT_TYPE_ERROR = 2;
 
     private DatasetEditorTable table;
-    private DatasetEditorModelCell cell;
 
     public DatasetTableCellEditor(DatasetEditorTable table) {
         this(table, new BasicDataEditorComponent());
@@ -68,10 +67,6 @@
 
     public DatasetEditorTable getTable() {
         return table;
-    }
-
-    public void setCell(DatasetEditorModelCell cell) {
-        this.cell = cell;
     }
 
     public void prepareEditor(DatasetEditorModelCell cell) {
@@ -105,10 +100,6 @@
             case HIGHLIGHT_TYPE_POPUP: getEditorComponent().setBorder(POPUP_BORDER); break;
             case HIGHLIGHT_TYPE_ERROR: getEditorComponent().setBorder(ERROR_BORDER); break;
         }
-    }
-
-    public DatasetEditorModelCell getCell() {
-        return cell;
     }
 
     public boolean isEditable() {
@@ -181,13 +172,13 @@
                     textField.setCaretPosition(0);
                 } else  if (caretPosition == 0) {
                     e.consume();
-                    cell.editPrevious();
+                    getCell().editPrevious();
                 }
             }
             else if (e.getKeyCode() == 39 ) { // RIGHT
                 if (!isSelected() && caretPosition == textField.getDocument().getLength()) {
                     e.consume();
-                    cell.editNext();
+                    getCell().editNext();
                 }
             }
             else if (e.getKeyCode() == 27 ) { // ESC
@@ -204,12 +195,13 @@
         @Override
         public void mouseMoved(MouseEvent e) {
             JTextField textField = getTextField();
+            DatasetEditorModelCell cell = getCell();
             if (e.isControlDown() && cell.isNavigable()) {
                 DBColumn foreignKeyColumn = cell.getColumnInfo().getColumn().getForeignKeyColumn();
                 textField.setToolTipText("<html>Show referenced <b>" + foreignKeyColumn.getDataset().getQualifiedName() + "</b> record<html>");
                 textField.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
             } else {
-                textField.setCursor(Cursor.getDefaultCursor());
+                textField.setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
                 textField.setToolTipText(null);
             }
         }
@@ -218,6 +210,7 @@
     private MouseListener mouseListener = new MouseAdapter() {
         public void mouseReleased(MouseEvent event) {
             if (event.getButton() == MouseEvent.BUTTON3 ) {
+                DatasetEditorModelCell cell = getCell();
                 if (cell != null) {
                     table.showPopupMenu(event, cell, cell.getColumnInfo());
                 }
@@ -226,6 +219,7 @@
 
         public void mouseClicked(MouseEvent event) {
             if (MouseUtil.isNavigationEvent(event)) {
+                DatasetEditorModelCell cell = getCell();
                 if (cell.isNavigable()) {
                     DatasetFilterInput filterInput = table.getModel().resolveForeignKeyRecord(cell);
                     DatasetEditorManager datasetEditorManager = DatasetEditorManager.getInstance(table.getProject());

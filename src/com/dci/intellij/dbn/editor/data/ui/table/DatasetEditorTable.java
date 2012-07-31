@@ -299,6 +299,7 @@ public class DatasetEditorTable extends ResultSetTable {
 
     @Override
     public void dispose() {
+        cellEditorFactory.dispose();
         super.dispose();
         datasetEditor = null;
     }
