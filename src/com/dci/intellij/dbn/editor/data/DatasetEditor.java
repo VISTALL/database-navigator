@@ -272,6 +272,7 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
                     DatasetEditorModel model = getTableModel();
                     if (model != null) {
                         editorForm.showLoadingHint();
+                        editorForm.getEditorTable().cancelEditing();
                         setLoading(true);
                         model.load(progressIndicator, useCurrentFilter, keepChanges);
                     }
