@@ -96,5 +96,6 @@ public class DatasetTableCellEditorFactory implements Disposable {
                 disposable.dispose();
             }
         }
+        cache.clear();
     }
 }
