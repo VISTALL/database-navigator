@@ -19,7 +19,7 @@ import java.util.Collection;
 import java.util.Map;
 
 public class PSQLStructureViewModelGrouper implements Grouper {
-    private ActionPresentation actionPresentation = new ActionPresentationData("Object type", "", Icons.ACTION_GROUP);
+    private ActionPresentation actionPresentation = new ActionPresentationData("Group by Object Type", "", Icons.ACTION_GROUP);
 
     private static final Collection<Group> EMPTY_GROUPS = new ArrayList<Group>(0);
 

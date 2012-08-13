@@ -7,7 +7,7 @@ import com.dci.intellij.dbn.common.util.VirtualFileUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.ConnectionManager;
 import com.dci.intellij.dbn.connection.ProjectConnectionBundle;
-import com.dci.intellij.dbn.ddl.DDLFileBindingManager;
+import com.dci.intellij.dbn.ddl.DDLFileAttachmentManager;
 import com.dci.intellij.dbn.editor.data.DatasetEditor;
 import com.dci.intellij.dbn.language.editor.ui.DBLanguageFileEditorToolbarForm;
 import com.dci.intellij.dbn.object.DBSchema;
@@ -115,7 +115,7 @@ public class FileConnectionMappingManager extends VirtualFileAdapter implements 
         if (VirtualFileUtil.isLocalFileSystem(virtualFile)) {
             // if the file is a bound ddl file, then resolve the object which it is
             // linked to, and return its database connection
-            DBSchemaObject object = DDLFileBindingManager.getInstance(project).getEditableObject(virtualFile);
+            DBSchemaObject object = DDLFileAttachmentManager.getInstance(project).getEditableObject(virtualFile);
             if (object != null) {
                 return object.getConnectionHandler();
             }
@@ -157,7 +157,7 @@ public class FileConnectionMappingManager extends VirtualFileAdapter implements 
         if (VirtualFileUtil.isLocalFileSystem(virtualFile) || VirtualFileUtil.isVirtualFileSystem(virtualFile)) {
             // if the file is a bound ddl file, then resolve the object which it is
             // linked to, and return its parent schema
-            DBSchemaObject object = DDLFileBindingManager.getInstance(project).getEditableObject(virtualFile);
+            DBSchemaObject object = DDLFileAttachmentManager.getInstance(project).getEditableObject(virtualFile);
             if (object != null) {
                 return object.getSchema();
             }

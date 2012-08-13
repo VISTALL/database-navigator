@@ -1,9 +1,9 @@
 package com.dci.intellij.dbn.editor.code.action;
 
 import com.dci.intellij.dbn.common.Icons;
-import com.dci.intellij.dbn.ddl.action.BindDDLFileAction;
+import com.dci.intellij.dbn.ddl.action.AttachDDLFileAction;
 import com.dci.intellij.dbn.ddl.action.CreateDDLFileAction;
-import com.dci.intellij.dbn.ddl.action.UnbindDDLFileAction;
+import com.dci.intellij.dbn.ddl.action.DetachDDLFileAction;
 import com.dci.intellij.dbn.object.common.DBSchemaObject;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
@@ -24,8 +24,8 @@ public class DDLFileAction extends AbstractSourceCodeEditorAction {
         DBSchemaObject object = getSourcecodeFile(e).getObject();
         actionGroup = new DefaultActionGroup();
         actionGroup.add(new CreateDDLFileAction(object));
-        actionGroup.add(new BindDDLFileAction(object));
-        actionGroup.add(new UnbindDDLFileAction(object));
+        actionGroup.add(new AttachDDLFileAction(object));
+        actionGroup.add(new DetachDDLFileAction(object));
 
         ListPopup popup = JBPopupFactory.getInstance().createActionGroupPopup(
                 "DDL File",

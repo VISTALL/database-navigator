@@ -6,7 +6,7 @@
     <category>Database</category>
     <depends>com.intellij.modules.lang</depends>
     <vendor email="dancioca@bluewin.ch" logo="/img/project/DatabaseNavigator.png">Dan Cioca</vendor>
-    <idea-version since-build="111.0001" until-build="120.9999"/>
+    <idea-version since-build="111.0001" until-build="122.9999"/>
     <description><![CDATA[
             </b>
             <b>Database development, scripting and navigation tool</b><br>
@@ -144,7 +144,7 @@
         <component><implementation-class>com.dci.intellij.dbn.code.common.style.DBLCodeStyleManager</implementation-class></component>
         <component><implementation-class>com.dci.intellij.dbn.debugger.DatabaseDebuggerManager</implementation-class></component>
         <component><implementation-class>com.dci.intellij.dbn.ddl.DDLFileManager</implementation-class></component>
-        <component><implementation-class>com.dci.intellij.dbn.ddl.DDLFileBindingManager</implementation-class></component>
+        <component><implementation-class>com.dci.intellij.dbn.ddl.DDLFileAttachmentManager</implementation-class></component>
         <component><implementation-class>com.dci.intellij.dbn.editor.code.SourceCodeEditorManager</implementation-class></component>
         <component><implementation-class>com.dci.intellij.dbn.editor.data.DatasetEditorManager</implementation-class></component>
         <component><implementation-class>com.dci.intellij.dbn.editor.data.filter.DatasetFilterManager</implementation-class></component>

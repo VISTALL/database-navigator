@@ -13,8 +13,10 @@ import com.dci.intellij.dbn.navigation.psi.NavigationPsiCache;
 import com.dci.intellij.dbn.object.DBSchema;
 import com.dci.intellij.dbn.object.common.DBObject;
 import com.dci.intellij.dbn.vfs.DatabaseContentFile;
+import com.dci.intellij.dbn.vfs.DatabaseFile;
 import com.dci.intellij.dbn.vfs.DatabaseFileSystem;
 import com.dci.intellij.dbn.vfs.DatabaseObjectFile;
+import com.dci.intellij.dbn.vfs.SourceCodeFile;
 import com.intellij.ide.util.EditSourceUtil;
 import com.intellij.lang.Language;
 import com.intellij.lang.LanguageParserDefinitions;
@@ -58,8 +60,14 @@ public abstract class DBLanguageFile extends PsiFileImpl implements FileConnecti
         if (parserDefinition == null) {
             throw new RuntimeException("PsiFileBase: language.getParserDefinition() returned null.");
         }
-        parseRootId = CompatibilityUtil.getParseRootId(viewProvider.getVirtualFile());
-        
+        VirtualFile virtualFile = viewProvider.getVirtualFile();
+        if (virtualFile instanceof SourceCodeFile) {
+            SourceCodeFile sourceCodeFile = (SourceCodeFile) virtualFile;
+            this.underlyingObject = sourceCodeFile.getObject();
+        }
+
+        parseRootId = CompatibilityUtil.getParseRootId(virtualFile);
+
         IFileElementType nodeType = parserDefinition.getFileNodeType();
         //assert nodeType.getLanguage() == this.language;
         init(nodeType, nodeType);
@@ -74,6 +82,11 @@ public abstract class DBLanguageFile extends PsiFileImpl implements FileConnecti
         if (virtualFile instanceof DatabaseObjectFile) {
             DatabaseObjectFile databaseObjectFile = (DatabaseObjectFile) virtualFile;
             return databaseObjectFile.getObject();
+        }
+
+        if (virtualFile instanceof SourceCodeFile) {
+            SourceCodeFile sourceCodeFile = (SourceCodeFile) virtualFile;
+            return sourceCodeFile.getObject();
         }
 
         return underlyingObject;
@@ -242,18 +255,22 @@ public abstract class DBLanguageFile extends PsiFileImpl implements FileConnecti
     @Override
     public void navigate(boolean requestFocus) {
         Editor selectedEditor = EditorUtil.getSelectedEditor(getProject());
-        Document document = DocumentUtil.getDocument(getContainingFile());
-        Editor[] editors = EditorFactory.getInstance().getEditors(document);
-        for (Editor editor : editors) {
-            if (editor == selectedEditor) {
-                OpenFileDescriptor descriptor = (OpenFileDescriptor) EditSourceUtil.getDescriptor(this);
-                if (descriptor != null) {
-                    descriptor.navigateIn(selectedEditor);
-                    return;
+        if (selectedEditor != null) {
+            Document document = DocumentUtil.getDocument(getContainingFile());
+            Editor[] editors = EditorFactory.getInstance().getEditors(document);
+            for (Editor editor : editors) {
+                if (editor == selectedEditor) {
+                    OpenFileDescriptor descriptor = (OpenFileDescriptor) EditSourceUtil.getDescriptor(this);
+                    if (descriptor != null) {
+                        descriptor.navigateIn(selectedEditor);
+                        return;
+                    }
                 }
             }
         }
-        super.navigate(requestFocus);
+        if (!(getVirtualFile() instanceof DatabaseFile)) {
+            super.navigate(requestFocus);
+        }
     }
 
     @NotNull

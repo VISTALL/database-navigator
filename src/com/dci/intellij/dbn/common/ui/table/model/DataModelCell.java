@@ -9,4 +9,6 @@ public interface DataModelCell extends Disposable, UserValueHolder {
     int getIndex();
 
     DataModelRow getRow();
+
+    boolean isDisposed();
 }

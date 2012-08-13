@@ -1,7 +1,7 @@
 package com.dci.intellij.dbn.ddl.ui;
 
 import com.dci.intellij.dbn.common.ui.DBNDialog;
-import com.dci.intellij.dbn.ddl.DDLFileBindingManager;
+import com.dci.intellij.dbn.ddl.DDLFileAttachmentManager;
 import com.dci.intellij.dbn.object.common.DBSchemaObject;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.Nullable;
@@ -12,16 +12,16 @@ import javax.swing.JComponent;
 import java.awt.event.ActionEvent;
 import java.util.List;
 
-public class UnbindDDLFileDialog extends DBNDialog {
+public class DetachDDLFileDialog extends DBNDialog {
     private SelectDDLFileForm fileForm;
     private DBSchemaObject object;
 
-    public UnbindDDLFileDialog(List<VirtualFile> virtualFiles, DBSchemaObject object) {
-        super(object.getProject(), "Unbind DDL Files", true);
+    public DetachDDLFileDialog(List<VirtualFile> virtualFiles, DBSchemaObject object) {
+        super(object.getProject(), "Detach DDL Files", true);
         this.object = object;
         String hint =
-            "Following DDL files are currently bound the selected " + object.getTypeName() + ".\n" +
-            "Select files to unbind from this object.";
+            "Following DDL files are currently attached the selected " + object.getTypeName() + ".\n" +
+            "Select files to detach from this object.";
         fileForm = new SelectDDLFileForm(object, virtualFiles, hint);
         init();
     }
@@ -62,11 +62,11 @@ public class UnbindDDLFileDialog extends DBNDialog {
     }
 
     protected void doOKAction() {
-        DDLFileBindingManager fileBindingManager = DDLFileBindingManager.getInstance(object.getProject());
+        DDLFileAttachmentManager fileAttachmentManager = DDLFileAttachmentManager.getInstance(object.getProject());
         Object[] selectedPsiFiles = getSelection();
         for (Object selectedPsiFile : selectedPsiFiles) {
             VirtualFile virtualFile = (VirtualFile) selectedPsiFile;
-            fileBindingManager.unbindDDLFile(virtualFile);
+            fileAttachmentManager.detachDDLFile(virtualFile);
         }
         super.doOKAction();
     }

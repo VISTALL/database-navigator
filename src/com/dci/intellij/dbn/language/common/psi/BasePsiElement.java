@@ -20,6 +20,7 @@ import com.dci.intellij.dbn.object.DBSchema;
 import com.dci.intellij.dbn.object.common.DBObject;
 import com.dci.intellij.dbn.object.common.DBObjectType;
 import com.dci.intellij.dbn.object.common.DBVirtualObject;
+import com.dci.intellij.dbn.vfs.DatabaseFile;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.intellij.ide.util.EditSourceUtil;
 import com.intellij.lang.ASTNode;
@@ -263,7 +264,9 @@ public abstract class BasePsiElement extends ASTWrapperPsiElement implements Ite
                     descriptor.navigateIn(selectedEditor);
                 }
             } else {
-                super.navigate(requestFocus);
+                if (!(getFile().getVirtualFile() instanceof DatabaseFile)) {
+                    super.navigate(requestFocus);
+                }
             }
         }
     }
