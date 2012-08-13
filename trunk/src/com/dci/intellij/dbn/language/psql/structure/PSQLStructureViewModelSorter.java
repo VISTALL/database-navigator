@@ -33,7 +33,7 @@ public class PSQLStructureViewModelSorter implements Sorter {
 
     private static final ActionPresentation ACTION_PRESENTATION = new ActionPresentation() {
         public String getText() {
-            return "Sort by name";
+            return "Sort by Name";
         }
 
         public String getDescription() {

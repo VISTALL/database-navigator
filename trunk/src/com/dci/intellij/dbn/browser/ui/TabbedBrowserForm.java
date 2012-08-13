@@ -15,8 +15,11 @@ import com.intellij.ui.tabs.TabsListener;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
+import java.awt.Component;
+import java.util.Vector;
 
 public class TabbedBrowserForm extends DatabaseBrowserForm{
     private TabbedPane connectionTabs;
@@ -26,7 +29,7 @@ public class TabbedBrowserForm extends DatabaseBrowserForm{
         super(project);
         connectionTabs = new TabbedPane(project);
         //connectionTabs.setBackground(UIUtil.getListBackground());
-        mainPanel.add(connectionTabs, BorderLayout.CENTER);
+        //mainPanel.add(connectionTabs, BorderLayout.CENTER);
         initTabs();
         connectionTabs.addListener(new TabsListener() {
             public void selectionChanged(TabInfo oldSelection, TabInfo newSelection) {
@@ -68,6 +71,21 @@ public class TabbedBrowserForm extends DatabaseBrowserForm{
                 tabInfo.setTabColor(environmentType.getColor());
             }
         }
+        if (connectionTabs.getTabCount() == 0) {
+            mainPanel.removeAll();
+            mainPanel.add(new JList(new Vector()), BorderLayout.CENTER);
+        } else {
+            if (mainPanel.getComponentCount() > 0) {
+                Component component = mainPanel.getComponent(0);
+                if (component != connectionTabs) {
+                    mainPanel.removeAll();
+                    mainPanel.add(connectionTabs, BorderLayout.CENTER);
+                }
+            } else {
+                mainPanel.add(connectionTabs, BorderLayout.CENTER);
+            }
+        }
+
     }
 
     @Nullable

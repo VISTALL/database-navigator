@@ -1,7 +1,7 @@
 package com.dci.intellij.dbn.ddl.ui;
 
 import com.dci.intellij.dbn.common.ui.DBNDialog;
-import com.dci.intellij.dbn.ddl.DDLFileBindingManager;
+import com.dci.intellij.dbn.ddl.DDLFileAttachmentManager;
 import com.dci.intellij.dbn.object.common.DBSchemaObject;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.Nullable;
@@ -12,16 +12,16 @@ import javax.swing.JComponent;
 import java.awt.event.ActionEvent;
 import java.util.List;
 
-public class BindDDLFileDialog extends DBNDialog {
+public class AttachDDLFileDialog extends DBNDialog {
     private SelectDDLFileForm fileForm;
     private DBSchemaObject object;
 
-    public BindDDLFileDialog(List<VirtualFile> virtualFiles, DBSchemaObject object) {
-        super(object.getProject(), "DDL File Binding", true);
+    public AttachDDLFileDialog(List<VirtualFile> virtualFiles, DBSchemaObject object) {
+        super(object.getProject(), "Attach DDL File", true);
         this.object = object;
         String hint =
             "Following DDL files were found matching the name of the selected " + object.getTypeName() + ".\n" +
-            "Select files to bind to this object.\n\n" +
+            "Select files to attach to this object.\n\n" +
             "NOTE: \nBound DDL files will become readonly and their content will change automatically when the database object is edited.";
         fileForm = new SelectDDLFileForm(object, virtualFiles, hint);
         init();
@@ -63,11 +63,11 @@ public class BindDDLFileDialog extends DBNDialog {
     }
 
     protected void doOKAction() {
-        DDLFileBindingManager fileBindingManager = DDLFileBindingManager.getInstance(object.getProject());
+        DDLFileAttachmentManager fileAttachmentManager = DDLFileAttachmentManager.getInstance(object.getProject());
         Object[] selectedPsiFiles = getSelection();
         for (Object selectedPsiFile : selectedPsiFiles) {
             VirtualFile virtualFile = (VirtualFile) selectedPsiFile;
-            fileBindingManager.bindDDLFile(object, virtualFile);
+            fileAttachmentManager.bindDDLFile(object, virtualFile);
         }
         super.doOKAction();
     }

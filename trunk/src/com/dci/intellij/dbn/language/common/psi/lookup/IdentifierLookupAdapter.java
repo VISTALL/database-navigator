@@ -23,7 +23,7 @@ public class IdentifierLookupAdapter extends PsiLookupAdapter {
         this(lookupIssuer, identifierType, identifierRole, objectType, identifierName, null);
     }
 
-    protected IdentifierLookupAdapter(LeafPsiElement lookupIssuer, @NotNull IdentifierType identifierType, @Nullable IdentifierRole identifierRole, @NotNull DBObjectType objectType, String identifierName, ElementTypeAttribute attribute) {
+    protected IdentifierLookupAdapter(LeafPsiElement lookupIssuer, @Nullable IdentifierType identifierType, @Nullable IdentifierRole identifierRole, @NotNull DBObjectType objectType, String identifierName, ElementTypeAttribute attribute) {
         this.lookupIssuer = lookupIssuer;
         this.identifierType = identifierType;
         this.objectType = objectType;
@@ -46,7 +46,7 @@ public class IdentifierLookupAdapter extends PsiLookupAdapter {
     }
 
     private boolean checkType(IdentifierPsiElement identifierPsiElement) {
-        return identifierType == identifierPsiElement.getElementType().getIdentifierType();
+        return identifierType == null ||identifierType == identifierPsiElement.getElementType().getIdentifierType();
     }
 
     private boolean checkObjectType(IdentifierPsiElement identifierPsiElement) {

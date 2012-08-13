@@ -13,7 +13,8 @@
     </statement-execution-processor>
     <statement-execution-processor id="initialize-session-compiler-flags">
         <statement>
-            alter  session set PLSQL_COMPILER_FLAGS = 'DEBUG','INTERPRETED'
+            alter  session set PLSQL_COMPILER_FLAGS = 'DEBUG'
+            <!--alter  session set PLSQL_COMPILER_FLAGS = 'INTERPRETED','DEBUG'-->
         </statement>
     </statement-execution-processor>
     <statement-execution-processor id="initialize-session">

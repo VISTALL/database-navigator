@@ -63,6 +63,8 @@ public class BasicTableCellRenderer extends ColoredTableCellRenderer {
     }
 
     protected void writeUserValue(DataModelCell cell, SimpleTextAttributes textAttributes, DataGridTextAttributes configTextAttributes) {
+        if (cell.isDisposed()) return;
+
          String formattedUserValue;
          if (cell.getUserValue() instanceof String) {
              formattedUserValue = (String) cell.getUserValue();

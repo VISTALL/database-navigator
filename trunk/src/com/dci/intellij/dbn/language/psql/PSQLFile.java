@@ -4,6 +4,7 @@ import com.dci.intellij.dbn.language.common.DBLanguageFile;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dci.intellij.dbn.language.common.psi.BasePsiElement;
 import com.dci.intellij.dbn.language.common.psi.PsiUtil;
+import com.dci.intellij.dbn.language.common.psi.lookup.IdentifierDefinitionLookupAdapter;
 import com.dci.intellij.dbn.language.common.psi.lookup.ObjectDefinitionLookupAdapter;
 import com.dci.intellij.dbn.language.common.psi.lookup.PsiLookupAdapter;
 import com.dci.intellij.dbn.language.common.psi.lookup.VariableDefinitionLookupAdapter;
@@ -53,8 +54,12 @@ public class PSQLFile extends DBLanguageFile {
         BasePsiElement scope = PsiUtil.lookupElementAtOffset(this, ElementTypeAttribute.SCOPE_DEMARCATION, offset);
         Set<BasePsiElement> variableDefinitions = new THashSet<BasePsiElement>();
         while (scope != null) {
-            PsiLookupAdapter lookupAdapter = new VariableDefinitionLookupAdapter(null, DBObjectType.ANY, null);
+            PsiLookupAdapter lookupAdapter = new IdentifierDefinitionLookupAdapter(null, DBObjectType.ARGUMENT, null);
             variableDefinitions = scope.collectPsiElements(lookupAdapter, variableDefinitions, 0);
+
+            lookupAdapter = new VariableDefinitionLookupAdapter(null, DBObjectType.ANY, null);
+            variableDefinitions = scope.collectPsiElements(lookupAdapter, variableDefinitions, 0);
+
             PsiElement parent = scope.getParent();
             if (parent instanceof BasePsiElement) {
                 BasePsiElement basePsiElement = (BasePsiElement) parent;

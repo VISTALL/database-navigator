@@ -8,9 +8,9 @@ import com.dci.intellij.dbn.common.util.MessageUtil;
 import com.dci.intellij.dbn.common.util.VirtualFileUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.ConnectionManager;
-import com.dci.intellij.dbn.ddl.ui.BindDDLFileDialog;
+import com.dci.intellij.dbn.ddl.ui.AttachDDLFileDialog;
 import com.dci.intellij.dbn.ddl.ui.DDLFileNameListCellRenderer;
-import com.dci.intellij.dbn.ddl.ui.UnbindDDLFileDialog;
+import com.dci.intellij.dbn.ddl.ui.DetachDDLFileDialog;
 import com.dci.intellij.dbn.object.DBSchema;
 import com.dci.intellij.dbn.object.common.DBSchemaObject;
 import com.dci.intellij.dbn.vfs.DatabaseEditableObjectFile;
@@ -50,11 +50,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class DDLFileBindingManager extends AbstractProjectComponent implements VirtualFileListener, JDOMExternalizable {
+public class DDLFileAttachmentManager extends AbstractProjectComponent implements VirtualFileListener, JDOMExternalizable {
 
     private Map<String, String> mappings = new HashMap<String, String>();
     private Map<VirtualFile, DBSchemaObject> cache = new HashMap<VirtualFile, DBSchemaObject>();
-    private DDLFileBindingManager(Project project) {
+    private DDLFileAttachmentManager(Project project) {
         super(project);
         VirtualFileManager.getInstance().addVirtualFileListener(this);
     }
@@ -137,7 +137,7 @@ public class DDLFileBindingManager extends AbstractProjectComponent implements V
             if (obsolete != null) {
                 virtualFiles.removeAll(obsolete);
                 for (VirtualFile virtualFile : obsolete) {
-                    unbindDDLFile(virtualFile);
+                    detachDDLFile(virtualFile);
                 }
             }
         }
@@ -152,14 +152,14 @@ public class DDLFileBindingManager extends AbstractProjectComponent implements V
         return false;
     }
 
-    public int showFileBindingDialog(DBSchemaObject object, List<VirtualFile> virtualFiles) {
-        BindDDLFileDialog dialog = new BindDDLFileDialog(virtualFiles, object);
+    public int showFileAttachDialog(DBSchemaObject object, List<VirtualFile> virtualFiles) {
+        AttachDDLFileDialog dialog = new AttachDDLFileDialog(virtualFiles, object);
         dialog.show();
         return dialog.getExitCode();
     }
 
-    public int showFileUnbindingDialog(DBSchemaObject object, List<VirtualFile> virtualFiles) {
-        UnbindDDLFileDialog dialog = new UnbindDDLFileDialog(virtualFiles, object);
+    public int showFileDetachDialog(DBSchemaObject object, List<VirtualFile> virtualFiles) {
+        DetachDDLFileDialog dialog = new DetachDDLFileDialog(virtualFiles, object);
         dialog.show();
         return dialog.getExitCode();
     }
@@ -169,7 +169,7 @@ public class DDLFileBindingManager extends AbstractProjectComponent implements V
         mappings.put(virtualFile.getPath(), object.getQualifiedNameWithConnectionId());
     }
 
-    public void unbindDDLFile(VirtualFile virtualFile) {
+    public void detachDDLFile(VirtualFile virtualFile) {
         cache.remove(virtualFile);
         mappings.remove(virtualFile.getPath());
     }
@@ -290,16 +290,16 @@ public class DDLFileBindingManager extends AbstractProjectComponent implements V
                 createDDLFile(object);
             }
         } else {
-            int exitCode = showFileBindingDialog(object, virtualFiles);
+            int exitCode = showFileAttachDialog(object, virtualFiles);
             if (exitCode != DialogWrapper.CANCEL_EXIT_CODE) {
                 DatabaseFileSystem.getInstance().reopenEditor(object);
             }
         }
     }
 
-    public void unbindDDLFiles(DBSchemaObject object) {
+    public void detachDDLFiles(DBSchemaObject object) {
         List<VirtualFile> virtualFiles = getBoundDDLFiles(object);
-        int exitCode = showFileUnbindingDialog(object, virtualFiles);
+        int exitCode = showFileDetachDialog(object, virtualFiles);
         if (exitCode != DialogWrapper.CANCEL_EXIT_CODE) {
             DatabaseFileSystem.getInstance().reopenEditor(object);
         }
@@ -355,14 +355,14 @@ public class DDLFileBindingManager extends AbstractProjectComponent implements V
     /***************************************
      *            ProjectComponent         *
      ***************************************/
-    public static DDLFileBindingManager getInstance(Project project) {
-        return project.getComponent(DDLFileBindingManager.class);
+    public static DDLFileAttachmentManager getInstance(Project project) {
+        return project.getComponent(DDLFileAttachmentManager.class);
     }
 
     @NonNls
     @NotNull
     public String getComponentName() {
-        return "DBNavigator.Project.DDLFileBindingManager";
+        return "DBNavigator.Project.DDLFileAttachmentManager";
     }
     public void disposeComponent() {
         super.disposeComponent();
@@ -390,7 +390,7 @@ public class DDLFileBindingManager extends AbstractProjectComponent implements V
     public void fileDeleted(VirtualFileEvent event) {
         DBSchemaObject object = cache.get(event.getFile());
         if (object != null) {
-            unbindDDLFile(event.getFile());
+            detachDDLFile(event.getFile());
             DatabaseFileSystem.getInstance().reopenEditor(object);
         }
     }

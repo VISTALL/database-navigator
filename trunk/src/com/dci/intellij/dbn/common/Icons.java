@@ -175,8 +175,8 @@ public class Icons {
     public static final Icon CODE_EDITOR_DIFF_DB = load("/img/ShowDbDiff.png");
     public static final Icon CODE_EDITOR_DDL_FILE = load("/img/DDLFile.png");
     public static final Icon CODE_EDITOR_DDL_FILE_NEW = load("/img/DDLFileNew.png");
-    public static final Icon CODE_EDITOR_DDL_FILE_UNBIND = load("/img/DDLFileUnbind.png");
-    public static final Icon CODE_EDITOR_DDL_FILE_LINK = load("/img/DDLFileBind.png");
+    public static final Icon CODE_EDITOR_DDL_FILE_DETACH = load("/img/DDLFileUnbind.png");
+    public static final Icon CODE_EDITOR_DDL_FILE_ATTACH = load("/img/DDLFileBind.png");
     public static final Icon CODE_EDITOR_SPEC = load("/img/CodeSpec.png");
     public static final Icon CODE_EDITOR_BODY = load("/img/CodeBody.png");
 

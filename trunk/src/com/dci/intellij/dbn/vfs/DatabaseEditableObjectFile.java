@@ -5,7 +5,7 @@ import com.dci.intellij.dbn.common.thread.ConditionalLaterInvocator;
 import com.dci.intellij.dbn.common.util.DocumentUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.mapping.FileConnectionMappingProvider;
-import com.dci.intellij.dbn.ddl.DDLFileBindingManager;
+import com.dci.intellij.dbn.ddl.DDLFileAttachmentManager;
 import com.dci.intellij.dbn.ddl.DDLFileType;
 import com.dci.intellij.dbn.ddl.ObjectToDDLContentSynchronizer;
 import com.dci.intellij.dbn.ddl.options.DDLFileGeneralSettings;
@@ -79,10 +79,10 @@ public class DatabaseEditableObjectFile extends DatabaseObjectFile<DBSchemaObjec
             if (ddlFileSettings.getLookupDDLFilesEnabled().value()) {
                 List<VirtualFile> boundDDLFiles = getBoundDDLFiles();
                 if (boundDDLFiles == null || boundDDLFiles.isEmpty()) {
-                    DDLFileBindingManager fileBindingManager = DDLFileBindingManager.getInstance(project);
-                    List<VirtualFile> virtualFiles = fileBindingManager.lookupUnboundDDLFiles(object);
+                    DDLFileAttachmentManager fileAttachmentManager = DDLFileAttachmentManager.getInstance(project);
+                    List<VirtualFile> virtualFiles = fileAttachmentManager.lookupUnboundDDLFiles(object);
                     if (virtualFiles.size() > 0) {
-                        int exitCode = fileBindingManager.showFileBindingDialog(object, virtualFiles);
+                        int exitCode = fileAttachmentManager.showFileAttachDialog(object, virtualFiles);
                         return exitCode != DialogWrapper.CANCEL_EXIT_CODE;
                     } else if (ddlFileSettings.getCreateDDLFilesEnabled().value()) {
                         int exitCode = Messages.showYesNoDialog(
@@ -90,7 +90,7 @@ public class DatabaseEditableObjectFile extends DatabaseObjectFile<DBSchemaObjec
                                 "(You can disable this check in \"DDL File\" options)",
                                 Constants.DBN_TITLE_PREFIX + "No DDL file found", Messages.getQuestionIcon());
                         if (exitCode == DialogWrapper.OK_EXIT_CODE) {
-                            fileBindingManager.createDDLFile(object);
+                            fileAttachmentManager.createDDLFile(object);
                         }
                     }
                 }
@@ -123,9 +123,9 @@ public class DatabaseEditableObjectFile extends DatabaseObjectFile<DBSchemaObjec
 
     @Nullable
     public List<VirtualFile> getBoundDDLFiles() {
-        DDLFileBindingManager fileBindingManager = DDLFileBindingManager.getInstance(object.getProject());
+        DDLFileAttachmentManager fileAttachmentManager = DDLFileAttachmentManager.getInstance(object.getProject());
         if (object.getProperties().is(DBObjectProperty.EDITABLE)) {
-            return fileBindingManager.getBoundDDLFiles(object);
+            return fileAttachmentManager.getBoundDDLFiles(object);
         }
         return null;
     }
