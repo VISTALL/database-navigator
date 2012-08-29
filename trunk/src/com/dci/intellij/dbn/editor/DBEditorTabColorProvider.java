@@ -26,13 +26,14 @@ public class DBEditorTabColorProvider implements EditorTabColorProvider{
         } else {
             EnvironmentSettings environmentSettings = GeneralProjectSettings.getInstance(connectionHandler.getProject()).getEnvironmentSettings();
             EnvironmentVisibilitySettings visibilitySettings = environmentSettings.getVisibilitySettings();
+            EnvironmentType environmentType = connectionHandler.getEnvironmentType();
             if (file instanceof SQLConsoleFile || file instanceof DatabaseObjectFile) {
                 if (visibilitySettings.getObjectEditorTabs().value()) {
-                    return connectionHandler.getEnvironmentType().getColor();
+                    return environmentType.getColor();
                 }
             } else {
                 if (visibilitySettings.getScriptEditorTabs().value()) {
-                    return connectionHandler.getEnvironmentType().getColor();
+                    return environmentType == null ? null : environmentType.getColor();
                 }
             }
             return null;

@@ -7,6 +7,7 @@ import java.awt.Component;
 import java.awt.Font;
 import java.awt.MouseInfo;
 import java.awt.Point;
+import java.awt.PointerInfo;
 
 public class UIUtil {
     public static final Font REGULAR_FONT = com.intellij.util.ui.UIUtil.getLabelFont();
@@ -27,8 +28,13 @@ public class UIUtil {
     }
     
     public static Point getRelativeMouseLocation(Component component) {
-        Point mouseLocation = MouseInfo.getPointerInfo().getLocation();
-        return getRelativeLocation(mouseLocation, component);
+        PointerInfo pointerInfo = MouseInfo.getPointerInfo();
+        if (pointerInfo == null) {
+            return new Point();
+        } else {
+            Point mouseLocation = pointerInfo.getLocation();
+            return getRelativeLocation(mouseLocation, component);
+        }
     }
     
     public static Point getRelativeLocation(Point locationOnScreen, Component component) {
