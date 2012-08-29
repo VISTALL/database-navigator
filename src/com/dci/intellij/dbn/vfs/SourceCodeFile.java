@@ -64,7 +64,7 @@ public class SourceCodeFile extends DatabaseContentFile implements DatabaseFile,
                 file.setParseRootId(parseRootId);
                 file.setUnderlyingObject(underlyingObject);
                 fileViewProvider.forceCachedPsi(file);
-                Document document = DocumentUtil.getDocument(this);
+                Document document = DocumentUtil.getDocument(fileViewProvider.getVirtualFile());
                 document.putUserData(FILE_KEY, getDatabaseFile());
                 PsiDocumentManagerImpl.cachePsi(document, file);
                 return file;

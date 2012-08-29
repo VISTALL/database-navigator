@@ -90,7 +90,7 @@ public class ConnectionDetailSettings extends ProjectConfiguration<ConnectionDet
         charset = Charset.forName(charsetName);
         
         autoCommit = SettingsUtil.getBoolean(element, "auto-commit", autoCommit);
-        String environmentTypeName = SettingsUtil.getString(element, "environment-type", "");
+        String environmentTypeName = SettingsUtil.getString(element, "environment-type", EnvironmentType.DEFAULT.getName());
         EnvironmentTypeBundle environmentTypes = GeneralProjectSettings.getInstance(getProject()).getEnvironmentSettings().getEnvironmentTypes();
         environmentType = environmentTypes.get(environmentTypeName);
 

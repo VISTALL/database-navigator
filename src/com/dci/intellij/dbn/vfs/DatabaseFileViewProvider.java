@@ -8,6 +8,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.SingleRootFileViewProvider;
+import com.intellij.testFramework.LightVirtualFile;
 import org.jetbrains.annotations.NotNull;
 
 public class DatabaseFileViewProvider extends SingleRootFileViewProvider {
@@ -35,16 +36,33 @@ public class DatabaseFileViewProvider extends SingleRootFileViewProvider {
                 return psiCache.getPsiFile(object);
             }
 
-            if (virtualFile instanceof DatabaseFile) {
-                DatabaseFile databaseFile = (DatabaseFile) virtualFile;
-                PsiFile psiFile = super.getPsiInner(language);
-                if (psiFile == null) {
+            PsiFile psiFile = super.getPsiInner(language);
+            if (psiFile == null) {
+                DatabaseFile databaseFile = getDatabaseFile(virtualFile);
+                if (databaseFile != null) {
                     return databaseFile.initializePsiFile(this, (DBLanguage) language);
                 }
+            } else {
+                return psiFile;
             }
         }
 
         return super.getPsiInner(language);
+    }
+
+    private DatabaseFile getDatabaseFile(VirtualFile virtualFile) {
+        if (virtualFile instanceof DatabaseFile) {
+            return (DatabaseFile) virtualFile;
+        }
+
+        if (virtualFile instanceof LightVirtualFile) {
+            LightVirtualFile lightVirtualFile = (LightVirtualFile) virtualFile;
+            VirtualFile originalFile = lightVirtualFile.getOriginalFile();
+            if (originalFile != null && originalFile != virtualFile) {
+                return getDatabaseFile(virtualFile);
+            }
+        }
+        return null;
     }
 
     @NotNull

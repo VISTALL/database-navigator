@@ -31,7 +31,7 @@ public class WrapperElementTypeLookupCache extends AbstractElementTypeLookupCach
         return
             getElementType().getBeginTokenElement().getLookupCache().containsLandmarkToken(tokenType) ||
             getElementType().getEndTokenElement().getLookupCache().containsLandmarkToken(tokenType) ||
-            getElementType().getWrappedElement().getLookupCache().containsLandmarkToken(tokenType);
+            getElementType().getWrappedElement().getLookupCache().containsLandmarkToken(tokenType, node);
     }
 
     public boolean startsWithIdentifier(PathNode node) {

@@ -48,7 +48,7 @@ public class SQLConsoleFile extends VirtualFile implements DatabaseFile, DBVirtu
         if (languageDialect != null) {
             DBLanguageFile file = (DBLanguageFile) languageDialect.getParserDefinition().createFile(fileViewProvider);
             fileViewProvider.forceCachedPsi(file);
-            Document document = DocumentUtil.getDocument(this);
+            Document document = DocumentUtil.getDocument(fileViewProvider.getVirtualFile());
             PsiDocumentManagerImpl.cachePsi(document, file);
             return file;
         }
