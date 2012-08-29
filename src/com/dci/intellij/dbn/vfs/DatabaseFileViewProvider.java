@@ -22,7 +22,7 @@ public class DatabaseFileViewProvider extends SingleRootFileViewProvider {
 
     @Override
     public boolean isPhysical() {
-        return false;
+        return true;
     }
 
     @Override
