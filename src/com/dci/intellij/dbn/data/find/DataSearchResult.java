@@ -20,18 +20,18 @@ public class DataSearchResult implements Disposable {
     private long updateTimestamp = 0;
     private boolean isUpdating;
 
-    public void clear() {
+    public synchronized void clear() {
         selectedMatch = null;
         List<DataSearchResultMatch> oldMatches = matches;
         matches = new ArrayList<DataSearchResultMatch>();
         DisposeUtil.disposeCollection(oldMatches);
     }
 
-    public int size() {
+    public synchronized int size() {
         return matches.size();
     }
 
-    public boolean isEmpty() {
+    public synchronized boolean isEmpty() {
         return matches.isEmpty();
     }
 
@@ -71,12 +71,12 @@ public class DataSearchResult implements Disposable {
         return isUpdating;
     }
 
-    public void addMatch(DataModelCell cell, int startOffset, int endOffset) {
+    public synchronized void addMatch(DataModelCell cell, int startOffset, int endOffset) {
         DataSearchResultMatch match = new DataSearchResultMatch(cell, startOffset, endOffset);
         matches.add(match);
     }
 
-    public Iterator<DataSearchResultMatch> getMatches(final DataModelCell cell) {
+    public synchronized Iterator<DataSearchResultMatch> getMatches(final DataModelCell cell) {
         final DataSearchResultMatch first = matches.isEmpty() ? null : findMatch(null, cell);
         if (first != null) {
             return new Iterator<DataSearchResultMatch>() {
@@ -103,7 +103,7 @@ public class DataSearchResult implements Disposable {
         }
     }
 
-    private DataSearchResultMatch findMatch(DataSearchResultMatch previous, DataModelCell cell) {
+    private synchronized DataSearchResultMatch findMatch(DataSearchResultMatch previous, DataModelCell cell) {
         int index = previous == null ? 0 : matches.indexOf(previous) + 1;
         for (int i = index; i< matches.size(); i++) {
             DataSearchResultMatch match = matches.get(i);
@@ -156,7 +156,7 @@ public class DataSearchResult implements Disposable {
         return selectedMatch;
     }
 
-    private DataSearchResultMatch getNext(int fromRowIndex, int fromColumnIndex, DataSearchResultScrollPolicy scrollPolicy) {
+    private synchronized DataSearchResultMatch getNext(int fromRowIndex, int fromColumnIndex, DataSearchResultScrollPolicy scrollPolicy) {
         if (matches.size() > 0) {
             for (DataSearchResultMatch match : matches) {
                 int rowIndex = match.getCell().getRow().getIndex();
@@ -187,7 +187,7 @@ public class DataSearchResult implements Disposable {
         return null;
     }
     
-    private DataSearchResultMatch getPrevious(int fromRowIndex, int fromColumnIndex, DataSearchResultScrollPolicy scrollPolicy) {
+    private synchronized DataSearchResultMatch getPrevious(int fromRowIndex, int fromColumnIndex, DataSearchResultScrollPolicy scrollPolicy) {
         if (matches.size() > 0) {
             for (DataSearchResultMatch match : ReversedList.get(matches)) {
                 int rowIndex = match.getCell().getRow().getIndex();
