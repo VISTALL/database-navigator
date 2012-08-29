@@ -6,7 +6,8 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.DumbAware;
 
-import javax.swing.*;
+import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 
 public abstract class DataSearchHeaderToggleAction extends DBNCheckboxAction implements DumbAware {
 
@@ -27,8 +28,11 @@ public abstract class DataSearchHeaderToggleAction extends DBNCheckboxAction imp
     @Override
     public JComponent createCustomComponent(Presentation presentation) {
         final JComponent customComponent = super.createCustomComponent(presentation);
-        getCheckBox().setFocusable(false);
-        getCheckBox().setOpaque(false);
+        if (customComponent instanceof JCheckBox) {
+            JCheckBox checkBox = (JCheckBox) customComponent;
+            checkBox.setFocusable(false);
+            checkBox.setOpaque(false);
+        }
         return customComponent;
     }
 
