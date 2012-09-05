@@ -36,6 +36,10 @@ public abstract class LeafPsiElement extends BasePsiElement implements PsiRefere
         return this;
     }
 
+    public CharSequence getChars() {
+        return getNode().getFirstChildNode().getChars();
+    }
+
     /*********************************************************
      *                       PsiReference                    *
      *********************************************************/

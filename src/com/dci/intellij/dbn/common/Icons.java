@@ -298,6 +298,9 @@ public class Icons {
     public static final Icon DBO_VARIABLE               = load("/img/object/Variable.png");
 
 
+    public static final Icon DEBUG_INVALID_BREAKPOINT  = load("/img/InvalidBreakpoint.png");
+
+
 
     public static final Icon SPACE                        = load("/img/Space.png");
     public static final Icon TREE_BRANCH                  = load("/img/TreeBranch.png");
