@@ -1,5 +1,6 @@
 package com.dci.intellij.dbn.debugger.breakpoint;
 
+import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.database.DatabaseDebuggerInterface;
 import com.dci.intellij.dbn.database.common.debug.BreakpointInfo;
@@ -16,7 +17,6 @@ import com.intellij.xdebugger.breakpoints.XBreakpoint;
 import com.intellij.xdebugger.breakpoints.XBreakpointHandler;
 import com.intellij.xdebugger.breakpoints.XBreakpointManager;
 import com.intellij.xdebugger.breakpoints.XLineBreakpoint;
-import com.intellij.xdebugger.ui.DebuggerIcons;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.Connection;
@@ -58,7 +58,7 @@ public class DBProgramBreakpointHandler extends XBreakpointHandler<XLineBreakpoi
                         String error = breakpointOperationInfo.getError();
                         if (error != null) {
                             session.updateBreakpointPresentation( breakpoint,
-                                    DebuggerIcons.INVALID_BREAKPOINT_ICON,
+                                    Icons.DEBUG_INVALID_BREAKPOINT,
                                     "INVALID: " + error);
                         }
 
@@ -73,7 +73,7 @@ public class DBProgramBreakpointHandler extends XBreakpointHandler<XLineBreakpoi
                         String error = breakpointInfo.getError();
                         if (error != null) {
                             session.updateBreakpointPresentation( breakpoint,
-                                    DebuggerIcons.INVALID_BREAKPOINT_ICON,
+                                    Icons.DEBUG_INVALID_BREAKPOINT,
                                     "INVALID: " + error);
                         } else {
                             breakpoint.putUserData(BREAKPOINT_ID_KEY, breakpointInfo.getBreakpointId());
@@ -83,7 +83,7 @@ public class DBProgramBreakpointHandler extends XBreakpointHandler<XLineBreakpoi
                                 error = breakpointOperationInfo.getError();
                                 if (error != null) {
                                     session.updateBreakpointPresentation( breakpoint,
-                                            DebuggerIcons.INVALID_BREAKPOINT_ICON,
+                                            Icons.DEBUG_INVALID_BREAKPOINT,
                                             "INVALID: " + error);
                                 }
 
@@ -93,7 +93,7 @@ public class DBProgramBreakpointHandler extends XBreakpointHandler<XLineBreakpoi
 
                 } catch (SQLException e) {
                     session.updateBreakpointPresentation( breakpoint,
-                            DebuggerIcons.INVALID_BREAKPOINT_ICON,
+                            Icons.DEBUG_INVALID_BREAKPOINT,
                             "INVALID: " + e.getMessage());
                 }
             }
