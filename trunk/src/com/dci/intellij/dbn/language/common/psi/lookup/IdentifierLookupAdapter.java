@@ -37,24 +37,24 @@ public class IdentifierLookupAdapter extends PsiLookupAdapter {
         if (basePsiElement instanceof IdentifierPsiElement && basePsiElement != lookupIssuer) {
             IdentifierPsiElement identifierPsiElement = (IdentifierPsiElement) basePsiElement;
             return
-                checkType(identifierPsiElement) &&
-                checkObjectType(identifierPsiElement) &&
-                checkRole(identifierPsiElement) &&
-                checkAttribute(identifierPsiElement) &&
-                checkName(identifierPsiElement);
+                matchesType(identifierPsiElement) &&
+                matchesObjectType(identifierPsiElement) &&
+                matchesRole(identifierPsiElement) &&
+                matchesAttribute(identifierPsiElement) &&
+                matchesName(identifierPsiElement);
         }
         return false;
     }
 
-    private boolean checkType(IdentifierPsiElement identifierPsiElement) {
+    private boolean matchesType(IdentifierPsiElement identifierPsiElement) {
         return identifierType == null ||identifierType == identifierPsiElement.getElementType().getIdentifierType();
     }
 
-    private boolean checkObjectType(IdentifierPsiElement identifierPsiElement) {
+    private boolean matchesObjectType(IdentifierPsiElement identifierPsiElement) {
         return identifierPsiElement.isObjectOfType(objectType);
     }
 
-    private boolean checkName(IdentifierPsiElement identifierPsiElement) {
+    public boolean matchesName(IdentifierPsiElement identifierPsiElement) {
         if (identifierName == null) {
             return true;
         }
@@ -67,7 +67,7 @@ public class IdentifierLookupAdapter extends PsiLookupAdapter {
         }
     }
 
-    private boolean checkRole(IdentifierPsiElement identifierPsiElement) {
+    private boolean matchesRole(IdentifierPsiElement identifierPsiElement) {
         IdentifierElementType elementType = identifierPsiElement.getElementType();
         IdentifierRole role = elementType.getIdentifierRole();
         switch (identifierRole) {
@@ -78,7 +78,7 @@ public class IdentifierLookupAdapter extends PsiLookupAdapter {
         return false;
     }
 
-    private boolean checkAttribute(IdentifierPsiElement identifierPsiElement) {
+    private boolean matchesAttribute(IdentifierPsiElement identifierPsiElement) {
         return attribute == null || identifierPsiElement.getElementType().is(attribute);
     }
 
