@@ -8,6 +8,7 @@ import com.dci.intellij.dbn.language.common.element.LeafElementType;
 import com.dci.intellij.dbn.language.common.element.impl.QualifiedIdentifierVariant;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dci.intellij.dbn.language.common.psi.lookup.AliasDefinitionLookupAdapter;
+import com.dci.intellij.dbn.language.common.psi.lookup.IdentifierLookupAdapter;
 import com.dci.intellij.dbn.language.common.psi.lookup.ObjectDefinitionLookupAdapter;
 import com.dci.intellij.dbn.language.common.psi.lookup.PsiLookupAdapter;
 import com.dci.intellij.dbn.language.common.psi.lookup.VariableDefinitionLookupAdapter;
@@ -92,16 +93,29 @@ public class IdentifierPsiElement extends LeafPsiElement implements PsiNamedElem
      * *******************************************************
      */
     public BasePsiElement lookupPsiElement(PsiLookupAdapter lookupAdapter, int scopeCrossCount) {
-        initLookup();
-        return lookupAdapter.matches(this) ? this : null;
+        if (lookupAdapter instanceof IdentifierLookupAdapter) {
+            IdentifierLookupAdapter identifierLookupAdapter = (IdentifierLookupAdapter) lookupAdapter;
+            if (identifierLookupAdapter.matchesName(this)) {
+                initLookup();
+                return lookupAdapter.matches(this) ? this : null;
+            }
+        }
+        return null;
+
     }
 
     public Set<BasePsiElement> collectPsiElements(PsiLookupAdapter lookupAdapter, Set<BasePsiElement> bucket, int scopeCrossCount) {
-        initLookup();
-        if (lookupAdapter.matches(this)) {
-            if (bucket == null) bucket = new THashSet<BasePsiElement>();
-            bucket.add(this);
+        if (lookupAdapter instanceof IdentifierLookupAdapter) {
+            IdentifierLookupAdapter identifierLookupAdapter = (IdentifierLookupAdapter) lookupAdapter;
+            if (identifierLookupAdapter.matchesName(this)) {
+                initLookup();
+                if (lookupAdapter.matches(this)) {
+                    if (bucket == null) bucket = new THashSet<BasePsiElement>();
+                    bucket.add(this);
+                }
+            }
         }
+
         return bucket;
     }
 
