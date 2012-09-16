@@ -1,6 +1,7 @@
 package com.dci.intellij.dbn.language.common.psi;
 
 import com.dci.intellij.dbn.code.common.style.formatting.FormattingAttributes;
+import com.dci.intellij.dbn.common.util.StringUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.language.common.element.IdentifierElementType;
 import com.dci.intellij.dbn.language.common.element.LeafElementType;
@@ -44,7 +45,7 @@ public class IdentifierPsiElement extends LeafPsiElement implements PsiNamedElem
     }
 
     public boolean isQuoted() {
-        CharSequence charSequence = getText();
+        CharSequence charSequence = getChars();
         char quotesChar = getIdentifierQuotesChar();
         return (charSequence.charAt(0) == quotesChar && charSequence.charAt(charSequence.length()-1) == quotesChar);
     }
@@ -235,9 +236,9 @@ public class IdentifierPsiElement extends LeafPsiElement implements PsiNamedElem
         return null;
     }
 
-    public BasePsiElement lookupPsiElementBySubject(ElementTypeAttribute attribute, String subjectName, DBObjectType subjectType) {
+    public BasePsiElement lookupPsiElementBySubject(ElementTypeAttribute attribute, CharSequence subjectName, DBObjectType subjectType) {
         if (getElementType().is(attribute) && getElementType().is(ElementTypeAttribute.SUBJECT)) {
-            if (subjectType == getObjectType() && subjectName.equals(this.getText())) {
+            if (subjectType == getObjectType() && StringUtil.equalsIgnoreCase(subjectName, this.getChars())) {
                 return this;
             }
         }
@@ -485,9 +486,9 @@ public class IdentifierPsiElement extends LeafPsiElement implements PsiNamedElem
             if (basePsiElement instanceof IdentifierPsiElement) {
                 IdentifierPsiElement identifierPsiElement = (IdentifierPsiElement) basePsiElement;
                 if (identifierPsiElement.getElementType().isSameAs(getElementType())) {
-                    String localText = getText();
-                    String remoteText = basePsiElement.getText();
-                    return localText.equalsIgnoreCase(remoteText);
+                    CharSequence localText = getChars();
+                    CharSequence remoteText = identifierPsiElement.getChars();
+                    return StringUtil.equalsIgnoreCase(localText, remoteText);
                 }
             }
 
@@ -502,7 +503,8 @@ public class IdentifierPsiElement extends LeafPsiElement implements PsiNamedElem
         } else {
             if (basePsiElement instanceof IdentifierPsiElement) {
                 IdentifierPsiElement identifierPsiElement = (IdentifierPsiElement) basePsiElement;
-                return identifierPsiElement.getElementType().isSameAs(getElementType()) && identifierPsiElement.getText().equalsIgnoreCase(getText());
+                return identifierPsiElement.getElementType().isSameAs(getElementType()) &&
+                        StringUtil.equalsIgnoreCase(identifierPsiElement.getChars(), getChars());
             }
 
             return false;

@@ -13,7 +13,11 @@ import com.dci.intellij.dbn.language.common.navigation.NavigateToDefinitionActio
 import com.dci.intellij.dbn.language.common.navigation.NavigateToSpecificationAction;
 import com.dci.intellij.dbn.language.common.navigation.NavigationAction;
 import com.dci.intellij.dbn.language.common.navigation.NavigationGutterRenderer;
-import com.dci.intellij.dbn.language.common.psi.*;
+import com.dci.intellij.dbn.language.common.psi.BasePsiElement;
+import com.dci.intellij.dbn.language.common.psi.ChameleonPsiElement;
+import com.dci.intellij.dbn.language.common.psi.ExecutablePsiElement;
+import com.dci.intellij.dbn.language.common.psi.IdentifierPsiElement;
+import com.dci.intellij.dbn.language.common.psi.NamedPsiElement;
 import com.dci.intellij.dbn.object.common.DBObjectType;
 import com.dci.intellij.dbn.object.common.DBSchemaObject;
 import com.intellij.lang.annotation.Annotation;
@@ -127,7 +131,7 @@ public class PSQLLanguageAnnotator implements Annotator {
 
                             BasePsiElement targetElement = rootPsiElement == null ? null :
                                     rootPsiElement.lookupPsiElementBySubject(targetAttribute,
-                                                identifierPsiElement.getText(),
+                                                identifierPsiElement.getChars(),
                                                 identifierPsiElement.getObjectType());
 
                             if (targetElement != null) {
@@ -142,7 +146,7 @@ public class PSQLLanguageAnnotator implements Annotator {
                         SourceCodeEditorManager codeEditorManager = SourceCodeEditorManager.getInstance(object.getProject());
 
 
-                        BasePsiElement targetElement = codeEditorManager.getObjectNavigationElement(object, targetContentType, identifierPsiElement.getObjectType(), identifierPsiElement.getText());
+                        BasePsiElement targetElement = codeEditorManager.getObjectNavigationElement(object, targetContentType, identifierPsiElement.getObjectType(), identifierPsiElement.getChars());
                         if (targetElement != null) {
                             NavigationAction navigationAction = targetContentType == DBContentType.CODE_BODY ?
                                     new NavigateToDefinitionAction(object, targetElement, objectType) :

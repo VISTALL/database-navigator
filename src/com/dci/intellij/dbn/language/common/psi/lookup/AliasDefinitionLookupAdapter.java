@@ -12,11 +12,11 @@ public class AliasDefinitionLookupAdapter extends IdentifierLookupAdapter {
         super(lookupIssuer, IdentifierType.ALIAS, IdentifierRole.DEFINITION, objectType, null);
     }
 
-    public AliasDefinitionLookupAdapter(IdentifierPsiElement lookupIssuer, DBObjectType objectType, String identifierName) {
+    public AliasDefinitionLookupAdapter(IdentifierPsiElement lookupIssuer, DBObjectType objectType, CharSequence identifierName) {
         super(lookupIssuer, IdentifierType.ALIAS, IdentifierRole.DEFINITION, objectType, identifierName);
     }
 
-    public AliasDefinitionLookupAdapter(IdentifierPsiElement lookupIssuer, @NotNull DBObjectType objectType, String identifierName, ElementTypeAttribute attribute) {
+    public AliasDefinitionLookupAdapter(IdentifierPsiElement lookupIssuer, @NotNull DBObjectType objectType, CharSequence identifierName, ElementTypeAttribute attribute) {
         super(lookupIssuer, IdentifierType.ALIAS, IdentifierRole.DEFINITION, objectType, identifierName, attribute);
     }
 }

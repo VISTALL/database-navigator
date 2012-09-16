@@ -1,6 +1,7 @@
 package com.dci.intellij.dbn.language.common.psi;
 
 import com.dci.intellij.dbn.code.common.style.formatting.FormattingAttributes;
+import com.dci.intellij.dbn.common.util.StringUtil;
 import com.dci.intellij.dbn.language.common.element.BlockElementType;
 import com.dci.intellij.dbn.language.common.element.ElementType;
 import com.dci.intellij.dbn.language.common.element.IterationElementType;
@@ -190,13 +191,13 @@ public class SequencePsiElement extends BasePsiElement {
         return null;
     }
 
-    public BasePsiElement lookupPsiElementBySubject(ElementTypeAttribute attribute, String subjectName, DBObjectType subjectType) {
+    public BasePsiElement lookupPsiElementBySubject(ElementTypeAttribute attribute, CharSequence subjectName, DBObjectType subjectType) {
         if (getElementType().is(attribute)) {
             BasePsiElement subjectPsiElement = lookupFirstPsiElement(ElementTypeAttribute.SUBJECT);
             if (subjectPsiElement instanceof IdentifierPsiElement) {
                 IdentifierPsiElement identifierPsiElement = (IdentifierPsiElement) subjectPsiElement;
                 if (identifierPsiElement.getObjectType() == subjectType &&
-                        subjectName.equalsIgnoreCase(identifierPsiElement.getText())) {
+                        StringUtil.equalsIgnoreCase(subjectName, identifierPsiElement.getChars())) {
                     return this;
                 }
             }
