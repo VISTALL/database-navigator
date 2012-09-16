@@ -22,7 +22,7 @@ public class PSQLFile extends DBLanguageFile {
         super(fileViewProvider, PSQLFileType.INSTANCE, language);
     }
 
-    public BasePsiElement lookupObjectSpecification(DBObjectType objectType, String objectName) {
+    public BasePsiElement lookupObjectSpecification(DBObjectType objectType, CharSequence objectName) {
         for (PsiElement psiElement : getChildren()) {
             if (psiElement instanceof BasePsiElement) {
                 BasePsiElement basePsiElement = (BasePsiElement) psiElement;
@@ -36,7 +36,7 @@ public class PSQLFile extends DBLanguageFile {
         return null;
     }
 
-    public BasePsiElement lookupObjectDeclaration(DBObjectType objectType, String objectName) {
+    public BasePsiElement lookupObjectDeclaration(DBObjectType objectType, CharSequence objectName) {
         for (PsiElement psiElement : getChildren()) {
             if (psiElement instanceof BasePsiElement) {
                 BasePsiElement basePsiElement = (BasePsiElement) psiElement;

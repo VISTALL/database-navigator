@@ -245,7 +245,7 @@ public class SourceCodeEditorManager extends AbstractProjectComponent implements
         }.start();
     }
 
-    public BasePsiElement getObjectNavigationElement(DBSchemaObject parentObject, DBContentType contentType, DBObjectType objectType, String objectName) {
+    public BasePsiElement getObjectNavigationElement(DBSchemaObject parentObject, DBContentType contentType, DBObjectType objectType, CharSequence objectName) {
         DatabaseEditableObjectFile databaseFile = parentObject.getVirtualFile();
         PsiManager psiManager = PsiManager.getInstance(parentObject.getProject());
         DatabaseContentFile contentFile = databaseFile.getContentFile(contentType);

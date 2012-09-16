@@ -34,7 +34,7 @@ public class UnknownPsiElement extends BasePsiElement {
     public BasePsiElement lookupFirstLeafPsiElement() {return null;}
     public BasePsiElement lookupPsiElementByAttribute(ElementTypeAttribute attribute) {return null;}
 
-    public BasePsiElement lookupPsiElementBySubject(ElementTypeAttribute attribute, String subjectName, DBObjectType subjectType) {return null;}
+    public BasePsiElement lookupPsiElementBySubject(ElementTypeAttribute attribute, CharSequence subjectName, DBObjectType subjectType) {return null;}
 
     public boolean hasErrors() {
         return true;

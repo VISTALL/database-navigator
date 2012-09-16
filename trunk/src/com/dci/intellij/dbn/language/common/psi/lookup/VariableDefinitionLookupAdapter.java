@@ -8,11 +8,11 @@ import com.dci.intellij.dbn.object.common.DBObjectType;
 import org.jetbrains.annotations.NotNull;
 
 public class VariableDefinitionLookupAdapter extends IdentifierLookupAdapter {
-    public VariableDefinitionLookupAdapter(IdentifierPsiElement lookupIssuer, DBObjectType objectType, String identifierName) {
+    public VariableDefinitionLookupAdapter(IdentifierPsiElement lookupIssuer, DBObjectType objectType, CharSequence identifierName) {
         super(lookupIssuer, IdentifierType.VARIABLE, IdentifierRole.DEFINITION, objectType, identifierName);
     }
 
-    public VariableDefinitionLookupAdapter(IdentifierPsiElement lookupIssuer, @NotNull DBObjectType objectType, String identifierName, ElementTypeAttribute attribute) {
+    public VariableDefinitionLookupAdapter(IdentifierPsiElement lookupIssuer, @NotNull DBObjectType objectType, CharSequence identifierName, ElementTypeAttribute attribute) {
         super(lookupIssuer, IdentifierType.VARIABLE, IdentifierRole.DEFINITION, objectType, identifierName, attribute);
     }
 }

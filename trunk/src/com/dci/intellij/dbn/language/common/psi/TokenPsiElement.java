@@ -1,5 +1,6 @@
 package com.dci.intellij.dbn.language.common.psi;
 
+import com.dci.intellij.dbn.common.util.StringUtil;
 import com.dci.intellij.dbn.language.common.TokenType;
 import com.dci.intellij.dbn.language.common.element.TokenElementType;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeAttribute;
@@ -28,7 +29,7 @@ public class TokenPsiElement extends LeafPsiElement {
     public void collectExecVariablePsiElements(Set<ExecVariablePsiElement> bucket) {}
     public void collectSubjectPsiElements(Set<BasePsiElement> bucket) {}
     public NamedPsiElement lookupNamedPsiElement(String id) {return null;}
-    public BasePsiElement lookupPsiElementBySubject(ElementTypeAttribute attribute, String subjectName, DBObjectType subjectType) {return null;}
+    public BasePsiElement lookupPsiElementBySubject(ElementTypeAttribute attribute, CharSequence subjectName, DBObjectType subjectType) {return null;}
 
 
     /*********************************************************
@@ -82,7 +83,7 @@ public class TokenPsiElement extends LeafPsiElement {
                         localTokenType.isReservedWord() ||
                         localTokenType.isCharacter() ||
                         localTokenType.isOperator() ||
-                        getText().equals(remote.getText());
+                        StringUtil.equalsIgnoreCase(getChars(), remote.getChars());
                 }
             }
             return false;

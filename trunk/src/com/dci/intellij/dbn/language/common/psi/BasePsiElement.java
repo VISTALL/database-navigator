@@ -301,7 +301,7 @@ public abstract class BasePsiElement extends ASTWrapperPsiElement implements Ite
     public abstract NamedPsiElement lookupNamedPsiElement(String id);
     public abstract BasePsiElement lookupFirstPsiElement(ElementTypeAttribute attribute);
     public abstract BasePsiElement lookupFirstLeafPsiElement();
-    public abstract BasePsiElement lookupPsiElementBySubject(ElementTypeAttribute attribute, String subjectName, DBObjectType subjectType);
+    public abstract BasePsiElement lookupPsiElementBySubject(ElementTypeAttribute attribute, CharSequence subjectName, DBObjectType subjectType);
     public abstract BasePsiElement lookupPsiElementByAttribute(ElementTypeAttribute attribute);
 
 
