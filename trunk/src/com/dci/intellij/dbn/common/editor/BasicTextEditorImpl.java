@@ -119,7 +119,7 @@ public abstract class BasicTextEditorImpl<T extends VirtualFile> implements Basi
     }
 
     public void dispose() {
-        textEditor.dispose();
+        TextEditorProvider.getInstance().disposeEditor(textEditor);
     }
 
     @NonNls

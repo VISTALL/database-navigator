@@ -59,7 +59,7 @@ public class DatabaseFileViewProvider extends SingleRootFileViewProvider {
             LightVirtualFile lightVirtualFile = (LightVirtualFile) virtualFile;
             VirtualFile originalFile = lightVirtualFile.getOriginalFile();
             if (originalFile != null && originalFile != virtualFile) {
-                return getDatabaseFile(virtualFile);
+                return getDatabaseFile(originalFile);
             }
         }
         return null;
