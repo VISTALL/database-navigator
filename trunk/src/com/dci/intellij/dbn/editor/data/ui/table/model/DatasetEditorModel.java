@@ -372,13 +372,15 @@ public class DatasetEditorModel extends ResultSetDataModel<DatasetEditorModelRow
     public void valueChanged(ListSelectionEvent event) {
         if (isInserting && !event.getValueIsAdjusting()) {
             DatasetEditorModelRow insertRow = getInsertRow();
-            int index = insertRow.getIndex();
+            if (insertRow != null) {
+                int index = insertRow.getIndex();
 
-            ListSelectionModel listSelectionModel = (ListSelectionModel) event.getSource();
-            int selectionIndex = listSelectionModel.getLeadSelectionIndex();
+                ListSelectionModel listSelectionModel = (ListSelectionModel) event.getSource();
+                int selectionIndex = listSelectionModel.getLeadSelectionIndex();
 
-            if (index != selectionIndex) {
-                //postInsertRecord();
+                if (index != selectionIndex) {
+                    //postInsertRecord();
+                }
             }
         }
     }

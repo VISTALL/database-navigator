@@ -104,7 +104,10 @@ public class StatementExecutionVariablesForm extends UIFormImpl implements UIFor
     }
 
     public JComponent getPreferredFocusComponent() {
-        return variableValueForms.get(0).getEditorComponent();
+        if (variableValueForms.size() > 0) {
+            return variableValueForms.get(0).getEditorComponent();
+        }
+        return null;
     }
 
     public void saveValues() {
