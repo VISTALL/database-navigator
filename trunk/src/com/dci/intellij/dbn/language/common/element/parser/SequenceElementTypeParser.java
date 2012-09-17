@@ -2,7 +2,11 @@ package com.dci.intellij.dbn.language.common.element.parser;
 
 import com.dci.intellij.dbn.language.common.ParseException;
 import com.dci.intellij.dbn.language.common.TokenType;
-import com.dci.intellij.dbn.language.common.element.*;
+import com.dci.intellij.dbn.language.common.element.BlockElementType;
+import com.dci.intellij.dbn.language.common.element.ElementType;
+import com.dci.intellij.dbn.language.common.element.IdentifierElementType;
+import com.dci.intellij.dbn.language.common.element.IterationElementType;
+import com.dci.intellij.dbn.language.common.element.SequenceElementType;
 import com.dci.intellij.dbn.language.common.element.path.ParsePathNode;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dci.intellij.dbn.language.common.element.util.ParseBuilderErrorHandler;
@@ -41,7 +45,6 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends A
                                     !elementType.isFirst(i) && !elementType.isOptionalFromIndex(i) && !elementType.isExitIndex(i) ? ParseResultType.PARTIAL_MATCH : ParseResultType.NO_MATCH;
                     return stepOut(builder, marker, depth, resultType, matchedTokens);
                 }
-                node = node.createVariant(builder.getCurrentOffset(), i);
 
                 ParseResult result = ParseResult.createNoMatchResult();
                 // current token can still be part of the iterated element.
@@ -49,7 +52,7 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends A
                 if (isDummyToken || elementTypes[i].getLookupCache().canStartWithToken(tokenType) || isSuppressibleReservedWord(tokenType, node)) {
 
                     // /ParseNode pathNode = new ParseNode(parentPath, this, i, builder.getCurrentOffset());
-
+                    node = node.createVariant(builder.getCurrentOffset(), i);
                     result = elementTypes[i].getParser().parse(node, builder, elementType.isOptional(i), depth + 1, timestamp);
 
                     if (result.isMatch()) {

@@ -183,7 +183,7 @@ public class DBObjectListPsiDirectory implements PsiDirectory {
     }
 
     public PsiElement getNavigationElement() {
-        return null;
+        return this;
     }
 
     public PsiElement getOriginalElement() {

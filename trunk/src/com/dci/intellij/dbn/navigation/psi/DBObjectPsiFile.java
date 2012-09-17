@@ -161,7 +161,7 @@ public class DBObjectPsiFile implements PsiFile {
     }
 
     public PsiElement getNavigationElement() {
-        return null;
+        return this;
     }
 
     public PsiElement getOriginalElement() {
