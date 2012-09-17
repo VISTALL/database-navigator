@@ -1,5 +1,6 @@
 package com.dci.intellij.dbn.language.common.psi;
 
+import com.dci.intellij.dbn.common.util.StringUtil;
 import com.dci.intellij.dbn.language.common.element.ExecVariableElementType;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dci.intellij.dbn.language.common.psi.lookup.PsiLookupAdapter;
@@ -73,7 +74,11 @@ public class ExecVariablePsiElement extends LeafPsiElement {
         if (this == basePsiElement) {
             return true;
         } else {
-            return basePsiElement instanceof ExecVariablePsiElement && basePsiElement.getText().equalsIgnoreCase(getText());
+            if (basePsiElement instanceof ExecVariablePsiElement) {
+                ExecVariablePsiElement execVariablePsiElement = (ExecVariablePsiElement) basePsiElement;
+                return StringUtil.equalsIgnoreCase(execVariablePsiElement.getChars(), getChars());
+            }
+            return false;
         }
 
     }

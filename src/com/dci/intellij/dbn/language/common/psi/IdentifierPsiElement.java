@@ -26,6 +26,7 @@ import com.intellij.psi.PsiNamedElement;
 import com.intellij.util.IncorrectOperationException;
 import gnu.trove.THashSet;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
@@ -67,7 +68,12 @@ public class IdentifierPsiElement extends LeafPsiElement implements PsiNamedElem
      * *******************************************************
      */
     public String getPresentableText() {
-        return getUnquotedText().toUpperCase() + " (" + getObjectType() + ")";
+        StringBuilder builder = new StringBuilder();
+        StringUtil.appendToUpperCase(builder,  getUnquotedText());
+        builder.append(" (");
+        builder.append(getObjectType());
+        builder.append(")");
+        return builder.toString();
     }
 
     @Nullable
@@ -326,7 +332,7 @@ public class IdentifierPsiElement extends LeafPsiElement implements PsiNamedElem
                 } else { // index > 0
                     IdentifierElementType parentElementType = (IdentifierElementType) parseVariant.getLeaf(index - 1);
                     if (parentObject.isOfType(parentElementType.getObjectType())) {
-                        DBObject referencedElement = parentObject.getChildObject(objectType, ref.getText(), false);
+                        DBObject referencedElement = parentObject.getChildObject(objectType, ref.getText().toString(), false);
                         if (isValidReference(referencedElement)) {
                             setElementType(parseVariantElementType);
                             ref.setReferencedElement(referencedElement);
@@ -360,7 +366,7 @@ public class IdentifierPsiElement extends LeafPsiElement implements PsiNamedElem
                            parentObject = identifierPsiElement.resolveUnderlyingObject();
                        } */
 
-                        PsiElement referencedElement = parentObject.getChildObject(objectType, ref.getText(), false);
+                        PsiElement referencedElement = parentObject.getChildObject(objectType, ref.getText().toString(), false);
                         if (isValidReference(referencedElement)) {
                             ref.setParent(null);
                             ref.setReferencedElement(referencedElement);
@@ -371,7 +377,7 @@ public class IdentifierPsiElement extends LeafPsiElement implements PsiNamedElem
                 }
 
                 DBObjectBundle objectBundle = activeConnection.getObjectBundle();
-                PsiElement referencedElement = objectBundle.getObject(objectType, ref.getText());
+                PsiElement referencedElement = objectBundle.getObject(objectType, ref.getText().toString());
                 if (isValidReference(referencedElement)) {
                     ref.setParent(null);
                     ref.setReferencedElement(referencedElement);
@@ -381,7 +387,7 @@ public class IdentifierPsiElement extends LeafPsiElement implements PsiNamedElem
 
                 DBSchema schema = getCurrentSchema();
                 if (schema != null && objectType.isSchemaObject()) {
-                    referencedElement = schema.getChildObject(objectType, ref.getText(), false);
+                    referencedElement = schema.getChildObject(objectType, ref.getText().toString(), false);
                     if (isValidReference(referencedElement)) {
                         ref.setParent(null);
                         ref.setReferencedElement(referencedElement);
@@ -468,20 +474,21 @@ public class IdentifierPsiElement extends LeafPsiElement implements PsiNamedElem
         return ref.getReferencedElement();
     }
 
-    public String getUnquotedText() {
-        String text = getText();
+    public CharSequence getUnquotedText() {
+        CharSequence text = getChars();
         if (isQuoted() && text.length() > 1) {
-            return text.substring(1, text.length() - 1);
+            return text.subSequence(1, text.length() - 1);
         }
         return text;
     }
 
-    public String getReferenceQualifiedName() {
-        return getUnquotedText().toUpperCase() + " " + getObjectTypeName();
-    }
-
-    public boolean isReferenceTo(PsiElement element) {
-        return resolve() == element;
+    public boolean textMatches(@NotNull CharSequence text) {
+        CharSequence chars = getChars();
+        if (isQuoted())  {
+            return chars.length() == text.length() + 2 && StringUtil.indexOfIgnoreCase(chars, text, 0) == 1;
+        } else {
+            return StringUtil.equalsIgnoreCase(chars, text);
+        }
     }
 
     public boolean isSoft() {

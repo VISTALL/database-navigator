@@ -10,7 +10,7 @@ public abstract class LookupItemFactory {
     public DBLookupItem createLookupItem(Object source, CodeCompletionLookupConsumer consumer) {
         CodeCompletionContext context = consumer.getContext();
 
-        String text = getText(context);
+        CharSequence text = getText(context);
         if (text != null) {
             Icon icon = getIcon();
 
@@ -21,9 +21,9 @@ public abstract class LookupItemFactory {
             CodeCompletionSortingSettings sortingSettings = context.getCodeCompletionSettings().getSortingSettings();
             if (sortingSettings.isEnabled()) {
                 int sortingIndex = sortingSettings.getSortingIndexFor(this);
-                lookupItem = new DBLookupItem(source, icon, text, textHint, bold, sortingIndex);
+                lookupItem = new DBLookupItem(source, icon, text.toString(), textHint, bold, sortingIndex);
             } else {
-                lookupItem = new DBLookupItem(source, icon, text, textHint, bold);
+                lookupItem = new DBLookupItem(source, icon, text.toString(), textHint, bold);
             }
             context.getResult().addElement(lookupItem);
             return lookupItem;
@@ -35,7 +35,7 @@ public abstract class LookupItemFactory {
 
     public abstract boolean isBold();
 
-    public abstract String getText(CodeCompletionContext completionContext);
+    public abstract CharSequence getText(CodeCompletionContext completionContext);
 
     public abstract String getTextHint();
 

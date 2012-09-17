@@ -211,7 +211,7 @@ public class CodeCompletionProvider extends CompletionProvider<CompletionParamet
                         if (aliasDefinitions != null) {
                             for (PsiElement psiElement : aliasDefinitions) {
                                 IdentifierPsiElement identifierPsiElement = (IdentifierPsiElement) psiElement;
-                                AliasLookupItemFactory lookupItemFactory = new AliasLookupItemFactory(identifierPsiElement.getText(), true);
+                                AliasLookupItemFactory lookupItemFactory = new AliasLookupItemFactory(identifierPsiElement.getChars(), true);
                                 lookupItemFactory.createLookupItem(identifierPsiElement, consumer);
                             }
                         }
@@ -221,7 +221,7 @@ public class CodeCompletionProvider extends CompletionProvider<CompletionParamet
                         if (aliasDefinitions != null) {
                             for (BasePsiElement psiElement : aliasDefinitions) {
                                 IdentifierPsiElement identifierPsiElement = (IdentifierPsiElement) psiElement;
-                                VariableLookupItemFactory lookupItemFactory = new VariableLookupItemFactory(identifierPsiElement.getText(), true);
+                                VariableLookupItemFactory lookupItemFactory = new VariableLookupItemFactory(identifierPsiElement.getChars(), true);
                                 lookupItemFactory.createLookupItem(identifierPsiElement, consumer);
                             }
                         }

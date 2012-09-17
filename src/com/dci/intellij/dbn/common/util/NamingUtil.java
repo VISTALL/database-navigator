@@ -34,7 +34,7 @@ public class NamingUtil {
 
         for (int i =0; i<maxItems; i++) {
             IdentifierPsiElement psiElement = (IdentifierPsiElement) array[i];
-            buffer.append(psiElement.getUnquotedText().toUpperCase());
+            StringUtil.appendToUpperCase(buffer, psiElement.getUnquotedText());
             if (i<maxItems -1 ) {
                 buffer.append(", ");
             }
@@ -52,11 +52,11 @@ public class NamingUtil {
         return new String[0];
     }
 
-    public static String[] createAliasNames(String objectName) {
+    public static String[] createAliasNames(CharSequence  objectName) {
         return new String[]{createAliasName(objectName)};
     }
 
-    public static String createAliasName(String objectName) {
+    public static String createAliasName(CharSequence objectName) {
         StringBuilder camelBuffer = new StringBuilder();
 
         camelBuffer.append(objectName.charAt(0));

@@ -1,6 +1,5 @@
 package com.dci.intellij.dbn.language.common.psi.lookup;
 
-import com.dci.intellij.dbn.common.util.StringUtil;
 import com.dci.intellij.dbn.language.common.element.IdentifierElementType;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dci.intellij.dbn.language.common.element.util.IdentifierRole;
@@ -55,16 +54,8 @@ public class IdentifierLookupAdapter extends PsiLookupAdapter {
     }
 
     public boolean matchesName(IdentifierPsiElement identifierPsiElement) {
-        if (identifierName == null) {
-            return true;
-        }
+        return identifierName == null || identifierPsiElement.textMatches(identifierName);
 
-        CharSequence chars = identifierPsiElement.getChars();
-        if (identifierPsiElement.isQuoted()) {
-            return StringUtil.indexOfIgnoreCase(chars, identifierName, 0) == 1;
-        } else {
-            return StringUtil.equalsIgnoreCase(chars, identifierName);
-        }
     }
 
     private boolean matchesRole(IdentifierPsiElement identifierPsiElement) {

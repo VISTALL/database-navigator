@@ -7,10 +7,10 @@ import javax.swing.Icon;
 
 public class VariableLookupItemFactory extends LookupItemFactory {
 
-private String text;
+    private CharSequence text;
     private boolean isDefinition;
 
-    public VariableLookupItemFactory(String text, boolean isDefinition) {
+    public VariableLookupItemFactory(CharSequence text, boolean isDefinition) {
         this.text = text;
         this.isDefinition = isDefinition;
     }
@@ -29,7 +29,7 @@ private String text;
     }
 
     @Override
-    public String getText(CodeCompletionContext completionContext) {
+    public CharSequence getText(CodeCompletionContext completionContext) {
         return text;
     }
 

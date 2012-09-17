@@ -6,10 +6,10 @@ import com.dci.intellij.dbn.code.common.completion.CodeCompletionLookupConsumer;
 import javax.swing.Icon;
 
 public class AliasLookupItemFactory extends LookupItemFactory {
-    private String text;
+    private CharSequence text;
     private boolean isDefinition;
 
-    public AliasLookupItemFactory(String text, boolean isDefinition) {
+    public AliasLookupItemFactory(CharSequence text, boolean isDefinition) {
         this.text = text;
         this.isDefinition = isDefinition;
     }
@@ -28,7 +28,7 @@ public class AliasLookupItemFactory extends LookupItemFactory {
     }
 
     @Override
-    public String getText(CodeCompletionContext completionContext) {
+    public CharSequence getText(CodeCompletionContext completionContext) {
         return text;
     }
 
