@@ -29,7 +29,7 @@ public class DBEditorTabColorProvider implements EditorTabColorProvider{
             EnvironmentType environmentType = connectionHandler.getEnvironmentType();
             if (file instanceof SQLConsoleFile || file instanceof DatabaseObjectFile) {
                 if (visibilitySettings.getObjectEditorTabs().value()) {
-                    return environmentType.getColor();
+                    return environmentType == null ? null : environmentType.getColor();
                 }
             } else {
                 if (visibilitySettings.getScriptEditorTabs().value()) {
