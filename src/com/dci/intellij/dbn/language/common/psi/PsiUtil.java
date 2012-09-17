@@ -275,7 +275,8 @@ public class PsiUtil {
     }
 
     public static PsiFile getPsiFile(Project project, Document document) {
-        return PsiDocumentManager.getInstance(project).getPsiFile(document);
+        PsiDocumentManager psiDocumentManager = PsiDocumentManager.getInstance(project);
+        return psiDocumentManager == null ? null : psiDocumentManager.getPsiFile(document);
     }
 
     public static PsiFile getPsiFile(Project project, VirtualFile virtualFile) {
