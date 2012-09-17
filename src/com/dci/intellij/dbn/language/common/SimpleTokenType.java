@@ -162,6 +162,11 @@ public class SimpleTokenType extends IElementType implements TokenType {
         return null;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof SimpleTokenType && hashCode == obj.hashCode();
+    }
+
     public int hashCode() {
         return hashCode;
     }
