@@ -33,7 +33,7 @@ public class TokenLookupItemFactory extends LookupItemFactory {
     }
 
     @Override
-    public String getText(CodeCompletionContext completionContext) {
+    public CharSequence getText(CodeCompletionContext completionContext) {
         Project project = completionContext.getParameters().getOriginalFile().getProject();
         TokenType tokenType = tokenElementType.getTokenType();
         String text = tokenType.getValue();

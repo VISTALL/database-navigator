@@ -13,7 +13,7 @@ public class PsiResolveResult {
     private IdentifierPsiElement element;
     private BasePsiElement parent;
     private PsiElement referencedElement;
-    private String text;
+    private CharSequence text;
     private boolean isNew;
     private boolean isResolving;
     private boolean isConnectionValid;
@@ -82,7 +82,7 @@ public class PsiResolveResult {
 
         if (referencedElement == null ||
                 !referencedElement.isValid() ||
-                !referencedElement.getText().equalsIgnoreCase(element.getUnquotedText())) {
+                !element.textMatches(referencedElement.getText())) {
             return true;
         }
 
@@ -100,7 +100,7 @@ public class PsiResolveResult {
     }
 
     private boolean elementTextChanged() {
-        return !text.equals(element.getUnquotedText());
+        return !element.textMatches(text);
     }
 
     private boolean conectionChanged() {
@@ -124,7 +124,7 @@ public class PsiResolveResult {
      *                   Getters/Setters                     *
      *********************************************************/
 
-    public String getText() {
+    public CharSequence getText() {
         return text;
     }
 

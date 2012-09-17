@@ -18,7 +18,7 @@ import javax.swing.Icon;
 public class DBObjectLookupItemFactory extends LookupItemFactory {
     private DBLanguage language;
     private DBObject object;
-    private String typeHame;
+    private String typeName;
 
     public DBObjectLookupItemFactory(DBObject object, DBLanguage language) {
         this.object = object;
@@ -47,7 +47,7 @@ public class DBObjectLookupItemFactory extends LookupItemFactory {
     }
 
     public String getTextHint() {
-        if (typeHame == null) {
+        if (typeName == null) {
             DBObject parentObject = object.getParentObject();
 
             String typePrefix = "";
@@ -56,13 +56,13 @@ public class DBObjectLookupItemFactory extends LookupItemFactory {
                 typePrefix = synonym.getUnderlyingObject().getTypeName() + " ";
             }
 
-            typeHame = parentObject == null ?
+            typeName = parentObject == null ?
                     typePrefix + object.getTypeName() :
                     typePrefix + object.getTypeName() + " (" +
                        parentObject.getTypeName() + " " +
                        parentObject.getName() + ")";
         }
-        return typeHame;
+        return typeName;
     }
 
     public boolean isBold() {
@@ -70,7 +70,7 @@ public class DBObjectLookupItemFactory extends LookupItemFactory {
     }
 
     @Override
-    public String getText(CodeCompletionContext context) {
+    public CharSequence getText(CodeCompletionContext context) {
         Project project = context.getFile().getProject();
         CodeStyleCaseSettings styleCaseSettings = DBLCodeStyleManager.getInstance(project).getCodeStyleCaseSettings(language);
         CodeStyleCaseOption caseOption = styleCaseSettings.getObjectCaseOption();

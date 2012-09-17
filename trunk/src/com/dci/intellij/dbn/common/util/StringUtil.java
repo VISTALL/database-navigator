@@ -216,7 +216,7 @@ public class StringUtil extends com.intellij.openapi.util.text.StringUtil {
         System.out.println(computeMaxRowLength("\ntest\ntest2342345345345\n234\n2324444444444444444444444444444444444\n1"));
     }
 
-    public static boolean containsIgonreCase(@NotNull CharSequence where, @NotNull CharSequence what){
+    public static boolean containsIgnoreCase(@NotNull CharSequence where, @NotNull CharSequence what){
         return indexOfIgnoreCase(where, what, 0) > -1;
     }
 
@@ -259,5 +259,45 @@ public class StringUtil extends com.intellij.openapi.util.text.StringUtil {
         }
 
         return -1;
+    }
+
+    public static StringBuilder appendToUpperCase(StringBuilder builder, CharSequence s) {
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            char upCased = toUpperCase(c);
+            builder.append(upCased);
+        }
+
+        return builder;
+    }
+
+    public static StringBuilder appendToLowerCase(StringBuilder builder, CharSequence s) {
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            char lowCased = toLowerCase(c);
+            builder.append(lowCased);
+        }
+
+        return builder;
+    }
+
+
+    public static CharSequence toUpperCase(CharSequence s) {
+        StringBuilder answer = null;
+
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            char upcased = toUpperCase(c);
+            if (answer == null && upcased != c) {
+                answer = new StringBuilder(s.length());
+                answer.append(s.subSequence(0, i));
+            }
+
+            if (answer != null) {
+                answer.append(upcased);
+            }
+        }
+
+        return answer == null ? s : answer.toString();
     }
 }
