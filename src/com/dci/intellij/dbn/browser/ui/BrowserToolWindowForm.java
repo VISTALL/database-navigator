@@ -8,6 +8,7 @@ import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.common.ui.UIForm;
 import com.dci.intellij.dbn.common.ui.UIFormImpl;
 import com.dci.intellij.dbn.common.util.ActionUtil;
+import com.dci.intellij.dbn.common.util.UIUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.object.common.DBObject;
 import com.dci.intellij.dbn.object.properties.ui.ObjectPropertiesForm;
@@ -51,6 +52,7 @@ public class BrowserToolWindowForm extends UIFormImpl implements UIForm {
         objectPropertiesForm = new ObjectPropertiesForm(project);
         objectPropertiesPanel.add(objectPropertiesForm.getComponent());
         GuiUtils.replaceJSplitPaneWithIDEASplitter(mainPanel);
+        UIUtil.updateSplitterProportion(mainPanel, (float) 0.7);
 
         EventManager.subscribe(project, ProjectSettingsChangeListener.TOPIC, projectSettingsChangeListener);
     }
