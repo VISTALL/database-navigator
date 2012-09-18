@@ -3,6 +3,7 @@ package com.dci.intellij.dbn.common.util;
 import com.intellij.openapi.ui.Splitter;
 
 import javax.swing.JComponent;
+import javax.swing.SwingUtilities;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.MouseInfo;
@@ -13,18 +14,23 @@ public class UIUtil {
     public static final Font REGULAR_FONT = com.intellij.util.ui.UIUtil.getLabelFont();
     public static final Font BOLD_FONT = new Font(REGULAR_FONT.getName(), Font.BOLD, REGULAR_FONT.getSize());
 
-    public static void updateSplitterProportion(JComponent root, float proportion) {
-        if (root instanceof Splitter) {
-            Splitter splitter = (Splitter) root;
-            splitter.setProportion(proportion);
-        } else {
-            Component[] components = root.getComponents();
-            for (Component component : components) {
-                if (component instanceof JComponent) {
-                    updateSplitterProportion((JComponent) component, proportion);
+    public static void updateSplitterProportion(final JComponent root, final float proportion) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                if (root instanceof Splitter) {
+                    Splitter splitter = (Splitter) root;
+                    splitter.setProportion(proportion);
+                } else {
+                    Component[] components = root.getComponents();
+                    for (Component component : components) {
+                        if (component instanceof JComponent) {
+                            updateSplitterProportion((JComponent) component, proportion);
+                        }
+                    }
                 }
             }
-        }
+        });
+
     }
     
     public static Point getRelativeMouseLocation(Component component) {

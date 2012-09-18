@@ -25,7 +25,6 @@ import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
-import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.BorderLayout;
@@ -76,11 +75,7 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
         connectionSetupPanel.setPreferredSize(new Dimension(500, -1));
         connectionSetupPanel.add(emptyPanel, BLANK_PANEL_ID);
         GuiUtils.replaceJSplitPaneWithIDEASplitter(mainPanel);
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                UIUtil.updateSplitterProportion(mainPanel, (float) 0.3);
-            }
-        });
+        UIUtil.updateSplitterProportion(mainPanel, (float) 0.3);
     }
 
     public JPanel getComponent() {
