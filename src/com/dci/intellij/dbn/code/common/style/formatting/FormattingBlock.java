@@ -160,6 +160,10 @@ public class FormattingBlock implements Block {
         FormattingBlock leftBlock = (FormattingBlock) child1;
         FormattingBlock rightBlock = (FormattingBlock) child2;
 
+        if (leftBlock == null  || rightBlock == null) {
+            return null;
+        }
+
         PsiElement leftPsiElement = leftBlock.getPsiElement();
         PsiElement rightPsiElement = rightBlock.getPsiElement();
 
