@@ -91,9 +91,9 @@ public class DatasetEditorModelRow extends ResultSetDataModelRow<DatasetEditorMo
             if (uniqueColumns.size() > 0) {
                 for (DBColumn uniqueColumn : uniqueColumns) {
                     int index = getModel().getHeader().indexOfColumn(uniqueColumn);
-                    DataModelCell localCell = getCellAtIndex(index);
-                    DataModelCell remoteCell = row.getCellAtIndex(index);
-                    if (!localCell.equals(remoteCell)) return false;
+                    DatasetEditorModelCell localCell = getCellAtIndex(index);
+                    DatasetEditorModelCell remoteCell = (DatasetEditorModelCell) row.getCellAtIndex(index);
+                    if (!localCell.matches(remoteCell, false)) return false;
                 }
                 return true;
             }
