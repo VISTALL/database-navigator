@@ -22,7 +22,7 @@ public class TextEditorDialog extends DBNDialog implements DocumentListener {
         mainForm = new TextEditorForm(this, userValueHolder, textEditorAdapter);
         getCancelAction().putValue(Action.NAME, "Close");
         getOKAction().setEnabled(false);
-        setModal(false);
+        setModal(true);
         init();
     }
 
