@@ -1,5 +1,6 @@
 package com.dci.intellij.dbn.common.editor;
 
+import com.dci.intellij.dbn.common.thread.SimpleLaterInvocator;
 import com.intellij.codeInsight.folding.CodeFoldingManager;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
@@ -117,8 +118,13 @@ public class BasicTextEditorState implements FileEditorState {
             PsiDocumentManager.getInstance(project).commitDocument(document);
             Runnable runnable = new Runnable() {
                 public void run() {
-                    CodeFoldingManager.getInstance(project).
-                            restoreFoldingState(editor, getFoldingState());
+                    new SimpleLaterInvocator() {
+                        @Override
+                        public void run() {
+                            CodeFoldingManager.getInstance(project).
+                                    restoreFoldingState(editor, getFoldingState());
+                        }
+                    }.start();
                 }
             };
             editor.getFoldingModel().runBatchFoldingOperation(runnable);
