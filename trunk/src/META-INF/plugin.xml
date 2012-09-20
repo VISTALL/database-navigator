@@ -2,7 +2,7 @@
     <name>Database Navigator</name>
     <id>DBN</id>
     <!--2250-->
-    <version>3.0.2369</version>
+    <version>3.0.2373</version>
     <category>Database</category>
     <depends>com.intellij.modules.lang</depends>
     <vendor email="dancioca@bluewin.ch" logo="/img/project/DatabaseNavigator.png">Dan Cioca</vendor>
@@ -21,19 +21,13 @@
                 <li>Oracle
                 <li>MySQL
             </ul><br>
-
-            <b>For JRE5 users (MAC)</b><br>
-            (Discontinued with version 3.0.1844)<br>
-            Java 5 compatible builds of the plugin are also available. Please pick the appropriate one and unpack it in the plugins directory:<br>
-                &nbsp;&nbsp;- <a href="http://www.jetbrains.net/confluence/download/attachments/37378/DBN-8.0-JRE5.zip">DBN-8.0-JRE5</a> (for IntelliJ IDEA 8.x)<br>
-                &nbsp;&nbsp;- <a href="http://www.jetbrains.net/confluence/download/attachments/37378/DBN-9.0-JRE5.zip">DBN-9.0-JRE5</a> (for IntelliJ IDEA 9.x)<br>
-            </ul><br><br>
     ]]></description>
     <change-notes><![CDATA[
         <ul>
-            <li><b>3.0.2369</b>
+            <li><b>3.0.2373</b>
              <ul>
-                - Bug fixes and performance improvements<br>
+                - Fixed compatibility issues with latest IDE versions<br>
+                - Other bug fixes and performance improvements<br>
             </ul>
             <li><b>3.0.2349</b>
             <ul>
