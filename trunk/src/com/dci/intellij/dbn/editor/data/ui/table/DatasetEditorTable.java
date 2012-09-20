@@ -99,7 +99,7 @@ public class DatasetEditorTable extends ResultSetTable {
     }
 
     public String getName() {
-        return getDataset().getName();
+        return getModel().isDisposed() ? "Disposed" : getDataset().getName();
     }
 
     @Override
