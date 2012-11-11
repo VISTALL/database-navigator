@@ -40,7 +40,7 @@ public class CodeCompletionPopupTrigger implements DocumentListener{
                     if (oldExecutionSequence == executionSequence) {
                         new SimpleLaterInvocator() {
                             public void run() {
-                                DataContext dataContext = DataManager.getInstance().getDataContext();
+                                DataContext dataContext = DataManager.getInstance().getDataContextFromFocus().getResult();
                                 Project project = PlatformDataKeys.PROJECT.getData(dataContext);
                                 Editor editor = PlatformDataKeys.EDITOR.getData(dataContext);
                                 if (project != null && editor!= null) {
