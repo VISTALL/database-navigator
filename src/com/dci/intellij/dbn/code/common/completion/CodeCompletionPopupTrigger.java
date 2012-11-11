@@ -8,6 +8,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.IdeActions;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
+import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.project.Project;
@@ -41,7 +42,8 @@ public class CodeCompletionPopupTrigger implements DocumentListener{
                             public void run() {
                                 DataContext dataContext = DataManager.getInstance().getDataContext();
                                 Project project = PlatformDataKeys.PROJECT.getData(dataContext);
-                                if (project != null) {
+                                Editor editor = PlatformDataKeys.EDITOR.getData(dataContext);
+                                if (project != null && editor!= null) {
                                     AnActionEvent actionEvent = new AnActionEvent(null, dataContext, "", codeCompletionAction.getTemplatePresentation(), ActionManager.getInstance(), 2);
                                     codeCompletionAction.actionPerformed(actionEvent);
                                 }
