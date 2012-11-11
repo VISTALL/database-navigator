@@ -116,18 +116,19 @@ public class BasicTextEditorState implements FileEditorState {
 
         if (project != null && getFoldingState() != null) {
             PsiDocumentManager.getInstance(project).commitDocument(document);
-            Runnable runnable = new Runnable() {
+            new SimpleLaterInvocator() {
+                @Override
                 public void run() {
-                    new SimpleLaterInvocator() {
-                        @Override
-                        public void run() {
-                            CodeFoldingManager.getInstance(project).
-                                    restoreFoldingState(editor, getFoldingState());
-                        }
-                    }.start();
+                    CodeFoldingManager.getInstance(project).
+                            restoreFoldingState(editor, getFoldingState());
+                }
+            }.start();
+            /* runnable = new Runnable() {
+                public void run() {
+
                 }
             };
-            editor.getFoldingModel().runBatchFoldingOperation(runnable);
+            editor.getFoldingModel().runBatchFoldingOperation(runnable);*/
         }
     }
 
