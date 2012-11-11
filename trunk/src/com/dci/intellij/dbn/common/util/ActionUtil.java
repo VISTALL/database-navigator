@@ -1,11 +1,19 @@
 package com.dci.intellij.dbn.common.util;
 
 import com.intellij.ide.DataManager;
-import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.actionSystem.ActionGroup;
+import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.actionSystem.ActionToolbar;
+import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.openapi.actionSystem.DataProvider;
+import com.intellij.openapi.actionSystem.DefaultActionGroup;
+import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.project.Project;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JComponent;
+import java.awt.Component;
 
 public class ActionUtil {
     public static final AnAction SEPARATOR = new AnAction() {
@@ -44,7 +52,8 @@ public class ActionUtil {
      * @deprecated use getProject(Component)
      */
     public static Project getProject(){
-        return PlatformDataKeys.PROJECT.getData(DataManager.getInstance().getDataContext());
+        DataContext dataContext = DataManager.getInstance().getDataContextFromFocus().getResult();
+        return PlatformDataKeys.PROJECT.getData(dataContext);
     }
 
     public static Project getProject(Component component){
