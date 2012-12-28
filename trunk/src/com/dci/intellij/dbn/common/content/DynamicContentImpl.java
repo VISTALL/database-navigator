@@ -247,12 +247,12 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
         disposeElements(oldElements);
     }
 
-    public void removeElements(List<T> elements) {
+    public synchronized void removeElements(List<T> elements) {
         this.elements.removeAll(elements);
         updateIndex();
     }
 
-    public void addElements(List<T> elements) {
+    public synchronized void addElements(List<T> elements) {
         for (T element : elements) {
             element.setOwnerContent(this);
         }
@@ -283,7 +283,7 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
         }
     }
 
-    public T getElement(String name) {
+    public synchronized T getElement(String name) {
         if (indexed && index != null) {
             return index.get(name.toUpperCase());
         } else {
