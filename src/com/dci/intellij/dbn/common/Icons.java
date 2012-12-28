@@ -12,7 +12,7 @@ public class Icons {
 
     public static final Icon COMMON_INFO = load("/img/common/Info.png");
     public static final Icon COMMON_INFO_DISABLED = load("/img/common/InfoDisabled.png");
-    public static final Icon COMMON_WARNING = load("/img/common/Warning.png");
+    public static final Icon COMMON_WARNING = load("/img/common/WarningTriangle.png");
     public static final Icon COMMON_RIGHT = load("/img/common/SplitRight.png");
     public static final Icon COMMON_UP = load("/img/common/SplitUp.png");
 
@@ -74,33 +74,33 @@ public class Icons {
 
 
     public static final Icon STMT_EXECUTION_RUN     = load("/img/ExecuteStatement.png");
-    public static final Icon STMT_EXECUTION_RERUN   = ACTION_RERUN;
-    public static final Icon STMT_EXECUTION_RESUME  = load("/actions/resume.png");
-    public static final Icon STMT_EXECUTION_REFRESH = load("/actions/sync.png");
-    public static final Icon STMT_EXECUTION_ERROR   = load("/debugger/db_obsolete.png");
+    public static final Icon STMT_EXECUTION_RERUN   = load("/img/action/Rerun.png");
+    public static final Icon STMT_EXECUTION_RESUME  = load("/img/action/ResumeExecution.png");
+    public static final Icon STMT_EXECUTION_REFRESH = load("/img/action/Refresh.png");
+    public static final Icon STMT_EXECUTION_ERROR   = load("/img/common/Error.png");
 
     public static final Icon STMT_EXEC_RESULTSET        = load("/img/ExecutionResultSet.png");
     public static final Icon STMT_EXEC_RESULTSET_RERUN  = load("/img/ExecutionResultSetRerun.png");
     public static final Icon STMT_EXEC_RESULTSET_ORPHAN = load("/img/ExecutionResultSetOrphan.png");
 
-    public static final Icon EXEC_RESULT_RERUN            = load("/actions/sync.png");
+    public static final Icon EXEC_RESULT_RERUN            = load("/img/action/Refresh.png");
     public static final Icon EXEC_RESULT_OPEN_EXEC_DIALOG = load("/img/ExecuteMethodDialog.png");
-    public static final Icon EXEC_RESULT_RESUME           = load("/actions/resume.png");
-    public static final Icon EXEC_RESULT_STOP             = load("/actions/suspend.png");
-    public static final Icon EXEC_RESULT_CLOSE            = load("/actions/cancel.png");
-    public static final Icon EXEC_RESULT_VIEW_STATEMENT   = load("/graph/printPreview.png");
+    public static final Icon EXEC_RESULT_RESUME           = load("/img/action/ResumeExecution.png");
+    public static final Icon EXEC_RESULT_STOP             = load("/img/action/StopExecution.png");
+    public static final Icon EXEC_RESULT_CLOSE            = load("/img/action/Close.png");
+    public static final Icon EXEC_RESULT_VIEW_STATEMENT   = load("/img/action/Preview.png");
     public static final Icon EXEC_RESULT_VIEW_RECORD      = load("/img/RecordViewer.png");
-    public static final Icon EXEC_RESULT_OPTIONS          = load("/actions/properties.png");
-    public static final Icon EXEC_RESULT_MESSAGES         = load("/general/toolWindowMessages.png");
+    public static final Icon EXEC_RESULT_OPTIONS          = load("/img/action/Properties.png");
+    public static final Icon EXEC_RESULT_MESSAGES         = load("/img/common/Messages.png");
     public static final Icon EXEC_CONFIG                  = load("/img/DBProgram.png");
 
     public static final Icon NAVIGATION_GO_TO_SPEC       = load("/img/GoToSpec.png");
     public static final Icon NAVIGATION_GO_TO_BODY       = load("/img/GoToBody.png");
 
-    public static final Icon BROWSER_BACK = load("/actions/back.png");
-    public static final Icon BROWSER_NEXT = load("/actions/forward.png");
-    public static final Icon BROWSER_AUTOSCROLL_TO_EDITOR = load("/general/autoscrollToSource.png");
-    public static final Icon BROWSER_AUTOSCROLL_FROM_EDITOR = load("/general/autoscrollFromSource.png");
+    public static final Icon BROWSER_BACK = load("/img/action/BrowserBack.png");
+    public static final Icon BROWSER_NEXT = load("/img/action/BrowserForward.png");
+    public static final Icon BROWSER_AUTOSCROLL_TO_EDITOR = load("/img/action/AutoscrollToSource.png");
+    public static final Icon BROWSER_AUTOSCROLL_FROM_EDITOR = load("/img/action/AutoscrollFromSource.png");
     public static final Icon BROWSER_OBJECT_PROPERTIES = load("/img/ObjectProperties.png");
 
 
@@ -113,7 +113,7 @@ public class Icons {
     public static final Icon DATA_EDITOR_INSERT_RECORD = load("/img/DatasetEditorInsertRecord.png");
     public static final Icon DATA_EDITOR_DELETE_RECORD = load("/img/DatasetEditorDeleteRecord.png");
     public static final Icon DATA_EDITOR_SWITCH_EDITABLE_STATUS = load("/img/DatasetEditorSwitchEditableStatus.png");
-    public static final Icon DATA_EDITOR_FETCH_NEXT_RECORDS = load("/actions/resume.png");
+    public static final Icon DATA_EDITOR_FETCH_NEXT_RECORDS = load("/img/action/ResumeExecution.png");
     public static final Icon DATA_EDITOR_EDIT_RECORD = load("/img/EditDatasetRecord.png");
     public static final Icon DATA_EDITOR_NEXT_RECORD = load("/img/NextRecord.png");
     public static final Icon DATA_EDITOR_PREVIOUS_RECORD = load("/img/PreviousRecord.png");
@@ -121,7 +121,7 @@ public class Icons {
     public static final Icon DATA_EDITOR_LAST_RECORD = load("/img/LastRecord.png");
     public static final Icon DATA_EDITOR_LOCK_EDITING = load("/img/LockEditing.png");
 
-    public static final Icon DATA_EDITOR_RELOAD_DATA = load("/actions/sync.png");
+    public static final Icon DATA_EDITOR_RELOAD_DATA = load("/img/action/Refresh.png");
     public static final Icon DATA_EDITOR_BROWSE =    load("/img/Browse.png");
     public static final Icon DATA_EDITOR_CALENDAR =    load("/img/Calendar.png");
 
@@ -159,18 +159,18 @@ public class Icons {
     public static final Icon CALENDAR_CELL_EDIT_PREVIOUS_YEAR = load("/img/CalendarPreviousYear.png");
     public static final Icon CALENDAR_CELL_EDIT_CLEAR_TIME = load("/img/CalendarResetTime.png");
 
-    public static final Icon EXEC_MESSAGES_INFO    = load("/compiler/information.png");
-    public static final Icon EXEC_MESSAGES_WARNING = load("/compiler/warning.png");
-    public static final Icon EXEC_MESSAGES_ERROR   = load("/compiler/error.png");
+    public static final Icon EXEC_MESSAGES_INFO    = load("/img/common/Information.png");
+    public static final Icon EXEC_MESSAGES_WARNING = load("/img/common/Warning.png");
+    public static final Icon EXEC_MESSAGES_ERROR   = load("/img/common/Error.png");
 
-    public static final Icon CHECK   = load("/gutter/check.png");
-    public static final Icon PROJECT = load("/nodes/project.png");
+    public static final Icon CHECK   = load("/img/common/Checked.png");
+    public static final Icon PROJECT = load("/img/project/Project.png");
     public static final Icon FILE_CONNECTION_MAPPING = load("/img/FileConnection.png");
     public static final Icon FILE_SCHEMA_MAPPING = load("/img/FileSchema.png");
 
     public static final Icon CODE_EDITOR_SAVE = load("/img/SaveToDatabase.png");
-    public static final Icon CODE_EDITOR_RESET = load("/actions/reset.png");
-    public static final Icon CODE_EDITOR_RELOAD = load("/actions/sync.png");
+    public static final Icon CODE_EDITOR_RESET = load("/img/action/Reset.png");
+    public static final Icon CODE_EDITOR_RELOAD = load("/img/action/Refresh.png");
     public static final Icon CODE_EDITOR_DIFF = load("/img/ShowDiff.png");
     public static final Icon CODE_EDITOR_DIFF_DB = load("/img/ShowDbDiff.png");
     public static final Icon CODE_EDITOR_DDL_FILE = load("/img/DDLFile.png");
@@ -198,9 +198,9 @@ public class Icons {
 
 
 
-    public static final Icon CONN_STATUS_INVALID      = load("/general/ideFatalError.png");
-    public static final Icon CONN_STATUS_CONNECTED    = load("/actions/createFromUsage.png");
-    public static final Icon CONN_STATUS_DISCONNECTED = load("/actions/createFromUsage_off.png");
+    public static final Icon CONN_STATUS_INVALID      = load("/img/common/ErrorBig.png");
+    public static final Icon CONN_STATUS_CONNECTED    = load("/img/common/BulbOn.png");
+    public static final Icon CONN_STATUS_DISCONNECTED = load("/img/common/BulbOff.png");
 
     public static final Icon CONNECTION_VIRTUAL       = load("/img/connection/ConnectionVirtual1.png");
     public static final Icon CONNECTION_ACTIVE        = load("/img/connection/ConnectionActive1.png");
