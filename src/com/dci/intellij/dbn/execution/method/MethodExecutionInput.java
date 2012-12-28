@@ -76,7 +76,6 @@ public class MethodExecutionInput implements Disposable, PersistentConfiguration
 
     public synchronized ConnectionHandler getConnectionHandler() {
         if (connectionHandler == null) {
-
             connectionHandler = ConnectionManager.findConnectionHandler(methodIdentifier.getConnectionId());
         }
         return connectionHandler;
