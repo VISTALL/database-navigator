@@ -1,5 +1,6 @@
 package com.dci.intellij.dbn.common;
 
+import com.intellij.openapi.application.ApplicationInfo;
 import com.intellij.openapi.util.IconLoader;
 import com.intellij.ui.RowIcon;
 import gnu.trove.THashMap;
@@ -312,6 +313,7 @@ public class Icons {
 
 
     private static Icon load(String path) {
+        ApplicationInfo.getInstance().getBuild().getBuildNumber();
         return IconLoader.getIcon(path);
     }
 
