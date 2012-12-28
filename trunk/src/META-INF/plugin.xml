@@ -5,7 +5,7 @@
     <version>3.0.2373</version>
     <category>Database</category>
     <depends>com.intellij.modules.lang</depends>
-    <vendor email="dancioca@bluewin.ch" logo="/img/project/DatabaseNavigator.png">Dan Cioca</vendor>
+    <vendor email="dancioca@bluewin.ch" logo="/img/v0/project/DatabaseNavigator.png">Dan Cioca</vendor>
     <idea-version since-build="111.0001" until-build="123.9999"/>
     <description><![CDATA[
             </b>
@@ -171,8 +171,8 @@
             <action id="DBNavigator.Actions.OpenSettings" class="com.dci.intellij.dbn.language.editor.action.OpenSettingsAction" text="Script Editor - Settings"/>
         </group>
         <group id="Dbnavigator.Actions.MainMenu" text="_DB Navigator">
-            <action class="com.dci.intellij.dbn.menu.action.OpenSQLConsoleAction" text="Open SQL console..." id="DBNavigator.Actions.MainMenu.OpenSQLConsole" icon="/img/file/SQLConsole.png"/>
-            <action class="com.dci.intellij.dbn.menu.action.OpenMethodExecutionHistoryAction" text="Method execution history" id="DBNavigator.Actions.MainMenu.OpenMethodExecutionHistory" icon="/img/MethodExecutionHistory.png"/>
+            <action class="com.dci.intellij.dbn.menu.action.OpenSQLConsoleAction" text="Open SQL console..." id="DBNavigator.Actions.MainMenu.OpenSQLConsole" icon="/img/v0/file/SQLConsole.png"/>
+            <action class="com.dci.intellij.dbn.menu.action.OpenMethodExecutionHistoryAction" text="Method execution history" id="DBNavigator.Actions.MainMenu.OpenMethodExecutionHistory" icon="/img/v0/MethodExecutionHistory.png"/>
             <action class="com.dci.intellij.dbn.menu.action.OpenUncommittedChangesOverviewAction" text="Uncommitted changes" id="DBNavigator.Actions.MainMenu.OpenUncommittedChangesOverview"/>
             <separator/>
             <action id="DBNavigator.Actions.MainMenu.OpenSettings" class="com.dci.intellij.dbn.menu.action.OpenSettingsAction" text="Settings" icon="/actions/properties.png"/>
@@ -260,7 +260,7 @@
         </group>
     </actions>
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow id="DB Browser" icon="/img/window/DatabaseBrowser.png" anchor="left" factoryClass="com.dci.intellij.dbn.browser.DatabaseBrowserToolWindowFactory"/>
+        <toolWindow id="DB Browser" icon="/img/v0/window/DatabaseBrowser.png" anchor="left" factoryClass="com.dci.intellij.dbn.browser.DatabaseBrowserToolWindowFactory"/>
 
         <fileTypeFactory order="last" implementation="com.dci.intellij.dbn.language.sql.SQLFileTypeFactory"/>
         <fileTypeFactory order="last" implementation="com.dci.intellij.dbn.language.psql.PSQLFileTypeFactory"/>
