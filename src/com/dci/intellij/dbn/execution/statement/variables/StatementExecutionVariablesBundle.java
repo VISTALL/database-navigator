@@ -20,7 +20,10 @@ import gnu.trove.THashSet;
 import org.jetbrains.annotations.Nullable;
 
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -122,6 +125,8 @@ public class StatementExecutionVariablesBundle {
 
     public String prepareStatementText(ConnectionHandler connectionHandler, String statementText, boolean temporary) {
         errorMap = null;
+        List<StatementExecutionVariable> variables = new ArrayList<StatementExecutionVariable>(this.variables);
+        Collections.sort(variables);
         for (StatementExecutionVariable variable : variables) {
             String value = temporary ? variable.getTemporaryValueProvider().getValue() : variable.getValue();
             BasicDataType basicDataType = temporary ? variable.getTemporaryValueProvider().getDataType() : variable.getDataType();

@@ -4,7 +4,7 @@ import com.dci.intellij.dbn.data.type.BasicDataType;
 import com.dci.intellij.dbn.language.common.psi.ExecVariablePsiElement;
 import com.intellij.openapi.project.Project;
 
-public class StatementExecutionVariable {
+public class StatementExecutionVariable implements Comparable<StatementExecutionVariable>{
     private BasicDataType dataType;
     private String name;
     private String value;
@@ -61,6 +61,11 @@ public class StatementExecutionVariable {
     @Override
     public int hashCode() {
         return name.hashCode();
+    }
+
+    @Override
+    public int compareTo(StatementExecutionVariable o) {
+        return o.name.length()-name.length();
     }
 
     public interface TemporaryValueProvider {
