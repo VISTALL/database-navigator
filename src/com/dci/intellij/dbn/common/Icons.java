@@ -109,9 +109,9 @@ public class Icons {
     public static final Icon DATA_EDITOR_ROW_MODIFIED = load("/img/v0/ModifiedRow.png");
     public static final Icon DATA_EDITOR_ROW_DELETED = load("/img/v0/DeletedRow.png");
 
-    public static final Icon DATA_EDITOR_DUPLICATE_RECORD = load("/img/v0/DatasetEditorDuplicateRecord.png");
-    public static final Icon DATA_EDITOR_INSERT_RECORD = load("/img/v0/DatasetEditorInsertRecord.png");
-    public static final Icon DATA_EDITOR_DELETE_RECORD = load("/img/v0/DatasetEditorDeleteRecord.png");
+    public static final Icon DATA_EDITOR_DUPLICATE_RECORD = load("/img/v0/action/DuplicateRecord.png");
+    public static final Icon DATA_EDITOR_INSERT_RECORD = load("/img/v0/action/InsertRecord.png");
+    public static final Icon DATA_EDITOR_DELETE_RECORD = load("/img/v0/action/DeleteRecord.png");
     public static final Icon DATA_EDITOR_SWITCH_EDITABLE_STATUS = load("/img/v0/DatasetEditorSwitchEditableStatus.png");
     public static final Icon DATA_EDITOR_FETCH_NEXT_RECORDS = load("/img/v0/action/ResumeExecution.png");
     public static final Icon DATA_EDITOR_EDIT_RECORD = load("/img/v0/EditDatasetRecord.png");
