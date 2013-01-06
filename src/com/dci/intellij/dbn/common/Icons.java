@@ -19,7 +19,6 @@ public class Icons {
 
 
     public static final Icon ACTION_COPY = load("/img/v0/action/Copy.png");
-    public static final Icon ACTION_SORT = load("/img/v0/action/SortAlpha.png");
     public static final Icon ACTION_SORT_ALPHA = load("/img/v0/action/SortAlphabetically.png");
     public static final Icon ACTION_SORT_ASC = load("/img/v0/action/SortAscending.png");
     public static final Icon ACTION_SORT_DESC = load("/img/v0/action/SortDescending.png");
@@ -66,7 +65,7 @@ public class Icons {
     public static final Icon DIALOG_QUESTION = load("/img/v0/dialog/Dialog.png");
 
 
-    public static final Icon METHOD_EXECUTION_RUN     = load("/img/v0/ExecuteMethod.png");
+    public static final Icon METHOD_EXECUTION_RUN     = load("/img/v0/action/ExecuteMethod.png");
     public static final Icon METHOD_EXECUTION_DEBUG   = load("/img/DebugMethod.png");
     public static final Icon METHOD_EXECUTION_RERUN   = load("/img/v0/RerunMethodExecution.png");
     public static final Icon METHOD_EXECUTION_DIALOG  = load("/img/v0/ExecuteMethodDialog.png");
@@ -74,7 +73,7 @@ public class Icons {
     public static final Icon METHOD_LOOKUP            = load("/img/MethodLookup.png");
 
 
-    public static final Icon STMT_EXECUTION_RUN     = load("/img/v0/ExecuteStatement.png");
+    public static final Icon STMT_EXECUTION_RUN     = load("/img/v0/action/ExecuteStatement.png");
     public static final Icon STMT_EXECUTION_RERUN   = load("/img/v0/action/Rerun.png");
     public static final Icon STMT_EXECUTION_RESUME  = load("/img/v0/action/ResumeExecution.png");
     public static final Icon STMT_EXECUTION_REFRESH = load("/img/v0/action/Refresh.png");
@@ -127,7 +126,7 @@ public class Icons {
     public static final Icon DATA_EDITOR_CALENDAR =    load("/img/v0/Calendar.png");
 
     public static final Icon DATA_EXPORT =    load("/img/v0/DataExport.png");
-    public static final Icon DATA_IMPORT =    load("/img/DataImport.png");
+    public static final Icon DATA_IMPORT =    load("/img/v0/DataImport.png");
 
     public static final Icon DATASET_FILTER =    load("/img/v0/filter/DatasetFilter.png");
     public static final Icon DATASET_FILTER_NEW =    load("/img/v0/filter/DatasetFilterNew.png");
@@ -160,7 +159,7 @@ public class Icons {
     public static final Icon CALENDAR_CELL_EDIT_PREVIOUS_YEAR = load("/img/v0/CalendarPreviousYear.png");
     public static final Icon CALENDAR_CELL_EDIT_CLEAR_TIME = load("/img/v0/CalendarResetTime.png");
 
-    public static final Icon EXEC_MESSAGES_INFO    = load("/img/v0/common/Information.png");
+    public static final Icon EXEC_MESSAGES_INFO    = load("/img/v0/common/Info.png");
     public static final Icon EXEC_MESSAGES_WARNING = load("/img/v0/common/Warning.png");
     public static final Icon EXEC_MESSAGES_ERROR   = load("/img/v0/common/Error.png");
 
@@ -169,11 +168,11 @@ public class Icons {
     public static final Icon FILE_CONNECTION_MAPPING = load("/img/v0/FileConnection.png");
     public static final Icon FILE_SCHEMA_MAPPING = load("/img/v0/FileSchema.png");
 
-    public static final Icon CODE_EDITOR_SAVE = load("/img/v0/SaveToDatabase.png");
+    public static final Icon CODE_EDITOR_SAVE = load("/img/v0/action/SaveToDatabase.png");
     public static final Icon CODE_EDITOR_RESET = load("/img/v0/action/Reset.png");
     public static final Icon CODE_EDITOR_RELOAD = load("/img/v0/action/Refresh.png");
-    public static final Icon CODE_EDITOR_DIFF = load("/img/v0/ShowDiff.png");
-    public static final Icon CODE_EDITOR_DIFF_DB = load("/img/v0/ShowDbDiff.png");
+    public static final Icon CODE_EDITOR_DIFF = load("/img/v0/action/ShowDiff.png");
+    public static final Icon CODE_EDITOR_DIFF_DB = load("/img/v0/action/ShowDbDiff.png");
     public static final Icon CODE_EDITOR_DDL_FILE = load("/img/v0/DDLFile.png");
     public static final Icon CODE_EDITOR_DDL_FILE_NEW = load("/img/v0/DDLFileNew.png");
     public static final Icon CODE_EDITOR_DDL_FILE_DETACH = load("/img/v0/DDLFileUnbind.png");
@@ -181,16 +180,16 @@ public class Icons {
     public static final Icon CODE_EDITOR_SPEC = load("/img/v0/CodeSpec.png");
     public static final Icon CODE_EDITOR_BODY = load("/img/v0/CodeBody.png");
 
-    public static final Icon OBEJCT_COMPILE     = load("/img/v0/Compile.png");
-    public static final Icon OBEJCT_COMPILE_DEBUG = load("/img/v0/CompileDebug.png");
+    public static final Icon OBEJCT_COMPILE     = load("/img/v0/action/Compile.png");
+    public static final Icon OBEJCT_COMPILE_DEBUG = load("/img/v0/action/CompileDebug.png");
     //public static final Icon OBEJCT_COMPILE_KEEP = load("/img/CompileKeep.png");
-    public static final Icon OBEJCT_COMPILE_ASK = load("/img/v0/CompileAsk.png");
+    public static final Icon OBEJCT_COMPILE_ASK = load("/img/v0/action/CompileAsk.png");
     public static final Icon OBEJCT_EDIT_SOURCE = load("/img/v0/EditSource.png");
     public static final Icon OBEJCT_EDIT_DATA = load("/img/v0/EditData.png");
     public static final Icon OBEJCT_VIEW_DATA = load("/img/v0/ViewData.png");
 
     public static final Icon CONNECTION_COMMIT   = load("CONNECTION_COMMIT", "/img/v0/ConnectionCommit.png");
-    public static final Icon CONNECTION_ROLLBACK = load("CONNECTION_ROLLBACK", "/img/ConnectionRollback.png");
+    public static final Icon CONNECTION_ROLLBACK = load("CONNECTION_ROLLBACK", "/img/v0/ConnectionRollback.png");
 
     public static final Icon COMMON_DIRECTION_IN = load("/img/v0/common/DirectionIn.png");
     public static final Icon COMMON_DIRECTION_OUT = load("/img/v0/common/DirectionOut.png");
@@ -313,7 +312,7 @@ public class Icons {
 
 
     private static Icon load(String path) {
-        if (ApplicationInfo.getInstance().getBuild().getBaselineVersion() > 1) {
+        if (ApplicationInfo.getInstance().getBuild().getBaselineVersion() > 122) {
             path = path.replace("/img/v0/", "/img/v1/");
         }
         return IconLoader.getIcon(path);
