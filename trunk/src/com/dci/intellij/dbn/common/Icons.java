@@ -5,7 +5,7 @@ import com.intellij.openapi.util.IconLoader;
 import com.intellij.ui.RowIcon;
 import gnu.trove.THashMap;
 
-import javax.swing.Icon;
+import javax.swing.*;
 import java.util.Map;
 
 public class Icons {
@@ -70,7 +70,7 @@ public class Icons {
     public static final Icon METHOD_EXECUTION_RERUN   = load("/img/v0/RerunMethodExecution.png");
     public static final Icon METHOD_EXECUTION_DIALOG  = load("/img/v0/ExecuteMethodDialog.png");
     public static final Icon METHOD_EXECUTION_HISTORY = load("/img/v0/MethodExecutionHistory.png");
-    public static final Icon METHOD_LOOKUP            = load("/img/MethodLookup.png");
+    public static final Icon METHOD_LOOKUP            = load("/img/v0/MethodLookup.png");
 
 
     public static final Icon STMT_EXECUTION_RUN     = load("/img/v0/action/ExecuteStatement.png");
