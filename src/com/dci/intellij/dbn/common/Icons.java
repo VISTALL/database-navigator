@@ -202,13 +202,13 @@ public class Icons {
     public static final Icon CONN_STATUS_CONNECTED    = load("/img/v0/common/BulbOn.png");
     public static final Icon CONN_STATUS_DISCONNECTED = load("/img/v0/common/BulbOff.png");
 
-    public static final Icon CONNECTION_VIRTUAL       = load("/img/v0/connection/ConnectionVirtual1.png");
-    public static final Icon CONNECTION_ACTIVE        = load("/img/v0/connection/ConnectionActive1.png");
-    public static final Icon CONNECTION_INACTIVE      = load("/img/v0/connection/ConnectionInactive1.png");
+    public static final Icon CONNECTION_VIRTUAL       = load("/img/v0/connection/ConnectionVirtual.png");
+    public static final Icon CONNECTION_ACTIVE        = load("/img/v0/connection/ConnectionActive.png");
+    public static final Icon CONNECTION_INACTIVE      = load("/img/v0/connection/ConnectionInactive.png");
     public static final Icon CONNECTION_DISABLED      = load("/img/v0/connection/ConnectionDisabled.png");
     public static final Icon CONNECTION_NEW           = load("/img/v0/connection/ConnectionNew.png");
-    public static final Icon CONNECTION_INVALID       = load("/img/v0/connection/ConnectionInvalid1.png");
-    public static final Icon CONNECTIONS              = load("/img/v0/connection/Connections1.png");
+    public static final Icon CONNECTION_INVALID       = load("/img/v0/connection/ConnectionInvalid.png");
+    public static final Icon CONNECTIONS              = load("/img/v0/connection/Connections.png");
 
 
 //    public static final Icon DBO_ARGUMENT_IN         = createRowIcon(DBO_ARGUMENT, COMMON_DIRECTION_IN);
