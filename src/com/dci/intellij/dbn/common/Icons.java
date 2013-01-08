@@ -125,8 +125,8 @@ public class Icons {
     public static final Icon DATA_EDITOR_BROWSE =    load("/img/v0/Browse.png");
     public static final Icon DATA_EDITOR_CALENDAR =    load("/img/v0/Calendar.png");
 
-    public static final Icon DATA_EXPORT =    load("/img/v0/DataExport.png");
-    public static final Icon DATA_IMPORT =    load("/img/v0/DataImport.png");
+    public static final Icon DATA_EXPORT =    load("/img/v0/action/DataExport.png");
+    public static final Icon DATA_IMPORT =    load("/img/v0/action/DataImport.png");
 
     public static final Icon DATASET_FILTER =    load("/img/v0/filter/DatasetFilter.png");
     public static final Icon DATASET_FILTER_NEW =    load("/img/v0/filter/DatasetFilterNew.png");
@@ -188,8 +188,8 @@ public class Icons {
     public static final Icon OBEJCT_EDIT_DATA = load("/img/v0/EditData.png");
     public static final Icon OBEJCT_VIEW_DATA = load("/img/v0/ViewData.png");
 
-    public static final Icon CONNECTION_COMMIT   = load("CONNECTION_COMMIT", "/img/v0/ConnectionCommit.png");
-    public static final Icon CONNECTION_ROLLBACK = load("CONNECTION_ROLLBACK", "/img/v0/ConnectionRollback.png");
+    public static final Icon CONNECTION_COMMIT   = load("CONNECTION_COMMIT", "/img/v0/action/ConnectionCommit.png");
+    public static final Icon CONNECTION_ROLLBACK = load("CONNECTION_ROLLBACK", "/img/v0/action/ConnectionRollback.png");
 
     public static final Icon COMMON_DIRECTION_IN = load("/img/v0/common/DirectionIn.png");
     public static final Icon COMMON_DIRECTION_OUT = load("/img/v0/common/DirectionOut.png");
