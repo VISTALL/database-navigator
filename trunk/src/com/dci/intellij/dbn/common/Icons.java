@@ -66,7 +66,7 @@ public class Icons {
 
 
     public static final Icon METHOD_EXECUTION_RUN     = load("/img/v0/action/ExecuteMethod.png");
-    public static final Icon METHOD_EXECUTION_DEBUG   = load("/img/DebugMethod.png");
+    public static final Icon METHOD_EXECUTION_DEBUG   = load("/img/v0/action/DebugMethod.png");
     public static final Icon METHOD_EXECUTION_RERUN   = load("/img/v0/RerunMethodExecution.png");
     public static final Icon METHOD_EXECUTION_DIALOG  = load("/img/v0/ExecuteMethodDialog.png");
     public static final Icon METHOD_EXECUTION_HISTORY = load("/img/v0/MethodExecutionHistory.png");

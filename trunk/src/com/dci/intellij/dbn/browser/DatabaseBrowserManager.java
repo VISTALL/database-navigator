@@ -52,7 +52,6 @@ public class DatabaseBrowserManager extends AbstractProjectComponent implements 
         super(project);
     }
 
-
     public DatabaseBrowserTree getActiveBrowserTree() {
         return getToolWindowForm().getActiveBrowserTree();
     }
