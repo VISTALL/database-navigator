@@ -1,5 +1,6 @@
 package com.dci.intellij.dbn.code.common.lookup;
 
+import com.dci.intellij.dbn.code.common.completion.BasicInsertHandler;
 import com.dci.intellij.dbn.code.common.completion.CodeCompletionContext;
 import com.dci.intellij.dbn.code.common.completion.options.sorting.CodeCompletionSortingSettings;
 import com.dci.intellij.dbn.common.util.NamingUtil;
@@ -36,13 +37,13 @@ public class DBLookupItem extends LookupItem {
         if (bold) setBold();
         setAttribute(LookupItem.TYPE_TEXT_ATTR, description);
         setPresentableText(NamingUtil.unquote(text));
-
+        setInsertHandler(BasicInsertHandler.INSTANCE);
     }
 
     @NotNull
     @Override
     public Object getObject() {
-        return this;
+        return super.getObject();
     }
 
     @Override

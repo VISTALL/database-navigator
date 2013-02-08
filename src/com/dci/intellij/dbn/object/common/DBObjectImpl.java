@@ -169,16 +169,19 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
 
     @Override
     public String getQuotedName(boolean quoteAlways) {
-        if (quoteAlways ||
-                name.indexOf('-') > 0 ||
-                name.indexOf('.') > 0 ||
-                name.indexOf('#') > 0 ||
-                getLanguageDialect(SQLLanguage.INSTANCE).isReservedWord(name)) {
+        if (quoteAlways || needsNameQuoting()) {
             char quoteChar = DatabaseCompatibilityInterface.getInstance(this).getIdentifierQuotes();
             return quoteChar + name + quoteChar;
         } else {
             return name;
         }
+    }
+
+    public boolean needsNameQuoting() {
+        return name.indexOf('-') > 0 ||
+                name.indexOf('.') > 0 ||
+                name.indexOf('#') > 0 ||
+                getLanguageDialect(SQLLanguage.INSTANCE).isReservedWord(name);
     }
 
     public Icon getIcon() {

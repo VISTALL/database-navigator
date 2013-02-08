@@ -7,6 +7,7 @@ import com.dci.intellij.dbn.code.common.style.DBLCodeStyleManager;
 import com.dci.intellij.dbn.code.common.style.options.CodeStyleCaseOption;
 import com.dci.intellij.dbn.code.common.style.options.CodeStyleCaseSettings;
 import com.dci.intellij.dbn.common.util.StringUtil;
+import com.dci.intellij.dbn.database.DatabaseCompatibilityInterface;
 import com.dci.intellij.dbn.language.common.DBLanguage;
 import com.dci.intellij.dbn.object.DBSynonym;
 import com.dci.intellij.dbn.object.common.DBObject;
@@ -30,7 +31,12 @@ public class DBObjectLookupItemFactory extends LookupItemFactory {
         DBLookupItem lookupItem = super.createLookupItem(source, consumer);
 
         if (lookupItem != null) {
-            lookupItem.setLookupString(object.getQuotedName(false));
+            if (object.needsNameQuoting()) {
+                char quoteChar = DatabaseCompatibilityInterface.getInstance(object).getIdentifierQuotes();
+                String lookupString = quoteChar + lookupItem.getLookupString() + quoteChar;
+                lookupItem.setLookupString(lookupString);
+            }
+
 
 /*
             lookupItem.setInsertHandler(consumer.isAddParenthesis() ?
