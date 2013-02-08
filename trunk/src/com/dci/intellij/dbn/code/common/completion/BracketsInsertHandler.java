@@ -1,7 +1,7 @@
 package com.dci.intellij.dbn.code.common.completion;
 
+import com.dci.intellij.dbn.code.common.lookup.DBLookupItem;
 import com.intellij.codeInsight.completion.InsertionContext;
-import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.openapi.editor.CaretModel;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
@@ -9,7 +9,7 @@ import com.intellij.openapi.editor.Editor;
 public class BracketsInsertHandler extends BasicInsertHandler{
     public static final BracketsInsertHandler INSTANCE = new BracketsInsertHandler();
 
-    public void handleInsert(InsertionContext insertionContext, LookupElement lookupElement) {
+    public void handleInsert(InsertionContext insertionContext, DBLookupItem lookupElement) {
         Editor editor = insertionContext.getEditor();
         Document document = editor.getDocument();
         CaretModel caretModel = editor.getCaretModel();
