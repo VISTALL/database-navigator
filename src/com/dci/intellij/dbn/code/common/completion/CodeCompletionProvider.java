@@ -301,7 +301,7 @@ public class CodeCompletionProvider extends CompletionProvider<CompletionParamet
                                 currentSchema);
                     }
                 } else {
-                    if (filter.acceptRootObject(objectType)) {
+                    if (filter.acceptsRootObject(objectType)) {
                         objectBundle.lookupObjectsOfType(
                                 consumer,
                                 objectType);

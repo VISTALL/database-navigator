@@ -91,7 +91,7 @@ public abstract class LeafPsiElement extends BasePsiElement implements PsiRefere
             if (objectType.isSchemaObject() && connectionHandler != null && !connectionHandler.isVirtual()) {
                 DBObjectBundle objectBundle = connectionHandler.getObjectBundle();
 
-                if (filter == null || filter.acceptCurrentSchemaObject(objectType)) {
+                if (filter == null || filter.acceptsCurrentSchemaObject(objectType)) {
                     DBSchema currentSchema = sourceScope.getCurrentSchema();
                     if (currentSchema != null) {
                         parentObjects = new THashSet<DBObject>();
@@ -99,7 +99,7 @@ public abstract class LeafPsiElement extends BasePsiElement implements PsiRefere
                     }
                 }
 
-                if (filter == null || filter.acceptPublicSchemaObject(objectType)) {
+                if (filter == null || filter.acceptsPublicSchemaObject(objectType)) {
                     DBSchema publicSchema = objectBundle.getPublicSchema();
                     if (publicSchema != null) {
                         if (parentObjects == null) parentObjects = new THashSet<DBObject>();

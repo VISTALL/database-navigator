@@ -3,13 +3,13 @@ package com.dci.intellij.dbn.object.common;
 import com.dci.intellij.dbn.object.DBSchema;
 
 public interface ObjectTypeFilter {
-    boolean acceptRootObject(DBObjectType objectType);
+    boolean acceptsRootObject(DBObjectType objectType);
 
-    boolean acceptCurrentSchemaObject(DBObjectType objectType);
+    boolean acceptsCurrentSchemaObject(DBObjectType objectType);
 
-    boolean acceptPublicSchemaObject(DBObjectType objectType);
+    boolean acceptsPublicSchemaObject(DBObjectType objectType);
 
-    boolean acceptAnySchemaObject(DBObjectType objectType);
+    boolean acceptsAnySchemaObject(DBObjectType objectType);
 
-    boolean acceptObject(DBSchema schema, DBSchema currentSchema, DBObjectType objectType);
+    boolean acceptsObject(DBSchema schema, DBSchema currentSchema, DBObjectType objectType);
 }
