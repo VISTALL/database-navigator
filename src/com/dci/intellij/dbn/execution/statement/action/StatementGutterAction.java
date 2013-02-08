@@ -43,7 +43,7 @@ public class StatementGutterAction extends AnAction {
                     return Icons.EXEC_MESSAGES_INFO;
                 }
             } else if (executionResult.getExecutionStatus() == StatementExecutionResult.STATUS_ERROR){
-                return Icons.STMT_EXECUTION_ERROR;
+                return Icons.STMT_EXECUTION_ERROR_RERUN;
             }
         }
 
