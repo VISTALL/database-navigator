@@ -455,18 +455,18 @@ public class DBObjectBundleImpl implements DBObjectBundle {
                     Set<DBObjectType> concreteTypes = objectType.getInheritingTypes();
                     for (DBObjectType concreteType : concreteTypes) {
                         consumer.check();
-                        if (filter.acceptObject(schema, currentSchema, concreteType)) {
+                        if (filter.acceptsObject(schema, currentSchema, concreteType)) {
                             consumer.consume(schema.getChildObjects(concreteType));
                         }
                     }
                 } else {
-                    if (filter.acceptObject(schema, currentSchema, objectType)) {
+                    if (filter.acceptsObject(schema, currentSchema, objectType)) {
                         consumer.consume(schema.getChildObjects(objectType));
                     }
                 }
 
                 boolean synonymsSupported = DatabaseCompatibilityInterface.getInstance(parent).supportsObjectType(DBObjectType.SYNONYM.getTypeId());
-                if (synonymsSupported && filter.acceptObject(schema, currentSchema, DBObjectType.SYNONYM)) {
+                if (synonymsSupported && filter.acceptsObject(schema, currentSchema, DBObjectType.SYNONYM)) {
                     for (DBSynonym synonym : schema.getSynonyms()) {
                         consumer.check();
                         if (synonym.getUnderlyingObject().isOfType(objectType)) {
@@ -479,12 +479,12 @@ public class DBObjectBundleImpl implements DBObjectBundle {
                     Set<DBObjectType> concreteTypes = objectType.getInheritingTypes();
                     for (DBObjectType concreteType : concreteTypes) {
                         consumer.check();
-                        if (filter.acceptRootObject(objectType)) {
+                        if (filter.acceptsRootObject(objectType)) {
                             consumer.consume(parent.getChildObjects(concreteType));
                         }
                     }
                 } else {
-                    if (filter.acceptRootObject(objectType)) {
+                    if (filter.acceptsRootObject(objectType)) {
                         consumer.consume(parent.getChildObjects(objectType));
                     }
                 }

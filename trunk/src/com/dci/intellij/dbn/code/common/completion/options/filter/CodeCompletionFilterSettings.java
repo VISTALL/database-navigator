@@ -63,7 +63,7 @@ public class CodeCompletionFilterSettings extends Configuration<CodeCompletionFi
         return false;
     }
 
-    public boolean acceptRootObject(DBObjectType objectType) {
+    public boolean acceptsRootObject(DBObjectType objectType) {
         Set<DBObjectType> objectTypes = objectType.isGeneric() ? objectType.getInheritingTypes() : null;
         for(CodeCompletionFilterOption option : rootFilterOptions.getOptions()) {
             if (objectTypes != null) {
@@ -80,25 +80,25 @@ public class CodeCompletionFilterSettings extends Configuration<CodeCompletionFi
         return true;   // return true for object types which are not configured
     }
 
-    public boolean acceptCurrentSchemaObject(DBObjectType objectType) {
+    public boolean acceptsCurrentSchemaObject(DBObjectType objectType) {
         return showSchemaObject(SCHEMA_TYPE_USER, objectType);
     }
 
-    public boolean acceptPublicSchemaObject(DBObjectType objectType) {
+    public boolean acceptsPublicSchemaObject(DBObjectType objectType) {
         return showSchemaObject(SCHEMA_TYPE_PUBLIC, objectType);
     }
 
-    public boolean acceptAnySchemaObject(DBObjectType objcetType) {
+    public boolean acceptsAnySchemaObject(DBObjectType objcetType) {
         return showSchemaObject(SCHEMA_TYPE_ANY, objcetType);
     }
 
-    public boolean acceptObject(DBSchema schema, DBSchema currentSchema, DBObjectType objectType) {
+    public boolean acceptsObject(DBSchema schema, DBSchema currentSchema, DBObjectType objectType) {
         boolean isPublic = schema.isPublicSchema();
         boolean isCurrent = schema == currentSchema;
         return
-            (isPublic && acceptPublicSchemaObject(objectType)) ||
-            (isCurrent && acceptCurrentSchemaObject(objectType)) ||
-            (!isPublic && !isCurrent && acceptAnySchemaObject(objectType));
+            (isPublic && acceptsPublicSchemaObject(objectType)) ||
+            (isCurrent && acceptsCurrentSchemaObject(objectType)) ||
+            (!isPublic && !isCurrent && acceptsAnySchemaObject(objectType));
     }
 
     private boolean showSchemaObject(int schemaType, DBObjectType objectType) {

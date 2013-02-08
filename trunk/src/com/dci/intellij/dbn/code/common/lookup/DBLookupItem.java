@@ -25,7 +25,7 @@ public class DBLookupItem extends LookupItem {
         }
     }
 
-    public DBLookupItem(Object source, Icon icon, @NotNull String text, String description, boolean bold, double sortPriority) {
+    public  DBLookupItem(Object source, Icon icon, @NotNull String text, String description, boolean bold, double sortPriority) {
         this(source, icon, text, description, bold);
         setPriority(sortPriority);
     }

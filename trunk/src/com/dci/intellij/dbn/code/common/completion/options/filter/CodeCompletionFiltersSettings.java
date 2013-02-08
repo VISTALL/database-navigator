@@ -36,7 +36,7 @@ public class CodeCompletionFiltersSettings extends CompositeConfiguration<CodeCo
     }
 
     boolean acceptRootObjects(boolean extended, DBObjectType objectType) {
-        return getFilterSettings(extended).acceptRootObject(objectType);
+        return getFilterSettings(extended).acceptsRootObject(objectType);
     }
 
     boolean showReservedWords(boolean extended, TokenTypeIdentifier tokenTypeIdentifier) {
@@ -44,15 +44,15 @@ public class CodeCompletionFiltersSettings extends CompositeConfiguration<CodeCo
     }
 
     boolean showUserSchemaObjects(boolean extended, DBObjectType objectType) {
-        return getFilterSettings(extended).acceptCurrentSchemaObject(objectType);
+        return getFilterSettings(extended).acceptsCurrentSchemaObject(objectType);
     }
 
     boolean acceptPublicSchemaObjects(boolean extended, DBObjectType objectType) {
-        return getFilterSettings(extended).acceptPublicSchemaObject(objectType);
+        return getFilterSettings(extended).acceptsPublicSchemaObject(objectType);
     }
 
     boolean acceptAnySchemaObjects(boolean extended, DBObjectType objectType) {
-        return getFilterSettings(extended).acceptAnySchemaObject(objectType);
+        return getFilterSettings(extended).acceptsAnySchemaObject(objectType);
     }
 
     /*********************************************************
