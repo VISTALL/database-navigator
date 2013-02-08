@@ -5,7 +5,7 @@ import com.intellij.openapi.util.IconLoader;
 import com.intellij.ui.RowIcon;
 import gnu.trove.THashMap;
 
-import javax.swing.*;
+import javax.swing.Icon;
 import java.util.Map;
 
 public class Icons {
@@ -73,11 +73,12 @@ public class Icons {
     public static final Icon METHOD_LOOKUP            = load("/img/v0/MethodLookup.png");
 
 
-    public static final Icon STMT_EXECUTION_RUN     = load("/img/v0/action/ExecuteStatement.png");
-    public static final Icon STMT_EXECUTION_RERUN   = load("/img/v0/action/Rerun.png");
-    public static final Icon STMT_EXECUTION_RESUME  = load("/img/v0/action/ResumeExecution.png");
-    public static final Icon STMT_EXECUTION_REFRESH = load("/img/v0/action/Refresh.png");
-    public static final Icon STMT_EXECUTION_ERROR   = load("/img/v0/common/Error.png");
+    public static final Icon STMT_EXECUTION_RUN           = load("/img/v0/action/ExecuteStatement.png");
+    public static final Icon STMT_EXECUTION_RERUN         = load("/img/v0/action/Rerun.png");
+    public static final Icon STMT_EXECUTION_RESUME        = load("/img/v0/action/ResumeExecution.png");
+    public static final Icon STMT_EXECUTION_REFRESH       = load("/img/v0/action/Refresh.png");
+    public static final Icon STMT_EXECUTION_ERROR         = load("/img/v0/common/Error.png");
+    public static final Icon STMT_EXECUTION_ERROR_RERUN   = load("/img/v0/action/ExecuteStatementError.png");
 
     public static final Icon STMT_EXEC_RESULTSET        = load("/img/v0/ExecutionResultSet.png");
     public static final Icon STMT_EXEC_RESULTSET_RERUN  = load("/img/v0/ExecutionResultSetRerun.png");
