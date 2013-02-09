@@ -108,5 +108,6 @@ public class OpenSQLConsoleAction extends DumbAwareAction {
         Presentation presentation = e.getPresentation();
         Project project = ActionUtil.getProject(e);
         presentation.setEnabled(project != null);
+        presentation.setIcon(Icons.FILE_SQL_CONSOLE);
     }
 }
