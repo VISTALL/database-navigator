@@ -50,7 +50,7 @@ public class SimpleTokenType extends IElementType implements TokenType {
         String type = element.getAttributeValue("type");
         tokenTypeIdentifier = TokenTypeIdentifier.getIdentifier(type);
         isSuppressibleReservedWord = isReservedWord() && !Boolean.parseBoolean(element.getAttributeValue("reserved"));
-        hashCode = id.hashCode();
+        hashCode = (language.getDisplayName() + id).hashCode();
 
         formatting = FormattingDefinitionFactory.loadDefinition(element);
     }
@@ -164,7 +164,12 @@ public class SimpleTokenType extends IElementType implements TokenType {
 
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof SimpleTokenType && hashCode == obj.hashCode();
+        if (obj instanceof SimpleTokenType) {
+            SimpleTokenType simpleTokenType = (SimpleTokenType) obj;
+            return simpleTokenType.getLanguage().equals(getLanguage()) &&
+                    simpleTokenType.getId().equals(getId());
+        }
+        return false;
     }
 
     public int hashCode() {
