@@ -29,7 +29,6 @@ public class DataGridColorSettingsPage implements ColorSettingsPage {
         attributeDescriptors.add(new AttributesDescriptor("Loading Data", DataGridTextAttributesKeys.LOADING_DATA));
         attributeDescriptors.add(new AttributesDescriptor("Primary Key", DataGridTextAttributesKeys.PRIMARY_KEY));
         attributeDescriptors.add(new AttributesDescriptor("Foreign Key", DataGridTextAttributesKeys.FOREIGN_KEY));
-        //attributeDescriptors.add(new AttributesDescriptor("Caret Row", DataGridTextAttributesKeys.CARET_ROW));
         attributeDescriptors.add(new AttributesDescriptor("Selection", DataGridTextAttributesKeys.SELECTION));
         colorDescriptors.add(new ColorDescriptor("Caret Row", DataGridTextAttributesKeys.CARET_ROW_BACKGROUND, ColorDescriptor.Kind.BACKGROUND));
     }
