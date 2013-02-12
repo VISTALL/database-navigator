@@ -9,7 +9,7 @@ import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.ui.SimpleTextAttributes;
 
-import java.awt.*;
+import java.awt.Color;
 
 public interface DataGridTextAttributesKeys {
     Color DEFAULT_SELECTION_FG_COLOR = new Color(255, 255, 255);
@@ -23,7 +23,9 @@ public interface DataGridTextAttributesKeys {
 
     //TextAttributes DEFAULT_TEXT_ATTRIBUTES = new TextAttributes(HighlighterColors.TEXT.getDefaultAttributes().getForegroundColor(), UIUtil.getTableBackground(), null, null, SimpleTextAttributes.STYLE_PLAIN);
     TextAttributes DEFAULT_TEXT_ATTRIBUTES = new TextAttributes(HighlighterColors.TEXT.getDefaultAttributes().getForegroundColor(), HighlighterColors.TEXT.getDefaultAttributes().getBackgroundColor(), null, null, SimpleTextAttributes.STYLE_PLAIN);
-    TextAttributes DEFAULT_DELETED_TEXT_ATTRIBUTES = SyntaxHighlighterColors.JAVA_BLOCK_COMMENT.getDefaultAttributes();
+    TextAttributes DEFAULT_DELETED_TEXT_ATTRIBUTES = new TextAttributes(
+            SyntaxHighlighterColors.JAVA_BLOCK_COMMENT.getDefaultAttributes().getForegroundColor(),
+            CodeInsightColors.FOLLOWED_HYPERLINK_ATTRIBUTES.getDefaultAttributes().getBackgroundColor(), null, null, SimpleTextAttributes.STYLE_PLAIN);
     TextAttributes DEFAULT_PK_ROW_TEXT_ATTRIBUTES = new TextAttributes(
             SyntaxHighlighterColors.NUMBER.getDefaultAttributes().getForegroundColor(),
             HighlighterColors.TEXT.getDefaultAttributes().getBackgroundColor(), null, null, SimpleTextAttributes.STYLE_PLAIN);
