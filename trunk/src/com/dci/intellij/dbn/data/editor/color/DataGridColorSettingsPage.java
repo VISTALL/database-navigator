@@ -18,6 +18,7 @@ import java.util.Map;
 
 public class DataGridColorSettingsPage implements ColorSettingsPage {
     protected final List<AttributesDescriptor> attributeDescriptors = new ArrayList<AttributesDescriptor>();
+    protected final List<ColorDescriptor> colorDescriptors = new ArrayList<ColorDescriptor>();
 
     public DataGridColorSettingsPage() {
         attributeDescriptors.add(new AttributesDescriptor("Plain Data", DataGridTextAttributesKeys.PLAIN_DATA));
@@ -28,8 +29,9 @@ public class DataGridColorSettingsPage implements ColorSettingsPage {
         attributeDescriptors.add(new AttributesDescriptor("Loading Data", DataGridTextAttributesKeys.LOADING_DATA));
         attributeDescriptors.add(new AttributesDescriptor("Primary Key", DataGridTextAttributesKeys.PRIMARY_KEY));
         attributeDescriptors.add(new AttributesDescriptor("Foreign Key", DataGridTextAttributesKeys.FOREIGN_KEY));
-        attributeDescriptors.add(new AttributesDescriptor("Caret Row", DataGridTextAttributesKeys.CARET_ROW));
+        //attributeDescriptors.add(new AttributesDescriptor("Caret Row", DataGridTextAttributesKeys.CARET_ROW));
         attributeDescriptors.add(new AttributesDescriptor("Selection", DataGridTextAttributesKeys.SELECTION));
+        colorDescriptors.add(new ColorDescriptor("Caret Row", DataGridTextAttributesKeys.CARET_ROW_BACKGROUND, ColorDescriptor.Kind.BACKGROUND));
     }
 
     @Override
@@ -56,7 +58,7 @@ public class DataGridColorSettingsPage implements ColorSettingsPage {
 
     @NotNull
     public ColorDescriptor[] getColorDescriptors() {
-        return new ColorDescriptor[0];
+        return colorDescriptors.toArray(new ColorDescriptor[colorDescriptors.size()]);
     }
 
     @NotNull

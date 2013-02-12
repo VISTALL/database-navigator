@@ -86,7 +86,7 @@ public class DatasetEditorTableCellRenderer extends BasicTableCellRenderer {
                     }
 
                     if (isCaretRow) {
-                        background = configTextAttributes.getCaretRow().getBgColor();
+                        background = configTextAttributes.getCaretRowBackground();
                     } else if (column.isPrimaryKey()) {
                         background = configTextAttributes.getPrimaryKey().getBgColor();
                     } else if (column.isForeignKey()) {
