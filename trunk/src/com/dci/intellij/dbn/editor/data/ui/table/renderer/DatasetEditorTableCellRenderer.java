@@ -8,7 +8,6 @@ import com.dci.intellij.dbn.editor.data.ui.table.model.DatasetEditorModelCell;
 import com.dci.intellij.dbn.object.DBColumn;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.SimpleTextAttributes;
-import com.intellij.util.ui.UIUtil;
 
 import javax.swing.JTable;
 import javax.swing.border.Border;
@@ -67,36 +66,32 @@ public class DatasetEditorTableCellRenderer extends BasicTableCellRenderer {
                 if (isLoading || !datasetEditorTable.getDataset().getConnectionHandler().isConnected()) {
                     setBackground(configTextAttributes.getLoadingData().getBgColor());
                 } else {
-                    Color background = null;
-                    if (cell.hasError()) {
-                        setBorder(CELL_ERROR_BORDER);
-                        setBackground(configTextAttributes.getErrorData().getBgColor());
-                    }
-
-                    if (isDeletedRow) {
-                        setBackground(configTextAttributes.getDeletedData().getBgColor());
-                    }
-
-                    if (isInserting && !isInsertRow) {
-                        setBackground(configTextAttributes.getReadonlyData().getBgColor());
-                    }
-
-                    if (isInsertRow) {
-                        setBackground(UIUtil.getTableBackground());
-                    }
 
                     if (isCaretRow) {
-                        background = configTextAttributes.getCaretRowBackground();
+                        setBackground(configTextAttributes.getCaretRowBgColor());
+
+                    } else if (isDeletedRow) {
+                        setBackground(configTextAttributes.getDeletedData().getBgColor());
+
+                    } else if (cell.hasError()) {
+                        setBorder(CELL_ERROR_BORDER);
+                        setBackground(configTextAttributes.getErrorData().getBgColor());
+
+                    } else if (isInserting && !isInsertRow) {
+                        setBackground(configTextAttributes.getReadonlyData().getBgColor());
+
+                    } else if (isInsertRow) {
+                        setBackground(configTextAttributes.getPlainData().getBgColor());
+
                     } else if (column.isPrimaryKey()) {
-                        background = configTextAttributes.getPrimaryKey().getBgColor();
+                        setBackground(configTextAttributes.getPrimaryKey().getBgColor());
+
                     } else if (column.isForeignKey()) {
-                        background = configTextAttributes.getForeignKey().getBgColor();
-                    }
+                        setBackground(configTextAttributes.getForeignKey().getBgColor());
 
-                    if (background != null) {
-                        setBackground(background);
+                    } else {
+                        setBackground(configTextAttributes.getPlainData().getBgColor());
                     }
-
                 }
             }
         }

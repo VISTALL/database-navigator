@@ -3,6 +3,7 @@ package com.dci.intellij.dbn.data.editor.color;
 import com.dci.intellij.dbn.common.util.TextAttributesUtil;
 import com.intellij.openapi.editor.colors.EditorColors;
 import com.intellij.openapi.editor.colors.EditorColorsManager;
+import com.intellij.openapi.editor.colors.EditorColorsScheme;
 import com.intellij.ui.SimpleTextAttributes;
 
 import java.awt.Color;
@@ -18,18 +19,18 @@ public class DataGridTextAttributes {
     private SimpleTextAttributes foreignKey;
     private SimpleTextAttributes primaryKeyAtCaretRow;
     private SimpleTextAttributes foreignKeyAtCaretRow;
-    //private SimpleTextAttributes caretRow;
     private SimpleTextAttributes selection;
     private SimpleTextAttributes searchResult;
 
-    private Color caretRowBackground;
+    private Color caretRowBgColor;
 
     public DataGridTextAttributes() {
         load();
     }
 
     public void load() {
-        caretRowBackground = EditorColorsManager.getInstance().getGlobalScheme().getColor(DataGridTextAttributesKeys.CARET_ROW_BACKGROUND);
+        EditorColorsScheme globalScheme = EditorColorsManager.getInstance().getGlobalScheme();
+        caretRowBgColor = globalScheme.getColor(DataGridTextAttributesKeys.CARET_ROW_BACKGROUND);
 
         plainData = TextAttributesUtil.getSimpleTextAttributes(DataGridTextAttributesKeys.PLAIN_DATA);
         modifiedData = TextAttributesUtil.getSimpleTextAttributes(DataGridTextAttributesKeys.MODIFIED_DATA);
@@ -37,11 +38,10 @@ public class DataGridTextAttributes {
         errorData = TextAttributesUtil.getSimpleTextAttributes(DataGridTextAttributesKeys.ERROR_DATA);
         readonlyData = TextAttributesUtil.getSimpleTextAttributes(DataGridTextAttributesKeys.READONLY_DATA);
         loadingData = TextAttributesUtil.getSimpleTextAttributes(DataGridTextAttributesKeys.LOADING_DATA);
-        //caretRow = TextAttributesUtil.getSimpleTextAttributes(DataGridTextAttributesKeys.CARET_ROW);
         primaryKey= TextAttributesUtil.getSimpleTextAttributes(DataGridTextAttributesKeys.PRIMARY_KEY);
         foreignKey = TextAttributesUtil.getSimpleTextAttributes(DataGridTextAttributesKeys.FOREIGN_KEY);
-        primaryKeyAtCaretRow = new SimpleTextAttributes(caretRowBackground, primaryKey.getFgColor(), null, primaryKey.getStyle());
-        foreignKeyAtCaretRow = new SimpleTextAttributes(caretRowBackground, foreignKey.getFgColor(), null, foreignKey.getStyle());
+        primaryKeyAtCaretRow = new SimpleTextAttributes(caretRowBgColor, primaryKey.getFgColor(), null, primaryKey.getStyle());
+        foreignKeyAtCaretRow = new SimpleTextAttributes(caretRowBgColor, foreignKey.getFgColor(), null, foreignKey.getStyle());
         selection = TextAttributesUtil.getSimpleTextAttributes(DataGridTextAttributesKeys.SELECTION);
         searchResult = TextAttributesUtil.getSimpleTextAttributes(EditorColors.TEXT_SEARCH_RESULT_ATTRIBUTES);
     }
@@ -98,7 +98,7 @@ public class DataGridTextAttributes {
         return searchResult;
     }
 
-    public Color getCaretRowBackground() {
-        return caretRowBackground;
+    public Color getCaretRowBgColor() {
+        return caretRowBgColor;
     }
 }
