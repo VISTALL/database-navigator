@@ -43,7 +43,7 @@ public class BasicTableCellRenderer extends ColoredTableCellRenderer {
         if (!selected) {
             boolean isCaretRow = table.getCellSelectionEnabled() && table.getSelectedRow() == rowIndex && table.getSelectedRowCount() == 1;
             if (isCaretRow) {
-                setBackground(configTextAttributes.getCaretRow().getBgColor());
+                setBackground(configTextAttributes.getCaretRowBackground());
             } else if (isLoading) {
                 setBackground(configTextAttributes.getLoadingData().getBgColor());
             }
