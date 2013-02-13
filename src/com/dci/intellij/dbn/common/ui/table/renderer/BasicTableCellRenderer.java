@@ -65,8 +65,6 @@ public class BasicTableCellRenderer extends ColoredTableCellRenderer {
     }
 
     protected void writeUserValue(DataModelCell cell, SimpleTextAttributes textAttributes, DataGridTextAttributes configTextAttributes) {
-        if (cell.isDisposed()) return;
-
          String formattedUserValue;
          if (cell.getUserValue() instanceof String) {
              formattedUserValue = (String) cell.getUserValue();
@@ -78,6 +76,7 @@ public class BasicTableCellRenderer extends ColoredTableCellRenderer {
              formattedUserValue = cell.getFormattedUserValue();
          }
 
+         if (cell.isDisposed()) return;
          DataModel model = cell.getRow().getModel();
          if (model.hasSearchResult()) {
              DataSearchResult searchResult = model.getSearchResult();

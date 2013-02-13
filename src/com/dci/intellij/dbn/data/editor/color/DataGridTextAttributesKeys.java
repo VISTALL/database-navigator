@@ -1,14 +1,16 @@
 package com.dci.intellij.dbn.data.editor.color;
 
-import com.intellij.execution.process.ConsoleHighlighter;
-import com.intellij.execution.ui.ConsoleViewContentType;
 import com.intellij.openapi.editor.HighlighterColors;
 import com.intellij.openapi.editor.SyntaxHighlighterColors;
-import com.intellij.openapi.editor.colors.*;
+import com.intellij.openapi.editor.colors.CodeInsightColors;
+import com.intellij.openapi.editor.colors.ColorKey;
+import com.intellij.openapi.editor.colors.EditorColors;
+import com.intellij.openapi.editor.colors.EditorColorsManager;
+import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.ui.SimpleTextAttributes;
 
-import java.awt.*;
+import java.awt.Color;
 
 public interface DataGridTextAttributesKeys {
     Color DEFAULT_SELECTION_FG_COLOR = new Color(255, 255, 255);
@@ -21,8 +23,8 @@ public interface DataGridTextAttributesKeys {
         Color LIGHT_BACKGROUND     = CodeInsightColors.FOLLOWED_HYPERLINK_ATTRIBUTES.getDefaultAttributes().getBackgroundColor();
         Color LIGHT_FOREGROUND     = SyntaxHighlighterColors.JAVA_BLOCK_COMMENT.getDefaultAttributes().getForegroundColor();
         Color ERROR_BACKGROUND     = HighlighterColors.BAD_CHARACTER.getDefaultAttributes().getBackgroundColor();
-        Color PK_FOREGROUND        = ConsoleViewContentType.SYSTEM_OUTPUT_KEY.getDefaultAttributes().getForegroundColor();
-        Color FK_FOREGROUND        = ConsoleHighlighter.GREEN.getDefaultAttributes().getForegroundColor();
+        Color PK_FOREGROUND        = SyntaxHighlighterColors.NUMBER.getDefaultAttributes().getForegroundColor();
+        Color FK_FOREGROUND        = SyntaxHighlighterColors.STRING.getDefaultAttributes().getForegroundColor();
         Color CARET_ROW_BACKGROUND = EditorColorsManager.getInstance().getGlobalScheme().getColor(EditorColors.CARET_ROW_COLOR);
     }
 
