@@ -2,8 +2,9 @@ package com.dci.intellij.dbn.code.sql.color;
 
 import com.intellij.openapi.editor.HighlighterColors;
 import com.intellij.openapi.editor.SyntaxHighlighterColors;
-import com.intellij.openapi.editor.markup.TextAttributes;
+import com.intellij.openapi.editor.colors.CodeInsightColors;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
+import com.intellij.openapi.editor.markup.TextAttributes;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -25,6 +26,6 @@ public interface SQLTextAttributesKeys {
     TextAttributesKey BRACKET            = TextAttributesKey.createTextAttributesKey("DBNavigator.TextAttributes.SQL.Brackets",          SyntaxHighlighterColors.BRACKETS.getDefaultAttributes());
     TextAttributesKey UNKNOWN_IDENTIFIER = TextAttributesKey.createTextAttributesKey("DBNavigator.TextAttributes.SQL.UnknownIdentifier", new TextAttributes(Color.RED, null, null, null, 0));
     TextAttributesKey CHAMELEON          = TextAttributesKey.createTextAttributesKey("DBNavigator.TextAttributes.SQL.Chameleon",         new TextAttributes(null, null, null, null, 0));
-    TextAttributesKey VARIABLE           = TextAttributesKey.createTextAttributesKey("DBNavigator.TextAttributes.SQL.Variable",          new TextAttributes(new Color(128, 0, 128), null, null, null, Font.BOLD));
+    TextAttributesKey VARIABLE           = TextAttributesKey.createTextAttributesKey("DBNavigator.TextAttributes.SQL.Variable",          CodeInsightColors.INSTANCE_FIELD_ATTRIBUTES);
     TextAttributesKey BAD_CHARACTER      = HighlighterColors.BAD_CHARACTER;
 }
