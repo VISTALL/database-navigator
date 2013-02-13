@@ -508,14 +508,15 @@ public class CalendarPopupProviderForm extends TextFieldPopupProviderForm implem
 
     private static class CalendarTableHeaderCellRenderer extends DefaultTableCellRenderer {
         static final Border EMPTY_BORDER = new EmptyBorder(1, 1, 1, 9);
+        public static final Color FOREGROUND_COLOR = new Color(67, 123, 203);
 
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
             Component component = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
             setHorizontalAlignment(RIGHT);
-            //setFont(BOLD);
+            setFont(BOLD);
             setBorder(EMPTY_BORDER);
             //setForeground(column == 0 ? Color.RED : UIUtil.getTableForeground());
-            setForeground(Color.BLUE);
+            setForeground(FOREGROUND_COLOR);
             return component;
         }
     }
