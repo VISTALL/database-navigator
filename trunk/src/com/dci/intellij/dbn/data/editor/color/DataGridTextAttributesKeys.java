@@ -1,6 +1,7 @@
 package com.dci.intellij.dbn.data.editor.color;
 
 import com.intellij.execution.process.ConsoleHighlighter;
+import com.intellij.execution.ui.ConsoleViewContentType;
 import com.intellij.openapi.editor.HighlighterColors;
 import com.intellij.openapi.editor.SyntaxHighlighterColors;
 import com.intellij.openapi.editor.colors.CodeInsightColors;
@@ -24,7 +25,7 @@ public interface DataGridTextAttributesKeys {
         Color LIGHT_BACKGROUND     = CodeInsightColors.FOLLOWED_HYPERLINK_ATTRIBUTES.getDefaultAttributes().getBackgroundColor();
         Color LIGHT_FOREGROUND     = SyntaxHighlighterColors.JAVA_BLOCK_COMMENT.getDefaultAttributes().getForegroundColor();
         Color ERROR_BACKGROUND     = HighlighterColors.BAD_CHARACTER.getDefaultAttributes().getBackgroundColor();
-        Color PK_FOREGROUND        = CodeInsightColors.INSTANCE_FIELD_ATTRIBUTES.getDefaultAttributes().getForegroundColor();
+        Color PK_FOREGROUND        = ConsoleViewContentType.ERROR_OUTPUT_KEY.getDefaultAttributes().getForegroundColor();
         Color FK_FOREGROUND        = ConsoleHighlighter.GREEN.getDefaultAttributes().getForegroundColor();
         Color CARET_ROW_BACKGROUND = EditorColorsManager.getInstance().getGlobalScheme().getColor(EditorColors.CARET_ROW_COLOR);
     }
