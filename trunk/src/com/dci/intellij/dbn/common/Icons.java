@@ -1,6 +1,6 @@
 package com.dci.intellij.dbn.common;
 
-import com.intellij.openapi.application.ApplicationInfo;
+import com.dci.intellij.dbn.common.ui.UIUtil;
 import com.intellij.openapi.util.IconLoader;
 import com.intellij.ui.RowIcon;
 import gnu.trove.THashMap;
@@ -313,7 +313,8 @@ public class Icons {
 
 
     private static Icon load(String path) {
-        if (ApplicationInfo.getInstance().getBuild().getBaselineVersion() > 122) {
+        //if (ApplicationInfo.getInstance().getBuild().getBaselineVersion() > 122) {
+        if (UIUtil.supportsDarkLookAndFeel()) {
             path = path.replace("/img/v0/", "/img/v1/");
         }
         return IconLoader.getIcon(path);

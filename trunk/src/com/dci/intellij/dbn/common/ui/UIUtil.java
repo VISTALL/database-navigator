@@ -1,9 +1,10 @@
-package com.dci.intellij.dbn.common.util;
+package com.dci.intellij.dbn.common.ui;
 
 import com.intellij.openapi.ui.Splitter;
 
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.MouseInfo;
@@ -13,6 +14,7 @@ import java.awt.PointerInfo;
 public class UIUtil {
     public static final Font REGULAR_FONT = com.intellij.util.ui.UIUtil.getLabelFont();
     public static final Font BOLD_FONT = new Font(REGULAR_FONT.getName(), Font.BOLD, REGULAR_FONT.getSize());
+    public static final String DARK_LAF_NAME = "Darcula";
 
     public static void updateSplitterProportion(final JComponent root, final float proportion) {
         SwingUtilities.invokeLater(new Runnable() {
@@ -62,4 +64,16 @@ public class UIUtil {
         }
         return false;
     }
+
+    public static boolean isDarkLookAndFeel() {
+        return UIManager.getLookAndFeel().getName().contains(DARK_LAF_NAME);
+    }
+
+    public static boolean supportsDarkLookAndFeel() {
+        for (UIManager.LookAndFeelInfo lookAndFeelInfo : UIManager.getInstalledLookAndFeels()) {
+            if (lookAndFeelInfo.getName().contains(DARK_LAF_NAME)) return true;
+        }
+        return false;
+    }
+
 }
