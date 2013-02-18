@@ -40,6 +40,7 @@ public class DDLFileExtensionSettingsForm extends ConfigurationEditorForm<DDLFil
 
     public DDLFileExtensionSettingsForm(DDLFileExtensionSettings settings) {
         super(settings);
+        updateBorderTitleForeground(mainPanel);
         resetChanges();
         viewIconLabel.setText(null);
         triggerIconLabel.setText(null);

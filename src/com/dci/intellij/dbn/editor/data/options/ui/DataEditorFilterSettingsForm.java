@@ -7,7 +7,10 @@ import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.ui.ColoredListCellRenderer;
 import com.intellij.ui.SimpleTextAttributes;
 
-import javax.swing.*;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JList;
+import javax.swing.JPanel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -28,9 +31,9 @@ public class DataEditorFilterSettingsForm extends ConfigurationEditorForm<DataEd
                 append(filterType.name(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
             }
         });
+        updateBorderTitleForeground(mainPanel);
         resetChanges();
         defaultFilterTypeComboBox.setEnabled(promptFilterDialogCheckBox.isSelected());
-
         registerComponent(promptFilterDialogCheckBox);
         registerComponent(defaultFilterTypeComboBox);
     }

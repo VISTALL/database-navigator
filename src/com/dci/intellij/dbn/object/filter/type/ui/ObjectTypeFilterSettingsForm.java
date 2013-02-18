@@ -27,6 +27,7 @@ public class ObjectTypeFilterSettingsForm extends ConfigurationEditorForm<Object
 
     public ObjectTypeFilterSettingsForm(ObjectTypeFilterSettings configuration) {
         super(configuration);
+        updateBorderTitleForeground(mainPanel);
 
         visibleObjectsList = new CheckBoxList<ObjectTypeFilterSetting>(configuration.getSettings());
         visibleObjectsScrollPane.setViewportView(visibleObjectsList);

@@ -21,6 +21,7 @@ public class DataEditorQualifiedEditorSettingsForm extends ConfigurationEditorFo
         super(settings);
         checkBoxList = new CheckBoxList(settings.getContentTypes());
         listScrollPane.setViewportView(checkBoxList);
+        updateBorderTitleForeground(mainPanel);
         resetChanges();
 
         registerComponent(textLengthThresholdTextField);

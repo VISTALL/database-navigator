@@ -13,8 +13,13 @@ import com.intellij.ui.ColoredListCellRenderer;
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.util.ui.UIUtil;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.DefaultListModel;
+import javax.swing.JCheckBox;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.ListCellRenderer;
+import javax.swing.ListModel;
+import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
@@ -34,6 +39,7 @@ public class CodeCompletionSortingSettingsForm extends ConfigurationEditorForm<C
                 new MoveDownAction(sortingItemsList, settings));
         actionPanel.add(actionToolbar.getComponent(), BorderLayout.WEST);
         registerComponent(enableCheckBox);
+        updateBorderTitleForeground(mainPanel);
     }
 
 

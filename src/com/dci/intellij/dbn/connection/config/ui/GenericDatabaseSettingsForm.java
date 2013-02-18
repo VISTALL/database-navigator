@@ -46,6 +46,7 @@ public class GenericDatabaseSettingsForm extends ConfigurationEditorForm<Generic
     private JCheckBox activeCheckBox;
     private JLabel connectionLabel;
     private JPanel headerPanel;
+    private JPanel connectionParametersPanel;
 
     private GenericConnectionDatabaseSettings temporaryConfig;
     private String connectionId;
@@ -56,7 +57,7 @@ public class GenericDatabaseSettingsForm extends ConfigurationEditorForm<Generic
         super(connectionConfig);
         Project project = connectionConfig.getProject();
         temporaryConfig = connectionConfig.clone();
-
+        updateBorderTitleForeground(connectionParametersPanel);
         resetChanges();
         updateLibraryTextField();
 

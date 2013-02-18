@@ -7,7 +7,10 @@ import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.ui.ColoredListCellRenderer;
 import com.intellij.ui.SimpleTextAttributes;
 
-import javax.swing.*;
+import javax.swing.JComboBox;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 
 public class CompilerSettingsForm extends ConfigurationEditorForm<CompilerSettings> {
     private JPanel mainPanel;
@@ -22,6 +25,7 @@ public class CompilerSettingsForm extends ConfigurationEditorForm<CompilerSettin
         compileTypeComboBox.addItem(CompileType.KEEP);
         compileTypeComboBox.addItem(CompileType.ASK);
 
+        updateBorderTitleForeground(mainPanel);
         compileTypeComboBox.setRenderer(new ColoredListCellRenderer() {
             protected void customizeCellRenderer(JList list, Object value, int index, boolean selected, boolean hasFocus) {
                 CompileType compileType = (CompileType) value;

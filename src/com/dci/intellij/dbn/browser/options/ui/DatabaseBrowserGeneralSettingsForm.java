@@ -25,6 +25,7 @@ public class DatabaseBrowserGeneralSettingsForm extends ConfigurationEditorForm<
 
     public DatabaseBrowserGeneralSettingsForm(DatabaseBrowserGeneralSettings configuration) {
         super(configuration);
+        updateBorderTitleForeground(mainPanel);
         resetChanges();
 
         registerComponent(simpleRadioButton);

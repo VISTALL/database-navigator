@@ -33,6 +33,8 @@ public class EnvironmentSettingsForm extends ConfigurationEditorForm<Environment
     private JCheckBox scriptEditorTabsCheckBox;
     private JCheckBox dialogHeadersCheckBox;
     private JCheckBox executionResultTabsCheckBox;
+    private JPanel environmentTypesPanel;
+    private JPanel environmentApplicabilityPanel;
     private EnvironmentTypesEditorTable environmentTypesTable;
 
     public EnvironmentSettingsForm(EnvironmentSettings settings) {
@@ -40,6 +42,9 @@ public class EnvironmentSettingsForm extends ConfigurationEditorForm<Environment
         environmentTypesTable = new EnvironmentTypesEditorTable(settings.getProject(), settings.getEnvironmentTypes());
         environmentTypesTableScrollPane.setViewportView(environmentTypesTable);
         environmentTypesTableScrollPane.setPreferredSize(new Dimension(200, 80));
+
+        updateBorderTitleForeground(environmentTypesPanel);
+        updateBorderTitleForeground(environmentApplicabilityPanel);
 
         EnvironmentVisibilitySettings visibilitySettings = settings.getVisibilitySettings();
         visibilitySettings.getConnectionTabs().resetChanges(connectionTabsCheckBox);

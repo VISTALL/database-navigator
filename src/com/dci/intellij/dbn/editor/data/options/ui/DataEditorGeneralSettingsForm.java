@@ -20,6 +20,7 @@ public class DataEditorGeneralSettingsForm extends ConfigurationEditorForm<DataE
 
     public DataEditorGeneralSettingsForm(DataEditorGeneralSettings settings) {
         super(settings);
+        updateBorderTitleForeground(mainPanel);
         resetChanges();
 
         registerComponent(trimWhitespacesCheckBox);

@@ -23,13 +23,13 @@ public class CodeStyleCaseSettingsForm extends ConfigurationEditorForm<CodeStyle
 
     public CodeStyleCaseSettingsForm(CodeStyleCaseSettings settings) {
         super(settings);
+        updateBorderTitleForeground(mainPanel);
 
         keywordCaseComboBox.setModel(createDefaultModel());
         functionCaseComboBox.setModel(createDefaultModel());
         parameterCaseComboBox.setModel(createDefaultModel());
         datatypeCaseComboBox.setModel(createDefaultModel());
         objectCaseComboBox.setModel(createCustomModel());
-
         resetChanges();
 
         registerComponent(keywordCaseComboBox);

@@ -33,7 +33,7 @@ public class CodeCompletionFiltersSettingsForm extends CompositeConfigurationEdi
 
         basicCompletionLabel.setText("Basic (" + KeymapUtil.getShortcutsText(basicShortcuts) + ")");
         extendedCompletionLabel.setText("Extended (" + KeymapUtil.getShortcutsText(extendedShortcuts) + ")");
-
+        updateBorderTitleForeground(mainPanel);
     }
 
     public JPanel getComponent() {
