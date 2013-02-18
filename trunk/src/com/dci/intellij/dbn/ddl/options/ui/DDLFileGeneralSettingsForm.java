@@ -16,6 +16,7 @@ public class DDLFileGeneralSettingsForm extends ConfigurationEditorForm<DDLFileG
 
     public DDLFileGeneralSettingsForm(DDLFileGeneralSettings settings) {
         super(settings);
+        updateBorderTitleForeground(mainPanel);
         resetChanges();
         registerComponent(statementPostfixTextField);
         registerComponent(lookupDDLFilesCheckBox);

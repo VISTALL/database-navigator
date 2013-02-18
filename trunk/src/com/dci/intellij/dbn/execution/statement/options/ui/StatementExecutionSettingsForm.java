@@ -15,8 +15,9 @@ public class StatementExecutionSettingsForm extends ConfigurationEditorForm<Stat
 
     public StatementExecutionSettingsForm(StatementExecutionSettings settings) {
         super(settings);
-        resetChanges();
+        updateBorderTitleForeground(mainPanel);
 
+        resetChanges();
         registerComponent(fetchBlockSizeTextField);
         registerComponent(executionTimeoutTextField);
     }

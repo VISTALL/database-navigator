@@ -1,7 +1,7 @@
 package com.dci.intellij.dbn.common.options.ui;
 
 import com.dci.intellij.dbn.common.options.Configuration;
-import com.dci.intellij.dbn.common.ui.UIForm;
+import com.dci.intellij.dbn.common.ui.UIFormImpl;
 import com.dci.intellij.dbn.common.ui.list.CheckBoxList;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.ui.DocumentAdapter;
@@ -21,13 +21,12 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
-public abstract class ConfigurationEditorForm<E extends Configuration> implements UIForm {
+public abstract class ConfigurationEditorForm<E extends Configuration> extends UIFormImpl {
     private ItemListener itemListener;
     private ActionListener actionListener;
     private DocumentListener documentListener;
     private TableModelListener tableModelListener;
     private E configuration;
-    private boolean disposed;
 
     protected ConfigurationEditorForm(E configuration) {
         this.configuration = configuration;
@@ -35,10 +34,6 @@ public abstract class ConfigurationEditorForm<E extends Configuration> implement
 
     public final E getConfiguration() {
         return configuration;
-    }
-
-    public boolean isDisposed() {
-        return disposed;
     }
 
     public abstract void applyChanges() throws ConfigurationException;
@@ -116,7 +111,7 @@ public abstract class ConfigurationEditorForm<E extends Configuration> implement
     public void focus() {}
 
     public void dispose() {
-        disposed = true;
+        super.dispose();
         configuration = null;
     }
 }

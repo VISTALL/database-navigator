@@ -28,6 +28,7 @@ public class ObjectsLookupSettingsForm extends ConfigurationEditorForm<ObjectsLo
         Shortcut[] shortcuts = KeyUtil.getShortcuts("DBNavigator.Actions.Navigation.GotoDatabaseObject");
         TitledBorder border = (TitledBorder) mainPanel.getBorder();
         border.setTitle("Lookup Objects (" + KeymapUtil.getShortcutsText(shortcuts) + ")");
+        updateBorderTitleForeground(mainPanel);
 
         lookupObjectsList = new CheckBoxList(configuration.getLookupObjectTypes());
         lookupObjectsScrollPane.setViewportView(lookupObjectsList);

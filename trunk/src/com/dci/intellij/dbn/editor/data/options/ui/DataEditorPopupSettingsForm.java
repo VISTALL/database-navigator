@@ -20,7 +20,7 @@ public class DataEditorPopupSettingsForm extends ConfigurationEditorForm<DataEdi
 
     public DataEditorPopupSettingsForm(DataEditorPopupSettings settings) {
         super(settings);
-
+        updateBorderTitleForeground(mainPanel);
         resetChanges();
         enableDisableFields();
 

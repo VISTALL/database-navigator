@@ -21,7 +21,7 @@ public class CodeStyleSettingsForm extends CompositeConfigurationEditorForm<Proj
         languageTabs = new TabbedPane(settings.getProject());
         //languageTabs.setAdjustBorders(false);
         mainPanel.add(languageTabs, BorderLayout.CENTER);
-
+        updateBorderTitleForeground(mainPanel);
         addSettingsPanel(getConfiguration().getSQLCodeStyleSettings(), Icons.FILE_SQL);
         addSettingsPanel(getConfiguration().getPSQLCodeStyleSettings(), Icons.FILE_PLSQL);
     }

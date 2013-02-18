@@ -164,6 +164,7 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
             settingsForm.dispose();
         }
         cachedForms.clear();
+        super.dispose();
     }
 
     private void switchSettingsPanel(ConnectionSettings connectionSettings) {

@@ -17,6 +17,7 @@ public class DatatEditorValueListPopupSettingsForm extends ConfigurationEditorFo
 
     public DatatEditorValueListPopupSettingsForm(DataEditorValueListPopupSettings settings) {
         super(settings);
+        updateBorderTitleForeground(mainPanel);
         resetChanges();
         registerComponent(elementCountThresholdTextBox);
         registerComponent(activeForPrimaryKeysCheckBox);

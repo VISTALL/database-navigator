@@ -55,6 +55,8 @@ public class RegionalSettingsEditorForm extends ConfigurationEditorForm<Regional
         previewPanel.setBorder(UIUtil.getTextFieldBorder());
         previewPanel.setBackground(UIUtil.getToolTipBackground());
         errorLabel.setVisible(false);
+        updateBorderTitleForeground(mainPanel);
+
         resetChanges();
         updatePreview();
 

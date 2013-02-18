@@ -4,8 +4,8 @@ import com.dci.intellij.dbn.code.common.style.options.CodeStyleCustomSettings;
 import com.dci.intellij.dbn.code.psql.style.options.PSQLCodeStyleSettings;
 import com.dci.intellij.dbn.common.options.ui.CompositeConfigurationEditorForm;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JPanel;
+import java.awt.BorderLayout;
 
 public class PSQLCodeStyleSettingsEditorForm extends CompositeConfigurationEditorForm<CodeStyleCustomSettings> {
     private JPanel mainPanel;
@@ -17,6 +17,7 @@ public class PSQLCodeStyleSettingsEditorForm extends CompositeConfigurationEdito
         super(settings);
         casePanel.add(settings.getCaseSettings().createComponent(), BorderLayout.CENTER);
         attributesPanel.add(settings.getFormattingSettings().createComponent(), BorderLayout.CENTER);
+        updateBorderTitleForeground(previewPanel);
     }
 
     public JPanel getComponent() {

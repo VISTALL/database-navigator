@@ -42,6 +42,8 @@ public class ConnectionDetailSettingsForm extends ConfigurationEditorForm<Connec
     private JLabel connectionLabel;
     private JComboBox environmentTypesComboBox;
     private JPanel headerPanel;
+    private JPanel generalGroupPanel;
+    private JPanel propertiesGroupPanel;
 
     private PropertiesEditorForm propertiesEditorForm;
     private String connectionId;
@@ -52,6 +54,8 @@ public class ConnectionDetailSettingsForm extends ConfigurationEditorForm<Connec
 
         Map<String, String> properties = new HashMap<String, String>();
         properties.putAll(configuration.getProperties());
+        updateBorderTitleForeground(generalGroupPanel);
+        updateBorderTitleForeground(propertiesGroupPanel);
 
         propertiesEditorForm = new PropertiesEditorForm(properties);
         propertiesEditorForm.setMoveButtonsVisible(false);

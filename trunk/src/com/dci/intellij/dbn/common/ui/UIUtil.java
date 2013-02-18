@@ -3,15 +3,19 @@ package com.dci.intellij.dbn.common.ui;
 import com.intellij.openapi.ui.Splitter;
 
 import javax.swing.JComponent;
+import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.border.Border;
+import javax.swing.border.TitledBorder;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.PointerInfo;
 
-public class UIUtil {
+public class UIUtil{
     public static final Font REGULAR_FONT = com.intellij.util.ui.UIUtil.getLabelFont();
     public static final Font BOLD_FONT = new Font(REGULAR_FONT.getName(), Font.BOLD, REGULAR_FONT.getSize());
     public static final String DARK_LAF_NAME = "Darcula";
@@ -75,6 +79,15 @@ public class UIUtil {
             if (lookAndFeelInfo.getName().contains(DARK_LAF_NAME)) return true;
         }
         return false;
+    }
+
+    public static void updateBorderTitleForeground(JPanel panel) {
+        Border border = panel.getBorder();
+        if (border instanceof TitledBorder) {
+            TitledBorder titledBorder = (TitledBorder) border;
+            //titledBorder.setTitleColor(com.intellij.util.ui.UIUtil.getLabelForeground());
+            titledBorder.setTitleColor(new DBNColor(new Color(-12029286), new Color(-11557682)));
+        }
     }
 
 }

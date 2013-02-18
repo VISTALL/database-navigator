@@ -18,6 +18,7 @@ public class DataEditorRecordNavigationSettingsForm extends ConfigurationEditorF
 
     public DataEditorRecordNavigationSettingsForm(DataEditorRecordNavigationSettings configuration) {
         super(configuration);
+        updateBorderTitleForeground(mainPanel);
         resetChanges();
 
         registerComponent(viewerRadioButton);

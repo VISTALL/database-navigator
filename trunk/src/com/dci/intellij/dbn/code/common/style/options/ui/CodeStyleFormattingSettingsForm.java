@@ -9,8 +9,11 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import java.awt.Insets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +28,7 @@ public class CodeStyleFormattingSettingsForm extends ConfigurationEditorForm<Cod
         super(settings);
         List<CodeStyleFormattingOption> options = settings.getOptions();
         settingsPanel.setLayout(new GridLayoutManager(options.size() + 1, 2, new Insets(4, 4, 4, 4), -1, -1));
-
+        updateBorderTitleForeground(mainPanel);
         for (int i=0; i< options.size(); i++) {
             CodeStyleFormattingOption option = options.get(i);
             JLabel label = new JLabel(option.getDisplayName());
