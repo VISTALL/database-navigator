@@ -17,7 +17,11 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.sql.Driver;
 import java.sql.DriverManager;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -130,7 +134,7 @@ public class DatabaseDriverManager implements ApplicationComponent {
             return (Driver) Class.forName(className, true, classLoader).newInstance();
         } catch (Exception e) {
             throw new Exception(
-                    "Could not get class \"" + className + "\" " +
+                    "Could not forName class \"" + className + "\" " +
                     "from library \"" + libraryName + "\". " +
                     "[" + NamingUtil.getClassName(e.getClass()) + "] " + e.getMessage());
         }

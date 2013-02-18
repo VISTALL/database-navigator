@@ -160,17 +160,19 @@ public class TabbedBrowserForm extends DatabaseBrowserForm{
      ********************************************************/
     private EnvironmentChangeListener environmentChangeListener = new EnvironmentChangeListener() {
         @Override
-        public void environmentTypeChanged(EnvironmentType environmentType) {
+        public void environmentConfigChanged(String environmentTypeId) {
             Project project = getProject();
             for (TabInfo tabInfo : connectionTabs.getTabs()) {
                 SimpleBrowserForm browserForm = (SimpleBrowserForm) tabInfo.getObject();
-                if (browserForm.getConnectionHandler().getEnvironmentType().equals(environmentType)) {
+                ConnectionHandler connectionHandler = browserForm.getConnectionHandler();
+                if (connectionHandler.getSettings().getDetailSettings().getEnvironmentTypeId().equals(environmentTypeId)) {
                     EnvironmentVisibilitySettings visibilitySettings = getEnvironmentSettings(project).getVisibilitySettings();
                     if (visibilitySettings.getConnectionTabs().value()) {
-                        tabInfo.setTabColor(environmentType.getColor());
+                        tabInfo.setTabColor(connectionHandler.getEnvironmentType().getColor());
                     } else {
                         tabInfo.setTabColor(null);
                     }
+                    break;
                 }
             }
         }
@@ -180,9 +182,9 @@ public class TabbedBrowserForm extends DatabaseBrowserForm{
             Project project = getProject();
             for (TabInfo tabInfo : connectionTabs.getTabs()) {
                 SimpleBrowserForm browserForm = (SimpleBrowserForm) tabInfo.getObject();
-                EnvironmentType environmentType = browserForm.getConnectionHandler().getEnvironmentType();
                 EnvironmentVisibilitySettings visibilitySettings = getEnvironmentSettings(project).getVisibilitySettings();
                 if (visibilitySettings.getConnectionTabs().value()) {
+                    EnvironmentType environmentType = browserForm.getConnectionHandler().getEnvironmentType();
                     tabInfo.setTabColor(environmentType.getColor());
                 } else {
                     tabInfo.setTabColor(null);

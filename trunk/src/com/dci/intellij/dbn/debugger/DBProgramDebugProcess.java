@@ -189,7 +189,7 @@ public class DBProgramDebugProcess extends XDebugProcess {
 
     /**
      * breakpoints need to be registered after the database session is started,
-     * otherwise they do not get valid ids
+     * otherwise they do not forName valid ids
      */
     private void registerBreakpoints() {
         Runnable readProcess = new Runnable() {

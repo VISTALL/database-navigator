@@ -26,8 +26,14 @@ public class EnvironmentSettings extends ProjectConfiguration {
         return environmentTypes;
     }
 
-    public void setEnvironmentTypes(EnvironmentTypeBundle environmentTypes) {
-        this.environmentTypes = environmentTypes;
+    public EnvironmentType getEnvironmentType(String environmentTypeId) {
+        return environmentTypes.getEnvironmentType(environmentTypeId);
+    }
+
+    public boolean setEnvironmentTypes(EnvironmentTypeBundle environmentTypes) {
+        boolean changed = !this.environmentTypes.equals(environmentTypes);
+        this.environmentTypes = new EnvironmentTypeBundle(environmentTypes);
+        return changed;
     }
 
     public EnvironmentVisibilitySettings getVisibilitySettings() {
@@ -55,7 +61,7 @@ public class EnvironmentSettings extends ProjectConfiguration {
                 environmentTypes.add(environmentType);
             }
         }
-        
+
         Element visibilitySettingsElement = element.getChild("visibility-settings");
         if (visibilitySettingsElement != null) {
             visibilitySettings.readConfiguration(visibilitySettingsElement);
@@ -71,7 +77,7 @@ public class EnvironmentSettings extends ProjectConfiguration {
             environmentType.writeConfiguration(itemElement);
             environmentTypesElement.addContent(itemElement);
         }
-        
+
         Element visibilitySettingsElement = new Element("visibility-settings");
         element.addContent(visibilitySettingsElement);
         visibilitySettings.writeConfiguration(visibilitySettingsElement);

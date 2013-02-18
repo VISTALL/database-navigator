@@ -143,6 +143,7 @@ public class ConnectionDetailSettingsForm extends ConfigurationEditorForm<Connec
         Charset newCharset = (Charset) encodingComboBox.getSelectedItem();
         boolean newAutoCommit = autoCommitCheckBox.isSelected();
         EnvironmentType newEnvironmentType = (EnvironmentType) environmentTypesComboBox.getSelectedItem();
+        String newEnvironmentTypeId = newEnvironmentType.getId();
 
         boolean settingsChanged =
                 !configuration.getProperties().equals(newProperties) ||
@@ -150,18 +151,18 @@ public class ConnectionDetailSettingsForm extends ConfigurationEditorForm<Connec
                 configuration.isAutoCommit() != newAutoCommit;
 
         boolean environmentChanged =
-                !configuration.getEnvironmentType().equals(newEnvironmentType);
+                !configuration.getEnvironmentType().getId().equals(newEnvironmentTypeId);
 
 
+        configuration.setEnvironmentTypeId(newEnvironmentTypeId);
         configuration.setProperties(newProperties);
         configuration.setCharset(newCharset);
         configuration.setAutoCommit(newAutoCommit);
-        configuration.setEnvironmentType(newEnvironmentType);
 
         Project project = getConfiguration().getProject();
         if (environmentChanged) {
             EnvironmentChangeListener listener = EventManager.notify(project, EnvironmentChangeListener.TOPIC);
-            listener.environmentTypeChanged(newEnvironmentType);
+            listener.environmentConfigChanged(newEnvironmentTypeId);
         }
 
         if (settingsChanged) {
@@ -189,8 +190,8 @@ public class ConnectionDetailSettingsForm extends ConfigurationEditorForm<Connec
     @Override
     public void settingsChanged(EnvironmentTypeBundle environmentTypes) {
         EnvironmentType selectedItem = (EnvironmentType) environmentTypesComboBox.getSelectedItem();
-        String selectedName = selectedItem == null ? "" : selectedItem.getName();
-        selectedItem = environmentTypes.get(selectedName);
+        String selectedId = selectedItem == null ? EnvironmentType.DEFAULT.getId() : selectedItem.getId();
+        selectedItem = environmentTypes.getEnvironmentType(selectedId);
 
         DefaultComboBoxModel model = createEnvironmentTypesModel(environmentTypes);
         environmentTypesComboBox.setModel(model);
