@@ -86,7 +86,7 @@ public class UIUtil{
         if (border instanceof TitledBorder) {
             TitledBorder titledBorder = (TitledBorder) border;
             //titledBorder.setTitleColor(com.intellij.util.ui.UIUtil.getLabelForeground());
-            titledBorder.setTitleColor(new DBNColor(new Color(-12029286), new Color(-11557682)));
+            titledBorder.setTitleColor(new DBNColor(new Color(-12029286), new Color(-10058060)));
         }
     }
 
