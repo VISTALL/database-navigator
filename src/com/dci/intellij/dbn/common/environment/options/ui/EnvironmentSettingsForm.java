@@ -1,6 +1,7 @@
 package com.dci.intellij.dbn.common.environment.options.ui;
 
 import com.dci.intellij.dbn.common.environment.EnvironmentChangeListener;
+import com.dci.intellij.dbn.common.environment.EnvironmentType;
 import com.dci.intellij.dbn.common.environment.EnvironmentTypeBundle;
 import com.dci.intellij.dbn.common.environment.options.EnvironmentSettings;
 import com.dci.intellij.dbn.common.environment.options.EnvironmentVisibilitySettings;
@@ -96,7 +97,7 @@ public class EnvironmentSettingsForm extends ConfigurationEditorForm<Environment
                 if (cellEditor != null) {
                     cellEditor.cancelCellEditing();
                 }
-                environmentTypesTable.getModel().setEnvironmentTypes(EnvironmentTypeBundle.DEFAULT);
+                environmentTypesTable.setEnvironmentTypes(EnvironmentTypeBundle.DEFAULT);
             }
             updateButtons();
         }
@@ -119,20 +120,29 @@ public class EnvironmentSettingsForm extends ConfigurationEditorForm<Environment
         EnvironmentSettings settings = getConfiguration();
         EnvironmentTypesTableModel model = environmentTypesTable.getModel();
         model.validate();
-        settings.setEnvironmentTypes(model.getEnvironmentTypes());
+        EnvironmentTypeBundle environmentTypeBundle = model.getEnvironmentTypes();
+        boolean settingsChanged = settings.setEnvironmentTypes(environmentTypeBundle);
 
         EnvironmentVisibilitySettings visibilitySettings = settings.getVisibilitySettings();
-        boolean changed = 
+        boolean visibilityChanged =
             visibilitySettings.getConnectionTabs().applyChanges(connectionTabsCheckBox) ||
             visibilitySettings.getObjectEditorTabs().applyChanges(objectEditorTabsCheckBox) ||
             visibilitySettings.getScriptEditorTabs().applyChanges(scriptEditorTabsCheckBox)||
             visibilitySettings.getDialogHeaders().applyChanges(dialogHeadersCheckBox)||
             visibilitySettings.getExecutionResultTabs().applyChanges(executionResultTabsCheckBox);
-        
-        if (changed) {
+
+        if (visibilityChanged) {
             EnvironmentChangeListener listener = EventManager.notify(getConfiguration().getProject(), EnvironmentChangeListener.TOPIC);
             listener.environmentVisibilitySettingsChanged();
         }
+
+        if (settingsChanged) {
+            EnvironmentChangeListener listener = EventManager.notify(getConfiguration().getProject(), EnvironmentChangeListener.TOPIC);
+            for (EnvironmentType environmentType : environmentTypeBundle.getEnvironmentTypes()) {
+                listener.environmentConfigChanged(environmentType.getId());
+            }
+        }
+        
     }
 
     public void resetChanges() {

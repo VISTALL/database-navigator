@@ -9,6 +9,7 @@ import com.dci.intellij.dbn.common.ui.UIForm;
 import com.dci.intellij.dbn.common.ui.UIFormImpl;
 import com.dci.intellij.dbn.common.ui.tab.TabbedPane;
 import com.dci.intellij.dbn.common.util.DocumentUtil;
+import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.execution.ExecutionManager;
 import com.dci.intellij.dbn.execution.ExecutionResult;
 import com.dci.intellij.dbn.execution.common.message.ui.ExecutionMessagesPanel;
@@ -65,13 +66,14 @@ public class ExecutionConsoleForm extends UIFormImpl implements UIForm, Environm
     }
 
     @Override
-    public void environmentTypeChanged(EnvironmentType environmentType) {
+    public void environmentConfigChanged(String environmentTypeId) {
         EnvironmentVisibilitySettings visibilitySettings = getEnvironmentSettings(project).getVisibilitySettings();
         for (TabInfo tabInfo : resultTabs.getTabs()) {
             ExecutionResult browserForm = (ExecutionResult) tabInfo.getObject();
-            if (browserForm.getConnectionHandler().getEnvironmentType().equals(environmentType)) {
+            ConnectionHandler connectionHandler = browserForm.getConnectionHandler();
+            if (connectionHandler.getSettings().getDetailSettings().getEnvironmentTypeId().equals(environmentTypeId)) {
                 if (visibilitySettings.getExecutionResultTabs().value()){
-                    tabInfo.setTabColor(environmentType.getColor());
+                    tabInfo.setTabColor(connectionHandler.getEnvironmentType().getColor());
                 } else {
                     tabInfo.setTabColor(null);
                 }

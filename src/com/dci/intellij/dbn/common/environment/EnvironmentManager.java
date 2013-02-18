@@ -1,9 +1,11 @@
 package com.dci.intellij.dbn.common.environment;
 
 import com.dci.intellij.dbn.common.AbstractProjectComponent;
+import com.dci.intellij.dbn.common.environment.options.EnvironmentSettings;
 import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.editor.DBEditorTabColorProvider;
+import com.dci.intellij.dbn.options.general.GeneralProjectSettings;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.impl.EditorsSplitters;
@@ -37,13 +39,13 @@ public class EnvironmentManager extends AbstractProjectComponent implements JDOM
     }
     
     @Override
-    public void environmentTypeChanged(EnvironmentType environmentType) {
+    public void environmentConfigChanged(String environmentTypeId) {
         FileEditorManagerImpl fileEditorManager = (FileEditorManagerImpl) FileEditorManager.getInstance(getProject());
         VirtualFile[] openFiles = fileEditorManager.getOpenFiles();
         Set<EditorsSplitters> splitters = fileEditorManager.getAllSplitters();
         for (VirtualFile virtualFile : openFiles) {
             ConnectionHandler connectionHandler = DBEditorTabColorProvider.getConnectionHandler(virtualFile, getProject());
-            if (connectionHandler != null && connectionHandler.getEnvironmentType().equals(environmentType)) {
+            if (connectionHandler != null && connectionHandler.getSettings().getDetailSettings().getEnvironmentTypeId().equals(environmentTypeId)) {
                 for (EditorsSplitters splitter : splitters) {
                     splitter.updateFileBackgroundColor(virtualFile);
                 }
@@ -78,4 +80,8 @@ public class EnvironmentManager extends AbstractProjectComponent implements JDOM
         EventManager.unsubscribe(getProject(), this);
     }
 
+    public EnvironmentType getEnvironmentType(String id) {
+        EnvironmentSettings environmentSettings = GeneralProjectSettings.getInstance(getProject()).getEnvironmentSettings();
+        return environmentSettings.getEnvironmentType(id);
+    }
 }

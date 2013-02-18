@@ -15,7 +15,7 @@ public class EnvironmentTypeBundle implements Iterable<EnvironmentType>, Cloneab
     public EnvironmentTypeBundle() {
         List<EnvironmentType> environmentTypes = Arrays.asList(
                 EnvironmentType.DEVELOPMENT,
-                EnvironmentType.TEST,
+                EnvironmentType.INTEGRATION,
                 EnvironmentType.PRODUCTION,
                 EnvironmentType.OTHER);
         setElements(environmentTypes);
@@ -30,9 +30,9 @@ public class EnvironmentTypeBundle implements Iterable<EnvironmentType>, Cloneab
         CollectionUtil.cloneCollectionElements(environmentTypes, this.environmentTypes);        
     }
     
-    public EnvironmentType get(String name) {
+    public EnvironmentType getEnvironmentType(String id) {
         for (EnvironmentType environmentType : this) {
-            if (StringUtil.equals(environmentType.getName(), name)) {
+            if (StringUtil.equals(environmentType.getId(), id)) {
                 return environmentType;
             }
         }
@@ -69,7 +69,27 @@ public class EnvironmentTypeBundle implements Iterable<EnvironmentType>, Cloneab
         return environmentTypes.remove(index);
     }
 
+    public List<EnvironmentType> getEnvironmentTypes() {
+        return environmentTypes;
+    }
+
     public EnvironmentTypeBundle clone() {
         return new EnvironmentTypeBundle(this);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof EnvironmentTypeBundle) {
+            EnvironmentTypeBundle bundle = (EnvironmentTypeBundle) obj;
+            if (environmentTypes.size() != bundle.environmentTypes.size()) {
+                return false;
+            }
+            for (int i=0; i<this.environmentTypes.size(); i++) {
+                if (!environmentTypes.get(i).equals(bundle.environmentTypes.get(i))) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 }

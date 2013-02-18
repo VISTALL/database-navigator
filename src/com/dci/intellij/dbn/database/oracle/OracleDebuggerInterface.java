@@ -90,15 +90,15 @@ public class OracleDebuggerInterface extends DatabaseDebuggerInterfaceImpl imple
     }
 
     public DebuggerRuntimeInfo getRuntimeInfo(Connection connection) throws SQLException {
-        return executeCall(connection, new DebuggerRuntimeInfo(), "get-runtime-info");
+        return executeCall(connection, new DebuggerRuntimeInfo(), "forName-runtime-info");
     }
 
     public ExecutionStatusInfo getExecutionStatusInfo(Connection connection) throws SQLException {
-        return executeCall(connection, new ExecutionStatusInfo(), "get-execution-status-info");
+        return executeCall(connection, new ExecutionStatusInfo(), "forName-execution-status-info");
     }
 
     public VariableInfo getVariableInfo(String variableName, Integer frameNumber, Connection connection) throws SQLException {
-        return executeCall(connection, new VariableInfo(), "get-variable", variableName, frameNumber);
+        return executeCall(connection, new VariableInfo(), "forName-variable", variableName, frameNumber);
     }
 
     public BasicOperationInfo setVariableValue(String variableName, Integer frameNumber, String value, Connection connection) throws SQLException {
@@ -106,7 +106,7 @@ public class OracleDebuggerInterface extends DatabaseDebuggerInterfaceImpl imple
     }
 
     public ExecutionBacktraceInfo getExecutionBacktraceInfo(Connection connection) throws SQLException {
-        return executeCall(connection, new ExecutionBacktraceInfo(), "get-execution-backtrace-table");
+        return executeCall(connection, new ExecutionBacktraceInfo(), "forName-execution-backtrace-table");
     }
 
     public String[] getRequiredPrivilegeNames() {

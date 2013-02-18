@@ -1,12 +1,11 @@
 package com.dci.intellij.dbn.connection.config;
 
+import com.dci.intellij.dbn.common.environment.EnvironmentManager;
 import com.dci.intellij.dbn.common.environment.EnvironmentType;
-import com.dci.intellij.dbn.common.environment.EnvironmentTypeBundle;
 import com.dci.intellij.dbn.common.options.ProjectConfiguration;
 import com.dci.intellij.dbn.common.options.setting.SettingsUtil;
 import com.dci.intellij.dbn.common.util.CommonUtil;
 import com.dci.intellij.dbn.connection.config.ui.ConnectionDetailSettingsForm;
-import com.dci.intellij.dbn.options.general.GeneralProjectSettings;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.InvalidDataException;
 import com.intellij.openapi.util.WriteExternalException;
@@ -19,7 +18,7 @@ import java.util.Map;
 public class ConnectionDetailSettings extends ProjectConfiguration<ConnectionDetailSettingsForm> {
     private Map<String, String> properties = new HashMap<String, String>();
     private Charset charset = Charset.forName("UTF-8");
-    private EnvironmentType environmentType = EnvironmentType.DEFAULT;
+    private String environmentTypeId = EnvironmentType.DEFAULT.getId();
     private boolean autoCommit;
 
     public ConnectionDetailSettings(Project project) {
@@ -56,11 +55,15 @@ public class ConnectionDetailSettings extends ProjectConfiguration<ConnectionDet
     }
 
     public EnvironmentType getEnvironmentType() {
-        return environmentType;
+        return EnvironmentManager.getInstance(getProject()).getEnvironmentType(environmentTypeId);
     }
 
-    public void setEnvironmentType(EnvironmentType environmentType) {
-        this.environmentType = environmentType;
+    public void setEnvironmentTypeId(String environmentTypeId) {
+        this.environmentTypeId = environmentTypeId;
+    }
+
+    public String getEnvironmentTypeId() {
+        return environmentTypeId;
     }
 
     public boolean isAutoCommit() {
@@ -90,9 +93,7 @@ public class ConnectionDetailSettings extends ProjectConfiguration<ConnectionDet
         charset = Charset.forName(charsetName);
         
         autoCommit = SettingsUtil.getBoolean(element, "auto-commit", autoCommit);
-        String environmentTypeName = SettingsUtil.getString(element, "environment-type", EnvironmentType.DEFAULT.getName());
-        EnvironmentTypeBundle environmentTypes = GeneralProjectSettings.getInstance(getProject()).getEnvironmentSettings().getEnvironmentTypes();
-        environmentType = environmentTypes.get(environmentTypeName);
+        environmentTypeId = SettingsUtil.getString(element, "environment-type", EnvironmentType.DEFAULT.getId());
 
         Element propertiesElement = element.getChild("properties");
         if (propertiesElement != null) {
@@ -110,7 +111,7 @@ public class ConnectionDetailSettings extends ProjectConfiguration<ConnectionDet
         SettingsUtil.setString(element, "charset", charset.name());
         
         SettingsUtil.setBoolean(element, "auto-commit", autoCommit);
-        SettingsUtil.setString(element, "environment-type", environmentType.getName());
+        SettingsUtil.setString(element, "environment-type", environmentTypeId);
 
         if (properties.size() > 0) {
             Element propertiesElement = new Element("properties");

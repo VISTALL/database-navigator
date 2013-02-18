@@ -1,6 +1,7 @@
 package com.dci.intellij.dbn.common.options.setting;
 
 import com.dci.intellij.dbn.DatabaseNavigator;
+import com.dci.intellij.dbn.common.ui.DBNColor;
 import com.dci.intellij.dbn.common.util.StringUtil;
 import org.jdom.Element;
 
@@ -91,13 +92,27 @@ public class SettingsUtil {
         element.setAttribute(attributeName, Integer.toString(value));
     }
 
-    public static Color getColorAttribute(Element element, String attributeName, Color defaultValue) {
-        int rgb = getIntegerAttribute(element, attributeName, 0);
-        return rgb == 0 ? defaultValue : new Color(rgb);
+    public static DBNColor getColorAttribute(Element element, String attributeName, DBNColor defaultValue) {
+        String value = element.getAttributeValue(attributeName);
+        if (StringUtil.isEmptyOrSpaces(value)) return defaultValue;
+        int index = value.indexOf("/");
+        if (index > -1) {
+            int rgbBright = Integer.parseInt(value.substring(0, index));
+            int rgbDark = Integer.parseInt(value.substring(index + 1));
+            return new DBNColor(new Color(rgbBright), new Color(rgbDark));
+        } else {
+            int rgb = Integer.parseInt(value);
+            return new DBNColor(rgb, rgb);
+        }
     }
 
-    public static void setColorAttribute(Element element, String attributeName, Color value) {
-        setIntegerAttribute(element, attributeName, value.getRGB());
+    public static void setColorAttribute(Element element, String attributeName, DBNColor value) {
+        if (value != null) {
+            int regularRgb = value.getRegularRgb();
+            int darkRgb = value.getDarkRgb();
+            String attributeValue = Integer.toString(regularRgb) + "/" + Integer.toString(darkRgb);
+            element.setAttribute(attributeName, attributeValue);
+        }
     }
     
 

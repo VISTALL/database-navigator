@@ -2,30 +2,61 @@ package com.dci.intellij.dbn.common.environment;
 
 import com.dci.intellij.dbn.common.options.PersistentConfiguration;
 import com.dci.intellij.dbn.common.options.setting.SettingsUtil;
+import com.dci.intellij.dbn.common.ui.DBNColor;
 import com.dci.intellij.dbn.common.util.Cloneable;
 import com.intellij.openapi.util.InvalidDataException;
 import com.intellij.openapi.util.WriteExternalException;
 import org.jdom.Element;
 
 import java.awt.Color;
+import java.util.UUID;
 
 public class EnvironmentType implements Cloneable, PersistentConfiguration {
-    public static final EnvironmentType DEFAULT     = new EnvironmentType("", "", null);
-    public static final EnvironmentType DEVELOPMENT = new EnvironmentType("Development", "Development environment", new Color(-2430209));
-    public static final EnvironmentType TEST        = new EnvironmentType("Test", "Testing environment", new Color(-2621494));
-    public static final EnvironmentType PRODUCTION  = new EnvironmentType("Production", "Productive environment", new Color(-11574));
-    public static final EnvironmentType OTHER       = new EnvironmentType("Other", "", new Color(-1576));
+    private interface EnvironmentColor {
+        DBNColor DEVELOPMENT = new DBNColor(new Color(-2430209), new Color(-12234147));
+        DBNColor INTEGRATION = new DBNColor(new Color(-2621494), new Color(-835040965));
+        DBNColor PRODUCTION = new DBNColor(new Color(-11574), new Color(-1185135548));
+        DBNColor OTHER = new DBNColor(new Color(-1576), new Color(-715893693));
+    }
 
+    public static final EnvironmentType DEFAULT     = new EnvironmentType("default", "", "", null);
+    public static final EnvironmentType DEVELOPMENT = new EnvironmentType("development", "Development", "Development environment", EnvironmentColor.DEVELOPMENT);
+    public static final EnvironmentType INTEGRATION = new EnvironmentType("integration", "Integration", "Integration environment", EnvironmentColor.INTEGRATION);
+    public static final EnvironmentType PRODUCTION  = new EnvironmentType("production", "Production", "Productive environment", EnvironmentColor.PRODUCTION);
+    public static final EnvironmentType OTHER       = new EnvironmentType("other", "Other", "", EnvironmentColor.OTHER);
+    public static final EnvironmentType[] DEFAULT_ENVIRONMENT_TYPES = new EnvironmentType[] {
+            DEVELOPMENT,
+            INTEGRATION,
+            PRODUCTION,
+            OTHER};
+
+    private String id;
     private String name;
     private String description;
-    private Color color;
+    private DBNColor color;
 
-    public EnvironmentType() {}
+    public static EnvironmentType forName(String name) {
+        for (EnvironmentType environmentType : DEFAULT_ENVIRONMENT_TYPES){
+            if (environmentType.getName().equals(name)) {
+                return environmentType;
+            }
+        }
+        return null;
+    }
 
-    public EnvironmentType(String name, String description, Color color) {
+    public EnvironmentType() {
+        id = UUID.randomUUID().toString();
+    }
+
+    public EnvironmentType(String id, String name, String description, DBNColor color) {
+        this.id = id;
         this.name = name;
         this.description = description;
         this.color = color;
+    }
+
+    public String getId() {
+        return id;
     }
 
     public String getName() {
@@ -44,16 +75,16 @@ public class EnvironmentType implements Cloneable, PersistentConfiguration {
         this.description = description;
     }
 
-    public Color getColor() {
+    public DBNColor getColor() {
         return color;
     }
 
-    public void setColor(Color color) {
+    public void setColor(DBNColor color) {
         this.color = color;
     }
 
     public EnvironmentType clone() {
-        return new EnvironmentType(name, description, color);
+        return new EnvironmentType(id, name, description, color);
     }
     
     @Override
@@ -64,12 +95,13 @@ public class EnvironmentType implements Cloneable, PersistentConfiguration {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof EnvironmentType)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
 
         EnvironmentType that = (EnvironmentType) o;
 
         if (color != null ? !color.equals(that.color) : that.color != null) return false;
         if (description != null ? !description.equals(that.description) : that.description != null) return false;
+        if (!id.equals(that.id)) return false;
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
 
         return true;
@@ -77,7 +109,8 @@ public class EnvironmentType implements Cloneable, PersistentConfiguration {
 
     @Override
     public int hashCode() {
-        int result = name != null ? name.hashCode() : 0;
+        int result = id.hashCode();
+        result = 31 * result + (name != null ? name.hashCode() : 0);
         result = 31 * result + (description != null ? description.hashCode() : 0);
         result = 31 * result + (color != null ? color.hashCode() : 0);
         return result;
@@ -85,13 +118,25 @@ public class EnvironmentType implements Cloneable, PersistentConfiguration {
 
     @Override
     public void readConfiguration(Element element) throws InvalidDataException {
+        id = element.getAttributeValue("id");
         name = element.getAttributeValue("name");
         description = element.getAttributeValue("description");
         color = SettingsUtil.getColorAttribute(element, "color", color);
+
+        EnvironmentType defaultEnvironmentType = forName(name);
+        if (defaultEnvironmentType != null) {
+            if (id == null) id = defaultEnvironmentType.getId();
+            if (color != null && color.getRegularRgb() == color.getDarkRgb()) {
+                color = new DBNColor(color.getRegularRgb(), defaultEnvironmentType.getColor().getDarkRgb());
+            }
+        }
+        if (id == null) id = name.toLowerCase();
+
     }
 
     @Override
     public void writeConfiguration(Element element) throws WriteExternalException {
+        element.setAttribute("id", id);
         element.setAttribute("name", name);
         element.setAttribute("description", description);
         SettingsUtil.setColorAttribute(element, "color", color);

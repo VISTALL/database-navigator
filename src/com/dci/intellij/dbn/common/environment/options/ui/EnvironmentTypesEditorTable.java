@@ -34,12 +34,18 @@ public class EnvironmentTypesEditorTable extends DBNTable {
         setSelectionForeground(UIUtil.getTableForeground());
         setCellSelectionEnabled(true);
         setDefaultRenderer(Object.class, new EnvironmentTypesTableCellRenderer());
-        getColumnModel().getColumn(0).setPreferredWidth(100);
-        getColumnModel().getColumn(2).setMaxWidth(50);
+        columnModel.getColumn(0).setPreferredWidth(100);
+        columnModel.getColumn(2).setMaxWidth(50);
 
         addMouseListener(mouseListener);
     }
-    
+
+    public void setEnvironmentTypes(EnvironmentTypeBundle environmentTypes) {
+        super.setModel(new EnvironmentTypesTableModel(getProject(), environmentTypes));
+        columnModel.getColumn(0).setPreferredWidth(100);
+        columnModel.getColumn(2).setMaxWidth(50);
+    }
+
     MouseListener mouseListener = new MouseAdapter() {
         @Override
         public void mouseClicked(MouseEvent e) {

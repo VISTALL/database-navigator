@@ -205,7 +205,7 @@ public class OracleMethodExecutionProcessor extends MethodExecutionProcessorImpl
             }
         }
 
-        // get return value (functions only)
+        // forName return value (functions only)
         if (returnArgument != null) {
             DBDataType dataType = returnArgument.getDataType();
             if (!dataType.isDeclared() && !isBoolean(dataType)) {
@@ -216,7 +216,7 @@ public class OracleMethodExecutionProcessor extends MethodExecutionProcessorImpl
             }
         }
 
-        // get output parameter values
+        // forName output parameter values
         for (DBArgument argument : getArguments()) {
             if (!argument.equals(returnArgument)) {
                 DBDataType dataType = argument.getDataType();
@@ -230,7 +230,7 @@ public class OracleMethodExecutionProcessor extends MethodExecutionProcessorImpl
             }
         }
 
-        // get output variable values
+        // forName output variable values
         for (DBArgument argument : getArguments()) {
             DBDataType dataType = argument.getDataType();
             if (argument.isOutput()) {

@@ -70,6 +70,7 @@ public class UIUtil {
     }
 
     public static boolean supportsDarkLookAndFeel() {
+        if (isDarkLookAndFeel()) return true;
         for (UIManager.LookAndFeelInfo lookAndFeelInfo : UIManager.getInstalledLookAndFeels()) {
             if (lookAndFeelInfo.getName().contains(DARK_LAF_NAME)) return true;
         }
