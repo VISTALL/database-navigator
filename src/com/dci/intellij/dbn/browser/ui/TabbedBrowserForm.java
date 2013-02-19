@@ -172,7 +172,6 @@ public class TabbedBrowserForm extends DatabaseBrowserForm{
                     } else {
                         tabInfo.setTabColor(null);
                     }
-                    break;
                 }
             }
         }
