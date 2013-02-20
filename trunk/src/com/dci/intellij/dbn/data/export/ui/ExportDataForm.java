@@ -52,6 +52,10 @@ public class ExportDataForm extends UIFormImpl implements UIForm {
     private JCheckBox quoteAllValuesCheckBox;
     private JLabel datasetLabel;
     private JPanel headerPanel;
+    private JPanel scopePanel;
+    private JPanel formatPanel;
+    private JPanel destinationPanel;
+    private JPanel optionsPanel;
 
     private DBObject sourceObject;
     private DataExportInstructions instructions;
@@ -59,6 +63,11 @@ public class ExportDataForm extends UIFormImpl implements UIForm {
     public ExportDataForm(DataExportInstructions instructions, boolean hasSelection, @NotNull ConnectionHandler connectionHandler, @Nullable DBObject sourceObject) {
         this.sourceObject = sourceObject;
         this.instructions = instructions;
+        updateBorderTitleForeground(scopePanel);
+        updateBorderTitleForeground(formatPanel);
+        updateBorderTitleForeground(destinationPanel);
+        updateBorderTitleForeground(optionsPanel);
+
         scopeGlobalRadioButton.addActionListener(actionListener);
         scopeSelectionRadioButton.addActionListener(actionListener);
         formatSQLRadioButton.addActionListener(actionListener);
