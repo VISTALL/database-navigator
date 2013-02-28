@@ -208,4 +208,11 @@ public class SourceCodeFile extends DatabaseContentFile implements DatabaseFile,
         return (getObject().getQualifiedNameWithType() + getContentType().getDescription()).hashCode();
     }
 
+    @Override
+    public void dispose() {
+        originalContent = null;
+        lastSavedContent = null;
+        content = null;
+        super.dispose();
+    }
 }

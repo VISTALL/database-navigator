@@ -1,6 +1,7 @@
 package com.dci.intellij.dbn.vfs;
 
 import com.dci.intellij.dbn.common.Constants;
+import com.dci.intellij.dbn.common.dispose.DisposeUtil;
 import com.dci.intellij.dbn.common.thread.ConditionalLaterInvocator;
 import com.dci.intellij.dbn.common.util.DocumentUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
@@ -224,6 +225,13 @@ public class DatabaseEditableObjectFile extends DatabaseObjectFile<DBSchemaObjec
     @Override
     public String getExtension() {
         return "psql";
+    }
+
+    @Override
+    public void dispose() {
+        DisposeUtil.disposeCollection(contentFiles);
+        contentFiles = null;
+        super.dispose();
     }
 
 

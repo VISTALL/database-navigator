@@ -11,6 +11,7 @@ import com.dci.intellij.dbn.language.common.DBLanguage;
 import com.dci.intellij.dbn.language.psql.PSQLLanguage;
 import com.dci.intellij.dbn.object.DBSchema;
 import com.dci.intellij.dbn.object.common.list.DBObjectList;
+import com.dci.intellij.dbn.object.common.list.DBObjectListContainer;
 import com.dci.intellij.dbn.object.common.list.DBObjectNavigationList;
 import com.dci.intellij.dbn.object.common.loader.DBObjectTimestampLoader;
 import com.dci.intellij.dbn.object.common.property.DBObjectProperty;
@@ -61,8 +62,9 @@ public abstract class DBSchemaObjectImpl extends DBObjectImpl implements DBSchem
 
     private void createLists() {
         if (getProperties().is(DBObjectProperty.REFERENCEABLE)) {
-            referencedObjects = getChildObjects().createObjectList(DBObjectType.ANY, this, REFERENCED_OBJECTS_LOADER, false, true);
-            referencingObjects = getChildObjects().createObjectList(DBObjectType.ANY, this, REFERENCING_OBJECTS_LOADER, false, true);
+            DBObjectListContainer childObjects = getChildObjects();
+            referencedObjects = childObjects.createObjectList(DBObjectType.ANY, this, REFERENCED_OBJECTS_LOADER, false, true);
+            referencingObjects = childObjects.createObjectList(DBObjectType.ANY, this, REFERENCING_OBJECTS_LOADER, false, true);
         }
     }
 
