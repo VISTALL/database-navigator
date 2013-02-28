@@ -6,6 +6,7 @@ import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.navigation.psi.NavigationPsiCache;
 import com.dci.intellij.dbn.object.common.DBObject;
 import com.dci.intellij.dbn.object.common.list.DBObjectList;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.UnknownFileType;
 import com.intellij.openapi.project.Project;
@@ -19,7 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class  DatabaseObjectFile<T extends DBObject> extends VirtualFile implements DBVirtualFile {
+public class  DatabaseObjectFile<T extends DBObject> extends VirtualFile implements DBVirtualFile, Disposable {
     private static final byte[] EMPTY_BYTE_CONTENT = new byte[0];
     protected T object;
 
@@ -168,5 +169,9 @@ public class  DatabaseObjectFile<T extends DBObject> extends VirtualFile impleme
     }
 
 
+    @Override
+    public void dispose() {
+        object = null;
+    }
 }
 

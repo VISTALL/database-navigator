@@ -14,6 +14,7 @@ import com.dci.intellij.dbn.language.common.psi.lookup.PsiLookupAdapter;
 import com.dci.intellij.dbn.language.common.psi.lookup.SimpleObjectLookupAdapter;
 import com.dci.intellij.dbn.language.common.psi.lookup.VirtualObjectLookupAdapter;
 import com.dci.intellij.dbn.object.common.list.DBObjectList;
+import com.dci.intellij.dbn.object.common.list.DBObjectListContainer;
 import com.dci.intellij.dbn.vfs.DatabaseContentFile;
 import com.intellij.ide.util.EditSourceUtil;
 import com.intellij.openapi.editor.Document;
@@ -83,7 +84,8 @@ public class DBVirtualObject extends DBObjectImpl implements PsiReference {
     }
 
     private DBObjectList<DBObject> getChildObjectList(DBObjectType objectType) {
-        DBObjectList<DBObject> objectList = getChildObjects().getObjectList(objectType);
+        DBObjectListContainer childObjects = getChildObjects();
+        DBObjectList<DBObject> objectList = childObjects.getObjectList(objectType);
         if (objectList != null) {
             for (DBObject object : objectList.getObjects()) {
                 if (!object.isValid()) {
@@ -94,7 +96,7 @@ public class DBVirtualObject extends DBObjectImpl implements PsiReference {
         }
 
         if (objectList == null) {
-            objectList = getChildObjects().createObjectList(objectType, this, VOID_CONTENT_LOADER, false, false);
+            objectList = childObjects.createObjectList(objectType, this, VOID_CONTENT_LOADER, false, false);
 
             VirtualObjectLookupAdapter lookupAdapter = new VirtualObjectLookupAdapter(null, this.objectType, objectType);
             Set<BasePsiElement> children = underlyingPsiElement.collectPsiElements(lookupAdapter, null, 100);

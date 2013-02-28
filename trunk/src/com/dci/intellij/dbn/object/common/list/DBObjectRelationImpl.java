@@ -73,6 +73,7 @@ public abstract class DBObjectRelationImpl<S extends DBObject, T extends DBObjec
         isDisposed = true;
         sourceObject = null;
         targetObject = null;
+        ownerContent = null;
     }
 
     public void reload() {

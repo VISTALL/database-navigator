@@ -11,6 +11,7 @@ import com.dci.intellij.dbn.language.sql.SQLLanguage;
 import com.dci.intellij.dbn.object.DBSchema;
 import com.dci.intellij.dbn.object.DBView;
 import com.dci.intellij.dbn.object.common.DBSchemaObject;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -23,7 +24,7 @@ import javax.swing.Icon;
 import java.io.IOException;
 import java.io.InputStream;
 
-public abstract class DatabaseContentFile extends VirtualFile implements FileConnectionMappingProvider, DBVirtualFile {
+public abstract class DatabaseContentFile extends VirtualFile implements FileConnectionMappingProvider, DBVirtualFile, Disposable {
     protected DatabaseFileSystem fileSystem;
     protected DatabaseEditableObjectFile databaseFile;
     protected DBContentType contentType;
@@ -153,5 +154,11 @@ public abstract class DatabaseContentFile extends VirtualFile implements FileCon
 
     public long getModificationStamp() {
         return 1;
+    }
+
+    @Override
+    public void dispose() {
+        fileSystem = null;
+        databaseFile = null;
     }
 }
