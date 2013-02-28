@@ -7,7 +7,6 @@ import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.content.DynamicContent;
 import com.dci.intellij.dbn.common.content.loader.DynamicContentLoader;
 import com.dci.intellij.dbn.common.content.loader.DynamicContentResultSetLoader;
-import com.dci.intellij.dbn.common.content.loader.DynamicSubcontentCompoundLoader;
 import com.dci.intellij.dbn.common.content.loader.DynamicSubcontentLoader;
 import com.dci.intellij.dbn.data.type.DBNativeDataType;
 import com.dci.intellij.dbn.database.DatabaseMetadataInterface;
@@ -74,10 +73,10 @@ public class DBTypeImpl extends DBProgramImpl implements DBType {
     protected void initLists() {
         DBObjectListContainer container = getChildObjects();
         if (!isCollection()) {
-            attributes = container.createSubcontentObjectList(DBObjectType.TYPE_ATTRIBUTE, this, ATTRIBUTES_LOADER, getSchema(), true, true);
-            procedures = container.createSubcontentObjectList(DBObjectType.TYPE_PROCEDURE, this, PROCEDURES_LOADER, getSchema(), true, false);
-            functions = container.createSubcontentObjectList(DBObjectType.TYPE_FUNCTION, this, FUNCTIONS_LOADER, getSchema(), true, false);
-            subTypes = container.createSubcontentObjectList(DBObjectType.TYPE, this, SUB_TYPES_LOADER, getSchema(), true, true);
+            attributes = container.createSubcontentObjectList(DBObjectType.TYPE_ATTRIBUTE, this, ATTRIBUTES_LOADER, getSchema(), true);
+            procedures = container.createSubcontentObjectList(DBObjectType.TYPE_PROCEDURE, this, PROCEDURES_LOADER, getSchema(), false);
+            functions = container.createSubcontentObjectList(DBObjectType.TYPE_FUNCTION, this, FUNCTIONS_LOADER, getSchema(), false);
+            subTypes = container.createSubcontentObjectList(DBObjectType.TYPE, this, SUB_TYPES_LOADER, getSchema(), true);
         }
     }
 
@@ -163,7 +162,7 @@ public class DBTypeImpl extends DBProgramImpl implements DBType {
         }
     };
 
-    private static final DynamicSubcontentLoader ATTRIBUTES_LOADER = new DynamicSubcontentCompoundLoader<DBTypeAttribute>(true) {
+    private static final DynamicSubcontentLoader ATTRIBUTES_LOADER = new DynamicSubcontentLoader<DBTypeAttribute>(true) {
         public boolean match(DBTypeAttribute typeAttribute, DynamicContent dynamicContent) {
             DBType type = (DBType) dynamicContent.getParent();
             return typeAttribute.getType().equals(type);
@@ -187,7 +186,7 @@ public class DBTypeImpl extends DBProgramImpl implements DBType {
         }
     };
 
-    private static final DynamicSubcontentLoader FUNCTIONS_LOADER = new DynamicSubcontentCompoundLoader<DBTypeFunction>(true) {
+    private static final DynamicSubcontentLoader FUNCTIONS_LOADER = new DynamicSubcontentLoader<DBTypeFunction>(true) {
         public DynamicContentLoader<DBTypeFunction> getAlternativeLoader() {
             return FUNCTIONS_ALTERNATIVE_LOADER;
         }
@@ -211,7 +210,7 @@ public class DBTypeImpl extends DBProgramImpl implements DBType {
         }
     };
 
-    private static final DynamicSubcontentLoader PROCEDURES_LOADER = new DynamicSubcontentCompoundLoader<DBTypeProcedure>(true) {
+    private static final DynamicSubcontentLoader PROCEDURES_LOADER = new DynamicSubcontentLoader<DBTypeProcedure>(true) {
         public DynamicContentLoader<DBTypeProcedure> getAlternativeLoader() {
             return PROCEDURES_ALTERNATIVE_LOADER;
         }

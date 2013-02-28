@@ -107,26 +107,26 @@ public class DBObjectBundleImpl implements DBObjectBundle {
         objectRelationLists.createObjectRelationList(
                 DBObjectRelationType.USER_ROLE, this,
                 "User role relations",
-                USER_ROLE_RELATION_LOADER.get(),
-                new DBObjectList[]{users, roles});
+                USER_ROLE_RELATION_LOADER,
+                users, roles);
 
         objectRelationLists.createObjectRelationList(
                 DBObjectRelationType.USER_PRIVILEGE, this,
                 "User privilege relations",
-                USER_PRIVILEGE_RELATION_LOADER.get(),
-                new DBObjectList[]{users, privileges});
+                USER_PRIVILEGE_RELATION_LOADER,
+                users, privileges);
 
         objectRelationLists.createObjectRelationList(
                 DBObjectRelationType.ROLE_ROLE, this,
                 "Role role relations",
-                ROLE_ROLE_RELATION_LOADER.get(),
-                new DBObjectList[]{roles});
+                ROLE_ROLE_RELATION_LOADER,
+                roles);
 
         objectRelationLists.createObjectRelationList(
                 DBObjectRelationType.ROLE_PRIVILEGE, this,
                 "Role privilege relations",
-                ROLE_PRIVILEGE_RELATION_LOADER.get(),
-                new DBObjectList[]{roles, privileges});
+                ROLE_PRIVILEGE_RELATION_LOADER,
+                roles, privileges);
     }
 
     public boolean isValid() {
@@ -619,100 +619,79 @@ public class DBObjectBundleImpl implements DBObjectBundle {
     /*********************************************************
      *                    Relation loaders                   *
      *********************************************************/
-    private static final ThreadLocal<DynamicContentLoader> USER_ROLE_RELATION_LOADER = new ThreadLocal<DynamicContentLoader>() {
-        @Override
-        protected DynamicContentLoader initialValue() {
-            return new DynamicContentResultSetLoader() {
-                public ResultSet createResultSet(DynamicContent dynamicContent, Connection connection) throws SQLException {
-                    DatabaseMetadataInterface metadataInterface = dynamicContent.getConnectionHandler().getInterfaceProvider().getMetadataInterface();
-                    return metadataInterface.loadAllUserRoles(connection);
-                }
+    private static final DynamicContentLoader USER_ROLE_RELATION_LOADER = new DynamicContentResultSetLoader() {
+        public ResultSet createResultSet(DynamicContent dynamicContent, Connection connection) throws SQLException {
+            DatabaseMetadataInterface metadataInterface = dynamicContent.getConnectionHandler().getInterfaceProvider().getMetadataInterface();
+            return metadataInterface.loadAllUserRoles(connection);
+        }
 
-                public DynamicContentElement createElement(DynamicContent dynamicContent, ResultSet resultSet, LoaderCache loaderCache) throws SQLException {
-                    String userName = resultSet.getString("USER_NAME");
+        public DynamicContentElement createElement(DynamicContent dynamicContent, ResultSet resultSet, LoaderCache loaderCache) throws SQLException {
+            String userName = resultSet.getString("USER_NAME");
 
-                    DBObjectBundle objectBundle = (DBObjectBundle) dynamicContent.getParent();
-                    DBUser user = objectBundle.getUser(userName);
-                    if (user != null) {
-                        DBGrantedRole role = new DBGrantedRoleImpl(user, resultSet);
-                        return new DBUserRoleRelation(user, role);
-                    }
-                    return null;
-                }
-            };
+            DBObjectBundle objectBundle = (DBObjectBundle) dynamicContent.getParent();
+            DBUser user = objectBundle.getUser(userName);
+            if (user != null) {
+                DBGrantedRole role = new DBGrantedRoleImpl(user, resultSet);
+                return new DBUserRoleRelation(user, role);
+            }
+            return null;
         }
     };
 
-    private static final ThreadLocal<DynamicContentLoader> USER_PRIVILEGE_RELATION_LOADER = new ThreadLocal<DynamicContentLoader>() {
-        @Override
-        protected DynamicContentLoader initialValue() {
-            return new DynamicContentResultSetLoader() {
-                public ResultSet createResultSet(DynamicContent dynamicContent, Connection connection) throws SQLException {
-                    DatabaseMetadataInterface metadataInterface = dynamicContent.getConnectionHandler().getInterfaceProvider().getMetadataInterface();
-                    return metadataInterface.loadAllUserPrivileges(connection);
-                }
+    private static final DynamicContentLoader USER_PRIVILEGE_RELATION_LOADER = new DynamicContentResultSetLoader() {
+        public ResultSet createResultSet(DynamicContent dynamicContent, Connection connection) throws SQLException {
+            DatabaseMetadataInterface metadataInterface = dynamicContent.getConnectionHandler().getInterfaceProvider().getMetadataInterface();
+            return metadataInterface.loadAllUserPrivileges(connection);
+        }
 
-                public DynamicContentElement createElement(DynamicContent dynamicContent, ResultSet resultSet, LoaderCache loaderCache) throws SQLException {
-                    String userName = resultSet.getString("USER_NAME");
+        public DynamicContentElement createElement(DynamicContent dynamicContent, ResultSet resultSet, LoaderCache loaderCache) throws SQLException {
+            String userName = resultSet.getString("USER_NAME");
 
-                    DBObjectBundle objectBundle = (DBObjectBundle) dynamicContent.getParent();
-                    DBUser user = objectBundle.getUser(userName);
-                    if (user != null) {
-                        DBGrantedPrivilege privilege = new DBGrantedPrivilegeImpl(user, resultSet);
-                        return new DBUserPrivilegeRelation(user, privilege);
-                    }
-                    return null;
-                }
-            };
+            DBObjectBundle objectBundle = (DBObjectBundle) dynamicContent.getParent();
+            DBUser user = objectBundle.getUser(userName);
+            if (user != null) {
+                DBGrantedPrivilege privilege = new DBGrantedPrivilegeImpl(user, resultSet);
+                return new DBUserPrivilegeRelation(user, privilege);
+            }
+            return null;
         }
     };
 
-    private static final ThreadLocal<DynamicContentLoader> ROLE_ROLE_RELATION_LOADER = new ThreadLocal<DynamicContentLoader>() {
-        @Override
-        protected DynamicContentLoader initialValue() {
-            return new DynamicContentResultSetLoader() {
-                public ResultSet createResultSet(DynamicContent dynamicContent, Connection connection) throws SQLException {
-                    DatabaseMetadataInterface metadataInterface = dynamicContent.getConnectionHandler().getInterfaceProvider().getMetadataInterface();
-                    return metadataInterface.loadAllRoleRoles(connection);
-                }
+    private static final DynamicContentLoader ROLE_ROLE_RELATION_LOADER = new DynamicContentResultSetLoader() {
+        public ResultSet createResultSet(DynamicContent dynamicContent, Connection connection) throws SQLException {
+            DatabaseMetadataInterface metadataInterface = dynamicContent.getConnectionHandler().getInterfaceProvider().getMetadataInterface();
+            return metadataInterface.loadAllRoleRoles(connection);
+        }
 
-                public DynamicContentElement createElement(DynamicContent dynamicContent, ResultSet resultSet, LoaderCache loaderCache) throws SQLException {
-                    String roleName = resultSet.getString("ROLE_NAME");
+        public DynamicContentElement createElement(DynamicContent dynamicContent, ResultSet resultSet, LoaderCache loaderCache) throws SQLException {
+            String roleName = resultSet.getString("ROLE_NAME");
 
-                    DBObjectBundle objectBundle = (DBObjectBundle) dynamicContent.getParent();
-                    DBRole role = objectBundle.getRole(roleName);
-                    if (role != null) {
-                        DBGrantedRole grantedRole = new DBGrantedRoleImpl(role, resultSet);
-                        return new DBRoleRoleRelation(role, grantedRole);
-                    }
-                    return null;
-                }
-            };
+            DBObjectBundle objectBundle = (DBObjectBundle) dynamicContent.getParent();
+            DBRole role = objectBundle.getRole(roleName);
+            if (role != null) {
+                DBGrantedRole grantedRole = new DBGrantedRoleImpl(role, resultSet);
+                return new DBRoleRoleRelation(role, grantedRole);
+            }
+            return null;
         }
     };
 
-    private static final ThreadLocal<DynamicContentLoader> ROLE_PRIVILEGE_RELATION_LOADER = new ThreadLocal<DynamicContentLoader>() {
-        @Override
-        protected DynamicContentLoader initialValue() {
-            return new DynamicContentResultSetLoader() {
-                public ResultSet createResultSet(DynamicContent dynamicContent, Connection connection) throws SQLException {
-                    DatabaseMetadataInterface metadataInterface = dynamicContent.getConnectionHandler().getInterfaceProvider().getMetadataInterface();
-                    return metadataInterface.loadAllRolePrivileges(connection);
-                }
+    private static final DynamicContentLoader ROLE_PRIVILEGE_RELATION_LOADER = new DynamicContentResultSetLoader() {
+        public ResultSet createResultSet(DynamicContent dynamicContent, Connection connection) throws SQLException {
+            DatabaseMetadataInterface metadataInterface = dynamicContent.getConnectionHandler().getInterfaceProvider().getMetadataInterface();
+            return metadataInterface.loadAllRolePrivileges(connection);
+        }
 
-                public DynamicContentElement createElement(DynamicContent dynamicContent, ResultSet resultSet, LoaderCache loaderCache) throws SQLException {
-                    String userName = resultSet.getString("ROLE_NAME");
+        public DynamicContentElement createElement(DynamicContent dynamicContent, ResultSet resultSet, LoaderCache loaderCache) throws SQLException {
+            String userName = resultSet.getString("ROLE_NAME");
 
-                    DBObjectBundle objectBundle = (DBObjectBundle) dynamicContent.getParent();
-                    DBRole role = objectBundle.getRole(userName);
-                    if (role != null) {
-                        DBGrantedPrivilege privilege = new DBGrantedPrivilegeImpl(role, resultSet);
-                        return new DBRolePrivilegeRelation(role, privilege);
-                    }
-                    return null;
-                }
-            };
+            DBObjectBundle objectBundle = (DBObjectBundle) dynamicContent.getParent();
+            DBRole role = objectBundle.getRole(userName);
+            if (role != null) {
+                DBGrantedPrivilege privilege = new DBGrantedPrivilegeImpl(role, resultSet);
+                return new DBRolePrivilegeRelation(role, privilege);
+            }
+            return null;
         }
     };
-
 }

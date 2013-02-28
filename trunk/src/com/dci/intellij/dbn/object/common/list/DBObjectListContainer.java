@@ -193,15 +193,14 @@ public class DBObjectListContainer implements Disposable {
             DynamicContentLoader loader,
             GenericDatabaseElement sourceContentHolder,
             DynamicContentType sourceContentType,
-            boolean weakDependency,
             boolean indexed) {
         if (isSupported(objectType)) {
             if (sourceContentHolder.getDynamicContent(sourceContentType) != null) {
                 ContentDependencyAdapter dependencyAdapter =
                         new SubcontentDependencyAdapterImpl(
                                 sourceContentHolder,
-                                sourceContentType,
-                                weakDependency);
+                                sourceContentType
+                        );
                 return createObjectList(objectType, treeParent, loader, dependencyAdapter, indexed, false);
             }
         }
@@ -213,15 +212,14 @@ public class DBObjectListContainer implements Disposable {
             BrowserTreeNode treeParent,
             DynamicContentLoader loader,
             DBObject sourceContentHolder,
-            boolean weakDependency,
             boolean indexed) {
         if (isSupported(objectType)) {
             if (sourceContentHolder.getDynamicContent(objectType) != null) {
                 ContentDependencyAdapter dependencyAdapter =
                         new SubcontentDependencyAdapterImpl(
                                 sourceContentHolder,
-                                objectType,
-                                weakDependency);
+                                objectType
+                        );
                 return createObjectList(objectType, treeParent, loader, dependencyAdapter, indexed, false);
             }
         }

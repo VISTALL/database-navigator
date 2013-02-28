@@ -1,6 +1,5 @@
 package com.dci.intellij.dbn.execution.method.browser.ui;
 
-import com.dci.intellij.dbn.common.content.loader.DynamicContentLoaderRegistry;
 import com.dci.intellij.dbn.common.thread.BackgroundTask;
 import com.dci.intellij.dbn.common.thread.SimpleLaterInvocator;
 import com.dci.intellij.dbn.common.ui.UIForm;
@@ -105,7 +104,6 @@ public class MethodExecutionBrowserForm extends UIFormImpl implements UIForm {
             @Override
             public void execute(@NotNull ProgressIndicator progressIndicator) {
                 initProgressIndicator(progressIndicator, true);
-                DynamicContentLoaderRegistry.registerBulkLoad();
                 final ObjectTreeModel model = new ObjectTreeModel(settings.getSchema(), settings.getVisibleObjectTypes(), null);
                 new SimpleLaterInvocator() {
                     public void run() {

@@ -1,7 +1,5 @@
 package com.dci.intellij.dbn.object.common.list;
 
-import com.dci.intellij.dbn.common.content.DynamicContent;
-import com.dci.intellij.dbn.common.content.dependency.BasicDependencyAdapter;
 import com.dci.intellij.dbn.common.content.dependency.ContentDependencyAdapter;
 import com.dci.intellij.dbn.common.content.dependency.MultipleContentDependencyAdapter;
 import com.dci.intellij.dbn.common.content.dependency.SubcontentDependencyAdapterImpl;
@@ -48,17 +46,8 @@ public class DBObjectRelationListContainer implements Disposable {
             DBObjectRelationType type,
             GenericDatabaseElement parent,
             String name,
-            DynamicContentLoader loader) {
-        ContentDependencyAdapter dependencyAdapter = new BasicDependencyAdapter(parent.getConnectionHandler());
-        return createObjectRelationList(type, parent, name, loader, dependencyAdapter);
-    }
-
-    public DBObjectRelationList createObjectRelationList(
-            DBObjectRelationType type,
-            GenericDatabaseElement parent,
-            String name,
             DynamicContentLoader loader,
-            DBObjectList[] sourceContents) {
+            DBObjectList ... sourceContents) {
         if (isSupported(type)) {
             ContentDependencyAdapter dependencyAdapter = new MultipleContentDependencyAdapter(parent.getConnectionHandler(), sourceContents);
             return createObjectRelationList(type, parent, name, loader, dependencyAdapter);
@@ -71,31 +60,14 @@ public class DBObjectRelationListContainer implements Disposable {
             GenericDatabaseElement parent,
             String name,
             DynamicContentLoader loader,
-            DBObject sourceContentObject,
-            boolean weakDependency) {
+            DBObject sourceContentObject) {
         if (isSupported(relationType)) {
-            ContentDependencyAdapter dependencyAdapter = new SubcontentDependencyAdapterImpl(sourceContentObject, relationType, weakDependency);
+            ContentDependencyAdapter dependencyAdapter = new SubcontentDependencyAdapterImpl(sourceContentObject, relationType);
             return createObjectRelationList(relationType, parent, name, loader, dependencyAdapter);
         }
         return null;
     }
 
-    /**
-     * @deprecated
-     */
-    public DBObjectRelationList createSubcontentObjectRelationList(
-            DBObjectRelationType relationType,
-            GenericDatabaseElement parent,
-            String name,
-            DynamicContentLoader loader,
-            DynamicContent sourceContent,
-            boolean weakDependency) {
-        if (isSupported(relationType)) {
-            ContentDependencyAdapter dependencyAdapter = new SubcontentDependencyAdapterImpl(parent.getConnectionHandler(), sourceContent, weakDependency);
-            return createObjectRelationList(relationType, parent, name, loader, dependencyAdapter);
-        }
-        return null;
-    }
 
     private DBObjectRelationList createObjectRelationList(
             DBObjectRelationType type,

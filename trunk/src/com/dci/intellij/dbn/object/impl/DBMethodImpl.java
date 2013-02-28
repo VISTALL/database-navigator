@@ -5,7 +5,6 @@ import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
 import com.dci.intellij.dbn.common.content.DynamicContent;
 import com.dci.intellij.dbn.common.content.loader.DynamicContentLoader;
 import com.dci.intellij.dbn.common.content.loader.DynamicContentResultSetLoader;
-import com.dci.intellij.dbn.common.content.loader.DynamicSubcontentCompoundLoader;
 import com.dci.intellij.dbn.common.content.loader.DynamicSubcontentLoader;
 import com.dci.intellij.dbn.database.DatabaseMetadataInterface;
 import com.dci.intellij.dbn.editor.DBContentType;
@@ -68,7 +67,7 @@ public abstract class DBMethodImpl extends DBSchemaObjectImpl implements DBMetho
 
     protected void initLists() {
         DBObjectListContainer container = getChildObjects();
-        arguments = container.createSubcontentObjectList(DBObjectType.ARGUMENT, this, ARGUMENTS_LOADER, getSchema(), true, true);
+        arguments = container.createSubcontentObjectList(DBObjectType.ARGUMENT, this, ARGUMENTS_LOADER, getSchema(), true);
     }
 
     public boolean isDeterministic() {
@@ -163,7 +162,7 @@ public abstract class DBMethodImpl extends DBSchemaObjectImpl implements DBMetho
         }
     };
 
-    private static final DynamicSubcontentLoader ARGUMENTS_LOADER = new DynamicSubcontentCompoundLoader<DBArgument>(true) {
+    private static final DynamicSubcontentLoader ARGUMENTS_LOADER = new DynamicSubcontentLoader<DBArgument>(true) {
         public DynamicContentLoader<DBArgument> getAlternativeLoader() {
             return ARGUMENTS_ALTERNATIVE_LOADER;
         }

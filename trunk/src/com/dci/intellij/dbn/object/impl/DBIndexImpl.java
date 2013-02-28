@@ -39,7 +39,7 @@ public class DBIndexImpl extends DBSchemaObjectImpl implements DBIndex {
     private void createLists() {
         DBTable table = getTable();
         if (table != null) {
-            columns = getChildObjects().createSubcontentObjectList(DBObjectType.COLUMN, this, COLUMNS_LOADER, table, DBObjectRelationType.INDEX_COLUMN, false, false);
+            columns = getChildObjects().createSubcontentObjectList(DBObjectType.COLUMN, this, COLUMNS_LOADER, table, DBObjectRelationType.INDEX_COLUMN, false);
         }
     }
 

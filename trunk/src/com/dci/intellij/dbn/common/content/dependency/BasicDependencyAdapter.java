@@ -4,11 +4,11 @@ import com.dci.intellij.dbn.common.content.DynamicContent;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 
 public class BasicDependencyAdapter implements ContentDependencyAdapter {
+    private ConnectionHandler connectionHandler;
+
     public BasicDependencyAdapter(ConnectionHandler connectionHandler) {
         this.connectionHandler = connectionHandler;
     }
-
-    private ConnectionHandler connectionHandler;
 
     public ConnectionHandler getConnectionHandler() {
         return connectionHandler;

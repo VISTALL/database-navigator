@@ -7,7 +7,6 @@ import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.content.DynamicContent;
 import com.dci.intellij.dbn.common.content.loader.DynamicContentLoader;
 import com.dci.intellij.dbn.common.content.loader.DynamicContentResultSetLoader;
-import com.dci.intellij.dbn.common.content.loader.DynamicSubcontentCompoundLoader;
 import com.dci.intellij.dbn.common.content.loader.DynamicSubcontentLoader;
 import com.dci.intellij.dbn.database.DatabaseMetadataInterface;
 import com.dci.intellij.dbn.ddl.DDLFileManager;
@@ -44,9 +43,9 @@ public class DBPackageImpl extends DBProgramImpl implements DBPackage {
 
     protected void initLists() {
         DBObjectListContainer container = getChildObjects();
-        functions = container.createSubcontentObjectList(DBObjectType.PACKAGE_FUNCTION, this, FUNCTIONS_LOADER, getSchema(), true, false);
-        procedures = container.createSubcontentObjectList(DBObjectType.PACKAGE_PROCEDURE, this, PROCEDURES_LOADER, getSchema(), true, false);
-        types = container.createSubcontentObjectList(DBObjectType.PACKAGE_TYPE, this, TYPES_LOADER, getSchema(), true, true);
+        functions = container.createSubcontentObjectList(DBObjectType.PACKAGE_FUNCTION, this, FUNCTIONS_LOADER, getSchema(), false);
+        procedures = container.createSubcontentObjectList(DBObjectType.PACKAGE_PROCEDURE, this, PROCEDURES_LOADER, getSchema(), false);
+        types = container.createSubcontentObjectList(DBObjectType.PACKAGE_TYPE, this, TYPES_LOADER, getSchema(), true);
     }
 
     public List getTypes() {
@@ -108,7 +107,7 @@ public class DBPackageImpl extends DBProgramImpl implements DBPackage {
         }
     };
 
-    private static final DynamicSubcontentLoader FUNCTIONS_LOADER = new DynamicSubcontentCompoundLoader<DBPackageFunction>(true) {
+    private static final DynamicSubcontentLoader FUNCTIONS_LOADER = new DynamicSubcontentLoader<DBPackageFunction>(true) {
         public DynamicContentLoader<DBPackageFunction> getAlternativeLoader() {
             return FUNCTIONS_ALTERNATIVE_LOADER;
         }
@@ -132,7 +131,7 @@ public class DBPackageImpl extends DBProgramImpl implements DBPackage {
         }
     };
 
-    private static final DynamicSubcontentLoader PROCEDURES_LOADER = new DynamicSubcontentCompoundLoader<DBPackageProcedure>(true) {
+    private static final DynamicSubcontentLoader PROCEDURES_LOADER = new DynamicSubcontentLoader<DBPackageProcedure>(true) {
         public DynamicContentLoader<DBPackageProcedure> getAlternativeLoader() {
             return PROCEDURES_ALTERNATIVE_LOADER;
         }
@@ -156,7 +155,7 @@ public class DBPackageImpl extends DBProgramImpl implements DBPackage {
         }
     };
 
-    private static final DynamicSubcontentLoader TYPES_LOADER = new DynamicSubcontentCompoundLoader<DBPackageType>(true) {
+    private static final DynamicSubcontentLoader TYPES_LOADER = new DynamicSubcontentLoader<DBPackageType>(true) {
         public DynamicContentLoader<DBPackageType> getAlternativeLoader() {
             return TYPES_ALTERNATIVE_LOADER;
         }

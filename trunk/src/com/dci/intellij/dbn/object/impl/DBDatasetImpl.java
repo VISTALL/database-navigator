@@ -5,7 +5,6 @@ import com.dci.intellij.dbn.common.content.DynamicContent;
 import com.dci.intellij.dbn.common.content.DynamicContentElement;
 import com.dci.intellij.dbn.common.content.loader.DynamicContentLoader;
 import com.dci.intellij.dbn.common.content.loader.DynamicContentResultSetLoader;
-import com.dci.intellij.dbn.common.content.loader.DynamicSubcontentCompoundLoader;
 import com.dci.intellij.dbn.common.content.loader.DynamicSubcontentLoader;
 import com.dci.intellij.dbn.data.type.DBDataType;
 import com.dci.intellij.dbn.database.DatabaseMetadataInterface;
@@ -39,15 +38,15 @@ public abstract class DBDatasetImpl extends DBSchemaObjectImpl implements DBData
 
     protected void initLists() {
         DBObjectListContainer container = getChildObjects();
-        columns = container.createSubcontentObjectList(DBObjectType.COLUMN, this, COLUMNS_LOADER, getSchema(), true, true);
-        constraints = container.createSubcontentObjectList(DBObjectType.CONSTRAINT, this, CONSTRAINTS_LOADER, getSchema(), true, true);
-        triggers = container.createSubcontentObjectList(DBObjectType.TRIGGER, this, TRIGGERS_LOADER, getSchema(), true, true);
+        columns = container.createSubcontentObjectList(DBObjectType.COLUMN, this, COLUMNS_LOADER, getSchema(), true);
+        constraints = container.createSubcontentObjectList(DBObjectType.CONSTRAINT, this, CONSTRAINTS_LOADER, getSchema(), true);
+        triggers = container.createSubcontentObjectList(DBObjectType.TRIGGER, this, TRIGGERS_LOADER, getSchema(), true);
 
         getChildObjectRelations().createSubcontentObjectRelationList(
                 DBObjectRelationType.CONSTRAINT_COLUMN, this,
                 "Constraint column relations", 
                 CONSTRAINT_COLUMN_RELATION_LOADER,
-                getSchema(), true);
+                getSchema());
     }
 
     public List<DBColumn> getColumns() {
@@ -96,7 +95,7 @@ public abstract class DBDatasetImpl extends DBSchemaObjectImpl implements DBData
     /*********************************************************
      *                         Loaders                       *
      *********************************************************/
-    private static final DynamicSubcontentCompoundLoader CONSTRAINT_COLUMN_RELATION_LOADER = new DynamicSubcontentCompoundLoader(true) {
+    private static final DynamicSubcontentLoader CONSTRAINT_COLUMN_RELATION_LOADER = new DynamicSubcontentLoader(true) {
         public DynamicContentLoader getAlternativeLoader() {
             return CONSTRAINT_COLUMN_RELATION_ALTERNATIVE_LOADER;
         }
@@ -131,7 +130,7 @@ public abstract class DBDatasetImpl extends DBSchemaObjectImpl implements DBData
         }
     };
 
-    private static final DynamicSubcontentLoader COLUMNS_LOADER = new DynamicSubcontentCompoundLoader<DBColumn>(true) {
+    private static final DynamicSubcontentLoader COLUMNS_LOADER = new DynamicSubcontentLoader<DBColumn>(true) {
         public boolean match(DBColumn column, DynamicContent dynamicContent) {
             DBDataset dataset = (DBDataset) dynamicContent.getParent();
             return column.getDataset().equals(dataset);
@@ -154,7 +153,7 @@ public abstract class DBDatasetImpl extends DBSchemaObjectImpl implements DBData
         }
     };
 
-    private static final DynamicSubcontentLoader<DBConstraint> CONSTRAINTS_LOADER = new DynamicSubcontentCompoundLoader<DBConstraint>(true) {
+    private static final DynamicSubcontentLoader<DBConstraint> CONSTRAINTS_LOADER = new DynamicSubcontentLoader<DBConstraint>(true) {
         public boolean match(DBConstraint constraint, DynamicContent dynamicContent) {
             DBDataset dataset = (DBDataset) dynamicContent.getParent();
             return constraint.getDataset().equals(dataset);
@@ -178,7 +177,7 @@ public abstract class DBDatasetImpl extends DBSchemaObjectImpl implements DBData
         }
     };
 
-    private static final DynamicSubcontentLoader TRIGGERS_LOADER = new DynamicSubcontentCompoundLoader<DBTrigger>(true) {
+    private static final DynamicSubcontentLoader TRIGGERS_LOADER = new DynamicSubcontentLoader<DBTrigger>(true) {
         public boolean match(DBTrigger trigger, DynamicContent dynamicContent) {
             DBDataset dataset = (DBDataset) dynamicContent.getParent();
             return trigger.getDataset().equals(dataset);
