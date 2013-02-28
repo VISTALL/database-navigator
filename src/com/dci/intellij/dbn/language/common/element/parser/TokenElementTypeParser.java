@@ -18,8 +18,8 @@ public class TokenElementTypeParser extends AbstractElementTypeParser<TokenEleme
         if (tokenType == getElementType().getTokenType() || isDummyToken(builder.getTokenText())) {
             PsiBuilder.Marker marker = builder.mark();
             builder.advanceLexer();
-            return stepOut(builder, marker, depth, ParseResultType.FULL_MATCH, 1);
+            return stepOut(builder, marker, depth, ParseResultType.FULL_MATCH, 1, null);
         }
-        return stepOut(builder, null, depth, ParseResultType.NO_MATCH, 0);
+        return stepOut(builder, null, depth, ParseResultType.NO_MATCH, 0, null);
     }
 }

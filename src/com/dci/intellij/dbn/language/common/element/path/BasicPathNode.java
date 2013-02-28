@@ -84,4 +84,8 @@ public class BasicPathNode implements PathNode {
         }
         return buffer.toString();
     }
+
+    public void detach() {
+        parent = null;
+    }
 }

@@ -57,4 +57,9 @@ public class ASTPathNode implements PathNode{
     public boolean isRecursive(ElementType elementType) {
         return false;
     }
+
+    @Override
+    public void detach() {
+
+    }
 }

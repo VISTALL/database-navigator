@@ -29,7 +29,7 @@ public class WrapperElementTypeParser extends AbstractElementTypeParser<WrapperE
             ParseResult result = wrappedElement.getParser().parse(node, builder, optional, depth + 1, timestamp);
             if (result.isFullMatch()) {
                 matchedTokens = matchedTokens + result.getMatchedTokens();
-                return stepOut(builder, marker, depth, ParseResultType.FULL_MATCH, matchedTokens);
+                return stepOut(builder, marker, depth, ParseResultType.FULL_MATCH, matchedTokens, node);
             } else {
                 marker.rollbackTo();
                 marker = builder.mark();
@@ -57,15 +57,15 @@ public class WrapperElementTypeParser extends AbstractElementTypeParser<WrapperE
                     if (result.isMatch()) {
                         matchedTokens++;
                     } else {
-                        return stepOut(builder, marker, depth, ParseResultType.PARTIAL_MATCH, matchedTokens);
+                        return stepOut(builder, marker, depth, ParseResultType.PARTIAL_MATCH, matchedTokens, node);
                     }
                 }
 
-                return stepOut(builder, marker, depth, ParseResultType.FULL_MATCH, matchedTokens);
+                return stepOut(builder, marker, depth, ParseResultType.FULL_MATCH, matchedTokens, node);
             }
         }
 
 
-        return stepOut(builder, marker, depth, ParseResultType.NO_MATCH, matchedTokens);
+        return stepOut(builder, marker, depth, ParseResultType.NO_MATCH, matchedTokens, node);
     }
 }

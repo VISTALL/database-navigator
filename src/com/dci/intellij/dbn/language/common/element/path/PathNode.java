@@ -13,5 +13,7 @@ public interface PathNode {
 
     boolean isRecursive();
 
-    boolean isRecursive(ElementType elementType);    
+    boolean isRecursive(ElementType elementType);
+
+    void detach();
 }
