@@ -134,7 +134,7 @@ public class DatabaseDriverManager implements ApplicationComponent {
             return (Driver) Class.forName(className, true, classLoader).newInstance();
         } catch (Exception e) {
             throw new Exception(
-                    "Could not forName class \"" + className + "\" " +
+                    "Could not load class \"" + className + "\" " +
                     "from library \"" + libraryName + "\". " +
                     "[" + NamingUtil.getClassName(e.getClass()) + "] " + e.getMessage());
         }

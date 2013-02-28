@@ -22,7 +22,7 @@ public class DBLanguageFileElementType extends IFileElementType {
             return super.parseContents(chameleon);
         }
 
-        /*DBLanguageFile originalFile = (DBLanguageFile) file.getViewProvider().getAllFiles().forName(0).getOriginalFile();
+        /*DBLanguageFile originalFile = (DBLanguageFile) file.getViewProvider().getAllFiles().get(0).getOriginalFile();
         if (originalFile != null)  file = originalFile;*/
 
         String text = chameleon.getText();

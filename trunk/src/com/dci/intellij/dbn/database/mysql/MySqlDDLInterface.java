@@ -71,7 +71,7 @@ public class MySqlDDLInterface extends DatabaseDDLInterfaceImpl {
     }
 
     public String getSessionSqlMode(Connection connection) throws SQLException {
-        return getSingleValue(connection, "forName-session-sql-mode");
+        return getSingleValue(connection, "get-session-sql-mode");
     }
 
     public void setSessionSqlMode(String sqlMode, Connection connection) throws SQLException {
