@@ -27,7 +27,7 @@ public class OneOfElementTypeParser extends AbstractElementTypeParser<OneOfEleme
                 if (isDummyToken(tokenText) || elementType.getLookupCache().canStartWithToken(tokenType) || isSuppressibleReservedWord(tokenType, node)) {
                     ParseResult result = elementType.getParser().parse(node, builder, true, depth + 1, timestamp);
                     if (result.isMatch()) {
-                        return stepOut(builder, marker, depth, result.getType(), result.getMatchedTokens());
+                        return stepOut(builder, marker, depth, result.getType(), result.getMatchedTokens(), node);
                     }
                 }
             }
@@ -36,6 +36,6 @@ public class OneOfElementTypeParser extends AbstractElementTypeParser<OneOfEleme
             }
 
         }
-        return stepOut(builder, marker, depth, ParseResultType.NO_MATCH, 0);
+        return stepOut(builder, marker, depth, ParseResultType.NO_MATCH, 0, node);
     }
 }

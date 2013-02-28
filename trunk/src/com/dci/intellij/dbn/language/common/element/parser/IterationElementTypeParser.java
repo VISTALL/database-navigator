@@ -24,7 +24,7 @@ public class IterationElementTypeParser extends AbstractElementTypeParser<Iterat
 
         int elementCounter = 0;
         int matchedTokens = 0;
-        TokenType tokenType = (TokenType) builder.getTokenType();
+        //TokenType tokenType = (TokenType) builder.getTokenType();
         // check if the token objectType can be part of this iteration
         //if (isDummyToken(builder.getTokenText()) || isSuppressibleReservedWord(tokenType, node) || iteratedElementType.containsToken(tokenType)) {
             ParseResult result = iteratedElementType.getParser().parse(node, builder, optional, depth + 1, timestamp);
@@ -49,7 +49,7 @@ public class IterationElementTypeParser extends AbstractElementTypeParser<Iterat
                             ParseResultType resultType = matchesElementsCount(elementCounter) ?
                                     ParseResultType.FULL_MATCH :
                                     ParseResultType.PARTIAL_MATCH;
-                            return stepOut(builder, marker, depth, resultType, matchedTokens);
+                            return stepOut(builder, marker, depth, resultType, matchedTokens, node);
                         }
                     }
 
@@ -64,11 +64,11 @@ public class IterationElementTypeParser extends AbstractElementTypeParser<Iterat
                             ParseResultType resultType = matchesElementsCount(elementCounter) ?
                                     ParseResultType.FULL_MATCH :
                                     ParseResultType.PARTIAL_MATCH;
-                            return stepOut(builder, marker, depth, resultType, matchedTokens);
+                            return stepOut(builder, marker, depth, resultType, matchedTokens, node);
                         } else {
                             boolean exit = advanceLexerToNextLandmark(builder, parentNode, false, timestamp);
                             if (exit){
-                                return stepOut(builder, marker, depth, ParseResultType.PARTIAL_MATCH, matchedTokens);
+                                return stepOut(builder, marker, depth, ParseResultType.PARTIAL_MATCH, matchedTokens, node);
                             }
                         }
                     } else {
@@ -80,7 +80,7 @@ public class IterationElementTypeParser extends AbstractElementTypeParser<Iterat
         if (!optional) {
             //updateBuilderError(builder, this);
         }
-        return stepOut(builder, marker, depth, ParseResultType.NO_MATCH, matchedTokens);
+        return stepOut(builder, marker, depth, ParseResultType.NO_MATCH, matchedTokens, node);
     }
 
     private boolean advanceLexerToNextLandmark(PsiBuilder builder, ParsePathNode parentParseNode, boolean lenient, long timestamp) {

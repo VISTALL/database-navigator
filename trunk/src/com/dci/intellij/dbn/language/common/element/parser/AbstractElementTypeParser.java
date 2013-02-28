@@ -56,7 +56,8 @@ public abstract class AbstractElementTypeParser<T extends ElementType> implement
         return errorHandler;
     }
 
-    protected ParseResult stepOut(PsiBuilder builder, PsiBuilder.Marker marker, int depth, ParseResultType resultType, int matchedTokens) {
+    protected ParseResult stepOut(PsiBuilder builder, PsiBuilder.Marker marker, int depth, ParseResultType resultType, int matchedTokens, PathNode node) {
+        if (node != null) node.detach();
         if (resultType == ParseResultType.PARTIAL_MATCH) {
             errorHandler.updateBuilderError(builder, getElementType().getLookupCache().getNextPossibleTokens(), 0);
         }

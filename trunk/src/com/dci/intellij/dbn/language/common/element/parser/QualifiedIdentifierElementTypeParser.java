@@ -46,14 +46,14 @@ public class QualifiedIdentifierElementTypeParser extends AbstractElementTypePar
                 Set<TokenType> expected = new THashSet<TokenType>();
                 expected.add(separatorToken.getTokenType());
                 getErrorHandler().updateBuilderError(builder, expected, timestamp);
-                return stepOut(builder, marker, depth, ParseResultType.PARTIAL_MATCH, matchedTokens);
+                return stepOut(builder, marker, depth, ParseResultType.PARTIAL_MATCH, matchedTokens, node);
             } else {
-                return stepOut(builder, marker, depth, ParseResultType.FULL_MATCH, matchedTokens);
+                return stepOut(builder, marker, depth, ParseResultType.FULL_MATCH, matchedTokens, node);
             }
 
 
         } else {
-            return stepOut(builder, marker, depth, ParseResultType.NO_MATCH, matchedTokens);
+            return stepOut(builder, marker, depth, ParseResultType.NO_MATCH, matchedTokens, node);
         }
     }
 

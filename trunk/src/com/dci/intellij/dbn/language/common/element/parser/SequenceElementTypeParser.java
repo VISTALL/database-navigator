@@ -8,6 +8,7 @@ import com.dci.intellij.dbn.language.common.element.IdentifierElementType;
 import com.dci.intellij.dbn.language.common.element.IterationElementType;
 import com.dci.intellij.dbn.language.common.element.SequenceElementType;
 import com.dci.intellij.dbn.language.common.element.path.ParsePathNode;
+import com.dci.intellij.dbn.language.common.element.path.PathNode;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dci.intellij.dbn.language.common.element.util.ParseBuilderErrorHandler;
 import com.intellij.lang.PsiBuilder;
@@ -43,7 +44,7 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends A
                     ParseResultType resultType =
                             elementType.isOptional(i) && (elementType.isLast(i) || elementType.isOptionalFromIndex(i)) ? ParseResultType.FULL_MATCH :
                                     !elementType.isFirst(i) && !elementType.isOptionalFromIndex(i) && !elementType.isExitIndex(i) ? ParseResultType.PARTIAL_MATCH : ParseResultType.NO_MATCH;
-                    return stepOut(builder, marker, depth, resultType, matchedTokens);
+                    return stepOut(builder, marker, depth, resultType, matchedTokens, node);
                 }
 
                 ParseResult result = ParseResult.createNoMatchResult();
@@ -69,7 +70,7 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends A
                     
                     if (elementType.isFirst(i) || elementType.isExitIndex(i) || isWeakMatch || matches == 0) {
                         //if (isFirst(i) || isExitIndex(i)) {
-                        return stepOut(builder, marker, depth, ParseResultType.NO_MATCH, matchedTokens);
+                        return stepOut(builder, marker, depth, ParseResultType.NO_MATCH, matchedTokens, node);
                     }
 
                     int offset = advanceLexerToNextLandmark(builder, i, parentNode, timestamp);
@@ -79,7 +80,7 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends A
                         /*if (offset == i) {
                             elementTypes[i].parse(node, builder, isOptional(i), depth + 1, timestamp);
                         }*/
-                        return stepOut(builder, marker, depth, ParseResultType.PARTIAL_MATCH, matchedTokens);
+                        return stepOut(builder, marker, depth, ParseResultType.PARTIAL_MATCH, matchedTokens, node);
                     }
 
 
@@ -96,12 +97,12 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends A
                 if (elementType.isLast(i)) {
                     //matches == 0 reaches this stage only if all sequence elements are optional
                     return stepOut(builder, marker, depth,
-                            matches == 0 ? ParseResultType.NO_MATCH : ParseResultType.FULL_MATCH, matchedTokens);
+                            matches == 0 ? ParseResultType.NO_MATCH : ParseResultType.FULL_MATCH, matchedTokens, node);
                 }
             }
         }
 
-        return stepOut(builder, marker, depth, ParseResultType.NO_MATCH, matchedTokens);
+        return stepOut(builder, marker, depth, ParseResultType.NO_MATCH, matchedTokens, node);
     }
 
     private boolean ignoreFirstMatch() {
@@ -113,7 +114,7 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends A
         return false;
     }
 
-    protected ParseResult stepOut(PsiBuilder builder, PsiBuilder.Marker marker, int depth, ParseResultType resultType, int matchedTokens) {
+    protected ParseResult stepOut(PsiBuilder builder, PsiBuilder.Marker marker, int depth, ParseResultType resultType, int matchedTokens, PathNode node) {
         if (marker != null) {
             if (resultType == ParseResultType.NO_MATCH) {
                 marker.rollbackTo();
@@ -126,7 +127,7 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends A
                     marker.done((IElementType) getElementType());
             }
         }
-        return super.stepOut(builder, null, depth, resultType, matchedTokens);
+        return super.stepOut(builder, null, depth, resultType, matchedTokens, node);
     }    
 
     private int advanceLexerToNextLandmark(PsiBuilder builder, int index, ParsePathNode parentNode, long timestamp) {
