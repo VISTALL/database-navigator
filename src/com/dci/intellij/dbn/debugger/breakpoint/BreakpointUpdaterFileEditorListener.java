@@ -13,7 +13,7 @@ import com.intellij.xdebugger.impl.breakpoints.XLineBreakpointImpl;
 
 /**
  * WORKAROUND: Breakpoints do not seem to be registered properly in the XLineBreakpointManager.
- * This way the breakpoints forName updated as soon as the file is opened.
+ * This way the breakpoints get updated as soon as the file is opened.
  */
 public class BreakpointUpdaterFileEditorListener implements FileEditorManagerListener{
     public void fileOpened(FileEditorManager source, VirtualFile file) {

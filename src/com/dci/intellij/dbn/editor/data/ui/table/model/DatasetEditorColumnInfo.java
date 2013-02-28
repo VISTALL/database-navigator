@@ -22,7 +22,7 @@ public class DatasetEditorColumnInfo implements ColumnInfo {
     }
 
     public DBColumn getColumn() {
-        // columns loaded with quick loaders forName disposed as soon as the main loader finishes
+        // columns loaded with quick loaders get disposed as soon as the main loader finishes
         column = (DBColumn) column.getUndisposedElement();
         return column;
     }

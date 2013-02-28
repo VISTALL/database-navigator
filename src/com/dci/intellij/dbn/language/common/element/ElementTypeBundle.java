@@ -216,7 +216,7 @@ public class ElementTypeBundle {
 
 
     /*protected synchronized TokenElementType getTokenElementType(String id) {
-        TokenElementType elementType = tokenElementTypes.forName(id);
+        TokenElementType elementType = tokenElementTypes.get(id);
         if (elementType == null) {
             elementType = new TokenElementType(this, id);
             tokenElementTypes.put(id, elementType);

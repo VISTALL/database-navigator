@@ -95,7 +95,7 @@ public class FileConnectionMappingManager extends VirtualFileAdapter implements 
 
     @Nullable
     public ConnectionHandler getActiveConnection(VirtualFile virtualFile) {
-        // if the file is a database content file then forName the connection from the underlying database object
+        // if the file is a database content file then get the connection from the underlying database object
         if (VirtualFileUtil.isDatabaseFileSystem(virtualFile)) {
             if (virtualFile instanceof DatabaseContentFile) {
                 DatabaseContentFile contentFile = (DatabaseContentFile) virtualFile;
@@ -141,7 +141,7 @@ public class FileConnectionMappingManager extends VirtualFileAdapter implements 
     }
 
     public DBSchema getCurrentSchema(VirtualFile virtualFile) {
-        // if the file is a database content file then forName the schema from the underlying schema object
+        // if the file is a database content file then get the schema from the underlying schema object
         if (VirtualFileUtil.isDatabaseFileSystem(virtualFile)) {
             if (virtualFile instanceof DatabaseContentFile) {
                 DatabaseContentFile contentFile = (DatabaseContentFile) virtualFile;
