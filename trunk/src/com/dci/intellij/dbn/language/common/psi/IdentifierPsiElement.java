@@ -474,6 +474,30 @@ public class IdentifierPsiElement extends LeafPsiElement implements PsiNamedElem
         return ref.getReferencedElement();
     }
 
+    @Override
+    public boolean isReferenceTo(PsiElement element) {
+        if (element == this) return false;
+
+        if (element instanceof IdentifierPsiElement) {
+            IdentifierPsiElement identifierPsiElement = (IdentifierPsiElement) element;
+            if (StringUtil.equalsIgnoreCase(getChars(), identifierPsiElement.getChars())) {
+                if (isReference() && identifierPsiElement.isDefinition() && getObjectType().matches(identifierPsiElement.getObjectType())) {
+                    return true;
+                }
+            }
+
+        } else if (element instanceof DBObject) {
+            DBObject object = (DBObject) element;
+            if (StringUtil.equalsIgnoreCase(getChars(), object.getName())) {
+                if (getObjectType().matches(object.getObjectType())) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
     public CharSequence getUnquotedText() {
         CharSequence text = getChars();
         if (isQuoted() && text.length() > 1) {
