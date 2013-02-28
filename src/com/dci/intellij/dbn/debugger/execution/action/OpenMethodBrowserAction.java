@@ -1,6 +1,5 @@
 package com.dci.intellij.dbn.debugger.execution.action;
 
-import com.dci.intellij.dbn.common.content.loader.DynamicContentLoaderRegistry;
 import com.dci.intellij.dbn.common.thread.BackgroundTask;
 import com.dci.intellij.dbn.common.thread.SimpleLaterInvocator;
 import com.dci.intellij.dbn.common.util.ActionUtil;
@@ -29,7 +28,6 @@ public class OpenMethodBrowserAction extends AbstractSelectMethodAction {
             @Override
             public void execute(@NotNull ProgressIndicator progressIndicator) {
                 initProgressIndicator(progressIndicator, true);
-                DynamicContentLoaderRegistry.registerBulkLoad();
                 final MethodBrowserSettings settings = MethodExecutionManager.getInstance(project).getBrowserSettings();
                 DBMethod currentMethod = getConfiguration().getExecutionInput() == null ? null : getConfiguration().getExecutionInput().getMethod();
                 if (currentMethod != null) {

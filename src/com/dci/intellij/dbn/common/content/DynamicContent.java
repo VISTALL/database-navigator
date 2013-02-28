@@ -25,22 +25,11 @@ public interface DynamicContent<T extends DynamicContentElement> extends Disposa
     void load();
 
     /**
-     * Triggers the loading in background
-     */
-    void loadInBackground();
-
-    /**
      * Rebuilds the content. This method is called when reloading the content
      * is triggered deliberately by the user directly or by a ddl change.
      * @param recursive
      */
     void reload(boolean recursive);
-
-    /**
-     * Queue for loading after this content has been loaded.
-     * System will do only one attempt to load each queued content.  
-     */
-    void queueForLoading(DynamicContent dynamicContent);
 
     /**
      * The timestamp of the last change on the content.

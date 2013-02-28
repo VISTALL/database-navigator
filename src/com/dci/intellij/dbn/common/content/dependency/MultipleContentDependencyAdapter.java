@@ -7,19 +7,19 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class MultipleContentDependencyAdapter extends BasicDependencyAdapter implements ContentDependencyAdapter {
-    private Set<BasicContentDependency> dependencies = new HashSet<BasicContentDependency>();
+    private Set<ContentDependency> dependencies = new HashSet<ContentDependency>();
 
-    public MultipleContentDependencyAdapter(ConnectionHandler connectionHandler, DynamicContent[] sourceContents) {
+    public MultipleContentDependencyAdapter(ConnectionHandler connectionHandler, DynamicContent... sourceContents) {
         super(connectionHandler);
         for (DynamicContent sourceContent : sourceContents) {
-            dependencies.add(new BasicContentDependency(sourceContent, false));
+            dependencies.add(new ContentDependency(sourceContent));
         }
     }
 
     public boolean shouldLoad() {
         // should reload if at least one dependency has been reloaded and is not dirty
-        for (BasicContentDependency dependency : dependencies) {
-            if (dependency.isDirty() && !dependency.getDynamicContent().isDirty()) {
+        for (ContentDependency dependency : dependencies) {
+            if (dependency.isDirty() && !dependency.getSourceContent().isDirty()) {
                 return true;
             }
         }
@@ -28,8 +28,8 @@ public class MultipleContentDependencyAdapter extends BasicDependencyAdapter imp
 
     public boolean shouldLoadIfDirty() {
         if (isConnectionValid()) {
-            for (BasicContentDependency dependency : dependencies) {
-                DynamicContent dynamicContent = dependency.getDynamicContent();
+            for (ContentDependency dependency : dependencies) {
+                DynamicContent dynamicContent = dependency.getSourceContent();
                 if (!dynamicContent.isLoaded() || dynamicContent.isDirty()) {
                     return false;
                 }
@@ -40,8 +40,8 @@ public class MultipleContentDependencyAdapter extends BasicDependencyAdapter imp
     }
 
     public boolean hasDirtyDependencies() {
-        for (BasicContentDependency dependency : dependencies) {
-            if (dependency.getDynamicContent().isDirty()) {
+        for (ContentDependency dependency : dependencies) {
+            if (dependency.getSourceContent().isDirty()) {
                 return true;
             }
         }
@@ -51,14 +51,14 @@ public class MultipleContentDependencyAdapter extends BasicDependencyAdapter imp
     @Override
     public void beforeLoad() {
         // assuming all dependencies are hard, load them first
-        for (BasicContentDependency dependency : dependencies) {
-            dependency.getDynamicContent().load();
+        for (ContentDependency dependency : dependencies) {
+            dependency.getSourceContent().load();
         }
     }
 
     @Override
     public void afterLoad() {
-        for (BasicContentDependency dependency : dependencies) {
+        for (ContentDependency dependency : dependencies) {
             dependency.reset();
         }
     }

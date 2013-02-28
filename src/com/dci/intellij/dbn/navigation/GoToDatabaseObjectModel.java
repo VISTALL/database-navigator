@@ -1,6 +1,5 @@
 package com.dci.intellij.dbn.navigation;
 
-import com.dci.intellij.dbn.common.content.loader.DynamicContentLoaderRegistry;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.ConnectionManager;
 import com.dci.intellij.dbn.connection.VirtualConnectionHandler;
@@ -88,16 +87,11 @@ public class GoToDatabaseObjectModel implements ChooseByNameModel {
 
     public String[] getNames(boolean checkBoxState) {
         boolean databaseLoadActive = objectsLookupSettings.getForceDatabaseLoad().value();
-
-        if (checkBoxState && !databaseLoadActive) return EMPTY_STRING_ARRAY;
-
         boolean forceLoad = checkBoxState && databaseLoadActive;
-        if (forceLoad) DynamicContentLoaderRegistry.registerBulkLoad();
 
         ObjectNamesCollector collector = new ObjectNamesCollector(forceLoad);
         scanObjectLists(collector);
 
-        if (forceLoad) DynamicContentLoaderRegistry.unregisterBulkLoad();
         Set<String> bucket = collector.getBucket();
         return bucket == null ?
                 EMPTY_STRING_ARRAY :

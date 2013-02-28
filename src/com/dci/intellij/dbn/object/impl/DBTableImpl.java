@@ -7,7 +7,6 @@ import com.dci.intellij.dbn.common.content.DynamicContent;
 import com.dci.intellij.dbn.common.content.DynamicContentElement;
 import com.dci.intellij.dbn.common.content.loader.DynamicContentLoader;
 import com.dci.intellij.dbn.common.content.loader.DynamicContentResultSetLoader;
-import com.dci.intellij.dbn.common.content.loader.DynamicSubcontentCompoundLoader;
 import com.dci.intellij.dbn.common.content.loader.DynamicSubcontentLoader;
 import com.dci.intellij.dbn.database.DatabaseMetadataInterface;
 import com.dci.intellij.dbn.editor.DBContentType;
@@ -51,11 +50,11 @@ public class DBTableImpl extends DBDatasetImpl implements DBTable {
         super.initLists();
 
         DBObjectListContainer container = getChildObjects();
-        indexes = container.createSubcontentObjectList(DBObjectType.INDEX, this, INDEXES_LOADER, getSchema(), true, false);
-        nestedTables = container.createSubcontentObjectList(DBObjectType.NESTED_TABLE, this, NESTED_TABLES_LOADER, getSchema(), true, false);
+        indexes = container.createSubcontentObjectList(DBObjectType.INDEX, this, INDEXES_LOADER, getSchema(), false);
+        nestedTables = container.createSubcontentObjectList(DBObjectType.NESTED_TABLE, this, NESTED_TABLES_LOADER, getSchema(), false);
 
         DBObjectRelationListContainer orl = getChildObjectRelations();
-        orl.createSubcontentObjectRelationList(DBObjectRelationType.INDEX_COLUMN, this, "Index column relations", INDEX_COLUMN_RELATION_LOADER, getSchema(), true);
+        orl.createSubcontentObjectRelationList(DBObjectRelationType.INDEX_COLUMN, this, "Index column relations", INDEX_COLUMN_RELATION_LOADER, getSchema());
     }
 
     public DBObjectType getObjectType() {
@@ -167,7 +166,7 @@ public class DBTableImpl extends DBDatasetImpl implements DBTable {
         }
     };
 
-    private static final DynamicSubcontentCompoundLoader INDEX_COLUMN_RELATION_LOADER = new DynamicSubcontentCompoundLoader(true) {
+    private static final DynamicSubcontentLoader INDEX_COLUMN_RELATION_LOADER = new DynamicSubcontentLoader(true) {
         public DynamicContentLoader getAlternativeLoader() {
             return INDEX_COLUMN_RELATION_ALTERNATIVE_LOADER;
         }
@@ -205,7 +204,7 @@ public class DBTableImpl extends DBDatasetImpl implements DBTable {
      *                         Loaders                       *
      *********************************************************/
 
-    private static final DynamicSubcontentLoader NESTED_TABLES_LOADER = new DynamicSubcontentCompoundLoader<DBNestedTable>(true) {
+    private static final DynamicSubcontentLoader NESTED_TABLES_LOADER = new DynamicSubcontentLoader<DBNestedTable>(true) {
         public boolean match(DBNestedTable nestedTable, DynamicContent dynamicContent) {
             DBTable table = (DBTable) dynamicContent.getParent();
             return nestedTable.getTable().equals(table);
@@ -229,7 +228,7 @@ public class DBTableImpl extends DBDatasetImpl implements DBTable {
         }
     };
 
-    private static final DynamicSubcontentLoader INDEXES_LOADER = new DynamicSubcontentCompoundLoader<DBIndex>(true) {
+    private static final DynamicSubcontentLoader INDEXES_LOADER = new DynamicSubcontentLoader<DBIndex>(true) {
         public boolean match(DBIndex index, DynamicContent dynamicContent) {
             DBTable table = (DBTable) dynamicContent.getParent();
             return index.getTable().equals(table);

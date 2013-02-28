@@ -91,7 +91,7 @@ public class DBConstraintImpl extends DBSchemaObjectImpl implements DBConstraint
         columns = getChildObjects().createSubcontentObjectList(
                 DBObjectType.COLUMN, this,
                 COLUMNS_LOADER, getDataset(),
-                DBObjectRelationType.CONSTRAINT_COLUMN, false, true);
+                DBObjectRelationType.CONSTRAINT_COLUMN, true);
     }
 
     public DBObjectType getObjectType() {

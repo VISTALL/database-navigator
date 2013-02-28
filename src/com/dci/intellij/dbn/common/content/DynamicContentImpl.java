@@ -4,31 +4,25 @@ import com.dci.intellij.dbn.common.content.dependency.ContentDependencyAdapter;
 import com.dci.intellij.dbn.common.content.loader.DynamicContentLoader;
 import com.dci.intellij.dbn.common.content.loader.DynamicContentLoaderException;
 import com.dci.intellij.dbn.common.filter.Filter;
-import com.dci.intellij.dbn.common.thread.BackgroundTask;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.GenericDatabaseElement;
 import com.dci.intellij.dbn.connection.LoadMonitor;
-import com.intellij.openapi.progress.ProgressIndicator;
 import gnu.trove.THashMap;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public abstract class DynamicContentImpl<T extends DynamicContentElement> implements DynamicContent<T> {
     public static final List EMPTY_LIST = new ArrayList(0);
 
     private long changeTimestamp = 0;
     private volatile boolean isLoading = false;
-    private volatile boolean isLoadingInBackground = false;
     private volatile boolean isLoaded = false;
     private volatile boolean isDirty = false;
     private volatile boolean isDisposed = false;
-    private Set<DynamicContent> queuedForLoading;
     private ConnectionHandler connectionHandler;
 
     private GenericDatabaseElement parent;
@@ -54,13 +48,6 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
     }
 
     public abstract Filter getFilter();
-
-    public void queueForLoading(DynamicContent dynamicContent) {
-        if (queuedForLoading == null) {
-            queuedForLoading = new HashSet<DynamicContent>();
-        }
-        queuedForLoading.add(dynamicContent);
-    }
 
     public GenericDatabaseElement getParent() {
         return parent;
@@ -115,39 +102,12 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
         isDirty = dirty;
     }
 
-    public final synchronized void loadInBackground() {
-        if (!isLoading && !isLoadingInBackground && shouldLoad()) {
-            isLoadingInBackground = true;
-            new BackgroundTask(getProject(), "Loading data dictionary", true) {
-                public void execute(@NotNull ProgressIndicator progressIndicator) {
-                    //Thread thread = Thread.currentThread();
-                    //String originalName = thread.getName();
-                    //thread.setName(DCLBT);
-                    load();
-                    //thread.setName(originalName);
-                    isLoadingInBackground = false;
-                }
-            }.start();
-        }
-    }
-
-
     public final synchronized void load() {
         if (!isLoading && shouldLoad()) {
             isLoading = true;
             performLoad();
             isLoaded = true;
             updateChangeTimestamp();
-
-
-            // load queued contents
-            if (queuedForLoading != null) {
-                for (DynamicContent dynamicContent : queuedForLoading) {
-                    dynamicContent.loadInBackground();
-                }
-                queuedForLoading.clear();
-                queuedForLoading = null;
-            }
             isLoading = false;
         }
     }
@@ -317,11 +277,6 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
             dependencyAdapter = null;
             //connectionHandler = null;
             //parent = null;
-            if (queuedForLoading != null) {
-                queuedForLoading.clear();
-                queuedForLoading = null;
-            }
-
         }
     }
 

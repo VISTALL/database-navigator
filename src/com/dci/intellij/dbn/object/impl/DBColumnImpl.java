@@ -4,7 +4,6 @@ import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
 import com.dci.intellij.dbn.browser.ui.HtmlToolTipBuilder;
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.content.loader.DynamicContentLoader;
-import com.dci.intellij.dbn.common.content.loader.DynamicContentLoaderRegistry;
 import com.dci.intellij.dbn.data.type.DBDataType;
 import com.dci.intellij.dbn.object.DBColumn;
 import com.dci.intellij.dbn.object.DBConstraint;
@@ -68,8 +67,8 @@ public class DBColumnImpl extends DBObjectImpl implements DBColumn {
 
     private void createLists() {
         DBObjectListContainer container = getChildObjects();
-        constraints = container.createSubcontentObjectList(DBObjectType.CONSTRAINT, this, CONSTRAINTS_LOADER, getDataset(), DBObjectRelationType.CONSTRAINT_COLUMN, false, false);
-        indexes = container.createSubcontentObjectList(DBObjectType.INDEX, this, INDEXES_LOADER, getDataset(), DBObjectRelationType.INDEX_COLUMN, false, false);
+        constraints = container.createSubcontentObjectList(DBObjectType.CONSTRAINT, this, CONSTRAINTS_LOADER, getDataset(), DBObjectRelationType.CONSTRAINT_COLUMN, false);
+        indexes = container.createSubcontentObjectList(DBObjectType.INDEX, this, INDEXES_LOADER, getDataset(), DBObjectRelationType.INDEX_COLUMN, false);
 
         DBType declaredType = dataType.getDeclaredType();
         if (declaredType != null) {
@@ -207,7 +206,6 @@ public class DBColumnImpl extends DBObjectImpl implements DBColumn {
     public List<DBColumn> getReferencingColumns() {
         assert isPrimaryKey();
 
-        DynamicContentLoaderRegistry.registerBulkLoad();
         List<DBColumn> list = new ArrayList<DBColumn>();
         boolean isSystemSchema = getDataset().getSchema().isSystemSchema();
         for (DBSchema schema : getConnectionHandler().getObjectBundle().getSchemas()) {
@@ -224,8 +222,6 @@ public class DBColumnImpl extends DBObjectImpl implements DBColumn {
                 }
             }
         }
-        DynamicContentLoaderRegistry.unregisterBulkLoad();
-
         return list;
     }
 
