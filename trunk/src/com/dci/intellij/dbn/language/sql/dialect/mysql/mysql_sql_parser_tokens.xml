@@ -3,7 +3,7 @@
 <token-def>
     <tokens>
         <token id="UNKNOWN"                value=""                type="unknown"/>
-        <token id="CHRS_OUTER_JOIN"        value=""                type="character"/>
+        <token id="CT_OUTER_JOIN"          value=""                type="custom"/>
 
          <!-- DATA TYPES -->
         <token index="0" id="DT_BIT" value="bit" type="datatype"/>

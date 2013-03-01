@@ -2603,7 +2603,7 @@
                 </one-of>
             </sequence>
         </one-of>
-        <token id="000001277" optional="true" type-id="CHRS_OUTER_JOIN" />
+        <token id="000001277" optional="true" type-id="CT_OUTER_JOIN" />
     </element-def>
 
     <element-def description="SQL Cursor expression" id="sql_cursor_expression">
@@ -2727,11 +2727,11 @@
             <sequence id="000001339">
                 <one-of id="000001340">
                     <token id="000001341" type-id="FN_BITAND" />
-                    <token id="000001342" type-id="FN_LOG" />
+                    <token id="000001342" type-id="KW_LOG" />
                     <token id="000001343" type-id="FN_MOD" />
                     <token id="000001344" type-id="FN_NANVL" />
-                    <token id="000001345" type-id="FN_POWER" />
-                    <token id="000001346" type-id="FN_REMAINDER" />
+                    <token id="000001345" type-id="KW_POWER" />
+                    <token id="000001346" type-id="KW_REMAINDER" />
                 </one-of>
                 <wrapper id="000001347" template="PARENTHESES">
                     <iteration elements-count="2" id="000001348" separator="CHR_COMMA">
@@ -2803,7 +2803,7 @@
             <sequence id="000001385">
                 <one-of id="000001386">
                     <token id="000001387" type-id="FN_LPAD" />
-                    <token id="000001388" type-id="FN_REPLACE" />
+                    <token id="000001388" type-id="KW_REPLACE" />
                     <token id="000001389" type-id="FN_RPAD" />
                     <token id="000001390" type-id="FN_SUBSTR" />
                     <token id="000001391" type-id="FN_SUBSTRB" />
@@ -3132,7 +3132,7 @@
                 <one-of id="000001583">
                     <token id="000001584" type-id="FN_CARDINALITY" />
                     <token id="000001585" type-id="FN_POWERMULTISET" />
-                    <token id="000001586" type-id="FN_SET" />
+                    <token id="000001586" type-id="KW_SET" />
                 </one-of>
                 <wrapper id="000001587" template="PARENTHESES">
                     <element ref-id="expression" />
@@ -3151,7 +3151,7 @@
     <element-def description="Miscellaneous single row function" id="miscellaneous_single_row_function">
         <one-of id="000001592">
             <token id="000001593" type-id="FN_UID" />
-            <token id="000001594" type-id="FN_USER" />
+            <token id="000001594" type-id="KW_USER" />
             <sequence id="000001595">
                 <token id="000001596" type-id="FN_CV" />
                 <wrapper id="000001597" optional="true" template="PARENTHESES">
@@ -3241,7 +3241,7 @@
             </sequence>
             <sequence id="000001649">
                 <one-of id="000001650">
-                    <token id="000001651" type-id="FN_COALESCE" />
+                    <token id="000001651" type-id="KW_COALESCE" />
                     <token id="000001652" type-id="FN_DECODE" />
                     <token id="000001653" type-id="FN_GREATEST" />
                     <token id="000001654" type-id="FN_LEAST" />
@@ -3255,7 +3255,7 @@
                 </wrapper>
             </sequence>
             <sequence id="000001659">
-                <token id="000001660" type-id="FN_DUMP" />
+                <token id="000001660" type-id="KW_DUMP" />
                 <wrapper id="000001661" template="PARENTHESES">
                     <iteration elements-count="1-4" id="000001662" separator="CHR_COMMA">
                         <element ref-id="expression" />
@@ -3343,7 +3343,7 @@
                 <element optional="true" ref-id="over_analytic_clause" />
             </sequence>
             <sequence id="000001703">
-                <token id="000001704" type-id="FN_COUNT" />
+                <token id="000001704" type-id="KW_COUNT" />
                 <wrapper id="000001705" template="PARENTHESES">
                     <one-of id="000001706">
                         <token id="000001707" type-id="CHR_STAR" />
@@ -3362,7 +3362,7 @@
                 <one-of id="000001713">
                     <token id="000001714" type-id="FN_CUME_DIST" />
                     <token id="000001715" type-id="KW_DENSE_RANK" />
-                    <token id="000001716" type-id="FN_RANK" />
+                    <token id="000001716" type-id="KW_RANK" />
                     <token id="000001717" type-id="FN_PERCENT_RANK" />
                 </one-of>
                 <token id="000001718" type-id="CHR_LEFT_PARENTHESIS" />
@@ -3544,7 +3544,7 @@
             </sequence>
             <sequence id="000001818">
                 <one-of id="000001819">
-                    <token id="000001820" type-id="FN_COLLECT" />
+                    <token id="000001820" type-id="KW_COLLECT" />
                     <token id="000001821" type-id="FN_GROUPING" />
                     <token id="000001822" type-id="FN_STATS_MODE" />
                 </one-of>
@@ -3873,7 +3873,7 @@
                     <token id="000002016" type-id="FN_DEREF" />
                     <token id="000002017" type-id="KW_REF" />
                     <token id="000002018" type-id="FN_REFTOHEX" />
-                    <token id="000002019" type-id="FN_VALUE" />
+                    <token id="000002019" type-id="KW_VALUE" />
                 </one-of>
                 <wrapper id="000002020" template="PARENTHESES">
                     <element ref-id="expression" />
