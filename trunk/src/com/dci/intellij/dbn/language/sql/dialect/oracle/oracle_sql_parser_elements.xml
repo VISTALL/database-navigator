@@ -5523,7 +5523,6 @@
         <element optional="true" ref-id="merge_insert_clause" />
         <element optional="true" ref-id="error_logging_clause" />
     </element-def>
-
     <element-def attributes="CLAUSE" description="MERGE UPDATE clause" id="merge_update_clause">
         <token id="000003081" type-id="KW_WHEN" />
         <token id="000003082" type-id="KW_MATCHED" />
@@ -5568,7 +5567,6 @@
         </wrapper>
         <element optional="true" ref-id="where_clause" />
     </element-def>
-
     <element-def attributes="CLAUSE" description="ERROR LOGGING clause" id="error_logging_clause">
         <token id="000003107" type-id="KW_LOG" />
         <token id="000003108" type-id="KW_ERRORS" />
