@@ -16,7 +16,7 @@ public class IterationElementTypeParser extends AbstractElementTypeParser<Iterat
     }
 
     public ParseResult parse(ParsePathNode parentNode, PsiBuilder builder, boolean optional, int depth, long timestamp) throws ParseException {
-        ParsePathNode node = createParseNode(parentNode);
+        ParsePathNode node = createParseNode(parentNode, builder.getCurrentOffset());
         logBegin(builder, optional, depth);
         PsiBuilder.Marker marker = builder.mark();
         ElementType iteratedElementType = getElementType().getIteratedElementType();
