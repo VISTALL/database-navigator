@@ -14,7 +14,7 @@ public class OneOfElementTypeParser extends AbstractElementTypeParser<OneOfEleme
 
     public ParseResult parse(ParsePathNode parentNode, PsiBuilder builder, boolean optional, int depth, long timestamp) throws ParseException {
         logBegin(builder, optional, depth);
-        ParsePathNode node = createParseNode(parentNode);
+        ParsePathNode node = createParseNode(parentNode, builder.getCurrentOffset());
         PsiBuilder.Marker marker = builder.mark();
 
         getElementType().sort();

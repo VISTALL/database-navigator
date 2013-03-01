@@ -21,7 +21,7 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends A
 
     public ParseResult parse(ParsePathNode parentNode, PsiBuilder builder, boolean optional, int depth, long timestamp) throws ParseException {
         logBegin(builder, optional, depth);
-        ParsePathNode node = createParseNode(parentNode);
+        ParsePathNode node = createParseNode(parentNode, builder.getCurrentOffset());
         SequenceElementType elementType = getElementType();
         ElementType[] elementTypes = elementType.getElementTypes();
 

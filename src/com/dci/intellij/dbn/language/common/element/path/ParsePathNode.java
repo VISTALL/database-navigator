@@ -5,13 +5,13 @@ import com.dci.intellij.dbn.language.common.element.ElementType;
 public class ParsePathNode extends BasicPathNode {
     private int builderOffset;
 
-    public ParsePathNode(ElementType elementType, ParsePathNode parent, int position) {
+    public ParsePathNode(ElementType elementType, ParsePathNode parent, int position, int builderOffset) {
         super(elementType, parent, position);
+        this.builderOffset = builderOffset;
     }
 
     public ParsePathNode createVariant(int builderOffset, int position) {
-        ParsePathNode variant = new ParsePathNode(getElementType(), getParent(), position);
-        variant.builderOffset  = builderOffset;
+        ParsePathNode variant = new ParsePathNode(getElementType(), getParent(), position, builderOffset);
         detach();
         return variant;
     }

@@ -7,8 +7,6 @@ import com.dci.intellij.dbn.language.common.element.path.PathNode;
 import com.intellij.lang.PsiBuilder;
 
 public class NamedElementTypeParser extends SequenceElementTypeParser<NamedElementType>{
-    private long matches;
-
     public NamedElementTypeParser(NamedElementType elementType) {
         super(elementType);
     }
@@ -17,20 +15,20 @@ public class NamedElementTypeParser extends SequenceElementTypeParser<NamedEleme
         if (isRecursive(parentNode, builder.getCurrentOffset(), 2)) {
             return ParseResult.createNoMatchResult();
         }
-        ParseResult result = super.parse(parentNode, builder, optional, depth, timestamp);
-        if (result.isMatch()) matches++;
-        return result;
+        return super.parse(parentNode, builder, optional, depth, timestamp);
     }
 
     protected boolean isRecursive(ParsePathNode parseNode, int builderOffset, int iterations){
         while (parseNode != null &&  iterations > 0) {
             if (parseNode.getElementType() == getElementType() &&
                     parseNode.getBuilderOffset() == builderOffset) {
+                //return true;
                 iterations--;
             }
             parseNode = parseNode.getParent();
         }
         return iterations == 0;
+        //return false;
     }
 
     private int countRecurences(PathNode node) {
