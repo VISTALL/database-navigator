@@ -2,9 +2,9 @@ package com.dci.intellij.dbn.object.impl;
 
 import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
 import com.dci.intellij.dbn.browser.ui.HtmlToolTipBuilder;
+import com.dci.intellij.dbn.editor.DBContentType;
 import com.dci.intellij.dbn.object.DBNestedTable;
 import com.dci.intellij.dbn.object.DBNestedTableColumn;
-import com.dci.intellij.dbn.object.DBSchema;
 import com.dci.intellij.dbn.object.DBTable;
 import com.dci.intellij.dbn.object.DBType;
 import com.dci.intellij.dbn.object.common.DBObjectImpl;
@@ -21,7 +21,12 @@ public class DBNestedTableImpl extends DBObjectImpl implements DBNestedTable {
     private DBType type;
 
     public DBNestedTableImpl(DBTable parent, ResultSet resultSet) throws SQLException {
-        super(parent);
+        super(parent, DBContentType.NONE, resultSet);
+
+    }
+
+    @Override
+    protected void initObject(ResultSet resultSet) throws SQLException {
         name = resultSet.getString("NESTED_TABLE_NAME");
 
         String typeOwner = resultSet.getString("DATA_TYPE_OWNER");
@@ -48,10 +53,6 @@ public class DBNestedTableImpl extends DBObjectImpl implements DBNestedTable {
 
     public DBTable getTable() {
         return (DBTable) getParentObject();
-    }
-
-    public DBSchema getSchema() {
-        return getTable().getSchema();
     }
 
     public DBType getType() {

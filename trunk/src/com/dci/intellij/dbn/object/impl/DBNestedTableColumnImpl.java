@@ -1,6 +1,7 @@
 package com.dci.intellij.dbn.object.impl;
 
 import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
+import com.dci.intellij.dbn.editor.DBContentType;
 import com.dci.intellij.dbn.object.DBNestedTable;
 import com.dci.intellij.dbn.object.DBNestedTableColumn;
 import com.dci.intellij.dbn.object.common.DBObjectImpl;
@@ -13,13 +14,13 @@ import java.util.List;
 
 public class DBNestedTableColumnImpl extends DBObjectImpl implements DBNestedTableColumn {
 
-    private DBNestedTable nestedTable;
-
     public DBNestedTableColumnImpl(DBNestedTable parent, ResultSet resultSet) throws SQLException {
-        super(parent);
-        this.nestedTable = parent;
-        
+        super(parent, DBContentType.NONE, resultSet);
         // todo !!!
+    }
+
+    @Override
+    protected void initObject(ResultSet resultSet) throws SQLException {
     }
 
     public DBObjectType getObjectType() {
@@ -27,14 +28,12 @@ public class DBNestedTableColumnImpl extends DBObjectImpl implements DBNestedTab
     }
 
     public DBNestedTable getNestedTable() {
-        nestedTable = (DBNestedTable) nestedTable.getUndisposedElement();
-        return nestedTable;
+        return (DBNestedTable) getParentObject();
     }
 
     @Override
     public void dispose() {
         super.dispose();
-        nestedTable = null;
     }
 
     /*********************************************************

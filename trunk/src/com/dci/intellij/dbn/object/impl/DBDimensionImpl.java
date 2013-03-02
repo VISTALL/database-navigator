@@ -17,6 +17,10 @@ public class DBDimensionImpl extends DBSchemaObjectImpl implements DBDimension {
 
     public DBDimensionImpl(DBSchema schema, ResultSet resultSet) throws SQLException {
         super(schema, DBContentType.NONE, resultSet);
+    }
+
+    @Override
+    protected void initObject(ResultSet resultSet) throws SQLException {
         name = resultSet.getString("DIMENSION_NAME");
     }
 

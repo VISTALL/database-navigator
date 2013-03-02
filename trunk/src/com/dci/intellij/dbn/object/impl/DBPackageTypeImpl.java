@@ -21,26 +21,31 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class DBPackageTypeImpl extends DBTypeImpl implements DBPackageType {
-    private DBPackage packagee;
 
     public DBPackageTypeImpl(DBPackage packagee, ResultSet resultSet) throws SQLException {
         super(packagee, resultSet);
-        this.packagee = packagee;
     }
 
+    @Override
+    protected void initObject(ResultSet resultSet) throws SQLException {
+        name = resultSet.getString("TYPE_NAME");
+    }
+
+    @Override
+    public void initStatus(ResultSet resultSet) throws SQLException {}
+
+    @Override
+    public void initProperties() {
+        getProperties().set(DBObjectProperty.NAVIGABLE);
+    }
+
+    @Override
     protected void initLists() {
         attributes = getChildObjects().createObjectList(DBObjectType.TYPE_ATTRIBUTE, this, ATTRIBUTES_LOADER, true, false);
     }
 
-    public void updateStatuses(ResultSet resultSet) throws SQLException {}
-
-    public void updateProperties() {
-        getProperties().set(DBObjectProperty.NAVIGABLE);
-    }
-
     public DBPackage getPackage() {
-        packagee = (DBPackage) packagee.getUndisposedElement();
-        return packagee;
+        return (DBPackage) getParentObject();
     }
 
     @Override
@@ -65,7 +70,6 @@ public class DBPackageTypeImpl extends DBTypeImpl implements DBPackageType {
     @Override
     public void dispose() {
         super.dispose();
-        packagee = null;
     }
 
     private static final DynamicContentLoader ATTRIBUTES_LOADER = new DynamicContentResultSetLoader() {

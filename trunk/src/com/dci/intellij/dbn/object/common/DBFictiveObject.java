@@ -8,6 +8,8 @@ import com.intellij.psi.PsiReference;
 import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.NotNull;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 
 public class DBFictiveObject extends DBObjectImpl implements PsiReference {
@@ -19,6 +21,10 @@ public class DBFictiveObject extends DBObjectImpl implements PsiReference {
 
     public boolean isValid() {
         return true;
+    }
+
+    @Override
+    protected void initObject(ResultSet resultSet) throws SQLException {
     }
 
     public String getQualifiedNameWithType() {

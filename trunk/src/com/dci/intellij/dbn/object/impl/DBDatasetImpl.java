@@ -31,22 +31,22 @@ public abstract class DBDatasetImpl extends DBSchemaObjectImpl implements DBData
     protected DBObjectList<DBConstraint> constraints;
     protected DBObjectList<DBTrigger> triggers;
 
-    public DBDatasetImpl(DBSchema parent, DBContentType contentType) throws SQLException {
-        super(parent, contentType, null);
-        initLists();
+    public DBDatasetImpl(DBSchema parent, DBContentType contentType, ResultSet resultSet) throws SQLException {
+        super(parent, contentType, resultSet);
     }
 
     protected void initLists() {
         DBObjectListContainer container = getChildObjects();
-        columns = container.createSubcontentObjectList(DBObjectType.COLUMN, this, COLUMNS_LOADER, getSchema(), true);
-        constraints = container.createSubcontentObjectList(DBObjectType.CONSTRAINT, this, CONSTRAINTS_LOADER, getSchema(), true);
-        triggers = container.createSubcontentObjectList(DBObjectType.TRIGGER, this, TRIGGERS_LOADER, getSchema(), true);
+        DBSchema schema = getSchema();
+        columns = container.createSubcontentObjectList(DBObjectType.COLUMN, this, COLUMNS_LOADER, schema, true);
+        constraints = container.createSubcontentObjectList(DBObjectType.CONSTRAINT, this, CONSTRAINTS_LOADER, schema, true);
+        triggers = container.createSubcontentObjectList(DBObjectType.TRIGGER, this, TRIGGERS_LOADER, schema, true);
 
         getChildObjectRelations().createSubcontentObjectRelationList(
                 DBObjectRelationType.CONSTRAINT_COLUMN, this,
                 "Constraint column relations", 
                 CONSTRAINT_COLUMN_RELATION_LOADER,
-                getSchema());
+                schema);
     }
 
     public List<DBColumn> getColumns() {

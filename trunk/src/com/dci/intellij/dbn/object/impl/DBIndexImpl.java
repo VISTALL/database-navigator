@@ -24,33 +24,34 @@ import java.util.List;
 
 public class DBIndexImpl extends DBSchemaObjectImpl implements DBIndex {
     private DBObjectList<DBColumn> columns;
-    private DBTable table;
     private boolean isUnique;
 
     public DBIndexImpl(DBTable table, ResultSet resultSet) throws SQLException {
         super(table, DBContentType.NONE, resultSet);
-        this.table = table;
+    }
+
+    @Override
+    protected void initObject(ResultSet resultSet) throws SQLException {
         name = resultSet.getString("INDEX_NAME");
         isUnique = resultSet.getString("IS_UNIQUE").equals("Y");
-
-        createLists();
     }
-                                                    
-    private void createLists() {
+
+    public void initStatus(ResultSet resultSet) throws SQLException {
+        boolean valid = resultSet.getString("IS_VALID").equals("Y");
+        getStatus().set(DBObjectStatus.VALID, valid);
+    }
+
+    @Override
+    public void initProperties() {
+        getProperties().set(DBObjectProperty.SCHEMA_OBJECT);
+    }
+
+    @Override
+    protected void initLists() {
         DBTable table = getTable();
         if (table != null) {
             columns = getChildObjects().createSubcontentObjectList(DBObjectType.COLUMN, this, COLUMNS_LOADER, table, DBObjectRelationType.INDEX_COLUMN, false);
         }
-    }
-
-    @Override
-    public void updateProperties() {
-        getProperties().set(DBObjectProperty.SCHEMA_OBJECT);
-    }
-
-    public void updateStatuses(ResultSet resultSet) throws SQLException {
-        boolean valid = resultSet.getString("IS_VALID").equals("Y");
-        getStatus().set(DBObjectStatus.VALID, valid);
     }
 
     public DBObjectType getObjectType() {
@@ -58,8 +59,7 @@ public class DBIndexImpl extends DBSchemaObjectImpl implements DBIndex {
     }
 
     public DBTable getTable() {
-        table = (DBTable) table.getUndisposedElement();
-        return table;
+        return (DBTable) getParentObject();
     }
 
     public List<DBColumn> getColumns() {

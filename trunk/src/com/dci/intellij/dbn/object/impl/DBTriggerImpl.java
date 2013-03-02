@@ -34,24 +34,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DBTriggerImpl extends DBSchemaObjectImpl implements DBTrigger {
-    private DBDataset dataset;
     private boolean isForEachRow;
     private TriggerType triggerType;
     private TriggeringEvent[] triggeringEvents;
 
     public DBTriggerImpl(DBDataset dataset, ResultSet resultSet) throws SQLException {
         super(dataset, DBContentType.CODE, resultSet);
+    }
 
-        this.dataset = dataset;
+    @Override
+    protected void initObject(ResultSet resultSet) throws SQLException {
         name = resultSet.getString("TRIGGER_NAME");
         isForEachRow = resultSet.getString("IS_FOR_EACH_ROW").equals("Y");
 
         String triggerTypeString = resultSet.getString("TRIGGER_TYPE");
         triggerType =
                 triggerTypeString.contains("BEFORE") ? TRIGGER_TYPE_BEFORE :
-                triggerTypeString.contains("AFTER") ? TRIGGER_TYPE_AFTER :
-                triggerTypeString.contains("INSTEAD OF") ? TRIGGER_TYPE_INSTEAD_OF :
-            TRIGGER_TYPE_UNKNOWN;
+                        triggerTypeString.contains("AFTER") ? TRIGGER_TYPE_AFTER :
+                                triggerTypeString.contains("INSTEAD OF") ? TRIGGER_TYPE_INSTEAD_OF :
+                                        TRIGGER_TYPE_UNKNOWN;
 
 
         String triggeringEventString = resultSet.getString("TRIGGERING_EVENT");
@@ -63,19 +64,9 @@ public class DBTriggerImpl extends DBSchemaObjectImpl implements DBTrigger {
         if (triggeringEventString.contains("DROP")) triggeringEventList.add(TRIGGERING_EVENT_DROP);
         if (triggeringEventList.size() == 0) triggeringEventList.add(TRIGGERING_EVENT_UNKNOWN);
 
-        triggeringEvents = triggeringEventList.toArray(new TriggeringEvent[triggeringEventList.size()]);
-    }
+        triggeringEvents = triggeringEventList.toArray(new TriggeringEvent[triggeringEventList.size()]);    }
 
-
-    @Override
-    public void updateProperties() {
-        getProperties().set(DBObjectProperty.EDITABLE);
-        getProperties().set(DBObjectProperty.DISABLEABLE);
-        getProperties().set(DBObjectProperty.COMPILABLE);
-        getProperties().set(DBObjectProperty.SCHEMA_OBJECT);
-    }
-
-    public void updateStatuses(ResultSet resultSet) throws SQLException {
+    public void initStatus(ResultSet resultSet) throws SQLException {
         boolean isEnabled = resultSet.getString("IS_ENABLED").equals("Y");
         boolean isValid = resultSet.getString("IS_VALID").equals("Y");
         boolean isDebug = resultSet.getString("IS_DEBUG").equals("Y");
@@ -83,6 +74,14 @@ public class DBTriggerImpl extends DBSchemaObjectImpl implements DBTrigger {
         objectStatus.set(DBObjectStatus.ENABLED, isEnabled);
         objectStatus.set(DBObjectStatus.VALID, isValid);
         objectStatus.set(DBObjectStatus.DEBUG, isDebug);
+    }
+
+    @Override
+    public void initProperties() {
+        getProperties().set(DBObjectProperty.EDITABLE);
+        getProperties().set(DBObjectProperty.DISABLEABLE);
+        getProperties().set(DBObjectProperty.COMPILABLE);
+        getProperties().set(DBObjectProperty.SCHEMA_OBJECT);
     }
 
     public boolean isForEachRow() {
@@ -148,8 +147,7 @@ public class DBTriggerImpl extends DBSchemaObjectImpl implements DBTrigger {
     }
 
     public DBDataset getDataset() {
-        dataset = (DBDataset) dataset.getUndisposedElement();
-        return dataset;
+        return (DBDataset) getParentObject();
     }
 
     public void buildToolTip(HtmlToolTipBuilder ttb) {

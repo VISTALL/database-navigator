@@ -28,15 +28,17 @@ public class DBFunctionImpl extends DBMethodImpl implements DBFunction {
         // type functions are not editable independently
         super(parent, DBContentType.NONE, resultSet);
         assert this.getClass() != DBFunctionImpl.class;
-        name = resultSet.getString("FUNCTION_NAME");
     }
 
     public DBFunctionImpl(DBSchema schema, ResultSet resultSet) throws SQLException {
         super(schema, DBContentType.CODE, resultSet);
-        name = resultSet.getString("FUNCTION_NAME");
     }
 
-
+    @Override
+    protected void initObject(ResultSet resultSet) throws SQLException {
+        super.initObject(resultSet);
+        name = resultSet.getString("FUNCTION_NAME");
+    }
 
     public DBArgument getReturnArgument() {
         for (DBArgument argument : getArguments()) {

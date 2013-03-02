@@ -16,12 +16,16 @@ import java.util.List;
 
 public class DBSequenceImpl extends DBSchemaObjectImpl implements DBSequence {
     public DBSequenceImpl(DBSchema schema, ResultSet resultSet) throws SQLException {
-        super(schema, DBContentType.NONE, null);
+        super(schema, DBContentType.NONE, resultSet);
+    }
+
+    @Override
+    protected void initObject(ResultSet resultSet) throws SQLException {
         name = resultSet.getString("SEQUENCE_NAME");
     }
 
     @Override
-    public void updateProperties() {
+    public void initProperties() {
         getProperties().set(DBObjectProperty.REFERENCEABLE);
         getProperties().set(DBObjectProperty.SCHEMA_OBJECT);
     }

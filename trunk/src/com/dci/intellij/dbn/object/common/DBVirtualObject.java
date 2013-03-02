@@ -31,6 +31,8 @@ import com.intellij.psi.PsiReference;
 import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.NotNull;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Set;
 
@@ -60,6 +62,10 @@ public class DBVirtualObject extends DBObjectImpl implements PsiReference {
                 this.name = relevantPsiElement.getText();
             }
         }
+    }
+
+    @Override
+    protected void initObject(ResultSet resultSet) throws SQLException {
     }
 
     public boolean isValid() {

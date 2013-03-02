@@ -36,7 +36,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DBConstraintImpl extends DBSchemaObjectImpl implements DBConstraint {
-    private DBDataset dataset;
     private String fkOwner;
     private String fkName;
     private int constraintType;
@@ -47,14 +46,16 @@ public class DBConstraintImpl extends DBSchemaObjectImpl implements DBConstraint
 
     public DBConstraintImpl(DBDataset dataset, ResultSet resultSet) throws SQLException {
         super(dataset, DBContentType.NONE, resultSet);
+    }
 
-        this.dataset = dataset;
+    @Override
+    protected void initObject(ResultSet resultSet) throws SQLException {
         name = resultSet.getString("CONSTRAINT_NAME");
         checkCondition = resultSet.getString("CHECK_CONDITION");
 
         String typeString = resultSet.getString("CONSTRAINT_TYPE");
         constraintType =
-            typeString == null ? -1 :    
+            typeString == null ? -1 :
             typeString.equals("CHECK")? DBConstraint.CHECK :
             typeString.equals("UNIQUE") ? DBConstraint.UNIQUE_KEY :
             typeString.equals("PRIMARY KEY") ? DBConstraint.PRIMARY_KEY :
@@ -66,17 +67,24 @@ public class DBConstraintImpl extends DBSchemaObjectImpl implements DBConstraint
             fkOwner = resultSet.getString("FK_CONSTRAINT_OWNER");
             fkName = resultSet.getString("FK_CONSTRAINT_NAME");
         }
-
-        createLists();
     }
 
-    public void updateStatuses(ResultSet resultSet) throws SQLException {
+    @Override
+    protected void initLists() {
+        columns = getChildObjects().createSubcontentObjectList(
+                DBObjectType.COLUMN, this,
+                COLUMNS_LOADER, getDataset(),
+                DBObjectRelationType.CONSTRAINT_COLUMN, true);
+    }
+
+    @Override
+    public void initStatus(ResultSet resultSet) throws SQLException {
         boolean enabled = resultSet.getString("IS_ENABLED").equals("Y");
         getStatus().set(DBObjectStatus.ENABLED, enabled);
     }
 
     @Override
-    public void updateProperties() {
+    protected void initProperties() {
         getProperties().set(DBObjectProperty.SCHEMA_OBJECT);
         getProperties().set(DBObjectProperty.DISABLEABLE);
     }
@@ -85,13 +93,6 @@ public class DBConstraintImpl extends DBSchemaObjectImpl implements DBConstraint
     public Icon getIcon() {
         boolean enabled = getStatus().is(DBObjectStatus.ENABLED);
         return enabled ? Icons.DBO_CONSTRAINT : Icons.DBO_CONSTRAINT_DISABLED;
-    }
-
-    private void createLists() {
-        columns = getChildObjects().createSubcontentObjectList(
-                DBObjectType.COLUMN, this,
-                COLUMNS_LOADER, getDataset(),
-                DBObjectRelationType.CONSTRAINT_COLUMN, true);
     }
 
     public DBObjectType getObjectType() {
@@ -120,8 +121,7 @@ public class DBConstraintImpl extends DBSchemaObjectImpl implements DBConstraint
     }
 
     public DBDataset getDataset() {
-        dataset = (DBDataset) dataset.getUndisposedElement();
-        return dataset;
+        return (DBDataset) getParentObject();
     }
 
     public List<DBColumn> getColumns() {

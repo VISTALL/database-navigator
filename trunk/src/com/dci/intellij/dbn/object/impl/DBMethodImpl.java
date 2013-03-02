@@ -29,30 +29,29 @@ import java.util.List;
 
 public abstract class DBMethodImpl extends DBSchemaObjectImpl implements DBMethod {
     protected DBObjectList<DBArgument> arguments;
-    private DBSchema schema;
     boolean isDeterministic;
 
     public DBMethodImpl(DBSchemaObject parent, DBContentType contentType, ResultSet resultSet) throws SQLException {
         super(parent, contentType, resultSet);
-        schema = parent.getSchema();
-        initLists();
     }
 
     public DBMethodImpl(DBSchema schema, DBContentType contentType, ResultSet resultSet) throws SQLException {
         super(schema, contentType, resultSet);
-        isDeterministic = resultSet.getString("IS_DETERMINISTIC").equals("Y");
-        this.schema = schema;
-        initLists();
     }
 
     @Override
-    public void updateProperties() {
-        super.updateProperties();
+    protected void initObject(ResultSet resultSet) throws SQLException {
+        isDeterministic = resultSet.getString("IS_DETERMINISTIC").equals("Y");
+    }
+
+    @Override
+    public void initProperties() {
+        super.initProperties();
         getProperties().set(DBObjectProperty.COMPILABLE);
     }
 
     @Override
-    public void updateStatuses(ResultSet resultSet) throws SQLException {
+    public void initStatus(ResultSet resultSet) throws SQLException {
         boolean isValid = "Y".equals(resultSet.getString("IS_VALID"));
         boolean isDebug = "Y".equals(resultSet.getString("IS_DEBUG"));
         DBObjectStatusHolder objectStatus = getStatus();
@@ -60,14 +59,14 @@ public abstract class DBMethodImpl extends DBSchemaObjectImpl implements DBMetho
         objectStatus.set(DBObjectStatus.DEBUG, isDebug);
     }
 
-    @Override
-    public boolean isEditable(DBContentType contentType) {
-        return getContentType() == DBContentType.CODE && contentType == DBContentType.CODE;
-    }    
-
     protected void initLists() {
         DBObjectListContainer container = getChildObjects();
         arguments = container.createSubcontentObjectList(DBObjectType.ARGUMENT, this, ARGUMENTS_LOADER, getSchema(), true);
+    }
+
+    @Override
+    public boolean isEditable(DBContentType contentType) {
+        return getContentType() == DBContentType.CODE && contentType == DBContentType.CODE;
     }
 
     public boolean isDeterministic() {
@@ -97,11 +96,6 @@ public abstract class DBMethodImpl extends DBSchemaObjectImpl implements DBMetho
 
     public boolean isEmbedded() {
         return false;
-    }
-
-    public DBSchema getSchema() {
-        schema = (DBSchema) schema.getUndisposedElement();
-        return schema;
     }
 
     @Override

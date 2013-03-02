@@ -6,6 +6,7 @@ import com.dci.intellij.dbn.common.content.DynamicContentElement;
 import com.dci.intellij.dbn.common.environment.EnvironmentType;
 import com.dci.intellij.dbn.language.common.DBLanguage;
 import com.dci.intellij.dbn.language.common.DBLanguageDialect;
+import com.dci.intellij.dbn.object.DBSchema;
 import com.dci.intellij.dbn.object.DBUser;
 import com.dci.intellij.dbn.object.common.list.DBObjectListContainer;
 import com.dci.intellij.dbn.object.common.list.DBObjectNavigationList;
@@ -47,6 +48,7 @@ public interface DBObject extends BrowserTreeNode, PsiNamedElement, DynamicConte
     Icon getOriginalIcon();
 
     DBUser getOwner();
+    DBSchema getSchema();
     DBObject getParentObject();
 
     @Nullable

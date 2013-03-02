@@ -29,24 +29,28 @@ public class DBSynonymImpl extends DBSchemaObjectImpl implements DBSynonym {
 
     public DBSynonymImpl(DBSchema schema, ResultSet resultSet) throws SQLException {
         super(schema, DBContentType.NONE, resultSet);
+    }
+
+    @Override
+    protected void initObject(ResultSet resultSet) throws SQLException {
         name = resultSet.getString("SYNONYM_NAME");
         objectOwner = resultSet.getString("OBJECT_OWNER");
         objectName = resultSet.getString("OBJECT_NAME");
     }
 
-    public DBObjectType getObjectType() {
-        return DBObjectType.SYNONYM;
+    public void initStatus(ResultSet resultSet) throws SQLException {
+        boolean valid = resultSet.getString("IS_VALID").equals("Y");
+        getStatus().set(DBObjectStatus.VALID, valid);
     }
 
     @Override
-    public void updateProperties() {
+    public void initProperties() {
         getProperties().set(DBObjectProperty.REFERENCEABLE);
         getProperties().set(DBObjectProperty.SCHEMA_OBJECT);
     }
 
-    public void updateStatuses(ResultSet resultSet) throws SQLException {
-        boolean valid = resultSet.getString("IS_VALID").equals("Y");
-        getStatus().set(DBObjectStatus.VALID, valid);
+    public DBObjectType getObjectType() {
+        return DBObjectType.SYNONYM;
     }
 
     @Override

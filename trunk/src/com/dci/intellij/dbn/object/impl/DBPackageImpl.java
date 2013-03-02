@@ -37,15 +37,20 @@ public class DBPackageImpl extends DBProgramImpl implements DBPackage {
     protected DBObjectList<DBPackageType> types;
     public DBPackageImpl(DBSchema schema, ResultSet resultSet) throws SQLException {
         super(schema, DBContentType.CODE_SPEC_AND_BODY, resultSet);
-        name = resultSet.getString("PACKAGE_NAME");
-        initLists();
     }
 
+    @Override
+    protected void initObject(ResultSet resultSet) throws SQLException {
+        name = resultSet.getString("PACKAGE_NAME");
+    }
+
+    @Override
     protected void initLists() {
-        DBObjectListContainer container = getChildObjects();
-        functions = container.createSubcontentObjectList(DBObjectType.PACKAGE_FUNCTION, this, FUNCTIONS_LOADER, getSchema(), false);
-        procedures = container.createSubcontentObjectList(DBObjectType.PACKAGE_PROCEDURE, this, PROCEDURES_LOADER, getSchema(), false);
-        types = container.createSubcontentObjectList(DBObjectType.PACKAGE_TYPE, this, TYPES_LOADER, getSchema(), true);
+        DBSchema schema = getSchema();
+        DBObjectListContainer childObjects = getChildObjects();
+        functions = childObjects.createSubcontentObjectList(DBObjectType.PACKAGE_FUNCTION, this, FUNCTIONS_LOADER, schema, false);
+        procedures = childObjects.createSubcontentObjectList(DBObjectType.PACKAGE_PROCEDURE, this, PROCEDURES_LOADER, schema, false);
+        types = childObjects.createSubcontentObjectList(DBObjectType.PACKAGE_TYPE, this, TYPES_LOADER, schema, true);
     }
 
     public List getTypes() {

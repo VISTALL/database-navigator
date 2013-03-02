@@ -41,20 +41,25 @@ public class DBTableImpl extends DBDatasetImpl implements DBTable {
     private DBObjectList<DBNestedTable> nestedTables;
 
     public DBTableImpl(DBSchema schema, ResultSet resultSet) throws SQLException {
-        super(schema, DBContentType.DATA);
+        super(schema, DBContentType.DATA, resultSet);
+    }
+
+    @Override
+    protected void initObject(ResultSet resultSet) throws SQLException {
         name = resultSet.getString("TABLE_NAME");
         isTemporary = resultSet.getString("IS_TEMPORARY").equals("Y");
     }
 
+    @Override
     protected void initLists() {
         super.initLists();
+        DBSchema schema = getSchema();
+        DBObjectListContainer childObjects = getChildObjects();
+        indexes = childObjects.createSubcontentObjectList(DBObjectType.INDEX, this, INDEXES_LOADER, schema, false);
+        nestedTables = childObjects.createSubcontentObjectList(DBObjectType.NESTED_TABLE, this, NESTED_TABLES_LOADER, schema, false);
 
-        DBObjectListContainer container = getChildObjects();
-        indexes = container.createSubcontentObjectList(DBObjectType.INDEX, this, INDEXES_LOADER, getSchema(), false);
-        nestedTables = container.createSubcontentObjectList(DBObjectType.NESTED_TABLE, this, NESTED_TABLES_LOADER, getSchema(), false);
-
-        DBObjectRelationListContainer orl = getChildObjectRelations();
-        orl.createSubcontentObjectRelationList(DBObjectRelationType.INDEX_COLUMN, this, "Index column relations", INDEX_COLUMN_RELATION_LOADER, getSchema());
+        DBObjectRelationListContainer childObjectRelations = getChildObjectRelations();
+        childObjectRelations.createSubcontentObjectRelationList(DBObjectRelationType.INDEX_COLUMN, this, "Index column relations", INDEX_COLUMN_RELATION_LOADER, schema);
     }
 
     public DBObjectType getObjectType() {

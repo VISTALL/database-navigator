@@ -1,6 +1,7 @@
 package com.dci.intellij.dbn.object.impl;
 
 import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
+import com.dci.intellij.dbn.editor.DBContentType;
 import com.dci.intellij.dbn.object.DBGrantedRole;
 import com.dci.intellij.dbn.object.DBRole;
 import com.dci.intellij.dbn.object.DBRoleGrantee;
@@ -14,14 +15,16 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class DBGrantedRoleImpl extends DBObjectImpl implements DBGrantedRole {
-    private DBRoleGrantee grantee;
     private DBRole role;
     private boolean isAdminOption;
     private boolean isDefaultRole;
 
     public DBGrantedRoleImpl(DBRoleGrantee grantee, ResultSet resultSet) throws SQLException {
-        super(grantee);
-        this.grantee = grantee;
+        super(grantee, DBContentType.NONE, resultSet);
+    }
+
+    @Override
+    protected void initObject(ResultSet resultSet) throws SQLException {
         this.name = resultSet.getString("GRANTED_ROLE_NAME");
         this.role = getConnectionHandler().getObjectBundle().getRole(name);
         this.isAdminOption = resultSet.getString("IS_ADMIN_OPTION").equals("Y");
@@ -33,7 +36,7 @@ public class DBGrantedRoleImpl extends DBObjectImpl implements DBGrantedRole {
     }
 
     public DBRoleGrantee getGrantee() {
-        return grantee;
+        return (DBRoleGrantee) getParentObject();
     }
 
     public DBRole getRole() {
