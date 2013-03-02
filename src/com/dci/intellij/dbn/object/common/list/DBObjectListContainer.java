@@ -20,15 +20,12 @@ import java.util.Map;
 import java.util.Set;
 
 public class DBObjectListContainer implements Disposable {
-    ConnectionHandler connectionHandler;
-
     private Map<DBObjectType, DBObjectList<DBObject>> objectLists;
     private Map<DBObjectType, DBObjectList<DBObject>> hiddenObjectLists;
-    private Object owner;
+    private GenericDatabaseElement owner;
 
-    public DBObjectListContainer(Object owner, ConnectionHandler connectionHandler) {
+    public DBObjectListContainer(GenericDatabaseElement owner) {
         this.owner = owner;
-        this.connectionHandler = connectionHandler;
     }
     
     public Collection<DBObjectList<DBObject>> getObjectLists() {
@@ -144,6 +141,7 @@ public class DBObjectListContainer implements Disposable {
     }
 
     private boolean isSupported(DBObjectType objectType) {
+        ConnectionHandler connectionHandler = owner.getConnectionHandler();
         return connectionHandler == null ||
                 DatabaseCompatibilityInterface.getInstance(connectionHandler).supportsObjectType(objectType.getTypeId());
     }

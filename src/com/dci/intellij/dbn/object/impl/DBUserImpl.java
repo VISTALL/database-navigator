@@ -41,7 +41,7 @@ public class DBUserImpl extends DBObjectImpl implements DBUser {
     private boolean isLocked;
 
     public DBUserImpl(ConnectionHandler connectionHandler, ResultSet resultSet) throws SQLException {
-        super(connectionHandler, DBContentType.NONE, resultSet);
+        super(connectionHandler.getObjectBundle(), DBContentType.NONE, resultSet);
     }
 
     @Override

@@ -31,7 +31,7 @@ public class DBRoleImpl extends DBObjectImpl implements DBRole {
     DBObjectList<DBGrantedRole> grantedRoles;
 
     public DBRoleImpl(ConnectionHandler connectionHandler, ResultSet resultSet) throws SQLException {
-        super(connectionHandler, DBContentType.NONE, resultSet);
+        super(connectionHandler.getObjectBundle(), DBContentType.NONE, resultSet);
     }
 
     @Override

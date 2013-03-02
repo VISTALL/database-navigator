@@ -50,6 +50,7 @@ public interface DBObject extends BrowserTreeNode, PsiNamedElement, DynamicConte
     DBUser getOwner();
     DBSchema getSchema();
     DBObject getParentObject();
+    DBObjectBundle getObjectBundle();
 
     @Nullable
     DBObject getDefaultNavigationObject();

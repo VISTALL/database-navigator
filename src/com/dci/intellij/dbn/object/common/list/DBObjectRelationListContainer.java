@@ -15,11 +15,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DBObjectRelationListContainer implements Disposable {
-    ConnectionHandler connectionHandler;
+    private GenericDatabaseElement owner;
     private List<DBObjectRelationList> objectRelationLists = new ArrayList<DBObjectRelationList>();
 
-    public DBObjectRelationListContainer(ConnectionHandler connectionHandler) {
-        this.connectionHandler = connectionHandler;
+    public DBObjectRelationListContainer(GenericDatabaseElement owner) {
+        this.owner = owner;
     }
 
     public List<DBObjectRelationList> getObjectRelationLists() {
@@ -27,6 +27,7 @@ public class DBObjectRelationListContainer implements Disposable {
     }
 
     private boolean isSupported(DBObjectRelationType objectRelationType) {
+        ConnectionHandler connectionHandler = owner.getConnectionHandler();
         DatabaseCompatibilityInterface compatibilityInterface = DatabaseCompatibilityInterface.getInstance(connectionHandler);
         return connectionHandler == null ||
                 (compatibilityInterface.supportsObjectType(objectRelationType.getSourceType().getTypeId()) &&

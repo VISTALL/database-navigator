@@ -15,7 +15,7 @@ import java.util.List;
 public class DBCharsetImpl extends DBObjectImpl implements DBCharset {
     private int maxLength;
     public DBCharsetImpl(ConnectionHandler connectionHandler, ResultSet resultSet) throws SQLException {
-        super(connectionHandler, DBContentType.NONE, resultSet);
+        super(connectionHandler.getObjectBundle(), DBContentType.NONE, resultSet);
     }
 
     @Override
