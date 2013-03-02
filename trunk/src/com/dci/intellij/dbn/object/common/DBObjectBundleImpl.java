@@ -95,7 +95,7 @@ public class DBObjectBundleImpl implements DBObjectBundle {
         this.treeDepth = treeParent.getTreeDepth() + 1;
         connectionConfigHash = connectionHandler.getSettings().getDatabaseSettings().hashCode();
 
-        this.objectLists = new DBObjectListContainer(this, connectionHandler);
+        this.objectLists = new DBObjectListContainer(this);
         users = objectLists.createObjectList(DBObjectType.USER, this, USERS_LOADER, true, false);
         schemas = objectLists.createObjectList(DBObjectType.SCHEMA, this, SCHEMAS_LOADER, new DBObjectList[]{users}, true, false);
         roles = objectLists.createObjectList(DBObjectType.ROLE, this, ROLES_LOADER, true, false);
@@ -103,7 +103,7 @@ public class DBObjectBundleImpl implements DBObjectBundle {
         charsets = objectLists.createObjectList(DBObjectType.CHARSET, this, CHARSETS_LOADER, true, false);
         allPossibleTreeChildren = DatabaseBrowserUtils.createList(schemas, users, roles, privileges, charsets);
 
-        objectRelationLists = new DBObjectRelationListContainer(connectionHandler);
+        objectRelationLists = new DBObjectRelationListContainer(this);
         objectRelationLists.createObjectRelationList(
                 DBObjectRelationType.USER_ROLE, this,
                 "User role relations",

@@ -19,7 +19,7 @@ import java.util.List;
 
 public class DBPrivilegeImpl extends DBObjectImpl implements DBPrivilege {
     public DBPrivilegeImpl(ConnectionHandler connectionHandler, ResultSet resultSet) throws SQLException {
-        super(connectionHandler, DBContentType.NONE, resultSet);
+        super(connectionHandler.getObjectBundle(), DBContentType.NONE, resultSet);
     }
 
     @Override

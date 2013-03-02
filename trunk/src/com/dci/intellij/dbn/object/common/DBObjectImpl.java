@@ -21,6 +21,7 @@ import com.dci.intellij.dbn.common.thread.ConditionalLaterInvocator;
 import com.dci.intellij.dbn.common.ui.tree.TreeEventType;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.ConnectionUtil;
+import com.dci.intellij.dbn.connection.GenericDatabaseElement;
 import com.dci.intellij.dbn.database.DatabaseCompatibilityInterface;
 import com.dci.intellij.dbn.editor.DBContentType;
 import com.dci.intellij.dbn.language.common.DBLanguage;
@@ -74,10 +75,9 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
     protected String name;
     protected String qualifiedName;
     protected DBUser owner;
-    private ConnectionHandler connectionHandler;
     private DBObjectListContainer childObjects;
     private DBObjectRelationListContainer childObjectRelations;
-    private DBObject parentObject;
+    private GenericDatabaseElement parentDatabaseElement;
     private DBObjectProperties properties;
 
     private LookupItemFactory sqlLookupItemFactory;
@@ -95,21 +95,20 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
     protected Logger getLogger() {return Logger.getInstance(getClass().getName());}
 
     public DBObjectImpl(DBObject parentObject, DBContentType contentType, ResultSet resultSet) throws SQLException {
-        this.parentObject = parentObject;
-        this.connectionHandler = parentObject.getConnectionHandler();
+        this.parentDatabaseElement = parentObject;
         this.owner = parentObject.getOwner();
         this.contentType = contentType;
         init(resultSet);
     }
 
-    public DBObjectImpl(ConnectionHandler connectionHandler, DBContentType contentType, ResultSet resultSet) throws SQLException {
-        this.connectionHandler = connectionHandler;
+    public DBObjectImpl(DBObjectBundle objectBundle, DBContentType contentType, ResultSet resultSet) throws SQLException {
+        this.parentDatabaseElement = objectBundle;
         this.contentType = contentType;
         init(resultSet);
     }
 
-    public DBObjectImpl(ConnectionHandler connectionHandler, String name) {
-        this.connectionHandler = connectionHandler;
+    public DBObjectImpl(DBObjectBundle objectBundle, String name) {
+        this.parentDatabaseElement = objectBundle;
         this.name = name;
     }
 
@@ -130,10 +129,13 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
     protected void initLists() {}
 
     private void initTreeInfo() {
-        DBObject parentObject = getParentObject();
-        treeParent = parentObject == null ?
-                connectionHandler.getObjectBundle().getObjectListContainer().getObjectList(getObjectType()) :
-                parentObject.getChildObjects().getObjectList(getObjectType());
+        if (parentDatabaseElement instanceof DBObjectBundle){
+            DBObjectBundle objectBundle = (DBObjectBundle) parentDatabaseElement;
+            treeParent = objectBundle.getObjectListContainer().getObjectList(getObjectType());
+        } else if (parentDatabaseElement instanceof DBObject) {
+            DBObject object = (DBObject) parentDatabaseElement;
+            treeParent = object.getChildObjects().getObjectList(getObjectType());
+        }
         treeDepth = treeParent.getTreeDepth() + 1;
     }
 
@@ -182,10 +184,11 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
     }
 
     public DBObject getParentObject() {
-        if (parentObject != null) {
-            parentObject = parentObject.getUndisposedElement();
+        if (parentDatabaseElement instanceof DBObject) {
+            parentDatabaseElement = parentDatabaseElement.getUndisposedElement();
+            return (DBObject) parentDatabaseElement;
         }
-        return parentObject;
+        return null;
     }
 
     public DBObject getDefaultNavigationObject() {
@@ -295,13 +298,18 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
     public DBObjectAttribute[] getObjectAttributes(){return null;}
     public DBObjectAttribute getNameAttribute(){return null;}
 
+    @Override
+    public DBObjectBundle getObjectBundle() {
+        return getConnectionHandler().getObjectBundle();
+    }
+
     public ConnectionHandler getConnectionHandler() {
-        return connectionHandler;
+        return parentDatabaseElement.getConnectionHandler();
     }
 
     @Override
     public EnvironmentType getEnvironmentType() {
-        return connectionHandler.getEnvironmentType();
+        return getConnectionHandler().getEnvironmentType();
     }
 
     public DBLanguageDialect getLanguageDialect(DBLanguage language) {
@@ -310,14 +318,14 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
 
     public DBObjectListContainer getChildObjects() {
         if (childObjects == null) {
-            childObjects = new DBObjectListContainer(this, connectionHandler);
+            childObjects = new DBObjectListContainer(this);
         }
         return childObjects;
     }
 
     public DBObjectRelationListContainer getChildObjectRelations() {
         if (childObjectRelations == null) {
-            childObjectRelations = new DBObjectRelationListContainer(connectionHandler);
+            childObjectRelations = new DBObjectRelationListContainer(this);
         }
         return childObjectRelations;
 
@@ -555,7 +563,7 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
     }
 
     private void buildTreeChildren() {
-        Filter<BrowserTreeNode> filter = connectionHandler.getObjectFilter();
+        Filter<BrowserTreeNode> filter = getConnectionHandler().getObjectFilter();
         List<BrowserTreeNode> allPossibleTreeChildren = getAllPossibleTreeChildren();
         List<BrowserTreeNode> newTreeChildren = allPossibleTreeChildren;
         if (allPossibleTreeChildren.size() > 0) {
@@ -594,7 +602,7 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
     }
 
     public void rebuildTreeChildren() {
-        Filter<BrowserTreeNode> filter = connectionHandler.getObjectFilter();
+        Filter<BrowserTreeNode> filter = getConnectionHandler().getObjectFilter();
         if (visibleTreeChildren != null && DatabaseBrowserUtils.treeVisibilityChanged(getAllPossibleTreeChildren(), visibleTreeChildren, filter)) {
             buildTreeChildren();
         }
@@ -609,7 +617,7 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
     public abstract List<BrowserTreeNode> buildAllPossibleTreeChildren();
 
     public boolean isLeafTreeElement() {
-        Filter<BrowserTreeNode> filter = connectionHandler.getObjectFilter();
+        Filter<BrowserTreeNode> filter = getConnectionHandler().getObjectFilter();
         for (BrowserTreeNode treeNode : getAllPossibleTreeChildren() ) {
             if (treeNode != null && filter.accepts(treeNode)) {
                 return false;
@@ -690,7 +698,7 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
             properties.add(new DBObjectPresentableProperty(parent));
             parent = parent.getParentObject();
         }
-        properties.add(new ConnectionPresentableProperty(connectionHandler));
+        properties.add(new ConnectionPresentableProperty(getConnectionHandler()));
 
         return properties;
     }

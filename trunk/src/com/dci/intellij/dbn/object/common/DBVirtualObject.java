@@ -42,7 +42,8 @@ public class DBVirtualObject extends DBObjectImpl implements PsiReference {
     private BasePsiElement relevantPsiElement;
 
     public DBVirtualObject(DBObjectType objectType, BasePsiElement psiElement) {
-        super(psiElement.getActiveConnection(), psiElement.getText());
+        super(psiElement.getActiveConnection() == null ? null :
+                psiElement.getActiveConnection().getObjectBundle(), psiElement.getText());
 
         underlyingPsiElement = psiElement;
         relevantPsiElement = psiElement;

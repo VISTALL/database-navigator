@@ -90,7 +90,7 @@ public class DBSchemaImpl extends DBObjectImpl implements DBSchema {
     List<DBObject> allObjects;
 
     public DBSchemaImpl(ConnectionHandler connectionHandler, ResultSet resultSet) throws SQLException {
-        super(connectionHandler, DBContentType.NONE, resultSet);
+        super(connectionHandler.getObjectBundle(), DBContentType.NONE, resultSet);
     }
 
     @Override
