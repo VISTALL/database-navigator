@@ -90,18 +90,22 @@ public class DBSchemaImpl extends DBObjectImpl implements DBSchema {
     List<DBObject> allObjects;
 
     public DBSchemaImpl(ConnectionHandler connectionHandler, ResultSet resultSet) throws SQLException {
-        super(connectionHandler);
+        super(connectionHandler, DBContentType.NONE, resultSet);
+    }
+
+    @Override
+    protected void initObject(ResultSet resultSet) throws SQLException {
         name = resultSet.getString("SCHEMA_NAME");
         isPublicSchema = resultSet.getString("IS_PUBLIC").equals("Y");
         isSystemSchema = resultSet.getString("IS_SYSTEM").equals("Y");
 
-        owner = connectionHandler.getObjectBundle().getUser(name);
+        owner = getConnectionHandler().getObjectBundle().getUser(name);
         if (owner != null) owner.setSchema(this);
-        initLists();
         isUserSchema = getName().equalsIgnoreCase(getConnectionHandler().getUserName());
     }
 
-    private void initLists() {
+    @Override
+    protected void initLists() {
         DBObjectListContainer ol = getChildObjects();
         DBObjectRelationListContainer orl = getChildObjectRelations();
 
@@ -147,7 +151,7 @@ public class DBSchemaImpl extends DBObjectImpl implements DBSchema {
     }
 
     @Override
-    public void updateProperties() {}
+    public void initProperties() {}
 
     public DBObjectType getObjectType() {
         return DBObjectType.SCHEMA;

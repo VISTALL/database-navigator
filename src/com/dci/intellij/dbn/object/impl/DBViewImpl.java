@@ -29,7 +29,11 @@ public class DBViewImpl extends DBDatasetImpl implements DBView {
     private boolean isSystemView;
     private DBType type;
     public DBViewImpl(DBSchema schema, ResultSet resultSet) throws SQLException {
-        super(schema, DBContentType.CODE_AND_DATA);
+        super(schema, DBContentType.CODE_AND_DATA, resultSet);
+    }
+
+    @Override
+    protected void initObject(ResultSet resultSet) throws SQLException {
         name = resultSet.getString("VIEW_NAME");
         isSystemView = resultSet.getString("IS_SYSTEM_VIEW").equals("Y");
         if (isSystemView) setContentType(DBContentType.DATA);

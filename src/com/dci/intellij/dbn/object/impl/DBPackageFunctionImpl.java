@@ -11,26 +11,28 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class DBPackageFunctionImpl extends DBFunctionImpl implements DBPackageFunction {
-    private DBPackage packagee;
     private int overload;
 
     public DBPackageFunctionImpl(DBPackage packagee, ResultSet resultSet) throws SQLException {
         super(packagee, resultSet);
-        this.packagee = packagee;
+    }
+
+    @Override
+    protected void initObject(ResultSet resultSet) throws SQLException {
+        name = resultSet.getString("FUNCTION_NAME");
         overload = resultSet.getInt("OVERLOAD");
     }
 
     @Override
-    public void updateStatuses(ResultSet resultSet) throws SQLException {}
+    public void initStatus(ResultSet resultSet) throws SQLException {}
 
     @Override
-    public void updateProperties() {
+    public void initProperties() {
         getProperties().set(DBObjectProperty.NAVIGABLE);
     }
 
     public DBPackage getPackage() {
-        packagee = (DBPackage) packagee.getUndisposedElement();
-        return packagee;
+        return (DBPackage) getParentObject();
     }
 
     @Override
@@ -61,6 +63,5 @@ public class DBPackageFunctionImpl extends DBFunctionImpl implements DBPackageFu
     @Override
     public void dispose() {
         super.dispose();
-        //packagee = null;
     }
 }

@@ -11,27 +11,28 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class DBPackageProcedureImpl extends DBProcedureImpl implements DBPackageProcedure {
-    private DBPackage packagee;
     private int overload;
 
     public DBPackageProcedureImpl(DBPackage packagee, ResultSet resultSet) throws SQLException {
         super(packagee, resultSet);
-        this.packagee = packagee;
+    }
+
+    @Override
+    protected void initObject(ResultSet resultSet) throws SQLException {
+        name = resultSet.getString("PROCEDURE_NAME");
         overload = resultSet.getInt("OVERLOAD");
     }
 
     @Override
-    public void updateStatuses(ResultSet resultSet) throws SQLException {}
+    public void initStatus(ResultSet resultSet) throws SQLException {}
 
     @Override
-    public void updateProperties() {
+    public void initProperties() {
         getProperties().set(DBObjectProperty.NAVIGABLE);
     }
 
-
     public DBPackage getPackage() {
-        packagee = (DBPackage) packagee.getUndisposedElement();
-        return packagee;
+        return (DBPackage) getParentObject();
     }
 
     @Override

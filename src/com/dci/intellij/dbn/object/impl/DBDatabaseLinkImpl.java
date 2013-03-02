@@ -18,18 +18,23 @@ public class DBDatabaseLinkImpl extends DBSchemaObjectImpl implements DBDatabase
     private String userName;
     private String host;
     public DBDatabaseLinkImpl(DBSchema schema, ResultSet resultSet) throws SQLException {
-        super(schema, DBContentType.NONE, null);
+        super(schema, DBContentType.NONE, resultSet);
+    }
+
+    @Override
+    protected void initObject(ResultSet resultSet) throws SQLException {
         name = resultSet.getString("DBLINK_NAME");
         userName = resultSet.getString("USER_NAME");
         host = resultSet.getString("HOST");
     }
 
-    public DBObjectType getObjectType() {
-        return DBObjectType.DBLINK;
+    @Override
+    public void initProperties() {
+        getProperties().set(DBObjectProperty.SCHEMA_OBJECT);
     }
 
-    public void updateProperties() {
-        getProperties().set(DBObjectProperty.SCHEMA_OBJECT);
+    public DBObjectType getObjectType() {
+        return DBObjectType.DBLINK;
     }
 
     public void buildToolTip(HtmlToolTipBuilder ttb) {

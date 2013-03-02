@@ -7,6 +7,7 @@ import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.content.loader.DynamicContentLoader;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.database.DatabaseCompatibilityInterface;
+import com.dci.intellij.dbn.editor.DBContentType;
 import com.dci.intellij.dbn.object.DBGrantedPrivilege;
 import com.dci.intellij.dbn.object.DBGrantedRole;
 import com.dci.intellij.dbn.object.DBPrivilege;
@@ -40,19 +41,23 @@ public class DBUserImpl extends DBObjectImpl implements DBUser {
     private boolean isLocked;
 
     public DBUserImpl(ConnectionHandler connectionHandler, ResultSet resultSet) throws SQLException {
-        super(connectionHandler);
+        super(connectionHandler, DBContentType.NONE, resultSet);
+    }
+
+    @Override
+    protected void initObject(ResultSet resultSet) throws SQLException {
         owner = this;
         name = resultSet.getString("USER_NAME");
         isExpired = resultSet.getString("IS_EXPIRED").equals("Y");
         isLocked = resultSet.getString("IS_LOCKED").equals("Y");
-        initLists();
     }
 
-    private void initLists() {
-        DBObjectListContainer ol = getChildObjects();
+    @Override
+    protected void initLists() {
+        DBObjectListContainer childObjects = getChildObjects();
         DBObjectBundle sourceContentHolder = getConnectionHandler().getObjectBundle();
-        roles = ol.createSubcontentObjectList(DBObjectType.GRANTED_ROLE, this, ROLES_LOADER, sourceContentHolder, DBObjectRelationType.USER_ROLE, true);
-        privileges = ol.createSubcontentObjectList(DBObjectType.GRANTED_PRIVILEGE, this, PRIVILEGES_LOADER, sourceContentHolder, DBObjectRelationType.USER_PRIVILEGE, true);
+        roles = childObjects.createSubcontentObjectList(DBObjectType.GRANTED_ROLE, this, ROLES_LOADER, sourceContentHolder, DBObjectRelationType.USER_ROLE, true);
+        privileges = childObjects.createSubcontentObjectList(DBObjectType.GRANTED_PRIVILEGE, this, PRIVILEGES_LOADER, sourceContentHolder, DBObjectRelationType.USER_PRIVILEGE, true);
     }
 
 

@@ -29,38 +29,26 @@ import java.util.List;
 
 
 public abstract class DBSchemaObjectImpl extends DBObjectImpl implements DBSchemaObject {
-    private DBContentType contentType;
-    private DBSchema schema;
     private DBObjectList<DBObject> referencedObjects;
     private DBObjectList<DBObject> referencingObjects;
     private DBObjectStatusHolder objectStatus;
 
     public DBSchemaObjectImpl(DBSchema schema, DBContentType contentType, ResultSet resultSet) throws SQLException {
-        super(schema);
-        this.schema = schema;
-        this.contentType = contentType;
-        createLists();
-        updateStatuses(resultSet);
+        super(schema, contentType, resultSet);
     }
 
     public DBSchemaObjectImpl(DBSchemaObject parent, DBContentType contentType, ResultSet resultSet) throws SQLException {
-        super(parent);
-        this.schema = parent.getSchema();
-        this.contentType = contentType;
-        createLists();
-        updateStatuses(resultSet);
-
+        super(parent, contentType, resultSet);
     }
 
-    public void updateProperties() {
+    protected void initProperties() {
         getProperties().set(DBObjectProperty.EDITABLE);
         getProperties().set(DBObjectProperty.REFERENCEABLE);
         getProperties().set(DBObjectProperty.SCHEMA_OBJECT);
     }
 
-    public void updateStatuses(ResultSet resultSet) throws SQLException {};
-
-    private void createLists() {
+    @Override
+    protected void initLists() {
         if (getProperties().is(DBObjectProperty.REFERENCEABLE)) {
             DBObjectListContainer childObjects = getChildObjects();
             referencedObjects = childObjects.createObjectList(DBObjectType.ANY, this, REFERENCED_OBJECTS_LOADER, false, true);
@@ -75,21 +63,8 @@ public abstract class DBSchemaObjectImpl extends DBObjectImpl implements DBSchem
         return objectStatus;
     }
 
-    public void setContentType(DBContentType contentType) {
-        this.contentType = contentType;
-    }
-
-    public DBContentType getContentType() {
-        return contentType;
-    }
-
     public boolean isEditable(DBContentType contentType) {
         return false;
-    }
-
-    public DBSchema getSchema() {
-        schema = (DBSchema) schema.getUndisposedElement();
-        return schema;
     }
 
     public List<DBObject> getReferencedObjects() {

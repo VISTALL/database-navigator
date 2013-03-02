@@ -16,6 +16,10 @@ import java.util.List;
 public class DBClusterImpl extends DBSchemaObjectImpl implements DBCluster {
     public DBClusterImpl(DBSchema parent, ResultSet resultSet) throws SQLException {
         super(parent, DBContentType.NONE, resultSet);
+    }
+
+    @Override
+    protected void initObject(ResultSet resultSet) throws SQLException {
         name = resultSet.getString("CLUSTER_NAME");
     }
 

@@ -4,6 +4,7 @@ import com.dci.intellij.dbn.browser.DatabaseBrowserUtils;
 import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
 import com.dci.intellij.dbn.common.content.loader.DynamicContentLoader;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
+import com.dci.intellij.dbn.editor.DBContentType;
 import com.dci.intellij.dbn.object.DBGrantedPrivilege;
 import com.dci.intellij.dbn.object.DBGrantedRole;
 import com.dci.intellij.dbn.object.DBPrivilege;
@@ -29,14 +30,17 @@ public class DBRoleImpl extends DBObjectImpl implements DBRole {
     DBObjectList<DBGrantedPrivilege> privileges;
     DBObjectList<DBGrantedRole> grantedRoles;
 
-
     public DBRoleImpl(ConnectionHandler connectionHandler, ResultSet resultSet) throws SQLException {
-        super(connectionHandler);
-        name = resultSet.getString("ROLE_NAME");
-        initLists();
+        super(connectionHandler, DBContentType.NONE, resultSet);
     }
 
-    private void initLists() {
+    @Override
+    protected void initObject(ResultSet resultSet) throws SQLException {
+        name = resultSet.getString("ROLE_NAME");
+    }
+
+    @Override
+    protected void initLists() {
         DBObjectListContainer ol = getChildObjects();
         DBObjectBundle sourceContentHolder = getConnectionHandler().getObjectBundle();
         privileges = ol.createSubcontentObjectList(DBObjectType.GRANTED_PRIVILEGE, this, PRIVILEGES_LOADER, sourceContentHolder, DBObjectRelationType.ROLE_PRIVILEGE, true);

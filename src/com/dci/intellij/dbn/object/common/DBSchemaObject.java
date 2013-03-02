@@ -3,7 +3,6 @@ package com.dci.intellij.dbn.object.common;
 import com.dci.intellij.dbn.ddl.DDLFileType;
 import com.dci.intellij.dbn.editor.DBContentType;
 import com.dci.intellij.dbn.language.common.DBLanguage;
-import com.dci.intellij.dbn.object.DBSchema;
 import com.dci.intellij.dbn.object.common.loader.DBObjectTimestampLoader;
 import com.dci.intellij.dbn.object.common.status.DBObjectStatusHolder;
 import com.dci.intellij.dbn.vfs.DatabaseEditableObjectFile;
@@ -14,7 +13,6 @@ import java.sql.Timestamp;
 import java.util.List;
 
 public interface DBSchemaObject extends DBObject {
-    DBSchema getSchema();
     List<DBObject> getReferencedObjects();
     List<DBObject> getReferencingObjects();
     DBContentType getContentType();

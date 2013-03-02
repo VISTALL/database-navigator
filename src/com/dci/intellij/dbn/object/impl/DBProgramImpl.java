@@ -32,12 +32,12 @@ public abstract class DBProgramImpl<P extends DBProcedure, F extends DBFunction>
     }
 
     @Override
-    public void updateProperties() {
-        super.updateProperties();
+    public void initProperties() {
+        super.initProperties();
         getProperties().set(DBObjectProperty.COMPILABLE);
     }
 
-    public void updateStatuses(ResultSet resultSet) throws SQLException {
+    public void initStatus(ResultSet resultSet) throws SQLException {
         String specValidString = resultSet.getString("IS_SPEC_VALID");
         String bodyValidString = resultSet.getString("IS_BODY_VALID");
 

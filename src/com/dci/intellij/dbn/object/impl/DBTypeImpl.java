@@ -52,31 +52,31 @@ public class DBTypeImpl extends DBProgramImpl implements DBType {
         // type functions are not editable independently
         super(parent, DBContentType.NONE, resultSet);
         assert this.getClass() != DBTypeImpl.class;
-        name = resultSet.getString("TYPE_NAME");
-        initLists();
     }
 
     public DBTypeImpl(DBSchema schema, ResultSet resultSet) throws SQLException {
         super(schema, DBContentType.CODE_SPEC_AND_BODY, resultSet);
-        name = resultSet.getString("TYPE_NAME");
+    }
 
+    @Override
+    protected void initObject(ResultSet resultSet) throws SQLException {
+        name = resultSet.getString("TYPE_NAME");
         superTypeOwner = resultSet.getString("SUPERTYPE_OWNER");
         superTypeName = resultSet.getString("SUPERTYPE_NAME");
 
         String typecode = resultSet.getString("TYPECODE");
-        isCollection = typecode.equals("COLLECTION");
-        nativeDataType = schema.getConnectionHandler().getObjectBundle().getNativeDataType(typecode);
-
-        initLists();
+        isCollection = "COLLECTION".equals(typecode);
+        nativeDataType = getConnectionHandler().getObjectBundle().getNativeDataType(typecode);
     }
 
     protected void initLists() {
-        DBObjectListContainer container = getChildObjects();
         if (!isCollection()) {
-            attributes = container.createSubcontentObjectList(DBObjectType.TYPE_ATTRIBUTE, this, ATTRIBUTES_LOADER, getSchema(), true);
-            procedures = container.createSubcontentObjectList(DBObjectType.TYPE_PROCEDURE, this, PROCEDURES_LOADER, getSchema(), false);
-            functions = container.createSubcontentObjectList(DBObjectType.TYPE_FUNCTION, this, FUNCTIONS_LOADER, getSchema(), false);
-            subTypes = container.createSubcontentObjectList(DBObjectType.TYPE, this, SUB_TYPES_LOADER, getSchema(), true);
+            DBObjectListContainer container = getChildObjects();
+            DBSchema schema = getSchema();
+            attributes = container.createSubcontentObjectList(DBObjectType.TYPE_ATTRIBUTE, this, ATTRIBUTES_LOADER, schema, true);
+            procedures = container.createSubcontentObjectList(DBObjectType.TYPE_PROCEDURE, this, PROCEDURES_LOADER, schema, false);
+            functions = container.createSubcontentObjectList(DBObjectType.TYPE_FUNCTION, this, FUNCTIONS_LOADER, schema, false);
+            subTypes = container.createSubcontentObjectList(DBObjectType.TYPE, this, SUB_TYPES_LOADER, schema, true);
         }
     }
 

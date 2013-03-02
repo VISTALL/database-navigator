@@ -5,6 +5,7 @@ import com.dci.intellij.dbn.browser.ui.HtmlToolTipBuilder;
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.content.loader.DynamicContentLoader;
 import com.dci.intellij.dbn.data.type.DBDataType;
+import com.dci.intellij.dbn.editor.DBContentType;
 import com.dci.intellij.dbn.object.DBColumn;
 import com.dci.intellij.dbn.object.DBConstraint;
 import com.dci.intellij.dbn.object.DBDataset;
@@ -39,7 +40,6 @@ import java.util.List;
 
 public class DBColumnImpl extends DBObjectImpl implements DBColumn {
     private DBDataType dataType;
-    private DBDataset dataset;
     private boolean isPrimaryKey;
     private boolean isForeignKey;
     private boolean isNullable;
@@ -50,9 +50,10 @@ public class DBColumnImpl extends DBObjectImpl implements DBColumn {
     private DBObjectList<DBIndex> indexes;
 
     public DBColumnImpl(DBDataset dataset, ResultSet resultSet) throws SQLException {
-        super(dataset);
-        this.dataset = dataset;
+        super(dataset, DBContentType.NONE, resultSet);
+    }
 
+    protected void initObject(ResultSet resultSet) throws SQLException {
         name = resultSet.getString("COLUMN_NAME");
         isPrimaryKey = "Y".equals(resultSet.getString("IS_PRIMARY_KEY"));
         isForeignKey = "Y".equals(resultSet.getString("IS_FOREIGN_KEY"));
@@ -61,19 +62,17 @@ public class DBColumnImpl extends DBObjectImpl implements DBColumn {
         position = resultSet.getInt("POSITION");
 
         dataType = new DBDataType(this, resultSet);
-
-        createLists();
     }
 
-    private void createLists() {
-        DBObjectListContainer container = getChildObjects();
-        constraints = container.createSubcontentObjectList(DBObjectType.CONSTRAINT, this, CONSTRAINTS_LOADER, getDataset(), DBObjectRelationType.CONSTRAINT_COLUMN, false);
-        indexes = container.createSubcontentObjectList(DBObjectType.INDEX, this, INDEXES_LOADER, getDataset(), DBObjectRelationType.INDEX_COLUMN, false);
+    protected void initLists() {
+        DBObjectListContainer childObjects = getChildObjects();
+        constraints = childObjects.createSubcontentObjectList(DBObjectType.CONSTRAINT, this, CONSTRAINTS_LOADER, getDataset(), DBObjectRelationType.CONSTRAINT_COLUMN, false);
+        indexes = childObjects.createSubcontentObjectList(DBObjectType.INDEX, this, INDEXES_LOADER, getDataset(), DBObjectRelationType.INDEX_COLUMN, false);
 
         DBType declaredType = dataType.getDeclaredType();
         if (declaredType != null) {
             DBObjectList typeAttributes = declaredType.getChildObjects().getObjectList(DBObjectType.TYPE_ATTRIBUTE);
-            container.addObjectList(typeAttributes);
+            childObjects.addObjectList(typeAttributes);
         }
     }
 
@@ -131,8 +130,7 @@ public class DBColumnImpl extends DBObjectImpl implements DBColumn {
     }
 
     public DBDataset getDataset() {
-        if (!isDisposed()) dataset = (DBDataset) dataset.getUndisposedElement();
-        return dataset;
+        return (DBDataset) getParentObject();
     }
 
 

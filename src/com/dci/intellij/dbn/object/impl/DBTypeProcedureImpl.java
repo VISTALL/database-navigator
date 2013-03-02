@@ -15,14 +15,19 @@ public class DBTypeProcedureImpl extends DBProcedureImpl implements DBTypeProced
 
     public DBTypeProcedureImpl(DBType type, ResultSet resultSet) throws SQLException {
         super(type, resultSet);
+    }
+
+    @Override
+    protected void initObject(ResultSet resultSet) throws SQLException {
+        name = resultSet.getString("PROCEDURE_NAME");
         overload = resultSet.getInt("OVERLOAD");
     }
 
     @Override
-    public void updateStatuses(ResultSet resultSet) throws SQLException {}
+    public void initStatus(ResultSet resultSet) throws SQLException {}
 
     @Override
-    public void updateProperties() {
+    public void initProperties() {
         getProperties().set(DBObjectProperty.NAVIGABLE);
     }
 

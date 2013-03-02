@@ -3,6 +3,7 @@ package com.dci.intellij.dbn.object.impl;
 import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
 import com.dci.intellij.dbn.browser.ui.HtmlToolTipBuilder;
 import com.dci.intellij.dbn.data.type.DBDataType;
+import com.dci.intellij.dbn.editor.DBContentType;
 import com.dci.intellij.dbn.object.DBType;
 import com.dci.intellij.dbn.object.DBTypeAttribute;
 import com.dci.intellij.dbn.object.common.DBObjectImpl;
@@ -23,11 +24,14 @@ public class DBTypeAttributeImpl extends DBObjectImpl implements DBTypeAttribute
     private int position;
 
     public DBTypeAttributeImpl(DBType parent, ResultSet resultSet) throws SQLException {
-        super(parent);
+        super(parent, DBContentType.NONE, resultSet);
+    }
+
+    @Override
+    protected void initObject(ResultSet resultSet) throws SQLException {
         name = resultSet.getString("ATTRIBUTE_NAME");
         position = resultSet.getInt("POSITION");
-        dataType = new DBDataType(this, resultSet);
-    }
+        dataType = new DBDataType(this, resultSet);    }
 
     public int getPosition() {
         return position;

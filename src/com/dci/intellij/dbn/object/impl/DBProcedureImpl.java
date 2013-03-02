@@ -27,11 +27,15 @@ public class DBProcedureImpl extends DBMethodImpl implements DBProcedure {
         // type functions are not editable independently
         super(parent, DBContentType.NONE, resultSet);
         assert this.getClass() != DBProcedureImpl.class;
-        name = resultSet.getString("PROCEDURE_NAME");
     }
 
     public DBProcedureImpl(DBSchema schema, ResultSet resultSet) throws SQLException {
         super(schema, DBContentType.CODE, resultSet);
+    }
+
+    @Override
+    protected void initObject(ResultSet resultSet) throws SQLException {
+        super.initObject(resultSet);
         name = resultSet.getString("PROCEDURE_NAME");
     }
 
