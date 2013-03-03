@@ -60,7 +60,7 @@ public abstract class DBMethodImpl extends DBSchemaObjectImpl implements DBMetho
     }
 
     protected void initLists() {
-        DBObjectListContainer container = getChildObjects();
+        DBObjectListContainer container = initChildObjects();
         arguments = container.createSubcontentObjectList(DBObjectType.ARGUMENT, this, ARGUMENTS_LOADER, getSchema(), true);
     }
 

@@ -41,7 +41,7 @@ public class DBPackageTypeImpl extends DBTypeImpl implements DBPackageType {
 
     @Override
     protected void initLists() {
-        attributes = getChildObjects().createObjectList(DBObjectType.TYPE_ATTRIBUTE, this, ATTRIBUTES_LOADER, true, false);
+        attributes = initChildObjects().createObjectList(DBObjectType.TYPE_ATTRIBUTE, this, ATTRIBUTES_LOADER, true, false);
     }
 
     public DBPackage getPackage() {

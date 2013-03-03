@@ -60,7 +60,10 @@ public interface DBObject extends BrowserTreeNode, PsiNamedElement, DynamicConte
 
     List<DBObjectNavigationList> getNavigationLists();
 
+    @Nullable
     DBObjectListContainer getChildObjects();
+
+    @Nullable
     DBObjectRelationListContainer getChildObjectRelations();
     String extractDDL() throws SQLException;
 

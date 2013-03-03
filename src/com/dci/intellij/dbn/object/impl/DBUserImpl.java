@@ -54,7 +54,7 @@ public class DBUserImpl extends DBObjectImpl implements DBUser {
 
     @Override
     protected void initLists() {
-        DBObjectListContainer childObjects = getChildObjects();
+        DBObjectListContainer childObjects = initChildObjects();
         DBObjectBundle sourceContentHolder = getConnectionHandler().getObjectBundle();
         roles = childObjects.createSubcontentObjectList(DBObjectType.GRANTED_ROLE, this, ROLES_LOADER, sourceContentHolder, DBObjectRelationType.USER_ROLE, true);
         privileges = childObjects.createSubcontentObjectList(DBObjectType.GRANTED_PRIVILEGE, this, PRIVILEGES_LOADER, sourceContentHolder, DBObjectRelationType.USER_PRIVILEGE, true);

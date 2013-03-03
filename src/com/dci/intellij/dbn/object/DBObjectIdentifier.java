@@ -14,6 +14,7 @@ public class DBObjectIdentifier {
     private String connectionId;
     private Node[] nodes;
 
+
     public DBObjectIdentifier(DBObject object) {
         project = object.getProject();
         connectionId = object.getConnectionHandler().getId();
@@ -33,6 +34,39 @@ public class DBObjectIdentifier {
             nodes[i] = new Node(chainObject.getObjectType(), chainObject.getName());
         }
     }
+
+    public DBObjectIdentifier(ConnectionHandler connectionHandler) {
+        this.project = connectionHandler.getProject();
+        this.connectionId = connectionHandler.getId();
+    }
+
+    public DBObjectIdentifier add(DBObjectType objectType, String name) {
+        Node node = new Node(objectType, name);
+        if (nodes == null) {
+            nodes = new Node[1];
+            nodes[0] = node;
+        } else {
+            Node[] newNodes = new Node[nodes.length + 1];
+            System.arraycopy(nodes, 0, newNodes, 0, nodes.length);
+            newNodes[nodes.length] = node;
+            nodes = newNodes;
+        }
+        return this;
+    }
+
+    public String getNameWithPath() {
+        if (nodes.length == 1) {
+            return nodes[0].getName();
+        } else {
+            StringBuilder buffer = new StringBuilder();
+            for (Node node : nodes) {
+                if (buffer.length() > 0) buffer.append(".");
+                buffer.append(node.getName());
+            }
+            return buffer.toString();
+        }
+    }
+
 
     public String getConnectionId() {
         return connectionId;

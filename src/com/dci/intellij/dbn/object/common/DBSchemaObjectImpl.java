@@ -53,7 +53,7 @@ public abstract class DBSchemaObjectImpl extends DBObjectImpl implements DBSchem
     protected void initLists() {
         DBObjectProperties properties = getProperties();
         if (properties.is(DBObjectProperty.REFERENCEABLE)) {
-            DBObjectListContainer childObjects = getChildObjects();
+            DBObjectListContainer childObjects = initChildObjects();
             referencedObjects = childObjects.createObjectList(DBObjectType.ANY, this, REFERENCED_OBJECTS_LOADER, false, true);
             referencingObjects = childObjects.createObjectList(DBObjectType.ANY, this, REFERENCING_OBJECTS_LOADER, false, true);
         }
@@ -80,18 +80,6 @@ public abstract class DBSchemaObjectImpl extends DBObjectImpl implements DBSchem
 
     protected List<DBObjectNavigationList> createNavigationLists() {
         return new ArrayList<DBObjectNavigationList>();
-    }
-
-    public String getQualifiedName() {
-        if (qualifiedName == null) {
-            DBObjectProperties properties = getProperties();
-            if (properties.is(DBObjectProperty.SCHEMA_OBJECT)) {
-                qualifiedName = getSchema().getName() + "." + getName();
-            } else {
-                return super.getQualifiedName();
-            }
-        }
-        return qualifiedName;
     }
 
     public Timestamp loadChangeTimestamp(DBContentType contentType) throws SQLException {

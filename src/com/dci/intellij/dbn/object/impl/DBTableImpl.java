@@ -54,11 +54,11 @@ public class DBTableImpl extends DBDatasetImpl implements DBTable {
     protected void initLists() {
         super.initLists();
         DBSchema schema = getSchema();
-        DBObjectListContainer childObjects = getChildObjects();
+        DBObjectListContainer childObjects = initChildObjects();
         indexes = childObjects.createSubcontentObjectList(DBObjectType.INDEX, this, INDEXES_LOADER, schema, false);
         nestedTables = childObjects.createSubcontentObjectList(DBObjectType.NESTED_TABLE, this, NESTED_TABLES_LOADER, schema, false);
 
-        DBObjectRelationListContainer childObjectRelations = getChildObjectRelations();
+        DBObjectRelationListContainer childObjectRelations = initChildObjectRelations();
         childObjectRelations.createSubcontentObjectRelationList(DBObjectRelationType.INDEX_COLUMN, this, "Index column relations", INDEX_COLUMN_RELATION_LOADER, schema);
     }
 

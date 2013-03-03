@@ -71,7 +71,7 @@ public class DBTypeImpl extends DBProgramImpl implements DBType {
 
     protected void initLists() {
         if (!isCollection()) {
-            DBObjectListContainer container = getChildObjects();
+            DBObjectListContainer container = initChildObjects();
             DBSchema schema = getSchema();
             attributes = container.createSubcontentObjectList(DBObjectType.TYPE_ATTRIBUTE, this, ATTRIBUTES_LOADER, schema, true);
             procedures = container.createSubcontentObjectList(DBObjectType.TYPE_PROCEDURE, this, PROCEDURES_LOADER, schema, false);

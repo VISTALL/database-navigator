@@ -29,6 +29,7 @@ import com.dci.intellij.dbn.language.common.DBLanguageDialect;
 import com.dci.intellij.dbn.language.psql.PSQLLanguage;
 import com.dci.intellij.dbn.language.sql.SQLLanguage;
 import com.dci.intellij.dbn.navigation.psi.NavigationPsiCache;
+import com.dci.intellij.dbn.object.DBObjectIdentifier;
 import com.dci.intellij.dbn.object.DBSchema;
 import com.dci.intellij.dbn.object.DBUser;
 import com.dci.intellij.dbn.object.common.list.DBObjectList;
@@ -73,12 +74,12 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
     private boolean isDisposed = false;
 
     protected String name;
-    protected String qualifiedName;
     protected DBUser owner;
+    private DBObjectIdentifier identifier;
+    private DBObjectProperties properties;
     private DBObjectListContainer childObjects;
     private DBObjectRelationListContainer childObjectRelations;
     private GenericDatabaseElement parentDatabaseElement;
-    private DBObjectProperties properties;
 
     private LookupItemFactory sqlLookupItemFactory;
     private LookupItemFactory psqlLookupItemFactory;
@@ -118,6 +119,7 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
         initProperties();
         initTreeInfo();
         initLists();
+        identifier = new DBObjectIdentifier(this);
     }
 
     protected abstract void initObject(ResultSet resultSet) throws SQLException;
@@ -132,11 +134,16 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
         if (parentDatabaseElement instanceof DBObjectBundle){
             DBObjectBundle objectBundle = (DBObjectBundle) parentDatabaseElement;
             treeParent = objectBundle.getObjectListContainer().getObjectList(getObjectType());
+            treeDepth = treeParent.getTreeDepth() + 1;
         } else if (parentDatabaseElement instanceof DBObject) {
             DBObject object = (DBObject) parentDatabaseElement;
-            treeParent = object.getChildObjects().getObjectList(getObjectType());
+            DBObjectListContainer childObjects = object.getChildObjects();
+            if (childObjects != null) {
+                treeParent = childObjects.getObjectList(getObjectType());
+                treeDepth = treeParent.getTreeDepth() + 1;
+            }
         }
-        treeDepth = treeParent.getTreeDepth() + 1;
+
     }
 
     @Override
@@ -156,8 +163,8 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
         return contentType;
     }
 
-    protected void initPossibleTreeChildren(BrowserTreeNode... treeNodes) {
-        allPossibleTreeChildren = DatabaseBrowserUtils.createList(treeNodes);
+    protected DBObjectIdentifier getIdentifier() {
+        return identifier;
     }
 
     public DBObjectProperties getProperties() {
@@ -230,21 +237,7 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
     }
 
     public String getQualifiedName() {
-        if (qualifiedName == null) {
-            if (getParentObject() == null) {
-                qualifiedName = getName();
-            } else {
-                StringBuilder buffer = new StringBuilder(getName());
-                DBObject parentObject = getParentObject();
-                while (parentObject != null) {
-                    buffer.insert(0, '.');
-                    buffer.insert(0, parentObject.getName());
-                    parentObject = parentObject.getParentObject();
-                }
-                qualifiedName = buffer.toString();
-            }
-        }
-        return qualifiedName;
+        return identifier.getNameWithPath();
     }
 
     public String getQualifiedNameWithType() {
@@ -304,7 +297,9 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
     }
 
     public ConnectionHandler getConnectionHandler() {
-        return parentDatabaseElement.getConnectionHandler();
+        return parentDatabaseElement == null ?
+                identifier.lookupConnectionHandler() :
+                parentDatabaseElement.getConnectionHandler();
     }
 
     @Override
@@ -317,13 +312,21 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
     }
 
     public DBObjectListContainer getChildObjects() {
+        return childObjects;
+    }
+
+    public DBObjectRelationListContainer getChildObjectRelations() {
+        return childObjectRelations;
+    }
+
+    public DBObjectListContainer initChildObjects() {
         if (childObjects == null) {
             childObjects = new DBObjectListContainer(this);
         }
         return childObjects;
     }
 
-    public DBObjectRelationListContainer getChildObjectRelations() {
+    public DBObjectRelationListContainer initChildObjectRelations() {
         if (childObjectRelations == null) {
             childObjectRelations = new DBObjectRelationListContainer(this);
         }
@@ -435,30 +438,22 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
 
     public DBObject getUndisposedElement() {
         if (isDisposed()) {
-            DBObject parentObject = getParentObject();
-
-            DBObject undisposedObject = parentObject == null ?
-                    getConnectionHandler().getObjectBundle().getObject(getObjectType(), getName()) :
-                    parentObject.getUndisposedElement().getChildObject(getObjectType(), getName(), true);
-            if (undisposedObject != null){
-                return undisposedObject;
-            }
+            return identifier.lookupObject();
         }
         return this;
     }
 
     public DynamicContent getDynamicContent(DynamicContentType dynamicContentType) {
-        if(dynamicContentType instanceof DBObjectType) {
+        if(dynamicContentType instanceof DBObjectType && childObjects != null) {
             DBObjectType objectType = (DBObjectType) dynamicContentType;
-            DBObjectListContainer objectLists = getChildObjects();
-            DynamicContent dynamicContent = objectLists.getObjectList(objectType);
-            if (dynamicContent == null) dynamicContent = objectLists.getHiddenObjectList(objectType);
+            DynamicContent dynamicContent = childObjects.getObjectList(objectType);
+            if (dynamicContent == null) dynamicContent = childObjects.getHiddenObjectList(objectType);
             return dynamicContent;
         }
 
-        if (dynamicContentType instanceof DBObjectRelationType) {
+        else if (dynamicContentType instanceof DBObjectRelationType && childObjectRelations != null) {
             DBObjectRelationType objectRelationType = (DBObjectRelationType) dynamicContentType;
-            return getChildObjectRelations().getObjectRelationList(objectRelationType);
+            return childObjectRelations.getObjectRelationList(objectRelationType);
         }
 
         return null;

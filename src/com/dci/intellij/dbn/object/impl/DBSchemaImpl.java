@@ -106,8 +106,8 @@ public class DBSchemaImpl extends DBObjectImpl implements DBSchema {
 
     @Override
     protected void initLists() {
-        DBObjectListContainer ol = getChildObjects();
-        DBObjectRelationListContainer orl = getChildObjectRelations();
+        DBObjectListContainer ol = initChildObjects();
+        DBObjectRelationListContainer orl = initChildObjectRelations();
 
         tables = ol.createObjectList(DBObjectType.TABLE, this, TABLES_LOADER, true, false);
         views = ol.createObjectList(DBObjectType.VIEW, this, VIEWS_LOADER, true, false);
@@ -224,7 +224,7 @@ public class DBSchemaImpl extends DBObjectImpl implements DBSchema {
     }
 
     public List<DBIndex> getIndexes() {
-        return getChildObjects().getObjectList(DBObjectType.INDEX).getObjects();
+        return initChildObjects().getObjectList(DBObjectType.INDEX).getObjects();
     }
 
     public List<DBSynonym> getSynonyms() {
@@ -248,7 +248,7 @@ public class DBSchemaImpl extends DBObjectImpl implements DBSchema {
     }
 
     public List<DBTrigger> getTriggers() {
-        return getChildObjects().getObjectList(DBObjectType.TRIGGER).getObjects();
+        return initChildObjects().getObjectList(DBObjectType.TRIGGER).getObjects();
     }
 
     public List<DBType> getTypes() {
@@ -281,7 +281,7 @@ public class DBSchemaImpl extends DBObjectImpl implements DBSchema {
     }
 
     public DBIndex getIndex(String name) {
-        return (DBIndex) getChildObjects().getObjectList(DBObjectType.INDEX).getObject(name);
+        return (DBIndex) initChildObjects().getObjectList(DBObjectType.INDEX).getObject(name);
     }
 
     public DBCluster getCluster(String name) {
@@ -381,10 +381,10 @@ public class DBSchemaImpl extends DBObjectImpl implements DBSchema {
             allObjects.addAll(getDimensions());
             allObjects.addAll(getClusters());
             allObjects.addAll(getDatabaseLinks());
-            allObjects.addAll(getChildObjects().getObjectList(DBObjectType.INDEX).getObjects());
-            allObjects.addAll(getChildObjects().getObjectList(DBObjectType.CONSTRAINT).getObjects());
-            allObjects.addAll(getChildObjects().getObjectList(DBObjectType.NESTED_TABLE).getObjects());
-            allObjects.addAll(getChildObjects().getObjectList(DBObjectType.TRIGGER).getObjects());
+            allObjects.addAll(initChildObjects().getObjectList(DBObjectType.INDEX).getObjects());
+            allObjects.addAll(initChildObjects().getObjectList(DBObjectType.CONSTRAINT).getObjects());
+            allObjects.addAll(initChildObjects().getObjectList(DBObjectType.NESTED_TABLE).getObjects());
+            allObjects.addAll(initChildObjects().getObjectList(DBObjectType.TRIGGER).getObjects());
         }
         return allObjects;
     }
@@ -455,7 +455,7 @@ public class DBSchemaImpl extends DBObjectImpl implements DBSchema {
 
     private Set<BrowserTreeNode> resetObjectsStatus() {
         ObjectStatusUpdater updater = new ObjectStatusUpdater();
-        getChildObjects().visitLists(updater, true);
+        initChildObjects().visitLists(updater, true);
         return updater.getRefreshNodes();
     }
 

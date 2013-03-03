@@ -22,6 +22,7 @@ import com.dci.intellij.dbn.object.common.list.DBObjectListContainer;
 import com.dci.intellij.dbn.object.common.list.DBObjectNavigationList;
 import com.dci.intellij.dbn.object.common.list.DBObjectNavigationListImpl;
 import com.dci.intellij.dbn.object.common.list.DBObjectRelationList;
+import com.dci.intellij.dbn.object.common.list.DBObjectRelationListContainer;
 import com.dci.intellij.dbn.object.common.list.ObjectListProvider;
 import com.dci.intellij.dbn.object.common.list.loader.DBObjectListFromRelationListLoader;
 import com.dci.intellij.dbn.object.properties.DBDataTypePresentableProperty;
@@ -65,14 +66,17 @@ public class DBColumnImpl extends DBObjectImpl implements DBColumn {
     }
 
     protected void initLists() {
-        DBObjectListContainer childObjects = getChildObjects();
+        DBObjectListContainer childObjects = initChildObjects();
         constraints = childObjects.createSubcontentObjectList(DBObjectType.CONSTRAINT, this, CONSTRAINTS_LOADER, getDataset(), DBObjectRelationType.CONSTRAINT_COLUMN, false);
         indexes = childObjects.createSubcontentObjectList(DBObjectType.INDEX, this, INDEXES_LOADER, getDataset(), DBObjectRelationType.INDEX_COLUMN, false);
 
         DBType declaredType = dataType.getDeclaredType();
         if (declaredType != null) {
-            DBObjectList typeAttributes = declaredType.getChildObjects().getObjectList(DBObjectType.TYPE_ATTRIBUTE);
-            childObjects.addObjectList(typeAttributes);
+            DBObjectListContainer typeChildObjects = declaredType.getChildObjects();
+            if (typeChildObjects != null) {
+                DBObjectList typeAttributes = typeChildObjects.getObjectList(DBObjectType.TYPE_ATTRIBUTE);
+                childObjects.addObjectList(typeAttributes);
+            }
         }
     }
 
@@ -169,21 +173,28 @@ public class DBColumnImpl extends DBObjectImpl implements DBColumn {
     }
 
     public int getConstraintPosition(DBConstraint constraint) {
-        DBObjectRelationList<DBConstraintColumnRelation> constraintColumnRelations =
-                getDataset().getChildObjectRelations().getObjectRelationList(DBObjectRelationType.CONSTRAINT_COLUMN);
-        for (DBConstraintColumnRelation relation : constraintColumnRelations.getObjectRelations()) {
-            if (relation.getColumn().equals(this) && relation.getConstraint().equals(constraint))
-                return relation.getPosition();
+        DBObjectRelationListContainer childObjectRelations = getDataset().getChildObjectRelations();
+        if (childObjectRelations != null) {
+            DBObjectRelationList<DBConstraintColumnRelation> constraintColumnRelations =
+                    childObjectRelations.getObjectRelationList(DBObjectRelationType.CONSTRAINT_COLUMN);
+            for (DBConstraintColumnRelation relation : constraintColumnRelations.getObjectRelations()) {
+                if (relation.getColumn().equals(this) && relation.getConstraint().equals(constraint))
+                    return relation.getPosition();
+            }
         }
         return 0;
     }
 
     public DBConstraint getConstraintForPosition(int position) {
-        DBObjectRelationList<DBConstraintColumnRelation> constraintColumnRelations =
-                getDataset().getChildObjectRelations().getObjectRelationList(DBObjectRelationType.CONSTRAINT_COLUMN);
-        for (DBConstraintColumnRelation relation : constraintColumnRelations.getObjectRelations()) {
-            if (relation.getColumn().equals(this) && relation.getPosition() == position)
-                return relation.getConstraint();
+        DBObjectRelationListContainer childObjectRelations = getDataset().getChildObjectRelations();
+        if (childObjectRelations != null) {
+            DBObjectRelationList<DBConstraintColumnRelation> constraintColumnRelations =
+                    childObjectRelations.getObjectRelationList(DBObjectRelationType.CONSTRAINT_COLUMN);
+            for (DBConstraintColumnRelation relation : constraintColumnRelations.getObjectRelations()) {
+                if (relation.getColumn().equals(this) && relation.getPosition() == position) {
+                    return relation.getConstraint();
+                }
+            }
         }
         return null;
     }
@@ -212,10 +223,13 @@ public class DBColumnImpl extends DBObjectImpl implements DBColumn {
                 break;
             }
             if (schema.isSystemSchema() == isSystemSchema) {
-                List<DBColumn> columns = (List<DBColumn>) schema.getChildObjects().getHiddenObjectList(DBObjectType.COLUMN).getObjects();
-                for (DBColumn column : columns){
-                    if (this.equals(column.getForeignKeyColumn())) {
-                        list.add(column);
+                DBObjectListContainer childObjects = schema.getChildObjects();
+                if (childObjects != null) {
+                    List<DBColumn> columns = (List<DBColumn>) childObjects.getHiddenObjectList(DBObjectType.COLUMN).getObjects();
+                    for (DBColumn column : columns){
+                        if (this.equals(column.getForeignKeyColumn())) {
+                            list.add(column);
+                        }
                     }
                 }
             }
