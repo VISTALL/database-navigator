@@ -41,7 +41,7 @@ public class DBRoleImpl extends DBObjectImpl implements DBRole {
 
     @Override
     protected void initLists() {
-        DBObjectListContainer ol = getChildObjects();
+        DBObjectListContainer ol = initChildObjects();
         DBObjectBundle sourceContentHolder = getConnectionHandler().getObjectBundle();
         privileges = ol.createSubcontentObjectList(DBObjectType.GRANTED_PRIVILEGE, this, PRIVILEGES_LOADER, sourceContentHolder, DBObjectRelationType.ROLE_PRIVILEGE, true);
         grantedRoles = ol.createSubcontentObjectList(DBObjectType.GRANTED_ROLE, this, ROLES_LOADER, sourceContentHolder, DBObjectRelationType.ROLE_ROLE, true);

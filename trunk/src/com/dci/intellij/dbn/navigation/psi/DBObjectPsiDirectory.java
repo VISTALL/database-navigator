@@ -4,6 +4,7 @@ import com.dci.intellij.dbn.connection.GenericDatabaseElement;
 import com.dci.intellij.dbn.language.common.psi.EmptySearchScope;
 import com.dci.intellij.dbn.object.common.DBObject;
 import com.dci.intellij.dbn.object.common.list.DBObjectList;
+import com.dci.intellij.dbn.object.common.list.DBObjectListContainer;
 import com.intellij.lang.ASTNode;
 import com.intellij.lang.Language;
 import com.intellij.navigation.ItemPresentation;
@@ -105,12 +106,15 @@ public class DBObjectPsiDirectory implements PsiDirectory {
     @NotNull
     public PsiElement[] getChildren() {
         List<PsiElement> children = new ArrayList<PsiElement>();
-        Collection<DBObjectList<DBObject>> objectLists = getObject().getChildObjects().getObjectLists();
-        if (objectLists != null) {
-            for (DBObjectList objectList : objectLists) {
-                children.add(NavigationPsiCache.getPsiDirectory(objectList));
+        DBObjectListContainer childObjects = getObject().getChildObjects();
+        if (childObjects != null) {
+            Collection<DBObjectList<DBObject>> objectLists = childObjects.getObjectLists();
+            if (objectLists != null) {
+                for (DBObjectList objectList : objectLists) {
+                    children.add(NavigationPsiCache.getPsiDirectory(objectList));
+                }
+                return children.toArray(new PsiElement[children.size()]);
             }
-            return children.toArray(new PsiElement[children.size()]);
         }
 
         return new PsiElement[0];

@@ -91,7 +91,7 @@ public class DBVirtualObject extends DBObjectImpl implements PsiReference {
     }
 
     private DBObjectList<DBObject> getChildObjectList(DBObjectType objectType) {
-        DBObjectListContainer childObjects = getChildObjects();
+        DBObjectListContainer childObjects = initChildObjects();
         DBObjectList<DBObject> objectList = childObjects.getObjectList(objectType);
         if (objectList != null) {
             for (DBObject object : objectList.getObjects()) {

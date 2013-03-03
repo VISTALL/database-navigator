@@ -9,14 +9,16 @@ import com.dci.intellij.dbn.editor.DBContentType;
 import com.dci.intellij.dbn.object.DBColumn;
 import com.dci.intellij.dbn.object.DBConstraint;
 import com.dci.intellij.dbn.object.DBDataset;
-import com.dci.intellij.dbn.object.DBSchema;
+import com.dci.intellij.dbn.object.DBObjectIdentifier;
 import com.dci.intellij.dbn.object.common.DBObjectRelationType;
 import com.dci.intellij.dbn.object.common.DBObjectType;
 import com.dci.intellij.dbn.object.common.DBSchemaObjectImpl;
 import com.dci.intellij.dbn.object.common.list.DBObjectList;
+import com.dci.intellij.dbn.object.common.list.DBObjectListContainer;
 import com.dci.intellij.dbn.object.common.list.DBObjectNavigationList;
 import com.dci.intellij.dbn.object.common.list.DBObjectNavigationListImpl;
 import com.dci.intellij.dbn.object.common.list.DBObjectRelationList;
+import com.dci.intellij.dbn.object.common.list.DBObjectRelationListContainer;
 import com.dci.intellij.dbn.object.common.list.loader.DBObjectListFromRelationListLoader;
 import com.dci.intellij.dbn.object.common.operation.DBOperationExecutor;
 import com.dci.intellij.dbn.object.common.operation.DBOperationNotSupportedException;
@@ -37,10 +39,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DBConstraintImpl extends DBSchemaObjectImpl implements DBConstraint {
-    private String fkOwner;
-    private String fkName;
     private int constraintType;
-    private DBConstraint foreignKeyConstraint;
+    private DBObjectIdentifier foreignKeyConstraint;
 
     private String checkCondition;
     private DBObjectList<DBColumn> columns;
@@ -65,14 +65,18 @@ public class DBConstraintImpl extends DBSchemaObjectImpl implements DBConstraint
             typeString.equals("VIEW READONLY") ? DBConstraint.VIEW_READONLY : -1;
 
         if (isForeignKey()) {
-            fkOwner = resultSet.getString("FK_CONSTRAINT_OWNER");
-            fkName = resultSet.getString("FK_CONSTRAINT_NAME");
+            String fkOwner = resultSet.getString("FK_CONSTRAINT_OWNER");
+            String fkName = resultSet.getString("FK_CONSTRAINT_NAME");
+            foreignKeyConstraint = new DBObjectIdentifier(getConnectionHandler()).
+                    add(DBObjectType.SCHEMA, fkOwner).
+                    add(DBObjectType.CONSTRAINT, fkName);
         }
     }
 
     @Override
     protected void initLists() {
-        columns = getChildObjects().createSubcontentObjectList(
+        DBObjectListContainer childObjects = initChildObjects();
+        columns = childObjects.createSubcontentObjectList(
                 DBObjectType.COLUMN, this,
                 COLUMNS_LOADER, getDataset(),
                 DBObjectRelationType.CONSTRAINT_COLUMN, true);
@@ -131,31 +135,32 @@ public class DBConstraintImpl extends DBSchemaObjectImpl implements DBConstraint
     }
 
     public int getColumnPosition(DBColumn column) {
-        DBObjectRelationList<DBConstraintColumnRelation> relations =
-                getDataset().getChildObjectRelations().getObjectRelationList(DBObjectRelationType.CONSTRAINT_COLUMN);
-        for (DBConstraintColumnRelation relation : relations.getObjectRelations()) {
-            if (relation.getConstraint().equals(this) && relation.getColumn().equals(column))
-                return relation.getPosition();
+        DBObjectRelationListContainer childObjectRelations = getDataset().getChildObjectRelations();
+        if (childObjectRelations != null) {
+            DBObjectRelationList<DBConstraintColumnRelation> relations = childObjectRelations.getObjectRelationList(DBObjectRelationType.CONSTRAINT_COLUMN);
+            for (DBConstraintColumnRelation relation : relations.getObjectRelations()) {
+                if (relation.getConstraint().equals(this) && relation.getColumn().equals(column)) {
+                    return relation.getPosition();
+                }
+            }
         }
         return 0;
     }
 
     public DBColumn getColumnForPosition(int position) {
-        DBObjectRelationList<DBConstraintColumnRelation> relations =
-                getDataset().getChildObjectRelations().getObjectRelationList(DBObjectRelationType.CONSTRAINT_COLUMN);
-        for (DBConstraintColumnRelation relation : relations.getObjectRelations()) {
-            if (relation.getConstraint().equals(this) && relation.getPosition() == position)
-                return relation.getColumn();
+        DBObjectRelationListContainer childObjectRelations = getDataset().getChildObjectRelations();
+        if (childObjectRelations != null) {
+            DBObjectRelationList<DBConstraintColumnRelation> relations = childObjectRelations.getObjectRelationList(DBObjectRelationType.CONSTRAINT_COLUMN);
+            for (DBConstraintColumnRelation relation : relations.getObjectRelations()) {
+                if (relation.getConstraint().equals(this) && relation.getPosition() == position)
+                    return relation.getColumn();
+            }
         }
         return null;
     }
 
     public DBConstraint getForeignKeyConstraint() {
-        if (foreignKeyConstraint == null && fkOwner != null && fkName != null) {
-            DBSchema schema = getConnectionHandler().getObjectBundle().getSchema(fkOwner);
-            foreignKeyConstraint = (DBConstraint) schema.getChildObjects().getObjectList(DBObjectType.CONSTRAINT).getObject(fkName);
-        }
-        return foreignKeyConstraint == null ? null : (DBConstraint) foreignKeyConstraint.getUndisposedElement();
+        return (DBConstraint) foreignKeyConstraint.lookupObject();
     }
 
     public void buildToolTip(HtmlToolTipBuilder ttb) {
@@ -213,7 +218,7 @@ public class DBConstraintImpl extends DBSchemaObjectImpl implements DBConstraint
          switch (constraintType) {
             case CHECK: return "Check (" + checkCondition + ")";
             case PRIMARY_KEY: return "Primary key";
-            case FOREIGN_KEY: return "Foreign key (" + fkOwner + "." + fkName + ")";
+            case FOREIGN_KEY: return "Foreign key (" + foreignKeyConstraint.getNameWithPath() + ")";
             case UNIQUE_KEY: return "Unique";
         }
         return null;

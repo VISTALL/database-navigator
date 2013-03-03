@@ -141,7 +141,8 @@ public class GoToDatabaseObjectModel implements ChooseByNameModel {
                     }
 
                     parentObject = object;
-                    object.getChildObjects().visitLists(this, false);
+                    DBObjectListContainer childObjects = object.getChildObjects();
+                    if (childObjects != null) childObjects.visitLists(this, false);
                 }
                 parentObject = originalParentObject;
             }
@@ -185,7 +186,8 @@ public class GoToDatabaseObjectModel implements ChooseByNameModel {
                     }
 
                     parentObject = object;
-                    object.getChildObjects().visitLists(this, false);
+                    DBObjectListContainer childObjects = object.getChildObjects();
+                    if (childObjects != null) childObjects.visitLists(this, false);
                 }
                 parentObject = originalParentObject;
             }

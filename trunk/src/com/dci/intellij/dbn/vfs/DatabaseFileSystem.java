@@ -15,6 +15,7 @@ import com.dci.intellij.dbn.language.sql.SQLFileType;
 import com.dci.intellij.dbn.object.DBSchema;
 import com.dci.intellij.dbn.object.common.DBObject;
 import com.dci.intellij.dbn.object.common.DBSchemaObject;
+import com.dci.intellij.dbn.object.common.list.DBObjectListContainer;
 import com.dci.intellij.dbn.object.common.property.DBObjectProperty;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ApplicationComponent;
@@ -279,11 +280,13 @@ public class DatabaseFileSystem extends VirtualFileSystem implements Application
             public void execute(@NotNull ProgressIndicator progressIndicator) {
                 initProgressIndicator(progressIndicator, true);
                 if (object.getProperties().is(DBObjectProperty.SCHEMA_OBJECT)) {
-                    object.getChildObjects().load();
+                    DBObjectListContainer childObjects = object.getChildObjects();
+                    if (childObjects != null) childObjects.load();
                     openSchemaObject((DBSchemaObject) object, progressIndicator, scroll);
 
                 } else if (object.getParentObject().getProperties().is(DBObjectProperty.SCHEMA_OBJECT)) {
-                    object.getParentObject().getChildObjects().load();
+                    DBObjectListContainer childObjects = object.getParentObject().getChildObjects();
+                    if (childObjects != null) childObjects.load();
                     openChildObject(object, progressIndicator, scroll);
                 }
 

@@ -36,13 +36,13 @@ public abstract class DBDatasetImpl extends DBSchemaObjectImpl implements DBData
     }
 
     protected void initLists() {
-        DBObjectListContainer container = getChildObjects();
+        DBObjectListContainer childObjects = initChildObjects();
         DBSchema schema = getSchema();
-        columns = container.createSubcontentObjectList(DBObjectType.COLUMN, this, COLUMNS_LOADER, schema, true);
-        constraints = container.createSubcontentObjectList(DBObjectType.CONSTRAINT, this, CONSTRAINTS_LOADER, schema, true);
-        triggers = container.createSubcontentObjectList(DBObjectType.TRIGGER, this, TRIGGERS_LOADER, schema, true);
+        columns = childObjects.createSubcontentObjectList(DBObjectType.COLUMN, this, COLUMNS_LOADER, schema, true);
+        constraints = childObjects.createSubcontentObjectList(DBObjectType.CONSTRAINT, this, CONSTRAINTS_LOADER, schema, true);
+        triggers = childObjects.createSubcontentObjectList(DBObjectType.TRIGGER, this, TRIGGERS_LOADER, schema, true);
 
-        getChildObjectRelations().createSubcontentObjectRelationList(
+        initChildObjectRelations().createSubcontentObjectRelationList(
                 DBObjectRelationType.CONSTRAINT_COLUMN, this,
                 "Constraint column relations", 
                 CONSTRAINT_COLUMN_RELATION_LOADER,
