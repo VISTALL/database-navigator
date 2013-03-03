@@ -105,7 +105,7 @@ public class DBProgramRunConfigurationEditorForm extends UIFormImpl implements U
         } else {
             methodLabel.setIcon(null);
         }
-        methodLabel.setText(executionInput == null ? "No method selected" : executionInput.getMethodIdentifier().getQualifiedName());
+        methodLabel.setText(executionInput == null ? "No method selected" : executionInput.getMethodIdentifier().getPath());
 
 
         mainPanel.updateUI();

@@ -4,9 +4,9 @@ import com.dci.intellij.dbn.common.options.setting.SettingsUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.database.DatabaseCompatibilityInterface;
 import com.dci.intellij.dbn.database.DatabaseFeature;
+import com.dci.intellij.dbn.execution.method.DBMethodIdentifier;
 import com.dci.intellij.dbn.execution.method.MethodExecutionInput;
 import com.dci.intellij.dbn.execution.method.MethodExecutionManager;
-import com.dci.intellij.dbn.execution.method.MethodIdentifier;
 import com.dci.intellij.dbn.object.DBMethod;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.Executor;
@@ -108,7 +108,7 @@ public class DBProgramRunConfiguration extends RunConfigurationBase implements L
         if (executionInput == null) {
             return "<unnamed>";
         } else {
-            return executionInput.getMethodIdentifier().getQualifiedName();
+            return executionInput.getMethodIdentifier().getPath();
         }
     }
 
@@ -151,7 +151,7 @@ public class DBProgramRunConfiguration extends RunConfigurationBase implements L
         MethodExecutionManager executionManager = MethodExecutionManager.getInstance(getProject());
         Element methodIdentifierElement = element.getChild("method-identifier");
         if (methodIdentifierElement != null) {
-            MethodIdentifier methodIdentifier = new MethodIdentifier();
+            DBMethodIdentifier methodIdentifier = new DBMethodIdentifier();
             methodIdentifier.readConfiguration(methodIdentifierElement);
 
             executionInput = executionManager.getExecutionInput(methodIdentifier);
@@ -161,7 +161,7 @@ public class DBProgramRunConfiguration extends RunConfigurationBase implements L
         if (methodIdentifierHistoryElement != null) {
             for (Object o : methodIdentifierHistoryElement.getChildren()) {
                 methodIdentifierElement = (Element) o;
-                MethodIdentifier methodIdentifier = new MethodIdentifier();
+                DBMethodIdentifier methodIdentifier = new DBMethodIdentifier();
                 methodIdentifier.readConfiguration(methodIdentifierElement);
 
                 MethodExecutionInput executionInput = executionManager.getExecutionInput(methodIdentifier);

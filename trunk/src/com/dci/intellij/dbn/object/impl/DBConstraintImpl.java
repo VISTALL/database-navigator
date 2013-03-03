@@ -218,7 +218,7 @@ public class DBConstraintImpl extends DBSchemaObjectImpl implements DBConstraint
          switch (constraintType) {
             case CHECK: return "Check (" + checkCondition + ")";
             case PRIMARY_KEY: return "Primary key";
-            case FOREIGN_KEY: return "Foreign key (" + foreignKeyConstraint.getNameWithPath() + ")";
+            case FOREIGN_KEY: return "Foreign key (" + foreignKeyConstraint.getPath() + ")";
             case UNIQUE_KEY: return "Unique";
         }
         return null;
