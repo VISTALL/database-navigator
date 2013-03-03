@@ -19,6 +19,7 @@ import com.dci.intellij.dbn.object.common.loader.DBSourceCodeLoader;
 import com.dci.intellij.dbn.object.common.operation.DBOperationExecutor;
 import com.dci.intellij.dbn.object.common.operation.DBOperationNotSupportedException;
 import com.dci.intellij.dbn.object.common.operation.DBOperationType;
+import com.dci.intellij.dbn.object.common.property.DBObjectProperties;
 import com.dci.intellij.dbn.object.common.property.DBObjectProperty;
 import com.dci.intellij.dbn.object.common.status.DBObjectStatus;
 import com.dci.intellij.dbn.object.common.status.DBObjectStatusHolder;
@@ -78,10 +79,11 @@ public class DBTriggerImpl extends DBSchemaObjectImpl implements DBTrigger {
 
     @Override
     public void initProperties() {
-        getProperties().set(DBObjectProperty.EDITABLE);
-        getProperties().set(DBObjectProperty.DISABLEABLE);
-        getProperties().set(DBObjectProperty.COMPILABLE);
-        getProperties().set(DBObjectProperty.SCHEMA_OBJECT);
+        DBObjectProperties properties = getProperties();
+        properties.set(DBObjectProperty.EDITABLE);
+        properties.set(DBObjectProperty.DISABLEABLE);
+        properties.set(DBObjectProperty.COMPILABLE);
+        properties.set(DBObjectProperty.SCHEMA_OBJECT);
     }
 
     public boolean isForEachRow() {
