@@ -14,6 +14,7 @@ import com.dci.intellij.dbn.object.common.list.DBObjectList;
 import com.dci.intellij.dbn.object.common.list.DBObjectListContainer;
 import com.dci.intellij.dbn.object.common.list.DBObjectNavigationList;
 import com.dci.intellij.dbn.object.common.loader.DBObjectTimestampLoader;
+import com.dci.intellij.dbn.object.common.property.DBObjectProperties;
 import com.dci.intellij.dbn.object.common.property.DBObjectProperty;
 import com.dci.intellij.dbn.object.common.status.DBObjectStatusHolder;
 import com.dci.intellij.dbn.vfs.DatabaseEditableObjectFile;
@@ -42,14 +43,16 @@ public abstract class DBSchemaObjectImpl extends DBObjectImpl implements DBSchem
     }
 
     protected void initProperties() {
-        getProperties().set(DBObjectProperty.EDITABLE);
-        getProperties().set(DBObjectProperty.REFERENCEABLE);
-        getProperties().set(DBObjectProperty.SCHEMA_OBJECT);
+        DBObjectProperties properties = getProperties();
+        properties.set(DBObjectProperty.EDITABLE);
+        properties.set(DBObjectProperty.REFERENCEABLE);
+        properties.set(DBObjectProperty.SCHEMA_OBJECT);
     }
 
     @Override
     protected void initLists() {
-        if (getProperties().is(DBObjectProperty.REFERENCEABLE)) {
+        DBObjectProperties properties = getProperties();
+        if (properties.is(DBObjectProperty.REFERENCEABLE)) {
             DBObjectListContainer childObjects = getChildObjects();
             referencedObjects = childObjects.createObjectList(DBObjectType.ANY, this, REFERENCED_OBJECTS_LOADER, false, true);
             referencingObjects = childObjects.createObjectList(DBObjectType.ANY, this, REFERENCING_OBJECTS_LOADER, false, true);
@@ -81,7 +84,8 @@ public abstract class DBSchemaObjectImpl extends DBObjectImpl implements DBSchem
 
     public String getQualifiedName() {
         if (qualifiedName == null) {
-            if (getProperties().is(DBObjectProperty.SCHEMA_OBJECT)) {
+            DBObjectProperties properties = getProperties();
+            if (properties.is(DBObjectProperty.SCHEMA_OBJECT)) {
                 qualifiedName = getSchema().getName() + "." + getName();
             } else {
                 return super.getQualifiedName();

@@ -22,6 +22,7 @@ import com.dci.intellij.dbn.object.common.DBObjectBundle;
 import com.dci.intellij.dbn.object.common.DBSchemaObject;
 import com.dci.intellij.dbn.object.common.list.DBObjectList;
 import com.dci.intellij.dbn.object.common.list.action.ObjectListActionGroup;
+import com.dci.intellij.dbn.object.common.property.DBObjectProperties;
 import com.dci.intellij.dbn.object.common.property.DBObjectProperty;
 import com.dci.intellij.dbn.vfs.DatabaseFileSystem;
 import com.intellij.openapi.Disposable;
@@ -236,11 +237,12 @@ public class DatabaseBrowserTree extends DBNTree implements Disposable {
             Object lastPathEntity = path.getLastPathComponent();
             if (lastPathEntity instanceof DBObject) {
                 DBObject object = (DBObject) lastPathEntity;
-                if (object.getProperties().is(DBObjectProperty.EDITABLE)) {
+                DBObjectProperties properties = object.getProperties();
+                if (properties.is(DBObjectProperty.EDITABLE)) {
                     DBSchemaObject schemaObject = (DBSchemaObject) object;
                     DatabaseFileSystem.getInstance().openEditor(schemaObject);
                     event.consume();
-                } else if (object.getProperties().is(DBObjectProperty.NAVIGABLE)) {
+                } else if (properties.is(DBObjectProperty.NAVIGABLE)) {
                     DatabaseFileSystem.getInstance().openEditor(object);
                     event.consume();
                 } else if (deliberate) {

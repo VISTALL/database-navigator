@@ -7,6 +7,7 @@ import com.dci.intellij.dbn.object.DBSchema;
 import com.dci.intellij.dbn.object.DBSequence;
 import com.dci.intellij.dbn.object.common.DBObjectType;
 import com.dci.intellij.dbn.object.common.DBSchemaObjectImpl;
+import com.dci.intellij.dbn.object.common.property.DBObjectProperties;
 import com.dci.intellij.dbn.object.common.property.DBObjectProperty;
 import org.jetbrains.annotations.NotNull;
 
@@ -26,8 +27,9 @@ public class DBSequenceImpl extends DBSchemaObjectImpl implements DBSequence {
 
     @Override
     public void initProperties() {
-        getProperties().set(DBObjectProperty.REFERENCEABLE);
-        getProperties().set(DBObjectProperty.SCHEMA_OBJECT);
+        DBObjectProperties properties = getProperties();
+        properties.set(DBObjectProperty.REFERENCEABLE);
+        properties.set(DBObjectProperty.SCHEMA_OBJECT);
     }
 
     public DBObjectType getObjectType() {
