@@ -18,9 +18,9 @@ import com.dci.intellij.dbn.debugger.evaluation.DBProgramDebuggerEditorsProvider
 import com.dci.intellij.dbn.debugger.execution.DBProgramRunConfiguration;
 import com.dci.intellij.dbn.debugger.frame.DBProgramDebugSuspendContext;
 import com.dci.intellij.dbn.editor.code.SourceCodeEditor;
+import com.dci.intellij.dbn.execution.method.DBMethodIdentifier;
 import com.dci.intellij.dbn.execution.method.MethodExecutionInput;
 import com.dci.intellij.dbn.execution.method.MethodExecutionManager;
-import com.dci.intellij.dbn.execution.method.MethodIdentifier;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dci.intellij.dbn.language.common.psi.BasePsiElement;
 import com.dci.intellij.dbn.language.psql.PSQLFile;
@@ -412,7 +412,7 @@ public class DBProgramDebugProcess extends XDebugProcess {
     }
 
     private DBSchemaObject getMainDatabaseObject() {
-        MethodIdentifier methodIdentifier = executionInput.getMethodIdentifier();
+        DBMethodIdentifier methodIdentifier = executionInput.getMethodIdentifier();
         DBSchema schema = connectionHandler.getObjectBundle().getSchema(methodIdentifier.getSchemaName());
         DBSchemaObject schemaObject = methodIdentifier.getProgramName() == null ?
                 schema.getMethod(methodIdentifier.getMethodName()) :

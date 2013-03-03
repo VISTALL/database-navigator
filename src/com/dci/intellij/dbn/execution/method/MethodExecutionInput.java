@@ -4,13 +4,14 @@ import com.dci.intellij.dbn.common.options.PersistentConfiguration;
 import com.dci.intellij.dbn.common.options.setting.SettingsUtil;
 import com.dci.intellij.dbn.common.util.CommonUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
-import com.dci.intellij.dbn.connection.ConnectionManager;
 import com.dci.intellij.dbn.execution.method.result.MethodExecutionResult;
 import com.dci.intellij.dbn.execution.method.result.ui.MethodExecutionResultForm;
 import com.dci.intellij.dbn.object.DBArgument;
 import com.dci.intellij.dbn.object.DBMethod;
+import com.dci.intellij.dbn.object.DBObjectIdentifier;
 import com.dci.intellij.dbn.object.DBSchema;
 import com.dci.intellij.dbn.object.DBTypeAttribute;
+import com.dci.intellij.dbn.object.common.DBObjectType;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.InvalidDataException;
@@ -23,9 +24,9 @@ import java.util.List;
 import java.util.Map;
 
 public class MethodExecutionInput implements Disposable, PersistentConfiguration, Comparable<MethodExecutionInput> {
-    private MethodIdentifier methodIdentifier;
+    private DBMethodIdentifier methodIdentifier;
+    private DBObjectIdentifier executionSchemaIdentifier;
     private Map<String, String> valuesMap = new HashMap<String, String>();
-    private String executionSchemaName;
     private boolean usePoolConnection = true;
     private boolean commitAfterExecution = true;
     private boolean isExecuting = false;
@@ -33,22 +34,17 @@ public class MethodExecutionInput implements Disposable, PersistentConfiguration
 
     private transient MethodExecutionResult executionResult;
     private transient List<ArgumentValue> argumentValues = new ArrayList<ArgumentValue>();
-    private transient ConnectionHandler connectionHandler;
-    private transient DBSchema executionSchema;
-    private transient DBMethod method;
 
     private transient boolean executionCancelled;
 
     public MethodExecutionInput() {
-        methodIdentifier = new MethodIdentifier();
+        methodIdentifier = new DBMethodIdentifier();
+        executionSchemaIdentifier = new DBObjectIdentifier();
     }
 
     public MethodExecutionInput(DBMethod method) {
-        this.method = method;
-        connectionHandler = method.getConnectionHandler();
-        methodIdentifier = new MethodIdentifier(method);
-        executionSchema = method.getSchema();
-        executionSchemaName = executionSchema.getName();
+        methodIdentifier = new DBMethodIdentifier(method);
+        executionSchemaIdentifier = method.getSchema().getIdentifier();
     }
 
     public void initExecutionResult(boolean debug) {
@@ -56,40 +52,20 @@ public class MethodExecutionInput implements Disposable, PersistentConfiguration
         executionResult = new MethodExecutionResult(this, resultPanel, debug);
     }
 
-    public synchronized DBMethod getMethod() {
-        if (method == null) {
-            method = methodIdentifier.lookupMethod();
-            ConnectionHandler connectionHandler = getConnectionHandler();
-            if (method == null && connectionHandler != null && connectionHandler.isValid(true)) {
-                return null;
-            }
-        }
-        if (method != null) {
-            method = (DBMethod) method.getUndisposedElement();
-        }
-        return method;
+    public DBMethod getMethod() {
+        return methodIdentifier.lookupObject();
     }
 
-    public MethodIdentifier getMethodIdentifier() {
+    public DBMethodIdentifier getMethodIdentifier() {
         return methodIdentifier;
     }
 
-    public synchronized ConnectionHandler getConnectionHandler() {
-        if (connectionHandler == null) {
-            connectionHandler = ConnectionManager.findConnectionHandler(methodIdentifier.getConnectionId());
-        }
-        return connectionHandler;
+    public ConnectionHandler getConnectionHandler() {
+        return methodIdentifier.lookupConnectionHandler();
     }
 
-    public synchronized DBSchema getExecutionSchema() {
-        if (executionSchema == null) {
-            executionSchema = getConnectionHandler().getObjectBundle().getSchema(executionSchemaName);
-            if (executionSchema == null) {
-                DBMethod method = getMethod();
-                executionSchema = method == null ? null : method.getSchema();
-            }
-        }
-        return executionSchema;
+    public DBSchema getExecutionSchema() {
+        return (DBSchema) executionSchemaIdentifier.lookupObject();
     }
 
     public boolean isObsolete() {
@@ -105,8 +81,7 @@ public class MethodExecutionInput implements Disposable, PersistentConfiguration
     }
 
     public void setExecutionSchema(DBSchema schema) {
-        executionSchema = schema;
-        executionSchemaName = executionSchema.getName();
+        executionSchemaIdentifier = schema.getIdentifier();
     }
 
     public void setInputValue(DBArgument argument, DBTypeAttribute typeAttribute, String value) {
@@ -199,9 +174,6 @@ public class MethodExecutionInput implements Disposable, PersistentConfiguration
         executionResult = null;
         valuesMap.clear();
         argumentValues.clear();
-        connectionHandler = null;
-        executionSchema = null;
-        method = null;
         methodIdentifier = null;
     }
 
@@ -210,7 +182,8 @@ public class MethodExecutionInput implements Disposable, PersistentConfiguration
      *********************************************************/
     public void readConfiguration(Element element) throws InvalidDataException {
         methodIdentifier.readConfiguration(element);
-        executionSchemaName = element.getAttributeValue("execution-schema");
+        executionSchemaIdentifier = new DBObjectIdentifier(methodIdentifier.getConnectionId());
+        executionSchemaIdentifier.add(DBObjectType.SCHEMA, element.getAttributeValue("execution-schema"));
         usePoolConnection = SettingsUtil.getBooleanAttribute(element, "use-pool-connection", true);
         commitAfterExecution = SettingsUtil.getBooleanAttribute(element, "commit-after-execution", true);
         Element argumentsElement = element.getChild("argument-list");
@@ -224,7 +197,7 @@ public class MethodExecutionInput implements Disposable, PersistentConfiguration
 
     public void writeConfiguration(Element element) throws WriteExternalException {
         methodIdentifier.writeConfiguration(element);
-        element.setAttribute("execution-schema", (String) CommonUtil.nvl(executionSchemaName, ""));
+        element.setAttribute("execution-schema", CommonUtil.nvl(executionSchemaIdentifier.getPath(), ""));
         SettingsUtil.setBooleanAttribute(element, "use-pool-connection", usePoolConnection);
         SettingsUtil.setBooleanAttribute(element, "commit-after-execution", commitAfterExecution);
 
@@ -242,34 +215,16 @@ public class MethodExecutionInput implements Disposable, PersistentConfiguration
             for (String name : valuesMap.keySet()) {
                 Element argumentElement = new Element("argument");
                 argumentElement.setAttribute("name", name);
-                argumentElement.setAttribute("value", (String) CommonUtil.nvl(valuesMap.get(name), ""));
+                argumentElement.setAttribute("value", CommonUtil.nvl(valuesMap.get(name), ""));
                 argumentsElement.addContent(argumentElement);
             }
         }
     }
 
     public int compareTo(MethodExecutionInput executionInput) {
-        MethodIdentifier localMethodIdentifier = getMethodIdentifier();
-        MethodIdentifier remoteMethodIdentifier = executionInput.getMethodIdentifier();
-
-        int result = localMethodIdentifier.getConnectionId().compareTo(remoteMethodIdentifier.getConnectionId());
-        if (result != 0) return result;
-
-
-        result = localMethodIdentifier.getSchemaName().compareTo(remoteMethodIdentifier.getSchemaName());
-        if (result != 0) return result;
-
-        String localProgramName = localMethodIdentifier.getProgramName();
-        String remoteProgramName = remoteMethodIdentifier.getProgramName();
-        result =
-            localProgramName == null && remoteProgramName == null ? 0 :
-            localProgramName == null ? -1 :
-            remoteProgramName == null ? 1 :
-            localProgramName.compareTo(remoteProgramName);
-        if (result != 0) return result;
-
-        result = localMethodIdentifier.getMethodName().compareTo(remoteMethodIdentifier.getMethodName());
-        return result;
+        DBMethodIdentifier localMethodIdentifier = getMethodIdentifier();
+        DBMethodIdentifier remoteMethodIdentifier = executionInput.getMethodIdentifier();
+        return localMethodIdentifier.compareTo(remoteMethodIdentifier);
     }
 
     @Override
@@ -289,7 +244,7 @@ public class MethodExecutionInput implements Disposable, PersistentConfiguration
     public MethodExecutionInput clone() {
         MethodExecutionInput executionInput = new MethodExecutionInput();
         executionInput.methodIdentifier = methodIdentifier;
-        executionInput.executionSchemaName = executionSchemaName;
+        executionInput.executionSchemaIdentifier = executionSchemaIdentifier;
         executionInput.usePoolConnection = usePoolConnection;
         executionInput.commitAfterExecution = commitAfterExecution;
         executionInput.valuesMap = new HashMap<String, String>(valuesMap);

@@ -1,7 +1,7 @@
 package com.dci.intellij.dbn.execution.method.history.ui;
 
+import com.dci.intellij.dbn.execution.method.DBMethodIdentifier;
 import com.dci.intellij.dbn.execution.method.MethodExecutionInput;
-import com.dci.intellij.dbn.execution.method.MethodIdentifier;
 
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
@@ -45,7 +45,7 @@ public class MethodExecutionHistorySimpleTreeModel extends MethodExecutionHistor
             SchemaTreeNode schemaNode,
             MethodTreeNode methodNode) {
         for (MethodExecutionInput executionInput : executionInputs) {
-            MethodIdentifier methodIdentifier = executionInput.getMethodIdentifier();
+            DBMethodIdentifier methodIdentifier = executionInput.getMethodIdentifier();
             if (executionInput.getConnectionHandler().getId().equals(connectionNode.getConnectionHandler().getId()) &&
                 methodIdentifier.getSchemaName().equalsIgnoreCase(schemaNode.getName()) &&
                 methodIdentifier.getQualifiedMethodName().equalsIgnoreCase(methodNode.getName()) &&

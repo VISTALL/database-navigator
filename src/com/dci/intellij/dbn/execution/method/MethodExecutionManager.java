@@ -58,8 +58,9 @@ public class MethodExecutionManager extends AbstractProjectComponent implements 
     }
 
     public MethodExecutionInput getExecutionInput(DBMethod method) {
+        DBMethodIdentifier methodIdentifier = new DBMethodIdentifier(method);
         for (MethodExecutionInput executionInput : executionInputs) {
-            if (executionInput.getMethodIdentifier().matches(method)) {
+            if (executionInput.getMethodIdentifier().equals(methodIdentifier)) {
                 return executionInput;
             }
         }
@@ -69,14 +70,14 @@ public class MethodExecutionManager extends AbstractProjectComponent implements 
         return executionInput;
     }
 
-    public MethodExecutionInput getExecutionInput(MethodIdentifier methodIdentifier) {
+    public MethodExecutionInput getExecutionInput(DBMethodIdentifier methodIdentifier) {
         for (MethodExecutionInput executionInput : executionInputs) {
             if (executionInput.getMethodIdentifier().equals(methodIdentifier)) {
                 return executionInput;
             }
         }
 
-        DBMethod method = methodIdentifier.lookupMethod();
+        DBMethod method = methodIdentifier.lookupObject();
         if (method != null) {
             MethodExecutionInput executionInput = new MethodExecutionInput(method);
             executionInputs.add(executionInput);
@@ -97,7 +98,7 @@ public class MethodExecutionManager extends AbstractProjectComponent implements 
             if (method == null) {
                 String message =
                         "Can not execute method " +
-                         executionInput.getMethodIdentifier().getQualifiedName() + ".\nMethod not found!";
+                         executionInput.getMethodIdentifier().getPath() + ".\nMethod not found!";
                 MessageUtil.showErrorDialog(message);
             } else {
                 MethodExecutionDialog executionDialog = new MethodExecutionDialog(executionInput, debug);
@@ -107,7 +108,7 @@ public class MethodExecutionManager extends AbstractProjectComponent implements 
             }
         } else {
             String message =
-                    "Can not execute method " + executionInput.getMethodIdentifier().getQualifiedName() + ".\n" +
+                    "Can not execute method " + executionInput.getMethodIdentifier().getPath() + ".\n" +
                     "No connectivity to '" + executionInput.getConnectionHandler().getQualifiedName() + "'. " +
                     "Please check your connection settings and try again.";
             MessageUtil.showErrorDialog(message);

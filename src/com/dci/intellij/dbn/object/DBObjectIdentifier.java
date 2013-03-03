@@ -4,19 +4,16 @@ import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.ConnectionManager;
 import com.dci.intellij.dbn.object.common.DBObject;
 import com.dci.intellij.dbn.object.common.DBObjectType;
-import com.intellij.openapi.project.Project;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-public class DBObjectIdentifier {
-    private Project project;
-    private String connectionId;
-    private Node[] nodes;
-
+public class DBObjectIdentifier implements Comparable {
+    protected String connectionId;
+    protected Node[] nodes;
 
     public DBObjectIdentifier(DBObject object) {
-        project = object.getProject();
         connectionId = object.getConnectionHandler().getId();
 
         List<DBObject> chain = new ArrayList<DBObject>();
@@ -36,8 +33,15 @@ public class DBObjectIdentifier {
     }
 
     public DBObjectIdentifier(ConnectionHandler connectionHandler) {
-        this.project = connectionHandler.getProject();
         this.connectionId = connectionHandler.getId();
+    }
+
+    public DBObjectIdentifier(String connectionId) {
+        this.connectionId = connectionId;
+    }
+
+    public DBObjectIdentifier() {
+
     }
 
     public DBObjectIdentifier add(DBObjectType objectType, String name) {
@@ -54,7 +58,7 @@ public class DBObjectIdentifier {
         return this;
     }
 
-    public String getNameWithPath() {
+    public String getPath() {
         if (nodes.length == 1) {
             return nodes[0].getName();
         } else {
@@ -90,8 +94,46 @@ public class DBObjectIdentifier {
     }
 
     public ConnectionHandler lookupConnectionHandler() {
-        ConnectionManager connectionManager = ConnectionManager.getInstance(project);
-        return connectionManager.getConnectionHandler(connectionId);
+        return ConnectionManager.findConnectionHandler(connectionId);
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        if (o instanceof DBObjectIdentifier) {
+            DBObjectIdentifier that = (DBObjectIdentifier) o;
+            int result = this.connectionId.compareTo(that.getConnectionId());
+            if (result != 0) return result;
+
+            if (this.nodes.length != that.nodes.length) {
+                return this.nodes.length - that.nodes.length;
+            }
+
+            for (int i=0; i<this.nodes.length; i++) {
+                result = this.nodes[i].getName().compareTo(that.nodes[i].getName());
+                if (result != 0) return result;
+            }
+        }
+        return 0;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        DBObjectIdentifier that = (DBObjectIdentifier) o;
+
+        if (!connectionId.equals(that.connectionId)) return false;
+        if (!Arrays.equals(nodes, that.nodes)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = connectionId.hashCode();
+        result = 31 * result + Arrays.hashCode(nodes);
+        return result;
     }
 
     public static class Node {
@@ -109,6 +151,26 @@ public class DBObjectIdentifier {
 
         public String getName() {
             return name;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            Node node = (Node) o;
+
+            if (!name.equals(node.name)) return false;
+            if (type != node.type) return false;
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = type.hashCode();
+            result = 31 * result + name.hashCode();
+            return result;
         }
     }
 

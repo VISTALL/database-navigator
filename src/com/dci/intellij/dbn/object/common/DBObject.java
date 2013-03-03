@@ -6,6 +6,7 @@ import com.dci.intellij.dbn.common.content.DynamicContentElement;
 import com.dci.intellij.dbn.common.environment.EnvironmentType;
 import com.dci.intellij.dbn.language.common.DBLanguage;
 import com.dci.intellij.dbn.language.common.DBLanguageDialect;
+import com.dci.intellij.dbn.object.DBObjectIdentifier;
 import com.dci.intellij.dbn.object.DBSchema;
 import com.dci.intellij.dbn.object.DBUser;
 import com.dci.intellij.dbn.object.common.list.DBObjectListContainer;
@@ -76,4 +77,6 @@ public interface DBObject extends BrowserTreeNode, PsiNamedElement, DynamicConte
     DatabaseObjectFile getVirtualFile();
     List<PresentableProperty> getPresentableProperties();
     EnvironmentType getEnvironmentType();
+
+    DBObjectIdentifier getIdentifier();
 }

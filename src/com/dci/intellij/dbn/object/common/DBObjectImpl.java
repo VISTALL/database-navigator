@@ -163,7 +163,8 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
         return contentType;
     }
 
-    protected DBObjectIdentifier getIdentifier() {
+    @Override
+    public DBObjectIdentifier getIdentifier() {
         return identifier;
     }
 
@@ -237,7 +238,7 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
     }
 
     public String getQualifiedName() {
-        return identifier.getNameWithPath();
+        return identifier.getPath();
     }
 
     public String getQualifiedNameWithType() {
