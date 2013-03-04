@@ -160,7 +160,7 @@ public class DBConstraintImpl extends DBSchemaObjectImpl implements DBConstraint
     }
 
     public DBConstraint getForeignKeyConstraint() {
-        return (DBConstraint) foreignKeyConstraint.lookupObject();
+        return foreignKeyConstraint == null ? null : (DBConstraint) foreignKeyConstraint.lookupObject();
     }
 
     public void buildToolTip(HtmlToolTipBuilder ttb) {
