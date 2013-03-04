@@ -58,7 +58,7 @@ NUMBER = {INTEGER}?"."{digit}+(("e"{sign}?{digit}+)|(("f"|"d"){ws}))?
 
 VARIABLE = ":"{wso}({IDENTIFIER}|{INTEGER})
 
-CT_SIZE_CLAUSE = {INTEGER}{wso}("k"|"m"|"g"|"t"|"p"|"e")
+CT_SIZE_CLAUSE = {INTEGER}{wso}("k"|"m"|"g"|"t"|"p"|"e"){ws}
 
 %state DIV
 %%
@@ -72,11 +72,6 @@ CT_SIZE_CLAUSE = {INTEGER}{wso}("k"|"m"|"g"|"t"|"p"|"e")
 {VARIABLE}       {return tt.getSharedTokenTypes().getVariable(); }
 
 {PLSQL_BLOCK}    {return tt.getChameleon(DBLanguageDialectIdentifier.ORACLE_PLSQL);}
-{CT_SIZE_CLAUSE} {return tt.getTokenType("CT_SIZE_CLAUSE");}
-
-{INTEGER}     { return tt.getSharedTokenTypes().getInteger(); }
-{NUMBER}      { return tt.getSharedTokenTypes().getNumber(); }
-{STRING}      { return tt.getSharedTokenTypes().getString(); }
 
 "("{wso}"+"{wso}")"  {return tt.getTokenType("CT_OUTER_JOIN");}
 
@@ -1139,8 +1134,11 @@ CT_SIZE_CLAUSE = {INTEGER}{wso}("k"|"m"|"g"|"t"|"p"|"e")
 "utl_file_dir" {return tt.getParameterTokenType(232);}
 "workarea_size_policy" {return tt.getParameterTokenType(233);}
 
+{CT_SIZE_CLAUSE} {return tt.getTokenType("CT_SIZE_CLAUSE");}
 
-
+{INTEGER}     { return tt.getSharedTokenTypes().getInteger(); }
+{NUMBER}      { return tt.getSharedTokenTypes().getNumber(); }
+{STRING}      { return tt.getSharedTokenTypes().getString(); }
 
 {IDENTIFIER}           { yybegin(YYINITIAL); return tt.getSharedTokenTypes().getIdentifier(); }
 {QUOTED_IDENTIFIER}    { yybegin(YYINITIAL); return tt.getSharedTokenTypes().getQuotedIdentifier(); }
