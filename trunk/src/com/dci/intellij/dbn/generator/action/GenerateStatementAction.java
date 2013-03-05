@@ -30,7 +30,7 @@ public abstract class GenerateStatementAction extends AnAction {
         final Project project = ActionUtil.getProject(event);
 
         new BackgroundTask(project, "Extracting select statement", false, true) {
-            public void execute(@NotNull ProgressIndicator progressIndicator) {
+            protected void execute(@NotNull ProgressIndicator progressIndicator) {
                 initProgressIndicator(progressIndicator, true);
                 StatementGeneratorResult result = generateStatement(project);
                 if (result.getMessages().hasErrors()) {
