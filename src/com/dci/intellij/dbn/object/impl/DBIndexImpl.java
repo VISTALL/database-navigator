@@ -48,6 +48,7 @@ public class DBIndexImpl extends DBSchemaObjectImpl implements DBIndex {
 
     @Override
     protected void initLists() {
+        super.initLists();
         DBTable table = getTable();
         if (table != null) {
             columns = initChildObjects().createSubcontentObjectList(DBObjectType.COLUMN, this, COLUMNS_LOADER, table, DBObjectRelationType.INDEX_COLUMN, false);

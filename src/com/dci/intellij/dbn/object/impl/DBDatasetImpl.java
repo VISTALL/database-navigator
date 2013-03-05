@@ -36,8 +36,9 @@ public abstract class DBDatasetImpl extends DBSchemaObjectImpl implements DBData
     }
 
     protected void initLists() {
-        DBObjectListContainer childObjects = initChildObjects();
+        super.initLists();
         DBSchema schema = getSchema();
+        DBObjectListContainer childObjects = initChildObjects();
         columns = childObjects.createSubcontentObjectList(DBObjectType.COLUMN, this, COLUMNS_LOADER, schema, true);
         constraints = childObjects.createSubcontentObjectList(DBObjectType.CONSTRAINT, this, CONSTRAINTS_LOADER, schema, true);
         triggers = childObjects.createSubcontentObjectList(DBObjectType.TRIGGER, this, TRIGGERS_LOADER, schema, true);
