@@ -46,6 +46,7 @@ public class DBPackageImpl extends DBProgramImpl implements DBPackage {
 
     @Override
     protected void initLists() {
+        super.initLists();
         DBSchema schema = getSchema();
         DBObjectListContainer childObjects = initChildObjects();
         functions = childObjects.createSubcontentObjectList(DBObjectType.PACKAGE_FUNCTION, this, FUNCTIONS_LOADER, schema, false);

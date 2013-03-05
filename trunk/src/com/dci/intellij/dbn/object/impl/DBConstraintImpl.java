@@ -75,6 +75,7 @@ public class DBConstraintImpl extends DBSchemaObjectImpl implements DBConstraint
 
     @Override
     protected void initLists() {
+        super.initLists();
         DBObjectListContainer childObjects = initChildObjects();
         columns = childObjects.createSubcontentObjectList(
                 DBObjectType.COLUMN, this,

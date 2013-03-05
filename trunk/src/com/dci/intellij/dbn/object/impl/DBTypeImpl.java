@@ -70,6 +70,7 @@ public class DBTypeImpl extends DBProgramImpl implements DBType {
     }
 
     protected void initLists() {
+        super.initLists();
         if (!isCollection()) {
             DBObjectListContainer container = initChildObjects();
             DBSchema schema = getSchema();
