@@ -1,15 +1,20 @@
 package com.dci.intellij.dbn.execution.method.history.ui;
 
+import com.dci.intellij.dbn.common.thread.BackgroundTask;
+import com.dci.intellij.dbn.common.thread.SimpleLaterInvocator;
 import com.dci.intellij.dbn.common.ui.tree.DBNTree;
 import com.dci.intellij.dbn.execution.method.MethodExecutionInput;
+import com.dci.intellij.dbn.object.DBMethod;
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.ColoredTreeCellRenderer;
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.util.ui.tree.TreeUtil;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.JTree;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
 import javax.swing.event.TreeSelectionEvent;
@@ -103,10 +108,27 @@ public class MethodExecutionHistoryTree extends DBNTree implements Disposable {
      **********************************************************/
     private TreeSelectionListener treeSelectionListener = new TreeSelectionListener(){
         public void valueChanged(TreeSelectionEvent e) {
-            MethodExecutionInput executionInput = getSelectedExecutionInput();
-            dialog.showMethodExecutionPanel(executionInput);
-            dialog.setMainButtonEnabled(executionInput != null);
-            dialog.setSelectedExecutionInput(executionInput);
+            final MethodExecutionInput executionInput = getSelectedExecutionInput();
+
+            new BackgroundTask(getProject(), "Loading Method details", false, false) {
+                @Override
+                public void execute(@NotNull ProgressIndicator progressIndicator) throws InterruptedException {
+                    DBMethod method = executionInput == null ? null : executionInput.getMethod();
+                    if (method != null) {
+                        method.getArguments();
+                    }
+
+                    new SimpleLaterInvocator() {
+                        @Override
+                        public void run() {
+                            dialog.showMethodExecutionPanel(executionInput);
+                            dialog.setSelectedExecutionInput(executionInput);
+                            dialog.setMainButtonEnabled(executionInput != null);
+                        }
+                    }.start();
+
+                }
+            }.start();
         }
     };
 

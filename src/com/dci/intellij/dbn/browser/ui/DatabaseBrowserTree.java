@@ -8,6 +8,7 @@ import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
 import com.dci.intellij.dbn.browser.model.TabbedBrowserTreeModel;
 import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.common.filter.Filter;
+import com.dci.intellij.dbn.common.thread.BackgroundTask;
 import com.dci.intellij.dbn.common.thread.ModalTask;
 import com.dci.intellij.dbn.common.thread.SimpleLaterInvocator;
 import com.dci.intellij.dbn.common.ui.UIUtil;
@@ -236,7 +237,7 @@ public class DatabaseBrowserTree extends DBNTree implements Disposable {
         if (path != null) {
             Object lastPathEntity = path.getLastPathComponent();
             if (lastPathEntity instanceof DBObject) {
-                DBObject object = (DBObject) lastPathEntity;
+                final DBObject object = (DBObject) lastPathEntity;
                 DBObjectProperties properties = object.getProperties();
                 if (properties.is(DBObjectProperty.EDITABLE)) {
                     DBSchemaObject schemaObject = (DBSchemaObject) object;
@@ -246,8 +247,14 @@ public class DatabaseBrowserTree extends DBNTree implements Disposable {
                     DatabaseFileSystem.getInstance().openEditor(object);
                     event.consume();
                 } else if (deliberate) {
-                    DBObject navigationObject = object.getDefaultNavigationObject();
-                    if (navigationObject != null) navigationObject.navigate(true);
+                    new BackgroundTask(getProject(), "Loading Object Reference", false, false) {
+                        @Override
+                        protected void execute(@NotNull ProgressIndicator progressIndicator) throws InterruptedException {
+                            DBObject navigationObject = object.getDefaultNavigationObject();
+                            if (navigationObject != null) navigationObject.navigate(true);
+                        }
+                    }.start();
+
                 }
             } else if (lastPathEntity instanceof DBObjectBundle) {
                 DBObjectBundle objectBundle = (DBObjectBundle) lastPathEntity;

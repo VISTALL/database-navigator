@@ -21,7 +21,7 @@ public class ExecutionResultVariablesDialogAction extends AbstractExecutionResul
             boolean continueExecution = executionResult.getExecutionProcessor().promptVariablesDialog();
             if (continueExecution) {
                 new BackgroundTask(executionResult.getProject(), "Executing statement", false, true) {
-                    public void execute(@NotNull ProgressIndicator progressIndicator) {
+                    protected void execute(@NotNull ProgressIndicator progressIndicator) {
                         initProgressIndicator(progressIndicator, true);
                         StatementExecutionCursorProcessor executionProcessor = executionResult.getExecutionProcessor();
                         executionProcessor.execute(progressIndicator);

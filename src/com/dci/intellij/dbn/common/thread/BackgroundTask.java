@@ -41,7 +41,7 @@ public abstract class BackgroundTask extends Task.Backgroundable {
         }
     }
 
-    public abstract void execute(@NotNull ProgressIndicator progressIndicator) throws InterruptedException;
+    protected abstract void execute(@NotNull ProgressIndicator progressIndicator) throws InterruptedException;
 
     public BackgroundTask(@Nullable Project project, @NotNull String title, boolean startInBackground, boolean canBeCancelled) {
         super(project, Constants.DBN_TITLE_PREFIX + "" + title, canBeCancelled, startInBackground ? START_IN_BACKGROUND : DO_NOT_START_IN_BACKGROUND);
