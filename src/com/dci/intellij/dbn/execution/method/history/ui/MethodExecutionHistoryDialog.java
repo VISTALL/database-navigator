@@ -16,7 +16,6 @@ import java.util.List;
 
 public class MethodExecutionHistoryDialog extends DBNDialog implements Disposable {
     private MethodExecutionHistoryForm mainComponent;
-    private Project project;
     private SelectAction selectAction;
     private ExecuteAction executeAction;
     private SaveAction saveAction;
@@ -26,7 +25,6 @@ public class MethodExecutionHistoryDialog extends DBNDialog implements Disposabl
 
     public MethodExecutionHistoryDialog(Project project, List<MethodExecutionInput> executionInputs, MethodExecutionInput selectedExecutionInput, boolean select) {
         super(project, "Method Execution History", true);
-        this.project = project;
         this.select = select;
         setModal(true);
         setResizable(true);
@@ -37,10 +35,6 @@ public class MethodExecutionHistoryDialog extends DBNDialog implements Disposabl
 
     protected String getDimensionServiceKey() {
         return "DBNavigator.MethodExecutionHistory";
-    }
-
-    public Project getProject() {
-        return project;
     }
 
     @Nullable
@@ -67,7 +61,7 @@ public class MethodExecutionHistoryDialog extends DBNDialog implements Disposabl
 
     private void saveChanges() {
         mainComponent.updateMethodExecutionInputs();
-        MethodExecutionManager methodExecutionManager = MethodExecutionManager.getInstance(project);
+        MethodExecutionManager methodExecutionManager = MethodExecutionManager.getInstance(getProject());
         methodExecutionManager.setExecutionInputs(mainComponent.getExecutionInputs());
     }
 
@@ -75,7 +69,6 @@ public class MethodExecutionHistoryDialog extends DBNDialog implements Disposabl
         super.dispose();
         mainComponent.dispose();
         mainComponent = null;
-        project = null;
     }
 
     public void setSelectedExecutionInput(MethodExecutionInput selectedExecutionInput) {
@@ -109,7 +102,7 @@ public class MethodExecutionHistoryDialog extends DBNDialog implements Disposabl
             saveChanges();
             MethodExecutionInput executionInput = mainComponent.getTree().getSelectedExecutionInput();
             if (executionInput != null) {
-                MethodExecutionManager executionManager = MethodExecutionManager.getInstance(project);
+                MethodExecutionManager executionManager = MethodExecutionManager.getInstance(getProject());
                 close(OK_EXIT_CODE);
                 executionManager.execute(executionInput);
             }
