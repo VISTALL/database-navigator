@@ -18,12 +18,10 @@ import java.awt.event.ActionEvent;
 public class MethodExecutionBrowserDialog extends DBNDialog implements Disposable, TreeSelectionListener {
     private MethodExecutionBrowserForm mainComponent;
     private SelectAction selectAction;
-    private Project project;
     private DBMethod method;
 
     public MethodExecutionBrowserDialog(Project project, MethodBrowserSettings settings, ObjectTreeModel objectTreeModel) {
         super(project, "Method Browser", true);
-        this.project = project;
         setModal(true);
         setResizable(true);
         mainComponent = new MethodExecutionBrowserForm(project, settings, objectTreeModel);
@@ -38,10 +36,6 @@ public class MethodExecutionBrowserDialog extends DBNDialog implements Disposabl
     @Override
     public void show() {
         super.show();
-    }
-
-    public Project getProject() {
-        return project;
     }
 
     @Nullable
@@ -64,7 +58,6 @@ public class MethodExecutionBrowserDialog extends DBNDialog implements Disposabl
         super.dispose();
         mainComponent.dispose();
         mainComponent = null;
-        project = null;
     }
 
     public void valueChanged(TreeSelectionEvent e) {
