@@ -248,10 +248,16 @@ public class DatabaseBrowserTree extends DBNTree implements Disposable {
                     event.consume();
                 } else if (deliberate) {
                     new BackgroundTask(getProject(), "Loading Object Reference", false, false) {
-                        @Override
                         protected void execute(@NotNull ProgressIndicator progressIndicator) throws InterruptedException {
-                            DBObject navigationObject = object.getDefaultNavigationObject();
-                            if (navigationObject != null) navigationObject.navigate(true);
+                            final DBObject navigationObject = object.getDefaultNavigationObject();
+                            if (navigationObject != null) {
+                                new SimpleLaterInvocator(){
+                                    public void run() {
+                                        navigationObject.navigate(true);
+                                    }
+                                }.start();
+                            }
+
                         }
                     }.start();
 
