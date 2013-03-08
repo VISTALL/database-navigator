@@ -75,7 +75,7 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
 
     protected String name;
     protected DBUser owner;
-    private DBObjectIdentifier identifier;
+    protected DBObjectIdentifier identifier;
     private DBObjectProperties properties;
     private DBObjectListContainer childObjects;
     private DBObjectRelationListContainer childObjectRelations;
