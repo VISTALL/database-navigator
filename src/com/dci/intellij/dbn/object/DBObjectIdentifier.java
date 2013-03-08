@@ -109,7 +109,11 @@ public class DBObjectIdentifier implements Comparable {
             }
 
             for (int i=0; i<this.nodes.length; i++) {
-                result = this.nodes[i].getName().compareTo(that.nodes[i].getName());
+                Node thisNode = this.nodes[i];
+                Node thatNode = that.nodes[i];
+                result = thisNode.getType().compareTo(thatNode.getType());
+                if (result != 0) return result;
+                result = thisNode.getName().compareTo(thatNode.getName());
                 if (result != 0) return result;
             }
         }
