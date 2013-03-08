@@ -4,6 +4,7 @@ import com.dci.intellij.dbn.common.locale.Formatter;
 import com.dci.intellij.dbn.common.util.StringUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.data.type.DBDataType;
+import com.dci.intellij.dbn.execution.method.DBMethodIdentifier;
 import com.dci.intellij.dbn.execution.method.MethodExecutionInput;
 import com.dci.intellij.dbn.execution.method.result.MethodExecutionResult;
 import com.dci.intellij.dbn.object.DBArgument;
@@ -19,21 +20,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class MethodExecutionProcessorImpl<T extends DBMethod> implements MethodExecutionProcessor<T> {
-    private T method;
-    private List<DBArgument> arguments;
+    private DBMethodIdentifier<T> methodIdentifier;
 
     protected MethodExecutionProcessorImpl(T method) {
-        this.method = method;
-        this.arguments = new ArrayList<DBArgument>(method.getArguments());
+        this.methodIdentifier = new DBMethodIdentifier<T>(method);
     }
 
     public T getMethod() {
-        method = (T) method.getUndisposedElement();
-        return method;
+        return methodIdentifier.lookupObject();
     }
 
     public List<DBArgument> getArguments() {
-        return arguments;
+        T method = getMethod();
+        return method == null ? new ArrayList<DBArgument>() : method.getArguments();
     }
 
     public DBArgument getReturnArgument() {
@@ -46,7 +45,7 @@ public abstract class MethodExecutionProcessorImpl<T extends DBMethod> implement
     }
 
     int getParametersCount() {
-        return arguments.size();
+        return getArguments().size();
     }
 
     public void execute(MethodExecutionInput executionInput) throws SQLException {
@@ -84,7 +83,7 @@ public abstract class MethodExecutionProcessorImpl<T extends DBMethod> implement
     }
 
     protected void prepareCall(MethodExecutionInput executionInput, CallableStatement callableStatement) throws SQLException {
-        for (DBArgument argument : arguments) {
+        for (DBArgument argument : getArguments()) {
             DBDataType dataType = argument.getDataType();
             if (argument.isInput()) {
                 String stringValue = executionInput.getInputValue(argument);
@@ -97,7 +96,7 @@ public abstract class MethodExecutionProcessorImpl<T extends DBMethod> implement
     }
 
     public void loadValues(MethodExecutionResult executionResult, CallableStatement callableStatement) throws SQLException {
-        for (DBArgument argument : arguments) {
+        for (DBArgument argument : getArguments()) {
             if (argument.isOutput()) {
                 Object result = callableStatement.getObject(argument.getPosition());
                 executionResult.addArgumentValue(argument, result);
