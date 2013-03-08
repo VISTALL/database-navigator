@@ -31,13 +31,11 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 
 public class DatasetEditorTableActionGroup extends DefaultActionGroup {
-    private DatasetEditorModelCell cell;
     private ColumnInfo columnInfo;
     private Object columnValue;
     private String columnDisplayName;
     boolean isHeaderAction;
     public DatasetEditorTableActionGroup(DatasetEditorTable table, @Nullable DatasetEditorModelCell cell, ColumnInfo columnInfo) {
-        this.cell = cell;
         this.columnInfo = columnInfo;
         this.columnDisplayName = NamingUtil.enhanceUnderscoresForDisplay(columnInfo.getName());
 
