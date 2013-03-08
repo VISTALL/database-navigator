@@ -638,53 +638,32 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
     public boolean equals(Object obj) {
         if (obj == this) return true;
         if (obj instanceof DBObject) {
-            DBObject remote = (DBObject) obj;
-            DBObject local = this;
-
-            while (remote != null && local != null) {
-                if (remote.getConnectionHandler() != local.getConnectionHandler()) return false;
-                if (remote.getObjectType() != local.getObjectType()) return false;
-                if (!remote.getName().equals(local.getName())) return false;
-                remote = remote.getParentObject();
-                local = local.getParentObject();
-            }
-
-            return remote == null && local == null;
+            DBObject object = (DBObject) obj;
+            return identifier.equals(object.getIdentifier());
         }
         return false;
     }
 
+
+    public int hashCode() {
+        return identifier.hashCode();
+    }
 
     @NotNull
     public Project getProject() throws PsiInvalidElementAccessException {
         return getConnectionHandler().getProject();
     }
 
-    public String toString() {
-        return getName();
+    public int compareTo(Object o) {
+        if (o instanceof DBObject) {
+            DBObject object = (DBObject) o;
+            return identifier.compareTo(object.getIdentifier());
+        }
+        return -1;
     }
 
-    public int compareTo(Object o) {
-        DBObject remote = (DBObject) o;
-        if (getObjectType() == remote.getObjectType()) {
-            DBObject localParentObject = getParentObject();
-            DBObject remoteParentObject = remote.getParentObject();
-            if (localParentObject != null && remoteParentObject != null) {
-                int result = localParentObject.compareTo(remoteParentObject);
-                if (result != 0) {
-                    return result;
-                }
-            }
-            DBObjectType localObjectType = getObjectType();
-            DBObjectType remoteObjectType = remote.getObjectType();
-            if (localObjectType == remoteObjectType) {
-                return getName().compareTo(remote.getName());
-            } else {
-                return getObjectType().getName().compareTo(remoteObjectType.getName());
-            }
-        } else {
-            return getObjectType().getTypeId().ordinal() - remote.getObjectType().getTypeId().ordinal();
-        }
+    public String toString() {
+        return getName();
     }
 
     public List<PresentableProperty> getPresentableProperties() {
@@ -697,10 +676,6 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
         properties.add(new ConnectionPresentableProperty(getConnectionHandler()));
 
         return properties;
-    }
-
-    public int hashCode() {
-        return getParentObject() == null ? getName().hashCode() : getParentObject().getName().hashCode() + getName().hashCode();
     }
 
     public boolean isValid() {

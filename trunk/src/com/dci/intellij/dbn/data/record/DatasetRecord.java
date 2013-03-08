@@ -18,7 +18,7 @@ import java.util.Map;
 public class DatasetRecord implements Disposable {
     private ResultSet resultSet;
     private DatasetFilterInput filterInput;
-    private Map<DBColumn, Object> values = new THashMap<DBColumn, Object>();
+    private Map<String, Object> values = new THashMap<String, Object>();
 
     public DatasetRecord(DatasetFilterInput filterInput) throws SQLException {
         this.filterInput = filterInput;
@@ -74,7 +74,7 @@ public class DatasetRecord implements Disposable {
 
             for (DBColumn column : dataset.getColumns()) {
                 Object value = column.getDataType().getValueFromResultSet(resultSet, index);
-                values.put(column, value);
+                values.put(column.getName(), value);
                 index++;
             }
         }
@@ -85,7 +85,7 @@ public class DatasetRecord implements Disposable {
     }
 
     public Object getColumnValue(DBColumn column) {
-        return values.get(column);
+        return values.get(column.getName());
     }
 
     @Override

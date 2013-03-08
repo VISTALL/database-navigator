@@ -151,7 +151,8 @@ public class DBArgumentImpl extends DBObjectImpl implements DBArgument {
     public boolean equals(Object obj) {
         if (super.equals(obj)) {
             DBArgument argument = (DBArgument) obj;
-            return argument.getOverload() == getOverload();
+            return getOverload() == argument.getOverload() &&
+                    getPosition() == argument.getPosition();
         }
         return false;
     }
