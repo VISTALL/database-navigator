@@ -24,6 +24,7 @@ import com.dci.intellij.dbn.editor.data.ui.table.DatasetEditorTable;
 import com.dci.intellij.dbn.editor.data.ui.table.model.DatasetEditorModel;
 import com.dci.intellij.dbn.editor.data.ui.table.model.DatasetEditorModelRow;
 import com.dci.intellij.dbn.object.DBDataset;
+import com.dci.intellij.dbn.object.DBObjectIdentifier;
 import com.dci.intellij.dbn.object.DBSchema;
 import com.dci.intellij.dbn.vfs.DatabaseEditableObjectFile;
 import com.intellij.codeHighlighting.BackgroundEditorHighlighter;
@@ -53,7 +54,7 @@ import java.util.Set;
 
 public class DatasetEditor extends UserDataHolderBase implements FileEditor, FileConnectionMappingProvider, ConnectionStatusListener, TransactionListener {
     private DatabaseEditableObjectFile databaseFile;
-    private DBDataset dataset;
+    private DBObjectIdentifier datasetIdentifier;
     private DatasetEditorForm editorForm;
     private StructureViewModel structureViewModel;
     private ConnectionHandler connectionHandler;
@@ -66,7 +67,7 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
     public DatasetEditor(DatabaseEditableObjectFile databaseFile, DBDataset dataset){
         Project project = dataset.getProject();
         this.databaseFile = databaseFile;
-        this.dataset = dataset;
+        this.datasetIdentifier = dataset.getIdentifier();
         this.settings = DataEditorSettings.getInstance(project);
 
         connectionHandler = dataset.getConnectionHandler();
@@ -81,8 +82,11 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
     }
 
     public DBDataset getDataset() {
-        dataset = (DBDataset) dataset.getUndisposedElement();
-        return dataset;
+        return (DBDataset) datasetIdentifier.lookupObject();
+    }
+
+    public DBObjectIdentifier getDatasetIdentifier() {
+        return datasetIdentifier;
     }
 
     public DataEditorSettings getSettings() {
@@ -225,7 +229,6 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
             EventManager.unsubscribe(getProject(), this);
             editorForm.dispose();
             editorForm = null;
-            dataset = null;
             databaseFile = null;
             structureViewModel = null;
             settings = null;
@@ -258,7 +261,7 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
                 model.fetchNextRecords(records, false);
             }
         } catch (SQLException e) {
-            String message = "Error loading data for " + dataset.getQualifiedNameWithType() + ".\nCause: " + e.getMessage();
+            String message = "Error loading data for " + getDataset().getQualifiedNameWithType() + ".\nCause: " + e.getMessage();
             MessageUtil.showErrorDialog(message, e);
         }
     }
@@ -281,10 +284,12 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
                         public void run() {
                             if (isDisposed) return;
                             focusEditor();
-                            DatabaseMessageParserInterface messageParserInterface = dataset.getConnectionHandler().getInterfaceProvider().getMessageParserInterface();
+                            DBDataset dataset = getDataset();
+                            DatabaseMessageParserInterface messageParserInterface = getConnectionHandler().getInterfaceProvider().getMessageParserInterface();
                             DatasetFilterManager filterManager = DatasetFilterManager.getInstance(getProject());
+
                             DatasetFilter filter = filterManager.getActiveFilter(dataset);
-                            if (dataset.getConnectionHandler().isValid()) {
+                            if (getConnectionHandler().isValid()) {
                                 if (filter == null || filter == DatasetFilterManager.EMPTY_FILTER || filter.getError() != null) {
                                     String message =
                                         "Error loading data for " + dataset.getQualifiedNameWithType() + ".\n" + (
@@ -437,7 +442,7 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
     }
 
     public ConnectionHandler getConnectionHandler() {
-        return getDataset().getConnectionHandler();
+        return datasetIdentifier.lookupConnectionHandler();
     }
 
     /********************************************************
