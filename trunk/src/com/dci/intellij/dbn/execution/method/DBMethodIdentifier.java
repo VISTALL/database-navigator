@@ -11,10 +11,10 @@ import com.intellij.openapi.util.InvalidDataException;
 import com.intellij.openapi.util.WriteExternalException;
 import org.jdom.Element;
 
-public class DBMethodIdentifier extends DBObjectIdentifier implements PersistentConfiguration {
+public class DBMethodIdentifier<T extends DBMethod> extends DBObjectIdentifier<T> implements PersistentConfiguration {
     private int overload;
 
-    public DBMethodIdentifier(DBMethod method) {
+    public DBMethodIdentifier(T method) {
         super(method);
         overload = method.getOverload();
     }
@@ -23,7 +23,7 @@ public class DBMethodIdentifier extends DBObjectIdentifier implements Persistent
         super();
     }
 
-    public DBMethod lookupObject() {
+    public T lookupObject() {
         ConnectionHandler connectionHandler = lookupConnectionHandler();
         if (connectionHandler == null) return null;
 
@@ -43,7 +43,7 @@ public class DBMethodIdentifier extends DBObjectIdentifier implements Persistent
             method = schema.getMethod(methodNode.getName(), methodObjectType.getName());
         }
 
-        return method != null && method.getObjectType() == methodObjectType ? method : null;
+        return method != null && method.getObjectType() == methodObjectType ? (T) method : null;
     }
 
     public String getQualifiedMethodName() {

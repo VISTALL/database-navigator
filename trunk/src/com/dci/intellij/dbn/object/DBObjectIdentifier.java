@@ -9,11 +9,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class DBObjectIdentifier implements Comparable {
+public class DBObjectIdentifier<T extends DBObject> implements Comparable {
     protected String connectionId;
     protected Node[] nodes;
 
-    public DBObjectIdentifier(DBObject object) {
+    public DBObjectIdentifier(T object) {
         connectionId = object.getConnectionHandler().getId();
 
         List<DBObject> chain = new ArrayList<DBObject>();
@@ -76,7 +76,7 @@ public class DBObjectIdentifier implements Comparable {
         return connectionId;
     }
 
-    public DBObject lookupObject() {
+    public T lookupObject() {
         ConnectionHandler connectionHandler = lookupConnectionHandler();
 
         DBObject object = null;
@@ -90,7 +90,7 @@ public class DBObjectIdentifier implements Comparable {
             }
             if (object == null) break;
         }
-        return object;
+        return (T) object;
     }
 
     public ConnectionHandler lookupConnectionHandler() {
@@ -175,6 +175,11 @@ public class DBObjectIdentifier implements Comparable {
             int result = type.hashCode();
             result = 31 * result + name.hashCode();
             return result;
+        }
+
+        @Override
+        public String toString() {
+            return "[" + type.getName() + "] " + getName();
         }
     }
 
