@@ -3,7 +3,9 @@ package com.dci.intellij.dbn.common.content;
 import com.dci.intellij.dbn.common.content.dependency.ContentDependencyAdapter;
 import com.dci.intellij.dbn.common.content.loader.DynamicContentLoader;
 import com.dci.intellij.dbn.common.content.loader.DynamicContentLoaderException;
+import com.dci.intellij.dbn.common.dispose.DisposeUtil;
 import com.dci.intellij.dbn.common.filter.Filter;
+import com.dci.intellij.dbn.common.util.CollectionUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.GenericDatabaseElement;
 import com.dci.intellij.dbn.connection.LoadMonitor;
@@ -177,10 +179,10 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
      */
     public abstract void notifyChangeListeners();
 
-    public synchronized void setElements(List<T> elements, boolean markAsOwner) {
+    public synchronized void setElements(List<T> elements) {
         filterHashCode = getFilter() == null ? 0 : getFilter().hashCode();
 
-        if (elements == null || elements.size() == 0) {
+        if (isDisposed || elements == null || elements.size() == 0) {
             elements = EMPTY_LIST;
             index = null;
         } else {
@@ -188,23 +190,14 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
 
         }
         List<T> oldElements = this.elements;
-
         this.elements = elements;
-
-
-        if (markAsOwner) {
-            for (T element : this.elements) {
-                element.setOwnerContent(this);
-            }
-        }
-
         updateIndex();
-
         if (oldElements.size() != 0 || elements.size() != 0 ){
             notifyChangeListeners();
         }
-
-        disposeElements(oldElements);
+        if (!dependencyAdapter.isSubContent() && oldElements.size() > 0 ) {
+            DisposeUtil.disposeCollection(oldElements);
+        }
     }
 
     public synchronized void removeElements(List<T> elements) {
@@ -213,9 +206,6 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
     }
 
     public synchronized void addElements(List<T> elements) {
-        for (T element : elements) {
-            element.setOwnerContent(this);
-        }
         this.elements.addAll(elements);
         updateIndex();
     }
@@ -271,21 +261,13 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
     public void dispose() {
         if (!isDisposed) {
             isDisposed = true;
-            disposeElements(elements);
-
+            if (dependencyAdapter.isSubContent())
+                elements.clear(); else
+                DisposeUtil.disposeCollection(elements);
+            CollectionUtil.clearMap(index);
             dependencyAdapter.dispose();
-            dependencyAdapter = null;
-            //connectionHandler = null;
-            //parent = null;
+            connectionHandler = null;
+            parent = null;
         }
-    }
-
-    private void disposeElements(List<T> elements) {
-        for (DynamicContentElement element : elements) {
-            if (element.getOwnerContent() == this) {
-                element.dispose();
-            }
-        }
-        elements.clear();
     }
 }

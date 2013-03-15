@@ -105,11 +105,6 @@ public class DBObjectListImpl<T extends DBObject> extends DynamicContentImpl<T> 
         return null;
     }
 
-
-    public void setElements(List<T> elements, boolean markAsOwner) {
-        super.setElements(elements, markAsOwner);
-    }
-
     public void notifyChangeListeners() {
         if (isTouched) {
             EventManager.notify(getProject(), BrowserTreeChangeListener.TOPIC).nodeChanged(this, TreeEventType.STRUCTURE_CHANGED);

@@ -36,4 +36,6 @@ public interface ContentDependencyAdapter extends Disposable {
     void afterReload(DynamicContent dynamicContent);
 
     boolean isSourceContentLoaded();
+
+    boolean isSubContent();
 }

@@ -45,7 +45,7 @@ public abstract class DynamicSubcontentLoader<T extends DynamicContentElement> i
                 break;
             }
         }
-        dynamicContent.setElements(list, false);
+        dynamicContent.setElements(list);
         //dynamicContent.setTemporary(false);
     }
 

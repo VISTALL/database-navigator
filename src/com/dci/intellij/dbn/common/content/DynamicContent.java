@@ -62,7 +62,7 @@ public interface DynamicContent<T extends DynamicContentElement> extends Disposa
 
     @NotNull List<T> getElements();
     T getElement(String name);
-    void setElements(@Nullable List<T> elements, boolean markAsOwner);
+    void setElements(@Nullable List<T> elements);
     int size();
 
     GenericDatabaseElement getParent();

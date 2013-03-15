@@ -12,6 +12,7 @@ import com.dci.intellij.dbn.common.content.DynamicContentElement;
 import com.dci.intellij.dbn.common.content.DynamicContentType;
 import com.dci.intellij.dbn.common.content.loader.DynamicContentLoader;
 import com.dci.intellij.dbn.common.content.loader.DynamicContentResultSetLoader;
+import com.dci.intellij.dbn.common.dispose.DisposeUtil;
 import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.common.filter.Filter;
 import com.dci.intellij.dbn.common.lookup.ConsumerStoppedException;
@@ -19,6 +20,7 @@ import com.dci.intellij.dbn.common.lookup.LookupConsumer;
 import com.dci.intellij.dbn.common.thread.BackgroundTask;
 import com.dci.intellij.dbn.common.thread.ConditionalLaterInvocator;
 import com.dci.intellij.dbn.common.ui.tree.TreeEventType;
+import com.dci.intellij.dbn.common.util.CollectionUtil;
 import com.dci.intellij.dbn.common.util.CommonUtil;
 import com.dci.intellij.dbn.connection.ConnectionBundle;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
@@ -553,9 +555,12 @@ public class DBObjectBundleImpl implements DBObjectBundle {
     public void dispose() {
         if (!isDisposed) {
             isDisposed = true;
-            objectLists.dispose();
-            objectRelationLists.dispose();
-            if (visibleTreeChildren != null) visibleTreeChildren.clear();
+            DisposeUtil.dispose(objectLists);
+            DisposeUtil.dispose(objectRelationLists);
+            CollectionUtil.clearCollection(visibleTreeChildren);
+            CollectionUtil.clearCollection(allPossibleTreeChildren);
+            treeParent = null;
+            connectionHandler = null;
         }
     }
 

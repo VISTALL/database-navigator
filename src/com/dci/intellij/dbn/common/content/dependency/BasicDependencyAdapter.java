@@ -52,6 +52,11 @@ public class BasicDependencyAdapter implements ContentDependencyAdapter {
         return false;
     }
 
+    @Override
+    public boolean isSubContent() {
+        return false;
+    }
+
     public void dispose() {
         connectionHandler = null;
     }

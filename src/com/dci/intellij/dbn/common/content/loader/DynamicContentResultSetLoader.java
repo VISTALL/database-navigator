@@ -87,7 +87,7 @@ public abstract class DynamicContentResultSetLoader<T extends DynamicContentElem
                     count++;
                 }
             }
-            dynamicContent.setElements(list, true);
+            dynamicContent.setElements(list);
 
             postLoadContent(dynamicContent, debugInfo);
         } catch (Exception e) {

@@ -4,6 +4,7 @@ import com.dci.intellij.dbn.common.content.dependency.ContentDependencyAdapter;
 import com.dci.intellij.dbn.common.content.dependency.MultipleContentDependencyAdapter;
 import com.dci.intellij.dbn.common.content.dependency.SubcontentDependencyAdapterImpl;
 import com.dci.intellij.dbn.common.content.loader.DynamicContentLoader;
+import com.dci.intellij.dbn.common.dispose.DisposeUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.GenericDatabaseElement;
 import com.dci.intellij.dbn.database.DatabaseCompatibilityInterface;
@@ -16,7 +17,7 @@ import java.util.List;
 
 public class DBObjectRelationListContainer implements Disposable {
     private GenericDatabaseElement owner;
-    private List<DBObjectRelationList> objectRelationLists = new ArrayList<DBObjectRelationList>();
+    private List<DBObjectRelationList> objectRelationLists;
 
     public DBObjectRelationListContainer(GenericDatabaseElement owner) {
         this.owner = owner;
@@ -35,9 +36,11 @@ public class DBObjectRelationListContainer implements Disposable {
     }
 
     public DBObjectRelationList getObjectRelationList(DBObjectRelationType objectRelationType) {
-        for (DBObjectRelationList objectRelationList : objectRelationLists) {
-            if (objectRelationList.getObjectRelationType() == objectRelationType) {
-                return objectRelationList;
+        if (objectRelationLists != null) {
+            for (DBObjectRelationList objectRelationList : objectRelationLists) {
+                if (objectRelationList.getObjectRelationType() == objectRelationType) {
+                    return objectRelationList;
+                }
             }
         }
         return null;
@@ -78,6 +81,7 @@ public class DBObjectRelationListContainer implements Disposable {
             ContentDependencyAdapter dependencyAdapter) {
         if (isSupported(type)) {
             DBObjectRelationList objectRelationList = new DBObjectRelationListImpl(type, parent, name, loader, dependencyAdapter);
+            if (objectRelationLists == null) objectRelationLists = new ArrayList<DBObjectRelationList>();
             objectRelationLists.add(objectRelationList);
             return objectRelationList;
         }
@@ -85,11 +89,8 @@ public class DBObjectRelationListContainer implements Disposable {
     }
 
     public void dispose() {
-        for (DBObjectRelationList objectRelationList : objectRelationLists) {
-            objectRelationList.dispose();
-        }
-        objectRelationLists.clear();        
-        objectRelationLists = null;
+        DisposeUtil.disposeCollection(objectRelationLists);
+        owner = null;
     }
 
     public void reload(boolean recursive) {
