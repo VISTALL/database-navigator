@@ -263,11 +263,9 @@ public class MethodExecutionManager extends AbstractProjectComponent implements 
         Element configsElement = new Element("execution-inputs");
         element.addContent(configsElement);
         for (MethodExecutionInput executionInput : this.executionInputs) {
-            if (!executionInput.isObsolete()) {
-                Element configElement = new Element("execution-input");
-                executionInput.writeConfiguration(configElement);
-                configsElement.addContent(configElement);
-            }
+            Element configElement = new Element("execution-input");
+            executionInput.writeConfiguration(configElement);
+            configsElement.addContent(configElement);
         }
     }
 
