@@ -483,8 +483,9 @@ public class IdentifierPsiElement extends LeafPsiElement implements PsiNamedElem
 
     @Override
     public boolean isReferenceTo(PsiElement element) {
-        if (element == this) return false;
+        return element != this && element == resolve();
 
+/*
         if (element instanceof IdentifierPsiElement) {
             IdentifierPsiElement identifierPsiElement = (IdentifierPsiElement) element;
             if (StringUtil.equalsIgnoreCase(getChars(), identifierPsiElement.getChars())) {
@@ -503,6 +504,7 @@ public class IdentifierPsiElement extends LeafPsiElement implements PsiNamedElem
         }
 
         return false;
+*/
     }
 
     public CharSequence getUnquotedText() {
