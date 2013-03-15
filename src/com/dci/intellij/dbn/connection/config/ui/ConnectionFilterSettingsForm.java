@@ -48,7 +48,7 @@ public class ConnectionFilterSettingsForm extends CompositeConfigurationEditorFo
 
     @Override
     public void dispose() {
-        EventManager.unsubscribe(getConfiguration().getProject(), this);
+        EventManager.unsubscribe(this);
         super.dispose();
     }
 }

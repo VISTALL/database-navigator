@@ -74,4 +74,5 @@ public interface ConnectionHandler extends Disposable{
 
     UncommittedChangeBundle getUncommittedChanges();
     boolean isConnected();
+    boolean isDisposed();
 }

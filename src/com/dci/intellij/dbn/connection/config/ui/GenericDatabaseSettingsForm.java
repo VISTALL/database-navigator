@@ -249,8 +249,7 @@ public class GenericDatabaseSettingsForm extends ConfigurationEditorForm<Generic
 
     @Override
     public void dispose() {
-        Project project = getConfiguration().getProject();
-        EventManager.unsubscribe(project, this);
+        EventManager.unsubscribe(this);
         super.dispose();
     }
 }

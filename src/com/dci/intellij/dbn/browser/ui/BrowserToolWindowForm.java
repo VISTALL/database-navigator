@@ -115,7 +115,7 @@ public class BrowserToolWindowForm extends UIFormImpl implements UIForm {
     }
 
     public void dispose() {
-        EventManager.unsubscribe(project, projectSettingsChangeListener);
+        EventManager.unsubscribe(projectSettingsChangeListener);
         super.dispose();
         objectPropertiesForm.dispose();
         objectPropertiesForm = null;

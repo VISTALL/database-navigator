@@ -1,6 +1,5 @@
 package com.dci.intellij.dbn.common;
 
-import com.dci.intellij.dbn.common.event.EventManager;
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.project.Project;
 
@@ -13,10 +12,6 @@ public abstract class AbstractProjectComponent implements ProjectComponent{
 
     public Project getProject() {
         return project;
-    }
-
-    protected EventManager getEventManager() {
-        return EventManager.getInstance(project);
     }
 
     public void projectOpened() {

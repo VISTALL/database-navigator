@@ -43,22 +43,18 @@ public class DatabaseEditableObjectFile extends DatabaseObjectFile<DBSchemaObjec
 
     public DatabaseEditableObjectFile(DBSchemaObject object) {
         super(object);
-        name = object.getName();
     }
 
     public ConnectionHandler getActiveConnection() {
-        return object.getConnectionHandler();
+        return getConnectionHandler();
     }
 
     public DBSchema getCurrentSchema() {
-        return object.getSchema();
-    }
-
-    public ConnectionHandler getConnectionHandler() {
-        return object.getConnectionHandler();
+        return getObject().getSchema();
     }
 
     public boolean preOpen() {
+        DBSchemaObject object = getObject();
         Project project = object.getProject();
         if (object.getContentType() == DBContentType.DATA) {
             DBDataset dataset = (DBDataset) object;
@@ -103,7 +99,7 @@ public class DatabaseEditableObjectFile extends DatabaseObjectFile<DBSchemaObjec
     public synchronized List<DatabaseContentFile> getContentFiles() {
         if (contentFiles == null) {
             contentFiles = new ArrayList<DatabaseContentFile>();
-            DBContentType objectContentType = object.getContentType();
+            DBContentType objectContentType = getObject().getContentType();
             if (objectContentType.isBundle()) {
                 DBContentType[] contentTypes = objectContentType.getSubContentTypes();
                 for (DBContentType contentType : contentTypes) {
@@ -124,6 +120,7 @@ public class DatabaseEditableObjectFile extends DatabaseObjectFile<DBSchemaObjec
 
     @Nullable
     public List<VirtualFile> getBoundDDLFiles() {
+        DBSchemaObject object = getObject();
         DDLFileAttachmentManager fileAttachmentManager = DDLFileAttachmentManager.getInstance(object.getProject());
         if (object.getProperties().is(DBObjectProperty.EDITABLE)) {
             return fileAttachmentManager.getBoundDDLFiles(object);
@@ -160,7 +157,7 @@ public class DatabaseEditableObjectFile extends DatabaseObjectFile<DBSchemaObjec
      *********************************************************/
     @NotNull
     public FileType getFileType() {
-        DDLFileType type = object.getDDLFileType(null);
+        DDLFileType type = getObject().getDDLFileType(null);
         return type == null ? SQLFileType.INSTANCE : type.getLanguageFileType();
     }
 
@@ -174,7 +171,7 @@ public class DatabaseEditableObjectFile extends DatabaseObjectFile<DBSchemaObjec
     }
 
     public DatabaseContentFile getDebuggableContentFile(){
-        DBContentType contentType = object.getContentType();
+        DBContentType contentType = getObject().getContentType();
         if (contentType == DBContentType.CODE) {
             return getContentFile(DBContentType.CODE);
         }
@@ -196,22 +193,24 @@ public class DatabaseEditableObjectFile extends DatabaseObjectFile<DBSchemaObjec
 
     @Override
     public <T> T getUserData(Key<T> key) {
-        DBContentType mainContentType = getMainContentType();
-        boolean isCode = mainContentType == DBContentType.CODE || mainContentType == DBContentType.CODE_BODY;
-        if (key == FileDocumentManagerImpl.DOCUMENT_KEY && isCode) {
-            if (FAKE_DOCUMENT.get() != null) {
-                return (T) new WeakReference<Document>(FAKE_DOCUMENT.get());
-            }
+        if (key == FileDocumentManagerImpl.DOCUMENT_KEY) {
+            DBContentType mainContentType = getMainContentType();
+            boolean isCode = mainContentType == DBContentType.CODE || mainContentType == DBContentType.CODE_BODY;
+            if (isCode) {
+                if (FAKE_DOCUMENT.get() != null) {
+                    return (T) new WeakReference<Document>(FAKE_DOCUMENT.get());
+                }
 
-            DatabaseContentFile mainContentFile = getMainContentFile();
-            Document document = DocumentUtil.getDocument(mainContentFile);
-            return (T) new WeakReference<Document>(document);
+                DatabaseContentFile mainContentFile = getMainContentFile();
+                Document document = DocumentUtil.getDocument(mainContentFile);
+                return (T) new WeakReference<Document>(document);
+            }
         }
         return super.getUserData(key);
     }
 
     public DBContentType getMainContentType() {
-        DBContentType contentType = object.getContentType();
+        DBContentType contentType = getObject().getContentType();
         return
             contentType == DBContentType.CODE ? DBContentType.CODE :
             contentType == DBContentType.CODE_SPEC_AND_BODY ? DBContentType.CODE_BODY : null;
@@ -230,7 +229,6 @@ public class DatabaseEditableObjectFile extends DatabaseObjectFile<DBSchemaObjec
     @Override
     public void dispose() {
         DisposeUtil.disposeCollection(contentFiles);
-        contentFiles = null;
         super.dispose();
     }
 

@@ -75,7 +75,7 @@ public class UncommittedChangesForm extends UIFormImpl implements TransactionLis
     @Override
     public void dispose() {
         super.dispose();
-        EventManager.unsubscribe(connectionHandler.getProject(), this);
+        EventManager.unsubscribe(this);
         connectionHandler = null;
     }
 

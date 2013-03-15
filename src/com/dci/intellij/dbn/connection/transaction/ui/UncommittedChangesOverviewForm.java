@@ -87,7 +87,7 @@ public class UncommittedChangesOverviewForm extends UIFormImpl implements UIForm
 
     public void dispose() {
         super.dispose();
-        EventManager.unsubscribe(project, this);
+        EventManager.unsubscribe(this);
         connectionHandlers = null;
     }
 

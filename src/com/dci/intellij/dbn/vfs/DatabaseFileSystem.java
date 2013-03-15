@@ -1,17 +1,19 @@
 package com.dci.intellij.dbn.vfs;
 
 import com.dci.intellij.dbn.browser.DatabaseBrowserManager;
+import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.common.thread.BackgroundTask;
 import com.dci.intellij.dbn.common.thread.ReadActionRunner;
 import com.dci.intellij.dbn.common.thread.SimpleLaterInvocator;
 import com.dci.intellij.dbn.common.util.EditorUtil;
+import com.dci.intellij.dbn.connection.ConnectionCache;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
-import com.dci.intellij.dbn.connection.ConnectionManager;
 import com.dci.intellij.dbn.ddl.DDLFileType;
 import com.dci.intellij.dbn.editor.DBContentType;
 import com.dci.intellij.dbn.editor.code.SourceCodeMainEditor;
 import com.dci.intellij.dbn.language.common.DBLanguageFileType;
 import com.dci.intellij.dbn.language.sql.SQLFileType;
+import com.dci.intellij.dbn.object.DBObjectIdentifier;
 import com.dci.intellij.dbn.object.DBSchema;
 import com.dci.intellij.dbn.object.common.DBObject;
 import com.dci.intellij.dbn.object.common.DBSchemaObject;
@@ -25,6 +27,7 @@ import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
 import com.intellij.openapi.fileEditor.FileEditorManagerListener;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.impl.ProjectLifecycleListener;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileListener;
 import com.intellij.openapi.vfs.VirtualFileSystem;
@@ -34,6 +37,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.StringTokenizer;
 
@@ -42,8 +46,8 @@ public class DatabaseFileSystem extends VirtualFileSystem implements Application
     public static final String PROTOCOL_PREFIX = PROTOCOL + "://";
 
     private static final String ERR = "File manipulation not allowed within database file system!";
-    private Map<DBObject, DatabaseEditableObjectFile> openFiles = new HashMap<DBObject, DatabaseEditableObjectFile>();
-    private Map<DBObject, DatabaseEditableObjectFile> filesCache = new HashMap<DBObject, DatabaseEditableObjectFile>();
+    private Map<DBObjectIdentifier, DatabaseEditableObjectFile> openFiles = new HashMap<DBObjectIdentifier, DatabaseEditableObjectFile>();
+    private Map<DBObjectIdentifier, DatabaseEditableObjectFile> filesCache = new HashMap<DBObjectIdentifier, DatabaseEditableObjectFile>();
 
     public static DatabaseFileSystem getInstance() {
         return ApplicationManager.getApplication().getComponent(DatabaseFileSystem.class);
@@ -64,7 +68,7 @@ public class DatabaseFileSystem extends VirtualFileSystem implements Application
         int index = url.indexOf("/", startIndex);
 
         String connectionId = url.substring(startIndex, index == -1 ? url.length() : index);
-        ConnectionHandler connectionHandler = ConnectionManager.findConnectionHandler(connectionId);
+        ConnectionHandler connectionHandler = ConnectionCache.findConnectionHandler(connectionId);
         if (connectionHandler != null) {
             if (index > -1) {
                 StringTokenizer path = new StringTokenizer(url.substring(index + 1), ".");
@@ -101,17 +105,18 @@ public class DatabaseFileSystem extends VirtualFileSystem implements Application
 
     @NotNull
     public DatabaseEditableObjectFile findDatabaseFile(DBSchemaObject object) {
-        DatabaseEditableObjectFile databaseFile = filesCache.get(object);
+        DBObjectIdentifier identifier = object.getIdentifier();
+        DatabaseEditableObjectFile databaseFile = filesCache.get(identifier);
         if (databaseFile == null ){
             databaseFile = createDatabaseFile(object);
 
-            filesCache.put(object, databaseFile);
+            filesCache.put(identifier, databaseFile);
         }
         return databaseFile;
     }
 
     public boolean isFileOpened(DBSchemaObject object) {
-        return openFiles.containsKey(object);   
+        return openFiles.containsKey(object.getIdentifier());
     }
 
     public static String createPath(DBObject object, DBContentType contentType) {
@@ -259,11 +264,11 @@ public class DatabaseFileSystem extends VirtualFileSystem implements Application
     }
 
     public void initComponent() {
-
+        EventManager.subscribe(ProjectLifecycleListener.TOPIC, projectLifecycleListener);
     }
 
     public void disposeComponent() {
-
+        EventManager.unsubscribe(projectLifecycleListener);
     }
 
     /*********************************************************
@@ -355,18 +360,36 @@ public class DatabaseFileSystem extends VirtualFileSystem implements Application
     public void fileOpened(FileEditorManager source, VirtualFile file) {
         if (file instanceof DatabaseEditableObjectFile) {
             DatabaseEditableObjectFile databaseFile = (DatabaseEditableObjectFile) file;
-            openFiles.put(databaseFile.getObject(), databaseFile);
+            openFiles.put(databaseFile.getObjectIdentifier(), databaseFile);
         }
     }
 
     public void fileClosed(FileEditorManager source, VirtualFile file) {
         if (file instanceof DatabaseEditableObjectFile) {
             DatabaseEditableObjectFile databaseFile = (DatabaseEditableObjectFile) file;
-            openFiles.remove(databaseFile.getObject());
+            openFiles.remove(databaseFile.getObjectIdentifier());
         }
     }
 
     public void selectionChanged(FileEditorManagerEvent event) {
 
     }
+
+    /*********************************************************
+     *              ProjectLifecycleListener                 *
+     *********************************************************/
+    private ProjectLifecycleListener projectLifecycleListener = new ProjectLifecycleListener.Adapter() {
+        @Override
+        public void afterProjectClosed(@NotNull Project project) {
+            Iterator<DBObjectIdentifier> identifiers = filesCache.keySet().iterator();
+            while (identifiers.hasNext()) {
+                DBObjectIdentifier identifier = identifiers.next();
+                DatabaseEditableObjectFile file = filesCache.get(identifier);
+                if (file.getProject() == project) {
+                    identifiers.remove();
+                    file.dispose();
+                }
+            }
+        }
+    };
 }

@@ -77,7 +77,7 @@ public class EnvironmentManager extends AbstractProjectComponent implements JDOM
     }
 
     public void dispose() {
-        EventManager.unsubscribe(getProject(), this);
+        EventManager.unsubscribe(this);
     }
 
     public EnvironmentType getEnvironmentType(String id) {

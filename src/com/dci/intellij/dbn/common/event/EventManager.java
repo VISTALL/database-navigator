@@ -1,7 +1,7 @@
 package com.dci.intellij.dbn.common.event;
 
-import com.dci.intellij.dbn.common.AbstractProjectComponent;
-import com.intellij.openapi.Disposable;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.components.ApplicationComponent;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.messages.MessageBus;
 import com.intellij.util.messages.MessageBusConnection;
@@ -9,74 +9,86 @@ import com.intellij.util.messages.Topic;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.EventListener;
 import java.util.HashMap;
 import java.util.Map;
 
-public class EventManager extends AbstractProjectComponent implements Disposable{
+public class EventManager implements ApplicationComponent{
     private Map<Object, MessageBusConnection> connectionCache = new HashMap<Object, MessageBusConnection>();
     
-    private EventManager(Project project) {
-        super(project);
+    public static EventManager getInstance() {
+        return ApplicationManager.getApplication().getComponent(EventManager.class);
     }
 
-    public static EventManager getInstance(Project project) {
-        return project.getComponent(EventManager.class);
-    }
-
-    public MessageBusConnection connect(Object handler) {
-        MessageBusConnection connection = connectionCache.get(handler);
+    private static MessageBusConnection connect(Object handler) {
+        EventManager eventManager = EventManager.getInstance();
+        MessageBusConnection connection = eventManager.connectionCache.get(handler);
         if (connection == null) {
-            MessageBus messageBus = getProject().getMessageBus();
+            MessageBus messageBus = ApplicationManager.getApplication().getMessageBus();
             connection = messageBus.connect();
-            connectionCache.put(handler, connection);
+            eventManager.connectionCache.put(handler, connection);
+        }
+        return connection;
+    }
+
+
+    private static MessageBusConnection connect(Project project, Object handler) {
+        EventManager eventManager = EventManager.getInstance();
+        MessageBusConnection connection = eventManager.connectionCache.get(handler);
+        if (connection == null) {
+            MessageBus messageBus = project.getMessageBus();
+            connection = messageBus.connect();
+            eventManager.connectionCache.put(handler, connection);
         }
         return connection;
     }
     
-    public <T extends EventListener> void subscribe(Topic<T> topic, T handler) {
+    public static <T> void subscribe(Project project, Topic<T> topic, T handler) {
+        MessageBusConnection messageBusConnection = connect(project, handler);
+        messageBusConnection.subscribe(topic, handler);
+    }
+
+    public static <T> void subscribe(Topic<T> topic, T handler) {
         MessageBusConnection messageBusConnection = connect(handler);
         messageBusConnection.subscribe(topic, handler);
     }
 
-    public void unsubscribe(EventListener ... handlers) {
-        for (EventListener handler : handlers) {
-            MessageBusConnection connection = connectionCache.remove(handler);
+    public static <T> T notify(Project project, Topic<T> topic) {
+        if (project != null) {
+            MessageBus messageBus = project.getMessageBus();
+            return messageBus.syncPublisher(topic);
+        }
+        return null;
+    }
+
+    public static void unsubscribe(Object ... handlers) {
+        EventManager eventManager = EventManager.getInstance();
+        for (Object handler : handlers) {
+            MessageBusConnection connection = eventManager.connectionCache.remove(handler);
             if (connection != null) {
                 connection.disconnect();
             }
         }
     }
 
-    public <T extends EventListener> T notify(Topic<T> topic) {
-        MessageBus messageBus = getProject().getMessageBus();
-        return messageBus.syncPublisher(topic);
-    }
-
-    public static <T extends EventListener> void subscribe(Project project, Topic<T> topic, T handler) {
-        getInstance(project).subscribe(topic, handler);
-    }
-
-    public static <T extends EventListener> void unsubscribe(Project project, T ... handlers) {
-        getInstance(project).unsubscribe(handlers);
-    }
-
-    public static <T extends EventListener> T notify(Project project, Topic<T> topic) {
-        return getInstance(project).notify(topic);
-    }
-
     @NonNls
     @NotNull
     public String getComponentName() {
-        return "DBNavigator.Project.EventManager";
+        return "DBNavigator.EventManager";
     }
     
 
     public void dispose() {
+    }
+
+    @Override
+    public void initComponent() {
+    }
+
+    @Override
+    public void disposeComponent() {
         for (MessageBusConnection connection : connectionCache.values()) {
             connection.disconnect();
         }
         connectionCache.clear();
     }
-
 }

@@ -128,6 +128,8 @@
         <component><implementation-class>com.dci.intellij.dbn.editor.data.DatasetEditorProvider</implementation-class></component>
         <component><implementation-class>com.dci.intellij.dbn.editor.code.SourceCodeSpecEditorProvider</implementation-class></component>
         <component><implementation-class>com.dci.intellij.dbn.editor.console.SQLConsoleEditorProvider</implementation-class></component>
+        <component><implementation-class>com.dci.intellij.dbn.common.event.EventManager</implementation-class></component>
+        <component><implementation-class>com.dci.intellij.dbn.connection.ConnectionCache</implementation-class></component>
     </application-components>
     <project-components>
         <component><implementation-class>com.dci.intellij.dbn.options.GlobalProjectSettings</implementation-class></component>
@@ -155,7 +157,6 @@
         <component><implementation-class>com.dci.intellij.dbn.object.filter.name.ObjectNameFilterManager</implementation-class></component>
         <component><implementation-class>com.dci.intellij.dbn.generator.StatementGenerationManager</implementation-class></component>
         <component><implementation-class>com.dci.intellij.dbn.common.environment.EnvironmentManager</implementation-class></component>
-        <component><implementation-class>com.dci.intellij.dbn.common.event.EventManager</implementation-class></component>
         <component><implementation-class>com.dci.intellij.dbn.connection.transaction.DatabaseTransactionManager</implementation-class></component>
     </project-components>
     <module-components>

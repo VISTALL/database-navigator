@@ -57,14 +57,15 @@ public class ConnectionManager extends AbstractProjectComponent implements Proje
     @Override
     public void initComponent() {
         super.initComponent();
-        getEventManager().subscribe(ProjectTopics.MODULES, moduleListener);
-        getEventManager().subscribe(ConnectionBundleSettingsListener.TOPIC, connectionBundleSettingsListener);
+        Project project = getProject();
+        EventManager.subscribe(project, ProjectTopics.MODULES, moduleListener);
+        EventManager.subscribe(project, ConnectionBundleSettingsListener.TOPIC, connectionBundleSettingsListener);
         initConnectionBundles();
     }
 
     @Override
     public void disposeComponent() {
-        getEventManager().unsubscribe(
+        EventManager.unsubscribe(
                 moduleListener,
                 connectionBundleSettingsListener);
     }
@@ -205,17 +206,6 @@ public class ConnectionManager extends AbstractProjectComponent implements Proje
     /*********************************************************
      *                     Miscellaneous                     *
      *********************************************************/
-     public static ConnectionHandler findConnectionHandler(String connectionId) {
-         for (Project project : ProjectManager.getInstance().getOpenProjects()) {
-             ConnectionManager connectionManager = ConnectionManager.getInstance(project);
-             ConnectionHandler connectionHandler = connectionManager.getConnectionHandler(connectionId);
-             if (connectionHandler != null) {
-                 return connectionHandler;
-             }
-         }
-         return null;
-     }
-
      public ConnectionHandler getConnectionHandler(String connectionId) {
          for (ConnectionBundle connectionBundle : connectionBundles) {
              for (ConnectionHandler connectionHandler : connectionBundle.getConnectionHandlers().getFullList()) {
@@ -287,9 +277,7 @@ public class ConnectionManager extends AbstractProjectComponent implements Proje
     ***********************************************/
 
     @Override
-    public void projectOpened(Project project) {
-
-    }
+    public void projectOpened(Project project) {}
 
     @Override
     public boolean canCloseProject(Project project) {

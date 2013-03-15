@@ -74,7 +74,7 @@ public class SimpleBrowserForm extends DatabaseBrowserForm{
     }
 
     public void dispose() {
-        EventManager.unsubscribe(getProject(), objectDisplaySettingsListener);
+        EventManager.unsubscribe(objectDisplaySettingsListener);
 
         browserTree.dispose();
         browserTree = null;

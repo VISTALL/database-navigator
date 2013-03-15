@@ -271,14 +271,16 @@ public class DBObjectBundleImpl implements DBObjectBundle {
         visibleTreeChildren = newTreeChildren;
         treeChildrenLoaded = true;
 
-        EventManager.notify(getProject(), BrowserTreeChangeListener.TOPIC).nodeChanged(this, TreeEventType.STRUCTURE_CHANGED);
+        Project project = getProject();
+        if (project != null) {
+            EventManager.notify(project, BrowserTreeChangeListener.TOPIC).nodeChanged(this, TreeEventType.STRUCTURE_CHANGED);
+            new ConditionalLaterInvocator() {
+                public void run() {
+                    DatabaseBrowserManager.scrollToSelectedElement(getConnectionHandler());
 
-        new ConditionalLaterInvocator() {
-            public void run() {
-                DatabaseBrowserManager.scrollToSelectedElement(getConnectionHandler());
-
-            }
-        }.start();
+                }
+            }.start();
+        }
     }
 
     public void rebuildTreeChildren() {
@@ -552,7 +554,7 @@ public class DBObjectBundleImpl implements DBObjectBundle {
         if (!isDisposed) {
             isDisposed = true;
             objectLists.dispose();
-            objectLists = null;
+            objectRelationLists.dispose();
             if (visibleTreeChildren != null) visibleTreeChildren.clear();
         }
     }

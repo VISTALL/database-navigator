@@ -36,13 +36,16 @@ public class SourceCodeFile extends DatabaseContentFile implements DatabaseFile,
     private String content;
     private Timestamp changeTimestamp;
     public int documentHashCode;
+    private int hashCode;
 
     public SourceCodeFile(final DatabaseEditableObjectFile databaseFile, DBContentType contentType) {
         super(databaseFile, contentType);
+        DBSchemaObject object = getObject();
+        hashCode = (object.getQualifiedNameWithType() + contentType.getDescription()).hashCode();
         updateChangeTimestamp();
         setCharset(databaseFile.getConnectionHandler().getSettings().getDetailSettings().getCharset());
         try {
-            String content = getObject().loadCodeFromDatabase(contentType);
+            String content = object.loadCodeFromDatabase(contentType);
             this.content = StringUtil.removeCharacter(content, '\r');
         } catch (SQLException e) {
             content = "";
@@ -198,14 +201,14 @@ public class SourceCodeFile extends DatabaseContentFile implements DatabaseFile,
     public boolean equals(Object obj) {
         if (obj instanceof SourceCodeFile) {
             SourceCodeFile virtualFile = (SourceCodeFile) obj;
-            return virtualFile.getObject().equals(getObject()) && virtualFile.getContentType() == getContentType();
+            return virtualFile.hashCode() == hashCode;
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return (getObject().getQualifiedNameWithType() + getContentType().getDescription()).hashCode();
+        return hashCode;
     }
 
     @Override
