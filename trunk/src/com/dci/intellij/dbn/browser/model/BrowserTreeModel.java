@@ -122,7 +122,7 @@ public abstract class BrowserTreeModel implements TreeModel, Disposable {
 
     public void dispose() {
         isDisposed = true;
-        EventManager.unsubscribe(getProject(), browserTreeChangeListener);
+        EventManager.unsubscribe(browserTreeChangeListener);
         treeModelListeners.clear();
         treeModelListeners = null;
         root = null;

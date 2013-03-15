@@ -139,7 +139,7 @@ public class GlobalProjectSettings
 
     @Override
     protected void onApply() {
-        ProjectSettingsChangeListener listener = EventManager.notify(getProject(), ProjectSettingsChangeListener.TOPIC);
+        ProjectSettingsChangeListener listener = EventManager.getInstance().notify(getProject(), ProjectSettingsChangeListener.TOPIC);
         listener.projectSettingsChanged(getProject());
     }
 

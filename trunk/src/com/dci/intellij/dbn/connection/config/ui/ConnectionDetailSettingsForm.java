@@ -187,7 +187,7 @@ public class ConnectionDetailSettingsForm extends ConfigurationEditorForm<Connec
 
     @Override
     public void dispose() {
-        EventManager.unsubscribe(getConfiguration().getProject(), this);
+        EventManager.unsubscribe(this);
         super.dispose();
     }
 

@@ -60,12 +60,13 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
     private ConnectionHandler connectionHandler;
     private boolean isDisposed;
     private DataEditorSettings settings;
+    private Project project;
 
 
     private Set<PropertyChangeListener> propertyChangeListeners = new HashSet<PropertyChangeListener>();
 
     public DatasetEditor(DatabaseEditableObjectFile databaseFile, DBDataset dataset){
-        Project project = dataset.getProject();
+        this.project = dataset.getProject();
         this.databaseFile = databaseFile;
         this.datasetIdentifier = dataset.getIdentifier();
         this.settings = DataEditorSettings.getInstance(project);
@@ -125,7 +126,7 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
     }
 
     public Project getProject() {
-        return getDataset().getProject();
+        return project;
     }
 
     @NotNull
@@ -226,7 +227,7 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
     public void dispose() {
         if (!isDisposed) {
             isDisposed = true;
-            EventManager.unsubscribe(getProject(), this);
+            EventManager.unsubscribe(this);
             editorForm.dispose();
             editorForm = null;
             databaseFile = null;
@@ -267,7 +268,7 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
     }
 
     public void load(final boolean useCurrentFilter, final boolean keepChanges) {
-        new BackgroundTask(getProject(), "Loading data", true) {
+        new BackgroundTask(project, "Loading data", true) {
             public void execute(@NotNull ProgressIndicator progressIndicator) {
                 if (isDisposed) return;
                 initProgressIndicator(progressIndicator, true);
@@ -339,7 +340,7 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
     }
 
     private void focusEditor() {
-        FileEditorManager.getInstance(getProject()).openFile(databaseFile, true);
+        FileEditorManager.getInstance(project).openFile(databaseFile, true);
     }
 
     protected void setLoading(boolean loading) {
@@ -516,7 +517,7 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
                 return DatasetEditor.this;
             }
             if (PlatformDataKeys.PROJECT.is(dataId)) {
-                return getProject();
+                return project;
             }
             return null;
         }

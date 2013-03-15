@@ -66,9 +66,7 @@ public class AutoCommitLabel extends JLabel implements ConnectionStatusListener,
 
     @Override
     public void dispose() {
-        if (project != null) {
-            EventManager.unsubscribe(project, this);
-        }
+        EventManager.unsubscribe(this);
     }
 
 

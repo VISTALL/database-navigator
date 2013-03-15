@@ -1,7 +1,7 @@
 package com.dci.intellij.dbn.object;
 
+import com.dci.intellij.dbn.connection.ConnectionCache;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
-import com.dci.intellij.dbn.connection.ConnectionManager;
 import com.dci.intellij.dbn.object.common.DBObject;
 import com.dci.intellij.dbn.object.common.DBObjectType;
 
@@ -94,7 +94,7 @@ public class DBObjectIdentifier<T extends DBObject> implements Comparable {
     }
 
     public ConnectionHandler lookupConnectionHandler() {
-        return ConnectionManager.findConnectionHandler(connectionId);
+        return ConnectionCache.findConnectionHandler(connectionId);
     }
 
     @Override
@@ -138,6 +138,10 @@ public class DBObjectIdentifier<T extends DBObject> implements Comparable {
         int result = connectionId.hashCode();
         result = 31 * result + Arrays.hashCode(nodes);
         return result;
+    }
+
+    public String getName() {
+        return nodes[nodes.length-1].getName();
     }
 
     public static class Node {

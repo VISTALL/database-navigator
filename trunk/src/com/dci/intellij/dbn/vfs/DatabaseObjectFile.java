@@ -4,6 +4,7 @@ import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
 import com.dci.intellij.dbn.common.DevNullStreams;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.navigation.psi.NavigationPsiCache;
+import com.dci.intellij.dbn.object.DBObjectIdentifier;
 import com.dci.intellij.dbn.object.common.DBObject;
 import com.dci.intellij.dbn.object.common.list.DBObjectList;
 import com.intellij.openapi.Disposable;
@@ -20,43 +21,46 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class  DatabaseObjectFile<T extends DBObject> extends VirtualFile implements DBVirtualFile, Disposable {
+public class DatabaseObjectFile<T extends DBObject> extends VirtualFile implements DBVirtualFile, Disposable {
     private static final byte[] EMPTY_BYTE_CONTENT = new byte[0];
-    protected T object;
+    protected DBObjectIdentifier<T> objectIdentifier;
 
-    protected String name;
-    protected String path;
-    protected String url;
+    private Project project;
+    private String path;
+    private String url;
 
     public DatabaseObjectFile(T object) {
-        this.object = object;
-        this.name = object.getName();
+        this.objectIdentifier = object.getIdentifier();
+        this.project = object.getProject();
+    }
+
+    public DBObjectIdentifier<T> getObjectIdentifier() {
+        return objectIdentifier;
     }
 
     public T getObject() {
-        object = (T) object.getUndisposedElement();
-        return object;
+        return objectIdentifier.lookupObject();
     }
 
     public ConnectionHandler getConnectionHandler() {
-        return object.getConnectionHandler();
+        return objectIdentifier.lookupConnectionHandler();
     }
 
     public boolean equals(Object obj) {
         if (obj instanceof DatabaseObjectFile) {
             DatabaseObjectFile objectFile = (DatabaseObjectFile) obj;
-            return objectFile.getObject().equals(getObject());
+            return objectFile.objectIdentifier.equals(objectIdentifier);
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return object.getQualifiedNameWithType().hashCode();
+        return objectIdentifier.hashCode();
     }
 
     public Project getProject() {
-        return object.getProject();
+        return project;
     }
 
     /*********************************************************
@@ -65,12 +69,12 @@ public class  DatabaseObjectFile<T extends DBObject> extends VirtualFile impleme
     @NotNull
     @NonNls
     public String getName() {
-        return name;
+        return objectIdentifier.getName();
     }
 
     @Override
     public String getPresentableName() {
-        return name;
+        return objectIdentifier.getName();
     }
 
     @NotNull
@@ -85,7 +89,7 @@ public class  DatabaseObjectFile<T extends DBObject> extends VirtualFile impleme
 
     public String getPath() {
         if (path == null) {
-            path = DatabaseFileSystem.createPath(object);
+            path = DatabaseFileSystem.createPath(getObject());
         }
         return path;
     }
@@ -93,7 +97,7 @@ public class  DatabaseObjectFile<T extends DBObject> extends VirtualFile impleme
     @NotNull
     public String getUrl() {
         if (url == null) {
-            url = DatabaseFileSystem.createUrl(object);
+            url = DatabaseFileSystem.createUrl(getObject());
         }
         return url;
     }
@@ -117,7 +121,7 @@ public class  DatabaseObjectFile<T extends DBObject> extends VirtualFile impleme
 
     @Nullable
     public VirtualFile getParent() {
-        BrowserTreeNode treeParent = object.getTreeParent();
+        BrowserTreeNode treeParent = getObject().getTreeParent();
         if (treeParent instanceof DBObjectList<?>) {
             DBObjectList objectList = (DBObjectList) treeParent;
             return NavigationPsiCache.getPsiDirectory(objectList).getVirtualFile();
@@ -126,7 +130,7 @@ public class  DatabaseObjectFile<T extends DBObject> extends VirtualFile impleme
     }
 
     public Icon getIcon() {
-        return object.getOriginalIcon();
+        return getObject().getOriginalIcon();
     }
 
     public VirtualFile[] getChildren() {
@@ -171,7 +175,7 @@ public class  DatabaseObjectFile<T extends DBObject> extends VirtualFile impleme
 
     @Override
     public void dispose() {
-        object = null;
+        this.project = null;
     }
 }
 

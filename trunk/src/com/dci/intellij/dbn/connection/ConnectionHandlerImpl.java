@@ -350,6 +350,10 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
         }
     }
 
+    public boolean isDisposed() {
+        return isDisposed;
+    }
+
     public void setConnectionConfig(final ConnectionSettings connectionSettings) {
         boolean refresh = this.connectionSettings.getDatabaseSettings().hashCode() != connectionSettings.getDatabaseSettings().hashCode();
         this.connectionSettings = connectionSettings;

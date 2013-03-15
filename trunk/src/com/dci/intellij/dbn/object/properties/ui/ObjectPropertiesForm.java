@@ -92,7 +92,7 @@ public class ObjectPropertiesForm extends UIFormImpl implements UIForm, BrowserS
     }
 
     public void dispose() {
-        EventManager.unsubscribe(project, this);
+        EventManager.unsubscribe(this);
         super.dispose();
         object = null;
         project = null;

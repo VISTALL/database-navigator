@@ -77,6 +77,11 @@ public class VirtualConnectionHandler implements ConnectionHandler {
     public UncommittedChangeBundle getUncommittedChanges() {return null;}
     public boolean isConnected() {return false;}
 
+    @Override
+    public boolean isDisposed() {
+        return false;
+    }
+
     public Map<String, String> getProperties() {return properties;}
 
     public DatabaseInterfaceProvider getInterfaceProvider() {

@@ -1,6 +1,7 @@
 package com.dci.intellij.dbn.common.content.dependency;
 
 import com.dci.intellij.dbn.common.content.DynamicContent;
+import com.dci.intellij.dbn.common.dispose.DisposeUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 
 import java.util.HashSet;
@@ -8,6 +9,7 @@ import java.util.Set;
 
 public class MultipleContentDependencyAdapter extends BasicDependencyAdapter implements ContentDependencyAdapter {
     private Set<ContentDependency> dependencies = new HashSet<ContentDependency>();
+    private boolean isDisposed;
 
     public MultipleContentDependencyAdapter(ConnectionHandler connectionHandler, DynamicContent... sourceContents) {
         super(connectionHandler);
@@ -71,5 +73,14 @@ public class MultipleContentDependencyAdapter extends BasicDependencyAdapter imp
     @Override
     public void afterReload(DynamicContent dynamicContent) {
         afterLoad();
+    }
+
+    @Override
+    public void dispose() {
+        if (!isDisposed) {
+            isDisposed = true;
+            DisposeUtil.disposeCollection(dependencies);
+            super.dispose();
+        }
     }
 }

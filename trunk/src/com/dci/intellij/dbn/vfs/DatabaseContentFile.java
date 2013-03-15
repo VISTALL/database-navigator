@@ -3,6 +3,7 @@ package com.dci.intellij.dbn.vfs;
 import com.dci.intellij.dbn.common.DevNullStreams;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.mapping.FileConnectionMappingProvider;
+import com.dci.intellij.dbn.ddl.DDLFileType;
 import com.dci.intellij.dbn.editor.DBContentType;
 import com.dci.intellij.dbn.language.common.DBLanguage;
 import com.dci.intellij.dbn.language.common.DBLanguageDialect;
@@ -28,7 +29,11 @@ public abstract class DatabaseContentFile extends VirtualFile implements FileCon
     protected DatabaseFileSystem fileSystem;
     protected DatabaseEditableObjectFile databaseFile;
     protected DBContentType contentType;
+    private FileType fileType;
     private boolean modified;
+    private String name;
+    private String path;
+    private String url;
 
     public ConnectionHandler getActiveConnection() {
         return getObject().getConnectionHandler();
@@ -44,9 +49,17 @@ public abstract class DatabaseContentFile extends VirtualFile implements FileCon
     }
 
     public DatabaseContentFile(DatabaseEditableObjectFile databaseFile, DBContentType contentType) {
-        fileSystem = databaseFile.getFileSystem();
+        this.fileSystem = databaseFile.getFileSystem();
         this.databaseFile = databaseFile;
         this.contentType = contentType;
+
+        DBSchemaObject object = databaseFile.getObject();
+        this.name = object.getName();
+        this.path = DatabaseFileSystem.createPath(object, getContentType());
+        this.url = DatabaseFileSystem.createUrl(object);
+
+        DDLFileType ddlFileType = object.getDDLFileType(contentType);
+        this.fileType = ddlFileType == null ? null : ddlFileType.getLanguageFileType();
     }
 
     public DatabaseEditableObjectFile getDatabaseFile() {
@@ -89,12 +102,12 @@ public abstract class DatabaseContentFile extends VirtualFile implements FileCon
     @NotNull
     @NonNls
     public String getName() {
-        return getObject().getName();
+        return name;
     }
 
     @NotNull
     public FileType getFileType() {
-        return getObject().getDDLFileType(contentType).getLanguageFileType();
+        return fileType;
     }
 
     @NotNull
@@ -103,12 +116,12 @@ public abstract class DatabaseContentFile extends VirtualFile implements FileCon
     }
 
     public String getPath() {
-        return DatabaseFileSystem.createPath(getObject(), getContentType());
+        return path;
     }
 
     @NotNull
     public String getUrl() {
-        return DatabaseFileSystem.createUrl(getObject());
+        return url;
     }
 
     public Project getProject() {

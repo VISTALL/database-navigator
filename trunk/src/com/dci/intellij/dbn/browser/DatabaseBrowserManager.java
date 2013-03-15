@@ -148,15 +148,14 @@ public class DatabaseBrowserManager extends AbstractProjectComponent implements 
     }
 
     public void initComponent() {
-        EventManager eventManager = getEventManager();
-        eventManager.subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, fileEditorManagerListener);
-        eventManager.subscribe(ObjectFilterChangeListener.TOPIC, filterChangeListener);
-        eventManager.subscribe(ConnectionManagerListener.TOPIC, connectionManagerListener);
+        Project project = getProject();
+        EventManager.subscribe(project, FileEditorManagerListener.FILE_EDITOR_MANAGER, fileEditorManagerListener);
+        EventManager.subscribe(project, ObjectFilterChangeListener.TOPIC, filterChangeListener);
+        EventManager.subscribe(project, ConnectionManagerListener.TOPIC, connectionManagerListener);
     }
 
     public void disposeComponent() {
-        EventManager eventManager = getEventManager();
-        eventManager.unsubscribe(
+        EventManager.unsubscribe(
                 fileEditorManagerListener,
                 filterChangeListener,
                 connectionManagerListener);
@@ -174,16 +173,18 @@ public class DatabaseBrowserManager extends AbstractProjectComponent implements 
      * @deprecated
      */
     public static void scrollToSelectedElement(final ConnectionHandler connectionHandler) {
-        DatabaseBrowserManager browserManager = DatabaseBrowserManager.getInstance(connectionHandler.getProject());
-        BrowserToolWindowForm toolWindowForm = browserManager.getToolWindowForm();
-        if (toolWindowForm != null) {
-            final DatabaseBrowserTree browserTree = toolWindowForm.getBrowserTree(connectionHandler);
-            if (browserTree != null && browserTree.getTargetSelection() != null) {
-                new ConditionalLaterInvocator() {
-                    public void run() {
-                        browserTree.scrollToSelectedElement();
-                    }
-                }.start();
+        if (!connectionHandler.isDisposed()) {
+            DatabaseBrowserManager browserManager = DatabaseBrowserManager.getInstance(connectionHandler.getProject());
+            BrowserToolWindowForm toolWindowForm = browserManager.getToolWindowForm();
+            if (toolWindowForm != null) {
+                final DatabaseBrowserTree browserTree = toolWindowForm.getBrowserTree(connectionHandler);
+                if (browserTree != null && browserTree.getTargetSelection() != null) {
+                    new ConditionalLaterInvocator() {
+                        public void run() {
+                            browserTree.scrollToSelectedElement();
+                        }
+                    }.start();
+                }
             }
         }
     }
