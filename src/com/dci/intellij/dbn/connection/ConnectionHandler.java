@@ -55,8 +55,6 @@ public interface ConnectionHandler extends Disposable{
     String getDescription();
     Icon getIcon();
 
-    LoadMonitor getLoadMonitor();
-
     void notifyChanges(VirtualFile virtualFile);
     void resetChanges();
     boolean hasUncommittedChanges();

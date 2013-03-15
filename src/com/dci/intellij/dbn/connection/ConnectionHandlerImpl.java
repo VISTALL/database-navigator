@@ -43,7 +43,6 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
     private DatabaseInterfaceProvider interfaceProvider;
     private UncommittedChangeBundle changesBundle;
 
-    LoadMonitor loadMonitor = new LoadMonitor();
     private boolean isDisposed;
 
     private SQLConsoleFile sqlConsoleFile;
@@ -78,10 +77,6 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
 
     public Filter<BrowserTreeNode> getObjectFilter() {
         return getSettings().getFilterSettings().getObjectTypeFilterSettings().getElementFilter();
-    }
-
-    public LoadMonitor getLoadMonitor() {
-        return loadMonitor;
     }
 
     public SQLConsoleFile getSQLConsoleFile() {

@@ -123,7 +123,6 @@ public class VirtualConnectionHandler implements ConnectionHandler {
     public boolean isValid() {return true;}
     public void disconnect() {}
     public ConnectionHandler clone() {return null;}
-    public LoadMonitor getLoadMonitor() {return null;}
     public void notifyChanges(VirtualFile virtualFile) {}
     public void resetChanges() {}
     public boolean hasUncommittedChanges() {return false;}

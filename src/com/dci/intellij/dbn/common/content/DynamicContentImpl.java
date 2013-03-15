@@ -8,7 +8,6 @@ import com.dci.intellij.dbn.common.filter.Filter;
 import com.dci.intellij.dbn.common.util.CollectionUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.GenericDatabaseElement;
-import com.dci.intellij.dbn.connection.LoadMonitor;
 import gnu.trove.THashMap;
 import org.jetbrains.annotations.NotNull;
 
@@ -126,12 +125,9 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
             // mark first the dirty status since dirty dependencies may
             // become valid due to parallel background load
             isDirty = dependencyAdapter.hasDirtyDependencies();
-            if (connectionHandler != null) connectionHandler.getLoadMonitor().registerLoadedContent(this);
             getLoader().loadContent(this);
         } catch (DynamicContentLoaderException e) {
             isDirty = true;
-        } finally {
-            if (connectionHandler != null) connectionHandler.getLoadMonitor().unregisterLoadedContent(this);
         }
 
         if (!isDisposed()) {
@@ -151,10 +147,8 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
 
     private void performReload(boolean recursive) {
         dependencyAdapter.beforeReload(this);
-        LoadMonitor loadMonitor = getConnectionHandler().getLoadMonitor();
         try {
             if (isDisposed()) return;
-            loadMonitor.registerLoadedContent(this);
             getLoader().reloadContent(this);
             if (recursive) {
                 for (T element : getElements()) {
@@ -164,7 +158,6 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
         } catch (DynamicContentLoaderException e) {
             isDirty = true;
         } finally {
-            loadMonitor.unregisterLoadedContent(this);
         }
 
         if (!isDisposed()) {
