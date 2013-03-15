@@ -6,7 +6,5 @@ public interface DynamicContentElement extends Disposable, Comparable {
     boolean isDisposed();
     String getName();                                                            
     String getDescription();
-    DynamicContent getOwnerContent();
-    void setOwnerContent(DynamicContent ownerContent);
     void reload();
 }

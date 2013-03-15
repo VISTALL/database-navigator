@@ -19,6 +19,7 @@ import com.dci.intellij.dbn.common.filter.Filter;
 import com.dci.intellij.dbn.common.thread.BackgroundTask;
 import com.dci.intellij.dbn.common.thread.ConditionalLaterInvocator;
 import com.dci.intellij.dbn.common.ui.tree.TreeEventType;
+import com.dci.intellij.dbn.common.util.CollectionUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.ConnectionUtil;
 import com.dci.intellij.dbn.connection.GenericDatabaseElement;
@@ -83,7 +84,6 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
 
     private LookupItemFactory sqlLookupItemFactory;
     private LookupItemFactory psqlLookupItemFactory;
-    private DynamicContent ownerContent;
 
     protected DatabaseObjectFile virtualFile;
 
@@ -685,28 +685,18 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
     /*********************************************************
     *               DynamicContentElement                    *
     *********************************************************/
-    public DynamicContent getOwnerContent() {
-        return ownerContent;
-    }
-
-    public void setOwnerContent(DynamicContent ownerContent) {
-        this.ownerContent = ownerContent;
-    }
-
     public void dispose() {
         if (!isDisposed()) {
             isDisposed = true;
             DisposeUtil.dispose(childObjects);
             DisposeUtil.dispose(childObjectRelations);
-            childObjects = null;
-            childObjectRelations = null;
-            visibleTreeChildren = null;
-            treeParent = null;
+            CollectionUtil.clearCollection(visibleTreeChildren);
+            CollectionUtil.clearCollection(allPossibleTreeChildren);
+            DisposeUtil.dispose(sqlLookupItemFactory);
+            DisposeUtil.dispose(psqlLookupItemFactory);
             owner = null;
-            //connectionHandler = null;
-            //parentObject = null;
-            sqlLookupItemFactory = null;
-            psqlLookupItemFactory = null;
+            treeParent = null;
+            parentDatabaseElement = null;
         }
     }
 

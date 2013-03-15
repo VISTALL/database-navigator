@@ -74,6 +74,11 @@ public class SubcontentDependencyAdapterImpl extends BasicDependencyAdapter impl
         return getSourceContent().isLoaded();
     }
 
+    @Override
+    public boolean isSubContent() {
+        return true;
+    }
+
     public void dispose() {
         if (!isDisposed) {
             isDisposed = true;

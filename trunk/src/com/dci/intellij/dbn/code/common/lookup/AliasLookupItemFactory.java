@@ -35,4 +35,8 @@ public class AliasLookupItemFactory extends LookupItemFactory {
     public Icon getIcon() {
         return null;
     }
+
+    @Override
+    public void dispose() {
+    }
 }

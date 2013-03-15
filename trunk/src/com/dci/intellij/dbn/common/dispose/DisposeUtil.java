@@ -15,10 +15,7 @@ public class DisposeUtil {
     public static void disposeCollection(Collection<? extends Disposable> collection) {
         if (collection != null) {
             for(Disposable disposable : collection) {
-                if (disposable != null) {
-                    disposable.dispose();
-                }
-
+                dispose(disposable);
             }
             collection.clear();
         }
@@ -27,7 +24,7 @@ public class DisposeUtil {
     public static void disposeMap(Map<?,? extends Disposable> map) {
         if (map != null) {
             for (Disposable disposable : map.values()) {
-                disposable.dispose();
+                dispose(disposable);
             }
             map.clear();
         }

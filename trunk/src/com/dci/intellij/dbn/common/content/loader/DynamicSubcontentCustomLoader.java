@@ -26,6 +26,6 @@ public abstract class DynamicSubcontentCustomLoader<T extends DynamicContentElem
                 list.add(element);
             }
         }
-        dynamicContent.setElements(list, false);
+        dynamicContent.setElements(list);
     }
 }

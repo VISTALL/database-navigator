@@ -93,4 +93,8 @@ public class TokenLookupItemFactory extends LookupItemFactory {
     public TokenType getTokenType() {
         return tokenElementType.getTokenType();
     }
+
+    @Override
+    public void dispose() {
+    }
 }

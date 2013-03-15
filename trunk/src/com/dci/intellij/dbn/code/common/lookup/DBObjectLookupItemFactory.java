@@ -117,4 +117,10 @@ public class DBObjectLookupItemFactory extends LookupItemFactory {
     public Icon getIcon() {
         return object.getIcon();
     }
+
+    @Override
+    public void dispose() {
+        object = null;
+        language = null;
+    }
 }
