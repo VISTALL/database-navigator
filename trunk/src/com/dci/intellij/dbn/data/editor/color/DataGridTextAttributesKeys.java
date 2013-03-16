@@ -1,5 +1,6 @@
 package com.dci.intellij.dbn.data.editor.color;
 
+import com.dci.intellij.dbn.common.ui.DBNColor;
 import com.intellij.openapi.editor.HighlighterColors;
 import com.intellij.openapi.editor.SyntaxHighlighterColors;
 import com.intellij.openapi.editor.colors.CodeInsightColors;
@@ -23,8 +24,10 @@ public interface DataGridTextAttributesKeys {
         Color LIGHT_BACKGROUND     = CodeInsightColors.FOLLOWED_HYPERLINK_ATTRIBUTES.getDefaultAttributes().getBackgroundColor();
         Color LIGHT_FOREGROUND     = SyntaxHighlighterColors.JAVA_BLOCK_COMMENT.getDefaultAttributes().getForegroundColor();
         Color ERROR_BACKGROUND     = HighlighterColors.BAD_CHARACTER.getDefaultAttributes().getBackgroundColor();
-        Color PK_FOREGROUND        = SyntaxHighlighterColors.NUMBER.getDefaultAttributes().getForegroundColor();
-        Color FK_FOREGROUND        = SyntaxHighlighterColors.STRING.getDefaultAttributes().getForegroundColor();
+        Color PK_FOREGROUND        = new DBNColor(new Color(0x4569A7), new Color(0x95A8B4));
+        Color PK_BACKGROUND        = new DBNColor(new Color(0xF7F7FF), new Color(0x2B3447));
+        Color FK_FOREGROUND        = new DBNColor(new Color(0x3F6B3F), new Color(0xA1A8A1));
+        Color FK_BACKGROUND        = new DBNColor(new Color(0xF7FFF7), new Color(0x2A3B2A));
         Color CARET_ROW_BACKGROUND = EditorColorsManager.getInstance().getGlobalScheme().getColor(EditorColors.CARET_ROW_COLOR);
     }
 
@@ -33,8 +36,8 @@ public interface DataGridTextAttributesKeys {
         TextAttributes DELETED     = new TextAttributes(Colors.LIGHT_FOREGROUND, Colors.LIGHT_BACKGROUND, null, null, SimpleTextAttributes.STYLE_PLAIN);
         TextAttributes READONLY    = new TextAttributes(Colors.LIGHT_FOREGROUND, Colors.LIGHT_BACKGROUND, null, null, SimpleTextAttributes.STYLE_PLAIN);
         TextAttributes ERROR       = new TextAttributes(Colors.DEFAULT_FOREGROUND, Colors.ERROR_BACKGROUND, null, null, SimpleTextAttributes.STYLE_PLAIN);
-        TextAttributes PRIMARY_KEY = new TextAttributes(Colors.PK_FOREGROUND,Colors.DEFAULT_BACKGROUND, null, null, SimpleTextAttributes.STYLE_PLAIN);
-        TextAttributes FOREIGN_KEY = new TextAttributes(Colors.FK_FOREGROUND, Colors.DEFAULT_BACKGROUND, null, null, SimpleTextAttributes.STYLE_PLAIN);
+        TextAttributes PRIMARY_KEY = new TextAttributes(Colors.PK_FOREGROUND,Colors.PK_BACKGROUND, null, null, SimpleTextAttributes.STYLE_PLAIN);
+        TextAttributes FOREIGN_KEY = new TextAttributes(Colors.FK_FOREGROUND, Colors.FK_BACKGROUND, null, null, SimpleTextAttributes.STYLE_PLAIN);
     }
 
     ColorKey CARET_ROW_BACKGROUND = ColorKey.createColorKey("DBNavigator.TextAttributes.DataEditor.CaretRowBackground", Colors.CARET_ROW_BACKGROUND);
