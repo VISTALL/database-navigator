@@ -1,5 +1,6 @@
 package com.dci.intellij.dbn.navigation.psi;
 
+import com.dci.intellij.dbn.common.dispose.DisposeUtil;
 import com.dci.intellij.dbn.common.util.NamingUtil;
 import com.dci.intellij.dbn.connection.GenericDatabaseElement;
 import com.dci.intellij.dbn.language.common.psi.EmptySearchScope;
@@ -11,6 +12,7 @@ import com.dci.intellij.dbn.vfs.DatabaseObjectListFile;
 import com.intellij.lang.ASTNode;
 import com.intellij.lang.Language;
 import com.intellij.navigation.ItemPresentation;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.TextRange;
@@ -37,7 +39,7 @@ import javax.swing.Icon;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DBObjectListPsiDirectory implements PsiDirectory {
+public class DBObjectListPsiDirectory implements PsiDirectory, Disposable {
     private DatabaseObjectListFile virtualFile;
 
     public DBObjectListPsiDirectory(DBObjectList objectList) {
@@ -53,6 +55,11 @@ public class DBObjectListPsiDirectory implements PsiDirectory {
         return virtualFile;
     }
 
+    @Override
+    public void dispose() {
+        DisposeUtil.dispose(virtualFile);
+        virtualFile = null;
+    }
 
     /*********************************************************
      *                      PsiElement                       *

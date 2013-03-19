@@ -36,7 +36,6 @@ public class DBUserImpl extends DBObjectImpl implements DBUser {
     DBObjectList<DBGrantedRole> roles;
     DBObjectList<DBGrantedPrivilege> privileges;
 
-    private DBSchema schema;
     private boolean isExpired;
     private boolean isLocked;
 
@@ -45,8 +44,12 @@ public class DBUserImpl extends DBObjectImpl implements DBUser {
     }
 
     @Override
+    public DBUser getOwner() {
+        return this;
+    }
+
+    @Override
     protected void initObject(ResultSet resultSet) throws SQLException {
-        owner = this;
         name = resultSet.getString("USER_NAME");
         isExpired = resultSet.getString("IS_EXPIRED").equals("Y");
         isLocked = resultSet.getString("IS_LOCKED").equals("Y");
@@ -65,13 +68,8 @@ public class DBUserImpl extends DBObjectImpl implements DBUser {
         return DBObjectType.USER;
     }
 
-    public void setSchema(DBSchema schema) {
-        this.schema = schema;
-    }
-
     public DBSchema getSchema() {
-        schema = schema == null ? null : (DBSchema) schema.getUndisposedElement();
-        return schema;
+        return getObjectBundle().getSchema(name);
     }
 
     public boolean isExpired() {

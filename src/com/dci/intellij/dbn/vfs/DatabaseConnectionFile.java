@@ -156,5 +156,9 @@ public class DatabaseConnectionFile extends VirtualFile implements DBVirtualFile
     }
 
 
+    @Override
+    public void dispose() {
+        connectionHandler = null;
+    }
 }
 

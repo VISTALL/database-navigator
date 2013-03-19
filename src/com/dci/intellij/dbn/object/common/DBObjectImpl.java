@@ -75,7 +75,6 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
     private boolean isDisposed = false;
 
     protected String name;
-    protected DBUser owner;
     protected DBObjectIdentifier identifier;
     private DBObjectProperties properties;
     private DBObjectListContainer childObjects;
@@ -97,7 +96,6 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
 
     public DBObjectImpl(DBObject parentObject, DBContentType contentType, ResultSet resultSet) throws SQLException {
         this.parentDatabaseElement = parentObject;
-        this.owner = parentObject.getOwner();
         this.contentType = contentType;
         init(resultSet);
     }
@@ -254,10 +252,11 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
     }
 
     public DBUser getOwner() {
-        if (owner != null) {
-            owner = (DBUser) owner.getUndisposedElement();
+        if (parentDatabaseElement instanceof DBObject) {
+            DBObject parentObject = (DBObject) parentDatabaseElement;
+            return parentObject.getOwner();
         }
-        return owner;
+        return null;
     }
 
     public Icon getOriginalIcon() {
@@ -698,7 +697,6 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
             CollectionUtil.clearCollection(allPossibleTreeChildren);
             DisposeUtil.dispose(sqlLookupItemFactory);
             DisposeUtil.dispose(psqlLookupItemFactory);
-            owner = null;
             treeParent = null;
             parentDatabaseElement = null;
         }
