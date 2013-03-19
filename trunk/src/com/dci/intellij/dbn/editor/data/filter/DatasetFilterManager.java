@@ -7,7 +7,7 @@ import com.dci.intellij.dbn.editor.data.DatasetEditorManager;
 import com.dci.intellij.dbn.editor.data.filter.ui.DatasetFilterDialog;
 import com.dci.intellij.dbn.object.DBColumn;
 import com.dci.intellij.dbn.object.DBDataset;
-import com.dci.intellij.dbn.object.DBObjectIdentifier;
+import com.dci.intellij.dbn.object.identifier.DBObjectIdentifier;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.InvalidDataException;
 import com.intellij.openapi.util.JDOMExternalizable;

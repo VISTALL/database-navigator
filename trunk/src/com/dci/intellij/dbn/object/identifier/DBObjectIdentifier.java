@@ -1,4 +1,4 @@
-package com.dci.intellij.dbn.object;
+package com.dci.intellij.dbn.object.identifier;
 
 import com.dci.intellij.dbn.connection.ConnectionCache;
 import com.dci.intellij.dbn.connection.ConnectionHandler;

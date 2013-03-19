@@ -1,9 +1,8 @@
-package com.dci.intellij.dbn.execution.method;
+package com.dci.intellij.dbn.object.identifier;
 
 import com.dci.intellij.dbn.common.options.PersistentConfiguration;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.object.DBMethod;
-import com.dci.intellij.dbn.object.DBObjectIdentifier;
 import com.dci.intellij.dbn.object.DBProgram;
 import com.dci.intellij.dbn.object.DBSchema;
 import com.dci.intellij.dbn.object.common.DBObjectType;
@@ -11,7 +10,7 @@ import com.intellij.openapi.util.InvalidDataException;
 import com.intellij.openapi.util.WriteExternalException;
 import org.jdom.Element;
 
-public class DBMethodIdentifier<T extends DBMethod> extends DBObjectIdentifier<T> implements PersistentConfiguration {
+public class DBMethodIdentifier<T extends DBMethod> extends DBObjectIdentifier<DBMethod> implements PersistentConfiguration {
     private int overload;
 
     public DBMethodIdentifier(T method) {
@@ -86,9 +85,8 @@ public class DBMethodIdentifier<T extends DBMethod> extends DBObjectIdentifier<T
 
         DBMethodIdentifier that = (DBMethodIdentifier) o;
 
-        if (overload != that.overload) return false;
+        return overload == that.overload;
 
-        return true;
     }
 
     @Override

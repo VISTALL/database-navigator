@@ -30,7 +30,6 @@ import com.dci.intellij.dbn.language.common.DBLanguageDialect;
 import com.dci.intellij.dbn.language.psql.PSQLLanguage;
 import com.dci.intellij.dbn.language.sql.SQLLanguage;
 import com.dci.intellij.dbn.navigation.psi.NavigationPsiCache;
-import com.dci.intellij.dbn.object.DBObjectIdentifier;
 import com.dci.intellij.dbn.object.DBSchema;
 import com.dci.intellij.dbn.object.DBUser;
 import com.dci.intellij.dbn.object.common.list.DBObjectList;
@@ -41,6 +40,7 @@ import com.dci.intellij.dbn.object.common.operation.DBOperationExecutor;
 import com.dci.intellij.dbn.object.common.operation.DBOperationNotSupportedException;
 import com.dci.intellij.dbn.object.common.operation.DBOperationType;
 import com.dci.intellij.dbn.object.common.property.DBObjectProperties;
+import com.dci.intellij.dbn.object.identifier.DBObjectIdentifier;
 import com.dci.intellij.dbn.object.properties.ConnectionPresentableProperty;
 import com.dci.intellij.dbn.object.properties.DBObjectPresentableProperty;
 import com.dci.intellij.dbn.object.properties.PresentableProperty;
@@ -119,7 +119,11 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
         initProperties();
         initTreeInfo();
         initLists();
-        identifier = new DBObjectIdentifier(this);
+        identifier = createIdentifier();
+    }
+
+    protected DBObjectIdentifier createIdentifier() {
+        return new DBObjectIdentifier(this);
     }
 
     protected abstract void initObject(ResultSet resultSet) throws SQLException;

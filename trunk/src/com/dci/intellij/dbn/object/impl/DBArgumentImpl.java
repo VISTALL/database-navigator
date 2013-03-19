@@ -13,6 +13,8 @@ import com.dci.intellij.dbn.object.common.DBObjectImpl;
 import com.dci.intellij.dbn.object.common.DBObjectType;
 import com.dci.intellij.dbn.object.common.list.DBObjectNavigationList;
 import com.dci.intellij.dbn.object.common.list.DBObjectNavigationListImpl;
+import com.dci.intellij.dbn.object.identifier.DBArgumentIdentifier;
+import com.dci.intellij.dbn.object.identifier.DBObjectIdentifier;
 import com.dci.intellij.dbn.object.properties.DBDataTypePresentableProperty;
 import com.dci.intellij.dbn.object.properties.PresentableProperty;
 import com.dci.intellij.dbn.object.properties.SimplePresentableProperty;
@@ -54,6 +56,11 @@ public class DBArgumentImpl extends DBObjectImpl implements DBArgument {
         if (getParentObject() instanceof DBFunction) {
             position++;
         }
+    }
+
+    @Override
+    protected DBObjectIdentifier createIdentifier() {
+        return new DBArgumentIdentifier(this);
     }
 
     public DBDataType getDataType() {
@@ -140,8 +147,12 @@ public class DBArgumentImpl extends DBObjectImpl implements DBArgument {
     public int compareTo(Object o) {
         if (o instanceof DBArgument) {
             DBArgument argument = (DBArgument) o;
-            if (getMethod().equals(argument.getMethod())) {
+            DBMethod thisMethod = getMethod();
+            DBMethod thatMethod = argument.getMethod();
+            if (thisMethod.equals(thatMethod)) {
                 return getPosition() - argument.getPosition();
+            } else {
+                return thisMethod.compareTo(thatMethod);
             }
         }
         return super.compareTo(o);

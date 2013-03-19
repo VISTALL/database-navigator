@@ -1,7 +1,7 @@
 package com.dci.intellij.dbn.execution.method.history.ui;
 
-import com.dci.intellij.dbn.execution.method.DBMethodIdentifier;
 import com.dci.intellij.dbn.execution.method.MethodExecutionInput;
+import com.dci.intellij.dbn.object.identifier.DBMethodIdentifier;
 
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;

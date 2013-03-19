@@ -20,6 +20,8 @@ import com.dci.intellij.dbn.object.common.list.DBObjectListContainer;
 import com.dci.intellij.dbn.object.common.property.DBObjectProperty;
 import com.dci.intellij.dbn.object.common.status.DBObjectStatus;
 import com.dci.intellij.dbn.object.common.status.DBObjectStatusHolder;
+import com.dci.intellij.dbn.object.identifier.DBMethodIdentifier;
+import com.dci.intellij.dbn.object.identifier.DBObjectIdentifier;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.Connection;
@@ -63,6 +65,17 @@ public abstract class DBMethodImpl extends DBSchemaObjectImpl implements DBMetho
         super.initLists();
         DBObjectListContainer container = initChildObjects();
         arguments = container.createSubcontentObjectList(DBObjectType.ARGUMENT, this, ARGUMENTS_LOADER, getSchema(), true);
+    }
+
+    @Override
+    protected DBObjectIdentifier createIdentifier() {
+        return new DBMethodIdentifier<DBMethod>(this);
+    }
+
+    @Override
+    public DBMethodIdentifier getIdentifier() {
+        return (DBMethodIdentifier) super.getIdentifier();
+
     }
 
     @Override
@@ -157,7 +170,7 @@ public abstract class DBMethodImpl extends DBSchemaObjectImpl implements DBMetho
         }
     };
 
-    private static final DynamicSubcontentLoader ARGUMENTS_LOADER = new DynamicSubcontentLoader<DBArgument>(true) {
+    private static final DynamicSubcontentLoader<DBArgument> ARGUMENTS_LOADER = new DynamicSubcontentLoader<DBArgument>(true) {
         public DynamicContentLoader<DBArgument> getAlternativeLoader() {
             return ARGUMENTS_ALTERNATIVE_LOADER;
         }

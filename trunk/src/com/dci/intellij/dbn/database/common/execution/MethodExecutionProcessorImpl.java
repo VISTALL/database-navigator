@@ -4,13 +4,13 @@ import com.dci.intellij.dbn.common.locale.Formatter;
 import com.dci.intellij.dbn.common.util.StringUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.data.type.DBDataType;
-import com.dci.intellij.dbn.execution.method.DBMethodIdentifier;
 import com.dci.intellij.dbn.execution.method.MethodExecutionInput;
 import com.dci.intellij.dbn.execution.method.result.MethodExecutionResult;
 import com.dci.intellij.dbn.object.DBArgument;
 import com.dci.intellij.dbn.object.DBFunction;
 import com.dci.intellij.dbn.object.DBMethod;
 import com.dci.intellij.dbn.object.DBSchema;
+import com.dci.intellij.dbn.object.identifier.DBMethodIdentifier;
 import com.intellij.openapi.project.Project;
 
 import java.sql.CallableStatement;
@@ -23,7 +23,7 @@ public abstract class MethodExecutionProcessorImpl<T extends DBMethod> implement
     private DBMethodIdentifier<T> methodIdentifier;
 
     protected MethodExecutionProcessorImpl(T method) {
-        this.methodIdentifier = new DBMethodIdentifier<T>(method);
+        this.methodIdentifier = method.getIdentifier();
     }
 
     public T getMethod() {

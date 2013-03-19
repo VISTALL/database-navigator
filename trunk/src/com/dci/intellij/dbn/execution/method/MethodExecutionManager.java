@@ -12,6 +12,7 @@ import com.dci.intellij.dbn.execution.method.browser.MethodBrowserSettings;
 import com.dci.intellij.dbn.execution.method.history.ui.MethodExecutionHistoryDialog;
 import com.dci.intellij.dbn.execution.method.ui.MethodExecutionDialog;
 import com.dci.intellij.dbn.object.DBMethod;
+import com.dci.intellij.dbn.object.identifier.DBMethodIdentifier;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
@@ -58,7 +59,7 @@ public class MethodExecutionManager extends AbstractProjectComponent implements 
     }
 
     public MethodExecutionInput getExecutionInput(DBMethod method) {
-        DBMethodIdentifier methodIdentifier = new DBMethodIdentifier(method);
+        DBMethodIdentifier methodIdentifier = method.getIdentifier();
         for (MethodExecutionInput executionInput : executionInputs) {
             if (executionInput.getMethodIdentifier().equals(methodIdentifier)) {
                 return executionInput;

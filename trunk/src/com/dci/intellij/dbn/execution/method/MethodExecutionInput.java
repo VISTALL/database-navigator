@@ -8,10 +8,11 @@ import com.dci.intellij.dbn.execution.method.result.MethodExecutionResult;
 import com.dci.intellij.dbn.execution.method.result.ui.MethodExecutionResultForm;
 import com.dci.intellij.dbn.object.DBArgument;
 import com.dci.intellij.dbn.object.DBMethod;
-import com.dci.intellij.dbn.object.DBObjectIdentifier;
 import com.dci.intellij.dbn.object.DBSchema;
 import com.dci.intellij.dbn.object.DBTypeAttribute;
 import com.dci.intellij.dbn.object.common.DBObjectType;
+import com.dci.intellij.dbn.object.identifier.DBMethodIdentifier;
+import com.dci.intellij.dbn.object.identifier.DBObjectIdentifier;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.InvalidDataException;
@@ -43,7 +44,7 @@ public class MethodExecutionInput implements Disposable, PersistentConfiguration
     }
 
     public MethodExecutionInput(DBMethod method) {
-        methodIdentifier = new DBMethodIdentifier(method);
+        methodIdentifier = method.getIdentifier();
         executionSchemaIdentifier = method.getSchema().getIdentifier();
     }
 
