@@ -1,6 +1,5 @@
 package com.dci.intellij.dbn.common.editor;
 
-import com.dci.intellij.dbn.common.thread.SimpleLaterInvocator;
 import com.intellij.codeInsight.folding.CodeFoldingManager;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
@@ -15,7 +14,6 @@ import com.intellij.openapi.fileEditor.TextEditor;
 import com.intellij.openapi.fileEditor.impl.text.CodeFoldingState;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.WriteExternalException;
-import com.intellij.psi.PsiDocumentManager;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
@@ -82,11 +80,11 @@ public class BasicTextEditorState implements FileEditorState {
             selectionStart = selectionModel.getSelectionStart();
             selectionEnd = selectionModel.getSelectionEnd();
 
-            if(project != null){
+/*            if(project != null){
                 PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument());
                 CodeFoldingState foldingState = CodeFoldingManager.getInstance(project).saveFoldingState(editor);
                 setFoldingState(foldingState);
-            }
+            }*/
         }
         verticalScrollProportion = level != FileEditorStateLevel.UNDO ? EditorUtil.calcVerticalScrollProportion(editor) : -1F;
     }
@@ -114,6 +112,7 @@ public class BasicTextEditorState implements FileEditorState {
         editor.getScrollingModel().scrollToCaret(ScrollType.RELATIVE);
 
 
+/*
         if (project != null && getFoldingState() != null) {
             PsiDocumentManager.getInstance(project).commitDocument(document);
             new SimpleLaterInvocator() {
@@ -123,13 +122,9 @@ public class BasicTextEditorState implements FileEditorState {
                             restoreFoldingState(editor, getFoldingState());
                 }
             }.start();
-            /* runnable = new Runnable() {
-                public void run() {
-
-                }
-            };
-            editor.getFoldingModel().runBatchFoldingOperation(runnable);*/
+            //editor.getFoldingModel().runBatchFoldingOperation(runnable);
         }
+*/
     }
 
 }

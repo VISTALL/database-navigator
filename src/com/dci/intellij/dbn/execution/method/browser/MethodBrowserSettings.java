@@ -3,10 +3,10 @@ package com.dci.intellij.dbn.execution.method.browser;
 import com.dci.intellij.dbn.common.options.PersistentConfiguration;
 import com.dci.intellij.dbn.connection.ConnectionCache;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
-import com.dci.intellij.dbn.execution.method.DBMethodIdentifier;
 import com.dci.intellij.dbn.object.DBMethod;
 import com.dci.intellij.dbn.object.DBSchema;
 import com.dci.intellij.dbn.object.common.DBObjectType;
+import com.dci.intellij.dbn.object.identifier.DBMethodIdentifier;
 import com.intellij.openapi.util.InvalidDataException;
 import com.intellij.openapi.util.WriteExternalException;
 import gnu.trove.THashMap;
@@ -70,7 +70,7 @@ public class MethodBrowserSettings implements PersistentConfiguration {
     }
 
     public void setMethod(DBMethod method) {
-        methodIdentifier = new DBMethodIdentifier(method);
+        methodIdentifier = method.getIdentifier();
     }
 
     public void readConfiguration(Element element) throws InvalidDataException {
@@ -85,16 +85,10 @@ public class MethodBrowserSettings implements PersistentConfiguration {
 
     public void writeConfiguration(Element element) throws WriteExternalException {
         ConnectionHandler connectionHandler = getConnectionHandler();
-        DBSchema schema = getSchema();
-        DBMethod method = getMethod();
         if (connectionHandler != null) element.setAttribute("connection-id", connectionHandler.getId());
-        if (schema != null) element.setAttribute("schema", schema.getName());
-        if (method != null) {
-            DBMethodIdentifier methodIdentifier = new DBMethodIdentifier(method);
-            Element methodElement = new Element("selected-method");
-            methodIdentifier.writeConfiguration(methodElement);
-            element.addContent(methodElement);
-        }
-
+        if (schemaName != null) element.setAttribute("schema", schemaName);
+        Element methodElement = new Element("selected-method");
+        methodIdentifier.writeConfiguration(methodElement);
+        element.addContent(methodElement);
     }
 }
