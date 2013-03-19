@@ -8,6 +8,7 @@ import com.dci.intellij.dbn.object.common.list.DBObjectListContainer;
 import com.intellij.lang.ASTNode;
 import com.intellij.lang.Language;
 import com.intellij.navigation.ItemPresentation;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.TextRange;
@@ -35,7 +36,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class DBObjectPsiDirectory implements PsiDirectory {
+public class DBObjectPsiDirectory implements PsiDirectory, Disposable{
     private DBObject object;
 
     public DBObjectPsiDirectory(DBObject object) {
@@ -46,6 +47,10 @@ public class DBObjectPsiDirectory implements PsiDirectory {
         return object;
     }
 
+    @Override
+    public void dispose() {
+        object = null;
+    }
 
     /*********************************************************
      *                      PsiElement                       *

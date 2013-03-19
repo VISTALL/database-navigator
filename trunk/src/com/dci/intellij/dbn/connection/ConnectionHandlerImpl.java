@@ -341,7 +341,10 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
             connectionPool.disconnectSilently();
             DisposeUtil.dispose(objectBundle);
             DisposeUtil.dispose(connectionPool);
+            DisposeUtil.dispose(sqlConsoleFile);
+            DisposeUtil.dispose(psiCache);
             connectionPool = null;
+            changesBundle = null;
         }
     }
 

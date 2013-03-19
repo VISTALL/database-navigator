@@ -1,5 +1,6 @@
 package com.dci.intellij.dbn.navigation.psi;
 
+import com.dci.intellij.dbn.common.dispose.DisposeUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.language.common.psi.EmptySearchScope;
 import com.dci.intellij.dbn.object.common.DBObject;
@@ -8,6 +9,7 @@ import com.dci.intellij.dbn.vfs.DatabaseConnectionFile;
 import com.intellij.lang.ASTNode;
 import com.intellij.lang.Language;
 import com.intellij.navigation.ItemPresentation;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.TextRange;
@@ -35,7 +37,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class DBConnectionPsiDirectory implements PsiDirectory{
+public class DBConnectionPsiDirectory implements PsiDirectory, Disposable {
     private DatabaseConnectionFile virtualFile;
 
     public DBConnectionPsiDirectory(ConnectionHandler connectionHandler) {
@@ -58,6 +60,12 @@ public class DBConnectionPsiDirectory implements PsiDirectory{
 
     public FileStatus getFileStatus() {
         return FileStatus.NOT_CHANGED;
+    }
+
+    @Override
+    public void dispose() {
+        DisposeUtil.dispose(virtualFile);
+        virtualFile = null;
     }
 
     public boolean processChildren(PsiElementProcessor<PsiFileSystemItem> processor) {

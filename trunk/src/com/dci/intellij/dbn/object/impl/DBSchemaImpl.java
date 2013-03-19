@@ -98,9 +98,6 @@ public class DBSchemaImpl extends DBObjectImpl implements DBSchema {
         name = resultSet.getString("SCHEMA_NAME");
         isPublicSchema = resultSet.getString("IS_PUBLIC").equals("Y");
         isSystemSchema = resultSet.getString("IS_SYSTEM").equals("Y");
-
-        owner = getConnectionHandler().getObjectBundle().getUser(name);
-        if (owner != null) owner.setSchema(this);
         isUserSchema = getName().equalsIgnoreCase(getConnectionHandler().getUserName());
     }
 
@@ -141,17 +138,24 @@ public class DBSchemaImpl extends DBObjectImpl implements DBSchema {
                 DBObjectRelationType.CONSTRAINT_COLUMN, this,
                 "Constraint relations",
                 CONSTRAINT_COLUMN_RELATION_LOADER,
-                new DBObjectList[]{constraints, columns});
+                constraints,
+                columns);
 
         orl.createObjectRelationList(
                 DBObjectRelationType.INDEX_COLUMN, this,
                 "Index relations",
                 INDEX_COLUMN_RELATION_LOADER,
-                new DBObjectList[]{indexes, columns});
+                indexes,
+                columns);
     }
 
     @Override
     public void initProperties() {}
+
+    @Override
+    public DBUser getOwner() {
+        return getObjectBundle().getUser(name);
+    }
 
     public DBObjectType getObjectType() {
         return DBObjectType.SCHEMA;

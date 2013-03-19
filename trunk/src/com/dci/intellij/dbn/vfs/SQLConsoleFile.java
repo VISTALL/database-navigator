@@ -63,6 +63,12 @@ public class SQLConsoleFile extends VirtualFile implements DatabaseFile, DBVirtu
         return connectionHandler;
     }
 
+    @Override
+    public void dispose() {
+        connectionHandler = null;
+        currentSchema = null;
+    }
+
     public void setCurrentSchema(DBSchema currentSchema) {
         this.currentSchema = currentSchema;
     }

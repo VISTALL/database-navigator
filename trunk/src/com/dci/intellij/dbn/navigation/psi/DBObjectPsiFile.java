@@ -8,6 +8,7 @@ import com.dci.intellij.dbn.vfs.DatabaseFileViewProvider;
 import com.intellij.lang.FileASTNode;
 import com.intellij.lang.Language;
 import com.intellij.navigation.ItemPresentation;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.UnknownFileType;
 import com.intellij.openapi.project.Project;
@@ -35,7 +36,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 
-public class DBObjectPsiFile implements PsiFile {
+public class DBObjectPsiFile implements PsiFile, Disposable {
     private DBObject object;
 
     public DBObjectPsiFile(DBObject object) {
@@ -44,6 +45,11 @@ public class DBObjectPsiFile implements PsiFile {
 
     public DBObject getObject() {
         return object;
+    }
+
+    @Override
+    public void dispose() {
+        object = null;
     }
 
 
@@ -355,4 +361,5 @@ public class DBObjectPsiFile implements PsiFile {
     public void checkSetName(String name) throws IncorrectOperationException {
 
     }
+
 }

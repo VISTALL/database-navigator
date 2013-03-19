@@ -42,6 +42,10 @@ public class DatabaseObjectListFile<T extends DBObjectList> extends VirtualFile 
         return objectList.getConnectionHandler();
     }
 
+    public Project getProject() {
+        return objectList.getProject();
+    }
+
     public boolean equals(Object obj) {
         if (obj instanceof DatabaseObjectListFile) {
             DatabaseObjectListFile objectListFile = (DatabaseObjectListFile) obj;
@@ -68,8 +72,9 @@ public class DatabaseObjectListFile<T extends DBObjectList> extends VirtualFile 
         return super.hashCode();
     }
 
-    public Project getProject() {
-        return objectList.getProject();
+    @Override
+    public void dispose() {
+        objectList = null;
     }
 
     /*********************************************************
