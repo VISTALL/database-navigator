@@ -17,6 +17,7 @@ public class ConnectionPool implements Disposable {
     private Logger logger = Logger.getInstance(getClass().getName());
     private static final long ONE_MINUTE = 1000*60;
     private int peakSize = 0;
+    private boolean isDisposed;
 
     protected final Logger log = Logger.getInstance(getClass().getName());
     private ConnectionHandler connectionHandler;
@@ -138,7 +139,10 @@ public class ConnectionPool implements Disposable {
     }
 
     public void dispose() {
-
+        if (!isDisposed) {
+            isDisposed = true;
+            connectionHandler = null;
+        }
     }
 
     public void setAutoCommit(boolean autoCommit) throws SQLException {

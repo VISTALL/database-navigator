@@ -145,10 +145,6 @@ public class TabbedBrowserForm extends DatabaseBrowserForm{
 
     public void dispose() {
         EventManager.unsubscribe(environmentChangeListener);
-        for (TabInfo tabInfo : connectionTabs.getTabs()) {
-            SimpleBrowserForm browserForm = (SimpleBrowserForm) tabInfo.getObject();
-            browserForm.dispose();
-        }
         connectionTabs.dispose();
         super.dispose();
     }
