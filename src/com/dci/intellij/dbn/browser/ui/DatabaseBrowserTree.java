@@ -294,12 +294,14 @@ public class DatabaseBrowserTree extends DBNTree implements Disposable {
     }  */
 
     public void dispose() {
-        isDisposed = true;
-        targetSelection = null;
-        treeModel.dispose();
-        treeModel = null;
-        navigationHistory.clear();
-        navigationHistory = null;
+        if (!isDisposed) {
+            isDisposed = true;
+            targetSelection = null;
+            treeModel.dispose();
+            treeModel = null;
+            navigationHistory.clear();
+            navigationHistory = null;
+        }
     }
 
     /********************************************************
