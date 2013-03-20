@@ -53,6 +53,7 @@ import java.awt.event.MouseListener;
 import java.util.List;
 
 public class DatabaseBrowserTree extends DBNTree implements Disposable {
+    public static final DefaultTreeModel EMPTY_TREE_MODEL = new DefaultTreeModel(null);
     private BrowserTreeNode targetSelection;
     private BrowserTreeModel treeModel;
     private JPopupMenu popupMenu;
@@ -298,7 +299,7 @@ public class DatabaseBrowserTree extends DBNTree implements Disposable {
         if (!isDisposed) {
             isDisposed = true;
             targetSelection = null;
-            setModel(new DefaultTreeModel(null));
+            setModel(EMPTY_TREE_MODEL);
             treeModel.dispose();
             navigationHistory.clear();
             navigationHistory = null;
