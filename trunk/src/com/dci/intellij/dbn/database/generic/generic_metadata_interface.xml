@@ -3,11 +3,9 @@
         <!ELEMENT statement-execution-processor (statement)*>
         <!ATTLIST statement-execution-processor
                 id CDATA #REQUIRED
-                is-query CDATA #IMPLIED>
+                is-query CDATA #IMPLIED
+                timeout CDATA #IMPLIED>
         <!ELEMENT statement (#PCDATA)>
-        <!ATTLIST statement
-                comment CDATA #IMPLIED
-                variants CDATA #IMPLIED>
         ]>
 <data-dictionary>
     <statement-execution-processor id="schemas" is-query="true">
@@ -633,7 +631,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="validate-connection">
+    <statement-execution-processor id="validate-connection" timeout="5">
         <statement>
             select 1
         </statement>

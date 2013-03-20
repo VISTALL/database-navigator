@@ -12,7 +12,6 @@ import com.dci.intellij.dbn.database.common.debug.BreakpointInfo;
 import com.dci.intellij.dbn.database.common.debug.DebuggerRuntimeInfo;
 import com.dci.intellij.dbn.database.common.debug.DebuggerSessionInfo;
 import com.dci.intellij.dbn.database.common.debug.ExecutionBacktraceInfo;
-import com.dci.intellij.dbn.database.common.statement.StatementExecutionProcessor;
 import com.dci.intellij.dbn.debugger.breakpoint.DBProgramBreakpointHandler;
 import com.dci.intellij.dbn.debugger.evaluation.DBProgramDebuggerEditorsProvider;
 import com.dci.intellij.dbn.debugger.execution.DBProgramRunConfiguration;
@@ -117,7 +116,6 @@ public class DBProgramDebugProcess extends XDebugProcess {
                     debugConnection = connectionHandler.getPoolConnection();
 
                     DatabaseDebuggerInterface debuggerInterface = getDebuggerInterface();
-                    StatementExecutionProcessor.CALL_STATEMENT_TIMEOUT.set(20);
                     progressIndicator.setText("Initializing debugger target session");
                     DebuggerSessionInfo sessionInfo = debuggerInterface.initializeSession(targetConnection);
                     debuggerInterface.enableDebugging(targetConnection);
@@ -142,7 +140,6 @@ public class DBProgramDebugProcess extends XDebugProcess {
                 if (getStatus().PROCESS_IS_TERMINATING) getSession().stop();
                 try {
                     progressIndicator.setText("Synchronizing debug session");
-                    StatementExecutionProcessor.CALL_STATEMENT_TIMEOUT.set(10);
                     runtimeInfo = debuggerInterface.synchronizeSession(debugConnection);
 
                     if (getStatus().TARGET_EXECUTION_TERMINATED) {

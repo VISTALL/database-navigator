@@ -2,6 +2,7 @@ package com.dci.intellij.dbn.database.common.statement;
 
 import com.dci.intellij.dbn.common.LoggerFactory;
 import com.dci.intellij.dbn.common.options.setting.SettingsUtil;
+import com.dci.intellij.dbn.common.util.StringUtil;
 import com.dci.intellij.dbn.connection.ConnectionUtil;
 import com.dci.intellij.dbn.database.DatabaseInterfaceProvider;
 import com.intellij.openapi.diagnostic.Logger;
@@ -22,16 +23,17 @@ public class StatementExecutionProcessor {
     private static final Logger LOGGER = LoggerFactory.createLogger();
     private String id;
     private boolean isQuery;
+    private int timeout;
     private List<StatementDefinition> statementDefinitions = new ArrayList<StatementDefinition>();
     private SQLException lastException;
-    public static final ThreadLocal<Integer> CALL_STATEMENT_TIMEOUT = new ThreadLocal<Integer>();
-    public static final ThreadLocal<Integer> QUERY_STATEMENT_TIMEOUT = new ThreadLocal<Integer>();
-
+    public static final int DEFAULT_TIMEOUT = 30;
 
     public StatementExecutionProcessor(Element element, DatabaseInterfaceProvider interfaceProvider) {
         this.interfaceProvider = interfaceProvider;
         id = element.getAttributeValue("id");
         isQuery = Boolean.parseBoolean(element.getAttributeValue("is-query"));
+        String timeoutS = element.getAttributeValue("timeout");
+        timeout = StringUtil.isEmpty(timeoutS) ? DEFAULT_TIMEOUT : Integer.parseInt(timeoutS);
         if (element.getChildren().isEmpty()) {
             String statementText = element.getContent(0).getValue().trim();
             readStatements(statementText, null);
@@ -144,11 +146,7 @@ public class StatementExecutionProcessor {
         //callableStatement.setQueryTimeout(20);
         try {
             if (outputReader != null) outputReader.registerParameters(callableStatement);
-
-            if (CALL_STATEMENT_TIMEOUT.get() != null) {
-                callableStatement.setQueryTimeout(CALL_STATEMENT_TIMEOUT.get());
-            }
-
+            callableStatement.setQueryTimeout(timeout);
             callableStatement.execute();
             if (outputReader != null) outputReader.read(callableStatement);
             return outputReader;
