@@ -39,6 +39,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.JPopupMenu;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
+import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -297,8 +298,8 @@ public class DatabaseBrowserTree extends DBNTree implements Disposable {
         if (!isDisposed) {
             isDisposed = true;
             targetSelection = null;
+            setModel(new DefaultTreeModel(null));
             treeModel.dispose();
-            treeModel = null;
             navigationHistory.clear();
             navigationHistory = null;
         }
