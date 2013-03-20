@@ -3,11 +3,13 @@ package com.dci.intellij.dbn.language.common.psi;
 import com.dci.intellij.dbn.code.common.style.formatting.FormattingAttributes;
 import com.dci.intellij.dbn.code.common.style.formatting.FormattingDefinition;
 import com.dci.intellij.dbn.code.common.style.formatting.FormattingProviderPsiElement;
-import com.dci.intellij.dbn.common.editor.BasicTextEditorProvider;
+import com.dci.intellij.dbn.common.editor.BasicTextEditor;
 import com.dci.intellij.dbn.common.thread.ReadActionRunner;
+import com.dci.intellij.dbn.common.util.DocumentUtil;
 import com.dci.intellij.dbn.common.util.EditorUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.database.DatabaseCompatibilityInterface;
+import com.dci.intellij.dbn.editor.ddl.DDLFileEditor;
 import com.dci.intellij.dbn.language.common.DBLanguageDialect;
 import com.dci.intellij.dbn.language.common.DBLanguageFile;
 import com.dci.intellij.dbn.language.common.element.ElementType;
@@ -20,7 +22,8 @@ import com.dci.intellij.dbn.object.DBSchema;
 import com.dci.intellij.dbn.object.common.DBObject;
 import com.dci.intellij.dbn.object.common.DBObjectType;
 import com.dci.intellij.dbn.object.common.DBVirtualObject;
-import com.dci.intellij.dbn.vfs.DatabaseFile;
+import com.dci.intellij.dbn.vfs.DatabaseEditableObjectFile;
+import com.dci.intellij.dbn.vfs.SourceCodeFile;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.intellij.ide.util.EditSourceUtil;
 import com.intellij.lang.ASTNode;
@@ -28,7 +31,10 @@ import com.intellij.navigation.ItemPresentation;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
+import com.intellij.openapi.fileEditor.FileEditor;
+import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiComment;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
@@ -256,15 +262,40 @@ public abstract class BasePsiElement extends ASTWrapperPsiElement implements Ite
 
     public void navigate(boolean requestFocus) {
         if (isValid()) {
-            Editor selectedEditor = EditorUtil.getSelectedEditor(getProject());
-            if (selectedEditor != null && selectedEditor.getUserData(BasicTextEditorProvider.DBN_FILE_EDITOR_PROVIDER) != null) {
-                OpenFileDescriptor descriptor = (OpenFileDescriptor) EditSourceUtil.getDescriptor(this);
-                if (descriptor != null) {
-                    //((IdeDocumentHistoryImpl) IdeDocumentHistory.getInstance(getProject())).onSelectionChanged();
-                    descriptor.navigateIn(selectedEditor);
-                }
-            } else {
-                if (!(getFile().getVirtualFile() instanceof DatabaseFile)) {
+            OpenFileDescriptor descriptor = (OpenFileDescriptor) EditSourceUtil.getDescriptor(this);
+            if (descriptor != null) {
+                VirtualFile virtualFile = getFile().getVirtualFile();
+                FileEditorManager editorManager = FileEditorManager.getInstance(getProject());
+                if (virtualFile != null) {
+                    if (virtualFile instanceof SourceCodeFile) {
+                        SourceCodeFile sourceCodeFile = (SourceCodeFile) virtualFile;
+                        DatabaseEditableObjectFile databaseFile = sourceCodeFile.getDatabaseFile();
+                        if (!editorManager.isFileOpen(databaseFile)) {
+                            editorManager.openFile(databaseFile, requestFocus);
+                        }
+                        BasicTextEditor textEditor = EditorUtil.getFileEditor(databaseFile, virtualFile);
+                        descriptor.navigateIn(textEditor.getEditor());
+                        return;
+                    }
+
+                    Editor editor = editorManager.getSelectedTextEditor();
+                    if (editor != null && virtualFile == DocumentUtil.getVirtualFile(editor)) {
+                        super.navigate(requestFocus);
+                        return;
+                    }
+
+                    FileEditor[] fileEditors = editorManager.getSelectedEditors();
+                    for (FileEditor fileEditor : fileEditors) {
+                        if (fileEditor instanceof DDLFileEditor) {
+                            DDLFileEditor textEditor = (DDLFileEditor) fileEditor;
+                            if (textEditor.getVirtualFile() == virtualFile) {
+                                descriptor.navigateIn(textEditor.getEditor());
+                                return;
+                            }
+
+                        }
+                    }
+
                     super.navigate(requestFocus);
                 }
             }
