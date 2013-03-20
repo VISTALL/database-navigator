@@ -1,23 +1,24 @@
 <!DOCTYPE data-dictionary [
-        <!ELEMENT data-dictionary (statement-execution-processor)* >
+        <!ELEMENT data-dictionary (statement-execution-processor)*>
         <!ELEMENT statement-execution-processor (statement)*>
         <!ATTLIST statement-execution-processor
-                id CDATA #REQUIRED>
+                id CDATA #REQUIRED
+                timeout CDATA #IMPLIED>
         <!ELEMENT statement (#PCDATA)>
         ]>
 <data-dictionary>
-    <statement-execution-processor id="initialize-session-debugging">
+    <statement-execution-processor id="initialize-session-debugging" timeout="20">
         <statement>
             alter session set PLSQL_DEBUG = true
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="initialize-session-compiler-flags">
+    <statement-execution-processor id="initialize-session-compiler-flags" timeout="20">
         <statement>
             alter  session set PLSQL_COMPILER_FLAGS = 'DEBUG'
             <!--alter  session set PLSQL_COMPILER_FLAGS = 'INTERPRETED','DEBUG'-->
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="initialize-session">
+    <statement-execution-processor id="initialize-session" timeout="20">
         <statement>
             declare
                 v_session_id VARCHAR2(100);
@@ -63,7 +64,7 @@
             end;
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="synchronize-session">
+    <statement-execution-processor id="synchronize-session" timeout="20">
         <statement>
             declare
                 v_runtime_info SYS.DBMS_DEBUG.runtime_info;
