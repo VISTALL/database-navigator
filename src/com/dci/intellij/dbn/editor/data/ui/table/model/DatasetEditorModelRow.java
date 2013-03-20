@@ -16,7 +16,6 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class DatasetEditorModelRow extends ResultSetDataModelRow<DatasetEditorModelCell> {
-    private ResultSet resultSet;
     private int resultSetRowIndex;
     private boolean isNew;
     private boolean isInsert;
@@ -26,7 +25,6 @@ public class DatasetEditorModelRow extends ResultSetDataModelRow<DatasetEditorMo
 
     public DatasetEditorModelRow(DatasetEditorModel model, ResultSet resultSet, int resultSetRowIndex) throws SQLException {
         super(model, resultSet);
-        this.resultSet = resultSet;
         this.resultSetRowIndex = resultSetRowIndex;
     }
 
@@ -160,12 +158,13 @@ public class DatasetEditorModelRow extends ResultSetDataModelRow<DatasetEditorMo
     }
 
     public ResultSet scrollResultSet() throws SQLException {
+        ResultSet resultSet = getResultSet();
         resultSet.absolute(resultSetRowIndex);
         return resultSet;
     }
 
     public ResultSet getResultSet() {
-        return resultSet;
+        return getModel().getResultSet();
     }
 
     public boolean isDeleted() {
@@ -199,6 +198,5 @@ public class DatasetEditorModelRow extends ResultSetDataModelRow<DatasetEditorMo
     @Override
     public void dispose() {
         super.dispose();
-        resultSet = null;
     }
 }
