@@ -75,7 +75,7 @@ public class SimpleBrowserForm extends DatabaseBrowserForm{
 
     public void dispose() {
         EventManager.unsubscribe(objectDisplaySettingsListener);
-
+        browserScrollPane.getViewport().remove(browserTree);
         browserTree.dispose();
         browserTree = null;
         super.dispose();

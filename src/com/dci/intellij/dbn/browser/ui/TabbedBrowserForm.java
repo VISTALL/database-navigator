@@ -55,7 +55,8 @@ public class TabbedBrowserForm extends DatabaseBrowserForm{
 
     private void initTabs() {
         Project project = getProject();
-        connectionTabs.removeAllTabs();
+        connectionTabs.dispose();
+        connectionTabs = new TabbedPane(project);
         ConnectionManager connectionManager = ConnectionManager.getInstance(project);
         for (ConnectionBundle connectionBundle : connectionManager.getConnectionBundles()) {
             for (ConnectionHandler connectionHandler: connectionBundle.getConnectionHandlers()) {
