@@ -30,7 +30,7 @@ public enum TransactionAction implements Serializable {
                 }
             }),
 
-    SILENT_ROLLBACK(
+    ROLLBACK_IDLE(
             Constants.DBN_TITLE_PREFIX + "Rollback",
             NotificationType.INFORMATION, "Connection \"{0}\" rolled back.",
             "Error rolling back connection \"{0}\". Details: {1}",
@@ -61,20 +61,18 @@ public enum TransactionAction implements Serializable {
             new Executor() {
                 void execute(ConnectionHandler connectionHandler) throws SQLException {
                     connectionHandler.disconnect();
-                    connectionHandler.getConnectionStatus().setResolvingIdleStatus(false);
                 }
             }),
 
-    KEEP_ALIVE(
-            Constants.DBN_TITLE_PREFIX + "Keep Alive",
+    PING(
+            Constants.DBN_TITLE_PREFIX + "Ping",
             null, "",
-            "Error restoring connectivity for \"{0}\". Details: {1}",
+            "Error checking connectivity for \"{0}\". Details: {1}",
             false,
             new Executor() {
                 @Override
                 void execute(ConnectionHandler connectionHandler) throws SQLException {
-                    connectionHandler.keepAlive(true);
-                    connectionHandler.getConnectionStatus().setResolvingIdleStatus(false);
+                    connectionHandler.ping(true);
                 }
             }),
 

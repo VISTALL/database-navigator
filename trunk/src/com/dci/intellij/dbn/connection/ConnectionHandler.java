@@ -60,19 +60,19 @@ public interface ConnectionHandler extends Disposable{
     boolean hasUncommittedChanges();
     void commit() throws SQLException;
     void rollback() throws SQLException;
-    DBLanguageDialect getLanguageDialect(DBLanguage language);
+    void ping(boolean check);
 
+    DBLanguageDialect getLanguageDialect(DBLanguage language);
     boolean isActive();
+
     DatabaseType getDatabaseType();
 
     Filter<BrowserTreeNode> getObjectFilter();
-
     NavigationPsiCache getPsiCache();
-    EnvironmentType getEnvironmentType();
 
+    EnvironmentType getEnvironmentType();
     UncommittedChangeBundle getUncommittedChanges();
     boolean isConnected();
     boolean isDisposed();
     int getIdleMinutes();
-    void keepAlive(boolean check);
 }

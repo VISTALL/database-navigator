@@ -26,11 +26,12 @@
         <ul>
             <li><b>3.0.2462</b>
              <ul>
-                - Compatibility with latest IDE version (including EAP)<br>
                 - New Icon set (work in progress)<br>
                 - Support for dark scheme (work in progress)<br>
+                - Memory management improvements<br>
+                - Connection timeout and idle time management<br>
+                - Compatibility with latest IDE version (including EAP)<br>
                 - Bug fixes and performance improvements<br>
-                - Memory management improvements (work in progress)<br>
             </ul>
             <li><b>3.0.2349</b>
             <ul>
