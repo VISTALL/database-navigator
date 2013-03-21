@@ -113,6 +113,12 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
         changesBundle = null;
     }
 
+    @Override
+    public void ping(boolean check) {
+        connectionStatus.setResolvingIdleStatus(false);
+        connectionPool.keepAlive(check);
+    }
+
     public void notifyChanges(VirtualFile virtualFile) {
         if (!isAutoCommit()) {
             if (changesBundle == null) {
@@ -167,12 +173,6 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
     @Override
     public int getIdleMinutes() {
         return connectionPool.getIdleMinutes();
-    }
-
-    @Override
-    public void ping(boolean check) {
-        connectionStatus.setResolvingIdleStatus(false);
-        connectionPool.keepAlive(check);
     }
 
     public boolean isValid() {

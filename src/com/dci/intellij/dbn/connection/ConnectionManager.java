@@ -40,7 +40,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class ConnectionManager extends AbstractProjectComponent implements ProjectManagerListener{
-    public static final int FIVE_MINUTES_TIMEOUT = 1000 * 60 * 5;
+    public static final int FIVE_MINUTES_TIMEOUT = 1000;//1000 * 60 * 5;
     private List<ConnectionBundle> connectionBundles = new ArrayList<ConnectionBundle>();
     private Timer idleConnectionCleaner;
 
@@ -310,9 +310,9 @@ public class ConnectionManager extends AbstractProjectComponent implements Proje
                         connectionStatus.setResolvingIdleStatus(true);
                         new BackgroundTask(getProject(), "Close idle connection " + connectionHandler.getName(), true, false) {
                             protected void execute(@NotNull ProgressIndicator progressIndicator) throws InterruptedException {
-                                Thread.currentThread().sleep(FIVE_MINUTES_TIMEOUT);
+                                Thread.sleep(FIVE_MINUTES_TIMEOUT);
                                 if (connectionHandler.getConnectionStatus().isResolvingIdleStatus()) {
-                                    transactionManager.execute(connectionHandler, false, TransactionAction.ROLLBACK, TransactionAction.DISCONNECT_IDLE);
+                                    transactionManager.execute(connectionHandler, TransactionAction.ROLLBACK_IDLE, TransactionAction.DISCONNECT_IDLE);
                                 }
                             }
                         }.start();
