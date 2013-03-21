@@ -12,6 +12,7 @@ import com.dci.intellij.dbn.connection.transaction.ui.UncommittedChangesDialog;
 import com.dci.intellij.dbn.connection.transaction.ui.UncommittedChangesOverviewDialog;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.project.ProjectManagerListener;
@@ -63,18 +64,18 @@ public class DatabaseTransactionManager extends AbstractProjectComponent impleme
         Project project = connectionHandler.getProject();
         String connectionName = connectionHandler.getName();
         if (ApplicationManager.getApplication().isDisposeInProgress()) {
-            executeActions(null, connectionHandler, actions);
+            execute(connectionHandler, actions);
         } else {
             new ModalTask(project, "Performing " + actions[0].getName() + " on connection " + connectionName, background) {
                 @Override
                 public void run(@NotNull ProgressIndicator indicator) {
-                    executeActions(indicator, connectionHandler, actions);
+                    execute(connectionHandler, actions);
                 }
             }.start();
         }
     }
 
-    private void executeActions(ProgressIndicator indicator, ConnectionHandler connectionHandler, TransactionAction... actions) {
+    public void execute(ConnectionHandler connectionHandler, TransactionAction... actions) {
         Project project = connectionHandler.getProject();
         String connectionName = connectionHandler.getName();
         TransactionListener transactionListener = EventManager.notify(getProject(), TransactionListener.TOPIC);
@@ -84,7 +85,7 @@ public class DatabaseTransactionManager extends AbstractProjectComponent impleme
                 try {
                     // notify pre-action
                     transactionListener.beforeAction(connectionHandler, action);
-
+                    ProgressIndicator indicator = ProgressManager.getInstance().getProgressIndicator();
                     if (indicator != null){
                         indicator.setIndeterminate(true);
                         indicator.setText("Performing " + action.getName() + " on connection " + connectionName);
