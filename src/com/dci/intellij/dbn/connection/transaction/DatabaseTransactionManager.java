@@ -63,18 +63,18 @@ public class DatabaseTransactionManager extends AbstractProjectComponent impleme
         Project project = connectionHandler.getProject();
         String connectionName = connectionHandler.getName();
         if (ApplicationManager.getApplication().isDisposeInProgress()) {
-            executeTransactionActions(null, connectionHandler, actions);
+            executeActions(null, connectionHandler, actions);
         } else {
             new ModalTask(project, "Performing " + actions[0].getName() + " on connection " + connectionName, background) {
                 @Override
                 public void run(@NotNull ProgressIndicator indicator) {
-                    executeTransactionActions(indicator, connectionHandler, actions);
+                    executeActions(indicator, connectionHandler, actions);
                 }
             }.start();
         }
     }
 
-    private void executeTransactionActions(ProgressIndicator indicator, ConnectionHandler connectionHandler, TransactionAction... actions) {
+    private void executeActions(ProgressIndicator indicator, ConnectionHandler connectionHandler, TransactionAction... actions) {
         Project project = connectionHandler.getProject();
         String connectionName = connectionHandler.getName();
         TransactionListener transactionListener = EventManager.notify(getProject(), TransactionListener.TOPIC);
