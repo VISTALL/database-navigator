@@ -10,6 +10,7 @@ import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.ConnectionStatusListener;
 import com.dci.intellij.dbn.connection.transaction.ui.UncommittedChangesDialog;
 import com.dci.intellij.dbn.connection.transaction.ui.UncommittedChangesOverviewDialog;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
@@ -59,53 +60,63 @@ public class DatabaseTransactionManager extends AbstractProjectComponent impleme
     }
 
     public void execute(final ConnectionHandler connectionHandler, boolean background, final TransactionAction... actions) {
-        final Project project = connectionHandler.getProject();
-        final String connectionName = connectionHandler.getName();
-        final TransactionListener transactionListener = EventManager.notify(getProject(), TransactionListener.TOPIC);
-        ModalTask modalTask = new ModalTask(project, "Performing " + actions[0].getName() + " on connection " + connectionName, background) {
-            @Override
-            public void run(@NotNull ProgressIndicator indicator) {
-                for (TransactionAction action : actions) {
-                    if (action != null) {
-                        boolean success = true;
-                        try {
-                            // notify pre-action
-                            transactionListener.beforeAction(connectionHandler, action);
+        Project project = connectionHandler.getProject();
+        String connectionName = connectionHandler.getName();
+        if (ApplicationManager.getApplication().isDisposeInProgress()) {
+            executeTransactionActions(null, connectionHandler, actions);
+        } else {
+            new ModalTask(project, "Performing " + actions[0].getName() + " on connection " + connectionName, background) {
+                @Override
+                public void run(@NotNull ProgressIndicator indicator) {
+                    executeTransactionActions(indicator, connectionHandler, actions);
+                }
+            }.start();
+        }
+    }
 
-                            indicator.setIndeterminate(true);
-                            indicator.setText("Performing " + action.getName() + " on connection " + connectionName);
-                            action.execute(connectionHandler);
-                            if (action.getNotificationType() != null) {
-                                NotificationUtil.sendNotification(
-                                        project,
-                                        action.getNotificationType(),
-                                        action.getName(),
-                                        action.getSuccessNotificationMessage(),
-                                        connectionName);
-                            }
-                        } catch (SQLException ex) {
-                            NotificationUtil.sendErrorNotification(
-                                    project,
-                                    action.getName(),
-                                    action.getErrorNotificationMessage(),
-                                    connectionName,
-                                    ex.getMessage());
-                            success = false;
-                        } finally {
-                            // notify post-action
-                            transactionListener.afterAction(connectionHandler, action, success);
+    private void executeTransactionActions(ProgressIndicator indicator, ConnectionHandler connectionHandler, TransactionAction... actions) {
+        Project project = connectionHandler.getProject();
+        String connectionName = connectionHandler.getName();
+        TransactionListener transactionListener = EventManager.notify(getProject(), TransactionListener.TOPIC);
+        for (TransactionAction action : actions) {
+            if (action != null) {
+                boolean success = true;
+                try {
+                    // notify pre-action
+                    transactionListener.beforeAction(connectionHandler, action);
 
-                            if (action.isStatusChange()) {
-                                ConnectionStatusListener statusListener = EventManager.notify(getProject(), ConnectionStatusListener.TOPIC);
-                                statusListener.statusChanged(connectionHandler.getId());
-                            }
-                        }
+                    if (indicator != null){
+                        indicator.setIndeterminate(true);
+                        indicator.setText("Performing " + action.getName() + " on connection " + connectionName);
+                    }
+                    action.execute(connectionHandler);
+                    if (action.getNotificationType() != null) {
+                        NotificationUtil.sendNotification(
+                                project,
+                                action.getNotificationType(),
+                                action.getName(),
+                                action.getSuccessNotificationMessage(),
+                                connectionName);
+                    }
+                } catch (SQLException ex) {
+                    NotificationUtil.sendErrorNotification(
+                            project,
+                            action.getName(),
+                            action.getErrorNotificationMessage(),
+                            connectionName,
+                            ex.getMessage());
+                    success = false;
+                } finally {
+                    // notify post-action
+                    transactionListener.afterAction(connectionHandler, action, success);
+
+                    if (action.isStatusChange()) {
+                        ConnectionStatusListener statusListener = EventManager.notify(getProject(), ConnectionStatusListener.TOPIC);
+                        statusListener.statusChanged(connectionHandler.getId());
                     }
                 }
             }
-        };
-
-        modalTask.start();
+        }
     }
 
     public void commit(final ConnectionHandler connectionHandler, boolean fromEditor, boolean background) {
