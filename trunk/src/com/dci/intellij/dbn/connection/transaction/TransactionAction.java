@@ -30,6 +30,17 @@ public enum TransactionAction implements Serializable {
                 }
             }),
 
+    SILENT_ROLLBACK(
+            Constants.DBN_TITLE_PREFIX + "Rollback",
+            NotificationType.INFORMATION, "Connection \"{0}\" rolled back.",
+            "Error rolling back connection \"{0}\". Details: {1}",
+            false,
+            new Executor() {
+                void execute(ConnectionHandler connectionHandler) throws SQLException {
+                    connectionHandler.rollback();
+                }
+            }),
+
     DISCONNECT(
             Constants.DBN_TITLE_PREFIX + "Disconnect",
             NotificationType.INFORMATION, "Disconnected from \"{0}\"",
@@ -44,7 +55,7 @@ public enum TransactionAction implements Serializable {
 
     DISCONNECT_IDLE(
             Constants.DBN_TITLE_PREFIX + "Idle Disconnect",
-            NotificationType.INFORMATION, "Disconnected from \"{0}\" because of idle timeout",
+            NotificationType.WARNING, "Disconnected from \"{0}\" because of idle timeout",
             "Error disconnecting from \"{0}\". Details: {1}",
             true,
             new Executor() {
