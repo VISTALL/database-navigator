@@ -480,7 +480,7 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
                     }
                 }
 
-                if (action == TransactionAction.ROLLBACK || action == TransactionAction.SILENT_ROLLBACK) {
+                if (action == TransactionAction.ROLLBACK || action == TransactionAction.ROLLBACK_IDLE) {
                     if (editorTable.isEditing()) {
                         editorTable.stopCellEditing();
                     }

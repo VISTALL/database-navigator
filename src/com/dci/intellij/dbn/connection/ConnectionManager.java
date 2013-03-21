@@ -4,6 +4,7 @@ import com.dci.intellij.dbn.browser.DatabaseBrowserManager;
 import com.dci.intellij.dbn.common.AbstractProjectComponent;
 import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.common.option.InteractiveOptionHandler;
+import com.dci.intellij.dbn.common.thread.BackgroundTask;
 import com.dci.intellij.dbn.common.thread.SimpleLaterInvocator;
 import com.dci.intellij.dbn.common.ui.MessageDialog;
 import com.dci.intellij.dbn.common.util.EditorUtil;
@@ -17,6 +18,7 @@ import com.dci.intellij.dbn.connection.transaction.TransactionAction;
 import com.intellij.ProjectTopics;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
+import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.ModuleAdapter;
 import com.intellij.openapi.project.ModuleListener;
 import com.intellij.openapi.project.Project;
@@ -38,6 +40,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class ConnectionManager extends AbstractProjectComponent implements ProjectManagerListener{
+    public static final int FIVE_MINUTES_TIMEOUT = 1000 * 60 * 5;
     private List<ConnectionBundle> connectionBundles = new ArrayList<ConnectionBundle>();
     private Timer idleConnectionCleaner;
 
@@ -48,12 +51,13 @@ public class ConnectionManager extends AbstractProjectComponent implements Proje
                     "Please specify whether to commit or rollback these changes before closing the project",
                     2, "Commit", "Rollback", "Review Changes", "Cancel");
 
-    private InteractiveOptionHandler automaticDisconnectOptionHandler = new InteractiveOptionHandler(
-            "Idle connection ",
-            "The connection \"{0}\" is been idle for more than {1} minutes. You have uncommitted changes on this connection. \n" +
-                    "Please specify whether to commit / rollback the changes or keep the connection alive for {2} more minutes. \n\n" +
-                    "NOTE: Connection will automatically close in 3 minutes and all changes will be dropped.",
-            2, "Commit", "Rollback", "Review Changes", "Keep Alive");
+    private InteractiveOptionHandler automaticDisconnectOptionHandler =
+            new InteractiveOptionHandler(
+                    "Idle connection ",
+                    "The connection \"{0}\" is been idle for more than {1} minutes. You have uncommitted changes on this connection. \n" +
+                            "Please specify whether to commit or rollback the changes. You can chose to keep the connection alive for {2} more minutes. \n\n" +
+                            "NOTE: Connection will close automatically if this prompt stais unattended for more than 5 minutes.",
+                    2, "Commit", "Rollback", "Review Changes", "Keep Alive");
 
 
     public static ConnectionManager getInstance(Project project) {
@@ -304,6 +308,15 @@ public class ConnectionManager extends AbstractProjectComponent implements Proje
                 if (idleMinutes > idleMinutesToDisconnect) {
                     if (connectionHandler.hasUncommittedChanges()) {
                         connectionStatus.setResolvingIdleStatus(true);
+                        new BackgroundTask(getProject(), "Close idle connection " + connectionHandler.getName(), true, false) {
+                            protected void execute(@NotNull ProgressIndicator progressIndicator) throws InterruptedException {
+                                Thread.currentThread().sleep(FIVE_MINUTES_TIMEOUT);
+                                if (connectionHandler.getConnectionStatus().isResolvingIdleStatus()) {
+                                    transactionManager.execute(connectionHandler, false, TransactionAction.ROLLBACK, TransactionAction.DISCONNECT_IDLE);
+                                }
+                            }
+                        }.start();
+
                         new SimpleLaterInvocator() {
                             public void run() {
                                 int result = automaticDisconnectOptionHandler.resolve(
@@ -311,11 +324,14 @@ public class ConnectionManager extends AbstractProjectComponent implements Proje
                                         Integer.toString(idleMinutes),
                                         Integer.toString(idleMinutesToDisconnect));
 
-                                switch (result) {
-                                    case 0: transactionManager.execute(connectionHandler, false, TransactionAction.COMMIT); break;
-                                    case 1: transactionManager.execute(connectionHandler, false, TransactionAction.ROLLBACK, TransactionAction.DISCONNECT_IDLE); break;
-                                    case 2: transactionManager.showUncommittedChangesDialog(connectionHandler, TransactionAction.DISCONNECT_IDLE); break;
-                                    case 3: transactionManager.execute(connectionHandler, false, TransactionAction.KEEP_ALIVE); break;
+                                if (connectionHandler.getConnectionStatus().isResolvingIdleStatus()) {
+                                    // status was not resolved by the prompt timeout
+                                    switch (result) {
+                                        case 0: transactionManager.execute(connectionHandler, false, TransactionAction.COMMIT); break;
+                                        case 1: transactionManager.execute(connectionHandler, false, TransactionAction.ROLLBACK_IDLE, TransactionAction.DISCONNECT_IDLE); break;
+                                        case 2: transactionManager.showUncommittedChangesDialog(connectionHandler, TransactionAction.DISCONNECT_IDLE); break;
+                                        case 3: transactionManager.execute(connectionHandler, false, TransactionAction.PING); break;
+                                    }
                                 }
                             }
                         }.start();

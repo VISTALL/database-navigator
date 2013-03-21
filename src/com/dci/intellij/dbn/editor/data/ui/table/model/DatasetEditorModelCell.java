@@ -116,7 +116,7 @@ public class DatasetEditorModelCell extends ResultSetDataModelCell implements Ch
             if (!row.isInsert() && !connectionHandler.isAutoCommit()) {
                 isModified = true;
                 row.setModified(true);
-                connectionHandler.keepAlive(false);
+                connectionHandler.ping(false);
             }
         }
     }
