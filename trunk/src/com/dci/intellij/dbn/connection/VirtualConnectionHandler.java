@@ -119,7 +119,7 @@ public class VirtualConnectionHandler implements ConnectionHandler {
     public boolean isValid(boolean check) {return true;}
     public boolean isValid() {return true;}
     public void disconnect() {}
-    public void keepAlive() {}
+    public void keepAlive(boolean check) {}
     public int getIdleMinutes() {return 0;}
 
     public ConnectionHandler clone() {return null;}

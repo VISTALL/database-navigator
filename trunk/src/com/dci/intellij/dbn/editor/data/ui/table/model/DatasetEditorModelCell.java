@@ -112,9 +112,11 @@ public class DatasetEditorModelCell extends ResultSetDataModelCell implements Ch
             DatasetEditorError error = new DatasetEditorError(errorMessage, getColumnInfo().getColumn());
             getRow().notifyError(error, true, true);
             setUserValue(userValue);
-            if (!row.isInsert() && !getConnectionHandler().isAutoCommit()) {
+            ConnectionHandler connectionHandler = getConnectionHandler();
+            if (!row.isInsert() && !connectionHandler.isAutoCommit()) {
                 isModified = true;
                 row.setModified(true);
+                connectionHandler.keepAlive(false);
             }
         }
     }

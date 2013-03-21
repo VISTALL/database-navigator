@@ -139,9 +139,9 @@ public class ConnectionPool implements Disposable {
         return standaloneConnection == null ? 0 : standaloneConnection.getIdleMinutes();
     }
 
-    public void keepAlive() {
+    public void keepAlive(boolean check) {
         if (standaloneConnection != null) {
-            standaloneConnection.isValid();
+            if (check) standaloneConnection.isValid();
             standaloneConnection.keepAlive();
         }
     }
