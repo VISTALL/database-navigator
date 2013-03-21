@@ -74,5 +74,5 @@ public interface ConnectionHandler extends Disposable{
     boolean isConnected();
     boolean isDisposed();
     int getIdleMinutes();
-    void keepAlive();
+    void keepAlive(boolean check);
 }

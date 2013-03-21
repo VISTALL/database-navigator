@@ -168,8 +168,8 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
     }
 
     @Override
-    public void keepAlive() {
-        connectionPool.keepAlive();
+    public void keepAlive(boolean check) {
+        connectionPool.keepAlive(check);
     }
 
     public boolean isValid() {

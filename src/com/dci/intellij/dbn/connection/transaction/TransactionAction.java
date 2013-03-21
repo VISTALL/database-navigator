@@ -73,7 +73,7 @@ public enum TransactionAction implements Serializable {
             new Executor() {
                 @Override
                 void execute(ConnectionHandler connectionHandler) throws SQLException {
-                    connectionHandler.keepAlive();
+                    connectionHandler.keepAlive(true);
                     connectionHandler.getConnectionStatus().setResolvingIdleStatus(false);
                 }
             }),
