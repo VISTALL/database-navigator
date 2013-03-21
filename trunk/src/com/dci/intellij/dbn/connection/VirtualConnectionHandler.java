@@ -114,14 +114,14 @@ public class VirtualConnectionHandler implements ConnectionHandler {
     public ConnectionPool getConnectionPool() {return null;}
     public DBObjectBundle getObjectBundle() {return null;}
     public DBSchema getUserSchema() {return null;}
-
-    public SQLConsoleFile getSQLConsoleFile() {
-        return null;
-    }
+    public SQLConsoleFile getSQLConsoleFile() {return null;}
 
     public boolean isValid(boolean check) {return true;}
     public boolean isValid() {return true;}
     public void disconnect() {}
+    public void keepAlive() {}
+    public int getIdleMinutes() {return 0;}
+
     public ConnectionHandler clone() {return null;}
     public void notifyChanges(VirtualFile virtualFile) {}
     public void resetChanges() {}

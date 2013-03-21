@@ -62,7 +62,7 @@ public class DatabaseTransactionManager extends AbstractProjectComponent impleme
         final Project project = connectionHandler.getProject();
         final String connectionName = connectionHandler.getName();
         final TransactionListener transactionListener = EventManager.notify(getProject(), TransactionListener.TOPIC);
-        new ModalTask(project, "Performing " + actions[0].getName() + " on connection " + connectionName, background) {
+        ModalTask modalTask = new ModalTask(project, "Performing " + actions[0].getName() + " on connection " + connectionName, background) {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
                 for (TransactionAction action : actions) {
@@ -75,12 +75,14 @@ public class DatabaseTransactionManager extends AbstractProjectComponent impleme
                             indicator.setIndeterminate(true);
                             indicator.setText("Performing " + action.getName() + " on connection " + connectionName);
                             action.execute(connectionHandler);
-                            NotificationUtil.sendNotification(
-                                    project,
-                                    action.getSuccessNotificationType(),
-                                    action.getName(),
-                                    action.getSuccessNotificationMessage(),
-                                    connectionName);
+                            if (action.getNotificationType() != null) {
+                                NotificationUtil.sendNotification(
+                                        project,
+                                        action.getNotificationType(),
+                                        action.getName(),
+                                        action.getSuccessNotificationMessage(),
+                                        connectionName);
+                            }
                         } catch (SQLException ex) {
                             NotificationUtil.sendErrorNotification(
                                     project,
@@ -101,7 +103,9 @@ public class DatabaseTransactionManager extends AbstractProjectComponent impleme
                     }
                 }
             }
-        }.start();
+        };
+
+        modalTask.start();
     }
 
     public void commit(final ConnectionHandler connectionHandler, boolean fromEditor, boolean background) {

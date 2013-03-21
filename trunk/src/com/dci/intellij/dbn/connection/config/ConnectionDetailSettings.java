@@ -20,6 +20,7 @@ public class ConnectionDetailSettings extends ProjectConfiguration<ConnectionDet
     private Charset charset = Charset.forName("UTF-8");
     private String environmentTypeId = EnvironmentType.DEFAULT.getId();
     private boolean autoCommit;
+    private int idleTimeToDisconnect = 30;
 
     public ConnectionDetailSettings(Project project) {
         super(project);
@@ -74,6 +75,14 @@ public class ConnectionDetailSettings extends ProjectConfiguration<ConnectionDet
         this.autoCommit = autoCommit;
     }
 
+    public int getIdleTimeToDisconnect() {
+        return idleTimeToDisconnect;
+    }
+
+    public void setIdleTimeToDisconnect(int idleTimeToDisconnect) {
+        this.idleTimeToDisconnect = idleTimeToDisconnect;
+    }
+
     /*********************************************************
      *                     Configuration                     *
      *********************************************************/
@@ -94,6 +103,7 @@ public class ConnectionDetailSettings extends ProjectConfiguration<ConnectionDet
         
         autoCommit = SettingsUtil.getBoolean(element, "auto-commit", autoCommit);
         environmentTypeId = SettingsUtil.getString(element, "environment-type", EnvironmentType.DEFAULT.getId());
+        idleTimeToDisconnect = SettingsUtil.getInteger(element, "idle-time-to-disconnect", idleTimeToDisconnect);
 
         Element propertiesElement = element.getChild("properties");
         if (propertiesElement != null) {
@@ -112,6 +122,7 @@ public class ConnectionDetailSettings extends ProjectConfiguration<ConnectionDet
         
         SettingsUtil.setBoolean(element, "auto-commit", autoCommit);
         SettingsUtil.setString(element, "environment-type", environmentTypeId);
+        SettingsUtil.setInteger(element, "idle-time-to-disconnect", idleTimeToDisconnect);
 
         if (properties.size() > 0) {
             Element propertiesElement = new Element("properties");

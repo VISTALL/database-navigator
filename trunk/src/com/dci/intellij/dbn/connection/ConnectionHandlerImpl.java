@@ -44,6 +44,7 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
     private UncommittedChangeBundle changesBundle;
 
     private boolean isDisposed;
+    private boolean checkingIdleStatus;
 
     private SQLConsoleFile sqlConsoleFile;
     private NavigationPsiCache psiCache = new NavigationPsiCache(this);
@@ -159,7 +160,16 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
             }
         }
         return isValid();
+    }
 
+    @Override
+    public int getIdleMinutes() {
+        return connectionPool.getIdleMinutes();
+    }
+
+    @Override
+    public void keepAlive() {
+        connectionPool.keepAlive();
     }
 
     public boolean isValid() {
@@ -181,9 +191,9 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
         connectionSettings.getDetailSettings().setAutoCommit(autoCommit);
     }
 
-    public void disconnect() throws SQLException {
+    public void disconnect() {
         try {
-            connectionPool.disconnect();
+            connectionPool.closeConnections();
         } finally {
             getConnectionStatus().setConnected(false);
         }
@@ -328,8 +338,6 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
         return connectionStatus.isConnected() ? Icons.CONNECTION_ACTIVE : 
                connectionStatus.isValid() ? Icons.CONNECTION_INACTIVE :
                         Icons.CONNECTION_INVALID;
-
-
     }
 
    /*********************************************************
@@ -338,7 +346,6 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
     public void dispose() {
         if (!isDisposed) {
             isDisposed = true;
-            connectionPool.disconnectSilently();
             DisposeUtil.dispose(objectBundle);
             DisposeUtil.dispose(connectionPool);
             DisposeUtil.dispose(sqlConsoleFile);
@@ -356,7 +363,7 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
         boolean refresh = this.connectionSettings.getDatabaseSettings().hashCode() != connectionSettings.getDatabaseSettings().hashCode();
         this.connectionSettings = connectionSettings;
         if (refresh) {
-            connectionPool.disconnectSilently();
+            connectionPool.closeConnections();
 
             final Project project = getProject();
             new BackgroundTask(getProject(), "Trying to connect to " + getName(), false) {

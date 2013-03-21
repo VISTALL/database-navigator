@@ -15,35 +15,36 @@ import java.util.Vector;
 
 public class ConnectionPool implements Disposable {
     private Logger logger = Logger.getInstance(getClass().getName());
-    private static final long ONE_MINUTE = 1000*60;
+    public static final long ONE_MINUTE = 1000*60;
     private int peakSize = 0;
     private boolean isDisposed;
 
     protected final Logger log = Logger.getInstance(getClass().getName());
     private ConnectionHandler connectionHandler;
 
-    private Vector<ConnectionWrapper> connections = new Vector<ConnectionWrapper>();
-    private Vector<ConnectionWrapper> allocatedConnections = new Vector<ConnectionWrapper>();
-    private Connection standaloneConnection;
+    private Vector<ConnectionWrapper> poolConnections = new Vector<ConnectionWrapper>();
+    private Vector<ConnectionWrapper> busyPoolConnections = new Vector<ConnectionWrapper>();
+    private ConnectionWrapper standaloneConnection;
+    private Timer poolCleaner;
 
     public ConnectionPool(ConnectionHandler connectionHandler) {
         this.connectionHandler = connectionHandler;
-        Timer cleaner = new Timer("Connection pool cleaner [" + connectionHandler.getName() + "]");
-        cleaner.schedule(new PoolCleanerTask(this), ONE_MINUTE, ONE_MINUTE);
+        poolCleaner = new Timer("Connection pool cleaner [" + connectionHandler.getName() + "]");
+        poolCleaner.schedule(new PoolCleanerTask(), ONE_MINUTE, ONE_MINUTE);
     }
 
     public Connection getStandaloneConnection(boolean recover) throws SQLException {
         synchronized (this) {
             if (standaloneConnection != null) {
-                DatabaseMetadataInterface metadataInterface = connectionHandler.getInterfaceProvider().getMetadataInterface();
-                if (recover && !metadataInterface.isValid(standaloneConnection)) {
+                if (recover && !standaloneConnection.isValid()) {
                     standaloneConnection = null;
                 }
             }
 
             if (standaloneConnection == null) {
                 try {
-                    standaloneConnection = ConnectionUtil.connect(connectionHandler);
+                    Connection connection = ConnectionUtil.connect(connectionHandler);
+                    standaloneConnection = new ConnectionWrapper(connection);
                     NotificationUtil.sendInfoNotification(
                             connectionHandler.getProject(),
                             Constants.DBN_TITLE_PREFIX + "Connected",
@@ -54,7 +55,7 @@ public class ConnectionPool implements Disposable {
                 }
             }
 
-            return standaloneConnection;
+            return standaloneConnection.getConnection();
         }
     }
 
@@ -66,12 +67,12 @@ public class ConnectionPool implements Disposable {
     public Connection allocateConnection() throws SQLException {
         synchronized (this) {
             ConnectionStatus connectionStatus = connectionHandler.getConnectionStatus();
-            while (connections.size() > 0) {
-                ConnectionWrapper connectionWrapper = connections.remove(0);
+            while (poolConnections.size() > 0) {
+                ConnectionWrapper connectionWrapper = poolConnections.remove(0);
                 if (connectionWrapper.isValid()) {
                     connectionStatus.setConnected(true);
                     connectionStatus.setValid(true);
-                    allocatedConnections.add(connectionWrapper);
+                    busyPoolConnections.add(connectionWrapper);
                     return connectionWrapper.getConnection();
                 }
             }
@@ -83,9 +84,9 @@ public class ConnectionPool implements Disposable {
 
             // pool connections do not need to have current schema set
             //connectionHandler.getDataDictionary().setCurrentSchema(connectionHandler.getCurrentSchemaName(), connection);
-            ConnectionWrapper connectionWrapper = new ConnectionWrapper(connectionHandler.getInterfaceProvider().getMetadataInterface(), connection);
-            allocatedConnections.add(connectionWrapper);
-            int size = allocatedConnections.size();
+            ConnectionWrapper connectionWrapper = new ConnectionWrapper(connection);
+            busyPoolConnections.add(connectionWrapper);
+            int size = busyPoolConnections.size();
             if (size > peakSize) peakSize = size;
             logger.debug("[DBN-INFO] Pool connection for '" + connectionHandler.getName() + "' created. Pool size = " + getSize());
             return connection;
@@ -95,10 +96,10 @@ public class ConnectionPool implements Disposable {
     public void releaseConnection(Connection connection) {
         synchronized (this) {
             if (connection != null) {
-                for (ConnectionWrapper connectionWrapper : allocatedConnections) {
+                for (ConnectionWrapper connectionWrapper : busyPoolConnections) {
                     if (connectionWrapper.getConnection() == connection) {
-                        allocatedConnections.remove(connectionWrapper);
-                        connections.add(connectionWrapper);
+                        busyPoolConnections.remove(connectionWrapper);
+                        poolConnections.add(connectionWrapper);
                         break;
                     }
                 }
@@ -106,32 +107,33 @@ public class ConnectionPool implements Disposable {
         }
     }
 
-    public void disconnect() throws SQLException {
+    public synchronized void closeConnections() {
         synchronized (this) {
-            while (connections.size() > 0) {
-                ConnectionWrapper connectionWrapper = connections.remove(0);
-                ConnectionUtil.closeConnection(connectionWrapper.getConnection());
+            while (poolConnections.size() > 0) {
+                ConnectionWrapper connectionWrapper = poolConnections.remove(0);
+                connectionWrapper.closeConnection();
             }
 
             if (standaloneConnection != null) {
-                standaloneConnection.close();
+                standaloneConnection.closeConnection();
+                standaloneConnection = null;
             }
         }
     }
 
-    public void disconnectSilently(){
-        synchronized (this) {
-            while (connections.size() > 0) {
-                ConnectionWrapper connectionWrapper = connections.remove(0);
-                ConnectionUtil.closeConnection(connectionWrapper.getConnection());
-            }
+    public int getIdleMinutes() {
+        return standaloneConnection == null ? 0 : standaloneConnection.getIdleMinutes();
+    }
 
-            ConnectionUtil.closeConnection(standaloneConnection);
+    public void keepAlive() {
+        if (standaloneConnection != null) {
+            standaloneConnection.isValid();
+            standaloneConnection.keepAlive();
         }
     }
 
     public int getSize() {
-        return allocatedConnections.size();
+        return busyPoolConnections.size();
     }
 
     public int getPeakSize() {
@@ -141,6 +143,8 @@ public class ConnectionPool implements Disposable {
     public void dispose() {
         if (!isDisposed) {
             isDisposed = true;
+            poolCleaner.cancel();
+            closeConnections();
             connectionHandler = null;
         }
     }
@@ -150,27 +154,22 @@ public class ConnectionPool implements Disposable {
             standaloneConnection.setAutoCommit(autoCommit);
         }
 
-        for (ConnectionWrapper connection : connections) {
-            if (!connection.connection.isClosed()) {
-                connection.connection.setAutoCommit(autoCommit);
+        for (ConnectionWrapper connection : poolConnections) {
+            if (!connection.isClosed()) {
+                connection.setAutoCommit(autoCommit);
             }
         }
     }
 
     private class PoolCleanerTask extends TimerTask {
-        ConnectionPool connectionPool;
-        private PoolCleanerTask(ConnectionPool connectionPool) {
-            this.connectionPool = connectionPool;
-        }
-
         public void run() {
             // close connections only if pool is passive
             synchronized (ConnectionPool.this) {
-                if (connectionPool.allocatedConnections.isEmpty() && !connectionPool.connections.isEmpty()) {
-                    for (ConnectionWrapper connectionWrapper : connectionPool.connections) {
-                        ConnectionUtil.closeConnection(connectionWrapper.getConnection());
+                if (busyPoolConnections.isEmpty() && !poolConnections.isEmpty()) {
+                    for (ConnectionWrapper connectionWrapper : poolConnections) {
+                        connectionWrapper.closeConnection();
                     }
-                    connectionPool.connections.clear();
+                    poolConnections.clear();
                     logger.debug("[DBN-INFO] Clearing pool for connection '" + connectionHandler.getName() + "'");
                 }
             }
@@ -179,26 +178,51 @@ public class ConnectionPool implements Disposable {
 
 
     private class ConnectionWrapper {
-        private DatabaseMetadataInterface metadataInterface;
         private Connection connection;
         private long lastCheckTimestamp;
+        private long lastAccessTimestamp;
 
-        public ConnectionWrapper(DatabaseMetadataInterface metadataInterface, Connection connection) {
-            this.metadataInterface = metadataInterface;
+        public ConnectionWrapper(Connection connection) {
             this.connection = connection;
+            long currentTimeMillis = System.currentTimeMillis();
+            lastCheckTimestamp = currentTimeMillis;
+            lastAccessTimestamp = currentTimeMillis;
         }
 
         public boolean isValid() {
             long currentTimeMillis = System.currentTimeMillis();
             if (currentTimeMillis - lastCheckTimestamp > 5000) {
                 lastCheckTimestamp = currentTimeMillis;
+                DatabaseMetadataInterface metadataInterface = connectionHandler.getInterfaceProvider().getMetadataInterface();
                 return metadataInterface.isValid(connection);
             }
             return true;
         }
 
+        public int getIdleMinutes() {
+            long idleTimeMillis = System.currentTimeMillis() - lastAccessTimestamp;
+            return (int) (idleTimeMillis / ONE_MINUTE);
+        }
+
         public Connection getConnection() {
+            lastAccessTimestamp = System.currentTimeMillis();
             return connection;
+        }
+
+        public void closeConnection() {
+            ConnectionUtil.closeConnection(connection);
+        }
+
+        public void setAutoCommit(boolean autoCommit) throws SQLException {
+            connection.setAutoCommit(autoCommit);
+        }
+
+        public boolean isClosed() throws SQLException {
+            return connection.isClosed();
+        }
+
+        public void keepAlive() {
+            lastAccessTimestamp = System.currentTimeMillis();
         }
     }
 }
