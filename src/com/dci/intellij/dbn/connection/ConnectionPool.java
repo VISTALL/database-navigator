@@ -107,7 +107,7 @@ public class ConnectionPool implements Disposable {
         }
     }
 
-    public synchronized void closeConnections() {
+    public synchronized void closeConnectionsSilently() {
         synchronized (this) {
             while (poolConnections.size() > 0) {
                 ConnectionWrapper connectionWrapper = poolConnections.remove(0);
@@ -116,6 +116,20 @@ public class ConnectionPool implements Disposable {
 
             if (standaloneConnection != null) {
                 standaloneConnection.closeConnection();
+                standaloneConnection = null;
+            }
+        }
+    }
+
+    public synchronized void closeConnections() throws SQLException {
+        synchronized (this) {
+            while (poolConnections.size() > 0) {
+                ConnectionWrapper connectionWrapper = poolConnections.remove(0);
+                connectionWrapper.getConnection().close();
+            }
+
+            if (standaloneConnection != null) {
+                standaloneConnection.getConnection().close();
                 standaloneConnection = null;
             }
         }
@@ -144,7 +158,7 @@ public class ConnectionPool implements Disposable {
         if (!isDisposed) {
             isDisposed = true;
             poolCleaner.cancel();
-            closeConnections();
+            closeConnectionsSilently();
             connectionHandler = null;
         }
     }

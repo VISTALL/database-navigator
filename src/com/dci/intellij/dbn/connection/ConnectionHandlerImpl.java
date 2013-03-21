@@ -191,7 +191,7 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
         connectionSettings.getDetailSettings().setAutoCommit(autoCommit);
     }
 
-    public void disconnect() {
+    public void disconnect() throws SQLException {
         try {
             connectionPool.closeConnections();
         } finally {
@@ -363,7 +363,7 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
         boolean refresh = this.connectionSettings.getDatabaseSettings().hashCode() != connectionSettings.getDatabaseSettings().hashCode();
         this.connectionSettings = connectionSettings;
         if (refresh) {
-            connectionPool.closeConnections();
+            connectionPool.closeConnectionsSilently();
 
             final Project project = getProject();
             new BackgroundTask(getProject(), "Trying to connect to " + getName(), false) {

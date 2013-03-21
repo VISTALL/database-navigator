@@ -51,7 +51,8 @@ public class ConnectionManager extends AbstractProjectComponent implements Proje
     private InteractiveOptionHandler automaticDisconnectOptionHandler = new InteractiveOptionHandler(
             "Idle connection ",
             "The connection \"{0}\" is been idle for more than {1} minutes. You have uncommitted changes on this connection. \n" +
-                    "Please specify whether to commit / rollback the changes or keep the connection alive for {2} more minutes.",
+                    "Please specify whether to commit / rollback the changes or keep the connection alive for {2} more minutes. \n\n" +
+                    "NOTE: Connection will automatically close in 3 minutes and all changes will be dropped.",
             2, "Commit", "Rollback", "Review Changes", "Keep Alive");
 
 
@@ -311,7 +312,7 @@ public class ConnectionManager extends AbstractProjectComponent implements Proje
                                         Integer.toString(idleMinutesToDisconnect));
 
                                 switch (result) {
-                                    case 0: transactionManager.execute(connectionHandler, false, TransactionAction.COMMIT, TransactionAction.DISCONNECT_IDLE); break;
+                                    case 0: transactionManager.execute(connectionHandler, false, TransactionAction.COMMIT); break;
                                     case 1: transactionManager.execute(connectionHandler, false, TransactionAction.ROLLBACK, TransactionAction.DISCONNECT_IDLE); break;
                                     case 2: transactionManager.showUncommittedChangesDialog(connectionHandler, TransactionAction.DISCONNECT_IDLE); break;
                                     case 3: transactionManager.execute(connectionHandler, false, TransactionAction.KEEP_ALIVE); break;
