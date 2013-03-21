@@ -7,6 +7,7 @@ import com.dci.intellij.dbn.common.environment.options.EnvironmentPresentationCh
 import com.dci.intellij.dbn.common.environment.options.EnvironmentSettings;
 import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.common.options.ui.ConfigurationEditorForm;
+import com.dci.intellij.dbn.common.options.ui.ConfigurationEditorUtil;
 import com.dci.intellij.dbn.common.properties.ui.PropertiesEditorForm;
 import com.dci.intellij.dbn.common.ui.ComboBoxUtil;
 import com.dci.intellij.dbn.connection.ConnectionStatusListener;
@@ -26,6 +27,7 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
@@ -44,6 +46,7 @@ public class ConnectionDetailSettingsForm extends ConfigurationEditorForm<Connec
     private JPanel headerPanel;
     private JPanel generalGroupPanel;
     private JPanel propertiesGroupPanel;
+    private JTextField idleTimeTextField;
 
     private PropertiesEditorForm propertiesEditorForm;
     private String connectionId;
@@ -71,6 +74,7 @@ public class ConnectionDetailSettingsForm extends ConfigurationEditorForm<Connec
         registerComponent(propertiesPanel);
         registerComponent(encodingComboBox);
         registerComponent(autoCommitCheckBox);
+        registerComponent(idleTimeTextField);
         registerComponent(environmentTypesComboBox);
 
         environmentTypesComboBox.setRenderer(environmentTypeCellRenderer);
@@ -162,6 +166,8 @@ public class ConnectionDetailSettingsForm extends ConfigurationEditorForm<Connec
         configuration.setProperties(newProperties);
         configuration.setCharset(newCharset);
         configuration.setAutoCommit(newAutoCommit);
+        int idleTimeToDisconnect = ConfigurationEditorUtil.validateIntegerInputValue(idleTimeTextField, "Idle Time to Disconnect (minutes)", 0, 60, "");
+        configuration.setIdleTimeToDisconnect(idleTimeToDisconnect);
 
         Project project = getConfiguration().getProject();
         if (environmentChanged) {
@@ -183,6 +189,7 @@ public class ConnectionDetailSettingsForm extends ConfigurationEditorForm<Connec
         propertiesEditorForm.setProperties(configuration.getProperties());
         autoCommitCheckBox.setSelected(configuration.isAutoCommit());
         environmentTypesComboBox.setSelectedItem(configuration.getEnvironmentType());
+        idleTimeTextField.setText(Integer.toString(configuration.getIdleTimeToDisconnect()));
     }
 
     @Override

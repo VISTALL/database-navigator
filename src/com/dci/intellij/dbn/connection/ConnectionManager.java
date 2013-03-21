@@ -4,6 +4,7 @@ import com.dci.intellij.dbn.browser.DatabaseBrowserManager;
 import com.dci.intellij.dbn.common.AbstractProjectComponent;
 import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.common.option.InteractiveOptionHandler;
+import com.dci.intellij.dbn.common.thread.SimpleLaterInvocator;
 import com.dci.intellij.dbn.common.ui.MessageDialog;
 import com.dci.intellij.dbn.common.util.EditorUtil;
 import com.dci.intellij.dbn.connection.config.ConnectionBundleSettingsListener;
@@ -12,6 +13,7 @@ import com.dci.intellij.dbn.connection.config.ConnectionDetailSettings;
 import com.dci.intellij.dbn.connection.config.ConnectionSettings;
 import com.dci.intellij.dbn.connection.mapping.FileConnectionMappingManager;
 import com.dci.intellij.dbn.connection.transaction.DatabaseTransactionManager;
+import com.dci.intellij.dbn.connection.transaction.TransactionAction;
 import com.intellij.ProjectTopics;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
@@ -32,9 +34,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class ConnectionManager extends AbstractProjectComponent implements ProjectManagerListener{
     private List<ConnectionBundle> connectionBundles = new ArrayList<ConnectionBundle>();
+    private Timer idleConnectionCleaner;
 
     private InteractiveOptionHandler closeProjectOptionHandler =
             new InteractiveOptionHandler(
@@ -42,6 +47,12 @@ public class ConnectionManager extends AbstractProjectComponent implements Proje
                     "You have uncommitted changes on one or more connections for project \"{0}\". \n" +
                     "Please specify whether to commit or rollback these changes before closing the project",
                     2, "Commit", "Rollback", "Review Changes", "Cancel");
+
+    private InteractiveOptionHandler automaticDisconnectOptionHandler = new InteractiveOptionHandler(
+            "Idle connection ",
+            "The connection \"{0}\" is been idle for more than {1} minutes. You have uncommitted changes on this connection. \n" +
+                    "Please specify whether to commit / rollback the changes or keep the connection alive for {2} more minutes.",
+            2, "Commit", "Rollback", "Review Changes", "Keep Alive");
 
 
     public static ConnectionManager getInstance(Project project) {
@@ -61,10 +72,13 @@ public class ConnectionManager extends AbstractProjectComponent implements Proje
         EventManager.subscribe(project, ProjectTopics.MODULES, moduleListener);
         EventManager.subscribe(project, ConnectionBundleSettingsListener.TOPIC, connectionBundleSettingsListener);
         initConnectionBundles();
+        idleConnectionCleaner = new Timer("Idle connection cleaner [" + project.getName() + "]");
+        idleConnectionCleaner.schedule(new CloseIdleConnectionTask(), ConnectionPool.ONE_MINUTE, ConnectionPool.ONE_MINUTE);
     }
 
     @Override
     public void disposeComponent() {
+        idleConnectionCleaner.cancel();
         EventManager.unsubscribe(
                 moduleListener,
                 connectionBundleSettingsListener);
@@ -267,6 +281,46 @@ public class ConnectionManager extends AbstractProjectComponent implements Proje
             for (ConnectionHandler connectionHandler : connectionBundle.getConnectionHandlers()) {
                 if (connectionHandler.hasUncommittedChanges()) {
                     transactionManager.rollback(connectionHandler, false, false);
+                }
+            }
+        }
+    }
+
+    private class CloseIdleConnectionTask extends TimerTask {
+        public void run() {
+            for (ConnectionBundle connectionBundle : getConnectionBundles()) {
+                for (ConnectionHandler connectionHandler : connectionBundle.getConnectionHandlers()) {
+                    resolveIdleStatus(connectionHandler);
+                }
+            }
+        }
+        private void resolveIdleStatus(final ConnectionHandler connectionHandler) {
+            final DatabaseTransactionManager transactionManager = DatabaseTransactionManager.getInstance(getProject());
+            ConnectionStatus connectionStatus = connectionHandler.getConnectionStatus();
+            if (!connectionStatus.isResolvingIdleStatus()) {
+                final int idleMinutes = connectionHandler.getIdleMinutes();
+                final int idleMinutesToDisconnect = connectionHandler.getSettings().getDetailSettings().getIdleTimeToDisconnect();
+                if (idleMinutes > idleMinutesToDisconnect) {
+                    if (connectionHandler.hasUncommittedChanges()) {
+                        connectionStatus.setResolvingIdleStatus(true);
+                        new SimpleLaterInvocator() {
+                            public void run() {
+                                int result = automaticDisconnectOptionHandler.resolve(
+                                        connectionHandler.getName(),
+                                        Integer.toString(idleMinutes),
+                                        Integer.toString(idleMinutesToDisconnect));
+
+                                switch (result) {
+                                    case 0: transactionManager.execute(connectionHandler, false, TransactionAction.COMMIT, TransactionAction.DISCONNECT_IDLE); break;
+                                    case 1: transactionManager.execute(connectionHandler, false, TransactionAction.ROLLBACK, TransactionAction.DISCONNECT_IDLE); break;
+                                    case 2: transactionManager.showUncommittedChangesDialog(connectionHandler, TransactionAction.DISCONNECT_IDLE); break;
+                                    case 3: transactionManager.execute(connectionHandler, false, TransactionAction.KEEP_ALIVE); break;
+                                }
+                            }
+                        }.start();
+                    } else {
+                        transactionManager.execute(connectionHandler, false, TransactionAction.DISCONNECT_IDLE);
+                    }
                 }
             }
         }
