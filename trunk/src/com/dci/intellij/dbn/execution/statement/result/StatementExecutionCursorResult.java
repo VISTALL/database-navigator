@@ -60,7 +60,7 @@ public class StatementExecutionCursorResult extends StatementExecutionBasicResul
                 resultPanel.highlightLoading(true);
                 long startTimeMillis = System.currentTimeMillis();
                 try {
-                    Connection connection = getConnectionHandler().getStandaloneConnection();
+                    Connection connection = getConnectionHandler().getStandaloneConnection(getExecutionProcessor().getCurrentSchema());
                     Statement statement = connection.createStatement();
                     statement.setQueryTimeout(getQueryExecutionSettings().getExecutionTimeout());
                     statement.execute(getExecutionInput().getExecuteStatement());
