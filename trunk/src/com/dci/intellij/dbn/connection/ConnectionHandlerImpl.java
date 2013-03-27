@@ -102,20 +102,17 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
     }
 
     public void commit() throws SQLException {
-        connectionStatus.setResolvingIdleStatus(false);
         connectionPool.getStandaloneConnection(false).commit();
         changesBundle = null;
     }
 
     public void rollback() throws SQLException {
-        connectionStatus.setResolvingIdleStatus(false);
         connectionPool.getStandaloneConnection(false).rollback();
         changesBundle = null;
     }
 
     @Override
     public void ping(boolean check) {
-        connectionStatus.setResolvingIdleStatus(false);
         connectionPool.keepAlive(check);
     }
 
