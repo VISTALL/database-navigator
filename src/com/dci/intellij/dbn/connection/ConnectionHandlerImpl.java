@@ -172,7 +172,7 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
 
     @Override
     public int getIdleMinutes() {
-        return connectionPool.getIdleMinutes();
+        return connectionPool == null ? 0 : connectionPool.getIdleMinutes();
     }
 
     public boolean isValid() {
