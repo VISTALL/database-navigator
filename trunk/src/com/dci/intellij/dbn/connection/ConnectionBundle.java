@@ -82,7 +82,7 @@ public abstract class ConnectionBundle
     }
 
     public ConnectionHandler getConnection(String id) {
-        for (ConnectionHandler connectionHandler : connectionHandlers){
+        for (ConnectionHandler connectionHandler : connectionHandlers.getFullList()){
             if (connectionHandler.getId().equals(id)) return connectionHandler;
         }
         return null;
