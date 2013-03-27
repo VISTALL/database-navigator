@@ -56,7 +56,7 @@ public class ConnectionManager extends AbstractProjectComponent implements Proje
                     "Idle connection ",
                     "The connection \"{0}\" is been idle for more than {1} minutes. You have uncommitted changes on this connection. \n" +
                             "Please specify whether to commit or rollback the changes. You can chose to keep the connection alive for {2} more minutes. \n\n" +
-                            "NOTE: Connection will close automatically if this prompt stais unattended for more than 5 minutes.",
+                            "NOTE: Connection will close automatically if this prompt stays unattended for more than 5 minutes.",
                     2, "Commit", "Rollback", "Review Changes", "Keep Alive");
 
 
@@ -301,7 +301,7 @@ public class ConnectionManager extends AbstractProjectComponent implements Proje
         }
         private void resolveIdleStatus(final ConnectionHandler connectionHandler) {
             final DatabaseTransactionManager transactionManager = DatabaseTransactionManager.getInstance(getProject());
-            ConnectionStatus connectionStatus = connectionHandler.getConnectionStatus();
+            final ConnectionStatus connectionStatus = connectionHandler.getConnectionStatus();
             if (!connectionStatus.isResolvingIdleStatus()) {
                 final int idleMinutes = connectionHandler.getIdleMinutes();
                 final int idleMinutesToDisconnect = connectionHandler.getSettings().getDetailSettings().getIdleTimeToDisconnect();
@@ -332,6 +332,7 @@ public class ConnectionManager extends AbstractProjectComponent implements Proje
                                         case 2: transactionManager.showUncommittedChangesDialog(connectionHandler, TransactionAction.DISCONNECT_IDLE); break;
                                         case 3: transactionManager.execute(connectionHandler, false, TransactionAction.PING); break;
                                     }
+                                    connectionStatus.setResolvingIdleStatus(false);
                                 }
                             }
                         }.start();
