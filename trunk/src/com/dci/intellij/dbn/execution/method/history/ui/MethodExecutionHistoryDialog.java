@@ -6,6 +6,7 @@ import com.dci.intellij.dbn.execution.method.MethodExecutionInput;
 import com.dci.intellij.dbn.execution.method.MethodExecutionManager;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.AbstractAction;
@@ -42,6 +43,7 @@ public class MethodExecutionHistoryDialog extends DBNDialog implements Disposabl
         return mainComponent.getComponent();
     }
 
+    @NotNull
     protected final Action[] createActions() {
         if (select) {
             executeAction = new ExecuteAction();

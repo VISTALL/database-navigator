@@ -20,11 +20,9 @@ import java.awt.event.ActionEvent;
 public class GlobalProjectSettingsDialog extends DBNDialog {
     private JButton bApply;
     private GlobalProjectSettings globalSettings;
-    private Project project;
 
     public GlobalProjectSettingsDialog(Project project) {
         super(project, "Settings", true);
-        this.project = project;
         setModal(true);
         setResizable(true);
         //setHorizontalStretch(1.5f);
@@ -38,7 +36,7 @@ public class GlobalProjectSettingsDialog extends DBNDialog {
     }
 
     protected JComponent createCenterPanel() {
-        return GlobalProjectSettings.getInstance(project).createCustomComponent();
+        return GlobalProjectSettings.getInstance(getProject()).createCustomComponent();
     }
 
     public void dispose() {

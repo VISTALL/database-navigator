@@ -1,5 +1,7 @@
 package com.dci.intellij.dbn.common.ui.dialog;
 
+import com.dci.intellij.dbn.common.TimeUtil;
+import com.dci.intellij.dbn.common.thread.SimpleLaterInvocator;
 import com.dci.intellij.dbn.common.ui.UIFormImpl;
 
 import javax.swing.JComponent;
@@ -12,8 +14,11 @@ public class DBNDialogWithTimeoutForm extends UIFormImpl{
     private JPanel contentPanel;
     private JLabel timeLeftLabel;
 
-    public DBNDialogWithTimeoutForm(JComponent contentComponent, int secondsLeft) {
+    public DBNDialogWithTimeoutForm(int secondsLeft) {
         updateTimeLeft(secondsLeft);
+    }
+
+    public void setContentComponent(JComponent contentComponent) {
         contentPanel.add(contentComponent, BorderLayout.CENTER);
     }
 
@@ -22,7 +27,18 @@ public class DBNDialogWithTimeoutForm extends UIFormImpl{
         return mainPanel;
     }
 
-    public void updateTimeLeft(int secondsLeft) {
-        timeLeftLabel.setText(secondsLeft + " s");
+    public void updateTimeLeft(final int secondsLeft) {
+        new SimpleLaterInvocator() {
+            @Override
+            public void run() {
+                int minutes = 0;
+                int seconds = secondsLeft;
+                if (secondsLeft > 60) {
+                    minutes = TimeUtil.getMinutes(secondsLeft);
+                    seconds = secondsLeft - TimeUtil.getSeconds(minutes);
+                }
+                timeLeftLabel.setText(minutes +":" + (seconds < 10 ? "0" :"") + seconds + " minutes");
+            }
+        }.start();
     }
 }

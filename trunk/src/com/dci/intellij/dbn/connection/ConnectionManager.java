@@ -2,10 +2,9 @@ package com.dci.intellij.dbn.connection;
 
 import com.dci.intellij.dbn.browser.DatabaseBrowserManager;
 import com.dci.intellij.dbn.common.AbstractProjectComponent;
-import com.dci.intellij.dbn.common.Time;
+import com.dci.intellij.dbn.common.TimeUtil;
 import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.common.option.InteractiveOptionHandler;
-import com.dci.intellij.dbn.common.thread.BackgroundTask;
 import com.dci.intellij.dbn.common.thread.SimpleLaterInvocator;
 import com.dci.intellij.dbn.common.ui.dialog.MessageDialog;
 import com.dci.intellij.dbn.common.util.EditorUtil;
@@ -16,10 +15,10 @@ import com.dci.intellij.dbn.connection.config.ConnectionSettings;
 import com.dci.intellij.dbn.connection.mapping.FileConnectionMappingManager;
 import com.dci.intellij.dbn.connection.transaction.DatabaseTransactionManager;
 import com.dci.intellij.dbn.connection.transaction.TransactionAction;
+import com.dci.intellij.dbn.connection.transaction.ui.IdleConnectionDialog;
 import com.intellij.ProjectTopics;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
-import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.ModuleAdapter;
 import com.intellij.openapi.project.ModuleListener;
 import com.intellij.openapi.project.Project;
@@ -78,7 +77,7 @@ public class ConnectionManager extends AbstractProjectComponent implements Proje
         EventManager.subscribe(project, ConnectionBundleSettingsListener.TOPIC, connectionBundleSettingsListener);
         initConnectionBundles();
         idleConnectionCleaner = new Timer("Idle connection cleaner [" + project.getName() + "]");
-        idleConnectionCleaner.schedule(new CloseIdleConnectionTask(), Time.ONE_MINUTE, Time.ONE_MINUTE);
+        idleConnectionCleaner.schedule(new CloseIdleConnectionTask(), TimeUtil.ONE_MINUTE, TimeUtil.ONE_MINUTE);
     }
 
     @Override
@@ -307,7 +306,18 @@ public class ConnectionManager extends AbstractProjectComponent implements Proje
                 final int idleMinutesToDisconnect = connectionHandler.getSettings().getDetailSettings().getIdleTimeToDisconnect();
                 if (idleMinutes > idleMinutesToDisconnect) {
                     if (connectionHandler.hasUncommittedChanges()) {
-                        connectionStatus.setResolvingIdleStatus(true);
+                        connectionHandler.getConnectionStatus().setResolvingIdleStatus(true);
+                        new SimpleLaterInvocator() {
+                            public void run() {
+                                IdleConnectionDialog idleConnectionDialog = new IdleConnectionDialog(connectionHandler);
+                                idleConnectionDialog.show();
+                            }
+                        }.start();
+
+
+
+/*                        connectionStatus.setResolvingIdleStatus(true);
+
                         new BackgroundTask(getProject(), "Close idle connection " + connectionHandler.getName(), true, false) {
                             protected void execute(@NotNull ProgressIndicator progressIndicator) throws InterruptedException {
                                 Thread.sleep(Time.FIVE_MINUTES);
@@ -336,6 +346,7 @@ public class ConnectionManager extends AbstractProjectComponent implements Proje
                                 }
                             }
                         }.start();
+*/
                     } else {
                         transactionManager.execute(connectionHandler, false, TransactionAction.DISCONNECT_IDLE);
                     }
