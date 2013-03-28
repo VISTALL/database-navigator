@@ -5,6 +5,7 @@ import com.dci.intellij.dbn.common.ui.dialog.DBNDialog;
 import com.dci.intellij.dbn.execution.compiler.CompileType;
 import com.dci.intellij.dbn.object.common.DBSchemaObject;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.AbstractAction;
@@ -33,6 +34,7 @@ public class CompilerTypeSelectionDialog extends DBNDialog {
         return editorForm.rememberSelection();
     }
 
+    @NotNull
     protected final Action[] createActions() {
         return new Action[]{
                 new CompileKeep(),

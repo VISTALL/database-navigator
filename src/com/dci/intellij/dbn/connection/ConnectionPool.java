@@ -1,7 +1,7 @@
 package com.dci.intellij.dbn.connection;
 
 import com.dci.intellij.dbn.common.Constants;
-import com.dci.intellij.dbn.common.Time;
+import com.dci.intellij.dbn.common.TimeUtil;
 import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.common.notification.NotificationUtil;
 import com.dci.intellij.dbn.database.DatabaseMetadataInterface;
@@ -30,7 +30,7 @@ public class ConnectionPool implements Disposable {
     public ConnectionPool(ConnectionHandler connectionHandler) {
         this.connectionHandler = connectionHandler;
         poolCleaner = new Timer("Connection pool cleaner [" + connectionHandler.getName() + "]");
-        poolCleaner.schedule(new PoolCleanerTask(), Time.ONE_MINUTE, Time.ONE_MINUTE);
+        poolCleaner.schedule(new PoolCleanerTask(), TimeUtil.ONE_MINUTE, TimeUtil.ONE_MINUTE);
     }
 
     public Connection getStandaloneConnection(boolean recover) throws SQLException {
@@ -215,7 +215,7 @@ public class ConnectionPool implements Disposable {
 
         public int getIdleMinutes() {
             long idleTimeMillis = System.currentTimeMillis() - lastAccessTimestamp;
-            return (int) (idleTimeMillis / Time.ONE_MINUTE);
+            return (int) (idleTimeMillis / TimeUtil.ONE_MINUTE);
         }
 
         public Connection getConnection() {
