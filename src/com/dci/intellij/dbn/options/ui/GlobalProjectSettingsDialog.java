@@ -1,7 +1,7 @@
 package com.dci.intellij.dbn.options.ui;
 
 import com.dci.intellij.dbn.common.options.Configuration;
-import com.dci.intellij.dbn.common.ui.DBNDialog;
+import com.dci.intellij.dbn.common.ui.dialog.DBNDialog;
 import com.dci.intellij.dbn.common.util.MessageUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.options.GlobalProjectSettings;
