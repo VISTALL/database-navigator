@@ -1,7 +1,7 @@
 package com.dci.intellij.dbn.execution.compiler.ui;
 
 import com.dci.intellij.dbn.common.Icons;
-import com.dci.intellij.dbn.common.ui.DBNDialog;
+import com.dci.intellij.dbn.common.ui.dialog.DBNDialog;
 import com.dci.intellij.dbn.execution.compiler.CompileType;
 import com.dci.intellij.dbn.object.common.DBSchemaObject;
 import com.intellij.openapi.project.Project;

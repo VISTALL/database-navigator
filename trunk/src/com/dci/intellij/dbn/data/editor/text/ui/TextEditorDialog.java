@@ -1,6 +1,6 @@
 package com.dci.intellij.dbn.data.editor.text.ui;
 
-import com.dci.intellij.dbn.common.ui.DBNDialog;
+import com.dci.intellij.dbn.common.ui.dialog.DBNDialog;
 import com.dci.intellij.dbn.common.util.MessageUtil;
 import com.dci.intellij.dbn.data.editor.text.TextEditorAdapter;
 import com.dci.intellij.dbn.data.editor.ui.UserValueHolder;

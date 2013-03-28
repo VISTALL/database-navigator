@@ -1,6 +1,6 @@
 package com.dci.intellij.dbn.editor.data.filter.ui;
 
-import com.dci.intellij.dbn.common.ui.DBNDialog;
+import com.dci.intellij.dbn.common.ui.dialog.DBNDialog;
 import com.dci.intellij.dbn.editor.data.DatasetEditorManager;
 import com.dci.intellij.dbn.editor.data.filter.DatasetBasicFilter;
 import com.dci.intellij.dbn.editor.data.filter.DatasetFilter;

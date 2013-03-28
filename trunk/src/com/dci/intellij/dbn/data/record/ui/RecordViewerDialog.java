@@ -1,7 +1,7 @@
 package com.dci.intellij.dbn.data.record.ui;
 
 import com.dci.intellij.dbn.common.Icons;
-import com.dci.intellij.dbn.common.ui.DBNDialog;
+import com.dci.intellij.dbn.common.ui.dialog.DBNDialog;
 import com.dci.intellij.dbn.data.record.DatasetRecord;
 import com.dci.intellij.dbn.editor.data.DatasetEditorManager;
 import org.jetbrains.annotations.Nullable;

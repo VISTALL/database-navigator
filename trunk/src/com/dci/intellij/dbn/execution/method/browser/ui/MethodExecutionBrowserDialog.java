@@ -1,6 +1,6 @@
 package com.dci.intellij.dbn.execution.method.browser.ui;
 
-import com.dci.intellij.dbn.common.ui.DBNDialog;
+import com.dci.intellij.dbn.common.ui.dialog.DBNDialog;
 import com.dci.intellij.dbn.execution.method.browser.MethodBrowserSettings;
 import com.dci.intellij.dbn.object.DBMethod;
 import com.dci.intellij.dbn.object.common.ui.ObjectTreeModel;

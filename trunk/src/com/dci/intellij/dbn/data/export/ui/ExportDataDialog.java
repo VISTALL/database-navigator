@@ -1,6 +1,6 @@
 package com.dci.intellij.dbn.data.export.ui;
 
-import com.dci.intellij.dbn.common.ui.DBNDialog;
+import com.dci.intellij.dbn.common.ui.dialog.DBNDialog;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.data.export.DataExportInstructions;
 import com.dci.intellij.dbn.data.export.DataExportManager;

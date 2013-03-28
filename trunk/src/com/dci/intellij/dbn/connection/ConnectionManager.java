@@ -2,11 +2,12 @@ package com.dci.intellij.dbn.connection;
 
 import com.dci.intellij.dbn.browser.DatabaseBrowserManager;
 import com.dci.intellij.dbn.common.AbstractProjectComponent;
+import com.dci.intellij.dbn.common.Time;
 import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.common.option.InteractiveOptionHandler;
 import com.dci.intellij.dbn.common.thread.BackgroundTask;
 import com.dci.intellij.dbn.common.thread.SimpleLaterInvocator;
-import com.dci.intellij.dbn.common.ui.MessageDialog;
+import com.dci.intellij.dbn.common.ui.dialog.MessageDialog;
 import com.dci.intellij.dbn.common.util.EditorUtil;
 import com.dci.intellij.dbn.connection.config.ConnectionBundleSettingsListener;
 import com.dci.intellij.dbn.connection.config.ConnectionDatabaseSettings;
@@ -40,7 +41,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class ConnectionManager extends AbstractProjectComponent implements ProjectManagerListener{
-    public static final int FIVE_MINUTES_TIMEOUT = 1000;//1000 * 60 * 5;
     private List<ConnectionBundle> connectionBundles = new ArrayList<ConnectionBundle>();
     private Timer idleConnectionCleaner;
 
@@ -78,7 +78,7 @@ public class ConnectionManager extends AbstractProjectComponent implements Proje
         EventManager.subscribe(project, ConnectionBundleSettingsListener.TOPIC, connectionBundleSettingsListener);
         initConnectionBundles();
         idleConnectionCleaner = new Timer("Idle connection cleaner [" + project.getName() + "]");
-        idleConnectionCleaner.schedule(new CloseIdleConnectionTask(), ConnectionPool.ONE_MINUTE, ConnectionPool.ONE_MINUTE);
+        idleConnectionCleaner.schedule(new CloseIdleConnectionTask(), Time.ONE_MINUTE, Time.ONE_MINUTE);
     }
 
     @Override
@@ -310,7 +310,7 @@ public class ConnectionManager extends AbstractProjectComponent implements Proje
                         connectionStatus.setResolvingIdleStatus(true);
                         new BackgroundTask(getProject(), "Close idle connection " + connectionHandler.getName(), true, false) {
                             protected void execute(@NotNull ProgressIndicator progressIndicator) throws InterruptedException {
-                                Thread.sleep(FIVE_MINUTES_TIMEOUT);
+                                Thread.sleep(Time.FIVE_MINUTES);
                                 if (connectionHandler.getConnectionStatus().isResolvingIdleStatus()) {
                                     transactionManager.execute(connectionHandler, TransactionAction.ROLLBACK_IDLE, TransactionAction.DISCONNECT_IDLE);
                                 }
