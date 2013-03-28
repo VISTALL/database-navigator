@@ -46,7 +46,7 @@ public class IdleConnectionDialog extends DBNDialogWithTimeout{
 
     @Override
     public void doCancelAction() {
-        super.doCancelAction();
+        ping();
     }
 
     protected String getDimensionServiceKey() {
