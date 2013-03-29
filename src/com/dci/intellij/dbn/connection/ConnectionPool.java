@@ -123,14 +123,26 @@ public class ConnectionPool implements Disposable {
 
     public synchronized void closeConnections() throws SQLException {
         synchronized (this) {
+            SQLException exception = null;
             while (poolConnections.size() > 0) {
                 ConnectionWrapper connectionWrapper = poolConnections.remove(0);
-                connectionWrapper.getConnection().close();
+                try {
+                    connectionWrapper.getConnection().close();
+                } catch (SQLException e) {
+                    exception = e;
+                }
             }
 
             if (standaloneConnection != null) {
-                standaloneConnection.getConnection().close();
+                try {
+                    standaloneConnection.getConnection().close();
+                } catch (SQLException e) {
+                    exception = e;
+                }
                 standaloneConnection = null;
+            }
+            if (exception != null) {
+                throw exception;
             }
         }
     }
