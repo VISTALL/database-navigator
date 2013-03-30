@@ -44,7 +44,10 @@ public class AutoCommitLabel extends JLabel implements ConnectionStatusListener,
                     boolean disconnected = !connectionHandler.isConnected();
                     boolean autoCommit = connectionHandler.isAutoCommit();
                     setText(disconnected ? "Not connected to database" : autoCommit ? "Auto-Commit ON" : "Auto-Commit OFF");
-                    setForeground(disconnected ? Color.BLACK : autoCommit ? new Color(210, 0, 0) : new Color(0, 160, 0));
+                    setForeground(disconnected ?
+                            new DBNColor(new Color(0x454545), new Color(0x808080)) : autoCommit ?
+                            new DBNColor(new Color(0xd20000), new Color(0xBC3F3C)) :
+                            new DBNColor(new Color(0xa000), new Color(0x629755)));
                     setToolTipText(
                             disconnected ? "The connection to database has been closed. No editing possible" :
                                     autoCommit ?
