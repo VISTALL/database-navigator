@@ -12,6 +12,11 @@ import javax.swing.JLabel;
 import java.awt.Color;
 
 public class AutoCommitLabel extends JLabel implements ConnectionStatusListener, Disposable {
+    private interface Colors {
+        DBNColor DISCONNECTED = new DBNColor(new Color(0x454545), new Color(0x808080));
+        DBNColor AUTO_COMMIT_ON = new DBNColor(new Color(0xFF0000), new Color(0xBC3F3C));
+        DBNColor AUTO_COMMIT_OFF = new DBNColor(new Color(0x009600), new Color(0x629755));
+    }
     private Project project;
     private ConnectionHandler connectionHandler;
     private boolean subscribed = false;
@@ -45,9 +50,9 @@ public class AutoCommitLabel extends JLabel implements ConnectionStatusListener,
                     boolean autoCommit = connectionHandler.isAutoCommit();
                     setText(disconnected ? "Not connected to database" : autoCommit ? "Auto-Commit ON" : "Auto-Commit OFF");
                     setForeground(disconnected ?
-                            new DBNColor(new Color(0x454545), new Color(0x808080)) : autoCommit ?
-                            new DBNColor(new Color(0xd20000), new Color(0xBC3F3C)) :
-                            new DBNColor(new Color(0xa000), new Color(0x629755)));
+                            Colors.DISCONNECTED : autoCommit ?
+                            Colors.AUTO_COMMIT_ON :
+                            Colors.AUTO_COMMIT_OFF);
                     setToolTipText(
                             disconnected ? "The connection to database has been closed. No editing possible" :
                                     autoCommit ?
