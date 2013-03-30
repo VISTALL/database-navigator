@@ -2,8 +2,6 @@ package com.dci.intellij.dbn.data.editor.color;
 
 import com.dci.intellij.dbn.common.ui.DBNColor;
 import com.intellij.openapi.editor.HighlighterColors;
-import com.intellij.openapi.editor.SyntaxHighlighterColors;
-import com.intellij.openapi.editor.colors.CodeInsightColors;
 import com.intellij.openapi.editor.colors.ColorKey;
 import com.intellij.openapi.editor.colors.EditorColors;
 import com.intellij.openapi.editor.colors.EditorColorsManager;
@@ -21,8 +19,8 @@ public interface DataGridTextAttributesKeys {
     interface Colors {
         Color DEFAULT_BACKGROUND   = HighlighterColors.TEXT.getDefaultAttributes().getBackgroundColor();
         Color DEFAULT_FOREGROUND   = HighlighterColors.TEXT.getDefaultAttributes().getForegroundColor();
-        Color LIGHT_BACKGROUND     = CodeInsightColors.FOLLOWED_HYPERLINK_ATTRIBUTES.getDefaultAttributes().getBackgroundColor();
-        Color LIGHT_FOREGROUND     = SyntaxHighlighterColors.JAVA_BLOCK_COMMENT.getDefaultAttributes().getForegroundColor();
+        Color LIGHT_BACKGROUND     = new DBNColor(new Color(0xf4f4f4), new Color(0x393939));
+        Color LIGHT_FOREGROUND     = new DBNColor(new Color(0x646464), new Color(0x999999));
         Color ERROR_BACKGROUND     = HighlighterColors.BAD_CHARACTER.getDefaultAttributes().getBackgroundColor();
         Color PK_FOREGROUND        = new DBNColor(new Color(0x4569A7), new Color(0x95A8B4));
         Color PK_BACKGROUND        = new DBNColor(new Color(0xF7F7FF), new Color(0x2B3447));
