@@ -1,6 +1,7 @@
 package com.dci.intellij.dbn.editor.data.ui.table.renderer;
 
 import com.dci.intellij.dbn.common.Icons;
+import com.dci.intellij.dbn.common.ui.table.renderer.BasicTableGutterCellRenderer;
 import com.dci.intellij.dbn.editor.data.ui.table.model.DatasetEditorModel;
 import com.dci.intellij.dbn.editor.data.ui.table.model.DatasetEditorModelRow;
 import com.intellij.util.ui.UIUtil;
@@ -15,7 +16,6 @@ import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 
@@ -31,7 +31,7 @@ public class DatasetEditorTableGutterRenderer extends JPanel implements ListCell
     public static ListCellRenderer INSTANCE = new DatasetEditorTableGutterRenderer();
 
     private DatasetEditorTableGutterRenderer() {
-        setForeground(Color.BLACK);
+        setForeground(BasicTableGutterCellRenderer.Colors.FOREGROUND);
         setBackground(UIUtil.getPanelBackground());
         setBorder(BORDER);
         setLayout(new BorderLayout());
@@ -57,7 +57,7 @@ public class DatasetEditorTableGutterRenderer extends JPanel implements ListCell
         }
         //lText.setFont(isSelected ? BOLD_FONT : REGULAR_FONT);
         textLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        textLabel.setForeground(isSelected ? Color.WHITE : Color.BLACK);
+        textLabel.setForeground(isSelected ? BasicTableGutterCellRenderer.Colors.SELECTED_FOREGROUND : BasicTableGutterCellRenderer.Colors.FOREGROUND);
         return this;
     }
 }
