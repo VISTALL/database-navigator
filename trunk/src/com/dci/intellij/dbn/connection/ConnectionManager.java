@@ -50,15 +50,6 @@ public class ConnectionManager extends AbstractProjectComponent implements Proje
                     "Please specify whether to commit or rollback these changes before closing the project",
                     2, "Commit", "Rollback", "Review Changes", "Cancel");
 
-    private InteractiveOptionHandler automaticDisconnectOptionHandler =
-            new InteractiveOptionHandler(
-                    "Idle connection ",
-                    "The connection \"{0}\" is been idle for more than {1} minutes. You have uncommitted changes on this connection. \n" +
-                            "Please specify whether to commit or rollback the changes. You can chose to keep the connection alive for {2} more minutes. \n\n" +
-                            "NOTE: Connection will close automatically if this prompt stays unattended for more than 5 minutes.",
-                    2, "Commit", "Rollback", "Review Changes", "Keep Alive");
-
-
     public static ConnectionManager getInstance(Project project) {
         return project.getComponent(ConnectionManager.class);
     }
@@ -83,6 +74,7 @@ public class ConnectionManager extends AbstractProjectComponent implements Proje
     @Override
     public void disposeComponent() {
         idleConnectionCleaner.cancel();
+        idleConnectionCleaner.purge();
         EventManager.unsubscribe(
                 moduleListener,
                 connectionBundleSettingsListener);
@@ -313,40 +305,6 @@ public class ConnectionManager extends AbstractProjectComponent implements Proje
                                 idleConnectionDialog.show();
                             }
                         }.start();
-
-
-
-/*                        connectionStatus.setResolvingIdleStatus(true);
-
-                        new BackgroundTask(getProject(), "Close idle connection " + connectionHandler.getName(), true, false) {
-                            protected void execute(@NotNull ProgressIndicator progressIndicator) throws InterruptedException {
-                                Thread.sleep(Time.FIVE_MINUTES);
-                                if (connectionHandler.getConnectionStatus().isResolvingIdleStatus()) {
-                                    transactionManager.execute(connectionHandler, TransactionAction.ROLLBACK_IDLE, TransactionAction.DISCONNECT_IDLE);
-                                }
-                            }
-                        }.start();
-
-                        new SimpleLaterInvocator() {
-                            public void run() {
-                                int result = automaticDisconnectOptionHandler.resolve(
-                                        connectionHandler.getName(),
-                                        Integer.toString(idleMinutes),
-                                        Integer.toString(idleMinutesToDisconnect));
-
-                                if (connectionHandler.getConnectionStatus().isResolvingIdleStatus()) {
-                                    // status was not resolved by the prompt timeout
-                                    switch (result) {
-                                        case 0: transactionManager.execute(connectionHandler, false, TransactionAction.COMMIT); break;
-                                        case 1: transactionManager.execute(connectionHandler, false, TransactionAction.ROLLBACK_IDLE, TransactionAction.DISCONNECT_IDLE); break;
-                                        case 2: transactionManager.showUncommittedChangesDialog(connectionHandler, TransactionAction.DISCONNECT_IDLE); break;
-                                        case 3: transactionManager.execute(connectionHandler, false, TransactionAction.PING); break;
-                                    }
-                                    connectionStatus.setResolvingIdleStatus(false);
-                                }
-                            }
-                        }.start();
-*/
                     } else {
                         transactionManager.execute(connectionHandler, false, TransactionAction.DISCONNECT_IDLE);
                     }

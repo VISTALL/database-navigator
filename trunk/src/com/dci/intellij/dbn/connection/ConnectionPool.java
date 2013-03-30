@@ -170,6 +170,7 @@ public class ConnectionPool implements Disposable {
         if (!isDisposed) {
             isDisposed = true;
             poolCleaner.cancel();
+            poolCleaner.purge();
             closeConnectionsSilently();
             connectionHandler = null;
         }
