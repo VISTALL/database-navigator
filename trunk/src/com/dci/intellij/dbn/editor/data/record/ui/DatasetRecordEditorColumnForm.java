@@ -192,7 +192,7 @@ public class DatasetRecordEditorColumnForm extends UIFormImpl implements UIForm 
                 try {
                     Object value = getEditorValue();
                     editorComponent.getUserValueHolder().updateUserValue(value, false);
-                    valueTextField.setForeground(Color.BLACK);
+                    valueTextField.setForeground(UIUtil.getTextFieldForeground());
                 } catch (ParseException e1) {
                     if (highlightError) {
                         valueTextField.setForeground(Color.RED);
@@ -221,7 +221,7 @@ public class DatasetRecordEditorColumnForm extends UIFormImpl implements UIForm 
         @Override
         protected void textChanged(DocumentEvent documentEvent) {
             JTextField valueTextField = editorComponent.getTextField();
-            valueTextField.setForeground(Color.BLACK);
+            valueTextField.setForeground(UIUtil.getTextFieldForeground());
         }
     };
 

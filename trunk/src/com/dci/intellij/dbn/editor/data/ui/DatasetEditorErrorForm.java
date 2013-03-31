@@ -1,13 +1,13 @@
 package com.dci.intellij.dbn.editor.data.ui;
 
 import com.dci.intellij.dbn.common.Icons;
+import com.dci.intellij.dbn.common.ui.DBNColor;
 import com.dci.intellij.dbn.common.ui.UIForm;
 import com.dci.intellij.dbn.common.ui.UIFormImpl;
 import com.dci.intellij.dbn.common.util.StringUtil;
 import com.dci.intellij.dbn.editor.data.DatasetEditorError;
 import com.dci.intellij.dbn.editor.data.ui.table.DatasetEditorTable;
 import com.dci.intellij.dbn.editor.data.ui.table.model.DatasetEditorModelCell;
-import com.intellij.openapi.editor.HighlighterColors;
 import com.intellij.openapi.ui.popup.ComponentPopupBuilder;
 import com.intellij.openapi.ui.popup.JBPopup;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
@@ -22,6 +22,9 @@ import java.awt.Point;
 import java.awt.Rectangle;
 
 public class DatasetEditorErrorForm extends UIFormImpl implements UIForm, ChangeListener {
+    public static final DBNColor BACKGROUND_COLOR = new DBNColor(
+            new Color(0xC95757),
+            new Color(0x743A3A));
     private JPanel mainPanel;
     private JLabel errorIconLabel;
     private JTextArea errorMessageTextArea;
@@ -36,7 +39,7 @@ public class DatasetEditorErrorForm extends UIFormImpl implements UIForm, Change
         errorIconLabel.setIcon(Icons.EXEC_MESSAGES_ERROR);
         errorIconLabel.setText("");
         errorMessageTextArea.setText(StringUtil.wrap(error.getMessage(), 60, ": ,."));
-        Color backgroundColor = HighlighterColors.BAD_CHARACTER.getDefaultAttributes().getBackgroundColor();
+        Color backgroundColor = BACKGROUND_COLOR;
         errorMessageTextArea.setBackground(backgroundColor);
         errorMessageTextArea.setFont(mainPanel.getFont());
         mainPanel.setBackground(backgroundColor);
