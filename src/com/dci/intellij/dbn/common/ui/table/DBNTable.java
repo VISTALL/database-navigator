@@ -1,5 +1,6 @@
 package com.dci.intellij.dbn.common.ui.table;
 
+import com.dci.intellij.dbn.common.ui.DBNColor;
 import com.dci.intellij.dbn.common.util.CommonUtil;
 import com.intellij.openapi.project.Project;
 
@@ -18,13 +19,14 @@ import java.awt.Point;
 public class DBNTable extends JTable {
     private static final int MAX_COLUMN_WIDTH = 300;
     private static final int MIN_COLUMN_WIDTH = 10;
+    public static final DBNColor GRID_COLOR = new DBNColor(Color.LIGHT_GRAY, Color.DARK_GRAY);
     private Project project;
 
 
     public DBNTable(Project project, TableModel tableModel, boolean showHeader) {
         super(tableModel);
         this.project = project;
-        setGridColor(Color.LIGHT_GRAY);
+        setGridColor(GRID_COLOR);
         if (!showHeader) {
             getTableHeader().setVisible(false);
             getTableHeader().setPreferredSize(new Dimension(-1, 0));
