@@ -19,7 +19,7 @@ import java.util.Set;
 public class MethodBrowserSettings implements PersistentConfiguration {
     private String connectionId;
     private String schemaName;
-    private DBMethodIdentifier methodIdentifier = new DBMethodIdentifier();
+    private DBMethodIdentifier methodIdentifier;
     private Map<DBObjectType, Boolean> objectVisibility = new THashMap<DBObjectType, Boolean>();
 
     public MethodBrowserSettings() {
@@ -66,7 +66,7 @@ public class MethodBrowserSettings implements PersistentConfiguration {
     }
 
     public DBMethod getMethod() {
-        return methodIdentifier.lookupObject();
+        return methodIdentifier == null ? null : methodIdentifier.lookupObject();
     }
 
     public void setMethod(DBMethod method) {
@@ -79,6 +79,7 @@ public class MethodBrowserSettings implements PersistentConfiguration {
 
         Element methodElement = element.getChild("selected-method");
         if (methodElement != null) {
+            methodIdentifier = new DBMethodIdentifier();
             methodIdentifier.readConfiguration(methodElement);
         }
     }
@@ -87,8 +88,10 @@ public class MethodBrowserSettings implements PersistentConfiguration {
         ConnectionHandler connectionHandler = getConnectionHandler();
         if (connectionHandler != null) element.setAttribute("connection-id", connectionHandler.getId());
         if (schemaName != null) element.setAttribute("schema", schemaName);
-        Element methodElement = new Element("selected-method");
-        methodIdentifier.writeConfiguration(methodElement);
-        element.addContent(methodElement);
+        if(methodIdentifier != null) {
+            Element methodElement = new Element("selected-method");
+            methodIdentifier.writeConfiguration(methodElement);
+            element.addContent(methodElement);
+        }
     }
 }
