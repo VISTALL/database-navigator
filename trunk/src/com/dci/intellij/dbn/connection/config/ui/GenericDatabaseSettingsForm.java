@@ -135,7 +135,7 @@ public class GenericDatabaseSettingsForm extends ConfigurationEditorForm<Generic
         JTextField textField = driverLibraryTextField.getTextField();
         if (fileExists(textField.getText())) {
             populateDriverList(textField.getText());
-            textField.setForeground(Color.BLACK);
+            textField.setForeground(UIUtil.getTextFieldForeground());
         } else {
             textField.setForeground(Color.RED);
         }

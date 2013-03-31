@@ -13,10 +13,10 @@ import java.util.UUID;
 
 public class EnvironmentType implements Cloneable, PersistentConfiguration {
     private interface EnvironmentColor {
-        DBNColor DEVELOPMENT = new DBNColor(new Color(-2430209), new Color(-12234147));
-        DBNColor INTEGRATION = new DBNColor(new Color(-2621494), new Color(-835040965));
-        DBNColor PRODUCTION = new DBNColor(new Color(-11574), new Color(-1185135548));
-        DBNColor OTHER = new DBNColor(new Color(-1576), new Color(-715893693));
+        DBNColor DEVELOPMENT = new DBNColor(new Color(-2430209), new Color(0x445F80));
+        DBNColor INTEGRATION = new DBNColor(new Color(-2621494), new Color(0x466646));
+        DBNColor PRODUCTION = new DBNColor(new Color(-11574), new Color(0x634544));
+        DBNColor OTHER = new DBNColor(new Color(-1576), new Color(0x5C5B41));
     }
 
     public static final EnvironmentType DEFAULT     = new EnvironmentType("default", "", "", null);
