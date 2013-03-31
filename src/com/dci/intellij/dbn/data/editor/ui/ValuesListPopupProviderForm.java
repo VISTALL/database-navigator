@@ -1,9 +1,9 @@
 package com.dci.intellij.dbn.data.editor.ui;
 
-import com.dci.intellij.dbn.common.Colors;
 import com.dci.intellij.dbn.common.filter.Filter;
 import com.dci.intellij.dbn.common.list.FiltrableList;
 import com.dci.intellij.dbn.common.thread.ConditionalLaterInvocator;
+import com.dci.intellij.dbn.common.ui.DBNColor;
 import com.dci.intellij.dbn.common.util.StringUtil;
 import com.intellij.openapi.actionSystem.IdeActions;
 import com.intellij.openapi.ui.popup.JBPopup;
@@ -16,6 +16,7 @@ import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import java.awt.Color;
 import java.awt.Rectangle;
 import java.awt.event.FocusEvent;
 import java.awt.event.KeyEvent;
@@ -28,6 +29,9 @@ import java.util.Collections;
 import java.util.List;
 
 public class ValuesListPopupProviderForm extends TextFieldPopupProviderForm {
+    public static final DBNColor BACKGROUND_COLOR = new DBNColor(
+            new Color(0xEBF4FE),
+            new Color(0x3c3f41));
     private ListPopupValuesProvider valuesProvider;
     private List<String> valuesList;
     private ListModel listModel;
@@ -39,14 +43,14 @@ public class ValuesListPopupProviderForm extends TextFieldPopupProviderForm {
         super(textField, false);
         this.valuesProvider = valuesProvider;
         this.useDynamicFiltering = useDynamicFiltering;
-        list.setBackground(Colors.LIGHT_BLUE);
+        list.setBackground(BACKGROUND_COLOR);
     }
 
     public ValuesListPopupProviderForm(TextFieldWithPopup textField, @NotNull List<String> valuesList, boolean useDynamicFiltering) {
         super(textField, false);
         this.valuesList = valuesList;
         this.useDynamicFiltering = useDynamicFiltering;
-        list.setBackground(Colors.LIGHT_BLUE);
+        list.setBackground(BACKGROUND_COLOR);
     }
 
     public JComponent getComponent() {
