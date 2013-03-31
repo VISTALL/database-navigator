@@ -19,7 +19,7 @@ public class IdleConnectionDialog extends DBNDialogWithTimeout{
     private ConnectionHandler connectionHandler;
 
     public IdleConnectionDialog(ConnectionHandler connectionHandler) {
-        super(connectionHandler.getProject(), "Idle connection", true, TimeUtil.getSeconds(2));
+        super(connectionHandler.getProject(), "Idle connection", true, TimeUtil.getSeconds(5));
         this.connectionHandler = connectionHandler;
         idleConnectionDialogForm = new IdleConnectionDialogForm(connectionHandler, 5);
         setModal(false);
