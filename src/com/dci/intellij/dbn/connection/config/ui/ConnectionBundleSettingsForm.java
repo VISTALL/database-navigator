@@ -68,6 +68,7 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
         connectionsList.setModel(new ConnectionListModel(connectionBundle));
         connectionsList.addListSelectionListener(this);
         connectionsList.setCellRenderer(new ConnectionConfigListCellRenderer());
+        connectionsList.setFont(com.intellij.util.ui.UIUtil.getLabelFont());
         if (connectionBundle.getConnectionHandlers().size() > 0) {
             selectConnection(connectionBundle.getConnectionHandlers().get(0));
         }

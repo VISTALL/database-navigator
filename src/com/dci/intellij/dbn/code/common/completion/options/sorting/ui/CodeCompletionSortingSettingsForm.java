@@ -34,6 +34,7 @@ public class CodeCompletionSortingSettingsForm extends ConfigurationEditorForm<C
         super(settings);
         resetChanges();
         sortingItemsList.setCellRenderer(LIST_CELL_RENDERER);
+        sortingItemsList.setFont(UIUtil.getLabelFont());
         ActionToolbar actionToolbar = ActionUtil.createActionToolbar("", true,
                 new MoveUpAction(sortingItemsList, settings),
                 new MoveDownAction(sortingItemsList, settings));

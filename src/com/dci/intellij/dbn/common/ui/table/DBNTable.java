@@ -3,6 +3,7 @@ package com.dci.intellij.dbn.common.ui.table;
 import com.dci.intellij.dbn.common.ui.DBNColor;
 import com.dci.intellij.dbn.common.util.CommonUtil;
 import com.intellij.openapi.project.Project;
+import com.intellij.util.ui.UIUtil;
 
 import javax.swing.JTable;
 import javax.swing.plaf.basic.BasicTableHeaderUI;
@@ -27,9 +28,12 @@ public class DBNTable extends JTable {
         super(tableModel);
         this.project = project;
         setGridColor(GRID_COLOR);
+        setFont(UIUtil.getLabelFont());
         if (!showHeader) {
-            getTableHeader().setVisible(false);
-            getTableHeader().setPreferredSize(new Dimension(-1, 0));
+            JTableHeader tableHeader = getTableHeader();
+            tableHeader.setVisible(false);
+            tableHeader.setPreferredSize(new Dimension(-1, 0));
+            tableHeader.setFont(UIUtil.getLabelFont());
         }
     }
 
