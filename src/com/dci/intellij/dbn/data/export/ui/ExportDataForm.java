@@ -187,7 +187,7 @@ public class ExportDataForm extends UIFormImpl implements UIForm {
         }
 
         if (buffer.length() > 0) {
-            buffer.insert(0, "Please input values for: ");
+            buffer.insert(0, "Please provide values for: ");
             MessageUtil.showErrorDialog(buffer.toString(), "Required input");
             return false;
         }
