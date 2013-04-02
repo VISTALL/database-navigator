@@ -10,7 +10,9 @@ import com.dci.intellij.dbn.object.common.DBObject;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.Action;
 import javax.swing.JComponent;
+import java.awt.event.ActionEvent;
 
 public class ExportDataDialog extends DBNDialog {
     private ExportDataForm exportDataForm;
@@ -46,6 +48,19 @@ public class ExportDataDialog extends DBNDialog {
     @Nullable
     protected JComponent createCenterPanel() {
         return exportDataForm.getComponent();
+    }
+
+    @NotNull
+    @Override
+    protected Action[] createActions() {
+        return new Action[]{
+                new DialogWrapperAction("Export") {
+                    @Override
+                    protected void doAction(ActionEvent actionEvent) {
+                        doOKAction();
+                    }
+                },
+                getCancelAction()};
     }
 
     protected void doOKAction() {
