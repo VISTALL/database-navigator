@@ -1,7 +1,7 @@
 package com.dci.intellij.dbn.common.properties.ui;
 
-import com.dci.intellij.dbn.common.ui.UIForm;
-import com.dci.intellij.dbn.common.ui.UIFormImpl;
+import com.dci.intellij.dbn.common.ui.DBNForm;
+import com.dci.intellij.dbn.common.ui.DBNFormImpl;
 
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -14,7 +14,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Map;
 
-public class PropertiesEditorForm extends UIFormImpl implements UIForm {
+public class PropertiesEditorForm extends DBNFormImpl implements DBNForm {
     private JPanel mainPanel;
     private JButton addButton;
     private JButton removeButton;

@@ -1,7 +1,7 @@
 package com.dci.intellij.dbn.data.editor.text.ui;
 
-import com.dci.intellij.dbn.common.ui.UIForm;
-import com.dci.intellij.dbn.common.ui.UIFormImpl;
+import com.dci.intellij.dbn.common.ui.DBNForm;
+import com.dci.intellij.dbn.common.ui.DBNFormImpl;
 import com.dci.intellij.dbn.common.util.ActionUtil;
 import com.dci.intellij.dbn.common.util.StringUtil;
 import com.dci.intellij.dbn.data.editor.text.TextContentType;
@@ -26,7 +26,7 @@ import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.sql.SQLException;
 
-public class TextEditorForm extends UIFormImpl implements UIForm {
+public class TextEditorForm extends DBNFormImpl implements DBNForm {
     private JPanel mainPanel;
     private JPanel editorPanel;
     private JPanel actionsPanel;

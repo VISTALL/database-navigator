@@ -4,7 +4,7 @@ import com.dci.intellij.dbn.common.environment.options.EnvironmentSettings;
 import com.dci.intellij.dbn.options.general.GeneralProjectSettings;
 import com.intellij.openapi.project.Project;
 
-public abstract class UIFormImpl extends UIUtil implements UIForm {
+public abstract class DBNFormImpl extends UIUtil implements DBNForm {
     boolean disposed;
 
     public EnvironmentSettings getEnvironmentSettings(Project project) {

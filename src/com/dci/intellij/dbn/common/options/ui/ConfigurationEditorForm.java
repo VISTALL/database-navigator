@@ -1,7 +1,7 @@
 package com.dci.intellij.dbn.common.options.ui;
 
 import com.dci.intellij.dbn.common.options.Configuration;
-import com.dci.intellij.dbn.common.ui.UIFormImpl;
+import com.dci.intellij.dbn.common.ui.DBNFormImpl;
 import com.dci.intellij.dbn.common.ui.list.CheckBoxList;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.ui.DocumentAdapter;
@@ -21,7 +21,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
-public abstract class ConfigurationEditorForm<E extends Configuration> extends UIFormImpl {
+public abstract class ConfigurationEditorForm<E extends Configuration> extends DBNFormImpl {
     private ItemListener itemListener;
     private ActionListener actionListener;
     private DocumentListener documentListener;

@@ -1,8 +1,8 @@
 package com.dci.intellij.dbn.data.editor.ui;
 
 import com.dci.intellij.dbn.common.thread.ConditionalLaterInvocator;
+import com.dci.intellij.dbn.common.ui.DBNForm;
 import com.dci.intellij.dbn.common.ui.KeyUtil;
-import com.dci.intellij.dbn.common.ui.UIForm;
 import com.intellij.ide.DataManager;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnAction;
@@ -27,7 +27,7 @@ import java.awt.event.KeyEvent;
 import java.util.HashSet;
 import java.util.Set;
 
-public abstract class TextFieldPopupProviderForm extends KeyAdapter implements UIForm{
+public abstract class TextFieldPopupProviderForm extends KeyAdapter implements DBNForm {
     public static final Border EMPTY_BORDER = new EmptyBorder(2, 2, 2, 2);
 
     protected TextFieldWithPopup editorComponent;

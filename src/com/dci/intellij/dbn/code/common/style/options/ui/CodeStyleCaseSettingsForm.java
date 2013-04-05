@@ -3,7 +3,7 @@ package com.dci.intellij.dbn.code.common.style.options.ui;
 import com.dci.intellij.dbn.code.common.style.options.CodeStyleCase;
 import com.dci.intellij.dbn.code.common.style.options.CodeStyleCaseSettings;
 import com.dci.intellij.dbn.common.options.ui.ConfigurationEditorForm;
-import com.dci.intellij.dbn.common.ui.UIForm;
+import com.dci.intellij.dbn.common.ui.DBNForm;
 import com.intellij.openapi.options.ConfigurationException;
 
 import javax.swing.DefaultComboBoxModel;
@@ -11,7 +11,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
 
-public class CodeStyleCaseSettingsForm extends ConfigurationEditorForm<CodeStyleCaseSettings> implements UIForm {
+public class CodeStyleCaseSettingsForm extends ConfigurationEditorForm<CodeStyleCaseSettings> implements DBNForm {
     private JPanel mainPanel;
     private JComboBox keywordCaseComboBox;
     private JComboBox functionCaseComboBox;

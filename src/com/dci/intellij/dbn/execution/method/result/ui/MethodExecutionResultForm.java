@@ -1,6 +1,6 @@
 package com.dci.intellij.dbn.execution.method.result.ui;
 
-import com.dci.intellij.dbn.common.ui.UIFormImpl;
+import com.dci.intellij.dbn.common.ui.DBNFormImpl;
 import com.dci.intellij.dbn.common.ui.tab.TabbedPane;
 import com.dci.intellij.dbn.common.ui.table.DBNTable;
 import com.dci.intellij.dbn.common.util.ActionUtil;
@@ -26,7 +26,7 @@ import javax.swing.JTable;
 import java.awt.BorderLayout;
 import java.util.List;
 
-public class MethodExecutionResultForm extends UIFormImpl implements ExecutionResultForm<MethodExecutionResult> {
+public class MethodExecutionResultForm extends DBNFormImpl implements ExecutionResultForm<MethodExecutionResult> {
     private JPanel mainPanel;
     private JPanel actionsPanel;
     private JTable inputArgumentsTable;

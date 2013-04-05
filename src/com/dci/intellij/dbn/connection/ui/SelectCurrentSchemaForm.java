@@ -1,7 +1,7 @@
 package com.dci.intellij.dbn.connection.ui;
 
-import com.dci.intellij.dbn.common.ui.UIForm;
-import com.dci.intellij.dbn.common.ui.UIFormImpl;
+import com.dci.intellij.dbn.common.ui.DBNForm;
+import com.dci.intellij.dbn.common.ui.DBNFormImpl;
 import com.dci.intellij.dbn.common.util.VirtualFileUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.mapping.FileConnectionMappingManager;
@@ -18,7 +18,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import java.util.List;
 
-public class SelectCurrentSchemaForm extends UIFormImpl implements UIForm {
+public class SelectCurrentSchemaForm extends DBNFormImpl implements DBNForm {
     private JPanel mainPanel;
     private JLabel fileLabel;
     private JTextArea hintTextArea;

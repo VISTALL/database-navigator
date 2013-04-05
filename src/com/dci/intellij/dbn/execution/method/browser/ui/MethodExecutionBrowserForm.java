@@ -2,8 +2,8 @@ package com.dci.intellij.dbn.execution.method.browser.ui;
 
 import com.dci.intellij.dbn.common.thread.BackgroundTask;
 import com.dci.intellij.dbn.common.thread.SimpleLaterInvocator;
-import com.dci.intellij.dbn.common.ui.UIForm;
-import com.dci.intellij.dbn.common.ui.UIFormImpl;
+import com.dci.intellij.dbn.common.ui.DBNForm;
+import com.dci.intellij.dbn.common.ui.DBNFormImpl;
 import com.dci.intellij.dbn.common.util.ActionUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.execution.method.browser.MethodBrowserSettings;
@@ -28,7 +28,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import java.awt.BorderLayout;
 
-public class MethodExecutionBrowserForm extends UIFormImpl implements UIForm {
+public class MethodExecutionBrowserForm extends DBNFormImpl implements DBNForm {
 
     private JPanel actionsPanel;
     private JPanel mainPanel;

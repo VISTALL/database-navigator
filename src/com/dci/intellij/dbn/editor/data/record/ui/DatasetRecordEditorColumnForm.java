@@ -2,8 +2,8 @@ package com.dci.intellij.dbn.editor.data.record.ui;
 
 import com.dci.intellij.dbn.common.locale.Formatter;
 import com.dci.intellij.dbn.common.locale.options.RegionalSettings;
-import com.dci.intellij.dbn.common.ui.UIForm;
-import com.dci.intellij.dbn.common.ui.UIFormImpl;
+import com.dci.intellij.dbn.common.ui.DBNForm;
+import com.dci.intellij.dbn.common.ui.DBNFormImpl;
 import com.dci.intellij.dbn.data.editor.ui.BasicDataEditorComponent;
 import com.dci.intellij.dbn.data.editor.ui.DataEditorComponent;
 import com.dci.intellij.dbn.data.editor.ui.ListPopupValuesProvider;
@@ -45,7 +45,7 @@ import java.awt.event.KeyListener;
 import java.text.ParseException;
 import java.util.List;
 
-public class DatasetRecordEditorColumnForm extends UIFormImpl implements UIForm {
+public class DatasetRecordEditorColumnForm extends DBNFormImpl implements DBNForm {
     private JLabel columnLabel;
     private JPanel valueFieldPanel;
     private JLabel dataTypeLabel;

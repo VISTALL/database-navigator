@@ -4,7 +4,7 @@ import com.intellij.openapi.Disposable;
 
 import javax.swing.JComponent;
 
-public interface UIForm extends Disposable {
+public interface DBNForm extends Disposable {
     JComponent getComponent();
     boolean isDisposed();
 }

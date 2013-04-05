@@ -2,7 +2,7 @@ package com.dci.intellij.dbn.connection.transaction.ui;
 
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.TimeUtil;
-import com.dci.intellij.dbn.common.ui.dialog.DBNDialogWithTimeout;
+import com.dci.intellij.dbn.common.ui.dialog.DialogWithTimeout;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.transaction.DatabaseTransactionManager;
 import com.dci.intellij.dbn.connection.transaction.TransactionAction;
@@ -14,7 +14,7 @@ import javax.swing.Action;
 import javax.swing.JComponent;
 import java.awt.event.ActionEvent;
 
-public class IdleConnectionDialog extends DBNDialogWithTimeout{
+public class IdleConnectionDialog extends DialogWithTimeout {
     private IdleConnectionDialogForm idleConnectionDialogForm;
     private ConnectionHandler connectionHandler;
 

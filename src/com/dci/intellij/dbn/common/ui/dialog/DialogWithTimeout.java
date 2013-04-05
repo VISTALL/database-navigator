@@ -9,15 +9,15 @@ import javax.swing.JComponent;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public abstract class DBNDialogWithTimeout extends DBNDialog{
-    private DBNDialogWithTimeoutForm form;
+public abstract class DialogWithTimeout extends DBNDialog{
+    private DialogWithTimeoutForm form;
     private Timer timeoutTimer;
     private int secondsLeft;
 
-    protected DBNDialogWithTimeout(Project project, String title, boolean canBeParent, int timeoutSeconds) {
+    protected DialogWithTimeout(Project project, String title, boolean canBeParent, int timeoutSeconds) {
         super(project, title, canBeParent);
         secondsLeft = timeoutSeconds;
-        form = new DBNDialogWithTimeoutForm(secondsLeft);
+        form = new DialogWithTimeoutForm(secondsLeft);
         timeoutTimer = new Timer("Timeout dialog task [" + getProject().getName() + "]");
         timeoutTimer.schedule(new TimeoutTask(), TimeUtil.ONE_SECOND, TimeUtil.ONE_SECOND);
     }

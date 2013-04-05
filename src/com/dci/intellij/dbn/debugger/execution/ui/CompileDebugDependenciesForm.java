@@ -1,7 +1,7 @@
 package com.dci.intellij.dbn.debugger.execution.ui;
 
-import com.dci.intellij.dbn.common.ui.UIForm;
-import com.dci.intellij.dbn.common.ui.UIFormImpl;
+import com.dci.intellij.dbn.common.ui.DBNForm;
+import com.dci.intellij.dbn.common.ui.DBNFormImpl;
 import com.dci.intellij.dbn.common.util.StringUtil;
 import com.dci.intellij.dbn.object.common.DBSchemaObject;
 
@@ -14,7 +14,7 @@ import javax.swing.JTextArea;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CompileDebugDependenciesForm extends UIFormImpl implements UIForm {
+public class CompileDebugDependenciesForm extends DBNFormImpl implements DBNForm {
     private JTextArea hintTextArea;
     private JList objectList;
     private JPanel mainPanel;

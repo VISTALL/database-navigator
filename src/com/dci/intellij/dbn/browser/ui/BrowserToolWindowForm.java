@@ -5,8 +5,8 @@ import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
 import com.dci.intellij.dbn.browser.options.BrowserDisplayMode;
 import com.dci.intellij.dbn.browser.options.DatabaseBrowserSettings;
 import com.dci.intellij.dbn.common.event.EventManager;
-import com.dci.intellij.dbn.common.ui.UIForm;
-import com.dci.intellij.dbn.common.ui.UIFormImpl;
+import com.dci.intellij.dbn.common.ui.DBNForm;
+import com.dci.intellij.dbn.common.ui.DBNFormImpl;
 import com.dci.intellij.dbn.common.ui.UIUtil;
 import com.dci.intellij.dbn.common.util.ActionUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
@@ -21,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 
-public class BrowserToolWindowForm extends UIFormImpl implements UIForm {
+public class BrowserToolWindowForm extends DBNFormImpl implements DBNForm {
     private JPanel mainPanel;
     private JPanel actionsPanel;
     private JPanel browserPanel;
