@@ -1,10 +1,10 @@
 package com.dci.intellij.dbn.editor.data.ui.table.model;
 
-import com.dci.intellij.dbn.common.ui.table.model.ColumnInfo;
-import com.dci.intellij.dbn.common.ui.table.model.DataModelCell;
-import com.dci.intellij.dbn.common.ui.table.model.DataModelRow;
 import com.dci.intellij.dbn.common.util.MessageUtil;
-import com.dci.intellij.dbn.data.ui.table.model.ResultSetDataModelRow;
+import com.dci.intellij.dbn.data.model.ColumnInfo;
+import com.dci.intellij.dbn.data.model.DataModelCell;
+import com.dci.intellij.dbn.data.model.DataModelRow;
+import com.dci.intellij.dbn.data.model.resultSet.ResultSetDataModelRow;
 import com.dci.intellij.dbn.editor.data.DatasetEditorError;
 import com.dci.intellij.dbn.object.DBColumn;
 import com.dci.intellij.dbn.object.DBConstraint;

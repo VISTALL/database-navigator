@@ -1,10 +1,10 @@
 package com.dci.intellij.dbn.data.export;
 
-import com.dci.intellij.dbn.common.ui.table.SortableTable;
-import com.dci.intellij.dbn.common.ui.table.model.ColumnInfo;
-import com.dci.intellij.dbn.common.ui.table.model.SortableDataModelCell;
+import com.dci.intellij.dbn.data.model.ColumnInfo;
+import com.dci.intellij.dbn.data.model.sortable.SortableDataModelCell;
 import com.dci.intellij.dbn.data.type.BasicDataType;
 import com.dci.intellij.dbn.data.type.DBNativeDataType;
+import com.dci.intellij.dbn.data.ui.table.sortable.SortableTable;
 import com.intellij.openapi.project.Project;
 
 public class SortableTableExportModel implements DataExportModel{

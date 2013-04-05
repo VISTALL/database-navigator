@@ -1,12 +1,12 @@
 package com.dci.intellij.dbn.editor.data.filter;
 
 import com.dci.intellij.dbn.common.options.PersistentConfiguration;
-import com.dci.intellij.dbn.common.ui.table.SortingState;
+import com.dci.intellij.dbn.data.model.DataModelSortingState;
 import com.dci.intellij.dbn.object.DBDataset;
 import com.intellij.openapi.options.UnnamedConfigurable;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
+import javax.swing.Icon;
 
 public interface DatasetFilter extends UnnamedConfigurable, PersistentConfiguration {
     Icon getIcon();
@@ -26,5 +26,5 @@ public interface DatasetFilter extends UnnamedConfigurable, PersistentConfigurat
 
     DatasetFilterGroup getFilterGroup() ;
 
-    String createSelectStatement(DBDataset dataset, SortingState sortingState);
+    String createSelectStatement(DBDataset dataset, DataModelSortingState sortingState);
 }

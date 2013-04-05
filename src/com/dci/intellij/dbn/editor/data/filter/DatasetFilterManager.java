@@ -1,8 +1,8 @@
 package com.dci.intellij.dbn.editor.data.filter;
 
 import com.dci.intellij.dbn.common.AbstractProjectComponent;
-import com.dci.intellij.dbn.common.ui.table.model.ColumnInfo;
 import com.dci.intellij.dbn.connection.ConnectionManager;
+import com.dci.intellij.dbn.data.model.ColumnInfo;
 import com.dci.intellij.dbn.editor.data.DatasetEditorManager;
 import com.dci.intellij.dbn.editor.data.filter.ui.DatasetFilterDialog;
 import com.dci.intellij.dbn.object.DBColumn;

@@ -1,6 +1,6 @@
 package com.dci.intellij.dbn.data.find;
 
-import com.dci.intellij.dbn.common.ui.table.BasicTable;
+import com.dci.intellij.dbn.data.ui.table.basic.BasicTable;
 
 public interface SearchableDataComponent {
     void showSearchHeader();

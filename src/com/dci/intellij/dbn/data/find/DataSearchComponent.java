@@ -1,9 +1,6 @@
 package com.dci.intellij.dbn.data.find;
 
 import com.dci.intellij.dbn.common.compatibility.CompatibilityUtil;
-import com.dci.intellij.dbn.common.ui.table.BasicTable;
-import com.dci.intellij.dbn.common.ui.table.model.DataModel;
-import com.dci.intellij.dbn.common.ui.table.model.DataModelListener;
 import com.dci.intellij.dbn.common.util.StringUtil;
 import com.dci.intellij.dbn.data.find.action.CloseOnESCAction;
 import com.dci.intellij.dbn.data.find.action.NextOccurrenceAction;
@@ -12,6 +9,9 @@ import com.dci.intellij.dbn.data.find.action.ShowHistoryAction;
 import com.dci.intellij.dbn.data.find.action.ToggleMatchCase;
 import com.dci.intellij.dbn.data.find.action.ToggleRegex;
 import com.dci.intellij.dbn.data.find.action.ToggleWholeWordsOnlyAction;
+import com.dci.intellij.dbn.data.model.DataModel;
+import com.dci.intellij.dbn.data.model.DataModelListener;
+import com.dci.intellij.dbn.data.ui.table.basic.BasicTable;
 import com.intellij.featureStatistics.FeatureUsageTracker;
 import com.intellij.find.FindManager;
 import com.intellij.find.FindModel;

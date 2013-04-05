@@ -1,6 +1,6 @@
 package com.dci.intellij.dbn.editor.data.ui.table.listener;
 
-import com.dci.intellij.dbn.common.ui.table.model.ColumnInfo;
+import com.dci.intellij.dbn.data.model.ColumnInfo;
 import com.dci.intellij.dbn.editor.data.ui.table.DatasetEditorTable;
 
 import java.awt.Point;

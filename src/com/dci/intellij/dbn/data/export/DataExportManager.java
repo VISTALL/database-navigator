@@ -2,10 +2,10 @@ package com.dci.intellij.dbn.data.export;
 
 import com.dci.intellij.dbn.common.AbstractProjectComponent;
 import com.dci.intellij.dbn.common.Constants;
-import com.dci.intellij.dbn.common.ui.table.SortableTable;
 import com.dci.intellij.dbn.common.util.MessageUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.data.export.processor.DataExportProcessor;
+import com.dci.intellij.dbn.data.ui.table.sortable.SortableTable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.InvalidDataException;

@@ -3,7 +3,7 @@ package com.dci.intellij.dbn.data.find;
 import com.dci.intellij.dbn.common.dispose.DisposeUtil;
 import com.dci.intellij.dbn.common.list.ReversedList;
 import com.dci.intellij.dbn.common.ui.ListUtil;
-import com.dci.intellij.dbn.common.ui.table.model.DataModelCell;
+import com.dci.intellij.dbn.data.model.DataModelCell;
 import com.intellij.openapi.Disposable;
 
 import java.util.ArrayList;
