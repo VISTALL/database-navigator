@@ -1,4 +1,4 @@
-package com.dci.intellij.dbn.data.ui.table.record;
+package com.dci.intellij.dbn.data.ui.table.resultSet.record;
 
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.locale.Formatter;
@@ -22,19 +22,19 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.text.ParseException;
 
-public class TableRecordViewerColumnForm extends DBNFormImpl implements DBNForm {
+public class ResultSetRecordViewerColumnForm extends DBNFormImpl implements DBNForm {
     private JLabel columnLabel;
     private JPanel valueFieldPanel;
     private JLabel dataTypeLabel;
     private JPanel mainPanel;
 
     private JTextField valueTextField;
-    private TableRecordViewerForm parentForm;
+    private ResultSetRecordViewerForm parentForm;
     private ResultSetDataModelCell cell;
 
     private RegionalSettings regionalSettings;
 
-    public TableRecordViewerColumnForm(TableRecordViewerForm parentForm, ResultSetDataModelCell cell) {
+    public ResultSetRecordViewerColumnForm(ResultSetRecordViewerForm parentForm, ResultSetDataModelCell cell) {
         this.parentForm = parentForm;
         Project project = cell.getRow().getModel().getProject();
         ColumnInfo columnInfo = cell.getColumnInfo();
@@ -123,10 +123,10 @@ public class TableRecordViewerColumnForm extends DBNFormImpl implements DBNForm 
         public void keyPressed(KeyEvent e) {
             if (!e.isConsumed()) {
                 if (e.getKeyCode() == 38) {//UP
-                    parentForm.focusPreviousColumnPanel(TableRecordViewerColumnForm.this);
+                    parentForm.focusPreviousColumnPanel(ResultSetRecordViewerColumnForm.this);
                     e.consume();
                 } else if (e.getKeyCode() == 40) { // DOWN
-                    parentForm.focusNextColumnPanel(TableRecordViewerColumnForm.this);
+                    parentForm.focusNextColumnPanel(ResultSetRecordViewerColumnForm.this);
                     e.consume();
                 }
             }

@@ -1,4 +1,4 @@
-package com.dci.intellij.dbn.data.ui.table.record;
+package com.dci.intellij.dbn.data.record;
 
 import javax.swing.Icon;
 
