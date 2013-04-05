@@ -1,14 +1,14 @@
 package com.dci.intellij.dbn.object.factory.ui.common;
 
-import com.dci.intellij.dbn.common.ui.UIForm;
-import com.dci.intellij.dbn.common.ui.UIFormImpl;
+import com.dci.intellij.dbn.common.ui.DBNForm;
+import com.dci.intellij.dbn.common.ui.DBNFormImpl;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.object.common.DBObjectType;
 import com.dci.intellij.dbn.object.factory.ObjectFactoryInput;
 
 import javax.swing.JPanel;
 
-public abstract class ObjectFactoryInputForm<T extends ObjectFactoryInput> extends UIFormImpl implements UIForm {
+public abstract class ObjectFactoryInputForm<T extends ObjectFactoryInput> extends DBNFormImpl implements DBNForm {
     private int index;
     private ConnectionHandler connectionHandler;
     private DBObjectType objectType;

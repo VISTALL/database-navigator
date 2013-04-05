@@ -2,7 +2,7 @@ package com.dci.intellij.dbn.connection.transaction.ui;
 
 import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.common.thread.SimpleLaterInvocator;
-import com.dci.intellij.dbn.common.ui.UIFormImpl;
+import com.dci.intellij.dbn.common.ui.DBNFormImpl;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.transaction.DatabaseTransactionManager;
 import com.dci.intellij.dbn.connection.transaction.TransactionAction;
@@ -18,7 +18,7 @@ import javax.swing.JTable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class UncommittedChangesForm extends UIFormImpl implements TransactionListener {
+public class UncommittedChangesForm extends DBNFormImpl implements TransactionListener {
     private JTable changesTable;
     private JPanel mainPanel;
     private JPanel headerPanel;

@@ -6,8 +6,8 @@ import com.dci.intellij.dbn.browser.ui.BrowserSelectionChangeListener;
 import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.common.thread.BackgroundTask;
 import com.dci.intellij.dbn.common.thread.SimpleLaterInvocator;
-import com.dci.intellij.dbn.common.ui.UIForm;
-import com.dci.intellij.dbn.common.ui.UIFormImpl;
+import com.dci.intellij.dbn.common.ui.DBNForm;
+import com.dci.intellij.dbn.common.ui.DBNFormImpl;
 import com.dci.intellij.dbn.common.ui.table.DBNTable;
 import com.dci.intellij.dbn.common.util.NamingUtil;
 import com.dci.intellij.dbn.object.common.DBObject;
@@ -21,7 +21,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 
-public class ObjectPropertiesForm extends UIFormImpl implements UIForm, BrowserSelectionChangeListener {
+public class ObjectPropertiesForm extends DBNFormImpl implements DBNForm, BrowserSelectionChangeListener {
     private JPanel mainPanel;
     private JLabel objectLabel;
     private JLabel objectTypeLabel;

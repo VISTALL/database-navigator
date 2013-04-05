@@ -2,8 +2,8 @@ package com.dci.intellij.dbn.editor.data.ui;
 
 import com.dci.intellij.dbn.common.thread.ConditionalLaterInvocator;
 import com.dci.intellij.dbn.common.ui.AutoCommitLabel;
-import com.dci.intellij.dbn.common.ui.UIForm;
-import com.dci.intellij.dbn.common.ui.UIFormImpl;
+import com.dci.intellij.dbn.common.ui.DBNForm;
+import com.dci.intellij.dbn.common.ui.DBNFormImpl;
 import com.dci.intellij.dbn.common.ui.dialog.MessageDialog;
 import com.dci.intellij.dbn.common.util.ActionUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
@@ -27,7 +27,7 @@ import javax.swing.table.TableCellEditor;
 import java.awt.BorderLayout;
 import java.sql.SQLException;
 
-public class DatasetEditorForm extends UIFormImpl implements UIForm, SearchableDataComponent {
+public class DatasetEditorForm extends DBNFormImpl implements DBNForm, SearchableDataComponent {
     private JPanel actionsPanel;
     private JScrollPane datasetTableScrollPane;
     private JPanel mainPanel;

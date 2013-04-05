@@ -1,10 +1,10 @@
 package com.dci.intellij.dbn.browser.ui;
 
 import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
-import com.dci.intellij.dbn.common.ui.UIFormImpl;
+import com.dci.intellij.dbn.common.ui.DBNFormImpl;
 import com.intellij.openapi.project.Project;
 
-public abstract class DatabaseBrowserForm extends UIFormImpl {
+public abstract class DatabaseBrowserForm extends DBNFormImpl {
     private Project project;
 
     protected DatabaseBrowserForm(Project project) {

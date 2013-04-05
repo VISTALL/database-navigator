@@ -1,8 +1,8 @@
 package com.dci.intellij.dbn.object.filter.name.ui;
 
 import com.dci.intellij.dbn.common.ui.ComboBoxSelectionKeyListener;
-import com.dci.intellij.dbn.common.ui.UIForm;
-import com.dci.intellij.dbn.common.ui.UIFormImpl;
+import com.dci.intellij.dbn.common.ui.DBNForm;
+import com.dci.intellij.dbn.common.ui.DBNFormImpl;
 import com.dci.intellij.dbn.object.common.DBObjectType;
 import com.dci.intellij.dbn.object.filter.name.CompoundFilterCondition;
 import com.dci.intellij.dbn.object.filter.name.ConditionJoinType;
@@ -19,7 +19,7 @@ import javax.swing.JTextField;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class EditFilterConditionForm extends UIFormImpl implements UIForm {
+public class EditFilterConditionForm extends DBNFormImpl implements DBNForm {
     private JPanel mainPanel;
     private JTextField textPatternTextField;
     private JLabel objectNameLabel;

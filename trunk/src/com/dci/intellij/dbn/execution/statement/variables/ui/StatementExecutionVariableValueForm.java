@@ -2,8 +2,8 @@ package com.dci.intellij.dbn.execution.statement.variables.ui;
 
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.ui.ComboBoxSelectionKeyListener;
-import com.dci.intellij.dbn.common.ui.UIForm;
-import com.dci.intellij.dbn.common.ui.UIFormImpl;
+import com.dci.intellij.dbn.common.ui.DBNForm;
+import com.dci.intellij.dbn.common.ui.DBNFormImpl;
 import com.dci.intellij.dbn.data.editor.ui.DataEditorComponent;
 import com.dci.intellij.dbn.data.editor.ui.TextFieldPopupType;
 import com.dci.intellij.dbn.data.editor.ui.TextFieldWithPopup;
@@ -25,7 +25,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 
-public class StatementExecutionVariableValueForm extends UIFormImpl implements UIForm {
+public class StatementExecutionVariableValueForm extends DBNFormImpl implements DBNForm {
     private JPanel mainPanel;
     private JLabel variableNameLabel;
     private JComboBox dataTypeComboBox;

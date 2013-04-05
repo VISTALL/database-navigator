@@ -1,11 +1,11 @@
 package com.dci.intellij.dbn.debugger.settings.ui;
 
-import com.dci.intellij.dbn.common.ui.UIForm;
-import com.dci.intellij.dbn.common.ui.UIFormImpl;
+import com.dci.intellij.dbn.common.ui.DBNForm;
+import com.dci.intellij.dbn.common.ui.DBNFormImpl;
 
 import javax.swing.JPanel;
 
-public class DBProgramDebuggerSettingsForm extends UIFormImpl implements UIForm {
+public class DBProgramDebuggerSettingsForm extends DBNFormImpl implements DBNForm {
     private JPanel mainPanel;
 
     public JPanel getComponent() {

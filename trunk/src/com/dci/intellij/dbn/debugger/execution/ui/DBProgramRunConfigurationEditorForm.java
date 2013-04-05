@@ -1,8 +1,8 @@
 package com.dci.intellij.dbn.debugger.execution.ui;
 
 import com.dci.intellij.dbn.common.dispose.DisposeUtil;
-import com.dci.intellij.dbn.common.ui.UIForm;
-import com.dci.intellij.dbn.common.ui.UIFormImpl;
+import com.dci.intellij.dbn.common.ui.DBNForm;
+import com.dci.intellij.dbn.common.ui.DBNFormImpl;
 import com.dci.intellij.dbn.debugger.execution.DBProgramRunConfiguration;
 import com.dci.intellij.dbn.debugger.execution.action.OpenMethodBrowserAction;
 import com.dci.intellij.dbn.debugger.execution.action.OpenMethodHistoryAction;
@@ -23,7 +23,7 @@ import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class DBProgramRunConfigurationEditorForm extends UIFormImpl implements UIForm {
+public class DBProgramRunConfigurationEditorForm extends DBNFormImpl implements DBNForm {
     private JPanel methodPanel;
     private JPanel mainPanel;
     private JPanel methodArgumentsPanel;

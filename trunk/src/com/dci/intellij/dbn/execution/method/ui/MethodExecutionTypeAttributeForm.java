@@ -1,7 +1,7 @@
 package com.dci.intellij.dbn.execution.method.ui;
 
-import com.dci.intellij.dbn.common.ui.UIForm;
-import com.dci.intellij.dbn.common.ui.UIFormImpl;
+import com.dci.intellij.dbn.common.ui.DBNForm;
+import com.dci.intellij.dbn.common.ui.DBNFormImpl;
 import com.dci.intellij.dbn.common.util.CommonUtil;
 import com.dci.intellij.dbn.data.editor.ui.TextFieldWithPopup;
 import com.dci.intellij.dbn.data.type.BasicDataType;
@@ -19,7 +19,7 @@ import javax.swing.event.DocumentListener;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 
-public class MethodExecutionTypeAttributeForm extends UIFormImpl implements UIForm {
+public class MethodExecutionTypeAttributeForm extends DBNFormImpl implements DBNForm {
     private JLabel attributeTypeLabel;
     private JLabel attributeLabel;
     private JPanel mainPanel;

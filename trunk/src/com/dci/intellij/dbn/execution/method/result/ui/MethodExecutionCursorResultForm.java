@@ -1,7 +1,7 @@
 package com.dci.intellij.dbn.execution.method.result.ui;
 
-import com.dci.intellij.dbn.common.ui.UIForm;
-import com.dci.intellij.dbn.common.ui.UIFormImpl;
+import com.dci.intellij.dbn.common.ui.DBNForm;
+import com.dci.intellij.dbn.common.ui.DBNFormImpl;
 import com.dci.intellij.dbn.common.util.ActionUtil;
 import com.dci.intellij.dbn.data.model.resultSet.ResultSetDataModel;
 import com.dci.intellij.dbn.data.ui.table.record.RecordViewInfo;
@@ -19,7 +19,7 @@ import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 import java.awt.Dimension;
 
-public class MethodExecutionCursorResultForm extends UIFormImpl implements UIForm {
+public class MethodExecutionCursorResultForm extends DBNFormImpl implements DBNForm {
     private JPanel actionsPanel;
     private JScrollPane resultScrollPane;
     private JPanel mainPanel;

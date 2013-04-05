@@ -2,19 +2,19 @@ package com.dci.intellij.dbn.common.ui.dialog;
 
 import com.dci.intellij.dbn.common.TimeUtil;
 import com.dci.intellij.dbn.common.thread.SimpleLaterInvocator;
-import com.dci.intellij.dbn.common.ui.UIFormImpl;
+import com.dci.intellij.dbn.common.ui.DBNFormImpl;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 
-public class DBNDialogWithTimeoutForm extends UIFormImpl{
+public class DialogWithTimeoutForm extends DBNFormImpl {
     private JPanel mainPanel;
     private JPanel contentPanel;
     private JLabel timeLeftLabel;
 
-    public DBNDialogWithTimeoutForm(int secondsLeft) {
+    public DialogWithTimeoutForm(int secondsLeft) {
         updateTimeLeft(secondsLeft);
     }
 

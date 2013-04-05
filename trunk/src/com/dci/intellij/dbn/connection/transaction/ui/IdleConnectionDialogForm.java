@@ -1,6 +1,6 @@
 package com.dci.intellij.dbn.connection.transaction.ui;
 
-import com.dci.intellij.dbn.common.ui.UIFormImpl;
+import com.dci.intellij.dbn.common.ui.DBNFormImpl;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 
 import javax.swing.JComponent;
@@ -8,7 +8,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
-public class IdleConnectionDialogForm extends UIFormImpl{
+public class IdleConnectionDialogForm extends DBNFormImpl {
     private JPanel mainPanel;
     private JTextArea hintTextArea;
     private JPanel headerPanel;

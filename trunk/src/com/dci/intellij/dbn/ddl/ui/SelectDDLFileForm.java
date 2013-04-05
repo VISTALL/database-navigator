@@ -1,7 +1,7 @@
 package com.dci.intellij.dbn.ddl.ui;
 
-import com.dci.intellij.dbn.common.ui.UIForm;
-import com.dci.intellij.dbn.common.ui.UIFormImpl;
+import com.dci.intellij.dbn.common.ui.DBNForm;
+import com.dci.intellij.dbn.common.ui.DBNFormImpl;
 import com.dci.intellij.dbn.object.common.DBSchemaObject;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -13,7 +13,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import java.util.List;
 
-public class SelectDDLFileForm extends UIFormImpl implements UIForm {
+public class SelectDDLFileForm extends DBNFormImpl implements DBNForm {
     private JLabel objectLabel;
     private JPanel mainPanel;
     private JTextArea hintTextArea;

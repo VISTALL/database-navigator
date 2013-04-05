@@ -1,7 +1,7 @@
 package com.dci.intellij.dbn.execution.compiler.ui;
 
-import com.dci.intellij.dbn.common.ui.UIForm;
-import com.dci.intellij.dbn.common.ui.UIFormImpl;
+import com.dci.intellij.dbn.common.ui.DBNForm;
+import com.dci.intellij.dbn.common.ui.DBNFormImpl;
 import com.dci.intellij.dbn.common.util.StringUtil;
 import com.dci.intellij.dbn.object.common.DBSchemaObject;
 import org.jetbrains.annotations.Nullable;
@@ -12,7 +12,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
-public class CompilerTypeSelectionForm extends UIFormImpl implements UIForm {
+public class CompilerTypeSelectionForm extends DBNFormImpl implements DBNForm {
     private JPanel mainPanel;
     private JLabel programLabel;
     private JPanel headerPanel;
