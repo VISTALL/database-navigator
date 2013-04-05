@@ -1,6 +1,6 @@
 package com.dci.intellij.dbn.data.find;
 
-import com.dci.intellij.dbn.common.ui.table.model.DataModelCell;
+import com.dci.intellij.dbn.data.model.DataModelCell;
 import com.intellij.openapi.Disposable;
 
 public class DataSearchResultMatch implements Disposable {

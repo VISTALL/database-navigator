@@ -1,8 +1,8 @@
 package com.dci.intellij.dbn.editor.data.ui.table.renderer;
 
-import com.dci.intellij.dbn.common.ui.table.BasicTable;
-import com.dci.intellij.dbn.common.ui.table.renderer.BasicTableCellRenderer;
 import com.dci.intellij.dbn.data.editor.color.DataGridTextAttributes;
+import com.dci.intellij.dbn.data.ui.table.basic.BasicTable;
+import com.dci.intellij.dbn.data.ui.table.basic.BasicTableCellRenderer;
 import com.dci.intellij.dbn.editor.data.ui.table.DatasetEditorTable;
 import com.dci.intellij.dbn.editor.data.ui.table.model.DatasetEditorModelCell;
 import com.dci.intellij.dbn.object.DBColumn;

@@ -1,6 +1,6 @@
 package com.dci.intellij.dbn.editor.data.filter;
 
-import com.dci.intellij.dbn.common.ui.table.SortingState;
+import com.dci.intellij.dbn.data.model.DataModelSortingState;
 import com.dci.intellij.dbn.object.DBColumn;
 import com.dci.intellij.dbn.object.DBDataset;
 import com.dci.intellij.dbn.object.DBTable;
@@ -9,7 +9,7 @@ import java.util.List;
 
 public class DatasetFilterUtil {
 
-    public static void addOrderByClause(DBDataset dataset, StringBuilder buffer, SortingState sortingState) {
+    public static void addOrderByClause(DBDataset dataset, StringBuilder buffer, DataModelSortingState sortingState) {
         if (dataset instanceof DBTable) {
             DBTable table = (DBTable) dataset;
             if (sortingState.isValid()) {

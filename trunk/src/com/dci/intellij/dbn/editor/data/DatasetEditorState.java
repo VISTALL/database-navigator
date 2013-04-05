@@ -1,6 +1,6 @@
 package com.dci.intellij.dbn.editor.data;
 
-import com.dci.intellij.dbn.common.ui.table.model.SortableDataModelState;
+import com.dci.intellij.dbn.data.model.sortable.SortableDataModelState;
 import com.intellij.openapi.fileEditor.FileEditorState;
 import com.intellij.openapi.fileEditor.FileEditorStateLevel;
 import gnu.trove.THashMap;

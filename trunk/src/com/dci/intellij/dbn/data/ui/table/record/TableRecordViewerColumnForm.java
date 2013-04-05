@@ -5,9 +5,9 @@ import com.dci.intellij.dbn.common.locale.Formatter;
 import com.dci.intellij.dbn.common.locale.options.RegionalSettings;
 import com.dci.intellij.dbn.common.ui.UIForm;
 import com.dci.intellij.dbn.common.ui.UIFormImpl;
-import com.dci.intellij.dbn.common.ui.table.model.ColumnInfo;
+import com.dci.intellij.dbn.data.model.ColumnInfo;
+import com.dci.intellij.dbn.data.model.resultSet.ResultSetDataModelCell;
 import com.dci.intellij.dbn.data.type.DBDataType;
-import com.dci.intellij.dbn.data.ui.table.model.ResultSetDataModelCell;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.UIUtil;
 

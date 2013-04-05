@@ -1,6 +1,6 @@
 package com.dci.intellij.dbn.editor.data.ui.table.model;
 
-import com.dci.intellij.dbn.common.ui.table.model.ColumnInfo;
+import com.dci.intellij.dbn.data.model.ColumnInfo;
 import com.dci.intellij.dbn.data.type.BasicDataType;
 import com.dci.intellij.dbn.data.type.DBDataType;
 import com.dci.intellij.dbn.editor.data.DatasetEditorUtils;

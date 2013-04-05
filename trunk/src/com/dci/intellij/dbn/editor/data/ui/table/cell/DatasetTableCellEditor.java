@@ -2,9 +2,9 @@
 
  import com.dci.intellij.dbn.common.thread.SimpleLaterInvocator;
  import com.dci.intellij.dbn.common.ui.MouseUtil;
- import com.dci.intellij.dbn.common.ui.table.model.ColumnInfo;
  import com.dci.intellij.dbn.data.editor.ui.BasicDataEditorComponent;
  import com.dci.intellij.dbn.data.editor.ui.DataEditorComponent;
+ import com.dci.intellij.dbn.data.model.ColumnInfo;
  import com.dci.intellij.dbn.data.type.BasicDataType;
  import com.dci.intellij.dbn.data.type.DBDataType;
  import com.dci.intellij.dbn.editor.data.DatasetEditorManager;

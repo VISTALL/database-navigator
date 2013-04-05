@@ -1,8 +1,8 @@
 package com.dci.intellij.dbn.editor.data.ui.table.model;
 
-import com.dci.intellij.dbn.common.ui.table.model.BasicDataModelHeader;
-import com.dci.intellij.dbn.common.ui.table.model.ColumnInfo;
-import com.dci.intellij.dbn.common.ui.table.model.DataModelHeader;
+import com.dci.intellij.dbn.data.model.ColumnInfo;
+import com.dci.intellij.dbn.data.model.DataModelHeader;
+import com.dci.intellij.dbn.data.model.basic.BasicDataModelHeader;
 import com.dci.intellij.dbn.object.DBColumn;
 import com.dci.intellij.dbn.object.DBDataset;
 

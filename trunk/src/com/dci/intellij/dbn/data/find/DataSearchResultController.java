@@ -2,10 +2,10 @@ package com.dci.intellij.dbn.data.find;
 
 import com.dci.intellij.dbn.common.thread.BackgroundTask;
 import com.dci.intellij.dbn.common.thread.SimpleLaterInvocator;
-import com.dci.intellij.dbn.common.ui.table.BasicTable;
-import com.dci.intellij.dbn.common.ui.table.model.DataModel;
-import com.dci.intellij.dbn.common.ui.table.model.DataModelCell;
-import com.dci.intellij.dbn.common.ui.table.model.DataModelRow;
+import com.dci.intellij.dbn.data.model.DataModel;
+import com.dci.intellij.dbn.data.model.DataModelCell;
+import com.dci.intellij.dbn.data.model.DataModelRow;
+import com.dci.intellij.dbn.data.ui.table.basic.BasicTable;
 import com.intellij.find.FindManager;
 import com.intellij.find.FindResult;
 import com.intellij.openapi.progress.ProgressIndicator;
