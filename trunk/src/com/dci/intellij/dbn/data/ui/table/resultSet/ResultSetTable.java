@@ -1,7 +1,6 @@
-package com.dci.intellij.dbn.data.ui.table;
+package com.dci.intellij.dbn.data.ui.table.resultSet;
 
 import com.dci.intellij.dbn.data.model.resultSet.ResultSetDataModel;
-import com.dci.intellij.dbn.data.ui.table.listener.ResultSetTableMouseListener;
 import com.dci.intellij.dbn.data.ui.table.record.RecordViewInfo;
 import com.dci.intellij.dbn.data.ui.table.record.TableRecordViewerDialog;
 import com.dci.intellij.dbn.data.ui.table.sortable.SortableTable;

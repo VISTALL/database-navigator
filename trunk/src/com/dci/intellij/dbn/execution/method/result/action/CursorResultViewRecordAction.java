@@ -1,7 +1,7 @@
 package com.dci.intellij.dbn.execution.method.result.action;
 
 import com.dci.intellij.dbn.common.Icons;
-import com.dci.intellij.dbn.data.ui.table.ResultSetTable;
+import com.dci.intellij.dbn.data.ui.table.resultSet.ResultSetTable;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAwareAction;
 
