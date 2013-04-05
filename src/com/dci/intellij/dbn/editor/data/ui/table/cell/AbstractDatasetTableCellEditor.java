@@ -5,10 +5,10 @@ import com.dci.intellij.dbn.common.locale.Formatter;
 import com.dci.intellij.dbn.common.util.StringUtil;
 import com.dci.intellij.dbn.data.editor.ui.DataEditorComponent;
 import com.dci.intellij.dbn.data.type.DBDataType;
+import com.dci.intellij.dbn.editor.data.model.DatasetEditorModelCell;
+import com.dci.intellij.dbn.editor.data.model.DatasetEditorModelCellValueListener;
 import com.dci.intellij.dbn.editor.data.options.DataEditorGeneralSettings;
 import com.dci.intellij.dbn.editor.data.options.DataEditorSettings;
-import com.dci.intellij.dbn.editor.data.ui.table.model.DatasetEditorModelCell;
-import com.dci.intellij.dbn.editor.data.ui.table.model.DatasetEditorModelCellValueListener;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
 

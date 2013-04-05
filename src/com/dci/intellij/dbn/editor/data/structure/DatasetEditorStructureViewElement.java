@@ -2,8 +2,8 @@ package com.dci.intellij.dbn.editor.data.structure;
 
 import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
 import com.dci.intellij.dbn.editor.data.DatasetEditor;
+import com.dci.intellij.dbn.editor.data.model.DatasetEditorModel;
 import com.dci.intellij.dbn.editor.data.ui.table.DatasetEditorTable;
-import com.dci.intellij.dbn.editor.data.ui.table.model.DatasetEditorModel;
 import com.dci.intellij.dbn.object.DBColumn;
 import com.dci.intellij.dbn.object.DBDataset;
 import com.dci.intellij.dbn.object.DBSchema;

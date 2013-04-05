@@ -2,8 +2,8 @@ package com.dci.intellij.dbn.editor.data.ui.table.renderer;
 
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.data.ui.table.basic.BasicTableGutterCellRenderer;
-import com.dci.intellij.dbn.editor.data.ui.table.model.DatasetEditorModel;
-import com.dci.intellij.dbn.editor.data.ui.table.model.DatasetEditorModelRow;
+import com.dci.intellij.dbn.editor.data.model.DatasetEditorModel;
+import com.dci.intellij.dbn.editor.data.model.DatasetEditorModelRow;
 import com.intellij.util.ui.UIUtil;
 
 import javax.swing.Icon;
