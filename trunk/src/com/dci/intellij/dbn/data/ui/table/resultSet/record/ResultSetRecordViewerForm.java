@@ -1,4 +1,4 @@
-package com.dci.intellij.dbn.data.ui.table.record;
+package com.dci.intellij.dbn.data.ui.table.resultSet.record;
 
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.dispose.DisposeUtil;
@@ -10,6 +10,7 @@ import com.dci.intellij.dbn.data.model.resultSet.ResultSetDataModel;
 import com.dci.intellij.dbn.data.model.resultSet.ResultSetDataModelCell;
 import com.dci.intellij.dbn.data.model.resultSet.ResultSetDataModelRow;
 import com.dci.intellij.dbn.data.record.ColumnSortingType;
+import com.dci.intellij.dbn.data.record.RecordViewInfo;
 import com.dci.intellij.dbn.data.ui.table.resultSet.ResultSetTable;
 import com.dci.intellij.dbn.editor.data.DatasetEditorManager;
 import com.intellij.openapi.actionSystem.ActionToolbar;
@@ -30,7 +31,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-public class TableRecordViewerForm extends DBNFormImpl implements DBNForm {
+public class ResultSetRecordViewerForm extends DBNFormImpl implements DBNForm {
     private JPanel actionsPanel;
     private JPanel columnsPanel;
     private JPanel mainPanel;
@@ -38,12 +39,12 @@ public class TableRecordViewerForm extends DBNFormImpl implements DBNForm {
     private JLabel resultSetLabel;
     private JPanel headerPanel;
 
-    private List<TableRecordViewerColumnForm> columnForms = new ArrayList<TableRecordViewerColumnForm>();
+    private List<ResultSetRecordViewerColumnForm> columnForms = new ArrayList<ResultSetRecordViewerColumnForm>();
 
     private ResultSetTable table;
     private ResultSetDataModelRow row;
 
-    public TableRecordViewerForm(ResultSetTable table) {
+    public ResultSetRecordViewerForm(ResultSetTable table) {
         this.table = table;
         ResultSetDataModel model = table.getModel();
         row = (ResultSetDataModelRow) model.getRowAtIndex(table.getSelectedRow());
@@ -70,18 +71,18 @@ public class TableRecordViewerForm extends DBNFormImpl implements DBNForm {
         columnsPanel.setLayout(new BoxLayout(columnsPanel, BoxLayout.Y_AXIS));
 
         for (Object cell: row.getCells()) {
-            TableRecordViewerColumnForm columnForm = new TableRecordViewerColumnForm(this, (ResultSetDataModelCell) cell);
+            ResultSetRecordViewerColumnForm columnForm = new ResultSetRecordViewerColumnForm(this, (ResultSetDataModelCell) cell);
             columnForms.add(columnForm);
         }
         ColumnSortingType columnSortingType = DatasetEditorManager.getInstance(project).getRecordViewColumnSortingType();
         sortColumns(columnSortingType);
 
         int[] metrics = new int[]{0, 0};
-        for (TableRecordViewerColumnForm columnForm : columnForms) {
+        for (ResultSetRecordViewerColumnForm columnForm : columnForms) {
             metrics = columnForm.getMetrics(metrics);
         }
 
-        for (TableRecordViewerColumnForm columnForm : columnForms) {
+        for (ResultSetRecordViewerColumnForm columnForm : columnForms) {
             columnForm.adjustMetrics(metrics);
         }
 
@@ -111,13 +112,13 @@ public class TableRecordViewerForm extends DBNFormImpl implements DBNForm {
         this.row = row;
         for (Object o : row.getCells()) {
             ResultSetDataModelCell cell = (ResultSetDataModelCell) o;
-            TableRecordViewerColumnForm columnForm = getColumnPanel(cell.getColumnInfo());
+            ResultSetRecordViewerColumnForm columnForm = getColumnPanel(cell.getColumnInfo());
             columnForm.setCell(cell);
         }
     }
 
-    private TableRecordViewerColumnForm getColumnPanel(ColumnInfo columnInfo) {
-        for (TableRecordViewerColumnForm columnForm : columnForms) {
+    private ResultSetRecordViewerColumnForm getColumnPanel(ColumnInfo columnInfo) {
+        for (ResultSetRecordViewerColumnForm columnForm : columnForms) {
             if (columnForm.getCell().getColumnInfo() == columnInfo) {
                 return columnForm;
             }
@@ -129,48 +130,48 @@ public class TableRecordViewerForm extends DBNFormImpl implements DBNForm {
      *                   Column sorting                      *
      *********************************************************/
     private void sortColumns(ColumnSortingType sortingType) {
-        Comparator<TableRecordViewerColumnForm> comparator =
+        Comparator<ResultSetRecordViewerColumnForm> comparator =
                 sortingType == ColumnSortingType.ALPHABETICAL ? alphabeticComparator :
                 sortingType == ColumnSortingType.BY_INDEX ? indexedComparator : null;
 
         if (comparator != null) {
             Collections.sort(columnForms, comparator);
             columnsPanel.removeAll();
-            for (TableRecordViewerColumnForm columnForm : columnForms) {
+            for (ResultSetRecordViewerColumnForm columnForm : columnForms) {
                 columnsPanel.add(columnForm.getComponent());
             }
             columnsPanel.updateUI();
         }
     }
 
-    private static Comparator<TableRecordViewerColumnForm> alphabeticComparator = new Comparator<TableRecordViewerColumnForm>() {
-        public int compare(TableRecordViewerColumnForm columnPanel1, TableRecordViewerColumnForm columnPanel2) {
+    private static Comparator<ResultSetRecordViewerColumnForm> alphabeticComparator = new Comparator<ResultSetRecordViewerColumnForm>() {
+        public int compare(ResultSetRecordViewerColumnForm columnPanel1, ResultSetRecordViewerColumnForm columnPanel2) {
             String name1 = columnPanel1.getCell().getColumnInfo().getName();
             String name2 = columnPanel2.getCell().getColumnInfo().getName();
             return name1.compareTo(name2);
         }
     };
 
-    private static Comparator<TableRecordViewerColumnForm> indexedComparator = new Comparator<TableRecordViewerColumnForm>() {
-        public int compare(TableRecordViewerColumnForm columnPanel1, TableRecordViewerColumnForm columnPanel2) {
+    private static Comparator<ResultSetRecordViewerColumnForm> indexedComparator = new Comparator<ResultSetRecordViewerColumnForm>() {
+        public int compare(ResultSetRecordViewerColumnForm columnPanel1, ResultSetRecordViewerColumnForm columnPanel2) {
             int index1 = columnPanel1.getCell().getColumnInfo().getColumnIndex();
             int index2 = columnPanel2.getCell().getColumnInfo().getColumnIndex();
             return index1-index2;
         }
     };
 
-    public void focusNextColumnPanel(TableRecordViewerColumnForm source) {
+    public void focusNextColumnPanel(ResultSetRecordViewerColumnForm source) {
         int index = columnForms.indexOf(source);
         if (index < columnForms.size() - 1) {
-            TableRecordViewerColumnForm columnForm = columnForms.get(index + 1);
+            ResultSetRecordViewerColumnForm columnForm = columnForms.get(index + 1);
             columnForm.getViewComponent().requestFocus();
         }
     }
 
-    public void focusPreviousColumnPanel(TableRecordViewerColumnForm source) {
+    public void focusPreviousColumnPanel(ResultSetRecordViewerColumnForm source) {
         int index = columnForms.indexOf(source);
         if (index > 0) {
-            TableRecordViewerColumnForm columnForm = columnForms.get(index - 1);
+            ResultSetRecordViewerColumnForm columnForm = columnForms.get(index - 1);
             columnForm.getViewComponent().requestFocus();
         }
     }

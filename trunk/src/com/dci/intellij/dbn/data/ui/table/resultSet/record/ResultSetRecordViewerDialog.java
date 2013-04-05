@@ -1,4 +1,4 @@
-package com.dci.intellij.dbn.data.ui.table.record;
+package com.dci.intellij.dbn.data.ui.table.resultSet.record;
 
 import com.dci.intellij.dbn.common.ui.dialog.DBNDialog;
 import com.dci.intellij.dbn.data.ui.table.resultSet.ResultSetTable;
@@ -7,14 +7,14 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.Action;
 import javax.swing.JComponent;
 
-public class TableRecordViewerDialog extends DBNDialog {
-    private TableRecordViewerForm viewerForm;
+public class ResultSetRecordViewerDialog extends DBNDialog {
+    private ResultSetRecordViewerForm viewerForm;
 
-    public TableRecordViewerDialog(ResultSetTable table) {
+    public ResultSetRecordViewerDialog(ResultSetTable table) {
         super(table.getProject(), "View Record", true);
         setModal(true);
         setResizable(true);
-        viewerForm = new TableRecordViewerForm(table);
+        viewerForm = new ResultSetRecordViewerForm(table);
         getCancelAction().putValue(Action.NAME, "Close");
         init();
     }
