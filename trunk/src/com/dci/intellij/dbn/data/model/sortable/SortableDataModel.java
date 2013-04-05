@@ -75,10 +75,8 @@ public class SortableDataModel<T extends SortableDataModelRow> extends BasicData
         updateRowIndexes(rows, 0);
     }
 
-    private static final Comparator INDEX_COMPARATOR = new Comparator() {
-        public int compare(Object o1, Object o2) {
-            DataModelRow row1 = (DataModelRow) o1;
-            DataModelRow row2 = (DataModelRow) o2;
+    private static final Comparator<DataModelRow> INDEX_COMPARATOR = new Comparator<DataModelRow>() {
+        public int compare(DataModelRow row1, DataModelRow row2) {
             return row1.getIndex() - row2.getIndex();
         }
     };
