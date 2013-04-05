@@ -16,6 +16,7 @@ import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.GuiUtils;
+import com.intellij.util.ui.UIUtil;
 
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -43,6 +44,7 @@ public class DatasetFilterForm extends ConfigurationEditorForm<DatasetFilterGrou
     public DatasetFilterForm(DatasetFilterGroup filterGroup, DBDataset dataset) {
         super(filterGroup);
         filtersList.setModel(filterGroup);
+        filtersList.setFont(UIUtil.getLabelFont());
         this.dataset = dataset;
         datasetLabel.setIcon(dataset.getIcon());
         datasetLabel.setText(dataset.getQualifiedName());

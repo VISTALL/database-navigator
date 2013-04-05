@@ -23,7 +23,7 @@ import java.awt.Rectangle;
 
 public class DatasetEditorErrorForm extends UIFormImpl implements UIForm, ChangeListener {
     public static final DBNColor BACKGROUND_COLOR = new DBNColor(
-            new Color(0xC95757),
+            new Color(0xFFCCCC),
             new Color(0x743A3A));
     private JPanel mainPanel;
     private JLabel errorIconLabel;
