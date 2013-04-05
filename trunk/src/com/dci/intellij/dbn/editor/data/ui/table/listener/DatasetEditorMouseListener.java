@@ -3,8 +3,8 @@ package com.dci.intellij.dbn.editor.data.ui.table.listener;
 import com.dci.intellij.dbn.common.ui.MouseUtil;
 import com.dci.intellij.dbn.editor.data.DatasetEditorManager;
 import com.dci.intellij.dbn.editor.data.filter.DatasetFilterInput;
+import com.dci.intellij.dbn.editor.data.model.DatasetEditorModelCell;
 import com.dci.intellij.dbn.editor.data.ui.table.DatasetEditorTable;
-import com.dci.intellij.dbn.editor.data.ui.table.model.DatasetEditorModelCell;
 import com.dci.intellij.dbn.object.DBColumn;
 
 import java.awt.Point;

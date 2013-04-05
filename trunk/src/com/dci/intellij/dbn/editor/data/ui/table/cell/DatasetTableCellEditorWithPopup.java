@@ -3,9 +3,9 @@ package com.dci.intellij.dbn.editor.data.ui.table.cell;
 import com.dci.intellij.dbn.common.ui.Borders;
 import com.dci.intellij.dbn.data.editor.ui.TextFieldPopupProviderForm;
 import com.dci.intellij.dbn.data.editor.ui.TextFieldWithPopup;
+import com.dci.intellij.dbn.editor.data.model.DatasetEditorModelCell;
 import com.dci.intellij.dbn.editor.data.options.DataEditorPopupSettings;
 import com.dci.intellij.dbn.editor.data.ui.table.DatasetEditorTable;
-import com.dci.intellij.dbn.editor.data.ui.table.model.DatasetEditorModelCell;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.UIUtil;
 

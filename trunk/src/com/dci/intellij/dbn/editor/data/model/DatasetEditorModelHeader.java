@@ -1,4 +1,4 @@
-package com.dci.intellij.dbn.editor.data.ui.table.model;
+package com.dci.intellij.dbn.editor.data.model;
 
 import com.dci.intellij.dbn.data.model.ColumnInfo;
 import com.dci.intellij.dbn.data.model.DataModelHeader;

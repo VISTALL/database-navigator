@@ -1,7 +1,7 @@
 package com.dci.intellij.dbn.editor.data.record.ui;
 
 import com.dci.intellij.dbn.common.ui.dialog.DBNDialog;
-import com.dci.intellij.dbn.editor.data.ui.table.model.DatasetEditorModelRow;
+import com.dci.intellij.dbn.editor.data.model.DatasetEditorModelRow;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Action;

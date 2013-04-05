@@ -9,8 +9,8 @@
  import com.dci.intellij.dbn.data.type.DBDataType;
  import com.dci.intellij.dbn.editor.data.DatasetEditorManager;
  import com.dci.intellij.dbn.editor.data.filter.DatasetFilterInput;
+ import com.dci.intellij.dbn.editor.data.model.DatasetEditorModelCell;
  import com.dci.intellij.dbn.editor.data.ui.table.DatasetEditorTable;
- import com.dci.intellij.dbn.editor.data.ui.table.model.DatasetEditorModelCell;
  import com.dci.intellij.dbn.object.DBColumn;
  import com.intellij.ui.SimpleTextAttributes;
 

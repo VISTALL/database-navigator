@@ -6,10 +6,10 @@ import com.dci.intellij.dbn.data.type.BasicDataType;
 import com.dci.intellij.dbn.data.type.DBDataType;
 import com.dci.intellij.dbn.data.type.DBNativeDataType;
 import com.dci.intellij.dbn.data.type.DataTypeDefinition;
+import com.dci.intellij.dbn.editor.data.model.DatasetEditorColumnInfo;
 import com.dci.intellij.dbn.editor.data.options.DataEditorSettings;
 import com.dci.intellij.dbn.editor.data.options.DataEditorValueListPopupSettings;
 import com.dci.intellij.dbn.editor.data.ui.table.DatasetEditorTable;
-import com.dci.intellij.dbn.editor.data.ui.table.model.DatasetEditorColumnInfo;
 import com.dci.intellij.dbn.object.DBColumn;
 import com.intellij.openapi.Disposable;
 
