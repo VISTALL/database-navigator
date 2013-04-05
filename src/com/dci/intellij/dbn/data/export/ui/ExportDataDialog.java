@@ -4,7 +4,7 @@ import com.dci.intellij.dbn.common.ui.dialog.DBNDialog;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.data.export.DataExportInstructions;
 import com.dci.intellij.dbn.data.export.DataExportManager;
-import com.dci.intellij.dbn.data.ui.table.ResultSetTable;
+import com.dci.intellij.dbn.data.ui.table.resultSet.ResultSetTable;
 import com.dci.intellij.dbn.execution.ExecutionResult;
 import com.dci.intellij.dbn.object.common.DBObject;
 import org.jetbrains.annotations.NotNull;

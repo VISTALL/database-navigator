@@ -1,7 +1,7 @@
 package com.dci.intellij.dbn.data.ui.table.record;
 
 import com.dci.intellij.dbn.common.ui.dialog.DBNDialog;
-import com.dci.intellij.dbn.data.ui.table.ResultSetTable;
+import com.dci.intellij.dbn.data.ui.table.resultSet.ResultSetTable;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Action;
