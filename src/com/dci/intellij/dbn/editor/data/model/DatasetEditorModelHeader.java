@@ -17,6 +17,7 @@ import java.util.List;
 public class DatasetEditorModelHeader extends BasicDataModelHeader implements DataModelHeader {
     public DatasetEditorModelHeader(DBDataset dataset, ResultSet resultSet) throws SQLException {
         super();
+        List<ColumnInfo> columnInfos = getColumnInfos();
         if (resultSet == null) {
             List<DBColumn> columns = new ArrayList<DBColumn>(dataset.getColumns());
             Collections.sort(columns, COLUMN_POSITION_COMPARATOR);
@@ -24,7 +25,7 @@ public class DatasetEditorModelHeader extends BasicDataModelHeader implements Da
             for (DBColumn column : columns) {
                 if (!column.isHidden()) {
                     ColumnInfo columnInfo = new DatasetEditorColumnInfo(column, index);
-                    getColumnInfos().add(columnInfo);
+                    columnInfos.add(columnInfo);
                     index++;
                 }
             }
@@ -35,7 +36,7 @@ public class DatasetEditorModelHeader extends BasicDataModelHeader implements Da
                 String name = metaData.getColumnName(i+1);
                 DBColumn column = dataset.getColumn(name);
                 ColumnInfo columnInfo = new DatasetEditorColumnInfo(column, i);
-                getColumnInfos().add(columnInfo);
+                columnInfos.add(columnInfo);
             }
         }
     }
