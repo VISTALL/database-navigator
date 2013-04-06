@@ -1,6 +1,7 @@
 package com.dci.intellij.dbn.data.model.basic;
 
 
+import com.dci.intellij.dbn.common.dispose.DisposeUtil;
 import com.dci.intellij.dbn.data.model.ColumnInfo;
 import com.dci.intellij.dbn.data.model.DataModelHeader;
 import com.dci.intellij.dbn.data.type.DBDataType;
@@ -42,9 +43,6 @@ public class BasicDataModelHeader implements DataModelHeader {
     }
 
     public void dispose() {
-        for (ColumnInfo columnInfo : columnInfos) {
-            columnInfo.dispose();
-        }
-        columnInfos.clear();
+        DisposeUtil.disposeCollection(columnInfos);
     }
 }
