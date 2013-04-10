@@ -44,7 +44,6 @@ public abstract class DDLFileEditorProvider extends BasicTextEditorProvider impl
         VirtualFile virtualFile = databaseFile.getBoundDDLFiles().get(index);
 
         BasicTextEditor textEditor = new DDLFileEditor(project, virtualFile);
-        textEditor.getEditor().putUserData(DBN_FILE_EDITOR_PROVIDER, Boolean.toString(true));
         updateTabIcon(databaseFile, textEditor, VirtualFileUtil.getIcon(virtualFile));
         return textEditor;
     }

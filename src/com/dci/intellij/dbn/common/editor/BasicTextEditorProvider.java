@@ -10,16 +10,13 @@ import com.intellij.openapi.fileEditor.FileEditorProvider;
 import com.intellij.openapi.fileEditor.FileEditorState;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Key;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
+import javax.swing.Icon;
 
 public abstract class BasicTextEditorProvider implements FileEditorProvider, ApplicationComponent, DumbAware {
-    public static final Key<String> DBN_FILE_EDITOR_PROVIDER = Key.create("DBN_FILE_EDITOR_PROVIDER");
-
     @NotNull
     public FileEditorState readState(@NotNull Element sourceElement, @NotNull final Project project, @NotNull final VirtualFile virtualFile) {
         BasicTextEditorState editorState = new BasicTextEditorState();

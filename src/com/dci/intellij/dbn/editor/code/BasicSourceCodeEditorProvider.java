@@ -44,7 +44,6 @@ public abstract class BasicSourceCodeEditorProvider extends BasicTextEditorProvi
         BasicTextEditor textEditor = isMainEditor ?
                 new SourceCodeMainEditor(project, sourceCodeFile, editorName) :
                 new SourceCodeEditor(project, sourceCodeFile, editorName);
-        textEditor.getEditor().putUserData(DBN_FILE_EDITOR_PROVIDER, Boolean.toString(true));
 
         updateEditorActions(textEditor);
         Document document = textEditor.getEditor().getDocument();
