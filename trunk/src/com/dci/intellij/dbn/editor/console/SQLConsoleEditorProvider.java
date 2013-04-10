@@ -43,7 +43,6 @@ public class SQLConsoleEditorProvider extends BasicTextEditorProvider {
         SQLConsoleEditor editor = new SQLConsoleEditor(project, (SQLConsoleFile) file, "SQL Console");
         SQLConsoleEditorToolbarForm toolbarForm = new SQLConsoleEditorToolbarForm(editor);
         editor.getComponent().add(toolbarForm.getComponent(), BorderLayout.NORTH);
-        editor.getEditor().putUserData(DBN_FILE_EDITOR_PROVIDER, Boolean.toString(true));
         return editor;
     }
 
