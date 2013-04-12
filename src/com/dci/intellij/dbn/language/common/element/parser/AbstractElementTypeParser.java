@@ -25,7 +25,7 @@ public abstract class AbstractElementTypeParser<T extends ElementType> implement
     }
 
     public ParsePathNode createParseNode(ParsePathNode parentParseNode, int builderOffset) {
-        return new ParsePathNode(elementType, parentParseNode, 0, builderOffset);
+        return new ParsePathNode(elementType, parentParseNode, builderOffset, 0);
     }
 
     protected boolean isDummyToken(String tokenText){
