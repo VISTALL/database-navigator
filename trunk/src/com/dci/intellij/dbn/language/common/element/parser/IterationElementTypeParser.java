@@ -6,6 +6,7 @@ import com.dci.intellij.dbn.language.common.element.ElementType;
 import com.dci.intellij.dbn.language.common.element.IterationElementType;
 import com.dci.intellij.dbn.language.common.element.SequenceElementType;
 import com.dci.intellij.dbn.language.common.element.TokenElementType;
+import com.dci.intellij.dbn.language.common.element.path.IterationParsePathNode;
 import com.dci.intellij.dbn.language.common.element.path.ParsePathNode;
 import com.intellij.lang.PsiBuilder;
 import com.intellij.psi.tree.IElementType;
@@ -16,7 +17,7 @@ public class IterationElementTypeParser extends AbstractElementTypeParser<Iterat
     }
 
     public ParseResult parse(ParsePathNode parentNode, PsiBuilder builder, boolean optional, int depth, long timestamp) throws ParseException {
-        ParsePathNode node = createParseNode(parentNode, builder.getCurrentOffset());
+        IterationParsePathNode node = createParseNode(parentNode, builder.getCurrentOffset());
         logBegin(builder, optional, depth);
         PsiBuilder.Marker marker = builder.mark();
         ElementType iteratedElementType = getElementType().getIteratedElementType();
@@ -32,6 +33,9 @@ public class IterationElementTypeParser extends AbstractElementTypeParser<Iterat
 
             // check first iteration element
             if (result.isMatch()) {
+                if (node.isRecursive(node.getStartOffset())) {
+                    return stepOut(builder, marker, depth, ParseResultType.FULL_MATCH, matchedTokens, node);
+                }
                 while (true) {
                     elementCounter++;
                     // check separator
@@ -41,15 +45,16 @@ public class IterationElementTypeParser extends AbstractElementTypeParser<Iterat
                             result = separatorToken.getParser().parse(node, builder, false, depth + 1, timestamp);
                             matchedTokens = matchedTokens + result.getMatchedTokens();
                             if (result.isMatch()) break;
-
                         }
 
-                        // if NO_MATCH, no additional separator found, hence then iteration should exit with MATCH
                         if (result.isNoMatch()) {
+                            // if NO_MATCH, no additional separator found, hence then iteration should exit with MATCH
                             ParseResultType resultType = matchesElementsCount(elementCounter) ?
                                     ParseResultType.FULL_MATCH :
                                     ParseResultType.PARTIAL_MATCH;
                             return stepOut(builder, marker, depth, resultType, matchedTokens, node);
+                        } else {
+                            node.setCurrentOffset(builder.getCurrentOffset());
                         }
                     }
 
@@ -127,6 +132,10 @@ public class IterationElementTypeParser extends AbstractElementTypeParser<Iterat
         if (advanced || !lenient) markerDone(marker, getElementBundle().getUnknownElementType());
         else marker.rollbackTo();
         return true;
+    }
+
+    public IterationParsePathNode createParseNode(ParsePathNode parentParseNode, int builderOffset) {
+        return new IterationParsePathNode(getElementType(), parentParseNode, builderOffset, 0);
     }
 
     private void markerDone(PsiBuilder.Marker marker, ElementType elementType) {
