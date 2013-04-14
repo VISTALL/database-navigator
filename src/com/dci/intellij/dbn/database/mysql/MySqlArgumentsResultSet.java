@@ -884,13 +884,13 @@ public class MySqlArgumentsResultSet implements ResultSet {
     public void updateNClob(String columnLabel, Reader reader) throws SQLException {
     }
 
-    public <T> T unwrap(Class<T> iface) throws SQLException {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
+    public <T> T getObject(int columnIndex, Class<T> type) throws SQLException {return null;}
 
-    public boolean isWrapperFor(Class<?> iface) throws SQLException {
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
-    }
+    public <T> T getObject(String columnLabel, Class<T> type) throws SQLException {return null;}
+
+    public <T> T unwrap(Class<T> iface) throws SQLException {return null;}
+
+    public boolean isWrapperFor(Class<?> iface) throws SQLException {return false;}
 
 
 
