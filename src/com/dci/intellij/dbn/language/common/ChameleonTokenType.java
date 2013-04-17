@@ -24,7 +24,12 @@ public class ChameleonTokenType extends SimpleTokenType implements ElementType {
 
     @NotNull
     @Override
-    public DBLanguageDialect getLanguage() {
+    public DBLanguage getLanguage() {
+        return getLanguageDialect().getBaseLanguage();
+    }
+
+    @Override
+    public DBLanguageDialect getLanguageDialect() {
         return (DBLanguageDialect) super.getLanguage();
     }
 

@@ -36,7 +36,8 @@ public class DatabaseFileViewProvider extends SingleRootFileViewProvider {
                 return psiCache.getPsiFile(object);
             }
 
-            PsiFile psiFile = super.getPsiInner(language);
+            DBLanguage baseLanguage = (DBLanguage) getBaseLanguage();
+            PsiFile psiFile = super.getPsiInner(baseLanguage);
             if (psiFile == null) {
                 DatabaseFile databaseFile = getDatabaseFile(virtualFile);
                 if (databaseFile != null) {

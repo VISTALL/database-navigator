@@ -10,6 +10,7 @@ import com.dci.intellij.dbn.common.util.EditorUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.database.DatabaseCompatibilityInterface;
 import com.dci.intellij.dbn.editor.ddl.DDLFileEditor;
+import com.dci.intellij.dbn.language.common.DBLanguage;
 import com.dci.intellij.dbn.language.common.DBLanguageDialect;
 import com.dci.intellij.dbn.language.common.DBLanguageFile;
 import com.dci.intellij.dbn.language.common.element.ElementType;
@@ -542,8 +543,13 @@ public abstract class BasePsiElement extends ASTWrapperPsiElement implements Ite
     public abstract boolean hasErrors();
 
     @NotNull
-    public DBLanguageDialect getLanguage() {
-        return (DBLanguageDialect) super.getLanguage();
+    public DBLanguage getLanguage() {
+        return getLanguageDialect().getBaseLanguage();
+    }
+
+    @NotNull
+    public DBLanguageDialect getLanguageDialect() {
+        return getElementType().getLanguageDialect();
     }
 
     public abstract boolean equals(BasePsiElement basePsiElement);
