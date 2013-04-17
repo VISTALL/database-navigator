@@ -4,6 +4,7 @@ import com.dci.intellij.dbn.common.Constants;
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.ui.DBNForm;
 import com.dci.intellij.dbn.common.ui.DBNFormImpl;
+import com.dci.intellij.dbn.common.ui.DBNHeaderPanel;
 import com.dci.intellij.dbn.common.util.MessageUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.data.export.DataExportFormat;
@@ -17,14 +18,16 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
+import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.Icon;
 import javax.swing.JCheckBox;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -50,7 +53,6 @@ public class ExportDataForm extends DBNFormImpl implements DBNForm {
     private JCheckBox createHeaderCheckBox;
     private JCheckBox quoteValuesCheckBox;
     private JCheckBox quoteAllValuesCheckBox;
-    private JLabel datasetLabel;
     private JPanel headerPanel;
     private JPanel scopePanel;
     private JPanel formatPanel;
@@ -117,19 +119,21 @@ public class ExportDataForm extends DBNFormImpl implements DBNForm {
         
         enableDisableFields();
 
-        if (sourceObject != null) {
-            datasetLabel.setIcon(sourceObject.getIcon());
-            datasetLabel.setText(sourceObject instanceof DBSchemaObject ? sourceObject.getQualifiedName() : sourceObject.getName());
-            if (getEnvironmentSettings(project).getVisibilitySettings().getDialogHeaders().value()) {
-                headerPanel.setBackground(sourceObject.getEnvironmentType().getColor());
-            }
-        } else {
-            datasetLabel.setIcon(Icons.DBO_TABLE);
-            datasetLabel.setText(instructions.getBaseName());
-            if (getEnvironmentSettings(project).getVisibilitySettings().getDialogHeaders().value()) {
-                headerPanel.setBackground(connectionHandler.getEnvironmentType().getColor());
-            }
+        String headerTitle;
+        Icon headerIcon;
+        Color headerBackground = UIUtil.getPanelBackground();
+        if (getEnvironmentSettings(project).getVisibilitySettings().getDialogHeaders().value()) {
+            headerBackground = connectionHandler.getEnvironmentType().getColor();
         }
+        if (sourceObject != null) {
+            headerTitle = sourceObject instanceof DBSchemaObject ? sourceObject.getQualifiedName() : sourceObject.getName();
+            headerIcon = sourceObject.getIcon();
+        } else {
+            headerIcon = Icons.DBO_TABLE;
+            headerTitle = instructions.getBaseName();
+        }
+        DBNHeaderPanel headerComponent = new DBNHeaderPanel(headerTitle, headerIcon, headerBackground);
+        headerPanel.add(headerComponent.getComponent());
     }
 
     public JPanel getComponent() {
