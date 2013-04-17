@@ -1,6 +1,7 @@
 package com.dci.intellij.dbn.editor.data.filter.ui;
 
 import com.dci.intellij.dbn.common.options.ui.ConfigurationEditorForm;
+import com.dci.intellij.dbn.common.ui.DBNHeaderForm;
 import com.dci.intellij.dbn.common.util.ActionUtil;
 import com.dci.intellij.dbn.editor.data.filter.DatasetFilter;
 import com.dci.intellij.dbn.editor.data.filter.DatasetFilterGroup;
@@ -11,20 +12,20 @@ import com.dci.intellij.dbn.editor.data.filter.action.DeleteFilterAction;
 import com.dci.intellij.dbn.editor.data.filter.action.MoveFilterDownAction;
 import com.dci.intellij.dbn.editor.data.filter.action.MoveFilterUpAction;
 import com.dci.intellij.dbn.object.DBDataset;
-import com.dci.intellij.dbn.options.general.GeneralProjectSettings;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.GuiUtils;
 import com.intellij.util.ui.UIUtil;
 
-import javax.swing.JLabel;
+import javax.swing.Icon;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
+import java.awt.Color;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,7 +34,6 @@ public class DatasetFilterForm extends ConfigurationEditorForm<DatasetFilterGrou
     private static final String BLANK_PANEL_ID = "BLANK_PANEL";
 
     private JPanel mainPanel;
-    private JLabel datasetLabel;
     private JList filtersList;
     private JPanel filterDetailsPanel;
     private JPanel actionsPanel;
@@ -46,12 +46,19 @@ public class DatasetFilterForm extends ConfigurationEditorForm<DatasetFilterGrou
         filtersList.setModel(filterGroup);
         filtersList.setFont(UIUtil.getLabelFont());
         this.dataset = dataset;
-        datasetLabel.setIcon(dataset.getIcon());
-        datasetLabel.setText(dataset.getQualifiedName());
         Project project = dataset.getProject();
-        if ( GeneralProjectSettings.getInstance(project).getEnvironmentSettings().getVisibilitySettings().getDialogHeaders().value()) {
-            headerPanel.setBackground(dataset.getEnvironmentType().getColor());
+
+        String headerTitle = dataset.getQualifiedName();
+        Icon headerIcon = dataset.getIcon();
+        Color headerBackground = UIUtil.getPanelBackground();
+        if (getEnvironmentSettings(project).getVisibilitySettings().getDialogHeaders().value()) {
+            headerBackground = dataset.getEnvironmentType().getColor();
         }
+        DBNHeaderForm headerForm = new DBNHeaderForm(
+                headerTitle,
+                headerIcon,
+                headerBackground);
+        headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
 
         DatasetFilterList filters = getFilterList();
         ActionToolbar actionToolbar = ActionUtil.createActionToolbar(

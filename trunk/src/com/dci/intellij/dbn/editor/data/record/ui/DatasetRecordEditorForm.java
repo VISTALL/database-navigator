@@ -4,6 +4,7 @@ import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.dispose.DisposeUtil;
 import com.dci.intellij.dbn.common.ui.DBNForm;
 import com.dci.intellij.dbn.common.ui.DBNFormImpl;
+import com.dci.intellij.dbn.common.ui.DBNHeaderForm;
 import com.dci.intellij.dbn.common.util.ActionUtil;
 import com.dci.intellij.dbn.data.record.ColumnSortingType;
 import com.dci.intellij.dbn.editor.data.DatasetEditorManager;
@@ -16,13 +17,15 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.ToggleAction;
 import com.intellij.openapi.project.Project;
+import com.intellij.util.ui.UIUtil;
 
 import javax.swing.BoxLayout;
+import javax.swing.Icon;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,7 +37,6 @@ public class DatasetRecordEditorForm extends DBNFormImpl implements DBNForm {
     private JPanel columnsPanel;
     private JPanel mainPanel;
     private JScrollPane columnsPanelScrollPane;
-    private JLabel datasetLabel;
     private JPanel headerPanel;
 
     private List<DatasetRecordEditorColumnForm> columnForms = new ArrayList<DatasetRecordEditorColumnForm>();
@@ -46,11 +48,17 @@ public class DatasetRecordEditorForm extends DBNFormImpl implements DBNForm {
         DBDataset dataset = row.getModel().getDataset();
         Project project = dataset.getProject();
 
-        datasetLabel.setIcon(dataset.getIcon());
-        datasetLabel.setText(dataset.getQualifiedName());
+        String headerTitle = dataset.getQualifiedName();
+        Icon headerIcon = dataset.getIcon();
+        Color headerBackground = UIUtil.getPanelBackground();
         if (getEnvironmentSettings(project).getVisibilitySettings().getDialogHeaders().value()) {
-            headerPanel.setBackground(dataset.getEnvironmentType().getColor());
+            headerBackground = dataset.getEnvironmentType().getColor();
         }
+        DBNHeaderForm headerForm = new DBNHeaderForm(
+                headerTitle,
+                headerIcon,
+                headerBackground);
+        headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
 
         ActionToolbar actionToolbar = ActionUtil.createActionToolbar(
                 "DBNavigator.Place.DataEditor.TextAreaPopup", true,

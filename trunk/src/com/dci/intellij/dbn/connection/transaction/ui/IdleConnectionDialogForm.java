@@ -1,18 +1,21 @@
 package com.dci.intellij.dbn.connection.transaction.ui;
 
 import com.dci.intellij.dbn.common.ui.DBNFormImpl;
+import com.dci.intellij.dbn.common.ui.DBNHeaderForm;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
+import com.intellij.util.ui.UIUtil;
 
+import javax.swing.Icon;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
+import java.awt.BorderLayout;
+import java.awt.Color;
 
 public class IdleConnectionDialogForm extends DBNFormImpl {
     private JPanel mainPanel;
     private JTextArea hintTextArea;
     private JPanel headerPanel;
-    private JLabel connectionLabel;
 
     public IdleConnectionDialogForm(ConnectionHandler connectionHandler, int timeoutMinutes) {
         int idleMinutes = connectionHandler.getIdleMinutes();
@@ -25,12 +28,19 @@ public class IdleConnectionDialogForm extends DBNFormImpl {
         hintTextArea.setFont(mainPanel.getFont());
         hintTextArea.setText(text);
 
-        if (getEnvironmentSettings(connectionHandler.getProject()).getVisibilitySettings().getDialogHeaders().value()) {
-            headerPanel.setBackground(connectionHandler.getEnvironmentType().getColor());
-        }
 
-        connectionLabel.setIcon(connectionHandler.getIcon());
-        connectionLabel.setText(connectionHandler.getName());
+        // HEADER
+        String headerTitle = connectionHandler.getName();
+        Icon headerIcon = connectionHandler.getIcon();
+        Color headerBackground = UIUtil.getPanelBackground();
+        if (getEnvironmentSettings(connectionHandler.getProject()).getVisibilitySettings().getDialogHeaders().value()) {
+            headerBackground = connectionHandler.getEnvironmentType().getColor();
+        }
+        DBNHeaderForm headerForm = new DBNHeaderForm(
+                headerTitle,
+                headerIcon,
+                headerBackground);
+        headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
 
     }
 
