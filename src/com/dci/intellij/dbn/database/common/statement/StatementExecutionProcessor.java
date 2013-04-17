@@ -74,11 +74,10 @@ public class StatementExecutionProcessor {
     }
 
     public ResultSet executeQuery(Connection connection, boolean forceExecution, Object... arguments) throws SQLException {
-        boolean debug = SettingsUtil.isDebugEnabled();
         SQLException exception = null;
         for (StatementDefinition statementDefinition : statementDefinitions) {
             try {
-                return executeQuery(connection, forceExecution, debug, statementDefinition, arguments);
+                return executeQuery(connection, forceExecution, SettingsUtil.isDebugEnabled, statementDefinition, arguments);
             } catch (SQLException e){
                 exception = e;
             }
@@ -126,11 +125,10 @@ public class StatementExecutionProcessor {
     }
 
     public <T extends CallableStatementOutput> T executeCall(@Nullable Object[] arguments, @Nullable T outputReader, Connection connection) throws SQLException {
-        boolean debug = SettingsUtil.isDebugEnabled();
         SQLException exception = null;
         for (StatementDefinition statementDefinition : statementDefinitions) {
             try {
-                return executeCall(statementDefinition, arguments, outputReader, connection, debug);
+                return executeCall(statementDefinition, arguments, outputReader, connection, SettingsUtil.isDebugEnabled);
             } catch (SQLException e){
                 exception = e;
             }

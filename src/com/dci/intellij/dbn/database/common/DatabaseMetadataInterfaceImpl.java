@@ -19,8 +19,7 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceImp
     }
 
     protected void executeStatement(Connection connection, String statementText) throws SQLException {
-        boolean debug = SettingsUtil.isDebugEnabled();
-        if (debug)
+        if (SettingsUtil.isDebugEnabled)
             logger.info("[DBN-INFO] Executing statement: " + statementText);
 
         Statement statement = connection.createStatement();
@@ -29,7 +28,7 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceImp
             statement.execute(statementText);
             ConnectionUtil.closeStatement(statement);
         } catch (SQLException exception) {
-            if (debug)
+            if (SettingsUtil.isDebugEnabled)
                 logger.info("[DBN-ERROR] Error executing statement: " + statementText +
                                 "\nCause: " + exception.getMessage());
             throw exception;

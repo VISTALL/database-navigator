@@ -41,7 +41,7 @@ public abstract class DBLanguageParser implements PsiParser {
     public ASTNode parse(IElementType rootElementType, PsiBuilder builder, String parseRootId) {
         if (parseRootId == null ) parseRootId = defaultParseRootId;
         long timestamp = System.currentTimeMillis();
-        builder.setDebugMode(SettingsUtil.isDebugEnabled());
+        builder.setDebugMode(SettingsUtil.isDebugEnabled);
         PsiBuilder.Marker marker = builder.mark();
         NamedElementType root =  elementTypes.getNamedElementType(parseRootId);
         if (root == null) {

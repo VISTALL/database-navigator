@@ -42,13 +42,13 @@ public abstract class AbstractElementTypeParser<T extends ElementType> implement
     }
 
     public void logBegin(PsiBuilder builder, boolean optional, int depth) {
-        if (SettingsUtil.isDebugEnabled()) {
+        if (SettingsUtil.isDebugEnabled) {
             getLogger().logBegin(builder, optional, depth);
         }
     }
 
     public void logEnd(ParseResultType resultType, int depth) {
-        if (SettingsUtil.isDebugEnabled()) {
+        if (SettingsUtil.isDebugEnabled) {
             getLogger().logEnd(resultType, depth);
         }
     }

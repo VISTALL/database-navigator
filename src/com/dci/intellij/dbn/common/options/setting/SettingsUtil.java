@@ -1,6 +1,5 @@
 package com.dci.intellij.dbn.common.options.setting;
 
-import com.dci.intellij.dbn.DatabaseNavigator;
 import com.dci.intellij.dbn.common.ui.DBNColor;
 import com.dci.intellij.dbn.common.util.StringUtil;
 import org.jdom.Element;
@@ -8,9 +7,7 @@ import org.jdom.Element;
 import java.awt.Color;
 
 public class SettingsUtil {
-    public static boolean isDebugEnabled() {
-        return DatabaseNavigator.getInstance().isDebugModeEnabled();
-    }
+    public static boolean isDebugEnabled;
 
     public static int getInteger(Element parent, String childName, int originalValue) {
         Element element = parent.getChild(childName);
