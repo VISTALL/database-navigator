@@ -112,6 +112,7 @@ public class DatabaseNavigator implements ApplicationComponent, JDOMExternalizab
 
     public void setDebugModeEnabled(boolean debugModeEnabled) {
         this.debugModeEnabled = debugModeEnabled;
+        SettingsUtil.isDebugEnabled = debugModeEnabled;
     }
 
 
@@ -121,6 +122,7 @@ public class DatabaseNavigator implements ApplicationComponent, JDOMExternalizab
     public void readExternal(Element element) throws InvalidDataException {
         debugModeEnabled = SettingsUtil.getBoolean(element, "enable-debug-mode", false);
         showPluginConflictDialog = SettingsUtil.getBoolean(element, "show-plugin-conflict-dialog", true);
+        SettingsUtil.isDebugEnabled = debugModeEnabled;
     }
 
     public void writeExternal(Element element) throws WriteExternalException {

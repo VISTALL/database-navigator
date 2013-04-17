@@ -5,6 +5,7 @@ import com.dci.intellij.dbn.connection.ConnectionBundle;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.object.common.DBObject;
 import com.dci.intellij.dbn.object.common.DBObjectBundle;
+import com.intellij.openapi.Disposable;
 import com.intellij.ui.SpeedSearchBase;
 
 import javax.swing.JTree;
@@ -14,7 +15,7 @@ import javax.swing.tree.TreePath;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DatabaseBrowserTreeSpeedSearch extends SpeedSearchBase<JTree> {
+public class DatabaseBrowserTreeSpeedSearch extends SpeedSearchBase<JTree> implements Disposable {
     private static final Object[] EMPTY_ARRAY = new Object[0];
     private DatabaseBrowserTree tree;
     private Object[] elements = null;
@@ -110,4 +111,11 @@ public class DatabaseBrowserTreeSpeedSearch extends SpeedSearchBase<JTree> {
             elements = null;
         }
     };
+
+    @Override
+    public void dispose() {
+        tree.getModel().removeTreeModelListener(treeModelListener);
+        elements = EMPTY_ARRAY;
+        tree = null;
+    }
 }
