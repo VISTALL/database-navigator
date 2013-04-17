@@ -2,15 +2,20 @@ package com.dci.intellij.dbn.debugger.execution.ui;
 
 import com.dci.intellij.dbn.common.ui.DBNForm;
 import com.dci.intellij.dbn.common.ui.DBNFormImpl;
+import com.dci.intellij.dbn.common.ui.DBNHeaderForm;
 import com.dci.intellij.dbn.common.util.StringUtil;
 import com.dci.intellij.dbn.object.common.DBSchemaObject;
+import com.intellij.openapi.project.Project;
+import com.intellij.util.ui.UIUtil;
 
 import javax.swing.DefaultListModel;
+import javax.swing.Icon;
 import javax.swing.JCheckBox;
-import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,7 +25,6 @@ public class CompileDebugDependenciesForm extends DBNFormImpl implements DBNForm
     private JPanel mainPanel;
     private JCheckBox rememberSelectionCheckBox;
     private JPanel headerPanel;
-    private JLabel runProgramLabel;
 
     public CompileDebugDependenciesForm(List<DBSchemaObject> compileList, DBSchemaObject selectedObject) {
         hintTextArea.setText(StringUtil.wrap(
@@ -40,11 +44,19 @@ public class CompileDebugDependenciesForm extends DBNFormImpl implements DBNForm
         hintTextArea.setBackground(mainPanel.getBackground());
         hintTextArea.setFont(mainPanel.getFont());
 
-        if (getEnvironmentSettings(selectedObject.getProject()).getVisibilitySettings().getDialogHeaders().value()) {
-            headerPanel.setBackground(selectedObject.getEnvironmentType().getColor());
+
+        Project project = selectedObject.getProject();
+        String headerTitle = selectedObject.getQualifiedName();
+        Icon headerIcon = selectedObject.getOriginalIcon();
+        Color headerBackground = UIUtil.getPanelBackground();
+        if (getEnvironmentSettings(project).getVisibilitySettings().getDialogHeaders().value()) {
+            headerBackground = selectedObject.getEnvironmentType().getColor();
         }
-        runProgramLabel.setText(selectedObject.getQualifiedName());
-        runProgramLabel.setIcon(selectedObject.getIcon());
+        DBNHeaderForm headerForm = new DBNHeaderForm(
+                headerTitle,
+                headerIcon,
+                headerBackground);
+        headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
     }
 
     protected boolean rememberSelection() {

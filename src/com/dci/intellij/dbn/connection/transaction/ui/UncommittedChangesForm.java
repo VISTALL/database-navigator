@@ -3,18 +3,22 @@ package com.dci.intellij.dbn.connection.transaction.ui;
 import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.common.thread.SimpleLaterInvocator;
 import com.dci.intellij.dbn.common.ui.DBNFormImpl;
+import com.dci.intellij.dbn.common.ui.DBNHeaderForm;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.transaction.DatabaseTransactionManager;
 import com.dci.intellij.dbn.connection.transaction.TransactionAction;
 import com.dci.intellij.dbn.connection.transaction.TransactionListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBScrollPane;
+import com.intellij.util.ui.UIUtil;
 
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -22,7 +26,6 @@ public class UncommittedChangesForm extends DBNFormImpl implements TransactionLi
     private JTable changesTable;
     private JPanel mainPanel;
     private JPanel headerPanel;
-    private JLabel connectionLabel;
     private JBScrollPane changesTableScrollPane;
     private JButton commitButton;
     private JButton rollbackButton;
@@ -33,12 +36,20 @@ public class UncommittedChangesForm extends DBNFormImpl implements TransactionLi
     public UncommittedChangesForm(final ConnectionHandler connectionHandler, final TransactionAction additionalOperation, boolean showActions) {
         this.connectionHandler = connectionHandler;
         Project project = connectionHandler.getProject();
-        if (getEnvironmentSettings(project).getVisibilitySettings().getDialogHeaders().value()) {
-            headerPanel.setBackground(connectionHandler.getEnvironmentType().getColor());
-        }
 
-        connectionLabel.setIcon(connectionHandler.getIcon());
-        connectionLabel.setText(connectionHandler.getName());
+        // HEADER
+        String headerTitle = connectionHandler.getName();
+        Icon headerIcon = connectionHandler.getIcon();
+        Color headerBackground = UIUtil.getPanelBackground();
+        if (getEnvironmentSettings(connectionHandler.getProject()).getVisibilitySettings().getDialogHeaders().value()) {
+            headerBackground = connectionHandler.getEnvironmentType().getColor();
+        }
+        DBNHeaderForm headerForm = new DBNHeaderForm(
+                headerTitle,
+                headerIcon,
+                headerBackground);
+        headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
+
         changesTableScrollPane.getViewport().setBackground(changesTable.getBackground());
 
         transactionActionsPanel.setVisible(showActions);

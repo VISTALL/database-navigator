@@ -119,7 +119,8 @@ public class DBDataType {
     public String getQualifiedName() {
         if (qualifiedName == null) {
             StringBuilder buffer = new StringBuilder();
-            buffer.append(getName().toLowerCase());
+            String name = getName();
+            buffer.append(name == null ? "" : name.toLowerCase());
             if (getPrecision() > 0) {
                 buffer.append(" (");
                 buffer.append(getPrecision());

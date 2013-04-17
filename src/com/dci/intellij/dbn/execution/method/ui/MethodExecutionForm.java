@@ -4,6 +4,7 @@ import com.dci.intellij.dbn.common.dispose.DisposeUtil;
 import com.dci.intellij.dbn.common.ui.AutoCommitLabel;
 import com.dci.intellij.dbn.common.ui.DBNForm;
 import com.dci.intellij.dbn.common.ui.DBNFormImpl;
+import com.dci.intellij.dbn.common.ui.DBNHeaderForm;
 import com.dci.intellij.dbn.common.util.ActionUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.database.DatabaseCompatibilityInterface;
@@ -14,19 +15,21 @@ import com.dci.intellij.dbn.object.DBArgument;
 import com.dci.intellij.dbn.object.DBMethod;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.ui.DocumentAdapter;
+import com.intellij.util.ui.UIUtil;
 
 import javax.swing.BoxLayout;
+import javax.swing.Icon;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
-import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -77,12 +80,17 @@ public class MethodExecutionForm extends DBNFormImpl implements DBNForm {
         //objectPanel.add(new ObjectDetailsPanel(method).getComponent(), BorderLayout.NORTH);
 
         if (showHeader) {
-            JLabel label = new JLabel(method.getQualifiedName(), method.getOriginalIcon(), SwingConstants.LEFT);
-            label.setMinimumSize(new Dimension(1, (int) label.getMinimumSize().getHeight()));
-            headerPanel.add(label);
+            String headerTitle = method.getQualifiedName();
+            Icon headerIcon = method.getIcon();
+            Color headerBackground = UIUtil.getPanelBackground();
             if (getEnvironmentSettings(method.getProject()).getVisibilitySettings().getDialogHeaders().value()) {
-                headerPanel.setBackground(method.getEnvironmentType().getColor());
+                headerBackground = method.getEnvironmentType().getColor();
             }
+            DBNHeaderForm headerForm = new DBNHeaderForm(
+                    headerTitle,
+                    headerIcon,
+                    headerBackground);
+            headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
         }
         headerPanel.setVisible(showHeader);
 

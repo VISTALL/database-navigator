@@ -13,10 +13,17 @@ public class DBNHeaderForm extends DBNFormImpl{
     public DBNHeaderForm() {
     }
 
+    public DBNHeaderForm(String title, Icon icon) {
+        this(title, icon, null);
+    }
+
+
     public DBNHeaderForm(String title, Icon icon, Color background) {
         objectLabel.setText(title);
         objectLabel.setIcon(icon);
-        mainPanel.setBackground(background);
+        if (background != null) {
+            mainPanel.setBackground(background);
+        }
     }
 
     public void setBackground(Color background) {
