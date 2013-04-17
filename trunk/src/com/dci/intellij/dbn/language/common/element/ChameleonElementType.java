@@ -1,6 +1,7 @@
 package com.dci.intellij.dbn.language.common.element;
 
 import com.dci.intellij.dbn.code.common.style.formatting.FormattingDefinition;
+import com.dci.intellij.dbn.language.common.DBLanguage;
 import com.dci.intellij.dbn.language.common.DBLanguageDialect;
 import com.dci.intellij.dbn.language.common.TokenType;
 import com.dci.intellij.dbn.language.common.TokenTypeIdentifier;
@@ -29,7 +30,12 @@ public class ChameleonElementType extends ILazyParseableElementType implements E
 
     @NotNull
     @Override
-    public DBLanguageDialect getLanguage() {
+    public DBLanguage getLanguage() {
+        return getLanguageDialect().getBaseLanguage();
+    }
+
+    @Override
+    public DBLanguageDialect getLanguageDialect() {
         return (DBLanguageDialect) super.getLanguage();
     }
 

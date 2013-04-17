@@ -6,6 +6,7 @@ import com.dci.intellij.dbn.code.common.style.formatting.IndentDefinition;
 import com.dci.intellij.dbn.code.common.style.formatting.SpacingDefinition;
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.util.StringUtil;
+import com.dci.intellij.dbn.language.common.DBLanguage;
 import com.dci.intellij.dbn.language.common.DBLanguageDialect;
 import com.dci.intellij.dbn.language.common.element.ElementType;
 import com.dci.intellij.dbn.language.common.element.ElementTypeBundle;
@@ -139,7 +140,12 @@ public abstract class AbstractElementType extends IElementType implements Elemen
     }
 
     @NotNull
-    public DBLanguageDialect getLanguage() {
+    public DBLanguage getLanguage() {
+        return getLanguageDialect().getBaseLanguage();
+    }
+
+    @Override
+    public DBLanguageDialect getLanguageDialect() {
         return (DBLanguageDialect) super.getLanguage();
     }
 

@@ -186,7 +186,7 @@ public class CodeCompletionProvider extends CompletionProvider<CompletionParamet
                                     PsiElement referencedPsiElement = identifierPsiElement.resolve();
                                     if (referencedPsiElement instanceof DBObject) {
                                         DBObject object = (DBObject) referencedPsiElement;
-                                        LookupItemFactory lookupItemFactory = object.getLookupItemFactory(identifierElementType.getLanguage().getBaseLanguage());
+                                        LookupItemFactory lookupItemFactory = object.getLookupItemFactory(identifierElementType.getLanguage());
                                         lookupItemFactory.createLookupItem(object, consumer);
                                     }
                                 }
@@ -250,7 +250,7 @@ public class CodeCompletionProvider extends CompletionProvider<CompletionParamet
                 while (true) {
                     PsiLookupAdapter lookupAdapter = new AliasDefinitionLookupAdapter(null, DBObjectType.ANY, aliasNames[i]);
                     boolean isExisting = lookupAdapter.findInScope(scope) != null;
-                    boolean isKeyword = aliasElement.getLanguage().isReservedWord(aliasNames[i]);
+                    boolean isKeyword = aliasElement.getLanguageDialect().isReservedWord(aliasNames[i]);
                     if (isKeyword || isExisting) {
                         aliasNames[i] = NamingUtil.getNextNumberedName(aliasNames[i], false);
                     } else {

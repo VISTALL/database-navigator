@@ -37,7 +37,7 @@ public class SQLLanguageAnnotator implements Annotator {
 
     private void annotateIdentifier(final PsiElement psiElement, final AnnotationHolder holder) {
         IdentifierPsiElement identifierPsiElement = (IdentifierPsiElement) psiElement;
-        if (identifierPsiElement.getLanguage().isReservedWord(identifierPsiElement.getText())) {
+        if (identifierPsiElement.getLanguageDialect().isReservedWord(identifierPsiElement.getText())) {
             Annotation annotation = holder.createInfoAnnotation(identifierPsiElement, null);
             annotation.setTextAttributes(SQLTextAttributesKeys.IDENTIFIER);
         }

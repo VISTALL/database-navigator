@@ -38,7 +38,7 @@ public class TokenLookupItemFactory extends LookupItemFactory {
         TokenType tokenType = tokenElementType.getTokenType();
         String text = tokenType.getValue();
 
-        DBLanguage language = tokenElementType.getLanguage().getBaseLanguage();
+        DBLanguage language = tokenElementType.getLanguage();
         CodeStyleCaseSettings styleCaseSettings = DBLCodeStyleManager.getInstance(project).getCodeStyleCaseSettings(language);
         CodeStyleCaseOption caseOption =
                 tokenType.isFunction() ? styleCaseSettings.getFunctionCaseOption() :

@@ -1,6 +1,7 @@
 package com.dci.intellij.dbn.language.common.element;
 
 import com.dci.intellij.dbn.code.common.style.formatting.FormattingDefinition;
+import com.dci.intellij.dbn.language.common.DBLanguage;
 import com.dci.intellij.dbn.language.common.DBLanguageDialect;
 import com.dci.intellij.dbn.language.common.element.lookup.ElementTypeLookupCache;
 import com.dci.intellij.dbn.language.common.element.parser.ElementTypeParser;
@@ -24,7 +25,9 @@ public interface ElementType {
 
     ElementType getParent();
 
-    DBLanguageDialect getLanguage();
+    DBLanguage getLanguage();
+
+    DBLanguageDialect getLanguageDialect();
 
     ElementTypeLookupCache getLookupCache();
 
