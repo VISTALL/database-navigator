@@ -3,6 +3,7 @@ package com.dci.intellij.dbn.connection.config.ui;
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.common.options.ui.ConfigurationEditorForm;
+import com.dci.intellij.dbn.common.ui.DBNHeaderForm;
 import com.dci.intellij.dbn.connection.ConnectionBundle;
 import com.dci.intellij.dbn.connection.ConnectionManager;
 import com.dci.intellij.dbn.connection.ConnectivityStatus;
@@ -19,13 +20,13 @@ import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.Document;
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -44,9 +45,9 @@ public class GenericDatabaseSettingsForm extends ConfigurationEditorForm<Generic
     private JPasswordField passwordField;
     private JCheckBox osAuthenticationCheckBox;
     private JCheckBox activeCheckBox;
-    private JLabel connectionLabel;
     private JPanel headerPanel;
     private JPanel connectionParametersPanel;
+    private DBNHeaderForm headerForm;
 
     private GenericConnectionDatabaseSettings temporaryConfig;
     private String connectionId;
@@ -81,6 +82,8 @@ public class GenericDatabaseSettingsForm extends ConfigurationEditorForm<Generic
         userTextField.setEnabled(!osAuthenticationCheckBox.isSelected());
         passwordField.setEnabled(!osAuthenticationCheckBox.isSelected());
         EventManager.subscribe(project, ConnectionPresentationChangeListener.TOPIC, this);
+        headerForm = new DBNHeaderForm();
+        headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
     }
 
     public void setConnectionId(String connectionId) {
@@ -118,16 +121,16 @@ public class GenericDatabaseSettingsForm extends ConfigurationEditorForm<Generic
                connectivityStatus == ConnectivityStatus.INVALID ? Icons.CONNECTION_INVALID : Icons.CONNECTION_INACTIVE;
 
         ConnectionPresentationChangeListener listener = EventManager.notify(configuration.getProject(), ConnectionPresentationChangeListener.TOPIC);
-        listener.presentationChanged(name, icon, headerPanel.getBackground(), connectionId);
+        listener.presentationChanged(name, icon, headerForm.getBackground(), connectionId);
 
     }
 
     @Override
     public void presentationChanged(String name, Icon icon, Color color, String connectionId) {
         if (this.connectionId.equals(connectionId)) {
-            if (name != null) connectionLabel.setText(name);
-            if (icon != null) connectionLabel.setIcon(icon);
-            headerPanel.setBackground(color == null ? UIUtil.getPanelBackground() :color);
+            if (name != null) headerForm.setTitle(name);
+            if (icon != null) headerForm.setIcon(icon);
+            headerForm.setBackground(color == null ? UIUtil.getPanelBackground() :color);
         }
     }
 

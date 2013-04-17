@@ -6,11 +6,14 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.awt.Color;
 
-public class DBNHeaderPanel extends DBNFormImpl{
+public class DBNHeaderForm extends DBNFormImpl{
     private JLabel objectLabel;
     private JPanel mainPanel;
 
-    public DBNHeaderPanel(String title, Icon icon, Color background) {
+    public DBNHeaderForm() {
+    }
+
+    public DBNHeaderForm(String title, Icon icon, Color background) {
         objectLabel.setText(title);
         objectLabel.setIcon(icon);
         mainPanel.setBackground(background);
@@ -18,6 +21,18 @@ public class DBNHeaderPanel extends DBNFormImpl{
 
     public void setBackground(Color background) {
         mainPanel.setBackground(background);
+    }
+
+    public void setTitle(String title) {
+        objectLabel.setText(title);
+    }
+
+    public void setIcon(Icon icon) {
+        objectLabel.setIcon(icon);
+    }
+
+    public Color getBackground() {
+        return mainPanel.getBackground();
     }
 
     @Override
