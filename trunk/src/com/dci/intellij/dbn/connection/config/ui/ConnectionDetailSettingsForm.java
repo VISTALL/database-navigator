@@ -10,6 +10,7 @@ import com.dci.intellij.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dci.intellij.dbn.common.options.ui.ConfigurationEditorUtil;
 import com.dci.intellij.dbn.common.properties.ui.PropertiesEditorForm;
 import com.dci.intellij.dbn.common.ui.ComboBoxUtil;
+import com.dci.intellij.dbn.common.ui.DBNHeaderForm;
 import com.dci.intellij.dbn.connection.ConnectionStatusListener;
 import com.dci.intellij.dbn.connection.config.ConnectionDetailSettings;
 import com.dci.intellij.dbn.options.general.GeneralProjectSettings;
@@ -24,7 +25,6 @@ import javax.swing.Icon;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -41,12 +41,13 @@ public class ConnectionDetailSettingsForm extends ConfigurationEditorForm<Connec
     private JCheckBox autoCommitCheckBox;
     private JPanel propertiesPanel;
     private JPanel mainPanel;
-    private JLabel connectionLabel;
     private JComboBox environmentTypesComboBox;
     private JPanel headerPanel;
     private JPanel generalGroupPanel;
     private JPanel propertiesGroupPanel;
     private JTextField idleTimeTextField;
+    private DBNHeaderForm headerForm;
+
 
     private PropertiesEditorForm propertiesEditorForm;
     private String connectionId;
@@ -85,7 +86,9 @@ public class ConnectionDetailSettingsForm extends ConfigurationEditorForm<Connec
             }
         });
 
-        
+        headerForm = new DBNHeaderForm();
+        headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
+
         EventManager.subscribe(project, ConnectionPresentationChangeListener.TOPIC, this);
         EventManager.subscribe(project, EnvironmentPresentationChangeListener.TOPIC, this);
     }
@@ -137,9 +140,9 @@ public class ConnectionDetailSettingsForm extends ConfigurationEditorForm<Connec
     @Override
     public void presentationChanged(String name, Icon icon, Color color, String connectionId) {
         if (this.connectionId.equals(connectionId)) {
-            if (name != null) connectionLabel.setText(name);
-            if (icon != null) connectionLabel.setIcon(icon);
-            headerPanel.setBackground(color == null ? UIUtil.getPanelBackground() :color);
+            if (name != null) headerForm.setTitle(name);
+            if (icon != null) headerForm.setIcon(icon);
+            headerForm.setBackground(color == null ? UIUtil.getPanelBackground() :color);
         }
     }
 

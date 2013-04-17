@@ -4,7 +4,7 @@ import com.dci.intellij.dbn.common.Constants;
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.ui.DBNForm;
 import com.dci.intellij.dbn.common.ui.DBNFormImpl;
-import com.dci.intellij.dbn.common.ui.DBNHeaderPanel;
+import com.dci.intellij.dbn.common.ui.DBNHeaderForm;
 import com.dci.intellij.dbn.common.util.MessageUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.data.export.DataExportFormat;
@@ -132,7 +132,7 @@ public class ExportDataForm extends DBNFormImpl implements DBNForm {
             headerIcon = Icons.DBO_TABLE;
             headerTitle = instructions.getBaseName();
         }
-        DBNHeaderPanel headerComponent = new DBNHeaderPanel(headerTitle, headerIcon, headerBackground);
+        DBNHeaderForm headerComponent = new DBNHeaderForm(headerTitle, headerIcon, headerBackground);
         headerPanel.add(headerComponent.getComponent());
     }
 
