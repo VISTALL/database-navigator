@@ -27,7 +27,11 @@ public abstract class DBLanguageBraceMatcher implements PairedBraceMatcher {
         if (iElementType1 instanceof SimpleTokenType) {
             SimpleTokenType simpleTokenType = (SimpleTokenType) iElementType1;
             SharedTokenTypeBundle tt = language.getSharedTokenTypes();
-            return simpleTokenType == tt.getWhiteSpace();
+            return simpleTokenType == tt.getWhiteSpace() ||
+                    simpleTokenType == tt.getTokenType("CHR_DOT") ||
+                    simpleTokenType == tt.getTokenType("CHR_COMMA") ||
+                    simpleTokenType == tt.getTokenType("CHR_COLON") ||
+                    simpleTokenType == tt.getTokenType("CHR_SEMICOLON");
 
         }
         return iElementType1 == null;
