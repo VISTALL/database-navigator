@@ -75,9 +75,9 @@ public class DBNErrorReportSubmitter extends ErrorReportSubmitter {
             String additionalInfo = logMessage.getAdditionalInfo();
             if (StringUtil.isNotEmpty(additionalInfo)) {
                 description.append("\n\nUser Message:");
-                description.append("\n==================================================================\n");
+                description.append("\n__________________________________________________________________\n");
                 description.append(additionalInfo);
-                description.append("\n==================================================================");
+                description.append("\n__________________________________________________________________");
             }
             description.append("\n\n").append(event.toString());
         }
