@@ -1,15 +1,21 @@
 package com.dci.intellij.dbn.error;
 
+import com.dci.intellij.dbn.common.Constants;
 import com.dci.intellij.dbn.common.LoggerFactory;
+import com.dci.intellij.dbn.common.notification.NotificationUtil;
 import com.intellij.diagnostic.IdeErrorsDialog;
+import com.intellij.ide.DataManager;
 import com.intellij.ide.plugins.IdeaPluginDescriptor;
 import com.intellij.ide.plugins.PluginManager;
+import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.application.ApplicationInfo;
 import com.intellij.openapi.diagnostic.ErrorReportSubmitter;
 import com.intellij.openapi.diagnostic.IdeaLoggingEvent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.diagnostic.SubmittedReportInfo;
 import com.intellij.openapi.extensions.PluginId;
+import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NonNls;
 
 import java.awt.Component;
@@ -54,24 +60,30 @@ public class DBNErrorReportSubmitter extends ErrorReportSubmitter {
         if (t != null) {
             PluginId pluginId = IdeErrorsDialog.findPluginId(t);
             if (pluginId != null) {
-                final IdeaPluginDescriptor ideaPluginDescriptor = PluginManager.getPlugin(pluginId);
+                IdeaPluginDescriptor ideaPluginDescriptor = PluginManager.getPlugin(pluginId);
                 if (ideaPluginDescriptor != null && !ideaPluginDescriptor.isBundled()) {
                     pluginVersion = ideaPluginDescriptor.getVersion();
-                    description.append("Plugin ").append(ideaPluginDescriptor.getName()).append(" version: ").append(pluginVersion).append("\n");
+                    description.append(ideaPluginDescriptor.getName()).append(" version: ").append(pluginVersion).append("\n");
                 }
             }
         }
 
-        description.append("\n\nDescription: ").append(summary).append("\n\nUser: ").append("<none>");
+        description.append("\n\nDescription: ").append(summary);
 
         for (IdeaLoggingEvent event : events)
             description.append("\n\n").append(event.toString());
 
         String result = submit(pluginVersion, summary, description.toString());
+        DataContext dataContext = DataManager.getInstance().getDataContext(parentComponent);
+        Project project = PlatformDataKeys.PROJECT.getData(dataContext);
+
+
         LOGGER.info("Error submitted, response: " + result);
 
-        if (result == null)
+        if (result == null) {
+            NotificationUtil.sendErrorNotification(project, Constants.DBN_TITLE_PREFIX + "Error Reporting", "Failed to send error report");
             return new SubmittedReportInfo(ISSUE_URL, "", FAILED);
+        }
 
         String ticketId = null;
         try {
@@ -84,10 +96,16 @@ public class DBNErrorReportSubmitter extends ErrorReportSubmitter {
             // Syntax error in the regular expression
         }
 
+        if (ticketId == null) {
+            NotificationUtil.sendErrorNotification(project, Constants.DBN_TITLE_PREFIX + "Error Reporting", "Failed to send error report");
+            return new SubmittedReportInfo(ISSUE_URL, "", FAILED);
+        }
 
-        return ticketId == null ?
-                new SubmittedReportInfo(ISSUE_URL, "", FAILED) :
-                new SubmittedReportInfo(URL + "issue/" + ticketId, ticketId, NEW_ISSUE);
+        String ticketUrl = URL + "issue/" + ticketId;
+        NotificationUtil.sendInfoNotification(project, Constants.DBN_TITLE_PREFIX + "Error Reporting",
+                "Error report successfully sent. Ticket <a href='" + ticketId + "'>" + ticketId + "<a/> created.");
+
+        return new SubmittedReportInfo(ticketUrl, ticketId, NEW_ISSUE);
     }
 
     public String submit(String pluginVersion, String summary, String description) {
