@@ -3,7 +3,9 @@ package com.dci.intellij.dbn.error;
 import com.dci.intellij.dbn.common.Constants;
 import com.dci.intellij.dbn.common.LoggerFactory;
 import com.dci.intellij.dbn.common.notification.NotificationUtil;
+import com.dci.intellij.dbn.common.util.StringUtil;
 import com.intellij.diagnostic.IdeErrorsDialog;
+import com.intellij.diagnostic.LogMessage;
 import com.intellij.ide.DataManager;
 import com.intellij.ide.plugins.IdeaPluginDescriptor;
 import com.intellij.ide.plugins.PluginManager;
@@ -42,7 +44,7 @@ public class DBNErrorReportSubmitter extends ErrorReportSubmitter {
 
     @Override
     public String getReportActionText() {
-        return "Report Issue";
+        return "Submit Issue Report";
     }
 
     @Override
@@ -54,7 +56,7 @@ public class DBNErrorReportSubmitter extends ErrorReportSubmitter {
         @NonNls StringBuilder description = new StringBuilder();
 
         String platformBuild = ApplicationInfo.getInstance().getBuild().asString();
-        description.append("Platform Version: ").append(platformBuild).append('\n');
+        description.append("Platform version: ").append(platformBuild).append('\n');
         Throwable t = firstEvent.getThrowable();
         String pluginVersion = null;
         if (t != null) {
@@ -68,17 +70,25 @@ public class DBNErrorReportSubmitter extends ErrorReportSubmitter {
             }
         }
 
-        description.append("\n\nDescription: ").append(summary);
-
-        for (IdeaLoggingEvent event : events)
+        for (IdeaLoggingEvent event : events) {
+            LogMessage logMessage = (LogMessage) event.getData();
+            String additionalInfo = logMessage.getAdditionalInfo();
+            if (StringUtil.isNotEmpty(additionalInfo)) {
+                description.append("\n\nUser Message:");
+                description.append("\n==================================================================\n");
+                description.append(additionalInfo);
+                description.append("\n==================================================================");
+            }
             description.append("\n\n").append(event.toString());
+        }
+
 
         String result = submit(pluginVersion, summary, description.toString());
         DataContext dataContext = DataManager.getInstance().getDataContext(parentComponent);
         Project project = PlatformDataKeys.PROJECT.getData(dataContext);
 
 
-        LOGGER.info("Error submitted, response: " + result);
+        LOGGER.info("Error report submitted, response: " + result);
 
         if (result == null) {
             NotificationUtil.sendErrorNotification(project, Constants.DBN_TITLE_PREFIX + "Error Reporting", "Failed to send error report");
@@ -93,7 +103,6 @@ public class DBNErrorReportSubmitter extends ErrorReportSubmitter {
                 ticketId = regexMatcher.group(1);
             }
         } catch (PatternSyntaxException ex) {
-            // Syntax error in the regular expression
         }
 
         if (ticketId == null) {
@@ -103,7 +112,7 @@ public class DBNErrorReportSubmitter extends ErrorReportSubmitter {
 
         String ticketUrl = URL + "issue/" + ticketId;
         NotificationUtil.sendInfoNotification(project, Constants.DBN_TITLE_PREFIX + "Error Reporting",
-                "Error report successfully sent. Ticket <a href='" + ticketId + "'>" + ticketId + "<a/> created.");
+                "<html>Error report successfully sent. Ticket <a href='" + ticketUrl + "'>" + ticketId + "</a> created.</html>");
 
         return new SubmittedReportInfo(ticketUrl, ticketId, NEW_ISSUE);
     }
