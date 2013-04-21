@@ -2,7 +2,7 @@
     <name>Database Navigator</name>
     <id>DBN</id>
     <!--2250-->
-    <version>3.0.2501</version>
+    <version>3.0.2522</version>
     <category>Database</category>
     <depends>com.intellij.modules.lang</depends>
     <vendor email="dancioca@bluewin.ch" logo="/img/v0/project/DatabaseNavigator.png">Dan Cioca</vendor>
@@ -24,8 +24,9 @@
     ]]></description>
     <change-notes><![CDATA[
         <ul>
-            <li><b>3.0.2501</b>
+            <li><b>3.0.2522</b>
              <ul>
+                - Error reporting support from IDE<br>
                 - Connection timeout and idle time management<br>
                 - Memory management improvements<br>
                 - Compatibility with latest IDE version (including EAP)<br>
