@@ -9,8 +9,10 @@ import org.jetbrains.annotations.Nullable;
 
 public abstract class DBLanguageBraceMatcher implements PairedBraceMatcher {
     private final BracePair[] bracePairs;
+    private DBLanguage language;
 
     public DBLanguageBraceMatcher(DBLanguage language) {
+        this.language = language;
         SharedTokenTypeBundle tt = language.getSharedTokenTypes();
         bracePairs = new BracePair[]{
             new BracePair(tt.getLeftParenthesis(), tt.getRightParenthesis(), false),
@@ -22,7 +24,13 @@ public abstract class DBLanguageBraceMatcher implements PairedBraceMatcher {
     }
 
     public boolean isPairedBracesAllowedBeforeType(@NotNull IElementType iElementType, @Nullable IElementType iElementType1) {
-        return true;
+        if (iElementType1 instanceof SimpleTokenType) {
+            SimpleTokenType simpleTokenType = (SimpleTokenType) iElementType1;
+            SharedTokenTypeBundle tt = language.getSharedTokenTypes();
+            return simpleTokenType == tt.getWhiteSpace();
+
+        }
+        return iElementType1 == null;
     }
 
     public int getCodeConstructStart(PsiFile psiFile, int i) {
