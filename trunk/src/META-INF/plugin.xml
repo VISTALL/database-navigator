@@ -26,7 +26,7 @@
         <ul>
             <li><b>3.0.2522</b>
              <ul>
-                - Error reporting support from IDE<br>
+                - Support for error reporting directly from IDE<br>
                 - Connection timeout and idle time management<br>
                 - Memory management improvements<br>
                 - Compatibility with latest IDE version (including EAP)<br>
