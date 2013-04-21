@@ -1,5 +1,6 @@
 package com.dci.intellij.dbn.error;
 
+import com.dci.intellij.dbn.common.LoggerFactory;
 import com.intellij.diagnostic.IdeErrorsDialog;
 import com.intellij.ide.plugins.IdeaPluginDescriptor;
 import com.intellij.ide.plugins.PluginManager;
@@ -26,18 +27,12 @@ import static com.intellij.openapi.diagnostic.SubmittedReportInfo.SubmissionStat
 import static com.intellij.openapi.diagnostic.SubmittedReportInfo.SubmissionStatus.NEW_ISSUE;
 
 public class DBNErrorReportSubmitter extends ErrorReportSubmitter {
-    private static final Logger log = Logger.getInstance(DBNErrorReportSubmitter.class.getName());
-    @NonNls
-    private static final String SERVER_URL = "http://dci.myjetbrains.com/youtrack/";
-    private static final String SERVER_REST_URL = SERVER_URL + "rest/";
-    private static final String SERVER_ISSUE_URL = SERVER_REST_URL + "issue";
-    private static final String LOGIN_URL = SERVER_REST_URL + "user/login";
+    private static final Logger LOGGER = LoggerFactory.createLogger();
 
-    private String description = null;
-    private String extraInformation = "";
-    private String affectedVersion = null;
-    private static final String DEFAULT_RESPONSE = "Thank you for your report.";
-
+    private static final String URL = "http://dci.myjetbrains.com/youtrack/";
+    private static final String ISSUE_URL = URL + "rest/issue";
+    private static final String LOGIN_URL = URL + "rest/user/login";
+    private static final String ENC = "UTF-8";
 
     @Override
     public String getReportActionText() {
@@ -46,77 +41,63 @@ public class DBNErrorReportSubmitter extends ErrorReportSubmitter {
 
     @Override
     public SubmittedReportInfo submit(IdeaLoggingEvent[] events, Component parentComponent) {
-        this.description = events[0].getThrowableText().substring(0, Math.min(Math.max(80, events[0].getThrowableText().length()), 80));
+        IdeaLoggingEvent firstEvent = events[0];
+        String firstEventText = firstEvent.getThrowableText();
+        String summary = firstEventText.substring(0, Math.min(Math.max(80, firstEventText.length()), 80));
 
-        @NonNls StringBuilder descBuilder = new StringBuilder();
+        @NonNls StringBuilder description = new StringBuilder();
 
         String platformBuild = ApplicationInfo.getInstance().getBuild().asString();
-        descBuilder.append("Platform Version: ").append(platformBuild).append('\n');
-        Throwable t = events[0].getThrowable();
+        description.append("Platform Version: ").append(platformBuild).append('\n');
+        Throwable t = firstEvent.getThrowable();
+        String pluginVersion = null;
         if (t != null) {
-            final PluginId pluginId = IdeErrorsDialog.findPluginId(t);
+            PluginId pluginId = IdeErrorsDialog.findPluginId(t);
             if (pluginId != null) {
                 final IdeaPluginDescriptor ideaPluginDescriptor = PluginManager.getPlugin(pluginId);
                 if (ideaPluginDescriptor != null && !ideaPluginDescriptor.isBundled()) {
-                    descBuilder.append("Plugin ").append(ideaPluginDescriptor.getName()).append(" version: ").append(ideaPluginDescriptor.getVersion()).append("\n");
-                    this.affectedVersion = ideaPluginDescriptor.getVersion();
+                    pluginVersion = ideaPluginDescriptor.getVersion();
+                    description.append("Plugin ").append(ideaPluginDescriptor.getName()).append(" version: ").append(pluginVersion).append("\n");
                 }
             }
         }
 
-        if (description == null) description = "<none>";
+        description.append("\n\nDescription: ").append(summary).append("\n\nUser: ").append("<none>");
 
-        descBuilder.append("\n\nDescription: ").append(description).append("\n\nUser: ").append("<none>");
+        for (IdeaLoggingEvent event : events)
+            description.append("\n\n").append(event.toString());
 
-        for (IdeaLoggingEvent e : events)
-            descBuilder.append("\n\n").append(e.toString());
-
-        this.extraInformation = descBuilder.toString();
-
-        String result = submit();
-        log.info("Error submitted, response: " + result);
+        String result = submit(pluginVersion, summary, description.toString());
+        LOGGER.info("Error submitted, response: " + result);
 
         if (result == null)
-            return new SubmittedReportInfo(SERVER_ISSUE_URL, "", FAILED);
+            return new SubmittedReportInfo(ISSUE_URL, "", FAILED);
 
-        String ResultString = null;
+        String ticketId = null;
         try {
             Pattern regex = Pattern.compile("id=\"([^\"]+)\"", Pattern.DOTALL | Pattern.MULTILINE);
             Matcher regexMatcher = regex.matcher(result);
             if (regexMatcher.find()) {
-                ResultString = regexMatcher.group(1);
+                ticketId = regexMatcher.group(1);
             }
         } catch (PatternSyntaxException ex) {
             // Syntax error in the regular expression
         }
 
-        SubmittedReportInfo.SubmissionStatus status = NEW_ISSUE;
 
-        if (ResultString == null)
-            return new SubmittedReportInfo(SERVER_ISSUE_URL, "", FAILED);
-//        else {
-//            if (ResultString.trim().length() > 0)
-//                status = DUPLICATE;
-//        }
-
-        return new SubmittedReportInfo(SERVER_URL + "issue/" + ResultString, ResultString, status);
+        return ticketId == null ?
+                new SubmittedReportInfo(ISSUE_URL, "", FAILED) :
+                new SubmittedReportInfo(URL + "issue/" + ticketId, ticketId, NEW_ISSUE);
     }
 
-    public String submit() {
-        if (this.description == null || this.description.length() == 0) throw new RuntimeException("Description");
-        String project = "DBN";
+    public String submit(String pluginVersion, String summary, String description) {
         StringBuilder response = new StringBuilder("");
 
-        //Create Post String
         StringBuilder data = new StringBuilder();
         try {
+            data.append(URLEncoder.encode("login", ENC)).append("=").append(URLEncoder.encode("autosubmit", ENC));
+            data.append("&").append(URLEncoder.encode("password", ENC)).append("=").append(URLEncoder.encode("autosubmit", ENC));
 
-            // Build Login
-            String userName = "autosubmit";
-            data.append(URLEncoder.encode("login", "UTF-8")).append("=").append(URLEncoder.encode(userName, "UTF-8"));
-            data.append("&").append(URLEncoder.encode("password", "UTF-8")).append("=").append(URLEncoder.encode("autosubmit", "UTF-8"));
-
-            // Send Login
             URL url = new URL(LOGIN_URL);
             URLConnection conn = url.openConnection();
             conn.setDoOutput(true);
@@ -124,7 +105,6 @@ public class DBNErrorReportSubmitter extends ErrorReportSubmitter {
             wr.write(data.toString());
             wr.flush();
 
-            // Get The Response
             BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
             String line;
             while ((line = rd.readLine()) != null) {
@@ -132,19 +112,17 @@ public class DBNErrorReportSubmitter extends ErrorReportSubmitter {
             }
 
             data = new StringBuilder();
-            data.append(URLEncoder.encode("project", "UTF-8")).append("=").append(URLEncoder.encode(project, "UTF-8"));
-            data.append("&").append(URLEncoder.encode("assignee", "UTF-8")).append("=").append(URLEncoder.encode("Unassigned", "UTF-8"));
-            data.append("&").append(URLEncoder.encode("summary", "UTF-8")).append("=").append(URLEncoder.encode(description, "UTF-8"));
-            data.append("&").append(URLEncoder.encode("description", "UTF-8")).append("=").append(URLEncoder.encode(extraInformation, "UTF-8"));
-            data.append("&").append(URLEncoder.encode("priority", "UTF-8")).append("=").append(URLEncoder.encode("4", "UTF-8"));
-            data.append("&").append(URLEncoder.encode("type", "UTF-8")).append("=").append(URLEncoder.encode("Exception", "UTF-8"));
+            data.append(URLEncoder.encode("project", ENC)).append("=").append(URLEncoder.encode("DBN", ENC));
+            data.append("&").append(URLEncoder.encode("assignee", ENC)).append("=").append(URLEncoder.encode("Unassigned", ENC));
+            data.append("&").append(URLEncoder.encode("summary", ENC)).append("=").append(URLEncoder.encode(summary, ENC));
+            data.append("&").append(URLEncoder.encode("description", ENC)).append("=").append(URLEncoder.encode(description, ENC));
+            data.append("&").append(URLEncoder.encode("priority", ENC)).append("=").append(URLEncoder.encode("4", ENC));
+            data.append("&").append(URLEncoder.encode("type", ENC)).append("=").append(URLEncoder.encode("Exception", ENC));
 
-            if (this.affectedVersion != null)
-                data.append("&").append(URLEncoder.encode("affectsVersion", "UTF-8")).append("=").append(URLEncoder.encode(this.affectedVersion, "UTF-8"));
+            if (pluginVersion != null)
+                data.append("&").append(URLEncoder.encode("affectsVersion", ENC)).append("=").append(URLEncoder.encode(pluginVersion, ENC));
 
-            // Send Data To Page
-            url = new URL(SERVER_ISSUE_URL);
-
+            url = new URL(ISSUE_URL);
             conn = url.openConnection();
             conn.setDoOutput(true);
 
@@ -152,7 +130,6 @@ public class DBNErrorReportSubmitter extends ErrorReportSubmitter {
             wr.write(data.toString());
             wr.flush();
 
-            // Get The Response
             rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 
             while ((line = rd.readLine()) != null) {
