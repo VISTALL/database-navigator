@@ -132,15 +132,17 @@ public class StatementExecutionBasicProcessor implements StatementExecutionProce
 
         if (continueExecution) {
             try {
-                Connection connection = activeConnection.getStandaloneConnection(currentSchema);
-                Statement statement = connection.createStatement();
+                if (!activeConnection.isDisposed()) {
+                    Connection connection = activeConnection.getStandaloneConnection(currentSchema);
+                    Statement statement = connection.createStatement();
 
-                statement.setQueryTimeout(getStatementExecutionSettings().getExecutionTimeout());
-                statement.execute(executeStatementText);
-                executionResult = createExecutionResult(statement, executionInput);
-                if (executablePsiElement != null) {
-                    if (executablePsiElement.isTransactional()) activeConnection.notifyChanges(file.getVirtualFile());
-                    if (executablePsiElement.isTransactionControl()) activeConnection.resetChanges();
+                    statement.setQueryTimeout(getStatementExecutionSettings().getExecutionTimeout());
+                    statement.execute(executeStatementText);
+                    executionResult = createExecutionResult(statement, executionInput);
+                    if (executablePsiElement != null) {
+                        if (executablePsiElement.isTransactional()) activeConnection.notifyChanges(file.getVirtualFile());
+                        if (executablePsiElement.isTransactionControl()) activeConnection.resetChanges();
+                    }
                 }
             } catch (SQLException e) {
                 executionResult = createErrorExecutionResult(executionInput, e.getMessage());
