@@ -240,12 +240,12 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
         return null;
     }
 
-    public int size() {
+    public synchronized int size() {
         return getElements().size();
     }
 
     public boolean shouldLoad() {
-        if (isDisposed()) return false;
+        if (isDisposed) return false;
         return !isLoaded ||
                 (isDirty() && dependencyAdapter.shouldLoadIfDirty()) ||
                 dependencyAdapter.shouldLoad();
