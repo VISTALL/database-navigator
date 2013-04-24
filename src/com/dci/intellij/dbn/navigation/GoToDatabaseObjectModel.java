@@ -5,6 +5,7 @@ import com.dci.intellij.dbn.connection.ConnectionManager;
 import com.dci.intellij.dbn.connection.VirtualConnectionHandler;
 import com.dci.intellij.dbn.navigation.options.ObjectsLookupSettings;
 import com.dci.intellij.dbn.object.common.DBObject;
+import com.dci.intellij.dbn.object.common.DBObjectType;
 import com.dci.intellij.dbn.object.common.list.DBObjectList;
 import com.dci.intellij.dbn.object.common.list.DBObjectListContainer;
 import com.dci.intellij.dbn.object.common.list.DBObjectListVisitor;
@@ -131,20 +132,23 @@ public class GoToDatabaseObjectModel implements ChooseByNameModel {
 
         public void visitObjectList(DBObjectList<DBObject> objectList) {
             if (isListScannable(objectList) && isParentRelationValid(objectList)) {
-                boolean isObjectTypeActive = objectsLookupSettings.isEnabled(objectList.getObjectType());
-                DBObject originalParentObject = parentObject;
-                for (DBObject object : objectList.getObjects()) {
-                    if (breakLoad()) break;
-                    if (isObjectTypeActive) {
-                        if (bucket == null) bucket = new THashSet<String>();
-                        bucket.add(object.getName());
-                    }
+                DBObjectType objectType = objectList.getObjectType();
+                if (isLookupEnabled(objectType)) {
+                    boolean isLookupEnabled = objectsLookupSettings.isEnabled(objectType);
+                    DBObject originalParentObject = parentObject;
+                    for (DBObject object : objectList.getObjects()) {
+                        if (breakLoad()) break;
+                        if (isLookupEnabled) {
+                            if (bucket == null) bucket = new THashSet<String>();
+                            bucket.add(object.getName());
+                        }
 
-                    parentObject = object;
-                    DBObjectListContainer childObjects = object.getChildObjects();
-                    if (childObjects != null) childObjects.visitLists(this, false);
+                        parentObject = object;
+                        DBObjectListContainer childObjects = object.getChildObjects();
+                        if (childObjects != null) childObjects.visitLists(this, false);
+                    }
+                    parentObject = originalParentObject;
                 }
-                parentObject = originalParentObject;
             }
         }
 
@@ -161,6 +165,18 @@ public class GoToDatabaseObjectModel implements ChooseByNameModel {
         }
     }
 
+    private boolean isLookupEnabled(DBObjectType objectType) {
+        boolean enabled = objectsLookupSettings.isEnabled(objectType);
+        if (!enabled) {
+            for (DBObjectType childObjectType : objectType.getChildren()) {
+                if (isLookupEnabled(childObjectType)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        return enabled;
+    }
 
 
     private class ObjectCollector implements DBObjectListVisitor {
@@ -176,20 +192,23 @@ public class GoToDatabaseObjectModel implements ChooseByNameModel {
 
         public void visitObjectList(DBObjectList<DBObject> objectList) {
             if (isListScannable(objectList) && isParentRelationValid(objectList)) {
-                boolean isActiveObjectType = objectsLookupSettings.isEnabled(objectList.getObjectType());
-                DBObject originalParentObject = parentObject;
-                for (DBObject object : objectList.getObjects()) {
-                    if (breakLoad()) break;
-                    if (isActiveObjectType && object.getName().equals(objectName)) {
-                        if (bucket == null) bucket = new ArrayList<DBObject>();
-                        bucket.add(object);
-                    }
+                DBObjectType objectType = objectList.getObjectType();
+                if (isLookupEnabled(objectType)) {
+                    boolean isLookupEnabled = objectsLookupSettings.isEnabled(objectType);
+                    DBObject originalParentObject = parentObject;
+                    for (DBObject object : objectList.getObjects()) {
+                        if (breakLoad()) break;
+                        if (isLookupEnabled && object.getName().equals(objectName)) {
+                            if (bucket == null) bucket = new ArrayList<DBObject>();
+                            bucket.add(object);
+                        }
 
-                    parentObject = object;
-                    DBObjectListContainer childObjects = object.getChildObjects();
-                    if (childObjects != null) childObjects.visitLists(this, false);
+                        parentObject = object;
+                        DBObjectListContainer childObjects = object.getChildObjects();
+                        if (childObjects != null) childObjects.visitLists(this, false);
+                    }
+                    parentObject = originalParentObject;
                 }
-                parentObject = originalParentObject;
             }
         }
 
