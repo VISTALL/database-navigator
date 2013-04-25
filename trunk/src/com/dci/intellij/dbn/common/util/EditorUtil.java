@@ -85,11 +85,13 @@ public class EditorUtil {
     }
 
     public static FileEditor getFileEditor(Project project, String actionPlace) {
-        FileEditor[] fileEditors = FileEditorManager.getInstance(project).getAllEditors();
-        for (FileEditor fileEditor : fileEditors) {
-            String editorActionPlace = fileEditor.getUserData(DBNDataKeys.ACTION_PLACE_KEY);
-            if (actionPlace.equals(editorActionPlace)) {
-                return fileEditor;
+        if (project != null) {
+            FileEditor[] fileEditors = FileEditorManager.getInstance(project).getAllEditors();
+            for (FileEditor fileEditor : fileEditors) {
+                String editorActionPlace = fileEditor.getUserData(DBNDataKeys.ACTION_PLACE_KEY);
+                if (actionPlace.equals(editorActionPlace)) {
+                    return fileEditor;
+                }
             }
         }
         return null;

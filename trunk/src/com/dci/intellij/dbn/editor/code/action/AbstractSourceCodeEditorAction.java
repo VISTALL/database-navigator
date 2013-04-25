@@ -21,17 +21,15 @@ public abstract class AbstractSourceCodeEditorAction extends DumbAwareAction {
     @Nullable
     protected Editor getEditor(AnActionEvent e) {
         Project project = ActionUtil.getProject(e);
-        if (project != null) {
-            FileEditor fileEditor = EditorUtil.getFileEditor(project, e.getPlace());
-            if (fileEditor instanceof PsiAwareTextEditorImpl) {
-                PsiAwareTextEditorImpl textEditor = (PsiAwareTextEditorImpl) fileEditor;
-                return textEditor.getEditor();
-            }
+        FileEditor fileEditor = EditorUtil.getFileEditor(project, e.getPlace());
+        if (fileEditor instanceof PsiAwareTextEditorImpl) {
+            PsiAwareTextEditorImpl textEditor = (PsiAwareTextEditorImpl) fileEditor;
+            return textEditor.getEditor();
+        }
 
-            if (fileEditor instanceof SourceCodeEditor) {
-                SourceCodeEditor sourceCodeEditor = (SourceCodeEditor) fileEditor;
-                return sourceCodeEditor.getEditor();
-            }
+        if (fileEditor instanceof SourceCodeEditor) {
+            SourceCodeEditor sourceCodeEditor = (SourceCodeEditor) fileEditor;
+            return sourceCodeEditor.getEditor();
         }
         return null;
     }

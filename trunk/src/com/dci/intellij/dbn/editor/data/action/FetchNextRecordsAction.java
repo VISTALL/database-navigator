@@ -31,7 +31,7 @@ public class FetchNextRecordsAction extends AbstractDataEditorAction {
         Project project = ActionUtil.getProject(e);
         if (project != null) {
             DataEditorSettings settings = DataEditorSettings.getInstance(project);
-            presentation.setText("Fetch next " + settings.getGeneralSettings().getFetchBlockSize() + " records");
+            presentation.setText("Fetch next " + settings.getGeneralSettings().getFetchBlockSize().value() + " records");
         }
         boolean enabled =
                 datasetEditor != null &&
