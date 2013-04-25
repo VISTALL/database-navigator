@@ -11,8 +11,8 @@ public class CompareWithOriginalAction extends AbstractDiffAction {
     }
 
     public void actionPerformed(AnActionEvent e) {
-        final Editor editor = getEditor(e);
-        final SourceCodeFile virtualFile = getSourcecodeFile(editor);
+        Editor editor = getEditor(e);
+        SourceCodeFile virtualFile = getSourcecodeFile(e);
         String content = editor.getDocument().getText();
         virtualFile.setContent(content);
         String referenceText = virtualFile.getOriginalContent();

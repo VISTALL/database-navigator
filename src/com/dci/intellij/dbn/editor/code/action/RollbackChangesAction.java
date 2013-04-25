@@ -17,7 +17,7 @@ public class RollbackChangesAction extends AbstractSourceCodeEditorAction {
 
     public void actionPerformed(AnActionEvent e) {
         final Editor editor = getEditor(e);
-        final SourceCodeFile contentFile = getSourcecodeFile(editor);
+        final SourceCodeFile contentFile = getSourcecodeFile(e);
         try {
             contentFile.reloadFromDatabase();
 

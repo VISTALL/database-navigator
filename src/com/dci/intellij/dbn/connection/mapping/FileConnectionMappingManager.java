@@ -8,7 +8,6 @@ import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.ConnectionManager;
 import com.dci.intellij.dbn.connection.ProjectConnectionBundle;
 import com.dci.intellij.dbn.ddl.DDLFileAttachmentManager;
-import com.dci.intellij.dbn.editor.data.DatasetEditor;
 import com.dci.intellij.dbn.language.editor.ui.DBLanguageFileEditorToolbarForm;
 import com.dci.intellij.dbn.object.DBSchema;
 import com.dci.intellij.dbn.object.common.DBSchemaObject;
@@ -227,43 +226,18 @@ public class FileConnectionMappingManager extends VirtualFileAdapter implements 
     /**********************************************
      *            Contextual utilities            *
      **********************************************/
-    public ConnectionHandler lookupActiveConnectionForEditor() {
-        Editor editor = EditorUtil.getSelectedEditor(project);
-        if (editor == null) {
-            FileEditor[] fileEditors = FileEditorManager.getInstance(project).getSelectedEditors();
-            for (FileEditor fileEditor : fileEditors) {
-                if (fileEditor instanceof DatasetEditor) {
-                    DatasetEditor datasetEditor = (DatasetEditor) fileEditor;
-                    return datasetEditor.getActiveConnection();
-                }
-            }
-        }
-        else {
-            VirtualFile virtualFile = FileDocumentManager.getInstance().getFile(editor.getDocument());
-            return getActiveConnection(virtualFile);
-        }
-        return null;
+    public ConnectionHandler lookupActiveConnectionForEditor(String actionPlace) {
+        VirtualFile virtualFile = EditorUtil.getVirtualFile(project, actionPlace);
+        return virtualFile == null ? null : getActiveConnection(virtualFile);
     }
 
-    public DBSchema lookupCurrentSchemaForEditor() {
-        Editor editor = EditorUtil.getSelectedEditor(project);
-        if (editor == null) {
-            FileEditor[] fileEditors = FileEditorManager.getInstance(project).getSelectedEditors();
-            for (FileEditor fileEditor : fileEditors) {
-                if (fileEditor instanceof DatasetEditor) {
-                    DatasetEditor datasetEditor = (DatasetEditor) fileEditor;
-                    return datasetEditor.getCurrentSchema();
-                }
-            }
-        }
-        else {
-            VirtualFile virtualFile = FileDocumentManager.getInstance().getFile(editor.getDocument());
-            return getCurrentSchema(virtualFile);
-        }
-        return null;
+    public DBSchema lookupCurrentSchemaForEditor(String actionPlace) {
+        VirtualFile virtualFile = EditorUtil.getVirtualFile(project, actionPlace);
+        return virtualFile == null ? null : getCurrentSchema(virtualFile);
     }
 
-    public void selectActiveConnectionForEditor(@Nullable ConnectionHandler connectionHandler) {
+    public void selectActiveConnectionForEditor(String actionPlace, @Nullable ConnectionHandler connectionHandler) {
+
         Editor editor = EditorUtil.getSelectedEditor(project);
         if (editor!= null) {
             Document document = editor.getDocument();
@@ -283,7 +257,7 @@ public class FileConnectionMappingManager extends VirtualFileAdapter implements 
         }
     }
 
-    public void setCurrentSchemaForSelectedEditor(DBSchema schema) {
+    public void setCurrentSchemaForSelectedEditor(String actionPlace, DBSchema schema) {
         Editor editor = EditorUtil.getSelectedEditor(project);
         if (editor!= null) {
             Document document = editor.getDocument();

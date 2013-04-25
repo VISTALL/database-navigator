@@ -15,11 +15,11 @@ public class CompareWithDatabaseAction extends AbstractDiffAction {
     }
 
     public void actionPerformed(AnActionEvent e) {
-        Editor editor = getEditor(e);
-        if (editor == null) {
+        SourceCodeFile virtualFile = getSourcecodeFile(e);
+        if (virtualFile == null) {
             e.getPresentation().setEnabled(false);
         } else {
-            SourceCodeFile virtualFile = getSourcecodeFile(editor);
+            Editor editor = getEditor(e);
             String content = editor.getDocument().getText();
             virtualFile.setContent(content);
             DBSchemaObject object = virtualFile.getObject();

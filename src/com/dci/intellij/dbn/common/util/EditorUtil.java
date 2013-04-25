@@ -1,5 +1,6 @@
 package com.dci.intellij.dbn.common.util;
 
+import com.dci.intellij.dbn.common.action.DBNDataKeys;
 import com.dci.intellij.dbn.common.editor.BasicTextEditor;
 import com.dci.intellij.dbn.editor.data.DatasetEditor;
 import com.dci.intellij.dbn.vfs.DatabaseEditableObjectFile;
@@ -12,6 +13,7 @@ import com.intellij.openapi.fileEditor.FileEditorProvider;
 import com.intellij.openapi.fileEditor.FileEditorState;
 import com.intellij.openapi.fileEditor.ex.FileEditorProviderManager;
 import com.intellij.openapi.fileEditor.impl.EditorHistoryManager;
+import com.intellij.openapi.fileEditor.impl.text.PsiAwareTextEditorImpl;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -24,6 +26,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.util.List;
+import java.util.UUID;
 
 public class EditorUtil {
     public static void selectEditor(DatabaseEditableObjectFile databaseFile, FileEditor fileEditor) {
@@ -80,6 +83,50 @@ public class EditorUtil {
         }
         return null;
     }
+
+    public static FileEditor getFileEditor(Project project, String actionPlace) {
+        FileEditor[] fileEditors = FileEditorManager.getInstance(project).getAllEditors();
+        for (FileEditor fileEditor : fileEditors) {
+            String editorActionPlace = fileEditor.getUserData(DBNDataKeys.ACTION_PLACE_KEY);
+            if (actionPlace.equals(editorActionPlace)) {
+                return fileEditor;
+            }
+        }
+        return null;
+    }
+
+    public static VirtualFile getVirtualFile(Project project, String actionPlace) {
+        FileEditor fileEditor = EditorUtil.getFileEditor(project, actionPlace);
+        if (fileEditor != null) {
+            if (fileEditor instanceof DatasetEditor) {
+                DatasetEditor datasetEditor = (DatasetEditor) fileEditor;
+                return datasetEditor.getDataset().getVirtualFile();
+            }
+
+            if (fileEditor instanceof BasicTextEditor) {
+                BasicTextEditor textEditor = (BasicTextEditor) fileEditor;
+                return textEditor.getVirtualFile();
+            }
+
+            if (fileEditor instanceof PsiAwareTextEditorImpl) {
+                PsiAwareTextEditorImpl psiAwareTextEditor = (PsiAwareTextEditorImpl) fileEditor;
+                FileDocumentManager fileDocumentManager = FileDocumentManager.getInstance();
+                Document document = psiAwareTextEditor.getEditor().getDocument();
+                return fileDocumentManager.getFile(document);
+            }
+        }
+        return null;
+    }
+
+    public static synchronized  String getEditorActionPlace(FileEditor fileEditor) {
+        String actionPlace = fileEditor.getUserData(DBNDataKeys.ACTION_PLACE_KEY);
+        if (actionPlace == null) {
+            actionPlace = UUID.randomUUID().toString();
+            fileEditor.putUserData(DBNDataKeys.ACTION_PLACE_KEY, actionPlace);
+        }
+        return actionPlace;
+    }
+
 
 
 

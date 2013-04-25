@@ -33,8 +33,8 @@ public class SelectConnectionComboBoxAction extends DBNComboBoxAction {
 
         Project project = ActionUtil.getProject(e);
         if (project != null) {
-            ConnectionHandler activeConnection = 
-                    FileConnectionMappingManager.getInstance(project).lookupActiveConnectionForEditor();
+            FileConnectionMappingManager connectionMappingManager = FileConnectionMappingManager.getInstance(project);
+            ConnectionHandler activeConnection = connectionMappingManager.lookupActiveConnectionForEditor(e.getPlace());
             if (activeConnection != null) {
                 text = NamingUtil.enhanceUnderscoresForDisplay(activeConnection.getQualifiedName());
                 icon = activeConnection.getIcon();

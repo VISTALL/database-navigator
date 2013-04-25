@@ -1,5 +1,6 @@
 package com.dci.intellij.dbn.language.editor;
 
+import com.dci.intellij.dbn.common.util.EditorUtil;
 import com.dci.intellij.dbn.language.common.DBLanguageFileType;
 import com.dci.intellij.dbn.language.editor.ui.DBLanguageFileEditorToolbarForm;
 import com.intellij.openapi.fileEditor.FileEditor;
@@ -13,11 +14,12 @@ import java.awt.BorderLayout;
 public class DBLanguageFileEditorListener implements FileEditorManagerListener{
     public void fileOpened(FileEditorManager source, VirtualFile file) {
         if (file.isInLocalFileSystem() && file.getFileType() instanceof DBLanguageFileType) {
-            FileEditor editor = source.getSelectedEditor(file);
-            if (editor != null) {
-                DBLanguageFileEditorToolbarForm toolbarForm = new DBLanguageFileEditorToolbarForm(source.getProject(), file);
-                editor.getComponent().add(toolbarForm.getComponent(), BorderLayout.NORTH);
-                editor.putUserData(DBLanguageFileEditorToolbarForm.USER_DATA_KEY, toolbarForm);
+            FileEditor fileEditor = source.getSelectedEditor(file);
+            if (fileEditor != null) {
+                String actionPlace = EditorUtil.getEditorActionPlace(fileEditor);
+                DBLanguageFileEditorToolbarForm toolbarForm = new DBLanguageFileEditorToolbarForm(source.getProject(), file, actionPlace);
+                fileEditor.getComponent().add(toolbarForm.getComponent(), BorderLayout.NORTH);
+                fileEditor.putUserData(DBLanguageFileEditorToolbarForm.USER_DATA_KEY, toolbarForm);
             }
         }
     }
