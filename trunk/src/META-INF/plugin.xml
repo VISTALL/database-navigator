@@ -26,6 +26,7 @@
         <ul>
             <li><b>3.0.2530</b>
              <ul>
+                - Reworked action system to allow multiple editor instances, split and detached editors<br>
                 - Support for error reporting directly from IDE<br>
                 - Connection timeout and idle time management<br>
                 - Memory management improvements (fixed memory leaks on project close)<br>
