@@ -15,7 +15,7 @@ public class TransactionRollbackEditorAction extends TransactionEditorAction {
     public void actionPerformed(AnActionEvent e) {
         Project project = ActionUtil.getProject(e);
         DatabaseTransactionManager transactionManager = DatabaseTransactionManager.getInstance(project);
-        ConnectionHandler activeConnection = getConnectionHandler(project);
+        ConnectionHandler activeConnection = getConnectionHandler(project, e.getPlace());
         transactionManager.rollback(activeConnection, true, false);
     }
 
@@ -25,7 +25,7 @@ public class TransactionRollbackEditorAction extends TransactionEditorAction {
         e.getPresentation().setText("Rollback");
 
         Project project = ActionUtil.getProject(e);
-        ConnectionHandler connectionHandler = getConnectionHandler(project);
+        ConnectionHandler connectionHandler = getConnectionHandler(project, e.getPlace());
         e.getPresentation().setVisible(connectionHandler != null && !connectionHandler.isAutoCommit());
     }
 

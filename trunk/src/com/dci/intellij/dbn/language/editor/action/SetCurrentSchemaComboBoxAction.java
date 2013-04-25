@@ -20,11 +20,12 @@ import javax.swing.JComponent;
 
 public class SetCurrentSchemaComboBoxAction extends DBNComboBoxAction {
     private static final String NAME = "Schema";
+    private String place;
 
     @NotNull
     protected DefaultActionGroup createPopupActionGroup(JComponent component) {
         Project project = ActionUtil.getProject(component);
-        ConnectionHandler activeConnection = FileConnectionMappingManager.getInstance(project).lookupActiveConnectionForEditor();
+        ConnectionHandler activeConnection = FileConnectionMappingManager.getInstance(project).lookupActiveConnectionForEditor(place);
         DefaultActionGroup actionGroup = new DefaultActionGroup();
         for (DBSchema schema : activeConnection.getObjectBundle().getSchemas()){
             actionGroup.add(new SetCurrentSchemaAction(schema));
@@ -33,16 +34,17 @@ public class SetCurrentSchemaComboBoxAction extends DBNComboBoxAction {
     }
 
     public synchronized void update(AnActionEvent e) {
+        place = e.getPlace();
         Project project = ActionUtil.getProject(e);
         String text = NAME;
+
         Icon icon = null;
-        ConnectionHandler activeConnection = null;
         boolean visible = false;
         boolean enabled = true;
 
         if (project != null) {
             FileConnectionMappingManager mappingManager = FileConnectionMappingManager.getInstance(project);
-            activeConnection = mappingManager.lookupActiveConnectionForEditor();
+            ConnectionHandler activeConnection = mappingManager.lookupActiveConnectionForEditor(place);
             visible = activeConnection != null && !activeConnection.isVirtual();
             if (visible) {
                 VirtualFile[] selectedFiles = FileEditorManager.getInstance(project).getSelectedFiles();
@@ -55,7 +57,7 @@ public class SetCurrentSchemaComboBoxAction extends DBNComboBoxAction {
                         icon = schema.getIcon();
                         enabled = true;
                     } else {
-                        DBSchema schema = mappingManager.lookupCurrentSchemaForEditor();
+                        DBSchema schema = mappingManager.lookupCurrentSchemaForEditor(place);
                         if (schema != null) {
                             text = NamingUtil.enhanceUnderscoresForDisplay(schema.getName());
                             icon = schema.getIcon();

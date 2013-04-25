@@ -3,6 +3,7 @@ package com.dci.intellij.dbn.editor.code.action;
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.compatibility.CompatibilityUtil;
 import com.dci.intellij.dbn.common.thread.WriteActionRunner;
+import com.dci.intellij.dbn.common.util.ActionUtil;
 import com.dci.intellij.dbn.editor.DBContentType;
 import com.dci.intellij.dbn.editor.code.SourceCodeEditorManager;
 import com.dci.intellij.dbn.object.common.DBSchemaObject;
@@ -12,21 +13,23 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.project.Project;
 
 public class SaveChangesAction extends AbstractSourceCodeEditorAction {
     public SaveChangesAction() {
         super("", null, Icons.CODE_EDITOR_SAVE);
     }
 
-    public void actionPerformed(AnActionEvent e) {
+    public void actionPerformed(final AnActionEvent e) {
+        final Project project = ActionUtil.getProject(e);
         final Editor editor = getEditor(e);
+        final SourceCodeFile virtualFile = getSourcecodeFile(e);
 
         new WriteActionRunner() {
             public void run() {
                 Document document = editor.getDocument();
                 CompatibilityUtil.stripDocumentTrailingSpaces(document);
-                SourceCodeFile virtualFile = getSourcecodeFile(editor);
-                SourceCodeEditorManager.getInstance(virtualFile.getProject()).updateSourceToDatabase(editor, virtualFile);
+                SourceCodeEditorManager.getInstance(project).updateSourceToDatabase(editor, virtualFile);
             }
         }.start();
     }

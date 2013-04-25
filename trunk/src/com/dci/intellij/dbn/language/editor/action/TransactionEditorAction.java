@@ -20,7 +20,8 @@ public abstract class TransactionEditorAction extends DumbAwareAction {
         Project project = ActionUtil.getProject(e);
         boolean enabled = false;
         if (project != null) {
-            ConnectionHandler activeConnection = FileConnectionMappingManager.getInstance(project).lookupActiveConnectionForEditor();
+            FileConnectionMappingManager connectionMappingManager = FileConnectionMappingManager.getInstance(project);
+            ConnectionHandler activeConnection = connectionMappingManager.lookupActiveConnectionForEditor(e.getPlace());
             enabled = activeConnection != null && activeConnection.hasUncommittedChanges();
         }
         e.getPresentation().setEnabled(enabled);
@@ -34,10 +35,10 @@ public abstract class TransactionEditorAction extends DumbAwareAction {
         }.start();
     }
 
-    protected ConnectionHandler getConnectionHandler(Project project) {
+    protected ConnectionHandler getConnectionHandler(Project project, String actionPlace) {
         if (project != null) {
             FileConnectionMappingManager connectionMappingManager = FileConnectionMappingManager.getInstance(project);
-            return connectionMappingManager.lookupActiveConnectionForEditor();
+            return connectionMappingManager.lookupActiveConnectionForEditor(actionPlace);
         }
         return null;
     }

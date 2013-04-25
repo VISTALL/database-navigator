@@ -3,6 +3,7 @@ package com.dci.intellij.dbn.editor.code;
 import com.dci.intellij.dbn.common.editor.BasicTextEditor;
 import com.dci.intellij.dbn.common.editor.BasicTextEditorProvider;
 import com.dci.intellij.dbn.common.util.ActionUtil;
+import com.dci.intellij.dbn.common.util.EditorUtil;
 import com.dci.intellij.dbn.editor.DBContentType;
 import com.dci.intellij.dbn.vfs.DatabaseEditableObjectFile;
 import com.dci.intellij.dbn.vfs.SourceCodeFile;
@@ -90,7 +91,8 @@ public abstract class BasicSourceCodeEditorProvider extends BasicTextEditorProvi
 
     private void updateEditorActions(BasicTextEditor fileEditor) {
         Editor editor = fileEditor.getEditor();
-        ActionToolbar actionToolbar = ActionUtil.createActionToolbar("", true, "DBNavigator.ActionGroup.SourceEditor");
+        String actionPlace = EditorUtil.getEditorActionPlace(fileEditor);
+        ActionToolbar actionToolbar = ActionUtil.createActionToolbar(actionPlace, true, "DBNavigator.ActionGroup.SourceEditor");
         //FileEditorManager.getInstance(editor.getProject()).addTopComponent(fileEditor, actionToolbar.getComponent());
         editor.getComponent().getParent().add(actionToolbar.getComponent(), BorderLayout.NORTH);
     }

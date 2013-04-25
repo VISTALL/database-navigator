@@ -18,7 +18,7 @@ public class ReloadSourceCodeAction extends AbstractSourceCodeEditorAction {
 
     public void actionPerformed(AnActionEvent e) {
         final Editor editor = getEditor(e);
-        final SourceCodeFile virtualFile = getSourcecodeFile(editor);
+        final SourceCodeFile virtualFile = getSourcecodeFile(e);
         try {
             virtualFile.reloadFromDatabase();
             new WriteActionRunner() {
