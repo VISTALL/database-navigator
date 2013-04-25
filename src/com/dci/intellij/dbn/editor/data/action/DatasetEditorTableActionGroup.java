@@ -1,8 +1,9 @@
 package com.dci.intellij.dbn.editor.data.action;
 
 import com.dci.intellij.dbn.common.Icons;
-import com.dci.intellij.dbn.common.action.DBNDataKeys;
 import com.dci.intellij.dbn.common.sorting.SortDirection;
+import com.dci.intellij.dbn.common.util.ActionUtil;
+import com.dci.intellij.dbn.common.util.EditorUtil;
 import com.dci.intellij.dbn.common.util.NamingUtil;
 import com.dci.intellij.dbn.data.model.ColumnInfo;
 import com.dci.intellij.dbn.data.type.BasicDataType;
@@ -23,6 +24,7 @@ import com.dci.intellij.dbn.object.common.list.DBObjectNavigationList;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.project.DumbAwareAction;
+import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.Toolkit;
@@ -142,7 +144,7 @@ public class DatasetEditorTableActionGroup extends DefaultActionGroup {
         }
 
         public void actionPerformed(AnActionEvent e) {
-            DatasetEditor datasetEditor = e.getData(DBNDataKeys.DATASET_EDITOR);
+            DatasetEditor datasetEditor = getDatasetEditor(e);
             if (datasetEditor != null) {
                 DatasetEditorTable editorTable = datasetEditor.getEditorTable();
                 int modelColumnIndex = columnInfo.getColumnIndex();
@@ -158,7 +160,7 @@ public class DatasetEditorTableActionGroup extends DefaultActionGroup {
         }
 
         public void actionPerformed(AnActionEvent e) {
-            DatasetEditor datasetEditor = e.getData(DBNDataKeys.DATASET_EDITOR);
+            DatasetEditor datasetEditor = getDatasetEditor(e);
             if (datasetEditor!= null) {
                 DatasetEditorTable editorTable = datasetEditor.getEditorTable();
                 int modelColumnIndex = columnInfo.getColumnIndex();
@@ -176,7 +178,8 @@ public class DatasetEditorTableActionGroup extends DefaultActionGroup {
         }
 
         public void actionPerformed(AnActionEvent e) {
-            DatasetEditor datasetEditor = e.getData(DBNDataKeys.DATASET_EDITOR);
+            DatasetEditor datasetEditor = getDatasetEditor(e);
+
             if (datasetEditor != null) {
                 DBDataset dataset = datasetEditor.getDataset();
                 DatasetFilterManager datasetFilterManager = DatasetFilterManager.getInstance(dataset.getProject());
@@ -184,6 +187,11 @@ public class DatasetEditorTableActionGroup extends DefaultActionGroup {
                 datasetFilterManager.createBasicFilter(dataset, columnInfo.getName(), value, ConditionOperator.EQUAL, !filterByValue);
             }
         }
+    }
+
+    private DatasetEditor getDatasetEditor(AnActionEvent e) {
+        Project project = ActionUtil.getProject(e);
+        return (DatasetEditor) EditorUtil.getFileEditor(project, e.getPlace());
     }
 
     private class CreateClipboardFilterAction extends DumbAwareAction {
@@ -196,7 +204,7 @@ public class DatasetEditorTableActionGroup extends DefaultActionGroup {
         }
 
         public void actionPerformed(AnActionEvent e) {
-            DatasetEditor datasetEditor = e.getData(DBNDataKeys.DATASET_EDITOR);
+            DatasetEditor datasetEditor = getDatasetEditor(e);
             if (datasetEditor != null) {
                 DBDataset dataset = datasetEditor.getDataset();
                 DatasetFilterManager datasetFilterManager = DatasetFilterManager.getInstance(dataset.getProject());
@@ -215,7 +223,7 @@ public class DatasetEditorTableActionGroup extends DefaultActionGroup {
         }
 
         public void actionPerformed(AnActionEvent e) {
-            DatasetEditor datasetEditor = e.getData(DBNDataKeys.DATASET_EDITOR);
+            DatasetEditor datasetEditor = getDatasetEditor(e);
             if (datasetEditor != null) {
                 DBDataset dataset = datasetEditor.getDataset();
                 DatasetFilterManager filterManager = DatasetFilterManager.getInstance(dataset.getProject());

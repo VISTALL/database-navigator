@@ -1,9 +1,9 @@
 package com.dci.intellij.dbn.editor.data.action;
 
 import com.dci.intellij.dbn.common.Icons;
-import com.dci.intellij.dbn.common.action.DBNDataKeys;
 import com.dci.intellij.dbn.common.ui.DBNComboBoxAction;
 import com.dci.intellij.dbn.common.util.ActionUtil;
+import com.dci.intellij.dbn.common.util.EditorUtil;
 import com.dci.intellij.dbn.common.util.NamingUtil;
 import com.dci.intellij.dbn.editor.data.DatasetEditor;
 import com.dci.intellij.dbn.editor.data.filter.DatasetFilter;
@@ -11,14 +11,15 @@ import com.dci.intellij.dbn.editor.data.filter.DatasetFilterGroup;
 import com.dci.intellij.dbn.editor.data.filter.DatasetFilterManager;
 import com.dci.intellij.dbn.object.DBDataset;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DataProvider;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.Presentation;
+import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JComponent;
 
 public class SelectDatasetFilterComboBoxAction extends DBNComboBoxAction {
+    private DatasetEditor datasetEditor;
     public SelectDatasetFilterComboBoxAction() {
         Presentation presentation = getTemplatePresentation();
         presentation.setText("No Filter");
@@ -32,8 +33,6 @@ public class SelectDatasetFilterComboBoxAction extends DBNComboBoxAction {
 
     @NotNull
     protected DefaultActionGroup createPopupActionGroup(JComponent button) {
-        DataProvider dataProvider = ActionUtil.getDataProvider(button);
-        DatasetEditor datasetEditor = dataProvider == null ? null : DBNDataKeys.DATASET_EDITOR.getData(dataProvider);
         DefaultActionGroup actionGroup = new DefaultActionGroup();
         if (datasetEditor != null) {
             DBDataset dataset = datasetEditor.getDataset();
@@ -55,8 +54,9 @@ public class SelectDatasetFilterComboBoxAction extends DBNComboBoxAction {
 
     @Override
     public void update(AnActionEvent e) {
-        DatasetEditor datasetEditor = e.getData(DBNDataKeys.DATASET_EDITOR);
-        
+        Project project = ActionUtil.getProject(e);
+        datasetEditor = (DatasetEditor) EditorUtil.getFileEditor(project, e.getPlace());
+
         Presentation presentation = e.getPresentation();
         boolean enabled =
                 datasetEditor != null &&

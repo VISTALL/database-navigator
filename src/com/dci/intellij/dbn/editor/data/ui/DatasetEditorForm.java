@@ -58,8 +58,6 @@ public class DatasetEditorForm extends DBNFormImpl implements DBNForm, Searchabl
             loadingIconPanel.add(new AsyncProcessIcon("Loading"), BorderLayout.CENTER);
             hideLoadingHint();
             datasetTableScrollPane.getViewport().setBackground(datasetEditorTable.getBackground());
-
-            ActionUtil.registerDataProvider(actionsPanel, datasetEditor.getDataProvider(), true);
         } catch (SQLException e) {
             MessageDialog.showErrorDialog(project,
                     "Error opening data editor for " + datasetEditor.getDataset().getQualifiedNameWithType(), e.getMessage(), false);
@@ -127,7 +125,6 @@ public class DatasetEditorForm extends DBNFormImpl implements DBNForm, Searchabl
 
         if (dataSearchComponent == null) {
             dataSearchComponent = new DataSearchComponent(this);
-            ActionUtil.registerDataProvider(dataSearchComponent.getSearchField(), datasetEditorTable.getDatasetEditor().getDataProvider(), false);
             searchPanel.add(dataSearchComponent, BorderLayout.CENTER);
         } else {
             dataSearchComponent.initializeFindModel();
