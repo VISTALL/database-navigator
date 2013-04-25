@@ -1,6 +1,7 @@
 package com.dci.intellij.dbn.editor.data;
 
 import com.dci.intellij.dbn.common.Constants;
+import com.dci.intellij.dbn.common.action.DBNDataKeys;
 import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.common.thread.BackgroundTask;
 import com.dci.intellij.dbn.common.thread.SimpleLaterInvocator;
@@ -30,6 +31,8 @@ import com.intellij.codeHighlighting.BackgroundEditorHighlighter;
 import com.intellij.ide.structureView.StructureViewBuilder;
 import com.intellij.ide.structureView.StructureViewModel;
 import com.intellij.ide.structureView.TreeBasedStructureViewBuilder;
+import com.intellij.openapi.actionSystem.DataProvider;
+import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorLocation;
 import com.intellij.openapi.fileEditor.FileEditorManager;
@@ -511,4 +514,26 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
         DatasetEditorModel tableModel = getTableModel();
         return tableModel != null && tableModel.isEditable() && tableModel.getConnectionHandler().isConnected();
     }
+
+
+    /********************************************************
+     *                    Data Provider                     *
+     ********************************************************/
+    public DataProvider dataProvider = new DataProvider() {
+        @Override
+        public Object getData(@NonNls String dataId) {
+            if (DBNDataKeys.DATASET_EDITOR.is(dataId)) {
+                return DatasetEditor.this;
+            }
+            if (PlatformDataKeys.PROJECT.is(dataId)) {
+                return project;
+            }
+            return null;
+        }
+    };
+
+    public DataProvider getDataProvider() {
+        return dataProvider;
+    }
+
 }
