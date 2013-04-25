@@ -5,6 +5,7 @@ import com.dci.intellij.dbn.common.thread.ConditionalLaterInvocator;
 import com.dci.intellij.dbn.common.thread.ModalTask;
 import com.dci.intellij.dbn.common.thread.SimpleLaterInvocator;
 import com.dci.intellij.dbn.common.ui.MouseUtil;
+import com.dci.intellij.dbn.common.util.ActionUtil;
 import com.dci.intellij.dbn.common.util.EditorUtil;
 import com.dci.intellij.dbn.common.util.MessageUtil;
 import com.dci.intellij.dbn.data.model.ColumnInfo;
@@ -30,6 +31,7 @@ import com.dci.intellij.dbn.object.DBDataset;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionPopupMenu;
+import com.intellij.openapi.actionSystem.DataProvider;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.awt.RelativePoint;
@@ -69,6 +71,11 @@ public class DatasetEditorTable extends ResultSetTable {
         addMouseListener(tableMouseListener);
 
         getTableHeader().addMouseListener(new DatasetEditorHeaderMouseListener(this));
+
+        DataProvider dataProvider = datasetEditor.getDataProvider();
+        ActionUtil.registerDataProvider(this, dataProvider, false);
+        ActionUtil.registerDataProvider(getTableGutter(), dataProvider, false);
+        ActionUtil.registerDataProvider(getTableHeader(), dataProvider, false);
     }
 
     public Project getProject() {

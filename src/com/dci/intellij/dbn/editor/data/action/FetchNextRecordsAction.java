@@ -23,7 +23,6 @@ public class FetchNextRecordsAction extends AbstractDataEditorAction {
     }
 
     public void update(AnActionEvent e) {
-
         Presentation presentation = e.getPresentation();
         presentation.setText("Fetch next records");
 
