@@ -1,7 +1,6 @@
 package com.dci.intellij.dbn.editor.data.action;
 
 import com.dci.intellij.dbn.common.Icons;
-import com.dci.intellij.dbn.common.action.DBNDataKeys;
 import com.dci.intellij.dbn.editor.data.DatasetEditor;
 import com.dci.intellij.dbn.editor.data.filter.DatasetFilter;
 import com.dci.intellij.dbn.editor.data.filter.DatasetFilterManager;
@@ -10,16 +9,15 @@ import com.dci.intellij.dbn.editor.data.options.DataEditorSettings;
 import com.dci.intellij.dbn.object.DBDataset;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
-import com.intellij.openapi.project.DumbAwareAction;
 
-public class CreateEditDatasetFilterAction extends DumbAwareAction {
+public class CreateEditDatasetFilterAction extends AbstractDataEditorAction {
     public CreateEditDatasetFilterAction() {
-        super("Create / Edit Filter", null, Icons.DATASET_FILTER_NEW);
+        super("Create / Edit Filter", Icons.DATASET_FILTER_NEW);
     }
 
     @Override
     public void actionPerformed(AnActionEvent e) {
-        DatasetEditor datasetEditor = e.getData(DBNDataKeys.DATASET_EDITOR);
+        DatasetEditor datasetEditor = getDatasetEditor(e);
         if (datasetEditor != null) {
             DBDataset dataset = datasetEditor.getDataset();
 
@@ -44,7 +42,7 @@ public class CreateEditDatasetFilterAction extends DumbAwareAction {
     public void update(AnActionEvent e) {
         Presentation presentation = e.getPresentation();
 
-        DatasetEditor datasetEditor = e.getData(DBNDataKeys.DATASET_EDITOR);
+        DatasetEditor datasetEditor = getDatasetEditor(e);
         if (datasetEditor == null || !datasetEditor.getActiveConnection().isConnected()) {
             presentation.setEnabled(false);
         } else {

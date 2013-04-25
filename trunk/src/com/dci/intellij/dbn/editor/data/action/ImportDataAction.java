@@ -2,17 +2,15 @@ package com.dci.intellij.dbn.editor.data.action;
 
 import com.dci.intellij.dbn.common.Constants;
 import com.dci.intellij.dbn.common.Icons;
-import com.dci.intellij.dbn.common.action.DBNDataKeys;
 import com.dci.intellij.dbn.editor.data.DatasetEditor;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
-import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.ui.Messages;
 
-public class ImportDataAction extends DumbAwareAction {
+public class ImportDataAction extends AbstractDataEditorAction {
 
     public ImportDataAction() {
-        super("Import Data", null, Icons.DATA_IMPORT);
+        super("Import Data", Icons.DATA_IMPORT);
     }
 
     public void actionPerformed(AnActionEvent e) {
@@ -22,7 +20,7 @@ public class ImportDataAction extends DumbAwareAction {
     public void update(AnActionEvent e) {
         Presentation presentation = e.getPresentation();
         presentation.setText("Import Data");
-        DatasetEditor datasetEditor = e.getData(DBNDataKeys.DATASET_EDITOR);
+        DatasetEditor datasetEditor = getDatasetEditor(e);
         if (datasetEditor == null) {
             presentation.setEnabled(false);
         } else {

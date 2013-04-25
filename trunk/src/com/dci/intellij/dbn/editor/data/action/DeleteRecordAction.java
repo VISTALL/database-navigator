@@ -1,22 +1,20 @@
 package com.dci.intellij.dbn.editor.data.action;
 
 import com.dci.intellij.dbn.common.Icons;
-import com.dci.intellij.dbn.common.action.DBNDataKeys;
 import com.dci.intellij.dbn.editor.data.DatasetEditor;
 import com.dci.intellij.dbn.editor.data.model.DatasetEditorModelRow;
 import com.dci.intellij.dbn.editor.data.ui.table.DatasetEditorTable;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
-import com.intellij.openapi.project.DumbAwareAction;
 
-public class DeleteRecordAction extends DumbAwareAction {
+public class DeleteRecordAction extends AbstractDataEditorAction {
 
     public DeleteRecordAction() {
-        super("Delete records", null, Icons.DATA_EDITOR_DELETE_RECORD);
+        super("Delete records", Icons.DATA_EDITOR_DELETE_RECORD);
     }
 
     public void actionPerformed(AnActionEvent e) {
-        DatasetEditor datasetEditor = e.getData(DBNDataKeys.DATASET_EDITOR);
+        DatasetEditor datasetEditor = getDatasetEditor(e);
         if (datasetEditor != null) {
             datasetEditor.deleteRecords();
         }
@@ -25,7 +23,7 @@ public class DeleteRecordAction extends DumbAwareAction {
     public void update(AnActionEvent e) {
         Presentation presentation = e.getPresentation();
         presentation.setText("Delete records");
-        DatasetEditor datasetEditor = e.getData(DBNDataKeys.DATASET_EDITOR);
+        DatasetEditor datasetEditor = getDatasetEditor(e);
         if (datasetEditor == null || !datasetEditor.getActiveConnection().isConnected()) {
             presentation.setEnabled(false);
         } else {
