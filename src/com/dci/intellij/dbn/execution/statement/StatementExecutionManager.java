@@ -105,7 +105,13 @@ public class StatementExecutionManager extends AbstractProjectComponent {
                             "You did not select any schema to run the statement against.\n" +
                             "To continue with the statement execution please select a schema." : null;
 
-            int response = Messages.showOkCancelDialog(message, Constants.DBN_TITLE_PREFIX + "No valid connection / schema", Messages.getWarningIcon());
+            String okOption =
+                    activeConnection == null || activeConnection.isVirtual() ? "Select Connection" :
+                    currentSchema == null ? "Select Schema" : null;
+
+            String[] options = {okOption, "Cancel"};
+
+            int response = Messages.showDialog(message, Constants.DBN_TITLE_PREFIX + "No valid Connection / Schema", options, 0, Messages.getWarningIcon());
 
             if (response == 0) {
                 SelectConnectionDialog selectConnectionDialog = new SelectConnectionDialog(file);
