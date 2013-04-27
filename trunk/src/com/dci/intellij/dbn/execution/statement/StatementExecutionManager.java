@@ -14,6 +14,7 @@ import com.dci.intellij.dbn.language.common.DBLanguageFile;
 import com.dci.intellij.dbn.language.common.psi.ExecutablePsiElement;
 import com.dci.intellij.dbn.language.common.psi.PsiUtil;
 import com.dci.intellij.dbn.language.common.psi.RootPsiElement;
+import com.dci.intellij.dbn.object.DBSchema;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
@@ -91,14 +92,20 @@ public class StatementExecutionManager extends AbstractProjectComponent {
 
     private boolean selectConnection(DBLanguageFile file) {
         ConnectionHandler activeConnection = file.getActiveConnection();
-        if (activeConnection == null || activeConnection.isVirtual()) {
-            String message = activeConnection != null && activeConnection.isVirtual() ?
-                    "The connection you selected for this file is a virtual connection, used only to decide the SQL dialect.\n" +
+        DBSchema currentSchema = file.getCurrentSchema();
+        if (activeConnection == null || currentSchema == null || activeConnection.isVirtual()) {
+            String message =
+                    activeConnection == null ?
+                            "The file is not linked to any connection.\n" +
+                            "To continue with the statement execution please select a target connection." :
+                    activeConnection.isVirtual() ?
+                            "The connection you selected for this file is a virtual connection, used only to decide the SQL dialect.\n" +
                             "You can not execute statements against this connection. Please select a proper connection to continue." :
-                    "The file is not linked to any connection.\n" +
-                            "To continue with the statement execution please select a target connection.";
+                    currentSchema == null ?
+                            "You did not select any schema to run the statement against.\n" +
+                            "To continue with the statement execution please select a schema." : null;
 
-            int response = Messages.showOkCancelDialog(message, Constants.DBN_TITLE_PREFIX + "No valid connection", Messages.getWarningIcon());
+            int response = Messages.showOkCancelDialog(message, Constants.DBN_TITLE_PREFIX + "No valid connection / schema", Messages.getWarningIcon());
 
             if (response == 0) {
                 SelectConnectionDialog selectConnectionDialog = new SelectConnectionDialog(file);
