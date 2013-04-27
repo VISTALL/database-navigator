@@ -398,7 +398,7 @@ public class DatasetEditorTable extends ResultSetTable {
         new ModalTask(getDataset().getProject(), "Loading column information", true) {
             public void run(@NotNull ProgressIndicator progressIndicator) {
                 progressIndicator.setIndeterminate(true);
-                ActionGroup actionGroup = new DatasetEditorTableActionGroup(DatasetEditorTable.this, cell, columnInfo);
+                ActionGroup actionGroup = new DatasetEditorTableActionGroup(datasetEditor, cell, columnInfo);
                 if (!progressIndicator.isCanceled()) {
                     String actionPlace = EditorUtil.getEditorActionPlace(getDatasetEditor());
                     ActionPopupMenu actionPopupMenu = ActionManager.getInstance().createActionPopupMenu(actionPlace, actionGroup);

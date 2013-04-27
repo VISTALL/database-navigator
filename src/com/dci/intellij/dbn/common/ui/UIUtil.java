@@ -69,6 +69,20 @@ public class UIUtil{
         return false;
     }
 
+    public static boolean isFocused(Component component, boolean recoursive) {
+        if (component.isFocusOwner()) return true;
+        if (recoursive && component instanceof JComponent) {
+            JComponent parentComponent = (JComponent) component;
+            for (Component childComponent : parentComponent.getComponents()) {
+                if (isFocused(childComponent, recoursive)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+
     public static boolean isDarkLookAndFeel() {
         return UIManager.getLookAndFeel().getName().contains(DARK_LAF_NAME);
     }

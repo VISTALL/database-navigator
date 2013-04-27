@@ -2,16 +2,17 @@ package com.dci.intellij.dbn.editor.data.action;
 
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.ui.DBNComboBoxAction;
-import com.dci.intellij.dbn.common.util.ActionUtil;
-import com.dci.intellij.dbn.common.util.EditorUtil;
 import com.dci.intellij.dbn.common.util.NamingUtil;
 import com.dci.intellij.dbn.editor.data.DatasetEditor;
 import com.dci.intellij.dbn.editor.data.filter.DatasetFilter;
 import com.dci.intellij.dbn.editor.data.filter.DatasetFilterGroup;
 import com.dci.intellij.dbn.editor.data.filter.DatasetFilterManager;
 import com.dci.intellij.dbn.object.DBDataset;
+import com.intellij.ide.DataManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
+import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
@@ -19,7 +20,6 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.JComponent;
 
 public class SelectDatasetFilterComboBoxAction extends DBNComboBoxAction {
-    private DatasetEditor datasetEditor;
     public SelectDatasetFilterComboBoxAction() {
         Presentation presentation = getTemplatePresentation();
         presentation.setText("No Filter");
@@ -31,9 +31,15 @@ public class SelectDatasetFilterComboBoxAction extends DBNComboBoxAction {
         return super.createCustomComponent(presentation);
     }
 
+
+
     @NotNull
     protected DefaultActionGroup createPopupActionGroup(JComponent button) {
+        DataContext dataContext = DataManager.getInstance().getDataContext(button);
+        Project project = (Project) dataContext.getData(PlatformDataKeys.PROJECT.getName());
+
         DefaultActionGroup actionGroup = new DefaultActionGroup();
+        DatasetEditor datasetEditor = AbstractDataEditorAction.getActiveDatasetEditor(project);
         if (datasetEditor != null) {
             DBDataset dataset = datasetEditor.getDataset();
             OpenFilterSettingsAction openFilterSettingsAction = new OpenFilterSettingsAction(datasetEditor);
@@ -54,8 +60,7 @@ public class SelectDatasetFilterComboBoxAction extends DBNComboBoxAction {
 
     @Override
     public void update(AnActionEvent e) {
-        Project project = ActionUtil.getProject(e);
-        datasetEditor = (DatasetEditor) EditorUtil.getFileEditor(project, e.getPlace());
+        DatasetEditor datasetEditor = AbstractDataEditorAction.getDatasetEditor(e);
 
         Presentation presentation = e.getPresentation();
         boolean enabled =
