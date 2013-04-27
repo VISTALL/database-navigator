@@ -2,8 +2,6 @@ package com.dci.intellij.dbn.editor.data.action;
 
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.sorting.SortDirection;
-import com.dci.intellij.dbn.common.util.ActionUtil;
-import com.dci.intellij.dbn.common.util.EditorUtil;
 import com.dci.intellij.dbn.common.util.NamingUtil;
 import com.dci.intellij.dbn.data.model.ColumnInfo;
 import com.dci.intellij.dbn.data.type.BasicDataType;
@@ -24,7 +22,6 @@ import com.dci.intellij.dbn.object.common.list.DBObjectNavigationList;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.project.DumbAwareAction;
-import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.Toolkit;
@@ -37,9 +34,12 @@ public class DatasetEditorTableActionGroup extends DefaultActionGroup {
     private Object columnValue;
     private String columnDisplayName;
     boolean isHeaderAction;
-    public DatasetEditorTableActionGroup(DatasetEditorTable table, @Nullable DatasetEditorModelCell cell, ColumnInfo columnInfo) {
+    private DatasetEditor datasetEditor;
+    public DatasetEditorTableActionGroup(DatasetEditor datasetEditor, @Nullable DatasetEditorModelCell cell, ColumnInfo columnInfo) {
+        this.datasetEditor = datasetEditor;
         this.columnInfo = columnInfo;
         this.columnDisplayName = NamingUtil.enhanceUnderscoresForDisplay(columnInfo.getName());
+        DatasetEditorTable table = datasetEditor.getEditorTable();
 
         isHeaderAction = cell == null;
         columnValue = cell == null ? null : cell.getUserValue();
@@ -144,10 +144,9 @@ public class DatasetEditorTableActionGroup extends DefaultActionGroup {
         }
 
         public void actionPerformed(AnActionEvent e) {
-            DatasetEditor datasetEditor = getDatasetEditor(e);
-            if (datasetEditor != null) {
-                DatasetEditorTable editorTable = datasetEditor.getEditorTable();
-                int modelColumnIndex = columnInfo.getColumnIndex();
+            DatasetEditorTable editorTable = datasetEditor.getEditorTable();
+            int modelColumnIndex = columnInfo.getColumnIndex();
+            if (editorTable != null) {
                 int tableColumnIndex = editorTable.convertColumnIndexToView(modelColumnIndex);
                 editorTable.sort(tableColumnIndex, SortDirection.ASCENDING);
             }
@@ -160,10 +159,9 @@ public class DatasetEditorTableActionGroup extends DefaultActionGroup {
         }
 
         public void actionPerformed(AnActionEvent e) {
-            DatasetEditor datasetEditor = getDatasetEditor(e);
-            if (datasetEditor!= null) {
-                DatasetEditorTable editorTable = datasetEditor.getEditorTable();
-                int modelColumnIndex = columnInfo.getColumnIndex();
+            DatasetEditorTable editorTable = datasetEditor.getEditorTable();
+            int modelColumnIndex = columnInfo.getColumnIndex();
+            if (editorTable != null) {
                 int tableColumnIndex = editorTable.convertColumnIndexToView(modelColumnIndex);
                 editorTable.sort(tableColumnIndex, SortDirection.DESCENDING);
             }
@@ -178,20 +176,11 @@ public class DatasetEditorTableActionGroup extends DefaultActionGroup {
         }
 
         public void actionPerformed(AnActionEvent e) {
-            DatasetEditor datasetEditor = getDatasetEditor(e);
-
-            if (datasetEditor != null) {
-                DBDataset dataset = datasetEditor.getDataset();
-                DatasetFilterManager datasetFilterManager = DatasetFilterManager.getInstance(dataset.getProject());
-                Object value = filterByValue ? columnValue : null;
-                datasetFilterManager.createBasicFilter(dataset, columnInfo.getName(), value, ConditionOperator.EQUAL, !filterByValue);
-            }
+            DBDataset dataset = datasetEditor.getDataset();
+            DatasetFilterManager datasetFilterManager = DatasetFilterManager.getInstance(dataset.getProject());
+            Object value = filterByValue ? columnValue : null;
+            datasetFilterManager.createBasicFilter(dataset, columnInfo.getName(), value, ConditionOperator.EQUAL, !filterByValue);
         }
-    }
-
-    private DatasetEditor getDatasetEditor(AnActionEvent e) {
-        Project project = ActionUtil.getProject(e);
-        return (DatasetEditor) EditorUtil.getFileEditor(project, e.getPlace());
     }
 
     private class CreateClipboardFilterAction extends DumbAwareAction {
@@ -204,14 +193,11 @@ public class DatasetEditorTableActionGroup extends DefaultActionGroup {
         }
 
         public void actionPerformed(AnActionEvent e) {
-            DatasetEditor datasetEditor = getDatasetEditor(e);
-            if (datasetEditor != null) {
-                DBDataset dataset = datasetEditor.getDataset();
-                DatasetFilterManager datasetFilterManager = DatasetFilterManager.getInstance(dataset.getProject());
-                String value = like ? '%' + text + '%' : text;
-                ConditionOperator operator = like ? ConditionOperator.LIKE : ConditionOperator.EQUAL;
-                datasetFilterManager.createBasicFilter(dataset, columnInfo.getName(), value, operator, false);
-            }
+            DBDataset dataset = datasetEditor.getDataset();
+            DatasetFilterManager datasetFilterManager = DatasetFilterManager.getInstance(dataset.getProject());
+            String value = like ? '%' + text + '%' : text;
+            ConditionOperator operator = like ? ConditionOperator.LIKE : ConditionOperator.EQUAL;
+            datasetFilterManager.createBasicFilter(dataset, columnInfo.getName(), value, operator, false);
         }
     }
 
@@ -223,14 +209,10 @@ public class DatasetEditorTableActionGroup extends DefaultActionGroup {
         }
 
         public void actionPerformed(AnActionEvent e) {
-            DatasetEditor datasetEditor = getDatasetEditor(e);
-            if (datasetEditor != null) {
-                DBDataset dataset = datasetEditor.getDataset();
-                DatasetFilterManager filterManager = DatasetFilterManager.getInstance(dataset.getProject());
-                DatasetBasicFilter basicFilter = (DatasetBasicFilter) filterManager.getActiveFilter(dataset);
-                filterManager.addConditionToFilter(basicFilter, dataset, columnInfo, columnValue, isHeaderAction);
-            }
-
+            DBDataset dataset = datasetEditor.getDataset();
+            DatasetFilterManager filterManager = DatasetFilterManager.getInstance(dataset.getProject());
+            DatasetBasicFilter basicFilter = (DatasetBasicFilter) filterManager.getActiveFilter(dataset);
+            filterManager.addConditionToFilter(basicFilter, dataset, columnInfo, columnValue, isHeaderAction);
         }
     }
 }

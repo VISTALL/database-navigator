@@ -214,7 +214,9 @@
                 <keyboard-shortcut keymap="$default" first-keystroke="ctrl F"/>
             </action>
             <separator/>
-            <action id="DBNavigator.Actions.DataEditor.DuplicateRecord" class="com.dci.intellij.dbn.editor.data.action.DuplicateRecordAction" text="Data Editor - Duplicate Record"/>
+            <action id="DBNavigator.Actions.DataEditor.DuplicateRecord" class="com.dci.intellij.dbn.editor.data.action.DuplicateRecordAction" text="Data Editor - Duplicate Record">
+                <keyboard-shortcut keymap="$default" first-keystroke="ctrl D"/>
+            </action>
             <action id="DBNavigator.Actions.DataEditor.InsertRecord" class="com.dci.intellij.dbn.editor.data.action.InsertRecordAction" text="Data Editor - Insert Record">
                 <keyboard-shortcut keymap="$default" first-keystroke="shift INSERT"/>
             </action>
