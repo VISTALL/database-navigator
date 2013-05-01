@@ -1,8 +1,8 @@
 package com.dci.intellij.dbn.data.ui.table.sortable;
 
 import com.dci.intellij.dbn.common.Icons;
-import com.dci.intellij.dbn.common.sorting.SortDirection;
 import com.dci.intellij.dbn.data.model.sortable.SortableDataModel;
+import com.dci.intellij.dbn.data.sorting.SortDirection;
 
 import javax.swing.JLabel;
 import javax.swing.JTable;

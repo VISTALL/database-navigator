@@ -1,6 +1,5 @@
 package com.dci.intellij.dbn.editor.data.ui.table;
 
-import com.dci.intellij.dbn.common.sorting.SortDirection;
 import com.dci.intellij.dbn.common.thread.ConditionalLaterInvocator;
 import com.dci.intellij.dbn.common.thread.ModalTask;
 import com.dci.intellij.dbn.common.thread.SimpleLaterInvocator;
@@ -12,6 +11,7 @@ import com.dci.intellij.dbn.data.model.ColumnInfo;
 import com.dci.intellij.dbn.data.model.DataModelCell;
 import com.dci.intellij.dbn.data.preview.LargeValuePreviewPopup;
 import com.dci.intellij.dbn.data.record.RecordViewInfo;
+import com.dci.intellij.dbn.data.sorting.SortDirection;
 import com.dci.intellij.dbn.data.ui.table.basic.BasicTableGutter;
 import com.dci.intellij.dbn.data.ui.table.resultSet.ResultSetTable;
 import com.dci.intellij.dbn.data.value.LazyLoadedValue;

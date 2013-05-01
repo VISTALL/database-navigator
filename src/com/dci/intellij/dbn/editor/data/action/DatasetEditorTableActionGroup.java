@@ -1,9 +1,9 @@
 package com.dci.intellij.dbn.editor.data.action;
 
 import com.dci.intellij.dbn.common.Icons;
-import com.dci.intellij.dbn.common.sorting.SortDirection;
 import com.dci.intellij.dbn.common.util.NamingUtil;
 import com.dci.intellij.dbn.data.model.ColumnInfo;
+import com.dci.intellij.dbn.data.sorting.SortDirection;
 import com.dci.intellij.dbn.data.type.BasicDataType;
 import com.dci.intellij.dbn.data.type.DBDataType;
 import com.dci.intellij.dbn.editor.data.DatasetEditor;

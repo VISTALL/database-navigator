@@ -1,9 +1,9 @@
 package com.dci.intellij.dbn.connection.config.action;
 
 import com.dci.intellij.dbn.common.Icons;
-import com.dci.intellij.dbn.common.sorting.SortDirection;
 import com.dci.intellij.dbn.connection.ConnectionBundle;
 import com.dci.intellij.dbn.connection.config.ui.ConnectionListModel;
+import com.dci.intellij.dbn.data.sorting.SortDirection;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.DumbAwareAction;

@@ -1,10 +1,10 @@
 package com.dci.intellij.dbn.data.model.sortable;
 
-import com.dci.intellij.dbn.common.sorting.SortDirection;
 import com.dci.intellij.dbn.data.model.DataModelRow;
-import com.dci.intellij.dbn.data.model.DataModelSortingState;
 import com.dci.intellij.dbn.data.model.DataModelState;
 import com.dci.intellij.dbn.data.model.basic.BasicDataModel;
+import com.dci.intellij.dbn.data.sorting.SingleColumnSortingState;
+import com.dci.intellij.dbn.data.sorting.SortDirection;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
@@ -39,9 +39,9 @@ public class SortableDataModel<T extends SortableDataModelRow> extends BasicData
     }
 
     protected boolean updateSortingState(int columnIndex, SortDirection direction) {
-        DataModelSortingState sortingState = getState().getSortingState();
+        SingleColumnSortingState sortingState = getState().getSortingState();
         String columnName = getColumnName(columnIndex);
-        if (direction == SortDirection.UNDEFINED) {
+        if (direction == SortDirection.INDEFINITE) {
             if (columnName.equals(sortingState.getColumnName())) {
                 sortingState.swichDirection();
             } else {

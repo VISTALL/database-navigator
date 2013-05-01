@@ -1,9 +1,9 @@
 package com.dci.intellij.dbn.connection.config.ui;
 
-import com.dci.intellij.dbn.common.sorting.SortDirection;
 import com.dci.intellij.dbn.connection.ConnectionBundle;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.config.ConnectionSettings;
+import com.dci.intellij.dbn.data.sorting.SortDirection;
 
 import javax.swing.DefaultListModel;
 import java.util.ArrayList;

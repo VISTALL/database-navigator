@@ -1,6 +1,6 @@
 package com.dci.intellij.dbn.data.model.sortable;
 
-import com.dci.intellij.dbn.common.sorting.SortDirection;
+import com.dci.intellij.dbn.data.sorting.SortDirection;
 import com.dci.intellij.dbn.data.ui.table.sortable.SortableTable;
 
 import javax.swing.table.JTableHeader;
@@ -29,7 +29,7 @@ public class SortableTableHeaderMouseListener extends MouseAdapter {
                     table.accommodateColumnSize(columnIndex, 20);
                 }
             } else {
-                table.sort(columnIndex, SortDirection.UNDEFINED);
+                table.sort(columnIndex, SortDirection.INDEFINITE);
             }
         }
         table.requestFocus();
