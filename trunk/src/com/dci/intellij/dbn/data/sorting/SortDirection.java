@@ -1,7 +1,7 @@
-package com.dci.intellij.dbn.common.sorting;
+package com.dci.intellij.dbn.data.sorting;
 
 public enum SortDirection {
-    UNDEFINED(0),
+    INDEFINITE(0),
     ASCENDING(1),
     DESCENDING(-1);
 

@@ -1,9 +1,7 @@
-package com.dci.intellij.dbn.data.model;
+package com.dci.intellij.dbn.data.sorting;
 
-import com.dci.intellij.dbn.common.sorting.SortDirection;
-
-public class DataModelSortingState {
-    private SortDirection direction = SortDirection.UNDEFINED;
+public class SingleColumnSortingState {
+    private SortDirection direction = SortDirection.INDEFINITE;
     private String columnName = "";
 
     public SortDirection getDirection() {
@@ -18,7 +16,7 @@ public class DataModelSortingState {
         this.direction =
             "ASC".equals(direction) ? SortDirection.ASCENDING :
             "DESC".equals(direction) ? SortDirection.DESCENDING :
-                    SortDirection.UNDEFINED;
+                    SortDirection.INDEFINITE;
     }
 
 
@@ -53,7 +51,7 @@ public class DataModelSortingState {
 
     public boolean isValid() {
         return
-            direction != SortDirection.UNDEFINED &&
+            direction != SortDirection.INDEFINITE &&
             columnName != null &&
             columnName.trim().length() > 0;
     }

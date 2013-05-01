@@ -2,11 +2,11 @@ package com.dci.intellij.dbn.data.ui.table.sortable;
 
 import com.dci.intellij.dbn.common.LoggerFactory;
 import com.dci.intellij.dbn.common.locale.options.RegionalSettings;
-import com.dci.intellij.dbn.common.sorting.SortDirection;
 import com.dci.intellij.dbn.data.model.ColumnInfo;
 import com.dci.intellij.dbn.data.model.sortable.SortableDataModel;
 import com.dci.intellij.dbn.data.model.sortable.SortableTableHeaderMouseListener;
 import com.dci.intellij.dbn.data.model.sortable.SortableTableMouseListener;
+import com.dci.intellij.dbn.data.sorting.SortDirection;
 import com.dci.intellij.dbn.data.ui.table.basic.BasicTable;
 import com.dci.intellij.dbn.data.ui.table.basic.BasicTableCellRenderer;
 import com.dci.intellij.dbn.data.ui.table.basic.BasicTableSpeedSearch;
