@@ -101,7 +101,7 @@
                   </scrollpane>
                 </children>
               </grid>
-              <grid id="643d3" layout-manager="GridLayoutManager" row-count="3" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="2" vgap="2">
+              <grid id="643d3" binding="outputPanel" layout-manager="GridLayoutManager" row-count="3" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="2" vgap="2">
                 <margin top="0" left="0" bottom="0" right="0"/>
                 <constraints>
                   <splitpane position="right"/>
@@ -111,54 +111,6 @@
                   <color color="-65485"/>
                 </border>
                 <children>
-                  <splitpane id="e9e38" binding="outputSplitPanel">
-                    <constraints>
-                      <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-                    </constraints>
-                    <properties>
-                      <dividerLocation value="84"/>
-                      <orientation value="0"/>
-                    </properties>
-                    <border type="none">
-                      <color color="-65485"/>
-                    </border>
-                    <children>
-                      <grid id="648a3" binding="simpleOutputsPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
-                        <constraints>
-                          <splitpane position="left"/>
-                        </constraints>
-                        <properties/>
-                        <border type="none">
-                          <color color="-65485"/>
-                        </border>
-                        <children>
-                          <scrollpane id="aca94" class="com.intellij.ui.components.JBScrollPane" binding="outputScrollPane">
-                            <constraints border-constraint="Center"/>
-                            <properties>
-                              <background swing-color="Table.background"/>
-                            </properties>
-                            <border type="none"/>
-                            <children>
-                              <component id="4bb15" class="javax.swing.JTable" binding="outputArgumentsTable" custom-create="true">
-                                <constraints/>
-                                <properties>
-                                  <preferredScrollableViewportSize width="-1" height="-1"/>
-                                </properties>
-                              </component>
-                            </children>
-                          </scrollpane>
-                        </children>
-                      </grid>
-                      <grid id="20d1e" binding="cursorOutputsPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
-                        <constraints>
-                          <splitpane position="right"/>
-                        </constraints>
-                        <properties/>
-                        <border type="none"/>
-                        <children/>
-                      </grid>
-                    </children>
-                  </splitpane>
                   <component id="54b9f" class="javax.swing.JLabel">
                     <constraints>
                       <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
@@ -167,9 +119,67 @@
                       <text value="&amp;Output"/>
                     </properties>
                   </component>
-                  <grid id="4c14a" binding="outputPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
+                  <grid id="1dee9" binding="splitOutputPane" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                    <margin top="0" left="0" bottom="0" right="0"/>
                     <constraints>
-                      <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                      <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties/>
+                    <border type="none"/>
+                    <children>
+                      <splitpane id="e9e38">
+                        <constraints>
+                          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties>
+                          <dividerLocation value="88"/>
+                          <orientation value="0"/>
+                        </properties>
+                        <border type="none">
+                          <color color="-65485"/>
+                        </border>
+                        <children>
+                          <grid id="648a3" binding="outputArgumentsPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
+                            <constraints>
+                              <splitpane position="left"/>
+                            </constraints>
+                            <properties/>
+                            <border type="none">
+                              <color color="-65485"/>
+                            </border>
+                            <children>
+                              <scrollpane id="aca94" class="com.intellij.ui.components.JBScrollPane" binding="outputScrollPane">
+                                <constraints border-constraint="Center"/>
+                                <properties>
+                                  <background swing-color="Table.background"/>
+                                </properties>
+                                <border type="none"/>
+                                <children>
+                                  <component id="4bb15" class="javax.swing.JTable" binding="outputArgumentsTable" custom-create="true">
+                                    <constraints/>
+                                    <properties>
+                                      <preferredScrollableViewportSize width="-1" height="-1"/>
+                                    </properties>
+                                  </component>
+                                </children>
+                              </scrollpane>
+                            </children>
+                          </grid>
+                          <grid id="e0d7f" binding="outputCursorsPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
+                            <constraints>
+                              <splitpane position="right"/>
+                            </constraints>
+                            <properties/>
+                            <border type="none"/>
+                            <children/>
+                          </grid>
+                        </children>
+                      </splitpane>
+                    </children>
+                  </grid>
+                  <grid id="8f01b" binding="simpleOutputPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
+                    <constraints>
+                      <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties/>
                     <border type="none"/>
