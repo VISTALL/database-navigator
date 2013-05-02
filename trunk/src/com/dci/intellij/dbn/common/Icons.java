@@ -129,6 +129,8 @@ public class Icons {
     public static final Icon DATA_EXPORT =    load("/img/v0/action/DataExport.png");
     public static final Icon DATA_IMPORT =    load("/img/v0/action/DataImport.png");
     public static final Icon DATA_SORTING =    load("/img/v0/action/DataSorting.png");
+    public static final Icon DATA_SORTING_ASC =    load("/img/v0/action/DataSortingAsc.png");
+    public static final Icon DATA_SORTING_DESC =    load("/img/v0/action/DataSortingDesc.png");
 
     public static final Icon DATASET_FILTER =    load("/img/v0/filter/DatasetFilter.png");
     public static final Icon DATASET_FILTER_NEW =    load("/img/v0/filter/DatasetFilterNew.png");

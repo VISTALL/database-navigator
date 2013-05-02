@@ -233,7 +233,6 @@ public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasic
         conditionsPanel.remove(conditionForm.getComponent());
         conditionsPanel.updateUI();
         updateNameAndPreview();
-
     }
 
 

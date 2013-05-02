@@ -156,6 +156,7 @@
         <component><implementation-class>com.dci.intellij.dbn.editor.code.SourceCodeEditorManager</implementation-class></component>
         <component><implementation-class>com.dci.intellij.dbn.editor.data.DatasetEditorManager</implementation-class></component>
         <component><implementation-class>com.dci.intellij.dbn.editor.data.filter.DatasetFilterManager</implementation-class></component>
+        <component><implementation-class>com.dci.intellij.dbn.editor.data.sorting.DatasetSortingManager</implementation-class></component>
         <component><implementation-class>com.dci.intellij.dbn.data.export.DataExportManager</implementation-class></component>
         <component><implementation-class>com.dci.intellij.dbn.object.common.loader.DatabaseLoaderManager</implementation-class></component>
         <component><implementation-class>com.dci.intellij.dbn.object.factory.DatabaseObjectFactory</implementation-class></component>

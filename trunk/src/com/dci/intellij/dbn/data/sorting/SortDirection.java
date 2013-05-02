@@ -14,4 +14,8 @@ public enum SortDirection {
     public int getCompareIndex() {
         return compareIndex;
     }
+
+    public boolean isIndefinite() {
+        return this == INDEFINITE;
+    }
 }
