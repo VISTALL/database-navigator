@@ -11,6 +11,7 @@ import com.dci.intellij.dbn.language.psql.PSQLLanguage;
 import com.dci.intellij.dbn.language.sql.SQLLanguage;
 import com.dci.intellij.dbn.object.DBSchema;
 import com.dci.intellij.dbn.object.DBView;
+import com.dci.intellij.dbn.object.common.DBObject;
 import com.dci.intellij.dbn.object.common.DBSchemaObject;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.Project;
@@ -141,7 +142,14 @@ public abstract class DatabaseContentFile extends VirtualFile implements FileCon
 
     @Nullable
     public VirtualFile getParent() {
-        return databaseFile.getObject().getParentObject().getVirtualFile();
+        DBSchemaObject object = databaseFile.getObject();
+        if (object != null) {
+            DBObject parentObject = object.getParentObject();
+            if (parentObject != null) {
+                return parentObject.getVirtualFile();
+            }
+        }
+        return null;
     }
 
     public Icon getIcon() {
