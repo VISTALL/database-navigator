@@ -21,7 +21,6 @@ import com.intellij.ui.tabs.TabInfo;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import java.awt.BorderLayout;
 import java.util.List;
@@ -31,15 +30,16 @@ public class MethodExecutionResultForm extends DBNFormImpl implements ExecutionR
     private JPanel actionsPanel;
     private JTable inputArgumentsTable;
     private JTable outputArgumentsTable;
-    private JSplitPane outputSplitPanel;
-    private JPanel simpleOutputsPanel;
-    private JPanel outputPanel;
+    private JPanel outputArgumentsPanel;
+    private JPanel simpleOutputPanel;
     private JPanel statusPanel;
     private JLabel connectionLabel;
     private JLabel durationLabel;
     private JScrollPane outputScrollPane;
     private JScrollPane inputScrollPane;
-    private JPanel cursorOutputsPanel;
+    private JPanel outputCursorsPanel;
+    private JPanel outputPanel;
+    private JPanel splitOutputPane;
     private TabbedPane cursorOutputTabs;
 
 
@@ -52,21 +52,24 @@ public class MethodExecutionResultForm extends DBNFormImpl implements ExecutionR
         updateCursorArgumentsPanel();
 
         if (executionResult.hasCursorResults() && executionResult.hasSimpleResults()) {
-            outputSplitPanel.setVisible(true);
-            outputPanel.setVisible(false);
+            simpleOutputPanel.removeAll();
+            simpleOutputPanel.setVisible(false);
+            splitOutputPane.setVisible(true);
+            outputCursorsPanel.add(cursorOutputTabs, BorderLayout.CENTER);
         } else {
-            outputSplitPanel.removeAll();
-            outputSplitPanel.setVisible(false);
-            outputPanel.setVisible(true);
+            splitOutputPane.removeAll();
+            simpleOutputPanel.setVisible(true);
+            splitOutputPane.setVisible(false);
             if (executionResult.hasCursorResults()) {
-                outputPanel.add(cursorOutputsPanel, BorderLayout.CENTER);
-                cursorOutputsPanel.add(cursorOutputTabs, BorderLayout.CENTER);
+                simpleOutputPanel.add(outputCursorsPanel, BorderLayout.CENTER);
+                outputCursorsPanel.add(cursorOutputTabs, BorderLayout.CENTER);
             } else {
-                outputPanel.add(simpleOutputsPanel, BorderLayout.CENTER);
+                simpleOutputPanel.add(outputArgumentsPanel, BorderLayout.CENTER);
             }
         }
         updateStatusBarLabels();
         GuiUtils.replaceJSplitPaneWithIDEASplitter(mainPanel);
+        GuiUtils.replaceJSplitPaneWithIDEASplitter(outputPanel);
         outputScrollPane.getViewport().setBackground(outputArgumentsTable.getBackground());
         inputScrollPane.getViewport().setBackground(inputArgumentsTable.getBackground());
     }
@@ -115,6 +118,7 @@ public class MethodExecutionResultForm extends DBNFormImpl implements ExecutionR
                 cursorOutputTabs.addTab(tabInfo);
             }
         }
+        cursorOutputTabs.repaint();
     }
 
     private void updateStatusBarLabels() {
