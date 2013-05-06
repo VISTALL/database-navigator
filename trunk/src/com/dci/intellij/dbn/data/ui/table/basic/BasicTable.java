@@ -14,12 +14,14 @@ import com.intellij.openapi.editor.colors.EditorColorsManager;
 import com.intellij.openapi.editor.colors.EditorColorsScheme;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.JBPopup;
+import com.intellij.util.ui.UIUtil;
 
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.MouseInfo;
 import java.awt.Point;
@@ -38,7 +40,8 @@ public class BasicTable extends DBNTable implements EditorColorsListener, Dispos
         setSelectionForeground(configTextAttributes.getSelection().getFgColor());
         setSelectionBackground(configTextAttributes.getSelection().getBgColor());
         EditorColorsManager.getInstance().addEditorColorsListener(this);
-        setBackground(configTextAttributes.getPlainData().getBgColor());
+        Color bgColor = configTextAttributes.getPlainData().getBgColor();
+        setBackground(bgColor == null ? UIUtil.getTableBackground() : bgColor);
     }
 
     public DataGridTextAttributes getConfigTextAttributes() {

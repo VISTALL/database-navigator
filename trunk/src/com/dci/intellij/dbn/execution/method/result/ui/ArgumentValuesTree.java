@@ -9,8 +9,10 @@ import com.dci.intellij.dbn.object.DBMethod;
 import com.dci.intellij.dbn.object.DBTypeAttribute;
 import com.intellij.ui.ColoredTreeCellRenderer;
 import com.intellij.ui.SimpleTextAttributes;
+import com.intellij.util.ui.UIUtil;
 
 import javax.swing.JTree;
+import java.awt.Color;
 import java.sql.ResultSet;
 import java.util.List;
 
@@ -19,7 +21,8 @@ public class ArgumentValuesTree extends DBNTree{
     public ArgumentValuesTree(DBMethod method, List<ArgumentValue> inputArgumentValues, List<ArgumentValue> outputArgumentValues) {
         super(new ArgumentValuesTreeModel(method, inputArgumentValues, outputArgumentValues));
         setCellRenderer(new CellRenderer());
-        setBackground(TextAttributesUtil.getSimpleTextAttributes(DataGridTextAttributesKeys.PLAIN_DATA).getBgColor());
+        Color bgColor = TextAttributesUtil.getSimpleTextAttributes(DataGridTextAttributesKeys.PLAIN_DATA).getBgColor();
+        setBackground(bgColor == null ? UIUtil.getTreeBackground() : bgColor);
     }
 
     class CellRenderer extends ColoredTreeCellRenderer {
