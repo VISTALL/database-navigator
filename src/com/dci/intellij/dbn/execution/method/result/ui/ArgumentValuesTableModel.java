@@ -7,12 +7,13 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
 import java.util.List;
 
-public class ArgumentValueTableModel implements TableModel {
+@Deprecated
+public class ArgumentValuesTableModel implements TableModel {
     private List<ArgumentValue> argumentValues;
     private Project project;
 
 
-    public ArgumentValueTableModel(Project project, List<ArgumentValue> argumentValues) {
+    public ArgumentValuesTableModel(Project project, List<ArgumentValue> argumentValues) {
         this.argumentValues = argumentValues;
         this.project = project;
     }

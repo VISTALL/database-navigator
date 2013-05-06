@@ -38,6 +38,7 @@ public class BasicTable extends DBNTable implements EditorColorsListener, Dispos
         setSelectionForeground(configTextAttributes.getSelection().getFgColor());
         setSelectionBackground(configTextAttributes.getSelection().getBgColor());
         EditorColorsManager.getInstance().addEditorColorsListener(this);
+        setBackground(configTextAttributes.getPlainData().getBgColor());
     }
 
     public DataGridTextAttributes getConfigTextAttributes() {

@@ -1,6 +1,8 @@
 package com.dci.intellij.dbn.execution.method.result.ui;
 
 import com.dci.intellij.dbn.common.ui.tree.DBNTree;
+import com.dci.intellij.dbn.common.util.TextAttributesUtil;
+import com.dci.intellij.dbn.data.editor.color.DataGridTextAttributesKeys;
 import com.dci.intellij.dbn.execution.method.ArgumentValue;
 import com.dci.intellij.dbn.object.DBArgument;
 import com.dci.intellij.dbn.object.DBMethod;
@@ -17,6 +19,7 @@ public class ArgumentValuesTree extends DBNTree{
     public ArgumentValuesTree(DBMethod method, List<ArgumentValue> inputArgumentValues, List<ArgumentValue> outputArgumentValues) {
         super(new ArgumentValuesTreeModel(method, inputArgumentValues, outputArgumentValues));
         setCellRenderer(new CellRenderer());
+        setBackground(TextAttributesUtil.getSimpleTextAttributes(DataGridTextAttributesKeys.PLAIN_DATA).getBgColor());
     }
 
     class CellRenderer extends ColoredTreeCellRenderer {

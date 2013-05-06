@@ -13,10 +13,11 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.Component;
 
+@Deprecated
 public class ArgumentValuesTable extends DBNTable {
     private static final Border EMPTY_BORDER = new EmptyBorder(0, 2, 0, 2);
 
-    public ArgumentValuesTable(ArgumentValueTableModel model) {
+    public ArgumentValuesTable(ArgumentValuesTableModel model) {
         super(model.getProject(), model, true);
         setDefaultRenderer(String.class, new CellRenderer());
         setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
