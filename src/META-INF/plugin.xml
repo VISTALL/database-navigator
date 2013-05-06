@@ -2,7 +2,7 @@
     <name>Database Navigator</name>
     <id>DBN</id>
     <!--2250-->
-    <version>3.0.2545</version>
+    <version>3.0.2546</version>
     <category>Database</category>
     <depends>com.intellij.modules.lang</depends>
     <vendor email="dancioca@bluewin.ch" logo="/img/v0/project/DatabaseNavigator.png">Dan Cioca</vendor>
@@ -24,10 +24,15 @@
     ]]></description>
     <change-notes><![CDATA[
         <ul>
-            <li><b>3.0.2545</b>
+            <li><b>3.0.2546</b>
              <ul>
+                - Multiple column sorting (work in progress - not released)<br>
                 - Method execution result improvements (tree view)<br>
                 - Reworked action system to allow multiple editor instances, split and detached editors<br>
+                - Bug fixes and performance improvements<br>
+            </ul>
+            <li><b>3.0.2530</b>
+             <ul>
                 - Support for error reporting directly from IDE<br>
                 - Connection timeout and idle time management<br>
                 - Memory management improvements (fixed memory leaks on project close)<br>
@@ -215,7 +220,7 @@
             <action id="DBNavigator.Actions.DataEditor.Reload" class="com.dci.intellij.dbn.editor.data.action.ReloadDataAction" text="Data Editor - Reload"/>
             <action id="DBNavigator.Actions.DataEditor.SelectDatasetFilter" class="com.dci.intellij.dbn.editor.data.action.SelectDatasetFilterComboBoxAction" text="Data Editor - Select Filter"/>
             <action id="DBNavigator.Actions.DataEditor.CreateEditFilter" class="com.dci.intellij.dbn.editor.data.action.CreateEditDatasetFilterAction" text="Data Editor - Create / Edit Filter"/>
-            <action id="DBNavigator.Actions.DataEditor.OpenSortingDialog" class="com.dci.intellij.dbn.editor.data.action.OpenSortingDialogAction" text="Data Editor - Sorting..."/>
+            <!--<action id="DBNavigator.Actions.DataEditor.OpenSortingDialog" class="com.dci.intellij.dbn.editor.data.action.OpenSortingDialogAction" text="Data Editor - Sorting..."/>-->
             <separator/>
             <action id="DBNavigator.Actions.DataEditor.DuplicateRecord" class="com.dci.intellij.dbn.editor.data.action.DuplicateRecordAction" text="Data Editor - Duplicate Record">
                 <keyboard-shortcut keymap="$default" first-keystroke="ctrl D"/>
