@@ -2,7 +2,7 @@
     <name>Database Navigator</name>
     <id>DBN</id>
     <!--2250-->
-    <version>3.0.2530</version>
+    <version>3.0.2545</version>
     <category>Database</category>
     <depends>com.intellij.modules.lang</depends>
     <vendor email="dancioca@bluewin.ch" logo="/img/v0/project/DatabaseNavigator.png">Dan Cioca</vendor>
@@ -24,8 +24,9 @@
     ]]></description>
     <change-notes><![CDATA[
         <ul>
-            <li><b>3.0.2530</b>
+            <li><b>3.0.2545</b>
              <ul>
+                - Method execution result improvements (tree view)<br>
                 - Reworked action system to allow multiple editor instances, split and detached editors<br>
                 - Support for error reporting directly from IDE<br>
                 - Connection timeout and idle time management<br>
