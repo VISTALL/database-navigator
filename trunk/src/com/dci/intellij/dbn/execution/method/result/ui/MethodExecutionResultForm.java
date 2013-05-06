@@ -2,7 +2,6 @@ package com.dci.intellij.dbn.execution.method.result.ui;
 
 import com.dci.intellij.dbn.common.ui.DBNFormImpl;
 import com.dci.intellij.dbn.common.ui.tab.TabbedPane;
-import com.dci.intellij.dbn.common.ui.table.DBNTable;
 import com.dci.intellij.dbn.common.util.ActionUtil;
 import com.dci.intellij.dbn.execution.common.result.ui.ExecutionResultForm;
 import com.dci.intellij.dbn.execution.method.ArgumentValue;
@@ -13,33 +12,26 @@ import com.dci.intellij.dbn.execution.method.result.action.OpenSettingsAction;
 import com.dci.intellij.dbn.execution.method.result.action.PromptMethodExecutionAction;
 import com.dci.intellij.dbn.execution.method.result.action.StartMethodExecutionAction;
 import com.dci.intellij.dbn.object.DBArgument;
+import com.dci.intellij.dbn.object.DBMethod;
 import com.intellij.openapi.actionSystem.ActionToolbar;
-import com.intellij.openapi.project.Project;
 import com.intellij.ui.GuiUtils;
 import com.intellij.ui.tabs.TabInfo;
+import com.intellij.util.ui.tree.TreeUtil;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
+import javax.swing.JTree;
 import java.awt.BorderLayout;
 import java.util.List;
 
 public class MethodExecutionResultForm extends DBNFormImpl implements ExecutionResultForm<MethodExecutionResult> {
     private JPanel mainPanel;
     private JPanel actionsPanel;
-    private JTable inputArgumentsTable;
-    private JTable outputArgumentsTable;
-    private JPanel outputArgumentsPanel;
-    private JPanel simpleOutputPanel;
     private JPanel statusPanel;
     private JLabel connectionLabel;
     private JLabel durationLabel;
-    private JScrollPane outputScrollPane;
-    private JScrollPane inputScrollPane;
     private JPanel outputCursorsPanel;
-    private JPanel outputPanel;
-    private JPanel splitOutputPane;
+    private JTree argumentValuesTree;
     private TabbedPane cursorOutputTabs;
 
 
@@ -51,27 +43,18 @@ public class MethodExecutionResultForm extends DBNFormImpl implements ExecutionR
         createActionsPanel(executionResult);
         updateCursorArgumentsPanel();
 
+        outputCursorsPanel.add(cursorOutputTabs, BorderLayout.CENTER);
+
         if (executionResult.hasCursorResults() && executionResult.hasSimpleResults()) {
-            simpleOutputPanel.removeAll();
-            simpleOutputPanel.setVisible(false);
-            splitOutputPane.setVisible(true);
-            outputCursorsPanel.add(cursorOutputTabs, BorderLayout.CENTER);
+
         } else {
-            splitOutputPane.removeAll();
-            simpleOutputPanel.setVisible(true);
-            splitOutputPane.setVisible(false);
             if (executionResult.hasCursorResults()) {
-                simpleOutputPanel.add(outputCursorsPanel, BorderLayout.CENTER);
-                outputCursorsPanel.add(cursorOutputTabs, BorderLayout.CENTER);
             } else {
-                simpleOutputPanel.add(outputArgumentsPanel, BorderLayout.CENTER);
             }
         }
         updateStatusBarLabels();
         GuiUtils.replaceJSplitPaneWithIDEASplitter(mainPanel);
-        GuiUtils.replaceJSplitPaneWithIDEASplitter(outputPanel);
-        outputScrollPane.getViewport().setBackground(outputArgumentsTable.getBackground());
-        inputScrollPane.getViewport().setBackground(inputArgumentsTable.getBackground());
+        TreeUtil.expand(argumentValuesTree, 2);
     }
 
     public void setExecutionResult(MethodExecutionResult executionResult) {
@@ -95,11 +78,9 @@ public class MethodExecutionResultForm extends DBNFormImpl implements ExecutionR
         List<ArgumentValue> inputArgumentValues = executionResult.getExecutionInput().getArgumentValues();
         List<ArgumentValue> outputArgumentValues = executionResult.getArgumentValues();
 
-        Project project = executionResult.getProject();
-        inputArgumentsTable.setModel(new ArgumentValueTableModel(project, inputArgumentValues));
-        outputArgumentsTable.setModel(new ArgumentValueTableModel(project, outputArgumentValues));
-        ((DBNTable)inputArgumentsTable).accommodateColumnsSize();
-        ((DBNTable) outputArgumentsTable).accommodateColumnsSize();
+        DBMethod method = executionResult.getMethod();
+        ArgumentValuesTreeModel treeModel = new ArgumentValuesTreeModel(method, inputArgumentValues, outputArgumentValues);
+        argumentValuesTree.setModel(treeModel);
     }
 
     private void updateCursorArgumentsPanel() {
@@ -155,8 +136,7 @@ public class MethodExecutionResultForm extends DBNFormImpl implements ExecutionR
     private void createUIComponents() {
         List<ArgumentValue> inputArgumentValues = executionResult.getExecutionInput().getArgumentValues();
         List<ArgumentValue> outputArgumentValues = executionResult.getArgumentValues();
-        Project project = executionResult.getProject();
-        inputArgumentsTable = new ArgumentValueTable(new ArgumentValueTableModel(project, inputArgumentValues));
-        outputArgumentsTable = new ArgumentValueTable(new ArgumentValueTableModel(project, outputArgumentValues));
+        DBMethod method = executionResult.getMethod();
+        argumentValuesTree = new ArgumentValuesTree(method, inputArgumentValues, outputArgumentValues);
     }
 }
