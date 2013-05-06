@@ -69,13 +69,15 @@ public class ExecutionConsoleForm extends DBNFormImpl implements DBNForm, Enviro
     public void environmentConfigChanged(String environmentTypeId) {
         EnvironmentVisibilitySettings visibilitySettings = getEnvironmentSettings(project).getVisibilitySettings();
         for (TabInfo tabInfo : resultTabs.getTabs()) {
-            ExecutionResult browserForm = (ExecutionResult) tabInfo.getObject();
-            ConnectionHandler connectionHandler = browserForm.getConnectionHandler();
-            if (connectionHandler.getSettings().getDetailSettings().getEnvironmentTypeId().equals(environmentTypeId)) {
-                if (visibilitySettings.getExecutionResultTabs().value()){
-                    tabInfo.setTabColor(connectionHandler.getEnvironmentType().getColor());
-                } else {
-                    tabInfo.setTabColor(null);
+            ExecutionResult executionResult = (ExecutionResult) tabInfo.getObject();
+            if (executionResult != null) {
+                ConnectionHandler connectionHandler = executionResult.getConnectionHandler();
+                if (connectionHandler.getSettings().getDetailSettings().getEnvironmentTypeId().equals(environmentTypeId)) {
+                    if (visibilitySettings.getExecutionResultTabs().value()){
+                        tabInfo.setTabColor(connectionHandler.getEnvironmentType().getColor());
+                    } else {
+                        tabInfo.setTabColor(null);
+                    }
                 }
             }
         }
