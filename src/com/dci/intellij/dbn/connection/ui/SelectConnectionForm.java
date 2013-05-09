@@ -51,9 +51,11 @@ public class SelectConnectionForm extends DBNFormImpl implements DBNForm {
         }
 
         Module currentModule = ModuleUtil.findModuleForFile(virtualFile, project);
-        connectionHandlers = ModuleConnectionBundle.getInstance(currentModule).getConnectionHandlers();
-        for (ConnectionHandler connectionHandler : connectionHandlers) {
-            connectionListModel.addElement(connectionHandler);
+        if (currentModule != null) {
+            connectionHandlers = ModuleConnectionBundle.getInstance(currentModule).getConnectionHandlers();
+            for (ConnectionHandler connectionHandler : connectionHandlers) {
+                connectionListModel.addElement(connectionHandler);
+            }
         }
 
         connectionsList.setModel(connectionListModel);

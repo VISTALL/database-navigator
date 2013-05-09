@@ -101,6 +101,9 @@ public class DBNativeDataType implements DynamicContentElement {
     }
 
     public void setValueToPreparedStatement(PreparedStatement callableStatement, int parameterIndex, Object value) throws SQLException {
+        BasicDataType basicDataType = dataTypeDefinition.getBasicDataType();
+        if (basicDataType == BasicDataType.CURSOR) return;
+
         if (value == null) {
             callableStatement.setObject(parameterIndex, null);
         } else {

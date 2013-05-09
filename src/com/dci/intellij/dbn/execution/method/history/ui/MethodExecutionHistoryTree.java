@@ -121,9 +121,11 @@ public class MethodExecutionHistoryTree extends DBNTree implements Disposable {
                     new SimpleLaterInvocator() {
                         @Override
                         public void run() {
-                            dialog.showMethodExecutionPanel(executionInput);
-                            dialog.setSelectedExecutionInput(executionInput);
-                            dialog.setMainButtonEnabled(executionInput != null);
+                            if (dialog != null) {
+                                dialog.showMethodExecutionPanel(executionInput);
+                                dialog.setSelectedExecutionInput(executionInput);
+                                dialog.setMainButtonEnabled(executionInput != null);
+                            }
                         }
                     }.start();
 
