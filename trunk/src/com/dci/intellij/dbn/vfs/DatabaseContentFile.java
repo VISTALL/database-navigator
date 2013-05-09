@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public abstract class DatabaseContentFile extends VirtualFile implements FileConnectionMappingProvider, DBVirtualFile {
-    protected DatabaseFileSystem fileSystem;
     protected DatabaseEditableObjectFile databaseFile;
     protected DBContentType contentType;
     private FileType fileType;
@@ -49,7 +48,6 @@ public abstract class DatabaseContentFile extends VirtualFile implements FileCon
     }
 
     public DatabaseContentFile(DatabaseEditableObjectFile databaseFile, DBContentType contentType) {
-        this.fileSystem = databaseFile.getFileSystem();
         this.databaseFile = databaseFile;
         this.contentType = contentType;
 
@@ -112,7 +110,7 @@ public abstract class DatabaseContentFile extends VirtualFile implements FileCon
 
     @NotNull
     public VirtualFileSystem getFileSystem() {
-        return fileSystem;
+        return DatabaseFileSystem.getInstance();
     }
 
     public String getPath() {
@@ -178,7 +176,6 @@ public abstract class DatabaseContentFile extends VirtualFile implements FileCon
 
     @Override
     public void dispose() {
-        fileSystem = null;
         databaseFile = null;
     }
 }

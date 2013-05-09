@@ -30,6 +30,7 @@ public class SQLConsoleFile extends VirtualFile implements DatabaseFile, DBVirtu
     private CharSequence content = "";
     private ConnectionHandler connectionHandler;
     private DBSchema currentSchema;
+    protected String name;
     protected String path;
     protected String url;
 
@@ -37,6 +38,7 @@ public class SQLConsoleFile extends VirtualFile implements DatabaseFile, DBVirtu
     public SQLConsoleFile(ConnectionHandler connectionHandler) {
         this.connectionHandler = connectionHandler;
         this.currentSchema = connectionHandler.getUserSchema();
+        name = connectionHandler.getName();
         path = DatabaseFileSystem.createPath(connectionHandler) + " CONSOLE";
         url = DatabaseFileSystem.createUrl(connectionHandler);
         setCharset(connectionHandler.getSettings().getDetailSettings().getCharset());
@@ -80,7 +82,7 @@ public class SQLConsoleFile extends VirtualFile implements DatabaseFile, DBVirtu
     @NotNull
     @Override
     public String getName() {
-        return connectionHandler.getName();
+        return name;
     }
 
     @NotNull
