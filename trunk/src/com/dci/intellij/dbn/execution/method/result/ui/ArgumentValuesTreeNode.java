@@ -1,5 +1,8 @@
 package com.dci.intellij.dbn.execution.method.result.ui;
 
+import com.dci.intellij.dbn.execution.method.ArgumentValue;
+import com.dci.intellij.dbn.object.common.DBObject;
+
 import javax.swing.tree.TreeNode;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,6 +34,21 @@ public class ArgumentValuesTreeNode implements TreeNode{
         for (ArgumentValuesTreeNode treeNode : children) {
             treeNode.dispose();
         }
+    }
+
+    @Override
+    public String toString() {
+        if (userValue instanceof ArgumentValue) {
+            ArgumentValue argumentValue = (ArgumentValue) userValue;
+            return "" + argumentValue.getValue();
+        }
+
+        if (userValue instanceof DBObject) {
+            DBObject object = (DBObject) userValue;
+            return object.getName();
+        }
+
+        return userValue.toString();
     }
 
     /*********************************************************
