@@ -5,9 +5,9 @@ import com.intellij.openapi.editor.SyntaxHighlighterColors;
 import com.intellij.openapi.editor.colors.CodeInsightColors;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.editor.markup.TextAttributes;
+import com.intellij.ui.SimpleTextAttributes;
 
 import java.awt.Color;
-import java.awt.Font;
 
 public interface SQLTextAttributesKeys {
     TextAttributesKey LINE_COMMENT       = TextAttributesKey.createTextAttributesKey("DBNavigator.TextAttributes.SQL.LineComment",       SyntaxHighlighterColors.LINE_COMMENT.getDefaultAttributes());
@@ -19,7 +19,7 @@ public interface SQLTextAttributesKeys {
     TextAttributesKey IDENTIFIER         = TextAttributesKey.createTextAttributesKey("DBNavigator.TextAttributes.SQL.Identifier",        HighlighterColors.TEXT.getDefaultAttributes());
     TextAttributesKey QUOTED_IDENTIFIER  = TextAttributesKey.createTextAttributesKey("DBNavigator.TextAttributes.SQL.QuotedIdentifier",  HighlighterColors.TEXT.getDefaultAttributes());
     TextAttributesKey KEYWORD            = TextAttributesKey.createTextAttributesKey("DBNavigator.TextAttributes.SQL.Keyword",           SyntaxHighlighterColors.KEYWORD.getDefaultAttributes());
-    TextAttributesKey FUNCTION           = TextAttributesKey.createTextAttributesKey("DBNavigator.TextAttributes.SQL.Function",          new TextAttributes(Color.BLACK, null, null, null, Font.BOLD));
+    TextAttributesKey FUNCTION           = TextAttributesKey.createTextAttributesKey("DBNavigator.TextAttributes.SQL.Function",          SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES.toTextAttributes());
     TextAttributesKey PARAMETER          = TextAttributesKey.createTextAttributesKey("DBNavigator.TextAttributes.SQL.Parameter",         SyntaxHighlighterColors.KEYWORD.getDefaultAttributes());
     TextAttributesKey OPERATOR           = TextAttributesKey.createTextAttributesKey("DBNavigator.TextAttributes.SQL.Operator",          SyntaxHighlighterColors.OPERATION_SIGN.getDefaultAttributes());
     TextAttributesKey PARENTHESIS        = TextAttributesKey.createTextAttributesKey("DBNavigator.TextAttributes.SQL.Parenthesis",       SyntaxHighlighterColors.PARENTHS.getDefaultAttributes());
