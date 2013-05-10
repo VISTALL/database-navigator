@@ -77,6 +77,7 @@ public class MethodExecutionResultForm extends DBNFormImpl implements ExecutionR
         DBMethod method = executionResult.getMethod();
         ArgumentValuesTreeModel treeModel = new ArgumentValuesTreeModel(method, inputArgumentValues, outputArgumentValues);
         argumentValuesTree.setModel(treeModel);
+        TreeUtil.expand(argumentValuesTree, 2);
     }
 
     private void updateCursorArgumentsPanel() {
