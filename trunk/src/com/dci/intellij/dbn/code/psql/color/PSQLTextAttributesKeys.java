@@ -4,6 +4,7 @@ import com.intellij.openapi.editor.HighlighterColors;
 import com.intellij.openapi.editor.SyntaxHighlighterColors;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.editor.markup.TextAttributes;
+import com.intellij.ui.SimpleTextAttributes;
 
 import java.awt.Color;
 
@@ -17,7 +18,7 @@ public interface PSQLTextAttributesKeys {
     TextAttributesKey IDENTIFIER         = TextAttributesKey.createTextAttributesKey("DBNavigator.TextAttributes.PSQL.Identifier",        HighlighterColors.TEXT.getDefaultAttributes());
     TextAttributesKey QUOTED_IDENTIFIER  = TextAttributesKey.createTextAttributesKey("DBNavigator.TextAttributes.PSQL.QuotedIdentifier",  HighlighterColors.TEXT.getDefaultAttributes());
     TextAttributesKey KEYWORD            = TextAttributesKey.createTextAttributesKey("DBNavigator.TextAttributes.PSQL.Keyword",           SyntaxHighlighterColors.KEYWORD.getDefaultAttributes());
-    TextAttributesKey FUNCTION           = TextAttributesKey.createTextAttributesKey("DBNavigator.TextAttributes.PSQL.Function",          SyntaxHighlighterColors.KEYWORD.getDefaultAttributes());
+    TextAttributesKey FUNCTION           = TextAttributesKey.createTextAttributesKey("DBNavigator.TextAttributes.PSQL.Function",          SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES.toTextAttributes());
     TextAttributesKey PARAMETER          = TextAttributesKey.createTextAttributesKey("DBNavigator.TextAttributes.PSQL.Parameter",         SyntaxHighlighterColors.KEYWORD.getDefaultAttributes());
     TextAttributesKey EXCEPTION          = TextAttributesKey.createTextAttributesKey("DBNavigator.TextAttributes.PSQL.Exception",         SyntaxHighlighterColors.KEYWORD.getDefaultAttributes());
     TextAttributesKey OPERATOR           = TextAttributesKey.createTextAttributesKey("DBNavigator.TextAttributes.PSQL.Operator",          SyntaxHighlighterColors.OPERATION_SIGN.getDefaultAttributes());
