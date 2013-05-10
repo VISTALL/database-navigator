@@ -68,6 +68,7 @@ public class DatasetRecordEditorColumnForm extends DBNFormImpl implements DBNFor
         columnLabel.setIcon(column.getIcon());
         columnLabel.setText(column.getName());
         dataTypeLabel.setText(dataType.getQualifiedName());
+        dataTypeLabel.setForeground(UIUtil.getInactiveTextColor());
 
         DBNativeDataType nativeDataType = dataType.getNativeDataType();
         DataTypeDefinition dataTypeDefinition = nativeDataType.getDataTypeDefinition();

@@ -45,6 +45,7 @@ public class RecordViewerColumnForm extends DBNFormImpl implements DBNForm {
         columnLabel.setIcon(column.getIcon());
         columnLabel.setText(column.getName());
         dataTypeLabel.setText(dataType.getQualifiedName());
+        dataTypeLabel.setForeground(UIUtil.getInactiveTextColor());
 
         valueTextField = new ColumnValueTextField(record, column);
         valueTextField.setPreferredSize(new Dimension(200, -1));

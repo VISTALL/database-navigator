@@ -10,6 +10,7 @@ import com.dci.intellij.dbn.data.type.DBNativeDataType;
 import com.dci.intellij.dbn.data.type.DataTypeDefinition;
 import com.dci.intellij.dbn.object.DBArgument;
 import com.dci.intellij.dbn.object.DBTypeAttribute;
+import com.intellij.util.ui.UIUtil;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -39,6 +40,7 @@ public class MethodExecutionTypeAttributeForm extends DBNFormImpl implements DBN
         this.executionComponent = executionComponent;
         attributeLabel.setText(typeAttribute.getName());
         attributeLabel.setIcon(typeAttribute.getIcon());
+        attributeTypeLabel.setForeground(UIUtil.getInactiveTextColor());
         attributeTypeLabel.setText(typeAttribute.getDataType().getQualifiedName());
 
         DBDataType dataType = typeAttribute.getDataType();
