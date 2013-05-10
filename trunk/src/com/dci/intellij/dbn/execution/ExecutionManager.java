@@ -116,17 +116,11 @@ public class ExecutionManager extends AbstractProjectComponent implements JDOMEx
     public void removeMessagesTab() {
         ExecutionConsoleForm executionConsoleForm = getExecutionConsoleForm();
         executionConsoleForm.removeMessagesTab();
-        if (executionConsoleForm.getTabCount() == 0) {
-            hideExecutionConsole();
-        }
     }
 
     public void removeResultTab(ExecutionResult executionResult) {
         ExecutionConsoleForm executionConsoleForm = getExecutionConsoleForm();
         executionConsoleForm.removeResultTab(executionResult);
-        if (executionConsoleForm.getTabCount() == 0) {
-            hideExecutionConsole();
-        }
     }
 
     public void focusResultTab(ExecutionResult executionResult) {

@@ -245,10 +245,10 @@ public class ExecutionConsoleForm extends DBNFormImpl implements DBNForm, Enviro
             resultTabs.removeTab(tabInfo);
         }
 
-        if (resultTabs.getTabCount() == 0) {
+        executionMessagesPanel.reset();
+        if (getTabCount() == 0) {
             ExecutionManager.getInstance(project).hideExecutionConsole();
         }
-        executionMessagesPanel.reset();
     }
 
     /*********************************************************
@@ -293,6 +293,9 @@ public class ExecutionConsoleForm extends DBNFormImpl implements DBNForm, Enviro
 
             resultComponent.dispose();
             DocumentUtil.refreshEditorAnnotations(project);
+        }
+        if (getTabCount() == 0) {
+            ExecutionManager.getInstance(project).hideExecutionConsole();
         }
     }
 
