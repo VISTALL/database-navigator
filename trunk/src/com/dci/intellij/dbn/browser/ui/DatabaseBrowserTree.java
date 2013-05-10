@@ -11,7 +11,7 @@ import com.dci.intellij.dbn.common.filter.Filter;
 import com.dci.intellij.dbn.common.thread.BackgroundTask;
 import com.dci.intellij.dbn.common.thread.ModalTask;
 import com.dci.intellij.dbn.common.thread.SimpleLaterInvocator;
-import com.dci.intellij.dbn.common.ui.UIUtil;
+import com.dci.intellij.dbn.common.ui.GUIUtil;
 import com.dci.intellij.dbn.common.ui.tree.DBNTree;
 import com.dci.intellij.dbn.connection.ConnectionBundle;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
@@ -173,7 +173,7 @@ public class DatabaseBrowserTree extends DBNTree implements Disposable {
             Rectangle pathBounds = getPathBounds(path);
 
             if (pathBounds != null) {
-                Point mouseLocation = UIUtil.getRelativeMouseLocation(event.getComponent());
+                Point mouseLocation = GUIUtil.getRelativeMouseLocation(event.getComponent());
                 if (pathBounds.contains(mouseLocation)) {
                     Object object = path.getLastPathComponent();
                     if (object instanceof ToolTipProvider) {

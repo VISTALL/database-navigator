@@ -15,6 +15,7 @@ import com.dci.intellij.dbn.object.DBArgument;
 import com.dci.intellij.dbn.object.DBMethod;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.ui.GuiUtils;
+import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.tabs.TabInfo;
 import com.intellij.util.ui.tree.TreeUtil;
 
@@ -32,6 +33,7 @@ public class MethodExecutionResultForm extends DBNFormImpl implements ExecutionR
     private JLabel durationLabel;
     private JPanel outputCursorsPanel;
     private JTree argumentValuesTree;
+    private JPanel argumentValuesPanel;
     private TabbedPane cursorOutputTabs;
 
 
@@ -45,13 +47,7 @@ public class MethodExecutionResultForm extends DBNFormImpl implements ExecutionR
 
         outputCursorsPanel.add(cursorOutputTabs, BorderLayout.CENTER);
 
-        if (executionResult.hasCursorResults() && executionResult.hasSimpleResults()) {
-
-        } else {
-            if (executionResult.hasCursorResults()) {
-            } else {
-            }
-        }
+        argumentValuesPanel.setBorder(IdeBorderFactory.createBorder());
         updateStatusBarLabels();
         GuiUtils.replaceJSplitPaneWithIDEASplitter(mainPanel);
         TreeUtil.expand(argumentValuesTree, 2);

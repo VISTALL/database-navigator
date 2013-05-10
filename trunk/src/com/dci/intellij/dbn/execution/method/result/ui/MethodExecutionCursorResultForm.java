@@ -12,6 +12,7 @@ import com.dci.intellij.dbn.execution.method.result.action.CursorResultFetchNext
 import com.dci.intellij.dbn.execution.method.result.action.CursorResultViewRecordAction;
 import com.dci.intellij.dbn.object.DBArgument;
 import com.intellij.openapi.actionSystem.ActionToolbar;
+import com.intellij.ui.IdeBorderFactory;
 import com.intellij.util.ui.UIUtil;
 
 import javax.swing.JPanel;
@@ -23,6 +24,7 @@ public class MethodExecutionCursorResultForm extends DBNFormImpl implements DBNF
     private JPanel actionsPanel;
     private JScrollPane resultScrollPane;
     private JPanel mainPanel;
+    private JPanel resultPanel;
 
     public MethodExecutionCursorResultForm(MethodExecutionResult executionResult, DBArgument argument) {
         ResultSetDataModel dataModel = executionResult.getTableModel(argument);
@@ -33,6 +35,7 @@ public class MethodExecutionCursorResultForm extends DBNFormImpl implements DBNF
         ResultSetTable resultTable = new ResultSetTable(dataModel, true, recordViewInfo);
         resultTable.setPreferredScrollableViewportSize(new Dimension(500, -1));
 
+        resultPanel.setBorder(IdeBorderFactory.createBorder());
         resultScrollPane.setViewportView(resultTable);
         resultScrollPane.setRowHeaderView(resultTable.getTableGutter());
         resultScrollPane.getViewport().setBackground(resultTable.getBackground());

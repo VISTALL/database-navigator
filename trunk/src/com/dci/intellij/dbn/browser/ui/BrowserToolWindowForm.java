@@ -7,7 +7,7 @@ import com.dci.intellij.dbn.browser.options.DatabaseBrowserSettings;
 import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.common.ui.DBNForm;
 import com.dci.intellij.dbn.common.ui.DBNFormImpl;
-import com.dci.intellij.dbn.common.ui.UIUtil;
+import com.dci.intellij.dbn.common.ui.GUIUtil;
 import com.dci.intellij.dbn.common.util.ActionUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.object.common.DBObject;
@@ -52,7 +52,7 @@ public class BrowserToolWindowForm extends DBNFormImpl implements DBNForm {
         objectPropertiesForm = new ObjectPropertiesForm(project);
         objectPropertiesPanel.add(objectPropertiesForm.getComponent());
         GuiUtils.replaceJSplitPaneWithIDEASplitter(mainPanel);
-        UIUtil.updateSplitterProportion(mainPanel, (float) 0.7);
+        GUIUtil.updateSplitterProportion(mainPanel, (float) 0.7);
 
         EventManager.subscribe(project, ProjectSettingsChangeListener.TOPIC, projectSettingsChangeListener);
     }

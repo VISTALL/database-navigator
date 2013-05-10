@@ -16,6 +16,7 @@ import com.dci.intellij.dbn.execution.common.result.ui.ExecutionResultForm;
 import com.dci.intellij.dbn.execution.statement.result.StatementExecutionCursorResult;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.project.Project;
+import com.intellij.ui.IdeBorderFactory;
 import com.intellij.util.ui.UIUtil;
 
 import javax.swing.JLabel;
@@ -32,6 +33,7 @@ public class StatementExecutionResultForm extends DBNFormImpl implements Executi
     private ResultSetTable resultTable;
     private JLabel statusLabel;
     private JPanel searchPanel;
+    private JPanel resultPanel;
     private StatementExecutionCursorResult executionResult;
     private RecordViewInfo recordViewInfo;
     private DataSearchComponent dataSearchComponent;
@@ -51,6 +53,7 @@ public class StatementExecutionResultForm extends DBNFormImpl implements Executi
             }
         }.start();
 
+        resultPanel.setBorder(IdeBorderFactory.createBorder());
         resultTable = new ResultSetTable(executionResult.getTableModel(), true, recordViewInfo);
 
         resultScrollPane.setViewportView(resultTable);

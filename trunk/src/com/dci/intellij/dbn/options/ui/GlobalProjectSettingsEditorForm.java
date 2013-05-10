@@ -61,7 +61,7 @@ public class GlobalProjectSettingsEditorForm extends CompositeConfigurationEdito
         TabInfo tabInfo = new TabInfo(component);
         tabInfo.setText(configuration.getDisplayName());
         tabInfo.setObject(configuration);
-        //tabInfo.setTabColor(UIUtil.getWindowColor());
+        //tabInfo.setTabColor(GUIUtil.getWindowColor());
         configurationTabs.addTab(tabInfo);
     }
 

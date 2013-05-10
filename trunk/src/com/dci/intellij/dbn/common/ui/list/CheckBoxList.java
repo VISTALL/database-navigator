@@ -3,10 +3,24 @@ package com.dci.intellij.dbn.common.ui.list;
 import com.intellij.ui.DottedBorder;
 import com.intellij.util.ui.UIUtil;
 
-import javax.swing.*;
+import javax.swing.DefaultListModel;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.ListCellRenderer;
+import javax.swing.ListModel;
+import javax.swing.SwingConstants;
 import javax.swing.border.LineBorder;
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.List;
 
 public class CheckBoxList<T extends Selectable> extends JList {
@@ -119,7 +133,7 @@ public class CheckBoxList<T extends Selectable> extends JList {
             checkBox.setBackground(UIUtil.getListBackground());
 
             label = new JLabel(presentable.getName(), presentable.getIcon(), SwingConstants.LEFT);
-            //label.setForeground(error != null ? Color.RED : UIUtil.getListForeground());
+            //label.setForeground(error != null ? Color.RED : GUIUtil.getListForeground());
             errorLabel = new JLabel();
             errorLabel.setForeground(Color.RED);
             add(checkBox, BorderLayout.WEST);
