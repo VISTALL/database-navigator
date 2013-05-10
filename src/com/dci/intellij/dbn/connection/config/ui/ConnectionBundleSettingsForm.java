@@ -2,7 +2,7 @@ package com.dci.intellij.dbn.connection.config.ui;
 
 import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.common.options.ui.ConfigurationEditorForm;
-import com.dci.intellij.dbn.common.ui.UIUtil;
+import com.dci.intellij.dbn.common.ui.GUIUtil;
 import com.dci.intellij.dbn.common.util.ActionUtil;
 import com.dci.intellij.dbn.connection.ConnectionBundle;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
@@ -76,7 +76,7 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
         connectionSetupPanel.setPreferredSize(new Dimension(500, -1));
         connectionSetupPanel.add(emptyPanel, BLANK_PANEL_ID);
         GuiUtils.replaceJSplitPaneWithIDEASplitter(mainPanel);
-        UIUtil.updateSplitterProportion(mainPanel, (float) 0.3);
+        GUIUtil.updateSplitterProportion(mainPanel, (float) 0.3);
     }
 
     public JPanel getComponent() {

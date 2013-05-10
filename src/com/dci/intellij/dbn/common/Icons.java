@@ -317,7 +317,7 @@ public class Icons {
 
     private static Icon load(String path) {
         if (ApplicationInfo.getInstance().getBuild().getBaselineVersion() > 122) {
-        //if (UIUtil.supportsDarkLookAndFeel()) {
+        //if (GUIUtil.supportsDarkLookAndFeel()) {
             path = path.replace("/img/v0/", "/img/v1/");
         }
         return IconLoader.getIcon(path);

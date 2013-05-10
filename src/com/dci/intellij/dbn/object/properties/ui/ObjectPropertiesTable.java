@@ -94,12 +94,12 @@ public class ObjectPropertiesTable extends DBNTable {
             if (column == 0) {
                 setIcon(null);
                 setText(property.getName());
-                //setFont(UIUtil.BOLD_FONT);
+                //setFont(GUIUtil.BOLD_FONT);
             } else if (column == 1) {
                 setText(property.getValue());
                 setIcon(property.getIcon());
                 //setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-                //setFont(property.getIcon() == null ? UIUtil.BOLD_FONT : UIUtil.REGULAR_FONT);
+                //setFont(property.getIcon() == null ? GUIUtil.BOLD_FONT : GUIUtil.REGULAR_FONT);
             }
 
             Dimension dimension = getSize();

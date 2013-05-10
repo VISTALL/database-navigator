@@ -23,7 +23,7 @@ public class AutoCommitLabel extends JLabel implements ConnectionStatusListener,
 
     public AutoCommitLabel() {
         super("");
-        setFont(UIUtil.BOLD_FONT);
+        setFont(GUIUtil.BOLD_FONT);
     }
 
     public void setConnectionHandler(ConnectionHandler connectionHandler) {

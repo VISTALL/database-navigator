@@ -25,7 +25,7 @@ public class DBNColor extends Color {
     }
 
     private static boolean isDark() {
-        return UIUtil.isDarkLookAndFeel();
+        return GUIUtil.isDarkLookAndFeel();
     }
 
     public int getRegularRgb() {

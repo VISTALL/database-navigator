@@ -515,7 +515,7 @@ public class CalendarPopupProviderForm extends TextFieldPopupProviderForm implem
             setHorizontalAlignment(RIGHT);
             setFont(BOLD);
             setBorder(EMPTY_BORDER);
-            //setForeground(column == 0 ? Color.RED : UIUtil.getTableForeground());
+            //setForeground(column == 0 ? Color.RED : GUIUtil.getTableForeground());
             setForeground(FOREGROUND_COLOR);
             return component;
         }

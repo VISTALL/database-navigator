@@ -28,7 +28,7 @@ public class TabbedBrowserForm extends DatabaseBrowserForm{
     public TabbedBrowserForm(Project project) {
         super(project);
         connectionTabs = new TabbedPane(project);
-        //connectionTabs.setBackground(UIUtil.getListBackground());
+        //connectionTabs.setBackground(GUIUtil.getListBackground());
         //mainPanel.add(connectionTabs, BorderLayout.CENTER);
         initTabs();
         connectionTabs.addListener(new TabsListener() {

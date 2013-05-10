@@ -1,6 +1,6 @@
 package com.dci.intellij.dbn.editor.data.action;
 
-import com.dci.intellij.dbn.common.ui.UIUtil;
+import com.dci.intellij.dbn.common.ui.GUIUtil;
 import com.dci.intellij.dbn.common.util.ActionUtil;
 import com.dci.intellij.dbn.common.util.EditorUtil;
 import com.dci.intellij.dbn.editor.data.DatasetEditor;
@@ -26,7 +26,7 @@ public abstract class AbstractDataEditorAction extends DumbAwareAction {
         if (project != null) {
             FileEditor[] fileEditors = FileEditorManager.getInstance(project).getSelectedEditors();
             for (FileEditor fileEditor : fileEditors) {
-                if (fileEditor instanceof DatasetEditor && UIUtil.isFocused(fileEditor.getComponent(), true)) {
+                if (fileEditor instanceof DatasetEditor && GUIUtil.isFocused(fileEditor.getComponent(), true)) {
                     return (DatasetEditor) fileEditor;
                 }
             }
