@@ -45,6 +45,7 @@ public class ResultSetRecordViewerColumnForm extends DBNFormImpl implements DBNF
         columnLabel.setIcon(Icons.DBO_COLUMN);
         columnLabel.setText(columnInfo.getName());
         dataTypeLabel.setText(dataType.getQualifiedName());
+        dataTypeLabel.setForeground(UIUtil.getInactiveTextColor());
 
         valueTextField = new JTextField();
         valueTextField.setPreferredSize(new Dimension(200, -1));

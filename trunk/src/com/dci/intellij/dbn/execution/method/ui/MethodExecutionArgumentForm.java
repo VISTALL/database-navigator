@@ -12,6 +12,7 @@ import com.dci.intellij.dbn.data.type.DataTypeDefinition;
 import com.dci.intellij.dbn.object.DBArgument;
 import com.dci.intellij.dbn.object.DBType;
 import com.dci.intellij.dbn.object.DBTypeAttribute;
+import com.intellij.util.ui.UIUtil;
 
 import javax.swing.BoxLayout;
 import javax.swing.JComponent;
@@ -47,6 +48,7 @@ public class MethodExecutionArgumentForm extends DBNFormImpl implements DBNForm 
 
         DBDataType dataType = argument.getDataType();
 
+        argumentTypeLabel.setForeground(UIUtil.getInactiveTextColor());
         if (dataType.isDeclared()) {
             DBType declaredType = dataType.getDeclaredType();
             argumentTypeLabel.setIcon(declaredType.getIcon());
