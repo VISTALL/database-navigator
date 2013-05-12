@@ -35,7 +35,7 @@
         <ul>
             <li><b>3.0.2563</b>
              <ul>
-                - "About" page (Donate control) <br>
+                - "About" page (with Donate link) <br>
                 - Multiple column sorting (work in progress - not released)<br>
                 - Method execution result improvements (tree view)<br>
                 - Reworked action system to allow multiple editor instances, split and detached editors<br>
@@ -201,7 +201,7 @@
             <action class="com.dci.intellij.dbn.menu.action.OpenMethodExecutionHistoryAction" text="Method execution history" id="DBNavigator.Actions.MainMenu.OpenMethodExecutionHistory" icon="/img/v0/MethodExecutionHistory.png"/>
             <action class="com.dci.intellij.dbn.menu.action.OpenUncommittedChangesOverviewAction" text="Uncommitted changes" id="DBNavigator.Actions.MainMenu.OpenUncommittedChangesOverview"/>
             <separator/>
-            <action id="DBNavigator.Actions.MainMenu.OpenSettings" class="com.dci.intellij.dbn.menu.action.OpenSettingsAction" text="Settings" icon="/actions/properties.png"/>
+            <action id="DBNavigator.Actions.MainMenu.OpenSettings" class="com.dci.intellij.dbn.menu.action.OpenSettingsAction" text="Settings" icon="/img/v0/actions/Properties.png"/>
             <action id="DBNavigator.Actions.MainMenu.OpenAbout" class="com.dci.intellij.dbn.menu.action.OpenAboutPageAction" text="About"/>
             <add-to-group anchor="before" group-id="MainMenu" relative-to-action="HelpMenu"/>
         </group>
