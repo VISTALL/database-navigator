@@ -22,6 +22,7 @@ public class AboutComponent extends DBNFormImpl{
     private JLabel donateLabel;
     private JLabel downloadPageLinkLabel;
     private JLabel supportPageLinkLabel;
+    private JLabel requestTrackerPageLinkLabel;
 
     public AboutComponent() {
         Cursor handCursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR);
@@ -60,6 +61,14 @@ public class AboutComponent extends DBNFormImpl{
         supportPageLinkLabel.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 BrowserUtil.browse("http://confluence.jetbrains.com/display/CONTEST/Database+Navigator");
+            }
+        });
+
+        requestTrackerPageLinkLabel.setForeground(CodeInsightColors.HYPERLINK_ATTRIBUTES.getDefaultAttributes().getForegroundColor());
+        requestTrackerPageLinkLabel.setCursor(handCursor);
+        requestTrackerPageLinkLabel.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                BrowserUtil.browse("http://dci.myjetbrains.com/youtrack/issues");
             }
         });
 
