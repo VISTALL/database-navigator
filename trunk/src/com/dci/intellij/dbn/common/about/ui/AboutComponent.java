@@ -35,7 +35,7 @@ public class AboutComponent extends DBNFormImpl{
         donateLabel.setCursor(handCursor);
         donateLabel.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
-                BrowserUtil.browse("https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=3QAPZFCCARA4J");
+                BrowserUtil.launchBrowser("https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=3QAPZFCCARA4J");
             }
 
             public void mouseEntered(MouseEvent e) {
@@ -52,7 +52,7 @@ public class AboutComponent extends DBNFormImpl{
         downloadPageLinkLabel.setCursor(handCursor);
         downloadPageLinkLabel.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
-                BrowserUtil.browse("http://plugins.jetbrains.com/plugin/?id=1800");
+                BrowserUtil.launchBrowser("http://plugins.jetbrains.com/plugin/?id=1800");
             }
         });
 
@@ -60,7 +60,7 @@ public class AboutComponent extends DBNFormImpl{
         supportPageLinkLabel.setCursor(handCursor);
         supportPageLinkLabel.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
-                BrowserUtil.browse("http://confluence.jetbrains.com/display/CONTEST/Database+Navigator");
+                BrowserUtil.launchBrowser("http://confluence.jetbrains.com/display/CONTEST/Database+Navigator");
             }
         });
 
@@ -68,7 +68,7 @@ public class AboutComponent extends DBNFormImpl{
         requestTrackerPageLinkLabel.setCursor(handCursor);
         requestTrackerPageLinkLabel.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
-                BrowserUtil.browse("http://dci.myjetbrains.com/youtrack/issues");
+                BrowserUtil.launchBrowser("http://dci.myjetbrains.com/youtrack/issues");
             }
         });
 
