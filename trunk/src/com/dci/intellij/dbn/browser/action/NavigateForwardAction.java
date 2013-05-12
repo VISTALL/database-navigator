@@ -17,7 +17,10 @@ public class NavigateForwardAction extends DumbAwareAction {
     public void actionPerformed(AnActionEvent e) {
         Project project = ActionUtil.getProject(e);
         DatabaseBrowserManager browserManager = DatabaseBrowserManager.getInstance(project);
-        browserManager.getActiveBrowserTree().navigateForward();
+        DatabaseBrowserTree activeBrowserTree = browserManager.getActiveBrowserTree();
+        if (activeBrowserTree != null) {
+            activeBrowserTree.navigateForward();
+        }
     }
 
     public void update(AnActionEvent e) {

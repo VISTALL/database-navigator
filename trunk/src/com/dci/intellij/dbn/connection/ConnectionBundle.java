@@ -2,6 +2,7 @@ package com.dci.intellij.dbn.connection;
 
 import com.dci.intellij.dbn.browser.DatabaseBrowserManager;
 import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
+import com.dci.intellij.dbn.browser.ui.DatabaseBrowserTree;
 import com.dci.intellij.dbn.code.sql.color.SQLTextAttributesKeys;
 import com.dci.intellij.dbn.common.content.DynamicContent;
 import com.dci.intellij.dbn.common.content.DynamicContentType;
@@ -211,7 +212,8 @@ public abstract class ConnectionBundle
 
     public BrowserTreeNode getTreeParent() {
         DatabaseBrowserManager browserManager = DatabaseBrowserManager.getInstance(getProject());
-        return browserManager.isTabbedMode() ? null : browserManager.getActiveBrowserTree().getModel().getRoot();
+        DatabaseBrowserTree activeBrowserTree = browserManager.getActiveBrowserTree();
+        return browserManager.isTabbedMode() ? null : activeBrowserTree == null ? null : activeBrowserTree.getModel().getRoot();
     }
 
     public List<? extends BrowserTreeNode> getTreeChildren() {
