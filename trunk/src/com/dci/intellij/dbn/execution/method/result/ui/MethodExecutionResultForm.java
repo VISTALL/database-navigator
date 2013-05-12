@@ -64,6 +64,10 @@ public class MethodExecutionResultForm extends DBNFormImpl implements ExecutionR
         return executionResult;
     }
 
+    public DBMethod getMethod() {
+        return executionResult.getMethod();
+    }
+
     public void rebuild() {
         updateArgumentValueTables();
         updateCursorArgumentsPanel();
@@ -97,6 +101,16 @@ public class MethodExecutionResultForm extends DBNFormImpl implements ExecutionR
             }
         }
         cursorOutputTabs.repaint();
+    }
+
+    public void selectCursorOutput(DBArgument argument) {
+        for (TabInfo tabInfo : cursorOutputTabs.getTabs()) {
+            if (tabInfo.getObject().equals(argument)) {
+                cursorOutputTabs.select(tabInfo, true);
+                break;
+            }
+        }
+
     }
 
     private void updateStatusBarLabels() {
@@ -133,7 +147,6 @@ public class MethodExecutionResultForm extends DBNFormImpl implements ExecutionR
     private void createUIComponents() {
         List<ArgumentValue> inputArgumentValues = executionResult.getExecutionInput().getArgumentValues();
         List<ArgumentValue> outputArgumentValues = executionResult.getArgumentValues();
-        DBMethod method = executionResult.getMethod();
-        argumentValuesTree = new ArgumentValuesTree(method, inputArgumentValues, outputArgumentValues);
+        argumentValuesTree = new ArgumentValuesTree(this, inputArgumentValues, outputArgumentValues);
     }
 }
