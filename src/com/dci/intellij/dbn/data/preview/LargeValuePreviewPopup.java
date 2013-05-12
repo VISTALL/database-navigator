@@ -92,9 +92,7 @@ public class LargeValuePreviewPopup extends DBNFormImpl implements DBNForm {
             infoPanel.setVisible(false);
         }
 
-        //mainPanel.setBackground(Colors.LIGHT_BLUE);
         valueTextArea.setBackground(Colors.LIGHT_BLUE);
-        //actionPanel.setBackground(Colors.LIGHT_BLUE);
 
 
         valueTextArea.addKeyListener(keyListener);
