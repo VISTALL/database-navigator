@@ -3,6 +3,7 @@ package com.dci.intellij.dbn.execution.method.result.ui;
 import com.dci.intellij.dbn.common.ui.tree.DBNTree;
 import com.dci.intellij.dbn.common.util.TextAttributesUtil;
 import com.dci.intellij.dbn.data.editor.color.DataGridTextAttributesKeys;
+import com.dci.intellij.dbn.data.type.DBDataType;
 import com.dci.intellij.dbn.execution.method.ArgumentValue;
 import com.dci.intellij.dbn.object.DBArgument;
 import com.dci.intellij.dbn.object.DBMethod;
@@ -13,17 +14,43 @@ import com.intellij.util.ui.UIUtil;
 
 import javax.swing.JTree;
 import java.awt.Color;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.sql.ResultSet;
 import java.util.List;
 
 public class ArgumentValuesTree extends DBNTree{
+    private MethodExecutionResultForm parentForm;
 
-    public ArgumentValuesTree(DBMethod method, List<ArgumentValue> inputArgumentValues, List<ArgumentValue> outputArgumentValues) {
-        super(new ArgumentValuesTreeModel(method, inputArgumentValues, outputArgumentValues));
+    public ArgumentValuesTree(MethodExecutionResultForm parentForm, List<ArgumentValue> inputArgumentValues, List<ArgumentValue> outputArgumentValues) {
+        super(new ArgumentValuesTreeModel(parentForm.getMethod(), inputArgumentValues, outputArgumentValues));
+        this.parentForm = parentForm;
         setCellRenderer(new CellRenderer());
         Color bgColor = TextAttributesUtil.getSimpleTextAttributes(DataGridTextAttributesKeys.PLAIN_DATA).getBgColor();
         setBackground(bgColor == null ? UIUtil.getTreeBackground() : bgColor);
+
+        addMouseListener(mouseAdapter);
     }
+
+    private final MouseAdapter mouseAdapter = new MouseAdapter() {
+        public void mouseClicked(MouseEvent e) {
+            if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {
+                ArgumentValuesTreeNode treeNode = (ArgumentValuesTreeNode) getLastSelectedPathComponent();
+                Object userValue = treeNode.getUserValue();
+                if (userValue instanceof ArgumentValue) {
+                    ArgumentValue argumentValue = (ArgumentValue) userValue;
+                    DBArgument argument = argumentValue.getArgument();
+                    if (argument.isOutput()) {
+                        Object value = argumentValue.getValue();
+                        if (value instanceof ResultSet) {
+                            parentForm.selectCursorOutput(argument);
+                        }
+                    }
+                }
+            }
+        }
+    };
+
 
     class CellRenderer extends ColoredTreeCellRenderer {
         @Override
@@ -50,20 +77,29 @@ public class ArgumentValuesTree extends DBNTree{
 
             if (userValue instanceof ArgumentValue) {
                 ArgumentValue argumentValue = (ArgumentValue) userValue;
-                DBTypeAttribute attribute = argumentValue.getAttribute();
                 DBArgument argument = argumentValue.getArgument();
+                DBTypeAttribute attribute = argumentValue.getAttribute();
                 Object originalValue = argumentValue.getValue();
-                String displayValue = originalValue instanceof ResultSet ? "[cursor]" : "" + originalValue;
+                String displayValue = originalValue instanceof ResultSet ? "" : "" + originalValue;
 
                 if (attribute == null) {
                     setIcon(argument.getIcon());
                     append(argument.getName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
                     append(" = ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
+                    DBDataType dataType = argument.getDataType();
+                    if (dataType != null) {
+                        append("{" + dataType.getName().toLowerCase() + "} " , SimpleTextAttributes.GRAY_ATTRIBUTES);
+                    }
+
                     append(displayValue, SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
                 } else {
                     setIcon(attribute.getIcon());
                     append(attribute.getName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
                     append(" = ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
+                    DBDataType dataType = attribute.getDataType();
+                    if (dataType != null) {
+                        append("{" + dataType.getName() + "}" , SimpleTextAttributes.GRAYED_ATTRIBUTES);
+                    }
                     append(displayValue, SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
                 }
             }
