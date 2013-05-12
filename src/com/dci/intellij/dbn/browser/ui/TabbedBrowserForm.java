@@ -104,6 +104,7 @@ public class TabbedBrowserForm extends DatabaseBrowserForm{
         return mainPanel;
     }
 
+    @Nullable
     public DatabaseBrowserTree getBrowserTree() {
         return getActiveBrowserTree();
     }

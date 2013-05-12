@@ -90,12 +90,16 @@ public abstract class ObjectListShowAction extends AnAction {
     private void showPopup(JBPopup popup) {
         if (popupLocation == null) {
             DatabaseBrowserManager browserManager = DatabaseBrowserManager.getInstance(sourceObject.getProject());
-            DatabaseBrowserTree browserTree = browserManager.getActiveBrowserTree();
-            popupLocation = TreeUtil.getPointForSelection(browserTree);
-            Point point = popupLocation.getPoint();
-            point.setLocation(point.getX() + 20, point.getY() + 4);
+            DatabaseBrowserTree activeBrowserTree = browserManager.getActiveBrowserTree();
+            if (activeBrowserTree != null) {
+                popupLocation = TreeUtil.getPointForSelection(activeBrowserTree);
+                Point point = popupLocation.getPoint();
+                point.setLocation(point.getX() + 20, point.getY() + 4);
+            }
         }
-        popup.show(popupLocation);
+        if (popupLocation != null) {
+            popup.show(popupLocation);
+        }
     }
 
     @Override

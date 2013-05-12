@@ -35,6 +35,7 @@ import com.intellij.openapi.wm.ToolWindowManager;
 import org.jdom.Element;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.tree.TreePath;
 import java.util.ArrayList;
@@ -53,6 +54,7 @@ public class DatabaseBrowserManager extends AbstractProjectComponent implements 
         super(project);
     }
 
+    @Nullable
     public DatabaseBrowserTree getActiveBrowserTree() {
         return getToolWindowForm().getActiveBrowserTree();
     }
@@ -297,13 +299,16 @@ public class DatabaseBrowserManager extends AbstractProjectComponent implements 
 
     public List<DBObject> getSelectedObjects() {
         List<DBObject> selectedObjects = new ArrayList<DBObject>();
-        TreePath[] selectionPaths = getActiveBrowserTree().getSelectionPaths();
-        if (selectionPaths != null) {
-            for (TreePath treePath : selectionPaths) {
-                Object lastPathComponent = treePath.getLastPathComponent();
-                if (lastPathComponent instanceof DBObject) {
-                    DBObject object = (DBObject) lastPathComponent;
-                    selectedObjects.add(object);
+        DatabaseBrowserTree activeBrowserTree = getActiveBrowserTree();
+        if (activeBrowserTree != null) {
+            TreePath[] selectionPaths = activeBrowserTree.getSelectionPaths();
+            if (selectionPaths != null) {
+                for (TreePath treePath : selectionPaths) {
+                    Object lastPathComponent = treePath.getLastPathComponent();
+                    if (lastPathComponent instanceof DBObject) {
+                        DBObject object = (DBObject) lastPathComponent;
+                        selectedObjects.add(object);
+                    }
                 }
             }
         }

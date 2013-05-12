@@ -1,6 +1,7 @@
 package com.dci.intellij.dbn.object.action;
 
 import com.dci.intellij.dbn.browser.DatabaseBrowserManager;
+import com.dci.intellij.dbn.browser.ui.DatabaseBrowserTree;
 import com.dci.intellij.dbn.object.common.DBObject;
 import com.dci.intellij.dbn.object.common.list.DBObjectNavigationList;
 import com.intellij.openapi.actionSystem.AnAction;
@@ -33,7 +34,10 @@ public class ObjectNavigationListShowAllAction extends AnAction {
 
         Project project = e.getData(PlatformDataKeys.PROJECT);
         DatabaseBrowserManager browserManager = DatabaseBrowserManager.getInstance(project);
-        popup.showInCenterOf(browserManager.getActiveBrowserTree());
+        DatabaseBrowserTree activeBrowserTree = browserManager.getActiveBrowserTree();
+        if (activeBrowserTree != null) {
+            popup.showInCenterOf(activeBrowserTree);
+        }
         //popup.show(DatabaseBrowserComponent.getInstance(project).getBrowserPanel().getTree());
     }
 }
