@@ -21,12 +21,11 @@
                 <li>MySQL
             </ul><br>
             <br><br>
-            <div style="text-align: right; font-size: smaller">
-                This tool is free for personal and commercial usage. <br>Donations are very welcome though.<br><br>
-                <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=3QAPZFCCARA4J">
-                    <img src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif"/>
-                </a>
-            </div>
+            This tool is free for personal and commercial usage. <br>Donations are very welcome though.<br>
+            <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=3QAPZFCCARA4J">
+                <img src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif"/>
+            </a>
+            <br>
     ]]></description>
     <change-notes><![CDATA[
         <ul>
