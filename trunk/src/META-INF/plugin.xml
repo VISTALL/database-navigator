@@ -8,7 +8,6 @@
     <vendor email="dancioca@bluewin.ch" logo="/img/v0/project/DatabaseNavigator.png">Dan Cioca</vendor>
     <idea-version since-build="111.0001" until-build="129.9999"/>
     <description><![CDATA[
-            </b>
             <b>Database development, scripting and navigation tool</b><br>
             This product aims to add extensive database development and maintenance capabilities to the IntelliJ
             IDEA development environment. Along with a qualified and IDE-compliant SQL and PL/SQL editor, it provides advanced database connection management,
@@ -23,7 +22,8 @@
             </ul><br>
             <br>
             <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
-                <div style="">
+                <div style="text-align: right; font-size: smaller">
+                    This tool is free for personal and commercial usage. <br>Donations are always welcome though.<br><br>
                     <input type="hidden" name="cmd" value="_s-xclick">
                     <input type="hidden" name="hosted_button_id" value="3QAPZFCCARA4J">
                     <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif" border="0" name="submit" alt="Donate via PayPal">
