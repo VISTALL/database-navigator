@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templateSet group="PL/SQL (DBN)">
+    <template name="sel:i" description="SELECT INTO variable FROM dataset" value="select $COLUMN$ into $VARIABLE$ from $TABLE$ where $END$;" toReformat="true">
+        <variable name="TABLE" expression="complete()" defaultValue="" alwaysStopAt="true"/>
+        <variable name="COLUMN" expression="complete()" defaultValue="" alwaysStopAt="true"/>
+        <variable name="VARIABLE" expression="complete()" defaultValue="" alwaysStopAt="true"/>
+        <context>
+            <option name="PL/SQL" value="true"/>
+        </context>
+    </template>
+
+    <template name="bege" description="BEGIN END block" value="begin&#10;    $END$&#10;end;&#10;" toReformat="false">
+        <context>
+            <option name="PL/SQL" value="true"/>
+        </context>
+    </template>
+</templateSet>

@@ -55,46 +55,48 @@ public class DBLCodeStyleManager extends AbstractProjectComponent implements JDO
 
     private void format(Document document, PsiElement psiElement, int startOffset, int endOffset){
         Language language = PsiUtil.getLanguage(psiElement);
-        CodeStyleCaseSettings styleCaseSettings = getCodeStyleCaseSettings((DBLanguage) language);
-        PsiElement child = psiElement.getFirstChild();
-        while (child != null) {
-            if (child instanceof LeafPsiElement) {
-                TextRange textRange = child.getTextRange();
-                boolean isInRange =
-                        startOffset == endOffset || (
-                        textRange.getStartOffset() >= startOffset &&
-                        textRange.getEndOffset() <= endOffset);
-                if (isInRange) {
-                    CodeStyleCaseOption caseOption = null;
-                    if (child instanceof IdentifierPsiElement) {
-                        IdentifierPsiElement identifierPsiElement = (IdentifierPsiElement) child;
-                        if (identifierPsiElement.isObject()) {
-                            caseOption = styleCaseSettings.getObjectCaseOption();
+        if (language instanceof DBLanguage) {
+            CodeStyleCaseSettings styleCaseSettings = getCodeStyleCaseSettings((DBLanguage) language);
+            PsiElement child = psiElement.getFirstChild();
+            while (child != null) {
+                if (child instanceof LeafPsiElement) {
+                    TextRange textRange = child.getTextRange();
+                    boolean isInRange =
+                            startOffset == endOffset || (
+                                    textRange.getStartOffset() >= startOffset &&
+                                            textRange.getEndOffset() <= endOffset);
+                    if (isInRange) {
+                        CodeStyleCaseOption caseOption = null;
+                        if (child instanceof IdentifierPsiElement) {
+                            IdentifierPsiElement identifierPsiElement = (IdentifierPsiElement) child;
+                            if (identifierPsiElement.isObject()) {
+                                caseOption = styleCaseSettings.getObjectCaseOption();
+                            }
+                        }
+                        else if (child instanceof TokenPsiElement) {
+                            TokenPsiElement tokenPsiElement = (TokenPsiElement) child;
+                            TokenType tokenType = tokenPsiElement.getElementType().getTokenType();
+                            caseOption =
+                                    tokenType.isKeyword() ? styleCaseSettings.getKeywordCaseOption() :
+                                            tokenType.isFunction() ? styleCaseSettings.getFunctionCaseOption() :
+                                                    tokenType.isParameter() ? styleCaseSettings.getParameterCaseOption() :
+                                                            tokenType.isDataType() ? styleCaseSettings.getDatatypeCaseOption() : null;
+                        }
+
+                        if (caseOption != null) {
+                            String text = child.getText();
+                            String newText = caseOption.changeCase(text);
+
+                            if (newText != null && !newText.equals(text))
+                                document.replaceString(textRange.getStartOffset(), textRange.getEndOffset(), newText);
+
                         }
                     }
-                    else if (child instanceof TokenPsiElement) {
-                        TokenPsiElement tokenPsiElement = (TokenPsiElement) child;
-                        TokenType tokenType = tokenPsiElement.getElementType().getTokenType();
-                        caseOption =
-                                tokenType.isKeyword() ? styleCaseSettings.getKeywordCaseOption() :
-                                tokenType.isFunction() ? styleCaseSettings.getFunctionCaseOption() :
-                                tokenType.isParameter() ? styleCaseSettings.getParameterCaseOption() :
-                                tokenType.isDataType() ? styleCaseSettings.getDatatypeCaseOption() : null;
-                    }
-
-                    if (caseOption != null) {
-                        String text = child.getText();
-                        String newText = caseOption.changeCase(text);
-
-                        if (newText != null && !newText.equals(text))
-                            document.replaceString(textRange.getStartOffset(), textRange.getEndOffset(), newText);
-
-                    }
+                } else {
+                    format(document, child, startOffset, endOffset);
                 }
-            } else {
-                format(document, child, startOffset, endOffset);
+                child = child.getNextSibling();
             }
-            child = child.getNextSibling();
         }
     }
 
