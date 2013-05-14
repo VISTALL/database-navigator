@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templateSet group="SQL (DBN)">
+    <template name="sel" description="Select from dataset" value="select $COLUMN$ from $TABLE$ where $END$;" toReformat="true">
+        <variable name="TABLE" expression="complete()" defaultValue="" alwaysStopAt="true"/>
+        <variable name="COLUMN" expression="" defaultValue="" alwaysStopAt="true"/>
+        <context>
+            <option name="SQL" value="true"/>
+        </context>
+    </template>
+
+    <template name="sel:a" description="Select all from dataset" value="select * from $TABLE$ where $END$;" toReformat="true">
+        <variable name="TABLE" expression="complete()" defaultValue="" alwaysStopAt="true"/>
+        <context>
+            <option name="SQL" value="true"/>
+        </context>
+    </template>
+
+    <template name="sel:c" description="Select count from dataset" value="select count(*) from $TABLE$ $ALIAS$ where $ALIAS$.$END$;" toReformat="true">
+        <variable name="TABLE" expression="complete()" defaultValue="" alwaysStopAt="true"/>
+        <variable name="ALIAS" expression="complete()" defaultValue="" alwaysStopAt="true"/>
+        <context>
+            <option name="SQL" value="true"/>
+        </context>
+    </template>
+
+    <template name="decl" description="Declare block" value="declare&#10;begin&#10;    $END$&#10;end;&#10;/" toReformat="true">
+        <context>
+            <option name="SQL" value="true"/>
+        </context>
+    </template>
+</templateSet>
