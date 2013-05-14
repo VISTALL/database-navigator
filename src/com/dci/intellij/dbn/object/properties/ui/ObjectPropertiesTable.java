@@ -91,15 +91,17 @@ public class ObjectPropertiesTable extends DBNTable {
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
             Component component = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
             PresentableProperty property = (PresentableProperty) value;
-            if (column == 0) {
-                setIcon(null);
-                setText(property.getName());
-                //setFont(GUIUtil.BOLD_FONT);
-            } else if (column == 1) {
-                setText(property.getValue());
-                setIcon(property.getIcon());
-                //setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-                //setFont(property.getIcon() == null ? GUIUtil.BOLD_FONT : GUIUtil.REGULAR_FONT);
+            if (property != null) {
+                if (column == 0) {
+                    setIcon(null);
+                    setText(property.getName());
+                    //setFont(GUIUtil.BOLD_FONT);
+                } else if (column == 1) {
+                    setText(property.getValue());
+                    setIcon(property.getIcon());
+                    //setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                    //setFont(property.getIcon() == null ? GUIUtil.BOLD_FONT : GUIUtil.REGULAR_FONT);
+                }
             }
 
             Dimension dimension = getSize();
