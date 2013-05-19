@@ -35,6 +35,7 @@ public class DatasetSortingManager extends AbstractProjectComponent implements J
         return "DBNavigator.Project.DatasetSortingManager";
     }
     public void disposeComponent() {
+        super.disposeComponent();
     }
 
     /*************************************************

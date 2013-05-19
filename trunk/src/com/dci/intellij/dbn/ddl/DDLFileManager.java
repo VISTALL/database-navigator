@@ -31,15 +31,17 @@ public class DDLFileManager extends AbstractProjectComponent implements JDOMExte
    public void registerExtensions() {
        new WriteActionRunner() {
            public void run() {
-               FileTypeManager.getInstance().removeFileTypeListener(DDLFileManager.this);
-               FileTypeManager fileTypeManager = FileTypeManager.getInstance();
-               List<DDLFileType> ddlFileTypeList = getExtensionSettings().getDDLFileTypes();
-               for (DDLFileType ddlFileType : ddlFileTypeList) {
-                   for (String extension : ddlFileType.getExtensions()) {
-                       fileTypeManager.associateExtension(ddlFileType.getLanguageFileType(), extension);
+               if (!isDisposed()) {
+                   FileTypeManager.getInstance().removeFileTypeListener(DDLFileManager.this);
+                   FileTypeManager fileTypeManager = FileTypeManager.getInstance();
+                   List<DDLFileType> ddlFileTypeList = getExtensionSettings().getDDLFileTypes();
+                   for (DDLFileType ddlFileType : ddlFileTypeList) {
+                       for (String extension : ddlFileType.getExtensions()) {
+                           fileTypeManager.associateExtension(ddlFileType.getLanguageFileType(), extension);
+                       }
                    }
+                   FileTypeManager.getInstance().addFileTypeListener(DDLFileManager.this);
                }
-               FileTypeManager.getInstance().addFileTypeListener(DDLFileManager.this);
            }
        }.start();
     }

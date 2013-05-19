@@ -365,9 +365,9 @@ public class DDLFileAttachmentManager extends AbstractProjectComponent implement
         return "DBNavigator.Project.DDLFileAttachmentManager";
     }
     public void disposeComponent() {
-        super.disposeComponent();
         mappings.clear();
         cache.clear();
+        super.disposeComponent();
     }
     /************************************************
      *               JDOMExternalizable             *

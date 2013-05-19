@@ -225,10 +225,10 @@ public class MethodExecutionManager extends AbstractProjectComponent implements 
 
     @Override
     public void disposeComponent() {
-        super.disposeComponent();
         for (MethodExecutionInput executionInput : executionInputs) {
             executionInput.dispose();
         }
+        super.disposeComponent();
     }
 
     /*********************************************************
