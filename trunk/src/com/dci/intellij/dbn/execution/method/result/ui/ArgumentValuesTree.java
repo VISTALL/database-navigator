@@ -36,14 +36,16 @@ public class ArgumentValuesTree extends DBNTree{
         public void mouseClicked(MouseEvent e) {
             if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {
                 ArgumentValuesTreeNode treeNode = (ArgumentValuesTreeNode) getLastSelectedPathComponent();
-                Object userValue = treeNode.getUserValue();
-                if (userValue instanceof ArgumentValue) {
-                    ArgumentValue argumentValue = (ArgumentValue) userValue;
-                    DBArgument argument = argumentValue.getArgument();
-                    if (argument.isOutput()) {
-                        Object value = argumentValue.getValue();
-                        if (value instanceof ResultSet) {
-                            parentForm.selectCursorOutput(argument);
+                if (treeNode != null) {
+                    Object userValue = treeNode.getUserValue();
+                    if (userValue instanceof ArgumentValue) {
+                        ArgumentValue argumentValue = (ArgumentValue) userValue;
+                        DBArgument argument = argumentValue.getArgument();
+                        if (argument.isOutput()) {
+                            Object value = argumentValue.getValue();
+                            if (value instanceof ResultSet) {
+                                parentForm.selectCursorOutput(argument);
+                            }
                         }
                     }
                 }
