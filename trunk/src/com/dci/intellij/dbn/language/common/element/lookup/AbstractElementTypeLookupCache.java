@@ -224,7 +224,7 @@ public abstract class AbstractElementTypeLookupCache<T extends ElementType> impl
 
     }
 
-    public boolean containsLandmarkToken(TokenType tokenType) {
+    public synchronized boolean containsLandmarkToken(TokenType tokenType) {
         if (getElementType().isLeaf()) return containsToken(tokenType);
 
         Boolean value = landmarkTokens.get(tokenType);
@@ -236,7 +236,7 @@ public abstract class AbstractElementTypeLookupCache<T extends ElementType> impl
     }
 
 
-    public boolean startsWithIdentifier() {
+    public synchronized boolean startsWithIdentifier() {
         if (startsWithIdentifier == null) {
             startsWithIdentifier =  startsWithIdentifier(null);
         }
