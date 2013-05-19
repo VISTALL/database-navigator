@@ -78,6 +78,7 @@ public class ConnectionManager extends AbstractProjectComponent implements Proje
         EventManager.unsubscribe(
                 moduleListener,
                 connectionBundleSettingsListener);
+        super.disposeComponent();
     }
 
     /*********************************************************

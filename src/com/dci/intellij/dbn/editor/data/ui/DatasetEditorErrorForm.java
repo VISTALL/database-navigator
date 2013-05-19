@@ -52,11 +52,13 @@ public class DatasetEditorErrorForm extends DBNFormImpl implements DBNForm, Chan
         DatasetEditorTable table = cell.getRow().getModel().getEditorTable();
         Rectangle rectangle = table.getCellRect(cell.getRow().getIndex(), cell.getIndex(), false);
 
-        Point tableLocation = table.getLocationOnScreen();
-        int x = (int) (tableLocation.getX() + rectangle.getLocation().getX() + 4);
-        int y = (int) (tableLocation.getY() + rectangle.getLocation().getY() + 20);
-        Point cellLocation = new Point(x, y);
-        popup.showInScreenCoordinates(table, cellLocation);
+        if (table.isShowing()) {
+            Point tableLocation = table.getLocationOnScreen();
+            int x = (int) (tableLocation.getX() + rectangle.getLocation().getX() + 4);
+            int y = (int) (tableLocation.getY() + rectangle.getLocation().getY() + 20);
+            Point cellLocation = new Point(x, y);
+            popup.showInScreenCoordinates(table, cellLocation);
+        }
     }
 
     public JBPopup getPopup() {

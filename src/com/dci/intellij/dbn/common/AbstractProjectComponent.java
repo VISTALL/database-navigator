@@ -5,6 +5,7 @@ import com.intellij.openapi.project.Project;
 
 public abstract class AbstractProjectComponent implements ProjectComponent{
     private Project project;
+    private boolean isDisposed = false;
 
     protected AbstractProjectComponent(Project project) {
         this.project = project;
@@ -23,7 +24,12 @@ public abstract class AbstractProjectComponent implements ProjectComponent{
     public void initComponent() {
     }
 
+    public boolean isDisposed() {
+        return isDisposed;
+    }
+
     public void disposeComponent() {
+        isDisposed = true;
         project = null;
     }
 }

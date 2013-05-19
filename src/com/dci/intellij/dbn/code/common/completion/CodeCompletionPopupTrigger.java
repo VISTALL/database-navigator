@@ -41,11 +41,13 @@ public class CodeCompletionPopupTrigger implements DocumentListener{
                         new SimpleLaterInvocator() {
                             public void run() {
                                 DataContext dataContext = DataManager.getInstance().getDataContextFromFocus().getResult();
-                                Project project = PlatformDataKeys.PROJECT.getData(dataContext);
-                                Editor editor = PlatformDataKeys.EDITOR.getData(dataContext);
-                                if (project != null && editor!= null) {
-                                    AnActionEvent actionEvent = new AnActionEvent(null, dataContext, "", codeCompletionAction.getTemplatePresentation(), ActionManager.getInstance(), 2);
-                                    codeCompletionAction.actionPerformed(actionEvent);
+                                if (dataContext != null) {
+                                    Project project = PlatformDataKeys.PROJECT.getData(dataContext);
+                                    Editor editor = PlatformDataKeys.EDITOR.getData(dataContext);
+                                    if (project != null && editor!= null) {
+                                        AnActionEvent actionEvent = new AnActionEvent(null, dataContext, "", codeCompletionAction.getTemplatePresentation(), ActionManager.getInstance(), 2);
+                                        codeCompletionAction.actionPerformed(actionEvent);
+                                    }
                                 }
                             }
                         }.start();

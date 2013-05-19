@@ -173,6 +173,7 @@ public class DatasetFilterManager extends AbstractProjectComponent implements JD
     }
     public void disposeComponent() {
         filters.clear();
+        super.disposeComponent();
     }
 
     /*************************************************
