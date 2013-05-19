@@ -312,7 +312,10 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
     }
 
     public DBLanguageDialect getLanguageDialect(DBLanguage language) {
-        return getConnectionHandler().getLanguageDialect(language);
+        ConnectionHandler connectionHandler = getConnectionHandler();
+        return connectionHandler == null ?
+                SQLLanguage.INSTANCE.getMainLanguageDialect() :
+                connectionHandler.getLanguageDialect(language);
     }
 
     public DBObjectListContainer getChildObjects() {
