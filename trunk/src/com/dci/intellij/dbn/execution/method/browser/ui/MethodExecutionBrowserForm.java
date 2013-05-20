@@ -73,7 +73,7 @@ public class MethodExecutionBrowserForm extends DBNFormImpl implements DBNForm {
                 DBSchema schema  = connectionHandler.getObjectBundle().getSchema(settings.getSchema().getName());
                 setSchema(schema);
             }
-
+            updateTree();
         }
     }
 
