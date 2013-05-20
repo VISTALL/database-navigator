@@ -40,6 +40,12 @@
         </context>
     </template>
 
+    <template name="del" description="DELETE dataset WHERE" value="delete $TABLE$ where $END$;" toReformat="true">
+        <variable name="TABLE" expression="complete()" defaultValue="" alwaysStopAt="true"/>
+        <context>
+            <option name="SQL" value="true"/>
+        </context>
+    </template>
 
     <template name="decl" description="Declare block" value="declare&#10;begin&#10;    $END$&#10;end;&#10;/" toReformat="true">
         <context>
