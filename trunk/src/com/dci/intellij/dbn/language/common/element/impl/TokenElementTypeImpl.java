@@ -11,6 +11,7 @@ import com.dci.intellij.dbn.language.common.element.IterationElementType;
 import com.dci.intellij.dbn.language.common.element.LeafElementType;
 import com.dci.intellij.dbn.language.common.element.QualifiedIdentifierElementType;
 import com.dci.intellij.dbn.language.common.element.TokenElementType;
+import com.dci.intellij.dbn.language.common.element.WrapperElementType;
 import com.dci.intellij.dbn.language.common.element.lookup.TokenElementTypeLookupCache;
 import com.dci.intellij.dbn.language.common.element.parser.TokenElementTypeParser;
 import com.dci.intellij.dbn.language.common.element.path.PathNode;
@@ -57,17 +58,25 @@ public class TokenElementTypeImpl extends LeafElementTypeImpl implements LookupV
     }
 
     public Set<LeafElementType> getNextPossibleLeafs(PathNode pathNode, CodeCompletionFilterSettings filterSettings) {
+        ElementType parent = getParent();
         if (isIterationSeparator()) {
-            if (getParent() instanceof IterationElementType) {
-                IterationElementType iterationElementType = (IterationElementType) getParent();
+            if (parent instanceof IterationElementType) {
+                IterationElementType iterationElementType = (IterationElementType) parent;
                 /*return codeCompletionSettings.isSmart() ?
                         iterationElementType.getIteratedElementType().getFirstPossibleLeafs() :
                         iterationElementType.getIteratedElementType().getFirstRequiredLeafs();*/
                 return iterationElementType.getIteratedElementType().getLookupCache().getFirstPossibleLeafs();
-            } else if (getParent() instanceof QualifiedIdentifierElementType){
+            } else if (parent instanceof QualifiedIdentifierElementType){
                 return super.getNextPossibleLeafs(pathNode, filterSettings);
             }
         }
+        if (parent instanceof WrapperElementType) {
+            WrapperElementType wrapperElementType = (WrapperElementType) parent;
+            if (this.equals(wrapperElementType.getBeginTokenElement())) {
+                return wrapperElementType.getWrappedElement().getLookupCache().getFirstPossibleLeafs();
+            }
+        }
+
         return super.getNextPossibleLeafs(pathNode, filterSettings);
     }
 

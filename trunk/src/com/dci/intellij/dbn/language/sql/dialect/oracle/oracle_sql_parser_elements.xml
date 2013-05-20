@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--<!DOCTYPE element-defs SYSTEM "/../../../common/definition/language-parser-elements.dtd">--><element-defs language="ORACLE-SQL" version="10.1">
+<!--<!DOCTYPE element-defs SYSTEM "/../../../common/definition/language-parser-elements.dtd">-->
+<element-defs language="ORACLE-SQL" version="10.1">
     <element-def attributes="ROOT, STRUCTURE" description="SQL block" icon="FILE_BLOCK_SQL" id="sql_block">
         <iteration id="000000000">
             <one-of attributes="STATEMENT, SCOPE_ISOLATION" formatting-indent="ABSOLUTE_NONE" id="000000001">
@@ -5779,49 +5780,49 @@
     </element-def>
     <element-def description="Query table expression" id="query_table_expression">
         <one-of id="000003200" sortable="true">
-            <sequence id="000003201">
-                <qualified-identifier id="000003202" separator="CHR_DOT">
+            <wrapper id="000003201" template="PARENTHESES">
+                <sequence id="000003202">
+                    <element ref-id="subquery" />
+                    <element optional="true" ref-id="subquery_restriction_clause" />
+                </sequence>
+            </wrapper>
+            <sequence id="000003203">
+                <qualified-identifier id="000003204" separator="CHR_DOT">
                     <variant>
-                        <object-ref id="000003203" optional="true" referenceable="true" type="SCHEMA" />
-                        <object-ref attributes="SUBJECT" id="000003204" referenceable="true" type="DATASET" />
+                        <object-ref id="000003205" optional="true" referenceable="true" type="SCHEMA" />
+                        <object-ref attributes="SUBJECT" id="000003206" referenceable="true" type="DATASET" />
                     </variant>
                     <variant>
-                        <alias-ref id="000003205" original-name="query_name" type="DATASET" />
+                        <alias-ref id="000003207" original-name="query_name" type="DATASET" />
                     </variant>
                 </qualified-identifier>
-                <one-of id="000003206" optional="true">
-                    <sequence id="000003207">
-                        <one-of id="000003208">
-                            <sequence id="000003209">
-                                <token id="000003210" type-id="KW_PARTITION" />
-                                <wrapper id="000003211" template="PARENTHESES">
-                                    <object-ref id="000003212" type="PARTITION" />
+                <one-of id="000003208" optional="true">
+                    <sequence id="000003209">
+                        <one-of id="000003210">
+                            <sequence id="000003211">
+                                <token id="000003212" type-id="KW_PARTITION" />
+                                <wrapper id="000003213" template="PARENTHESES">
+                                    <object-ref id="000003214" type="PARTITION" />
                                 </wrapper>
                             </sequence>
-                            <sequence id="000003213">
-                                <token id="000003214" type-id="KW_SUBPARTITION" />
-                                <wrapper id="000003215" template="PARENTHESES">
-                                    <object-ref id="000003216" type="SUBPARTITION" />
+                            <sequence id="000003215">
+                                <token id="000003216" type-id="KW_SUBPARTITION" />
+                                <wrapper id="000003217" template="PARENTHESES">
+                                    <object-ref id="000003218" type="SUBPARTITION" />
                                 </wrapper>
                             </sequence>
                         </one-of>
                         <element optional="true" ref-id="sample_clause" />
                     </sequence>
-                    <sequence id="000003217">
-                        <sequence id="000003218" optional="true">
-                            <token id="000003219" type-id="CHR_AT" />
-                            <object-ref id="000003220" type="DBLINK" />
+                    <sequence id="000003219">
+                        <sequence id="000003220" optional="true">
+                            <token id="000003221" type-id="CHR_AT" />
+                            <object-ref id="000003222" type="DBLINK" />
                         </sequence>
                     </sequence>
                     <element ref-id="sample_clause" />
                 </one-of>
             </sequence>
-            <wrapper id="000003221" template="PARENTHESES">
-                <sequence id="000003222">
-                    <element ref-id="subquery" />
-                    <element optional="true" ref-id="subquery_restriction_clause" />
-                </sequence>
-            </wrapper>
             <element ref-id="table_collection_expression" />
         </one-of>
     </element-def>
