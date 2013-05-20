@@ -2,6 +2,8 @@ package com.dci.intellij.dbn.code.common.completion;
 
 import com.dci.intellij.dbn.code.common.lookup.DBLookupItem;
 import com.dci.intellij.dbn.language.common.element.TokenElementType;
+import com.dci.intellij.dbn.language.common.psi.LeafPsiElement;
+import com.dci.intellij.dbn.language.common.psi.PsiUtil;
 import com.intellij.codeInsight.completion.InsertHandler;
 import com.intellij.codeInsight.completion.InsertionContext;
 import com.intellij.openapi.editor.CaretModel;
@@ -19,8 +21,12 @@ public class BasicInsertHandler implements InsertHandler<DBLookupItem> {
             if(tokenElementType.getTokenType().isReservedWord()) {
                 Editor editor = insertionContext.getEditor();
                 CaretModel caretModel = editor.getCaretModel();
-                caretModel.moveCaretRelatively(1, 0, false, false, false);
-                return;
+
+                LeafPsiElement leafPsiElement = PsiUtil.lookupLeafAtOffset(insertionContext.getFile(), caretModel.getOffset());
+                if (leafPsiElement.getTextOffset() != caretModel.getOffset()) {
+                    caretModel.moveCaretRelatively(1, 0, false, false, false);
+                    return;
+                }
             }
         }
 
