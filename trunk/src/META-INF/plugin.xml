@@ -28,7 +28,8 @@
         <ul>
             <li><b>3.0.2570</b>
              <ul>
-                - "About" page (with Donate link) <br>
+                - Live Templates Ctrl-J (work in progress)<br>
+                - "About" page (with "donate" link) <br>
                 - Multiple column sorting (work in progress - not released)<br>
                 - Method execution result improvements (tree view)<br>
                 - Reworked action system to allow multiple editor instances, split and detached editors<br>
