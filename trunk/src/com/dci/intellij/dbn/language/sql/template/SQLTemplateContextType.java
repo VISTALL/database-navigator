@@ -1,5 +1,7 @@
 package com.dci.intellij.dbn.language.sql.template;
 
+import com.dci.intellij.dbn.language.common.psi.LeafPsiElement;
+import com.dci.intellij.dbn.language.common.psi.PsiUtil;
 import com.dci.intellij.dbn.language.sql.SQLLanguage;
 import com.intellij.codeInsight.template.TemplateContextType;
 import com.intellij.openapi.fileTypes.SyntaxHighlighter;
@@ -14,6 +16,10 @@ public class SQLTemplateContextType extends TemplateContextType {
 
     @Override
     public boolean isInContext(@NotNull PsiFile file, int offset) {
+        LeafPsiElement leafPsiElement = PsiUtil.lookupLeafBeforeOffset(file, offset);
+        if (leafPsiElement != null) {
+            return leafPsiElement.getLanguage() instanceof SQLLanguage;
+        }
         return file.getLanguage() instanceof SQLLanguage;
     }
 
