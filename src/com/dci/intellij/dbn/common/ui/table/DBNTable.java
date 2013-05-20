@@ -1,12 +1,10 @@
 package com.dci.intellij.dbn.common.ui.table;
 
 import com.dci.intellij.dbn.common.ui.DBNColor;
-import com.dci.intellij.dbn.common.util.CommonUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.UIUtil;
 
 import javax.swing.JTable;
-import javax.swing.plaf.basic.BasicTableHeaderUI;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
@@ -70,9 +68,11 @@ public class DBNTable extends JTable {
     @Override
     public int convertColumnIndexToModel(int viewColumnIndex) {
         // table is not scrolling correctly when columns are moved
+/*
         if (getTableHeader().getDraggedColumn() != null && CommonUtil.isCalledThrough(BasicTableHeaderUI.MouseInputHandler.class)) {
             return getTableHeader().getDraggedColumn().getModelIndex();
         }
+*/
         return super.convertColumnIndexToModel(viewColumnIndex);
     }
 
