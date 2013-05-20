@@ -49,6 +49,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.sql.SQLException;
+import java.util.EventObject;
 
 public class DatasetEditorTable extends ResultSetTable {
     private DatasetTableCellEditorFactory cellEditorFactory = new DatasetTableCellEditorFactory();
@@ -184,6 +185,11 @@ public class DatasetEditorTable extends ResultSetTable {
             cellEditor.prepareEditor(cell);
         }
         return component;
+    }
+
+    @Override
+    public boolean editCellAt(final int row, final int column, final EventObject e) {
+        return super.editCellAt(row, column, e);
     }
 
     @Override
