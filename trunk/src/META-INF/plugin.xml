@@ -2,11 +2,11 @@
     <name>Database Navigator</name>
     <id>DBN</id>
     <!--2250-->
-    <version>3.0.2584</version>
+    <version>3.0.2585</version>
     <category>Database</category>
     <depends>com.intellij.modules.lang</depends>
     <vendor email="dancioca@bluewin.ch" logo="/img/v0/project/DatabaseNavigator.png">Dan Cioca</vendor>
-    <idea-version since-build="111.0001" until-build="129.9999"/>
+    <idea-version since-build="111.0001" until-build="130.9999"/>
     <description><![CDATA[
             <b>Database development, scripting and navigation tool</b><br>
             This product aims to add extensive database development and maintenance capabilities to the IntelliJ
@@ -26,7 +26,7 @@
     ]]></description>
     <change-notes><![CDATA[
         <ul>
-            <li><b>3.0.2584</b>
+            <li><b>3.0.2585</b>
              <ul>
                 - Live Templates Ctrl-J (work in progress)<br>
                 - "About" page (with "donate" link) <br>
