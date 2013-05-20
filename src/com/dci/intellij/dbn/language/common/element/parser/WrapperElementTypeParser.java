@@ -26,10 +26,10 @@ public class WrapperElementTypeParser extends AbstractElementTypeParser<WrapperE
 
         // first try to parse the wrapped element directly, for supporting wrapped elements nesting
         if (isWrappingOptional) {
-            ParseResult result = wrappedElement.getParser().parse(node, builder, optional, depth + 1, timestamp);
-            if (result.isFullMatch()) {
-                matchedTokens = matchedTokens + result.getMatchedTokens();
-                return stepOut(builder, marker, depth, ParseResultType.FULL_MATCH, matchedTokens, node);
+            ParseResult wrappedResult = wrappedElement.getParser().parse(node, builder, optional, depth + 1, timestamp);
+            if (wrappedResult.isMatch()) {
+                matchedTokens = matchedTokens + wrappedResult.getMatchedTokens();
+                return stepOut(builder, marker, depth, wrappedResult.getType(), matchedTokens, node);
             } else {
                 marker.rollbackTo();
                 marker = builder.mark();
@@ -37,34 +37,30 @@ public class WrapperElementTypeParser extends AbstractElementTypeParser<WrapperE
         }
 
         // parse begin token
-        ParseResult result = beginTokenElement.getParser().parse(node, builder, optional, depth + 1, timestamp);
+        ParseResult beginTokenResult = beginTokenElement.getParser().parse(node, builder, optional, depth + 1, timestamp);
 
-        if (result.isMatch()) {
+        if (beginTokenResult.isMatch()) {
             isWrapped = true;
             matchedTokens++;
         }
 
-        if (result.isMatch() || isWrappingOptional) {
-            result = wrappedElement.getParser().parse(node, builder, false, depth -1, timestamp);
+        if (beginTokenResult.isMatch() || isWrappingOptional) {
+            ParseResult wrappedResult = wrappedElement.getParser().parse(node, builder, false, depth -1, timestamp);
+            matchedTokens = matchedTokens + wrappedResult.getMatchedTokens();
 
-            if (result.isMatch()) {
-                matchedTokens = matchedTokens + result.getMatchedTokens();
-
-                if (isWrapped) {
-                    // check the end element => exit with partial match if not available
-                    result = endTokenElement.getParser().parse(node, builder, false, depth -1, timestamp);
-
-                    if (result.isMatch()) {
-                        matchedTokens++;
-                    } else {
-                        return stepOut(builder, marker, depth, ParseResultType.PARTIAL_MATCH, matchedTokens, node);
-                    }
+            if (isWrapped) {
+                // check the end element => exit with partial match if not available
+                ParseResult endTokenResult = endTokenElement.getParser().parse(node, builder, false, depth -1, timestamp);
+                if (endTokenResult.isMatch()) {
+                    matchedTokens++;
+                    return stepOut(builder, marker, depth, ParseResultType.FULL_MATCH, matchedTokens, node);
+                } else {
+                    return stepOut(builder, marker, depth, wrappedResult.getType(), matchedTokens, node);
                 }
-
-                return stepOut(builder, marker, depth, ParseResultType.FULL_MATCH, matchedTokens, node);
+            } else {
+                return stepOut(builder, marker, depth, wrappedResult.getType(), matchedTokens, node);
             }
         }
-
 
         return stepOut(builder, marker, depth, ParseResultType.NO_MATCH, matchedTokens, node);
     }
