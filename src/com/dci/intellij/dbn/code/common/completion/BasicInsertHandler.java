@@ -23,7 +23,7 @@ public class BasicInsertHandler implements InsertHandler<DBLookupItem> {
                 CaretModel caretModel = editor.getCaretModel();
 
                 LeafPsiElement leafPsiElement = PsiUtil.lookupLeafAtOffset(insertionContext.getFile(), caretModel.getOffset());
-                if (leafPsiElement.getTextOffset() != caretModel.getOffset()) {
+                if (leafPsiElement == null || leafPsiElement.getTextOffset() != caretModel.getOffset()) {
                     caretModel.moveCaretRelatively(1, 0, false, false, false);
                     return;
                 }
