@@ -13,23 +13,18 @@ public class DBObjectStatusHolder {
         this.mainContentType = mainContentType;
     }
 
-    private Set<DBObjectStatusEntry> getStatusEntries() {
-        if (statusEntries == null) {
-            statusEntries = new THashSet<DBObjectStatusEntry>();
-        }
-        return statusEntries;
-    }
-
     private synchronized DBObjectStatusEntry get(DBContentType contentType, DBObjectStatus status, boolean create) {
-        Set<DBObjectStatusEntry> statusEntries = getStatusEntries();
-        for (DBObjectStatusEntry statusEntry : statusEntries) {
-            if (statusEntry.getContentType() == contentType && statusEntry.getStatusType() == status) {
-                return statusEntry;
+        if (statusEntries != null) {
+            for (DBObjectStatusEntry statusEntry : statusEntries) {
+                if (statusEntry.getContentType() == contentType && statusEntry.getStatusType() == status) {
+                    return statusEntry;
+                }
             }
         }
 
         if (create) {
             DBObjectStatusEntry statusEntry = new DBObjectStatusEntry(contentType, status);
+            if (statusEntries == null) statusEntries = new THashSet<DBObjectStatusEntry>();
             statusEntries.add(statusEntry);
             return statusEntry;
         }
@@ -81,18 +76,22 @@ public class DBObjectStatusHolder {
     }
 
     public boolean has(DBContentType contentType, DBObjectStatus status) {
-        for (DBObjectStatusEntry statusEntry : getStatusEntries()) {
-            if (statusEntry.getContentType() == contentType && statusEntry.getStatusType() == status) {
-                return true;
+        if (statusEntries != null)  {
+            for (DBObjectStatusEntry statusEntry : statusEntries) {
+                if (statusEntry.getContentType() == contentType && statusEntry.getStatusType() == status) {
+                    return true;
+                }
             }
         }
         return false;
     }
 
     public boolean has(DBObjectStatus status) {
-        for (DBObjectStatusEntry statusEntry : getStatusEntries()) {
-            if (statusEntry.getStatusType() == status) {
-                return true;
+        if (statusEntries != null) {
+            for (DBObjectStatusEntry statusEntry : statusEntries) {
+                if (statusEntry.getStatusType() == status) {
+                    return true;
+                }
             }
         }
         return false;
