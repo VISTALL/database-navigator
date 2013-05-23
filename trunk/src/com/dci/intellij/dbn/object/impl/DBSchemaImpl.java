@@ -87,8 +87,6 @@ public class DBSchemaImpl extends DBObjectImpl implements DBSchema {
     boolean isPublicSchema;
     boolean isSystemSchema;
 
-    List<DBObject> allObjects;
-
     public DBSchemaImpl(ConnectionHandler connectionHandler, ResultSet resultSet) throws SQLException {
         super(connectionHandler.getObjectBundle(), DBContentType.NONE, resultSet);
     }
@@ -369,28 +367,6 @@ public class DBSchemaImpl extends DBObjectImpl implements DBSchema {
 
     public DBMethod getMethod(String name) {
         return getMethod(name, null);
-    }
-
-    public List<DBObject> getAllObjects() {
-        if (this.allObjects == null) {
-            allObjects = new ArrayList<DBObject>();
-            allObjects.addAll(getTables());
-            allObjects.addAll(getViews());
-            allObjects.addAll(getSynonyms());
-            allObjects.addAll(getSequences());
-            allObjects.addAll(getProcedures());
-            allObjects.addAll(getFunctions());
-            allObjects.addAll(getPackages());
-            allObjects.addAll(getTypes());
-            allObjects.addAll(getDimensions());
-            allObjects.addAll(getClusters());
-            allObjects.addAll(getDatabaseLinks());
-            allObjects.addAll(initChildObjects().getObjectList(DBObjectType.INDEX).getObjects());
-            allObjects.addAll(initChildObjects().getObjectList(DBObjectType.CONSTRAINT).getObjects());
-            allObjects.addAll(initChildObjects().getObjectList(DBObjectType.NESTED_TABLE).getObjects());
-            allObjects.addAll(initChildObjects().getObjectList(DBObjectType.TRIGGER).getObjects());
-        }
-        return allObjects;
     }
 
     public synchronized void refreshObjectsStatus() {
