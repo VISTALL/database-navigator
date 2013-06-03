@@ -19,7 +19,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
+import javax.swing.Icon;
 import java.util.List;
 
 public class SelectCurrentSchemaIntentionAction extends GenericIntentionAction {
@@ -51,7 +51,7 @@ public class SelectCurrentSchemaIntentionAction extends GenericIntentionAction {
         DBLanguageFile dbLanguageFile = (DBLanguageFile) psiFile;
 
         ConnectionHandler connectionHandler = dbLanguageFile.getActiveConnection();
-        if (connectionHandler != null) {
+        if (connectionHandler != null && !connectionHandler.isVirtual() && !connectionHandler.isDisposed()) {
             List<DBSchema> schemas = connectionHandler.getObjectBundle().getSchemas();
             for (DBSchema schema  :schemas) {
                 SelectSchemaAction schemaAction = new SelectSchemaAction(schema, dbLanguageFile);
