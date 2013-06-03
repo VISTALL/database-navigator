@@ -1,9 +1,11 @@
 package com.dci.intellij.dbn.language.psql.template;
 
+import com.dci.intellij.dbn.language.common.DBLanguage;
 import com.dci.intellij.dbn.language.common.psi.LeafPsiElement;
 import com.dci.intellij.dbn.language.common.psi.PsiUtil;
 import com.dci.intellij.dbn.language.psql.PSQLLanguage;
 import com.intellij.codeInsight.template.TemplateContextType;
+import com.intellij.lang.Language;
 import com.intellij.openapi.fileTypes.SyntaxHighlighter;
 import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NotNull;
@@ -16,11 +18,17 @@ public class PSQLTemplateContextType extends TemplateContextType {
 
     @Override
     public boolean isInContext(@NotNull PsiFile file, int offset) {
-        LeafPsiElement leafPsiElement = PsiUtil.lookupLeafBeforeOffset(file, offset);
-        if (leafPsiElement != null) {
-            return leafPsiElement.getLanguage() instanceof PSQLLanguage;
+        Language language = file.getLanguage();
+        if (language instanceof DBLanguage) {
+            // support PSQL in SQL language
+            LeafPsiElement leafPsiElement = PsiUtil.lookupLeafBeforeOffset(file, offset);
+            if (leafPsiElement != null) {
+                return leafPsiElement.getLanguage() instanceof PSQLLanguage;
+            } else {
+                return language instanceof PSQLLanguage;
+            }
         }
-        return file.getLanguage() instanceof PSQLLanguage;
+        return false;
     }
 
     @Nullable
