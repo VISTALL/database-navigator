@@ -79,7 +79,7 @@ public class DBTypeAttributeImpl extends DBObjectImpl implements DBTypeAttribute
         return objectNavigationLists;
     }
 
-    public int compareTo(Object o) {
+    public int compareTo(@NotNull Object o) {
         if (o instanceof DBTypeAttribute) {
             DBTypeAttribute typeAttribute = (DBTypeAttribute) o;
             if (getType().equals(typeAttribute.getType())) {

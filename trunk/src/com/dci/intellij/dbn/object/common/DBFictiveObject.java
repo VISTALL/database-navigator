@@ -63,6 +63,7 @@ public class DBFictiveObject extends DBObjectImpl implements PsiReference {
         return null;
     }
 
+    @NotNull
     public String getCanonicalText() {
         return null;
     }
@@ -79,6 +80,7 @@ public class DBFictiveObject extends DBObjectImpl implements PsiReference {
         return false;
     }
 
+    @NotNull
     public Object[] getVariants() {
         return new Object[0];
     }

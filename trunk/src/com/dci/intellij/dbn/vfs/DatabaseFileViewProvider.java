@@ -26,7 +26,7 @@ public class DatabaseFileViewProvider extends SingleRootFileViewProvider {
     }
 
     @Override
-    protected PsiFile getPsiInner(Language language) {
+    protected PsiFile getPsiInner(@NotNull Language language) {
         if (language instanceof DBLanguage) {
             VirtualFile virtualFile = getVirtualFile();
             if (virtualFile instanceof DatabaseObjectFile) {
@@ -68,7 +68,7 @@ public class DatabaseFileViewProvider extends SingleRootFileViewProvider {
 
     @NotNull
     @Override
-    public SingleRootFileViewProvider createCopy(VirtualFile copy) {
+    public SingleRootFileViewProvider createCopy(@NotNull VirtualFile copy) {
         return new DatabaseFileViewProvider(getManager(), copy, false, getBaseLanguage());
     }
 

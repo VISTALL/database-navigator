@@ -10,6 +10,7 @@ import com.dci.intellij.dbn.editor.data.filter.DatasetFilterType;
 import com.dci.intellij.dbn.object.DBDataset;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.AbstractAction;
@@ -61,6 +62,7 @@ public class DatasetFilterDialog extends DBNDialog {
         return filterGroup;
     }
 
+    @NotNull
     protected final Action[] createActions() {
         if (isAutomaticPrompt) {
             return new Action[]{

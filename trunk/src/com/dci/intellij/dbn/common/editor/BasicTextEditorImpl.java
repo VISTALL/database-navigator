@@ -36,11 +36,11 @@ public abstract class BasicTextEditorImpl<T extends VirtualFile> implements Basi
         return virtualFile;
     }
 
-    public <T> T getUserData(Key<T> key) {
+    public <T> T getUserData(@NotNull Key<T> key) {
         return textEditor.getUserData(key);
     }
 
-    public <T> void putUserData(Key<T> key, T value) {
+    public <T> void putUserData(@NotNull Key<T> key, T value) {
         textEditor.putUserData(key, value);
     }
 

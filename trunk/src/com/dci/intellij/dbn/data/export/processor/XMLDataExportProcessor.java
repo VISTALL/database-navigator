@@ -88,11 +88,15 @@ public class XMLDataExportProcessor extends DataExportProcessor{
 
     public void performExport(DataExportModel model, DataExportInstructions instructions, ConnectionHandler connectionHandler) throws DataExportException {
         StringBuilder buffer = new StringBuilder();
-        buffer.append("<table name=\"" + model.getTableName() + "\">\n");
+        buffer.append("<table name=\"");
+        buffer.append(model.getTableName());
+        buffer.append("\">\n");
         RegionalSettings regionalSettings = RegionalSettings.getInstance(connectionHandler.getProject());
 
         for (int rowIndex=0; rowIndex < model.getRowCount(); rowIndex++) {
-            buffer.append("    <row index=\"" + rowIndex + "\">\n");
+            buffer.append("    <row index=\"");
+            buffer.append(rowIndex);
+            buffer.append("\">\n");
             for (int columnIndex=0; columnIndex < model.getColumnCount(); columnIndex++){
                 String columnName = model.getColumnName(columnIndex);
                 BasicDataType basicDataType = model.getBasicDataType(columnIndex);
@@ -124,7 +128,9 @@ public class XMLDataExportProcessor extends DataExportProcessor{
                 boolean isCDATA = StringUtil.containsOneOf(value, "\n", "<", ">");
                 boolean isWrap = value.length() > 100 || isCDATA;
 
-                buffer.append("        <column name=\"" + columnName + "\">");
+                buffer.append("        <column name=\"");
+                buffer.append(columnName);
+                buffer.append("\">");
                 if (isWrap) {
                     value = ("\n" + value);//.replace("\n", "\n            ");
                 }

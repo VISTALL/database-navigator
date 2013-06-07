@@ -1,8 +1,16 @@
 package com.dci.intellij.dbn.common.list;
 
 import com.dci.intellij.dbn.common.filter.Filter;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
 
 public class FiltrableList<T> implements List<T> {
     private List<T> list;
@@ -32,10 +40,10 @@ public class FiltrableList<T> implements List<T> {
     // update methods should not be affected by filtering
     public void sort(Comparator<T> comparator)          {Collections.sort(list, comparator);}
     public boolean add(T o)                             {return list.add(o);}
-    public boolean addAll(Collection<? extends T> c)    {return list.addAll(c);}
+    public boolean addAll(@NotNull Collection<? extends T> c)    {return list.addAll(c);}
     public boolean remove(Object o)                     {return list.remove(o);}
-    public boolean removeAll(Collection c)              {return list.removeAll(c);}
-    public boolean retainAll(Collection c)              {return list.retainAll(c);}
+    public boolean removeAll(@NotNull Collection c)              {return list.removeAll(c);}
+    public boolean retainAll(@NotNull Collection c)              {return list.retainAll(c);}
     public void clear()                                 {list.clear();}
     public boolean isEmpty()                            {return size() == 0;}
 
@@ -55,6 +63,7 @@ public class FiltrableList<T> implements List<T> {
         }
     }
 
+    @NotNull
     public Iterator<T> iterator(){
         if (isFiltered()) {
             return new Iterator<T>() {
@@ -84,6 +93,7 @@ public class FiltrableList<T> implements List<T> {
         }
     }
 
+    @NotNull
     public Object[] toArray() {
         if (isFiltered()) {
             List<T> result = new ArrayList<T>();
@@ -94,6 +104,7 @@ public class FiltrableList<T> implements List<T> {
         }
     }
 
+    @NotNull
     public <E> E[] toArray(E[] e) {
         if (isFiltered()) {
             List<T> result = new ArrayList<T>();
@@ -222,7 +233,10 @@ public class FiltrableList<T> implements List<T> {
         }
     }
 
+    @NotNull
     public ListIterator<T> listIterator()               {throw new UnsupportedOperationException("List iterator not implemented in filtrable list");}
+    @NotNull
     public ListIterator<T> listIterator(int index)      {throw new UnsupportedOperationException("List iterator not implemented in filtrable list");}
+    @NotNull
     public List<T> subList(int fromIndex, int toIndex)  {throw new UnsupportedOperationException("Sublist not implemented in filtrable list");}
 }

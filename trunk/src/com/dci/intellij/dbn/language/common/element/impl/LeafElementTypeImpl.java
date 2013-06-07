@@ -17,6 +17,7 @@ import gnu.trove.THashSet;
 import org.jdom.Element;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Set;
 
 public abstract class LeafElementTypeImpl extends AbstractElementType implements LeafElementType {
@@ -144,9 +145,7 @@ public abstract class LeafElementTypeImpl extends AbstractElementType implements
             } else if (elementType instanceof IterationElementType) {
                 IterationElementType iteration = (IterationElementType) elementType;
                 TokenElementType[] separatorTokens = iteration.getSeparatorTokens();
-                for (TokenElementType separatorToken : separatorTokens) {
-                    requiredLeafs.add(separatorToken);
-                }
+                Collections.addAll(requiredLeafs, separatorTokens);
             }
             if (pathNode != null) {
                 index = pathNode.getIndexInParent();

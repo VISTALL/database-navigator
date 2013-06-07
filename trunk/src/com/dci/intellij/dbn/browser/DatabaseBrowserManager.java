@@ -260,7 +260,7 @@ public class DatabaseBrowserManager extends AbstractProjectComponent implements 
     }
 
     private FileEditorManagerListener fileEditorManagerListener = new FileEditorManagerAdapter() {
-        public void fileOpened(FileEditorManager source, VirtualFile file) {
+        public void fileOpened(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
             if (scroll()) {
                 if (file instanceof DatabaseEditableObjectFile) {
                     DatabaseEditableObjectFile databaseFile = (DatabaseEditableObjectFile) file;
@@ -269,7 +269,7 @@ public class DatabaseBrowserManager extends AbstractProjectComponent implements 
             }
         }
 
-        public void selectionChanged(FileEditorManagerEvent event) {
+        public void selectionChanged(@NotNull FileEditorManagerEvent event) {
             if (scroll()) {
                 VirtualFile newFile = event.getNewFile();
                 VirtualFile oldFile = event.getOldFile();

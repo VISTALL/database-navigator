@@ -118,7 +118,7 @@ public abstract class DBMethodImpl extends DBSchemaObjectImpl implements DBMetho
     }
 
     @Override
-    public int compareTo(Object o) {
+    public int compareTo(@NotNull Object o) {
         int result = super.compareTo(o);
         if (result == 0) {
             DBMethod method = (DBMethod) o;

@@ -8,6 +8,7 @@ import com.intellij.openapi.editor.event.EditorFactoryEvent;
 import com.intellij.openapi.editor.event.EditorFactoryListener;
 import com.intellij.openapi.util.Key;
 import com.intellij.psi.PsiFile;
+import org.jetbrains.annotations.NotNull;
 
 
 public class CodeCompletionEditorFactoryListener implements EditorFactoryListener {
@@ -16,7 +17,7 @@ public class CodeCompletionEditorFactoryListener implements EditorFactoryListene
     private static final String YES = "YES";
     private static final String NO = "NO";
 
-    public void editorCreated(EditorFactoryEvent event) {
+    public void editorCreated(@NotNull EditorFactoryEvent event) {
         Editor editor = event.getEditor();
         Document document = editor.getDocument();
         if (!isListenerAdded(document)) {
@@ -28,7 +29,7 @@ public class CodeCompletionEditorFactoryListener implements EditorFactoryListene
         }
     }
 
-    public void editorReleased(EditorFactoryEvent event) {
+    public void editorReleased(@NotNull EditorFactoryEvent event) {
         Editor editor = event.getEditor();
         Document document = editor.getDocument();
 

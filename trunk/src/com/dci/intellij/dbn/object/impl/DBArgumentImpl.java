@@ -144,7 +144,7 @@ public class DBArgumentImpl extends DBObjectImpl implements DBArgument {
         return DBObjectType.ARGUMENT;
     }
 
-    public int compareTo(Object o) {
+    public int compareTo(@NotNull Object o) {
         if (o instanceof DBArgument) {
             DBArgument argument = (DBArgument) o;
             DBMethod thisMethod = getMethod();

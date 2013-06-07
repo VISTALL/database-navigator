@@ -3,6 +3,7 @@ package com.dci.intellij.dbn.editor.data.sorting.ui;
 import com.dci.intellij.dbn.common.ui.dialog.DBNDialog;
 import com.dci.intellij.dbn.editor.data.sorting.DatasetSortingState;
 import com.dci.intellij.dbn.object.DBDataset;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Action;
@@ -24,6 +25,7 @@ public class DatasetSortingDialog extends DBNDialog {
         return "DBNavigator.DatasetSorting";
     }
 
+    @NotNull
     protected final Action[] createActions() {
         return new Action[]{
                 getOKAction(),
