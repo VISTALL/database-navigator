@@ -209,15 +209,15 @@ public class DatabaseFileSystem extends VirtualFileSystem implements Application
     }
 
     @Nullable
-    public VirtualFile refreshAndFindFileByPath(String s) {
+    public VirtualFile refreshAndFindFileByPath(@NotNull String s) {
         return null;
     }
 
-    public void addVirtualFileListener(VirtualFileListener listener) {
+    public void addVirtualFileListener(@NotNull VirtualFileListener listener) {
 
     }
 
-    public void removeVirtualFileListener(VirtualFileListener listener) {
+    public void removeVirtualFileListener(@NotNull VirtualFileListener listener) {
 
     }
 
@@ -225,27 +225,27 @@ public class DatabaseFileSystem extends VirtualFileSystem implements Application
 
     }
 
-    protected void deleteFile(Object o, VirtualFile virtualFile) throws IOException {
+    protected void deleteFile(Object o, @NotNull VirtualFile virtualFile) throws IOException {
         throw new UnsupportedOperationException(ERR);
     }
 
-    protected void moveFile(Object o, VirtualFile virtualFile, VirtualFile virtualFile1) throws IOException {
+    protected void moveFile(Object o, @NotNull VirtualFile virtualFile, @NotNull VirtualFile virtualFile1) throws IOException {
         throw new UnsupportedOperationException(ERR);
     }
 
-    protected void renameFile(Object o, VirtualFile virtualFile, String s) throws IOException {
+    protected void renameFile(Object o, @NotNull VirtualFile virtualFile, @NotNull String s) throws IOException {
         throw new UnsupportedOperationException(ERR);
     }
 
-    protected VirtualFile createChildFile(Object o, VirtualFile virtualFile, String s) throws IOException {
+    protected VirtualFile createChildFile(Object o, @NotNull VirtualFile virtualFile, @NotNull String s) throws IOException {
         throw new UnsupportedOperationException(ERR);
     }
 
-    protected VirtualFile createChildDirectory(Object o, VirtualFile virtualFile, String s) throws IOException {
+    protected VirtualFile createChildDirectory(Object o, @NotNull VirtualFile virtualFile, @NotNull String s) throws IOException {
         throw new UnsupportedOperationException(ERR);
     }
 
-    protected VirtualFile copyFile(Object o, VirtualFile virtualFile, VirtualFile virtualFile1, String s) throws IOException {
+    protected VirtualFile copyFile(Object o, @NotNull VirtualFile virtualFile, @NotNull VirtualFile virtualFile1, @NotNull String s) throws IOException {
         throw new UnsupportedOperationException(ERR);
     }
 
@@ -357,21 +357,21 @@ public class DatabaseFileSystem extends VirtualFileSystem implements Application
         fileEditorManager.openFile(virtualFile, true);
     }
 
-    public void fileOpened(FileEditorManager source, VirtualFile file) {
+    public void fileOpened(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
         if (file instanceof DatabaseEditableObjectFile) {
             DatabaseEditableObjectFile databaseFile = (DatabaseEditableObjectFile) file;
             openFiles.put(databaseFile.getObjectIdentifier(), databaseFile);
         }
     }
 
-    public void fileClosed(FileEditorManager source, VirtualFile file) {
+    public void fileClosed(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
         if (file instanceof DatabaseEditableObjectFile) {
             DatabaseEditableObjectFile databaseFile = (DatabaseEditableObjectFile) file;
             openFiles.remove(databaseFile.getObjectIdentifier());
         }
     }
 
-    public void selectionChanged(FileEditorManagerEvent event) {
+    public void selectionChanged(@NotNull FileEditorManagerEvent event) {
 
     }
 

@@ -100,6 +100,7 @@ public class DBProgramDebugProcess extends XDebugProcess {
         return breakpointHandlers;
     }
 
+    @NotNull
     @Override
     public XDebuggerEditorsProvider getEditorsProvider() {
         return DBProgramDebuggerEditorsProvider.INSTANCE;

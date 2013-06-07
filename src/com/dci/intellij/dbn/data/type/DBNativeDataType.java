@@ -4,6 +4,7 @@ import com.dci.intellij.dbn.common.content.DynamicContent;
 import com.dci.intellij.dbn.common.content.DynamicContentElement;
 import com.dci.intellij.dbn.data.value.BlobValue;
 import com.dci.intellij.dbn.data.value.ClobValue;
+import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
 import java.sql.Date;
@@ -166,7 +167,7 @@ public class DBNativeDataType implements DynamicContentElement {
 
     }
 
-    public int compareTo(Object o) {
+    public int compareTo(@NotNull Object o) {
         DBNativeDataType remote = (DBNativeDataType) o;
         return getName().compareTo(remote.getName());
     }

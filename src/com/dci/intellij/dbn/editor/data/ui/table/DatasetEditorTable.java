@@ -220,7 +220,7 @@ public class DatasetEditorTable extends ResultSetTable {
     }
 
     @Override
-    public String getToolTipText(MouseEvent event) {
+    public String getToolTipText(@NotNull MouseEvent event) {
         DataModelCell cell = getCellAtLocation(event.getPoint());
         if (cell instanceof DatasetEditorModelCell) {
             DatasetEditorModelCell editorTableCell = (DatasetEditorModelCell) cell;

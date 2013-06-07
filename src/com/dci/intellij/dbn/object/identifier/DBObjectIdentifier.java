@@ -4,6 +4,7 @@ import com.dci.intellij.dbn.connection.ConnectionCache;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.object.common.DBObject;
 import com.dci.intellij.dbn.object.common.DBObjectType;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -98,7 +99,7 @@ public class DBObjectIdentifier<T extends DBObject> implements Comparable {
     }
 
     @Override
-    public int compareTo(Object o) {
+    public int compareTo(@NotNull Object o) {
         if (o instanceof DBObjectIdentifier) {
             DBObjectIdentifier that = (DBObjectIdentifier) o;
             int result = this.connectionId.compareTo(that.getConnectionId());

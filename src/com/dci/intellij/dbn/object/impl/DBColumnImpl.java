@@ -312,7 +312,7 @@ public class DBColumnImpl extends DBObjectImpl implements DBColumn {
         return BrowserTreeNode.EMPTY_LIST;
     }
 
-    public int compareTo(Object o) {
+    public int compareTo(@NotNull Object o) {
         if (o instanceof DBColumn)  {
             DBColumn column = (DBColumn) o;
             if (getDataset().equals(column.getDataset())) {

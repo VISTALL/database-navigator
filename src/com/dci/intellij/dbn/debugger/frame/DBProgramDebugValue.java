@@ -73,7 +73,7 @@ public class DBProgramDebugValue extends XValue implements Comparable<DBProgramD
         return modifier;
     }
 
-    public int compareTo(DBProgramDebugValue remote) {
+    public int compareTo(@NotNull DBProgramDebugValue remote) {
         return variableName.compareTo(remote.variableName);
     }
 }

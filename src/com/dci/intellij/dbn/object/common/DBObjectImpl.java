@@ -660,7 +660,7 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
         return getConnectionHandler().getProject();
     }
 
-    public int compareTo(Object o) {
+    public int compareTo(@NotNull Object o) {
         if (o instanceof DBObject) {
             DBObject object = (DBObject) o;
             return identifier.compareTo(object.getIdentifier());

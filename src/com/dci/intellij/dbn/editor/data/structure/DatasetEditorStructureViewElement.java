@@ -11,6 +11,7 @@ import com.dci.intellij.dbn.object.common.DBObjectBundle;
 import com.intellij.ide.structureView.StructureViewTreeElement;
 import com.intellij.navigation.ItemPresentation;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
@@ -117,7 +118,7 @@ public class DatasetEditorStructureViewElement implements StructureViewTreeEleme
         return treeNode instanceof DBColumn && !datasetEditor.isDisposed() && datasetEditor.getEditorTable().getRowCount() > 0;
     }
 
-    public int compareTo(Object o) {
+    public int compareTo(@NotNull Object o) {
         DatasetEditorStructureViewElement desve = (DatasetEditorStructureViewElement) o;
         if (treeNode instanceof DBColumn && desve.treeNode instanceof DBColumn) {
             DBColumn thisColumn = (DBColumn) treeNode;

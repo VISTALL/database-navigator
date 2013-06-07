@@ -5,6 +5,7 @@ import com.intellij.openapi.Disposable;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +22,7 @@ public class DatabaseLoaderQueue extends Task.Modal implements Disposable {
         queue.add(task);
     }
 
-    public void run(ProgressIndicator indicator) {
+    public void run(@NotNull ProgressIndicator indicator) {
         while (queue.size() > 0) {
             Runnable task = queue.remove(0);
             task.run();

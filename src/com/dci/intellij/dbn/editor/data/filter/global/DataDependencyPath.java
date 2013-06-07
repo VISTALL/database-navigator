@@ -41,7 +41,9 @@ public class DataDependencyPath {
         StringBuilder buffer = new StringBuilder();
         DBColumn lastElement = pathElements.get(pathElements.size() - 1);
         for (DBColumn pathElement : pathElements) {
-            buffer.append(pathElement.getDataset().getName() + "." + pathElement.getName());
+            buffer.append(pathElement.getDataset().getName());
+            buffer.append(".");
+            buffer.append(pathElement.getName());
             if (lastElement != pathElement) {
                 buffer.append(" > ");
             }

@@ -12,7 +12,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.StringTokenizer;
 
 public class DBLanguageElementSignatureProvider implements ElementSignatureProvider {
-    public String getSignature(PsiElement psiElement) {
+    public String getSignature(@NotNull PsiElement psiElement) {
         if (psiElement.getContainingFile() instanceof DBLanguageFile) {
             TextRange textRange = psiElement.getTextRange();
             String offsets = textRange.getStartOffset() + "#" + textRange.getEndOffset();

@@ -290,7 +290,7 @@ public class DBTypeImpl extends DBProgramImpl implements DBType {
     }
 
     @Override
-    public int compareTo(Object o) {
+    public int compareTo(@NotNull Object o) {
         if (o instanceof DBType) {
             DBType type = (DBType) o;
             if (getParentObject().equals(type.getParentObject())) {

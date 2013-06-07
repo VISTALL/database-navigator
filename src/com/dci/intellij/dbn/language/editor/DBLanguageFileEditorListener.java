@@ -8,11 +8,12 @@ import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
 import com.intellij.openapi.fileEditor.FileEditorManagerListener;
 import com.intellij.openapi.vfs.VirtualFile;
+import org.jetbrains.annotations.NotNull;
 
 import java.awt.BorderLayout;
 
 public class DBLanguageFileEditorListener implements FileEditorManagerListener{
-    public void fileOpened(FileEditorManager source, VirtualFile file) {
+    public void fileOpened(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
         if (file.isInLocalFileSystem() && file.getFileType() instanceof DBLanguageFileType) {
             FileEditor fileEditor = source.getSelectedEditor(file);
             if (fileEditor != null) {
@@ -24,7 +25,7 @@ public class DBLanguageFileEditorListener implements FileEditorManagerListener{
         }
     }
 
-    public void fileClosed(FileEditorManager source, VirtualFile file) {
+    public void fileClosed(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
         if (file.isInLocalFileSystem() && file.getFileType() instanceof DBLanguageFileType) {
             FileEditor editor = source.getSelectedEditor(file);
             if (editor != null) {
@@ -37,6 +38,6 @@ public class DBLanguageFileEditorListener implements FileEditorManagerListener{
 
     }
 
-    public void selectionChanged(FileEditorManagerEvent event) {
+    public void selectionChanged(@NotNull FileEditorManagerEvent event) {
     }
 }

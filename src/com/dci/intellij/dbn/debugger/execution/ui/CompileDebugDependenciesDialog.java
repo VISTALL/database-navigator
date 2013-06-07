@@ -5,6 +5,7 @@ import com.dci.intellij.dbn.debugger.execution.DBProgramRunConfiguration;
 import com.dci.intellij.dbn.object.DBMethod;
 import com.dci.intellij.dbn.object.DBProgram;
 import com.dci.intellij.dbn.object.common.DBSchemaObject;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.AbstractAction;
@@ -31,6 +32,7 @@ public class CompileDebugDependenciesDialog extends DBNDialog {
         return  null;//"DBNavigator.CompileDependencies";
     }
 
+    @NotNull
     protected final Action[] createActions() {
         return new Action[]{
                 new CompileAllAction(),

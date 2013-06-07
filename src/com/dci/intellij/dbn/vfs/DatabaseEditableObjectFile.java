@@ -192,7 +192,7 @@ public class DatabaseEditableObjectFile extends DatabaseObjectFile<DBSchemaObjec
     }
 
     @Override
-    public <T> T getUserData(Key<T> key) {
+    public <T> T getUserData(@NotNull Key<T> key) {
         if (key == FileDocumentManagerImpl.DOCUMENT_KEY) {
             DBContentType mainContentType = getMainContentType();
             boolean isCode = mainContentType == DBContentType.CODE || mainContentType == DBContentType.CODE_BODY;

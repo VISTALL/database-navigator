@@ -4,6 +4,7 @@ import com.dci.intellij.dbn.common.ui.dialog.DBNDialog;
 import com.dci.intellij.dbn.ddl.DDLFileAttachmentManager;
 import com.dci.intellij.dbn.object.common.DBSchemaObject;
 import com.intellij.openapi.vfs.VirtualFile;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.AbstractAction;
@@ -31,6 +32,7 @@ public class AttachDDLFileDialog extends DBNDialog {
         return "DBNavigator.DDLFileBinding";
     }
 
+    @NotNull
     protected final Action[] createActions() {
         return new Action[]{
                 getOKAction(),

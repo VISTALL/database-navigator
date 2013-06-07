@@ -100,7 +100,7 @@ public class DBModuleBuilder extends ModuleBuilder /*implements SourcePathsBuild
     }
 
     @NotNull
-    public Module createModule(ModifiableModuleModel moduleModel) throws InvalidDataException, IOException, ModuleWithNameAlreadyExists, JDOMException, ConfigurationException {
+    public Module createModule(@NotNull ModifiableModuleModel moduleModel) throws InvalidDataException, IOException, ModuleWithNameAlreadyExists, JDOMException, ConfigurationException {
         Module module = super.createModule(moduleModel);
         ModuleConnectionBundle connectionManager = ModuleConnectionBundle.getInstance(module);
         connectionManager.setModified(true);

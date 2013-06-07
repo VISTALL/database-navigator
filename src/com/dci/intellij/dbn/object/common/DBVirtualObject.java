@@ -194,6 +194,7 @@ public class DBVirtualObject extends DBObjectImpl implements PsiReference {
         return relevantPsiElement;
     }
 
+    @NotNull
     public String getCanonicalText() {
         return null;
     }
@@ -210,6 +211,7 @@ public class DBVirtualObject extends DBObjectImpl implements PsiReference {
         return underlyingPsiElement == element;
     }
 
+    @NotNull
     public Object[] getVariants() {
         return new Object[0];
     }
