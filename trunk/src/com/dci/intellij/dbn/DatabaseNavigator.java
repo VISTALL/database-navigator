@@ -1,6 +1,5 @@
 package com.dci.intellij.dbn;
 
-import com.dci.intellij.dbn.code.common.completion.CodeCompletionEditorFactoryListener;
 import com.dci.intellij.dbn.common.Constants;
 import com.dci.intellij.dbn.common.options.setting.SettingsUtil;
 import com.dci.intellij.dbn.common.options.ui.ConfigurationEditorForm;
@@ -13,7 +12,6 @@ import com.intellij.notification.NotificationDisplayType;
 import com.intellij.notification.NotificationGroup;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ApplicationComponent;
-import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.InvalidDataException;
 import com.intellij.openapi.util.JDOMExternalizable;
@@ -44,11 +42,10 @@ public class DatabaseNavigator implements ApplicationComponent, JDOMExternalizab
 
     public void initComponent() {
         //ModuleTypeManager.getInstance().registerModuleType(DBModuleType.MODULE_TYPE);
-        EditorFactory.getInstance().addEditorFactoryListener(new CodeCompletionEditorFactoryListener());
 
         //FileTypeManager.getInstance().registerFileType(SQLFileType.INSTANCE, "sql");
         //FileTypeManager.getInstance().registerFileType(PSQLFileType.INSTANCE, "psql");
-        resolvePluginConflict();
+        //resolvePluginConflict();
 
         FileTemplateManager templateManager = FileTemplateManager.getInstance();
         if (templateManager.getTemplate("SQL Script") == null) {
