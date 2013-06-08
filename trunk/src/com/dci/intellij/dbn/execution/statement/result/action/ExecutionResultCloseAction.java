@@ -14,7 +14,7 @@ public class ExecutionResultCloseAction extends AbstractExecutionResultAction {
     @Override
     public void actionPerformed(AnActionEvent e) {
         StatementExecutionCursorResult executionResult = getExecutionResult(e);
-        if (executionResult != null) {
+        if (executionResult != null && executionResult.getProject() != null) {
             Project project = executionResult.getProject();
             ExecutionManager executionManager = ExecutionManager.getInstance(project);
             executionManager.removeResultTab(executionResult);
