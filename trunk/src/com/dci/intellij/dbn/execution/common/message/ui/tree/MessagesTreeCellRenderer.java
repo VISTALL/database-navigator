@@ -38,7 +38,7 @@ public class MessagesTreeCellRenderer extends ColoredTreeCellRenderer {
             DBSchemaObject object = compilerMessagesObjectNode.getObject();
 
             setIcon(object.getOriginalIcon());
-            append(object.getSchema().getName() + "." + object.getName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
+            append(object.getQualifiedName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
             append(" - " + object.getConnectionHandler().getPresentableText(), SimpleTextAttributes.GRAY_ATTRIBUTES);
         }
         else if (value instanceof CompilerMessageNode) {
