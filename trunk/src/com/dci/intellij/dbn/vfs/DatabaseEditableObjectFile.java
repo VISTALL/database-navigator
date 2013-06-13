@@ -157,7 +157,8 @@ public class DatabaseEditableObjectFile extends DatabaseObjectFile<DBSchemaObjec
      *********************************************************/
     @NotNull
     public FileType getFileType() {
-        DDLFileType type = getObject().getDDLFileType(null);
+        DBSchemaObject object = getObject();
+        DDLFileType type = object == null ? null : object.getDDLFileType(null);
         return type == null ? SQLFileType.INSTANCE : type.getLanguageFileType();
     }
 
