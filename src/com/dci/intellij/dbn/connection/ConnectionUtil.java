@@ -97,7 +97,7 @@ public class ConnectionUtil {
             databaseSettings.setConnectivityStatus(ConnectivityStatus.VALID);
 
             return connection;
-        } catch (Exception e) {
+        } catch (Throwable e) {
             databaseSettings.setConnectivityStatus(ConnectivityStatus.INVALID);
             if (connectionStatus != null) {
                 connectionStatus.setStatusMessage(e.getMessage());
