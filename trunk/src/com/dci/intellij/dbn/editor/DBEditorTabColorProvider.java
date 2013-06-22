@@ -5,6 +5,7 @@ import com.dci.intellij.dbn.common.environment.options.EnvironmentSettings;
 import com.dci.intellij.dbn.common.environment.options.EnvironmentVisibilitySettings;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.mapping.FileConnectionMappingManager;
+import com.dci.intellij.dbn.language.common.DBLanguageFileType;
 import com.dci.intellij.dbn.options.general.GeneralProjectSettings;
 import com.dci.intellij.dbn.vfs.DatabaseObjectFile;
 import com.dci.intellij.dbn.vfs.SQLConsoleFile;
@@ -20,24 +21,27 @@ public class DBEditorTabColorProvider implements EditorTabColorProvider{
 
     @Override
     public Color getEditorTabColor(Project project, VirtualFile file) {
-        ConnectionHandler connectionHandler = getConnectionHandler(file, project);
-        if (connectionHandler == null) {
-            return null;
-        } else {
-            EnvironmentSettings environmentSettings = GeneralProjectSettings.getInstance(connectionHandler.getProject()).getEnvironmentSettings();
-            EnvironmentVisibilitySettings visibilitySettings = environmentSettings.getVisibilitySettings();
-            EnvironmentType environmentType = connectionHandler.getEnvironmentType();
-            if (file instanceof SQLConsoleFile || file instanceof DatabaseObjectFile) {
-                if (visibilitySettings.getObjectEditorTabs().value()) {
-                    return environmentType == null ? null : environmentType.getColor();
-                }
+        if (file.getFileType() instanceof DBLanguageFileType) {
+            ConnectionHandler connectionHandler = getConnectionHandler(file, project);
+            if (connectionHandler == null) {
+                return null;
             } else {
-                if (visibilitySettings.getScriptEditorTabs().value()) {
-                    return environmentType == null ? null : environmentType.getColor();
+                EnvironmentSettings environmentSettings = GeneralProjectSettings.getInstance(connectionHandler.getProject()).getEnvironmentSettings();
+                EnvironmentVisibilitySettings visibilitySettings = environmentSettings.getVisibilitySettings();
+                EnvironmentType environmentType = connectionHandler.getEnvironmentType();
+                if (file instanceof SQLConsoleFile || file instanceof DatabaseObjectFile) {
+                    if (visibilitySettings.getObjectEditorTabs().value()) {
+                        return environmentType == null ? null : environmentType.getColor();
+                    }
+                } else {
+                    if (visibilitySettings.getScriptEditorTabs().value()) {
+                        return environmentType == null ? null : environmentType.getColor();
+                    }
                 }
+                return null;
             }
-            return null;
         }
+        return null;
     }
     
     public static ConnectionHandler getConnectionHandler(VirtualFile file, Project project) {
