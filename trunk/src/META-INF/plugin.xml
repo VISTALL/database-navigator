@@ -2,7 +2,7 @@
     <name>Database Navigator</name>
     <id>DBN</id>
     <!--2250-->
-    <version>3.0.2591</version>
+    <version>3.0.2601</version>
     <category>Database</category>
     <depends>com.intellij.modules.lang</depends>
     <vendor email="dancioca@bluewin.ch" logo="/img/v0/project/DatabaseNavigator.png">Dan Cioca</vendor>
@@ -26,9 +26,8 @@
     ]]></description>
     <change-notes><![CDATA[
         <ul>
-            <li><b>3.0.2591 (Recommended update)</b>
+            <li><b>3.0.2601</b>
              <ul>
-                - Fixed serious IDE performance issue <a href="http://dci.myjetbrains.com/youtrack/issue/DBN-68">DBN-68</a><br>
                 - Live Templates Ctrl-J (work in progress)<br>
                 - "About" page (with "donate" link) <br>
                 - Multiple column sorting (work in progress - not released)<br>
