@@ -36,7 +36,7 @@ public class MessagesTree extends DBNTree implements TreeSelectionListener, Mous
         setRootVisible(false);
         setShowsRootHandles(true);
         Color bgColor = TextAttributesUtil.getSimpleTextAttributes(DataGridTextAttributesKeys.PLAIN_DATA).getBgColor();
-        setBackground(bgColor == null ? UIUtil.getTreeBackground() : bgColor);
+        setBackground(bgColor == null ? UIUtil.getTableBackground() : bgColor);
     }
 
     public MessagesTreeModel getModel() {

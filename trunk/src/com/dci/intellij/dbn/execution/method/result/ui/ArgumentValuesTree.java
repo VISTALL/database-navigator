@@ -27,7 +27,7 @@ public class ArgumentValuesTree extends DBNTree{
         this.parentForm = parentForm;
         setCellRenderer(new CellRenderer());
         Color bgColor = TextAttributesUtil.getSimpleTextAttributes(DataGridTextAttributesKeys.PLAIN_DATA).getBgColor();
-        setBackground(bgColor == null ? UIUtil.getTreeBackground() : bgColor);
+        setBackground(bgColor == null ? UIUtil.getTableBackground() : bgColor);
 
         addMouseListener(mouseAdapter);
     }
