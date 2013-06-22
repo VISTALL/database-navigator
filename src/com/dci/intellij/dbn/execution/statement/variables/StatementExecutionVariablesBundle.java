@@ -92,14 +92,17 @@ public class StatementExecutionVariablesBundle {
                 }
 
                 if (bucket.size() == 1) {
-                    IdentifierPsiElement columnPsiElement = (IdentifierPsiElement) bucket.toArray()[0];
-                    DBObject object = columnPsiElement.resolveUnderlyingObject();
-                    if (object != null && object instanceof DBColumn) {
-                        DBColumn column = (DBColumn) object;
-                        return column.getDataType();
-                    } else {
-                        return null;
+                    Object psiElement = bucket.toArray()[0];
+                    if (psiElement instanceof IdentifierPsiElement) {
+                        IdentifierPsiElement columnPsiElement = (IdentifierPsiElement) psiElement;
+                        DBObject object = columnPsiElement.resolveUnderlyingObject();
+                        if (object != null && object instanceof DBColumn) {
+                            DBColumn column = (DBColumn) object;
+                            return column.getDataType();
+                        }
+
                     }
+                    return null;
                 }
             }
 
