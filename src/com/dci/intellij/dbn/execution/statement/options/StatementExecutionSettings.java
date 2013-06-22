@@ -11,6 +11,7 @@ import org.jdom.Element;
 public class StatementExecutionSettings extends Configuration{
     private int resultSetFetchBlockSize = 100;
     private int executionTimeout = 20;
+    private boolean focusResult = false;
 
     public String getDisplayName() {
         return "Data editor general settings";
@@ -40,6 +41,14 @@ public class StatementExecutionSettings extends Configuration{
         this.executionTimeout = executionTimeout;
     }
 
+    public void setFocusResult(boolean focusResult) {
+        this.focusResult = focusResult;
+    }
+
+    public boolean isFocusResult() {
+        return focusResult;
+    }
+
     /****************************************************
      *                   Configuration                  *
      ****************************************************/
@@ -55,11 +64,13 @@ public class StatementExecutionSettings extends Configuration{
     public void readConfiguration(Element element) throws InvalidDataException {
         resultSetFetchBlockSize = SettingsUtil.getInteger(element, "fetch-block-size", resultSetFetchBlockSize);
         executionTimeout = SettingsUtil.getInteger(element, "execution-timeout", executionTimeout);
+        focusResult = SettingsUtil.getBoolean(element, "focus-result", focusResult);
 
     }
 
     public void writeConfiguration(Element element) throws WriteExternalException {
         SettingsUtil.setInteger(element, "fetch-block-size", resultSetFetchBlockSize);
         SettingsUtil.setInteger(element, "execution-timeout", executionTimeout);
+        SettingsUtil.setBoolean(element, "focus-result", focusResult);
     }
 }
