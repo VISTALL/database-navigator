@@ -24,7 +24,7 @@ public interface StatementExecutionResult extends ExecutionResult, Disposable {
     void updateExecutionMessage(MessageType messageType, String message);
     void clearExecutionMessage();
 
-    void navigateToEditor();
+    void navigateToEditor(boolean requestFocus);
 
     StatementViewerPopup getStatementViewerPopup();
     void setStatementViewerPopup(StatementViewerPopup statementViewerPopup);

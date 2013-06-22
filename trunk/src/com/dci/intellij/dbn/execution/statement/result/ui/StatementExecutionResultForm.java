@@ -114,9 +114,9 @@ public class StatementExecutionResultForm extends DBNFormImpl implements Executi
         }
     }
 
-    public void focus() {
+    public void show() {
         Project project = executionResult.getProject();
-        ExecutionManager.getInstance(project).focusResultTab(executionResult);
+        ExecutionManager.getInstance(project).selectResultTab(executionResult);
     }
 
     public JPanel getComponent() {

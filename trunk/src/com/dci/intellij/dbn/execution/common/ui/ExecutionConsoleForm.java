@@ -120,7 +120,7 @@ public class ExecutionConsoleForm extends DBNFormImpl implements DBNForm, Enviro
                             StatementExecutionResult statementExecutionResult = (StatementExecutionResult) executionResult;
                             Icon icon = statementExecutionResult.isOrphan() ? Icons.STMT_EXEC_RESULTSET_ORPHAN : Icons.STMT_EXEC_RESULTSET;
                             newSelection.setIcon(icon);
-                            statementExecutionResult.navigateToEditor();
+                            statementExecutionResult.navigateToEditor(false);
                         }
                     }
 
@@ -256,7 +256,7 @@ public class ExecutionConsoleForm extends DBNFormImpl implements DBNForm, Enviro
      *********************************************************/
     public void showResultTab(ExecutionResult executionResult) {
         if (containsResultTab(executionResult)) {
-            focusResultTab(executionResult);
+            selectResultTab(executionResult);
         } else {
             addResultTab(executionResult);
         }
@@ -277,7 +277,7 @@ public class ExecutionConsoleForm extends DBNFormImpl implements DBNForm, Enviro
         String name = executionResult.getResultName();
         Icon icon = executionResult.getResultIcon();
 
-        focusResultTab(tabInfo, name, icon);
+        selectResultTab(tabInfo, name, icon);
     }
 
     public boolean containsResultTab(ExecutionResult executionProcessor) {
@@ -299,14 +299,14 @@ public class ExecutionConsoleForm extends DBNFormImpl implements DBNForm, Enviro
         }
     }
 
-    public void focusResultTab(ExecutionResult executionResult) {
+    public void selectResultTab(ExecutionResult executionResult) {
         executionResult.getResultPanel().setExecutionResult(executionResult);
         JComponent component = executionResult.getResultPanel().getComponent();
         TabInfo tabInfo = resultTabs.findInfo(component);
         String name = executionResult.getResultName();
         Icon icon = executionResult.getResultIcon();
 
-        focusResultTab(tabInfo, name, icon);
+        selectResultTab(tabInfo, name, icon);
     }
 
     /*********************************************************
@@ -322,7 +322,7 @@ public class ExecutionConsoleForm extends DBNFormImpl implements DBNForm, Enviro
         return false;
     }
 
-    private void focusResultTab(TabInfo tabInfo, String text, Icon icon) {
+    private void selectResultTab(TabInfo tabInfo, String text, Icon icon) {
         canScrollToSource = false;
         tabInfo.setText(text);
         tabInfo.setIcon(icon);

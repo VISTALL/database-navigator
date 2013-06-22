@@ -126,7 +126,7 @@ public class StatementExecutionCursorResult extends StatementExecutionBasicResul
 
     public void navigateToResult() {
         if (resultPanel != null) {
-            resultPanel.focus();
+            resultPanel.show();
         }
     }
 

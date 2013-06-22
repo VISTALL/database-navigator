@@ -42,7 +42,7 @@ public interface StatementExecutionProcessor {
 
     void navigateToResult();
 
-    void navigateToEditor();
+    void navigateToEditor(boolean requestFocus);
 
     boolean promptVariablesDialog();
 

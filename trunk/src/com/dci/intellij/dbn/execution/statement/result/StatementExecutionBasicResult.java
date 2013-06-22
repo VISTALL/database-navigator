@@ -54,8 +54,8 @@ public class StatementExecutionBasicResult implements StatementExecutionResult{
         return getExecutionProcessor().isOrphan();
     }
 
-    public void navigateToEditor() {
-          getExecutionProcessor().navigateToEditor();
+    public void navigateToEditor(boolean requestFocus) {
+          getExecutionProcessor().navigateToEditor(requestFocus);
     }
 
     public int getExecutionDuration() {

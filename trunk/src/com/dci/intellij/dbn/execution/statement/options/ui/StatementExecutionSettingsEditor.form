@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="com.dci.intellij.dbn.execution.statement.options.ui.StatementExecutionSettingsForm">
-  <grid id="27dc6" binding="mainPanel" layout-manager="GridLayoutManager" row-count="3" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+  <grid id="27dc6" binding="mainPanel" layout-manager="GridLayoutManager" row-count="4" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="4" left="4" bottom="4" right="4"/>
     <constraints>
-      <xy x="20" y="20" width="407" height="103"/>
+      <xy x="20" y="20" width="438" height="126"/>
     </constraints>
     <properties/>
     <border type="etched" title="Statement Execution">
@@ -26,7 +26,7 @@
       </hspacer>
       <vspacer id="dfd5e">
         <constraints>
-          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+          <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
         </constraints>
       </vspacer>
       <component id="9249b" class="javax.swing.JLabel">
@@ -74,6 +74,14 @@
         </constraints>
         <properties>
           <text value="records"/>
+        </properties>
+      </component>
+      <component id="41a94" class="javax.swing.JCheckBox" binding="focusResultCheckBox" default-binding="true">
+        <constraints>
+          <grid row="2" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="&amp;Focus result after execution"/>
         </properties>
       </component>
     </children>

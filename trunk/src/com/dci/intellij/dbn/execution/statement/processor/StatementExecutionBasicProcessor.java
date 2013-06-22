@@ -232,9 +232,9 @@ public class StatementExecutionBasicProcessor implements StatementExecutionProce
 
     }
 
-    public void navigateToEditor() {
+    public void navigateToEditor(boolean requestFocus) {
         if (executablePsiElement != null) {
-            executablePsiElement.navigate(false);
+            executablePsiElement.navigate(requestFocus);
         }
     }
 }
