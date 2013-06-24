@@ -53,23 +53,28 @@ public abstract class CodeStyleFormattingSettings extends Configuration<CodeStyl
     }
 
     public void readConfiguration(Element element) throws InvalidDataException {
-        enabled = SettingsUtil.getBooleanAttribute(element, "enabled", enabled);
-        for (Object object : element.getChildren()) {
-            Element optionElement = (Element) object;
-            String name = optionElement.getAttributeValue("name");
-            CodeStyleFormattingOption option = getCodeStyleCaseOption(name);
-            if (option != null) {
-                option.readExternal(optionElement);
+        Element child = element.getChild("formatting");
+        if (child != null) {
+            enabled = SettingsUtil.getBooleanAttribute(child, "enabled", enabled);
+            for (Object object : child.getChildren()) {
+                Element optionElement = (Element) object;
+                String name = optionElement.getAttributeValue("name");
+                CodeStyleFormattingOption option = getCodeStyleCaseOption(name);
+                if (option != null) {
+                    option.readExternal(optionElement);
+                }
             }
         }
     }
 
     public void writeConfiguration(Element element) throws WriteExternalException {
-        SettingsUtil.setBooleanAttribute(element, "enabled", enabled);
+        Element child = new Element("formatting");
+        element.addContent(child);
+        SettingsUtil.setBooleanAttribute(child, "enabled", enabled);
         for (CodeStyleFormattingOption option : options) {
             Element optionElement = new Element("option");
             option.writeExternal(optionElement);
-            element.addContent(optionElement);
+            child.addContent(optionElement);
         }
     }
 }

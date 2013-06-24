@@ -71,21 +71,26 @@ public abstract class CodeStyleCaseSettings extends Configuration<CodeStyleCaseS
     }
 
     public void readConfiguration(Element element) throws InvalidDataException {
-        enabled = SettingsUtil.getBooleanAttribute(element, "enabled", enabled);
-        for (Object object : element.getChildren()) {
-            Element optionElement = (Element) object;
-            String name = optionElement.getAttributeValue("name");
-            CodeStyleCaseOption option = getCodeStyleCaseOption(name);
-            option.readConfiguration(optionElement);
+        Element child = element.getChild("case");
+        if (child != null) {
+            enabled = SettingsUtil.getBooleanAttribute(child, "enabled", enabled);
+            for (Object object : child.getChildren()) {
+                Element optionElement = (Element) object;
+                String name = optionElement.getAttributeValue("name");
+                CodeStyleCaseOption option = getCodeStyleCaseOption(name);
+                option.readConfiguration(optionElement);
+            }
         }
     }
 
     public void writeConfiguration(Element element) throws WriteExternalException {
-        SettingsUtil.setBooleanAttribute(element, "enabled", enabled);
+        Element child = new Element("case");
+        element.addContent(child);
+        SettingsUtil.setBooleanAttribute(child, "enabled", enabled);
         for (CodeStyleCaseOption option : options) {
             Element optionElement = new Element("option");
             option.writeConfiguration(optionElement);
-            element.addContent(optionElement);
+            child.addContent(optionElement);
         }
     }
 }

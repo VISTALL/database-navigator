@@ -36,14 +36,21 @@ public abstract class CodeStyleCustomSettings<T extends CompositeConfigurationEd
                 formattingSettings};
     }
 
+    protected abstract String getElementName();
+
     public void readConfiguration(Element element) throws InvalidDataException {
-        readConfiguration(element, caseSettings);
-        readConfiguration(element, formattingSettings);
+        Element child = element.getChild(getElementName());
+        if (child != null) {
+            readConfiguration(child, caseSettings);
+            readConfiguration(child, formattingSettings);
+        }
     }
 
     public void writeConfiguration(Element element) throws WriteExternalException {
-         caseSettings.writeConfiguration(element);
-         formattingSettings.writeConfiguration(element);
+         Element child = new Element(getElementName());
+         element.addContent(child);
+         caseSettings.writeConfiguration(child);
+         formattingSettings.writeConfiguration(child);
      }
 
 
