@@ -14,8 +14,9 @@ public abstract class CodeStyleFormattingSettings extends Configuration<CodeStyl
     private List<CodeStyleFormattingOption> options = new ArrayList<CodeStyleFormattingOption>();
     private boolean enabled = true;
 
-
-    public abstract String getDisplayName();
+    public String getDisplayName() {
+        return "Formatting Options";
+    }
 
     public boolean isEnabled() {
         return enabled;
@@ -49,32 +50,27 @@ public abstract class CodeStyleFormattingSettings extends Configuration<CodeStyl
 
     @Override
     public String getConfigElementName() {
-        return getDisplayName();
+        return "formatting-settings";
     }
 
     public void readConfiguration(Element element) throws InvalidDataException {
-        Element child = element.getChild("formatting");
-        if (child != null) {
-            enabled = SettingsUtil.getBooleanAttribute(child, "enabled", enabled);
-            for (Object object : child.getChildren()) {
-                Element optionElement = (Element) object;
-                String name = optionElement.getAttributeValue("name");
-                CodeStyleFormattingOption option = getCodeStyleCaseOption(name);
-                if (option != null) {
-                    option.readExternal(optionElement);
-                }
+        enabled = SettingsUtil.getBooleanAttribute(element, "enabled", enabled);
+        for (Object object : element.getChildren()) {
+            Element optionElement = (Element) object;
+            String name = optionElement.getAttributeValue("name");
+            CodeStyleFormattingOption option = getCodeStyleCaseOption(name);
+            if (option != null) {
+                option.readExternal(optionElement);
             }
         }
     }
 
     public void writeConfiguration(Element element) throws WriteExternalException {
-        Element child = new Element("formatting");
-        element.addContent(child);
-        SettingsUtil.setBooleanAttribute(child, "enabled", enabled);
+        SettingsUtil.setBooleanAttribute(element, "enabled", enabled);
         for (CodeStyleFormattingOption option : options) {
             Element optionElement = new Element("option");
             option.writeExternal(optionElement);
-            child.addContent(optionElement);
+            element.addContent(optionElement);
         }
     }
 }

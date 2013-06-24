@@ -49,8 +49,8 @@ public abstract class CodeStyleCustomSettings<T extends CompositeConfigurationEd
     public void writeConfiguration(Element element) throws WriteExternalException {
          Element child = new Element(getElementName());
          element.addContent(child);
-         caseSettings.writeConfiguration(child);
-         formattingSettings.writeConfiguration(child);
+         writeConfiguration(child, caseSettings);
+         writeConfiguration(child, formattingSettings);
      }
 
 

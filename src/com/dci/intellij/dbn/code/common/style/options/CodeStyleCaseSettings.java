@@ -22,6 +22,11 @@ public abstract class CodeStyleCaseSettings extends Configuration<CodeStyleCaseS
         options.add(new CodeStyleCaseOption("OBJECT_CASE", CodeStyleCase.PRESERVE));
     }
 
+
+    public String getDisplayName() {
+        return "Case Options";
+    }
+
     public boolean isEnabled() {
         return enabled;
     }
@@ -67,30 +72,25 @@ public abstract class CodeStyleCaseSettings extends Configuration<CodeStyleCaseS
 
     @Override
     public String getConfigElementName() {
-        return getDisplayName();
+        return "case-options";
     }
 
     public void readConfiguration(Element element) throws InvalidDataException {
-        Element child = element.getChild("case");
-        if (child != null) {
-            enabled = SettingsUtil.getBooleanAttribute(child, "enabled", enabled);
-            for (Object object : child.getChildren()) {
-                Element optionElement = (Element) object;
-                String name = optionElement.getAttributeValue("name");
-                CodeStyleCaseOption option = getCodeStyleCaseOption(name);
-                option.readConfiguration(optionElement);
-            }
+        enabled = SettingsUtil.getBooleanAttribute(element, "enabled", enabled);
+        for (Object object : element.getChildren()) {
+            Element optionElement = (Element) object;
+            String name = optionElement.getAttributeValue("name");
+            CodeStyleCaseOption option = getCodeStyleCaseOption(name);
+            option.readConfiguration(optionElement);
         }
     }
 
     public void writeConfiguration(Element element) throws WriteExternalException {
-        Element child = new Element("case");
-        element.addContent(child);
-        SettingsUtil.setBooleanAttribute(child, "enabled", enabled);
+        SettingsUtil.setBooleanAttribute(element, "enabled", enabled);
         for (CodeStyleCaseOption option : options) {
             Element optionElement = new Element("option");
             option.writeConfiguration(optionElement);
-            child.addContent(optionElement);
+            element.addContent(optionElement);
         }
     }
 }
