@@ -1,23 +1,23 @@
 package com.dci.intellij.dbn.code.sql.style.options;
 
-import com.dci.intellij.dbn.code.common.style.options.CodeStyleFormattingSettings;
 import com.dci.intellij.dbn.code.common.style.options.CodeStyleFormattingOption;
-import com.dci.intellij.dbn.code.sql.style.presets.iteration.IterationNoWrappingPreset;
+import com.dci.intellij.dbn.code.common.style.options.CodeStyleFormattingSettings;
+import com.dci.intellij.dbn.code.sql.style.presets.clause.ClauseChopDownAlwaysPreset;
+import com.dci.intellij.dbn.code.sql.style.presets.clause.ClauseChopDownIfLongPreset;
+import com.dci.intellij.dbn.code.sql.style.presets.clause.ClauseChopDownIfLongStatementPreset;
+import com.dci.intellij.dbn.code.sql.style.presets.clause.ClauseChopDownNeverPreset;
+import com.dci.intellij.dbn.code.sql.style.presets.clause.ClauseIgnoreWrappingPreset;
+import com.dci.intellij.dbn.code.sql.style.presets.iteration.IterationChopDownAlwaysPreset;
 import com.dci.intellij.dbn.code.sql.style.presets.iteration.IterationChopDownIfLongPreset;
 import com.dci.intellij.dbn.code.sql.style.presets.iteration.IterationChopDownIfLongStatementPreset;
 import com.dci.intellij.dbn.code.sql.style.presets.iteration.IterationChopDownIfNotSinglePreset;
-import com.dci.intellij.dbn.code.sql.style.presets.clause.ClauseChopDownIfLongStatementPreset;
-import com.dci.intellij.dbn.code.sql.style.presets.clause.ClauseChopDownIfLongPreset;
-import com.dci.intellij.dbn.code.sql.style.presets.clause.ClauseChopDownNeverPreset;
-import com.dci.intellij.dbn.code.sql.style.presets.iteration.IterationChopDownAlwaysPreset;
 import com.dci.intellij.dbn.code.sql.style.presets.iteration.IterationIgnoreWrappingPreset;
+import com.dci.intellij.dbn.code.sql.style.presets.iteration.IterationNoWrappingPreset;
 import com.dci.intellij.dbn.code.sql.style.presets.statement.StatementIgnoreSpacingPreset;
-import com.dci.intellij.dbn.code.sql.style.presets.statement.StatementOneLineSpacingPreset;
 import com.dci.intellij.dbn.code.sql.style.presets.statement.StatementLineBreakAtLeastPreset;
 import com.dci.intellij.dbn.code.sql.style.presets.statement.StatementLineBreakPreset;
-import com.dci.intellij.dbn.code.sql.style.presets.clause.ClauseChopDownAlwaysPreset;
-import com.dci.intellij.dbn.code.sql.style.presets.clause.ClauseIgnoreWrappingPreset;
 import com.dci.intellij.dbn.code.sql.style.presets.statement.StatementOneLineSpacingAtLeastPreset;
+import com.dci.intellij.dbn.code.sql.style.presets.statement.StatementOneLineSpacingPreset;
 
 public class SQLCodeStyleFormattingSettings extends CodeStyleFormattingSettings {
     public SQLCodeStyleFormattingSettings() {
@@ -48,9 +48,5 @@ public class SQLCodeStyleFormattingSettings extends CodeStyleFormattingSettings 
         iterationsWrapOption.addPreset(new IterationNoWrappingPreset());
         iterationsWrapOption.addPreset(new IterationIgnoreWrappingPreset());
         addOption(iterationsWrapOption);
-    }
-
-    public String getDisplayName() {
-         return "SQL_FORMATTING_OPTIONS";
     }
 }
