@@ -36,6 +36,11 @@ public class SQLCodeStyleSettings extends CodeStyleCustomSettings<SQLCodeStyleSe
         return new SQLCodeStyleFormattingSettings();
     }
 
+    @Override
+    protected String getElementName() {
+        return "DBN-SQL";
+    }
+
     /*********************************************************
     *                     Configuration                     *
     *********************************************************/

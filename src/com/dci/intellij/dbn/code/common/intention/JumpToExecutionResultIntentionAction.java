@@ -1,6 +1,7 @@
 package com.dci.intellij.dbn.code.common.intention;
 
 import com.dci.intellij.dbn.common.Icons;
+import com.dci.intellij.dbn.language.common.DBLanguageFile;
 import com.dci.intellij.dbn.language.common.psi.ExecutablePsiElement;
 import com.dci.intellij.dbn.language.common.psi.PsiUtil;
 import com.intellij.openapi.editor.Editor;
@@ -28,10 +29,13 @@ public class JumpToExecutionResultIntentionAction extends GenericIntentionAction
     }
 
     public boolean isAvailable(@NotNull Project project, Editor editor, PsiFile psiFile) {
-        ExecutablePsiElement executable = PsiUtil.lookupExecutableAtCaret(psiFile);
+        if (psiFile instanceof DBLanguageFile) {
+            ExecutablePsiElement executable = PsiUtil.lookupExecutableAtCaret(psiFile);
+            return  executable != null && executable.getExecutionProcessor() != null &&
+                    executable.getExecutionProcessor().getExecutionResult() != null;
 
-        return  executable != null && executable.getExecutionProcessor() != null &&
-                executable.getExecutionProcessor().getExecutionResult() != null;
+            }
+         return false;
     }
 
     public void invoke(@NotNull Project project, Editor editor, PsiFile psiFile) throws IncorrectOperationException {

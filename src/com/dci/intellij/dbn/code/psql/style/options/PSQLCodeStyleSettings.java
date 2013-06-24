@@ -34,6 +34,11 @@ public class PSQLCodeStyleSettings extends CodeStyleCustomSettings<PSQLCodeStyle
         return new PSQLCodeStyleFormattingSettings();
     }
 
+    @Override
+    protected String getElementName() {
+        return "DBN-PSQL";
+    }
+
     /*********************************************************
     *                     Configuration                     *
     *********************************************************/

@@ -10,7 +10,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
 
-import javax.swing.*;
+import javax.swing.Icon;
 
 public abstract class AbstractExecutionResultAction extends DumbAwareAction {
     protected AbstractExecutionResultAction(String text, Icon icon) {
@@ -18,20 +18,20 @@ public abstract class AbstractExecutionResultAction extends DumbAwareAction {
     }
 
     public StatementExecutionCursorResult getExecutionResult(AnActionEvent e) {
-        
-        StatementExecutionResult result = e.getData(DBNDataKeys.STATEMENT_EXECUTION_RESULT);
-        if (result == null) {
-            Project project = ActionUtil.getProject(e);
-            ExecutionManager executionManager = ExecutionManager.getInstance(project);
-            ExecutionResult executionResult = executionManager.getSelectedExecutionResult();
-            if (executionResult instanceof StatementExecutionCursorResult) {
-                return (StatementExecutionCursorResult) executionResult;
-            }
-            
-        } else if (result instanceof StatementExecutionCursorResult) {
-            return (StatementExecutionCursorResult) result;
-        }
+        Project project = ActionUtil.getProject(e);
+        if (project != null) {
+            StatementExecutionResult result = e.getData(DBNDataKeys.STATEMENT_EXECUTION_RESULT);
+            if (result == null) {
+                ExecutionManager executionManager = ExecutionManager.getInstance(project);
+                ExecutionResult executionResult = executionManager.getSelectedExecutionResult();
+                if (executionResult instanceof StatementExecutionCursorResult) {
+                    return (StatementExecutionCursorResult) executionResult;
+                }
 
+            } else if (result instanceof StatementExecutionCursorResult) {
+                return (StatementExecutionCursorResult) result;
+            }
+        }
         return null;
     }
 
