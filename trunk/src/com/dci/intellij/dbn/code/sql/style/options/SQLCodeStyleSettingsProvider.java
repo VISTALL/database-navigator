@@ -1,10 +1,13 @@
 package com.dci.intellij.dbn.code.sql.style.options;
 
+import com.dci.intellij.dbn.language.sql.SQLLanguage;
+import com.intellij.lang.Language;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.psi.codeStyle.CodeStyleSettingsProvider;
 import com.intellij.psi.codeStyle.CustomCodeStyleSettings;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class SQLCodeStyleSettingsProvider extends CodeStyleSettingsProvider {
 
@@ -26,5 +29,11 @@ public class SQLCodeStyleSettingsProvider extends CodeStyleSettingsProvider {
 
     public String getConfigurableDisplayName() {
         return "SQL (DBN)";
+    }
+
+    @Nullable
+    @Override
+    public Language getLanguage() {
+        return SQLLanguage.INSTANCE;
     }
 }
