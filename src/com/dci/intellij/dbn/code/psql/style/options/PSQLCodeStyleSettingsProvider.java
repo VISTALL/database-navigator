@@ -1,10 +1,13 @@
 package com.dci.intellij.dbn.code.psql.style.options;
 
+import com.dci.intellij.dbn.language.psql.PSQLLanguage;
+import com.intellij.lang.Language;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.psi.codeStyle.CodeStyleSettingsProvider;
 import com.intellij.psi.codeStyle.CustomCodeStyleSettings;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class PSQLCodeStyleSettingsProvider extends CodeStyleSettingsProvider {
 
@@ -28,5 +31,9 @@ public class PSQLCodeStyleSettingsProvider extends CodeStyleSettingsProvider {
         return "PL/SQL (DBN)";
     }
 
-
+    @Nullable
+    @Override
+    public Language getLanguage() {
+        return PSQLLanguage.INSTANCE;
+    }
 }
