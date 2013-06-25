@@ -35,7 +35,7 @@ import java.util.List;
 
 public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<DatasetBasicFilterCondition> {
 
-    private JComboBox columnComboBox;
+    private JComboBox<DBColumn> columnComboBox;
     private JComboBox operatorComboBox;
     private JPanel actionsPanel;
     private JPanel mainPanel;
@@ -135,7 +135,8 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
     }
 
     public DBColumn getSelectedColumn() {
-        return (DBColumn) columnComboBox.getSelectedItem();
+        DBColumn column = (DBColumn) columnComboBox.getSelectedItem();
+        return (DBColumn) column.getUndisposedElement();
     }
 
     public ConditionOperator getSelectedOperator() {
@@ -209,7 +210,7 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
 
     public void applyChanges() throws ConfigurationException {
         DatasetBasicFilterCondition condition = getConfiguration();
-        DBColumn column = (DBColumn) columnComboBox.getSelectedItem();
+        DBColumn column = getSelectedColumn();
         ConditionOperator operator = getSelectedOperator();
         String value = editorComponent.getText();
 
@@ -220,7 +221,7 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
     }
 
     private void updateOperatorsDropdown() {
-        DBColumn column = (DBColumn) columnComboBox.getSelectedItem();
+        DBColumn column = getSelectedColumn();
         ConditionOperator[] conditionOperators =  ConditionOperator.getConditionOperators(column.getDataType().getTypeClass());
         ConditionOperator selectedOperator = getSelectedOperator();
 
