@@ -1,13 +1,13 @@
-package com.dci.intellij.dbn.code.sql.style.presets.statement;
+package com.dci.intellij.dbn.code.common.style.presets.clause;
 
 import com.dci.intellij.dbn.language.common.psi.BasePsiElement;
 import com.intellij.formatting.Spacing;
 import com.intellij.formatting.Wrap;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 
-public class StatementOneLineSpacingAtLeastPreset extends StatementAbstractPreset {
-    public StatementOneLineSpacingAtLeastPreset() {
-        super("one_line_at_least", "One line at least");
+public class ClauseIgnoreWrappingPreset extends ClauseAbstractPreset {
+    public ClauseIgnoreWrappingPreset() {
+        super("ignore_wrapping", "Ignore");
     }
 
     public Wrap getWrap(BasePsiElement psiElement, CodeStyleSettings settings) {
@@ -15,6 +15,6 @@ public class StatementOneLineSpacingAtLeastPreset extends StatementAbstractPrese
     }
 
     public Spacing getSpacing(BasePsiElement psiElement, CodeStyleSettings settings) {
-        return SPACING_MIN_ONE_LINE;
+        return null;
     }
 }

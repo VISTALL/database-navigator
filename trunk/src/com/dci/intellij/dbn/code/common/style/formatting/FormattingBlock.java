@@ -2,6 +2,7 @@ package com.dci.intellij.dbn.code.common.style.formatting;
 
 import com.dci.intellij.dbn.code.common.style.options.CodeStyleCustomSettings;
 import com.dci.intellij.dbn.code.common.style.options.CodeStyleFormattingOption;
+import com.dci.intellij.dbn.code.common.style.presets.CodeStyleDefaultPresets;
 import com.dci.intellij.dbn.code.common.style.presets.CodeStylePreset;
 import com.dci.intellij.dbn.common.util.CommonUtil;
 import com.dci.intellij.dbn.language.common.DBLanguage;
@@ -115,7 +116,6 @@ public class FormattingBlock implements Block {
             return Indent.getAbsoluteNoneIndent();
         }
 
-
         Indent indent = getIndentAttribute();
         return CommonUtil.nvl(indent, Indent.getNoneIndent());
     }
@@ -130,7 +130,7 @@ public class FormattingBlock implements Block {
             BasePsiElement basePsiElement = (BasePsiElement) psiElement;
 
             Wrap wrap = getWrapAttribute();
-            if (wrap !=null) {
+            if (wrap != null) {
                 return wrap;
             }
 
@@ -150,7 +150,14 @@ public class FormattingBlock implements Block {
                     return preset.getWrap(basePsiElement, codeStyleSettings);
                 }
             }
+
+            for (CodeStylePreset preset : CodeStyleDefaultPresets.PRESETS) {
+                if (preset.accepts(basePsiElement)) {
+                    return preset.getWrap(basePsiElement, codeStyleSettings);
+                }
+            }
         }
+
 
         return CodeStylePreset.WRAP_NONE;
     }
@@ -189,6 +196,12 @@ public class FormattingBlock implements Block {
             List<CodeStyleFormattingOption> formattingOptions = codeStyleCustomSettings.getFormattingSettings().getOptions();
             for (CodeStyleFormattingOption formattingOption : formattingOptions) {
                 CodeStylePreset preset = formattingOption.getPreset();
+                if (preset.accepts(rightBasePsiElement)) {
+                    return preset.getSpacing(rightBasePsiElement, codeStyleSettings);
+                }
+            }
+
+            for (CodeStylePreset preset : CodeStyleDefaultPresets.PRESETS) {
                 if (preset.accepts(rightBasePsiElement)) {
                     return preset.getSpacing(rightBasePsiElement, codeStyleSettings);
                 }

@@ -1,4 +1,4 @@
-package com.dci.intellij.dbn.code.sql.style.presets.statement;
+package com.dci.intellij.dbn.code.common.style.presets.statement;
 
 import com.dci.intellij.dbn.code.common.style.presets.CodeStylePresetImpl;
 import com.dci.intellij.dbn.language.common.SharedTokenTypeBundle;

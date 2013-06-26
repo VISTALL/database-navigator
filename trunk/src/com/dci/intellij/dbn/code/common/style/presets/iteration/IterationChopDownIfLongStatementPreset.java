@@ -1,16 +1,17 @@
-package com.dci.intellij.dbn.code.sql.style.presets.iteration;
+package com.dci.intellij.dbn.code.common.style.presets.iteration;
 
 import com.dci.intellij.dbn.language.common.element.ElementType;
 import com.dci.intellij.dbn.language.common.element.IterationElementType;
+import com.dci.intellij.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dci.intellij.dbn.language.common.psi.BasePsiElement;
-import com.dci.intellij.dbn.language.common.psi.PsiUtil;
+import com.dci.intellij.dbn.language.common.psi.NamedPsiElement;
 import com.intellij.formatting.Spacing;
 import com.intellij.formatting.Wrap;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 
-public class IterationChopDownIfNotSinglePreset extends IterationAbstractPreset {
-    public IterationChopDownIfNotSinglePreset() {
-        super("chop_down_if_not_single", "Chop down unless single element");
+public class IterationChopDownIfLongStatementPreset extends IterationAbstractPreset {
+    public IterationChopDownIfLongStatementPreset() {
+        super("chop_down_if_statement_long", "Chop down if statement long");
     }
 
     public Wrap getWrap(BasePsiElement psiElement, CodeStyleSettings settings) {
@@ -18,7 +19,8 @@ public class IterationChopDownIfNotSinglePreset extends IterationAbstractPreset 
         IterationElementType iterationElementType = (IterationElementType) parentPsiElement.getElementType();
         ElementType elementType = psiElement.getElementType();
 
-        boolean shouldWrap = PsiUtil.getChildrenCount(parentPsiElement) > 1;
+        NamedPsiElement namedPsiElement = (NamedPsiElement) parentPsiElement.lookupEnclosingPsiElement(ElementTypeAttribute.EXECUTABLE);
+        boolean shouldWrap = namedPsiElement.approximateLength() > settings.RIGHT_MARGIN;
         return getWrap(elementType, iterationElementType, shouldWrap);
     }
 
@@ -27,7 +29,8 @@ public class IterationChopDownIfNotSinglePreset extends IterationAbstractPreset 
         IterationElementType iterationElementType = (IterationElementType) parentPsiElement.getElementType();
         ElementType elementType = psiElement.getElementType();
 
-        boolean shouldWrap = PsiUtil.getChildrenCount(parentPsiElement) > 1;
+        NamedPsiElement namedPsiElement = (NamedPsiElement) parentPsiElement.lookupEnclosingPsiElement(ElementTypeAttribute.EXECUTABLE);
+        boolean shouldWrap = namedPsiElement.approximateLength() > settings.RIGHT_MARGIN;
         return getSpacing(iterationElementType, elementType, shouldWrap);
     }
 }
