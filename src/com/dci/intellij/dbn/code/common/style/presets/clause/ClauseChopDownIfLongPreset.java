@@ -1,4 +1,4 @@
-package com.dci.intellij.dbn.code.sql.style.presets.clause;
+package com.dci.intellij.dbn.code.common.style.presets.clause;
 
 import com.dci.intellij.dbn.language.common.psi.BasePsiElement;
 import com.intellij.formatting.Spacing;

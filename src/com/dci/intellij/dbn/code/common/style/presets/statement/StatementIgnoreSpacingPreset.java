@@ -1,8 +1,8 @@
-package com.dci.intellij.dbn.code.sql.style.presets.statement;
+package com.dci.intellij.dbn.code.common.style.presets.statement;
 
-import com.intellij.formatting.Wrap;
-import com.intellij.formatting.Spacing;
 import com.dci.intellij.dbn.language.common.psi.BasePsiElement;
+import com.intellij.formatting.Spacing;
+import com.intellij.formatting.Wrap;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 
 public class StatementIgnoreSpacingPreset extends StatementAbstractPreset {

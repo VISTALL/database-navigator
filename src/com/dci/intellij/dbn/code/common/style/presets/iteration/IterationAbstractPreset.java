@@ -1,4 +1,4 @@
-package com.dci.intellij.dbn.code.sql.style.presets.iteration;
+package com.dci.intellij.dbn.code.common.style.presets.iteration;
 
 import com.dci.intellij.dbn.code.common.style.presets.CodeStylePresetImpl;
 import com.dci.intellij.dbn.language.common.element.ElementType;

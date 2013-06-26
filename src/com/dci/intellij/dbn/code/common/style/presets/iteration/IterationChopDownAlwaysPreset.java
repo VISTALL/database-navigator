@@ -1,4 +1,4 @@
-package com.dci.intellij.dbn.code.sql.style.presets.iteration;
+package com.dci.intellij.dbn.code.common.style.presets.iteration;
 
 import com.dci.intellij.dbn.language.common.element.ElementType;
 import com.dci.intellij.dbn.language.common.element.IterationElementType;
@@ -7,27 +7,26 @@ import com.intellij.formatting.Spacing;
 import com.intellij.formatting.Wrap;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 
-public class IterationChopDownIfLongPreset extends IterationAbstractPreset {
-    public IterationChopDownIfLongPreset() {
-        super("chop_down_if_long", "Chop down if long");
+public class IterationChopDownAlwaysPreset extends IterationAbstractPreset {
+    public IterationChopDownAlwaysPreset() {
+        super("chop_down", "Chop down");
+    }
+
+    public boolean accepts(BasePsiElement psiElement) {
+        return getParentElementType(psiElement) instanceof IterationElementType;
     }
 
     public Wrap getWrap(BasePsiElement psiElement, CodeStyleSettings settings) {
         BasePsiElement parentPsiElement = getParentPsiElement(psiElement);
         IterationElementType iterationElementType = (IterationElementType) parentPsiElement.getElementType();
         ElementType elementType = psiElement.getElementType();
-
-        boolean shouldWrap = parentPsiElement.approximateLength() > settings.RIGHT_MARGIN;
-        return getWrap(elementType, iterationElementType, shouldWrap);
+        return getWrap(elementType, iterationElementType, true);
     }
 
     public Spacing getSpacing(BasePsiElement psiElement, CodeStyleSettings settings) {
         BasePsiElement parentPsiElement = getParentPsiElement(psiElement);
         IterationElementType iterationElementType = (IterationElementType) parentPsiElement.getElementType();
         ElementType elementType = psiElement.getElementType();
-
-        boolean shouldWrap = parentPsiElement.approximateLength() > settings.RIGHT_MARGIN;
-        return getSpacing(iterationElementType, elementType, shouldWrap);
+        return getSpacing(iterationElementType, elementType, true);
     }
-
 }

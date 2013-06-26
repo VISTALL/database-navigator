@@ -1,4 +1,4 @@
-package com.dci.intellij.dbn.code.sql.style.presets.iteration;
+package com.dci.intellij.dbn.code.common.style.presets.iteration;
 
 import com.dci.intellij.dbn.language.common.element.ElementType;
 import com.dci.intellij.dbn.language.common.element.IterationElementType;
@@ -8,13 +8,13 @@ import com.intellij.formatting.Spacing;
 import com.intellij.formatting.Wrap;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 
-public class IterationIgnoreWrappingPreset extends IterationAbstractPreset {
-    public IterationIgnoreWrappingPreset() {
-        super("ignore_wrapping", "Ignore");
+public class IterationNoWrappingPreset extends IterationAbstractPreset {
+    public IterationNoWrappingPreset() {
+        super("no_wrapping", "No wrapping");
     }
 
     public Wrap getWrap(BasePsiElement psiElement, CodeStyleSettings settings) {
-        return null;
+        return WRAP_NONE;
     }
 
     public Spacing getSpacing(BasePsiElement psiElement, CodeStyleSettings settings) {
@@ -30,6 +30,6 @@ public class IterationIgnoreWrappingPreset extends IterationAbstractPreset {
                         SPACING_ONE_SPACE;
             }
         }
-        return null;
+        return SPACING_ONE_SPACE;
     }
 }
