@@ -272,12 +272,10 @@ public class ExecutionConsoleForm extends DBNFormImpl implements DBNForm, Enviro
         } else {
             tabInfo.setTabColor(null);
         }
-
+        tabInfo.setText(executionResult.getResultName());
+        tabInfo.setIcon(executionResult.getResultIcon());
         resultTabs.addTab(tabInfo);
-        String name = executionResult.getResultName();
-        Icon icon = executionResult.getResultIcon();
-
-        selectResultTab(tabInfo, name, icon);
+        selectResultTab(tabInfo);
     }
 
     public boolean containsResultTab(ExecutionResult executionProcessor) {
@@ -303,10 +301,11 @@ public class ExecutionConsoleForm extends DBNFormImpl implements DBNForm, Enviro
         executionResult.getResultPanel().setExecutionResult(executionResult);
         JComponent component = executionResult.getResultPanel().getComponent();
         TabInfo tabInfo = resultTabs.findInfo(component);
-        String name = executionResult.getResultName();
-        Icon icon = executionResult.getResultIcon();
-
-        selectResultTab(tabInfo, name, icon);
+        if (tabInfo != null) {
+            tabInfo.setText(executionResult.getResultName());
+            tabInfo.setIcon(executionResult.getResultIcon());
+            selectResultTab(tabInfo);
+        }
     }
 
     /*********************************************************
@@ -322,10 +321,8 @@ public class ExecutionConsoleForm extends DBNFormImpl implements DBNForm, Enviro
         return false;
     }
 
-    private void selectResultTab(TabInfo tabInfo, String text, Icon icon) {
+    private void selectResultTab(TabInfo tabInfo) {
         canScrollToSource = false;
-        tabInfo.setText(text);
-        tabInfo.setIcon(icon);
         resultTabs.select(tabInfo, true);
         canScrollToSource = true;
     }
