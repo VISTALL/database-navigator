@@ -18,6 +18,7 @@ import com.intellij.xdebugger.breakpoints.XLineBreakpoint;
 import com.intellij.xdebugger.breakpoints.XLineBreakpointType;
 import com.intellij.xdebugger.evaluation.XDebuggerEditorsProvider;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class DBProgramBreakpointType extends XLineBreakpointType<DBProgramBreakpointProperties> {
     public DBProgramBreakpointType() {
@@ -65,6 +66,12 @@ public class DBProgramBreakpointType extends XLineBreakpointType<DBProgramBreakp
 
     @Override
     public XDebuggerEditorsProvider getEditorsProvider() {
+        return DBProgramDebuggerEditorsProvider.INSTANCE;
+    }
+
+    @Nullable
+    @Override
+    public XDebuggerEditorsProvider getEditorsProvider(@NotNull XLineBreakpoint<DBProgramBreakpointProperties> breakpoint, @NotNull Project project) {
         return DBProgramDebuggerEditorsProvider.INSTANCE;
     }
 
