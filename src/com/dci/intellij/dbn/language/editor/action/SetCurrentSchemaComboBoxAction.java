@@ -6,13 +6,10 @@ import com.dci.intellij.dbn.common.util.NamingUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.mapping.FileConnectionMappingManager;
 import com.dci.intellij.dbn.object.DBSchema;
-import com.dci.intellij.dbn.vfs.DatabaseEditableObjectFile;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.Presentation;
-import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Icon;
@@ -47,22 +44,11 @@ public class SetCurrentSchemaComboBoxAction extends DBNComboBoxAction {
             ConnectionHandler activeConnection = mappingManager.lookupActiveConnectionForEditor(place);
             visible = activeConnection != null && !activeConnection.isVirtual();
             if (visible) {
-                VirtualFile[] selectedFiles = FileEditorManager.getInstance(project).getSelectedFiles();
-                if (selectedFiles.length == 1) {
-                    VirtualFile virtualFile = selectedFiles[0];
-                    if (virtualFile instanceof DatabaseEditableObjectFile) {
-                        DatabaseEditableObjectFile databaseFile = (DatabaseEditableObjectFile) virtualFile;
-                        DBSchema schema = databaseFile.getObject().getSchema();
-                        text = NamingUtil.enhanceUnderscoresForDisplay(schema.getName());
-                        icon = schema.getIcon();
-                        enabled = true;
-                    } else {
-                        DBSchema schema = mappingManager.lookupCurrentSchemaForEditor(place);
-                        if (schema != null) {
-                            text = NamingUtil.enhanceUnderscoresForDisplay(schema.getName());
-                            icon = schema.getIcon();
-                        }
-                    }
+                DBSchema schema = mappingManager.lookupCurrentSchemaForEditor(place);
+                if (schema != null) {
+                    text = NamingUtil.enhanceUnderscoresForDisplay(schema.getName());
+                    icon = schema.getIcon();
+                    enabled = true;
                 }
             }
         }
