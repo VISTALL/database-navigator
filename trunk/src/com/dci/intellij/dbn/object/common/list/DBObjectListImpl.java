@@ -119,7 +119,10 @@ public class DBObjectListImpl<T extends DBObject> extends DynamicContentImpl<T> 
             DBObject object = (DBObject) getTreeParent();
             return getName() + " of " + object.getQualifiedNameWithType();
         }
-        return getName() + " from " + getConnectionHandler().getName() ;
+        ConnectionHandler connectionHandler = getConnectionHandler();
+        return connectionHandler == null ?
+                getName() :
+                getName() + " from " + connectionHandler.getName() ;
     }
 
     /*********************************************************
