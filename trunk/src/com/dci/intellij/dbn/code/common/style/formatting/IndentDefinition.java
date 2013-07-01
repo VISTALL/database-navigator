@@ -5,7 +5,7 @@ import com.intellij.formatting.Indent;
 import org.jdom.Element;
 
 public enum IndentDefinition implements FormattingAttribute<Indent> {
-    NORMAL       (new Loader(){Indent load() {return Indent.getNormalIndent();}}),
+    NORMAL       (new Loader(){Indent load() {return Indent.getNormalIndent(true);}}),
     CONTINUE     (new Loader(){Indent load() {return Indent.getContinuationIndent();}}),
     NONE         (new Loader(){Indent load() {return Indent.getNoneIndent();}}),
     ABSOLUTE_NONE(new Loader(){Indent load() {return Indent.getAbsoluteNoneIndent();}});

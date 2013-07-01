@@ -1081,7 +1081,7 @@
         </iteration>
         <element ref-id="main_model" />
     </element-def>
-    <element-def attributes="CLAUSE" description="UNION INTERSECT MINUS clause" id="union_intersect_minus_clause">
+    <element-def attributes="CLAUSE" description="UNION INTERSECT MINUS clause" id="union_intersect_minus_clause" formatting-spacing-before="MIN_LINE_BREAK">
         <one-of id="000000502" sortable="true">
             <sequence id="000000503">
                 <token id="000000504" type-id="KW_UNION" />
