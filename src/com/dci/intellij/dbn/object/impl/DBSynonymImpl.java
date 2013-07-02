@@ -126,7 +126,10 @@ public class DBSynonymImpl extends DBSchemaObjectImpl implements DBSynonym {
     @Override
     public List<PresentableProperty> getPresentableProperties() {
         List<PresentableProperty> properties = super.getPresentableProperties();
-        properties.add(0, new DBObjectPresentableProperty("Underlying object", getUnderlyingObject(), true));
+        DBObject underlyingObject = getUnderlyingObject();
+        if (underlyingObject != null) {
+            properties.add(0, new DBObjectPresentableProperty("Underlying object", underlyingObject, true));
+        }
         return properties;
     }
 
