@@ -278,7 +278,12 @@ public class DBColumnImpl extends DBObjectImpl implements DBColumn {
     public List<PresentableProperty> getPresentableProperties() {
         List<PresentableProperty> properties = super.getPresentableProperties();
 
-        if (isForeignKey()) properties.add(0, new DBObjectPresentableProperty("Foreign key column", getForeignKeyColumn(), true));
+        if (isForeignKey()) {
+            DBColumn foreignKeyColumn = getForeignKeyColumn();
+            if (foreignKeyColumn != null) {
+                properties.add(0, new DBObjectPresentableProperty("Foreign key column", foreignKeyColumn, true));
+            }
+        }
 
         StringBuilder attributes  = new StringBuilder();
         if (isPrimaryKey()) attributes.append("PK");
