@@ -121,10 +121,13 @@ public class DatabaseObjectFile<T extends DBObject> extends VirtualFile implemen
 
     @Nullable
     public VirtualFile getParent() {
-        BrowserTreeNode treeParent = getObject().getTreeParent();
-        if (treeParent instanceof DBObjectList<?>) {
-            DBObjectList objectList = (DBObjectList) treeParent;
-            return NavigationPsiCache.getPsiDirectory(objectList).getVirtualFile();
+        T object = getObject();
+        if (object != null) {
+            BrowserTreeNode treeParent = object.getTreeParent();
+            if (treeParent instanceof DBObjectList<?>) {
+                DBObjectList objectList = (DBObjectList) treeParent;
+                return NavigationPsiCache.getPsiDirectory(objectList).getVirtualFile();
+            }
         }
         return null;
     }
