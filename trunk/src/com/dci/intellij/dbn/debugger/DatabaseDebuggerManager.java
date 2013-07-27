@@ -22,7 +22,6 @@ import com.intellij.execution.RunnerAndConfigurationSettings;
 import com.intellij.execution.RunnerRegistry;
 import com.intellij.execution.configurations.ConfigurationType;
 import com.intellij.execution.executors.DefaultDebugExecutor;
-import com.intellij.execution.impl.RunnerAndConfigurationSettingsImpl;
 import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.execution.runners.ProgramRunner;
 import com.intellij.openapi.actionSystem.DataContext;
@@ -110,12 +109,12 @@ public class DatabaseDebuggerManager extends AbstractProjectComponent implements
             DBProgramRunConfigurationFactory configurationFactory = configurationType.getConfigurationFactory();
             DBProgramRunConfiguration runConfiguration = configurationFactory.createConfiguration(method);
             runConfigurationSetting = runManager.createConfiguration(runConfiguration, configurationFactory);
-            runManager.addConfiguration((RunnerAndConfigurationSettingsImpl) runConfigurationSetting, false);
-            runManager.setTemporaryConfiguration((RunnerAndConfigurationSettingsImpl) runConfigurationSetting);
+            runManager.addConfiguration(runConfigurationSetting, false);
+            runManager.setTemporaryConfiguration(runConfigurationSetting);
 
         }
 
-        runManager.setActiveConfiguration((RunnerAndConfigurationSettingsImpl) runConfigurationSetting);
+        runManager.setActiveConfiguration(runConfigurationSetting);
         ProgramRunner programRunner = RunnerRegistry.getInstance().findRunnerById(DBProgramRunner.RUNNER_ID);
         try {
             ExecutionEnvironment executionEnvironment = new ExecutionEnvironment(programRunner, runConfigurationSetting, dataContext);
