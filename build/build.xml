@@ -40,7 +40,9 @@
     <property name="compiler.output.dir" value="${root.dir}/classes"/>
     <property name="distribution.dir" value="${root.dir}/dist"/>
     <property name="help.jar" value="${distribution.dir}/Help.jar"/>
+<!--
     <property name="deployment.dir" value="${idea.plugins.sandbox}/DBNavigator"/>
+-->
 
     <path id="source.dir">
         <dirset dir="${root.dir}">
@@ -92,13 +94,16 @@
     <target name="cleanup" description="Cleanup">
         <delete dir="${distribution.dir}"/>
         <delete dir="${compiler.output.dir}"/>
+<!--
         <delete dir="${deployment.dir}"/>
+-->
     </target>
 
     <target name="build" depends="compile" description="Build deployment and distribution components">
         <antcall target="build.dist"/>
     </target>
 
+<!--
     <target name="deploy" depends="build" description="Deploy to sandbox">
         <copy todir="${deployment.dir}/classes">
             <fileset dir="${compiler.output.dir}"/>
@@ -106,6 +111,7 @@
         <copy file="${source.dir}/META-INF/plugin.xml" tofile="${deployment.dir}/META-INF/plugin.xml"/>
         <copy file="${distribution.dir}/help.jar" todir="${deployment.dir}/help"/>
     </target>
+-->
 
     <target name="build.dist" description="Build distribution archives">
         <mkdir dir="${distribution.dir}" />
