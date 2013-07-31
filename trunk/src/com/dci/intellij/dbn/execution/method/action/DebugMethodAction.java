@@ -22,6 +22,6 @@ public class DebugMethodAction extends DumbAwareAction {
 
     public void actionPerformed(AnActionEvent e) {
         DatabaseDebuggerManager executionManager = DatabaseDebuggerManager.getInstance(method.getProject());
-        executionManager.createDebugConfiguration(method, e.getDataContext());
+        executionManager.createDebugConfiguration(method);
     }
 }
