@@ -24,7 +24,6 @@ import com.intellij.execution.configurations.ConfigurationType;
 import com.intellij.execution.executors.DefaultDebugExecutor;
 import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.execution.runners.ProgramRunner;
-import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.extensions.Extensions;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -38,7 +37,11 @@ import org.jdom.Element;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
 
 public class DatabaseDebuggerManager extends AbstractProjectComponent implements JDOMExternalizable {
     private Set<ConnectionHandler> activeDebugSessions = new THashSet<ConnectionHandler>();
@@ -90,7 +93,7 @@ public class DatabaseDebuggerManager extends AbstractProjectComponent implements
         return false;
     }
 
-    public void createDebugConfiguration(DBMethod method, DataContext dataContext) {
+    public void createDebugConfiguration(DBMethod method) {
         RunManagerEx runManager = (RunManagerEx) RunManagerEx.getInstance(method.getProject());
         DBProgramRunConfigurationType configurationType = getConfigurationType();
 
@@ -114,15 +117,15 @@ public class DatabaseDebuggerManager extends AbstractProjectComponent implements
 
         }
 
-        runManager.setActiveConfiguration(runConfigurationSetting);
+        runManager.setSelectedConfiguration(runConfigurationSetting);
         ProgramRunner programRunner = RunnerRegistry.getInstance().findRunnerById(DBProgramRunner.RUNNER_ID);
         try {
-            ExecutionEnvironment executionEnvironment = new ExecutionEnvironment(programRunner, runConfigurationSetting, dataContext);
+            ExecutionEnvironment executionEnvironment = new ExecutionEnvironment(programRunner, runConfigurationSetting, getProject());
             programRunner.execute(DefaultDebugExecutor.getDebugExecutorInstance(), executionEnvironment);
         } catch (ExecutionException e) {
             MessageUtil.showErrorDialog(
                     "Could not start debugger for " + method.getQualifiedName() + ". \n" +
-                    "Reason: " + e.getMessage());
+                            "Reason: " + e.getMessage());
         }
     }
 
@@ -161,7 +164,7 @@ public class DatabaseDebuggerManager extends AbstractProjectComponent implements
         for (String privilegeName : privilegeNames) {
             DBPrivilege privilege = connectionHandler.getObjectBundle().getPrivilege(privilegeName);
             if (privilege == null || !user.hasPrivilege(privilege))  {
-                 missingPrivileges.add(privilegeName);
+                missingPrivileges.add(privilegeName);
             }
         }
 
@@ -195,8 +198,8 @@ public class DatabaseDebuggerManager extends AbstractProjectComponent implements
     }
 
     /****************************************
-    *            JDOMExternalizable         *
-    *****************************************/
+     *            JDOMExternalizable         *
+     *****************************************/
     public void readExternal(Element element) throws InvalidDataException {
     }
 
