@@ -171,5 +171,5 @@
 
     <target name="clean" depends="cleanup" description="cleanup all"/>
 
-    <target name="all" depends="init, clean, build, deploy" description="build all"/>
+    <target name="all" depends="init, clean, build" description="build all"/>
 </project>
