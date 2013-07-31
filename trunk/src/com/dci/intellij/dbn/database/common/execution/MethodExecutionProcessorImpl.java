@@ -72,8 +72,10 @@ public abstract class MethodExecutionProcessorImpl<T extends DBMethod> implement
         if (!usePoolConnection) connectionHandler.notifyChanges(executionInput.getMethod().getVirtualFile());
 
         MethodExecutionResult executionResult = executionInput.getExecutionResult();
-        loadValues(executionResult, callableStatement);
-        executionResult.setExecutionDuration((int) (System.currentTimeMillis() - startTime));
+        if (executionResult != null) {
+            loadValues(executionResult, callableStatement);
+            executionResult.setExecutionDuration((int) (System.currentTimeMillis() - startTime));
+        }
 
         if (executionInput.isCommitAfterExecution()) {
             if (usePoolConnection) connection.commit(); else connectionHandler.commit();
