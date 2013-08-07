@@ -19,7 +19,7 @@ import com.intellij.xdebugger.XSourcePosition;
 import com.intellij.xdebugger.evaluation.XDebuggerEvaluator;
 import com.intellij.xdebugger.frame.XCompositeNode;
 import com.intellij.xdebugger.frame.XStackFrame;
-import com.intellij.xdebugger.frame.XValue;
+import com.intellij.xdebugger.frame.XValueChildrenList;
 import com.intellij.xdebugger.impl.XSourcePositionImpl;
 import gnu.trove.THashMap;
 import org.jetbrains.annotations.NotNull;
@@ -111,7 +111,12 @@ public class DBProgramDebugStackFrame extends XStackFrame {
             valuesMap.put(variableName.toLowerCase(), value);
         }
         Collections.sort(values);
-        node.addChildren(new ArrayList<XValue>(values), true);
+
+        XValueChildrenList children = new XValueChildrenList();
+        for (DBProgramDebugValue value : values) {
+            children.add(value.getVariableName(), value);
+        }
+        node.addChildren(children, true);
     }
 }
 
