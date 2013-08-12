@@ -88,17 +88,23 @@ public class BasicTableCellRenderer extends ColoredTableCellRenderer {
                  if (selectedMatch != null && selectedMatch.getCell() == cell) {
                     searchResultAttributes = configTextAttributes.getSelection();
                  }
-                 
+
+                 int valueLength = formattedUserValue.length();
+                 int lastOffset = Math.max(0, valueLength-1);
                  while (matches.hasNext()) {
                      DataSearchResultMatch match = matches.next();
                      if (match.getStartOffset() > lastEndOffset) {
-                         append(formattedUserValue.substring(lastEndOffset, match.getStartOffset()), textAttributes);
+                         int startOffset = Math.min(lastOffset, lastEndOffset);
+                         int endOffset = Math.min(lastOffset, match.getStartOffset());
+                         append(formattedUserValue.substring(startOffset, endOffset), textAttributes);
                      }
-                     append(formattedUserValue.substring(match.getStartOffset(), match.getEndOffset()), searchResultAttributes);
+                     int startOffset = Math.min(lastOffset, match.getStartOffset());
+                     int endOffset = Math.min(lastOffset, match.getEndOffset());
+                     append(formattedUserValue.substring(startOffset, endOffset), searchResultAttributes);
                      lastEndOffset = match.getEndOffset();
 
                  }
-                 if (lastEndOffset < formattedUserValue.length()) {
+                 if (lastEndOffset < valueLength) {
                      append(formattedUserValue.substring(lastEndOffset), textAttributes);
                  }
              } else {
