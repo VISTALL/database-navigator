@@ -17,13 +17,14 @@ public class DBSyntaxHighlighterFactory extends SyntaxHighlighterFactory {
         if (virtualFile != null && virtualFile.getFileType() instanceof DBLanguageFileType) {
             DBLanguageFileType fileType = (DBLanguageFileType) virtualFile.getFileType();
             DBLanguage language = (DBLanguage) fileType.getLanguage();
+            if (project != null) {
+                ConnectionHandler connectionHandler = FileConnectionMappingManager.getInstance(project).getActiveConnection(virtualFile);
+                DBLanguageDialect languageDialect = connectionHandler == null ?
+                        language.getMainLanguageDialect() :
+                        connectionHandler.getLanguageDialect(language);
 
-            ConnectionHandler connectionHandler = FileConnectionMappingManager.getInstance(project).getActiveConnection(virtualFile);
-            DBLanguageDialect languageDialect = connectionHandler == null ?
-                    language.getMainLanguageDialect() :
-                    connectionHandler.getLanguageDialect(language);
-
-            return languageDialect.createSyntaxHighlighter();
+                return languageDialect.createSyntaxHighlighter();
+            }
         }
 
         return PlainSyntaxHighlighterFactory.getSyntaxHighlighter(Language.ANY, project, virtualFile);
