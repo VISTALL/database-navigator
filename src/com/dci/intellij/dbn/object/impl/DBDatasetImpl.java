@@ -6,6 +6,7 @@ import com.dci.intellij.dbn.common.content.DynamicContentElement;
 import com.dci.intellij.dbn.common.content.loader.DynamicContentLoader;
 import com.dci.intellij.dbn.common.content.loader.DynamicContentResultSetLoader;
 import com.dci.intellij.dbn.common.content.loader.DynamicSubcontentLoader;
+import com.dci.intellij.dbn.common.util.CommonUtil;
 import com.dci.intellij.dbn.data.type.DBDataType;
 import com.dci.intellij.dbn.database.DatabaseMetadataInterface;
 import com.dci.intellij.dbn.ddl.DDLFileType;
@@ -134,7 +135,7 @@ public abstract class DBDatasetImpl extends DBSchemaObjectImpl implements DBData
     private static final DynamicSubcontentLoader COLUMNS_LOADER = new DynamicSubcontentLoader<DBColumn>(true) {
         public boolean match(DBColumn column, DynamicContent dynamicContent) {
             DBDataset dataset = (DBDataset) dynamicContent.getParent();
-            return column.getDataset().equals(dataset);
+            return CommonUtil.safeEqual(column.getDataset(), dataset);
         }
 
         public DynamicContentLoader<DBColumn> getAlternativeLoader() {
