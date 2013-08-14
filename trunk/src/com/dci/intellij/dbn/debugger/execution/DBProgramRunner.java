@@ -24,7 +24,6 @@ import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.execution.runners.GenericProgramRunner;
 import com.intellij.execution.ui.RunContentDescriptor;
 import com.intellij.history.LocalHistory;
-import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
@@ -238,8 +237,7 @@ public class DBProgramRunner extends GenericProgramRunner {
                 boolean continueExecution = executionManager.promptExecutionDialog(executionInput, true);
 
                 if (continueExecution) {
-                    DataContext dataContext = environment.getDataContext();
-                    RunContentDescriptor reuseContent = ExecutionManager.getInstance(project).getContentManager().getReuseContent(executor, dataContext);
+                    RunContentDescriptor reuseContent = environment.getContentToReuse();
                     DBProgramDebugProcessStarter debugProcessStarter = new DBProgramDebugProcessStarter(connectionHandler);
                     XDebugSession session = null;
                     try {
