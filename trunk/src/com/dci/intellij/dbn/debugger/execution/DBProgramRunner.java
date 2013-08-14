@@ -31,7 +31,6 @@ import com.intellij.openapi.ui.Messages;
 import com.intellij.xdebugger.XDebugSession;
 import com.intellij.xdebugger.XDebuggerManager;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -54,17 +53,11 @@ public class DBProgramRunner extends GenericProgramRunner {
     @Override
     protected RunContentDescriptor doExecute(
             Project project,
-            Executor executor,
+            final Executor executor,
             RunProfileState state,
             RunContentDescriptor contentToReuse,
-            ExecutionEnvironment environment) throws ExecutionException {
-        return null;
-    }
+            final ExecutionEnvironment environment) throws ExecutionException {
 
-    public void execute(
-            @NotNull final Executor executor,
-            @NotNull final ExecutionEnvironment environment,
-            @Nullable final Callback callback) throws ExecutionException {
         final DBProgramRunConfiguration runProfile = (DBProgramRunConfiguration) environment.getRunProfile();
 
         new BackgroundTask(runProfile.getProject(), "Checking debug privileges", false, true) {
@@ -74,10 +67,12 @@ public class DBProgramRunner extends GenericProgramRunner {
                         runProfile.getExecutionInput(),
                         executor,
                         environment,
-                        callback);
+                        null);
 
             }
         }.start();
+
+        return null;
     }
 
     private void performPrivilegeCheck(
