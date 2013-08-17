@@ -24,8 +24,10 @@ public class SetCurrentSchemaComboBoxAction extends DBNComboBoxAction {
         Project project = ActionUtil.getProject(component);
         ConnectionHandler activeConnection = FileConnectionMappingManager.getInstance(project).lookupActiveConnectionForEditor(place);
         DefaultActionGroup actionGroup = new DefaultActionGroup();
-        for (DBSchema schema : activeConnection.getObjectBundle().getSchemas()){
-            actionGroup.add(new SetCurrentSchemaAction(schema));
+        if (activeConnection != null && !activeConnection.isDisposed()) {
+            for (DBSchema schema : activeConnection.getObjectBundle().getSchemas()){
+                actionGroup.add(new SetCurrentSchemaAction(schema));
+            }
         }
         return actionGroup;
     }

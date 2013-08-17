@@ -226,11 +226,13 @@ public class FileConnectionMappingManager extends VirtualFileAdapter implements 
     /**********************************************
      *            Contextual utilities            *
      **********************************************/
+    @Nullable
     public ConnectionHandler lookupActiveConnectionForEditor(String actionPlace) {
         VirtualFile virtualFile = EditorUtil.getVirtualFile(project, actionPlace);
         return virtualFile == null ? null : getActiveConnection(virtualFile);
     }
 
+    @Nullable
     public DBSchema lookupCurrentSchemaForEditor(String actionPlace) {
         VirtualFile virtualFile = EditorUtil.getVirtualFile(project, actionPlace);
         return virtualFile == null ? null : getCurrentSchema(virtualFile);
