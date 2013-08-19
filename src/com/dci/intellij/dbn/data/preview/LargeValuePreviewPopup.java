@@ -107,6 +107,9 @@ public class LargeValuePreviewPopup extends DBNFormImpl implements DBNForm {
                 text = initial ?
                         lazyLoadedValue.loadValue(INITIAL_MAX_SIZE) :
                         lazyLoadedValue.loadValue();
+                if (text == null) {
+                    text = "";
+                }
 
                 long contentSize = lazyLoadedValue.size();
                 if (initial && contentSize > INITIAL_MAX_SIZE) {
