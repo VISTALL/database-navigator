@@ -102,6 +102,7 @@ public class DatasetEditorStructureViewElement implements StructureViewTreeEleme
                 int tableColumnIndex = table.convertColumnIndexToView(modelColumnIndex);
                 int rowIndex = table.getSelectedRow();
                 if (rowIndex == -1)  rowIndex = 0;
+                if (tableColumnIndex == -1) tableColumnIndex = 0;
                 table.selectCell(rowIndex, tableColumnIndex);
                 if (requestFocus) {
                     table.requestFocus();
