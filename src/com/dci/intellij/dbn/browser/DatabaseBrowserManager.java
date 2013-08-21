@@ -173,7 +173,7 @@ public class DatabaseBrowserManager extends AbstractProjectComponent implements 
      * @deprecated
      */
     public static void scrollToSelectedElement(final ConnectionHandler connectionHandler) {
-        if (!connectionHandler.isDisposed()) {
+        if (connectionHandler != null && !connectionHandler.isDisposed()) {
             DatabaseBrowserManager browserManager = DatabaseBrowserManager.getInstance(connectionHandler.getProject());
             BrowserToolWindowForm toolWindowForm = browserManager.getToolWindowForm();
             if (toolWindowForm != null) {
