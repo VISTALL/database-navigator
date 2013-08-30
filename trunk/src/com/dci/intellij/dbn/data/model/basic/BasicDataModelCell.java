@@ -17,6 +17,7 @@ public class BasicDataModelCell implements DataModelCell {
     protected Object userValue;
     private String formattedUserValue;
     protected int index;
+    private boolean isDisposed;
 
     public BasicDataModelCell(Object userValue, BasicDataModelRow row, ColumnInfo columnInfo) {
         this.userValue = userValue;
@@ -112,13 +113,16 @@ public class BasicDataModelCell implements DataModelCell {
     }
 
     public void dispose() {
-        row = null;
-        columnInfo = null;
-        userValue = null;
-        formattedUserValue = null;
+        if (!isDisposed) {
+            isDisposed = true;
+            row = null;
+            columnInfo = null;
+            userValue = null;
+            formattedUserValue = null;
+        }
     }
 
     public boolean isDisposed() {
-        return columnInfo == null;
+        return isDisposed;
     }
 }

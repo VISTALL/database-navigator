@@ -3,7 +3,9 @@ package com.dci.intellij.dbn.editor.data.ui.table.renderer;
 import com.dci.intellij.dbn.data.editor.color.DataGridTextAttributes;
 import com.dci.intellij.dbn.data.ui.table.basic.BasicTable;
 import com.dci.intellij.dbn.data.ui.table.basic.BasicTableCellRenderer;
+import com.dci.intellij.dbn.editor.data.model.DatasetEditorColumnInfo;
 import com.dci.intellij.dbn.editor.data.model.DatasetEditorModelCell;
+import com.dci.intellij.dbn.editor.data.model.DatasetEditorModelRow;
 import com.dci.intellij.dbn.editor.data.ui.table.DatasetEditorTable;
 import com.dci.intellij.dbn.object.DBColumn;
 import com.intellij.openapi.project.Project;
@@ -28,18 +30,21 @@ public class DatasetEditorTableCellRenderer extends BasicTableCellRenderer {
         DatasetEditorTable datasetEditorTable = (DatasetEditorTable) table;
 
 
-        if (cell != null && cell.getRow() != null) {
+
+        if (cell != null && !cell.isDisposed()) {
+            DatasetEditorModelRow row = cell.getRow();
+            DatasetEditorColumnInfo columnInfo = cell.getColumnInfo();
             boolean isLoading = datasetEditorTable.isLoading();
             boolean isInserting = datasetEditorTable.isInserting();
 
-            boolean isDeletedRow = cell.getRow().isDeleted();
-            boolean isInsertRow = cell.getRow().isInsert();
+            boolean isDeletedRow = row.isDeleted();
+            boolean isInsertRow = row.isInsert();
             boolean isCaretRow = table.getCellSelectionEnabled() && table.getSelectedRow() == rowIndex && table.getSelectedRowCount() == 1;
 
 
             //DataModelCell cellAtMouseLocation = datasetEditorTable.getCellAtMouseLocation();
 
-            DBColumn column = cell.getColumnInfo().getColumn();
+            DBColumn column = columnInfo.getColumn();
             if (cell.getUserValue() != null) {
                 SimpleTextAttributes textAttributes =
                         isSelected ? configTextAttributes.getSelection() :

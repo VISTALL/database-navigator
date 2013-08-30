@@ -47,6 +47,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
+import javax.swing.JPanel;
 import java.beans.PropertyChangeListener;
 import java.sql.SQLException;
 import java.util.HashSet;
@@ -131,7 +132,7 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
 
     @NotNull
     public JComponent getComponent() {
-        return editorForm.getComponent();
+        return isDisposed() ? new JPanel() : editorForm.getComponent();
     }
 
     @Nullable
