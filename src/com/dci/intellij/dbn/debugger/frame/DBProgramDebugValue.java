@@ -7,6 +7,7 @@ import com.dci.intellij.dbn.debugger.DBProgramDebugProcess;
 import com.intellij.xdebugger.frame.XValue;
 import com.intellij.xdebugger.frame.XValueModifier;
 import com.intellij.xdebugger.frame.XValueNode;
+import com.intellij.xdebugger.frame.XValuePlace;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Icon;
@@ -63,8 +64,8 @@ public class DBProgramDebugValue extends XValue implements Comparable<DBProgramD
     }
 
     @Override
-    public void computePresentation(@NotNull XValueNode node) {
-        node.setPresentation(variableName, icon, errorMessage, textPresentation, false);
+    public void computePresentation(@NotNull XValueNode node, @NotNull XValuePlace place) {
+        node.setPresentation(icon, errorMessage, textPresentation, false);
     }
 
     @Override
