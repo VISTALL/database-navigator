@@ -64,7 +64,8 @@ public class FileConnectionMappingManager extends VirtualFileAdapter implements 
                     if (connectionHandler != null) {
                         // overwrite current schema only if the existing
                         // selection is not a valid schema for the given connection
-                        DBSchema schema = connectionHandler.isVirtual() ? null : connectionHandler.getObjectBundle().getSchema(mapping.getCurrentSchema());
+                        String currentSchemaName = mapping.getCurrentSchema();
+                        DBSchema schema = connectionHandler.isVirtual() || currentSchemaName == null ? null : connectionHandler.getObjectBundle().getSchema(currentSchemaName);
                         setCurrentSchema(virtualFile, schema);
                     }
                     return true;
