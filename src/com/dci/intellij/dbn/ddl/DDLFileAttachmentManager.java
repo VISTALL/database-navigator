@@ -19,8 +19,6 @@ import com.intellij.openapi.fileChooser.FileChooser;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ModuleRootManager;
-import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.SelectFromListDialog;
@@ -209,30 +207,30 @@ public class DDLFileAttachmentManager extends AbstractProjectComponent implement
     }
 
     public void createDDLFile(final DBSchemaObject object) {
-        ConnectionHandler connectionHandler = object.getConnectionHandler();
-        final Project project = object.getProject();
-        FileChooserDescriptor descriptor = new FileChooserDescriptor(false, true, false, false, false, false);
-        descriptor.setTitle("Select new ddl-file location");
-
-        VirtualFile[] contentRoots;
-
-        Module module = connectionHandler.getModule();
-        if (module == null) {
-            ProjectRootManager rootManager = ProjectRootManager.getInstance(project);
-            contentRoots = rootManager.getContentRoots();
-        } else {
-            ModuleRootManager rootManager = ModuleRootManager.getInstance(module);
-            contentRoots = rootManager.getContentRoots();
-        }
-        descriptor.setIsTreeRootVisible(contentRoots.length == 1);
-        for (VirtualFile contentRoot : contentRoots) {
-            descriptor.addRoot(contentRoot);
-        }
-
         DDLFileNameProvider fileNameProvider = getDDLFileNameProvider(object);
 
         if (fileNameProvider != null) {
-            VirtualFile[] selectedDirectories = FileChooser.chooseFiles(project, descriptor);
+            ConnectionHandler connectionHandler = object.getConnectionHandler();
+            final Project project = object.getProject();
+            FileChooserDescriptor descriptor = new FileChooserDescriptor(false, true, false, false, false, false);
+            descriptor.setTitle("Select new ddl-file location");
+
+/*            VirtualFile[] contentRoots;
+
+            Module module = connectionHandler.getModule();
+            if (module == null) {
+                ProjectRootManager rootManager = ProjectRootManager.getInstance(project);
+                contentRoots = rootManager.getContentRoots();
+            } else {
+                ModuleRootManager rootManager = ModuleRootManager.getInstance(module);
+                contentRoots = rootManager.getContentRoots();
+            }
+            descriptor.setIsTreeRootVisible(contentRoots.length == 1);
+            for (VirtualFile contentRoot : contentRoots) {
+                descriptor.addRoot(contentRoot);
+            }*/
+
+            VirtualFile[] selectedDirectories = FileChooser.chooseFiles(descriptor, project, null);
             if (selectedDirectories.length > 0) {
                 final String fileName = fileNameProvider.getFileName();
                 final VirtualFile parentDirectory = selectedDirectories[0];
