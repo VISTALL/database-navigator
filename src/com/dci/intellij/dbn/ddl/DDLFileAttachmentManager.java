@@ -25,28 +25,16 @@ import com.intellij.openapi.ui.SelectFromListDialog;
 import com.intellij.openapi.util.InvalidDataException;
 import com.intellij.openapi.util.JDOMExternalizable;
 import com.intellij.openapi.util.WriteExternalException;
-import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VirtualFileCopyEvent;
-import com.intellij.openapi.vfs.VirtualFileEvent;
-import com.intellij.openapi.vfs.VirtualFileListener;
-import com.intellij.openapi.vfs.VirtualFileManager;
-import com.intellij.openapi.vfs.VirtualFileMoveEvent;
-import com.intellij.openapi.vfs.VirtualFilePropertyEvent;
+import com.intellij.openapi.vfs.*;
 import org.jdom.Element;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.JList;
-import javax.swing.ListSelectionModel;
+import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class DDLFileAttachmentManager extends AbstractProjectComponent implements VirtualFileListener, JDOMExternalizable {
 
@@ -230,7 +218,7 @@ public class DDLFileAttachmentManager extends AbstractProjectComponent implement
                 descriptor.addRoot(contentRoot);
             }*/
 
-            VirtualFile[] selectedDirectories = FileChooser.chooseFiles(descriptor, project, null);
+            VirtualFile[] selectedDirectories = FileChooser.chooseFiles(project, descriptor);
             if (selectedDirectories.length > 0) {
                 final String fileName = fileNameProvider.getFileName();
                 final VirtualFile parentDirectory = selectedDirectories[0];
