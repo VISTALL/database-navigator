@@ -25,13 +25,14 @@ public class SortableDataModelRow<T extends SortableDataModelCell> extends Basic
         if (index == -1) return 0;
         SortableDataModelRow row = (SortableDataModelRow) o;
 
-        SortableDataModelCell local = cells.get(index);
+        SortableDataModelCell local = getCellAtIndex(index);
         SortableDataModelCell remote = row.getCellAtIndex(index);
 
         int compareIndex = model.getSortDirection().getCompareIndex();
 
-        if (remote == null) return compareIndex;
+        if (remote == null && local == null) return 0;
         if (local == null) return -compareIndex;
+        if (remote == null) return compareIndex;
 
         return compareIndex * local.compareTo(remote);
     }
