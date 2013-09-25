@@ -18,10 +18,13 @@ public class DatasetEditorHeaderMouseListener extends MouseAdapter {
         if (event.getButton() == MouseEvent.BUTTON3) {
             Point mousePoint = event.getPoint();
             int tableColumnIndex = table.getTableHeader().columnAtPoint(mousePoint);
-            int modelColumnIndex = table.convertColumnIndexToModel(tableColumnIndex);
-            ColumnInfo columnInfo = table.getModel().getColumnInfo(modelColumnIndex);
-
-            table.showPopupMenu(event, null, columnInfo);
+            if (tableColumnIndex > -1) {
+                int modelColumnIndex = table.convertColumnIndexToModel(tableColumnIndex);
+                if (modelColumnIndex > -1) {
+                    ColumnInfo columnInfo = table.getModel().getColumnInfo(modelColumnIndex);
+                    table.showPopupMenu(event, null, columnInfo);
+                }
+            }
         }
     }
 }
