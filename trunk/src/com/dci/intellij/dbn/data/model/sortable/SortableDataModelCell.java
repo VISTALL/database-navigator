@@ -15,6 +15,7 @@ public class SortableDataModelCell extends BasicDataModelCell implements Compara
         Comparable local = (Comparable) getUserValue();
         Comparable remote = (Comparable) cell.getUserValue();
 
+        if (local == null && remote == null) return 0;
         if (local == null) return -1;
         if (remote == null) return 1;
         // local class may differ from remote class for
