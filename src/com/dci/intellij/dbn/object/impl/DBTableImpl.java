@@ -15,6 +15,7 @@ import com.dci.intellij.dbn.object.DBIndex;
 import com.dci.intellij.dbn.object.DBNestedTable;
 import com.dci.intellij.dbn.object.DBSchema;
 import com.dci.intellij.dbn.object.DBTable;
+import com.dci.intellij.dbn.object.common.DBObject;
 import com.dci.intellij.dbn.object.common.DBObjectRelationType;
 import com.dci.intellij.dbn.object.common.DBObjectType;
 import com.dci.intellij.dbn.object.common.list.DBObjectList;
@@ -236,7 +237,8 @@ public class DBTableImpl extends DBDatasetImpl implements DBTable {
     private static final DynamicSubcontentLoader INDEXES_LOADER = new DynamicSubcontentLoader<DBIndex>(true) {
         public boolean match(DBIndex index, DynamicContent dynamicContent) {
             DBTable table = (DBTable) dynamicContent.getParent();
-            return index.getTable().equals(table);
+            DBObject indexTable = index.getTable();
+            return indexTable != null && indexTable.equals(table);
         }
 
         public DynamicContentLoader<DBIndex> getAlternativeLoader() {

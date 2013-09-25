@@ -95,9 +95,12 @@ public class DatasetBasicFilterCondition extends Configuration<DatasetBasicFilte
 
         if (editorForm != null && !editorForm.isDisposed()) {
             conditionOperator = editorForm.getSelectedOperator();
-            columnName = editorForm.getSelectedColumn().getName();
-            operator = conditionOperator.getText();
-            value = editorForm.getValue();
+            DBColumn selectedColumn = editorForm.getSelectedColumn();
+            if (selectedColumn != null) {
+                columnName = selectedColumn.getName();
+                operator = conditionOperator.getText();
+                value = editorForm.getValue();
+            }
         }
 
         DBColumn column = dataset.getColumn(columnName);

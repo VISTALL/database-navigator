@@ -18,6 +18,7 @@ import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.ui.ColoredListCellRenderer;
 import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.SimpleTextAttributes;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.ComboBoxModel;
 import javax.swing.JComboBox;
@@ -134,9 +135,10 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
         this.basicFilterForm = basicFilterForm;
     }
 
+    @Nullable
     public DBColumn getSelectedColumn() {
         DBColumn column = (DBColumn) columnComboBox.getSelectedItem();
-        return (DBColumn) column.getUndisposedElement();
+        return column == null ? null : (DBColumn) column.getUndisposedElement();
     }
 
     public ConditionOperator getSelectedOperator() {
@@ -214,7 +216,7 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
         ConditionOperator operator = getSelectedOperator();
         String value = editorComponent.getText();
 
-        condition.setColumnName(column.getName());
+        condition.setColumnName(column == null ? "" : column.getName());
         condition.setOperator(operator == null ? "" : operator.toString());
         condition.setValue(value == null ? "" : value);
         condition.setActive(isActive());
@@ -222,17 +224,20 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
 
     private void updateOperatorsDropdown() {
         DBColumn column = getSelectedColumn();
-        ConditionOperator[] conditionOperators =  ConditionOperator.getConditionOperators(column.getDataType().getTypeClass());
-        ConditionOperator selectedOperator = getSelectedOperator();
+        if (column != null) {
+            ConditionOperator[] conditionOperators =  ConditionOperator.getConditionOperators(column.getDataType().getTypeClass());
+            ConditionOperator selectedOperator = getSelectedOperator();
 
-        isAdjusting = true;
-        operatorComboBox.removeAllItems();
-        for (ConditionOperator conditionOperator : conditionOperators) {
-            operatorComboBox.addItem(conditionOperator);
+            isAdjusting = true;
+            operatorComboBox.removeAllItems();
+            for (ConditionOperator conditionOperator : conditionOperators) {
+                operatorComboBox.addItem(conditionOperator);
+            }
+
+            isAdjusting = false;
+            setSelectedOperator(selectedOperator == null ? null : selectedOperator.getText());
         }
 
-        isAdjusting = false;
-        setSelectedOperator(selectedOperator == null ? null : selectedOperator.getText());
     }
 
     private void updateValueTextField() {
