@@ -80,9 +80,11 @@ public class StatementExecutionResultForm extends DBNFormImpl implements Executi
     public void reloadTableModel() {
         new SimpleLaterInvocator() {
             public void run() {
-                resultTable = new ResultSetTable(executionResult.getTableModel(), true, recordViewInfo);
-                resultScrollPane.setViewportView(resultTable);
-                resultScrollPane.setRowHeaderView(resultTable.getTableGutter());
+                if (executionResult != null) {
+                    resultTable = new ResultSetTable(executionResult.getTableModel(), true, recordViewInfo);
+                    resultScrollPane.setViewportView(resultTable);
+                    resultScrollPane.setRowHeaderView(resultTable.getTableGutter());
+                }
             }
         }.start();
     }
