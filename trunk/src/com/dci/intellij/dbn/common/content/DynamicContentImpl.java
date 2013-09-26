@@ -1,6 +1,7 @@
 package com.dci.intellij.dbn.common.content;
 
 import com.dci.intellij.dbn.common.content.dependency.ContentDependencyAdapter;
+import com.dci.intellij.dbn.common.content.dependency.VoidContentDependencyAdapter;
 import com.dci.intellij.dbn.common.content.loader.DynamicContentLoader;
 import com.dci.intellij.dbn.common.content.loader.DynamicContentLoaderException;
 import com.dci.intellij.dbn.common.dispose.DisposeUtil;
@@ -259,6 +260,7 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
                 DisposeUtil.disposeCollection(elements);
             CollectionUtil.clearMap(index);
             dependencyAdapter.dispose();
+            dependencyAdapter = VoidContentDependencyAdapter.INSTANCE;
             connectionHandler = null;
             parent = null;
         }
