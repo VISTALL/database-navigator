@@ -10,7 +10,7 @@ public class SubcontentDependencyAdapterImpl extends BasicDependencyAdapter impl
 
     public SubcontentDependencyAdapterImpl(GenericDatabaseElement sourceContentOwner, DynamicContentType sourceContentType) {
         super(sourceContentOwner.getConnectionHandler());
-        contentDependency = new ContentDependency(sourceContentOwner, sourceContentType);
+        contentDependency = new LinkedContentDependency(sourceContentOwner, sourceContentType);
     }
 
 
@@ -83,7 +83,7 @@ public class SubcontentDependencyAdapterImpl extends BasicDependencyAdapter impl
         if (!isDisposed) {
             isDisposed = true;
             contentDependency.dispose();
-            contentDependency = null;
+            contentDependency = VoidContentDependency.INSTANCE;
             super.dispose();
         }
     }

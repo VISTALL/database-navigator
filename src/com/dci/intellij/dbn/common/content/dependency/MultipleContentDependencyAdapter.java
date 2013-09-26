@@ -14,7 +14,7 @@ public class MultipleContentDependencyAdapter extends BasicDependencyAdapter imp
     public MultipleContentDependencyAdapter(ConnectionHandler connectionHandler, DynamicContent... sourceContents) {
         super(connectionHandler);
         for (DynamicContent sourceContent : sourceContents) {
-            dependencies.add(new ContentDependency(sourceContent));
+            dependencies.add(new BasicContentDependency(sourceContent));
         }
     }
 
