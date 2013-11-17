@@ -41,12 +41,9 @@ public class TabbedBrowserForm extends DatabaseBrowserForm{
 */
             }
 
-            public void beforeSelectionChanged(TabInfo oldSelection, TabInfo newSelection) {
-            }
-
-            public void tabsMoved() {
-
-            }
+            public void beforeSelectionChanged(TabInfo oldSelection, TabInfo newSelection) {}
+            public void tabRemoved(TabInfo tabInfo) {}
+            public void tabsMoved() {}
         });
 
         EventManager.subscribe(project, EnvironmentChangeListener.TOPIC, environmentChangeListener);
