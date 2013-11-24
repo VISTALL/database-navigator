@@ -75,10 +75,12 @@ public class EditorUtil {
         FileEditorManager editorManager = FileEditorManager.getInstance(databaseFile.getProject());
         FileEditor[] fileEditors = editorManager.getEditors(databaseFile);
         for (FileEditor fileEditor : fileEditors) {
-            BasicTextEditor basicTextEditor = (BasicTextEditor) fileEditor;
-            VirtualFile file = FileDocumentManager.getInstance().getFile(basicTextEditor.getEditor().getDocument());
-            if (file.equals(virtualFile)) {
-                return basicTextEditor;
+            if (fileEditor instanceof BasicTextEditor) {
+                BasicTextEditor basicTextEditor = (BasicTextEditor) fileEditor;
+                VirtualFile file = FileDocumentManager.getInstance().getFile(basicTextEditor.getEditor().getDocument());
+                if (file!= null && file.equals(virtualFile)) {
+                    return basicTextEditor;
+                }
             }
         }
         return null;
