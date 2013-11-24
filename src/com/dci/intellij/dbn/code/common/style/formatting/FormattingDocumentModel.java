@@ -1,8 +1,10 @@
 package com.dci.intellij.dbn.code.common.style.formatting;
 
+import com.intellij.lang.ASTNode;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.util.TextRange;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class FormattingDocumentModel implements com.intellij.formatting.FormattingDocumentModel {
     public int getLineNumber(int offset) {
@@ -27,6 +29,11 @@ public class FormattingDocumentModel implements com.intellij.formatting.Formatti
 
     public boolean containsWhiteSpaceSymbolsOnly(int startOffset, int endOffset) {
         return false;
+    }
+
+    @NotNull
+    public CharSequence adjustWhiteSpaceIfNecessary(@NotNull CharSequence whiteSpaceText, int startOffset, int endOffset, @Nullable ASTNode nodeAfter, boolean changedViaPsi) {
+        return whiteSpaceText;
     }
 
     @NotNull
