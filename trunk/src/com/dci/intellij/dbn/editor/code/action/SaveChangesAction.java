@@ -1,7 +1,6 @@
 package com.dci.intellij.dbn.editor.code.action;
 
 import com.dci.intellij.dbn.common.Icons;
-import com.dci.intellij.dbn.common.compatibility.CompatibilityUtil;
 import com.dci.intellij.dbn.common.thread.WriteActionRunner;
 import com.dci.intellij.dbn.common.util.ActionUtil;
 import com.dci.intellij.dbn.editor.DBContentType;
@@ -11,8 +10,8 @@ import com.dci.intellij.dbn.object.common.status.DBObjectStatus;
 import com.dci.intellij.dbn.vfs.SourceCodeFile;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
-import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
 
 public class SaveChangesAction extends AbstractSourceCodeEditorAction {
@@ -27,8 +26,7 @@ public class SaveChangesAction extends AbstractSourceCodeEditorAction {
 
         new WriteActionRunner() {
             public void run() {
-                Document document = editor.getDocument();
-                CompatibilityUtil.stripDocumentTrailingSpaces(document);
+                FileDocumentManager.getInstance().saveAllDocuments();
                 SourceCodeEditorManager.getInstance(project).updateSourceToDatabase(editor, virtualFile);
             }
         }.start();

@@ -2,9 +2,7 @@ package com.dci.intellij.dbn.common.compatibility;
 
 import com.dci.intellij.dbn.vfs.SourceCodeFile;
 import com.intellij.find.editorHeaderActions.Utils;
-import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.ex.EditorEx;
-import com.intellij.openapi.editor.impl.DocumentImpl;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleType;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -12,8 +10,9 @@ import com.intellij.testFramework.LightVirtualFile;
 import com.intellij.ui.components.JBList;
 import com.intellij.util.ui.UIUtil;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JComponent;
+import javax.swing.JTextField;
+import java.awt.Color;
 
 public class CompatibilityUtil {
     public static Color getEditorBackgroundColor(EditorEx editorEx) {
@@ -23,15 +22,6 @@ public class CompatibilityUtil {
     public static ModuleType getModuleType(Module module) {
         //return module.getModuleType();
         return ModuleType.get(module);
-    }
-    
-    public static void stripDocumentTrailingSpaces(Document document) {
-        if (document instanceof DocumentImpl) {
-            DocumentImpl documentImpl = (DocumentImpl) document;
-            //documentImpl.stripTrailingSpaces(true);
-            documentImpl.stripTrailingSpaces();
-        }
-        
     }
 
     public static void showSearchCompletionPopup(boolean byClickingToolbarButton, JComponent toolbarComponent, JBList list, String title, JTextField textField) {
