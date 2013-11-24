@@ -38,11 +38,11 @@ public class FormattingDocumentModel implements com.intellij.formatting.Formatti
 
     @NotNull
     public CharSequence adjustWhiteSpaceIfNecessary(@NotNull CharSequence charSequence, int i, int i1, boolean b) {
-        return null;
+        return charSequence;
     }
 
     @NotNull
     public CharSequence adjustWhiteSpaceIfNecessary(@NotNull CharSequence whiteSpaceText, int startOffset, int endOffset) {
-        return null;
+        return whiteSpaceText;
     }
 }
