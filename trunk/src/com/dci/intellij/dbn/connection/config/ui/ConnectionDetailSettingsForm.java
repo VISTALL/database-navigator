@@ -17,6 +17,7 @@ import com.dci.intellij.dbn.options.general.GeneralProjectSettings;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.ColoredListCellRenderer;
+import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.util.ui.ColorIcon;
 import com.intellij.util.ui.UIUtil;
 
@@ -119,7 +120,7 @@ public class ConnectionDetailSettingsForm extends ConfigurationEditorForm<Connec
                 }
 
                 if (name != null) {
-                    append(name);
+                    append(name, SimpleTextAttributes.REGULAR_ATTRIBUTES);
                 }
                 
             }
