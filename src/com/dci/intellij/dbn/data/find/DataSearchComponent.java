@@ -364,7 +364,7 @@ public class DataSearchComponent extends JPanel implements Disposable, Selection
     }
 
     private void paintBorderOfTextField(Graphics g) {
-        if (!(UIUtil.isUnderAquaLookAndFeel() || UIUtil.isUnderQuaquaLookAndFeel() || CompatibilityUtil.isUnderGTKLookAndFeel() || UIUtil.isUnderNimbusLookAndFeel()) &&
+        if (!(UIUtil.isUnderAquaLookAndFeel() || CompatibilityUtil.isUnderGTKLookAndFeel() || UIUtil.isUnderNimbusLookAndFeel()) &&
                 isFocusOwner()) {
             final Rectangle bounds = getBounds();
             g.setColor(FOCUS_CATCHER_COLOR);
