@@ -32,8 +32,7 @@ public class DatabaseFileViewProvider extends SingleRootFileViewProvider {
             if (virtualFile instanceof DatabaseObjectFile) {
                 DatabaseObjectFile objectFile = (DatabaseObjectFile) virtualFile;
                 DBObject object = objectFile.getObject();
-                NavigationPsiCache psiCache = object.getConnectionHandler().getPsiCache();
-                return psiCache.getPsiFile(object);
+                return NavigationPsiCache.getPsiFile(object);
             }
 
             DBLanguage baseLanguage = (DBLanguage) getBaseLanguage();

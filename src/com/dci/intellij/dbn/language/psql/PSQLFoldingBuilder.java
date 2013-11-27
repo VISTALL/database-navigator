@@ -12,13 +12,15 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiComment;
 import com.intellij.psi.PsiElement;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class PSQLFoldingBuilder implements FoldingBuilder {
 
-    public FoldingDescriptor[] buildFoldRegions(ASTNode node, Document document) {
+    @NotNull
+    public FoldingDescriptor[] buildFoldRegions(@NotNull ASTNode node, @NotNull Document document) {
         List<FoldingDescriptor> foldingDescriptors = new ArrayList<FoldingDescriptor>();
         createFoldingDescriptors(node.getPsi(), document, foldingDescriptors, 0);
         return foldingDescriptors.toArray(new FoldingDescriptor[foldingDescriptors.size()]);
@@ -108,7 +110,7 @@ public class PSQLFoldingBuilder implements FoldingBuilder {
         }
     }
 
-    public String getPlaceholderText(ASTNode node) {
+    public String getPlaceholderText(@NotNull ASTNode node) {
         PsiElement psiElement = node.getPsi();
         if (psiElement instanceof BasePsiElement) {
             /*BasePsiElement basePsiElement = (BasePsiElement) psiElement;
@@ -134,7 +136,7 @@ public class PSQLFoldingBuilder implements FoldingBuilder {
         return "";
     }
 
-    public boolean isCollapsedByDefault(ASTNode node) {
+    public boolean isCollapsedByDefault(@NotNull ASTNode node) {
         return false;
     }
 

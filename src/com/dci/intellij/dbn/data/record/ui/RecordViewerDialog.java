@@ -4,6 +4,7 @@ import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.ui.dialog.DBNDialog;
 import com.dci.intellij.dbn.data.record.DatasetRecord;
 import com.dci.intellij.dbn.editor.data.DatasetEditorManager;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.AbstractAction;
@@ -35,6 +36,7 @@ public class RecordViewerDialog extends DBNDialog {
         return editorForm.getPreferredFocusComponent();
     }
 
+    @NotNull
     protected final Action[] createActions() {
         return new Action[]{
                 new OpenInEditorAction(),

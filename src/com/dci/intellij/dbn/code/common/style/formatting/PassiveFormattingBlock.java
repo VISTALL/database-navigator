@@ -1,18 +1,19 @@
 package com.dci.intellij.dbn.code.common.style.formatting;
 
-import com.intellij.formatting.Block;
-import com.intellij.formatting.Wrap;
-import com.intellij.formatting.Indent;
+import com.dci.intellij.dbn.code.common.style.presets.CodeStylePreset;
 import com.intellij.formatting.Alignment;
-import com.intellij.formatting.Spacing;
+import com.intellij.formatting.Block;
 import com.intellij.formatting.ChildAttributes;
+import com.intellij.formatting.Indent;
+import com.intellij.formatting.Spacing;
+import com.intellij.formatting.Wrap;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
-import com.dci.intellij.dbn.code.common.style.presets.CodeStylePreset;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 public class PassiveFormattingBlock implements Block {
     private static final  List<Block> EMPTY_LIST = new ArrayList<Block>(0);
@@ -44,7 +45,7 @@ public class PassiveFormattingBlock implements Block {
         return null;
     }
 
-    public Spacing getSpacing(Block child1, Block child2) {
+    public Spacing getSpacing(@Nullable Block child1, @NotNull Block child2) {
         return null;
     }
 

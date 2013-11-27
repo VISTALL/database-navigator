@@ -2,6 +2,7 @@ package com.dci.intellij.dbn.data.ui.table.resultSet.record;
 
 import com.dci.intellij.dbn.common.ui.dialog.DBNDialog;
 import com.dci.intellij.dbn.data.ui.table.resultSet.ResultSetTable;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Action;
@@ -29,6 +30,7 @@ public class ResultSetRecordViewerDialog extends DBNDialog {
         return viewerForm.getPreferredFocusComponent();
     }
 
+    @NotNull
     protected final Action[] createActions() {
         return new Action[]{
                 getCancelAction(),

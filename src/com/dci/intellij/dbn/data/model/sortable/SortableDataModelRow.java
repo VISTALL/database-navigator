@@ -1,6 +1,7 @@
 package com.dci.intellij.dbn.data.model.sortable;
 
 import com.dci.intellij.dbn.data.model.basic.BasicDataModelRow;
+import org.jetbrains.annotations.NotNull;
 
 public class SortableDataModelRow<T extends SortableDataModelCell> extends BasicDataModelRow<T> implements Comparable {
 
@@ -18,7 +19,7 @@ public class SortableDataModelRow<T extends SortableDataModelCell> extends Basic
         return super.getCellAtIndex(index);
     }
 
-    public int compareTo(Object o) {
+    public int compareTo(@NotNull Object o) {
         SortableDataModel model = getModel();
         int index = model.getSortColumnIndex();
 

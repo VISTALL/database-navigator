@@ -8,7 +8,8 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 public class StringUtil extends com.intellij.openapi.util.text.StringUtil {
-    public static List<String> tokenize(String string, String separator) {
+    @NotNull
+    public static List<String> tokenize(@NotNull String string, @NotNull String separator) {
         List<String> tokens = new ArrayList<String>();
         StringTokenizer tokenizer = new StringTokenizer(string, separator);
         while (tokenizer.hasMoreTokens()) {

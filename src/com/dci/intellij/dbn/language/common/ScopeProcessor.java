@@ -4,13 +4,14 @@ import com.intellij.openapi.util.Key;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.ResolveState;
 import com.intellij.psi.scope.PsiScopeProcessor;
+import org.jetbrains.annotations.NotNull;
 
 public class ScopeProcessor implements PsiScopeProcessor {
-    public boolean execute(PsiElement psiElement, ResolveState resolveState) {
+    public boolean execute(@NotNull PsiElement psiElement, ResolveState resolveState) {
         return false;
     }
 
-    public <T> T getHint(Key<T> tKey) {
+    public <T> T getHint(@NotNull Key<T> tKey) {
         return null;
     }
 

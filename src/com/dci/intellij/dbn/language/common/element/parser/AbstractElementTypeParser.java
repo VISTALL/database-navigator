@@ -59,7 +59,7 @@ public abstract class AbstractElementTypeParser<T extends ElementType> implement
     protected ParseResult stepOut(PsiBuilder builder, PsiBuilder.Marker marker, int depth, ParseResultType resultType, int matchedTokens, PathNode node) {
         if (node != null) node.detach();
         if (resultType == ParseResultType.PARTIAL_MATCH) {
-            errorHandler.updateBuilderError(builder, getElementType().getLookupCache().getNextPossibleTokens(), 0);
+            ParseBuilderErrorHandler.updateBuilderError(builder, getElementType().getLookupCache().getNextPossibleTokens(), 0);
         }
         if (resultType == ParseResultType.NO_MATCH) {
             if (marker != null) marker.rollbackTo();

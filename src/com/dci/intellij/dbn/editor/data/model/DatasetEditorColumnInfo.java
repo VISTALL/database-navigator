@@ -71,10 +71,11 @@ public class DatasetEditorColumnInfo implements ColumnInfo {
 
     public boolean isSortable() {
         DBDataType type = column.getDataType();
-        if (column.getDataType().isNative()) {
-            return type.getNativeDataType().getBasicDataType().is(BasicDataType.LITERAL, BasicDataType.NUMERIC, BasicDataType.DATE_TIME);
-        }
-        return false;                                                                                                                                            
+        return column.getDataType().isNative() &&
+                type.getNativeDataType().getBasicDataType().is(
+                        BasicDataType.LITERAL,
+                        BasicDataType.NUMERIC,
+                        BasicDataType.DATE_TIME);
     }
 
 }

@@ -10,6 +10,7 @@ import com.intellij.openapi.help.HelpManager;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.Alarm;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -43,6 +44,7 @@ public class GlobalProjectSettingsDialog extends DBNDialog {
         super.dispose();
     }
 
+    @NotNull
     protected final Action[] createActions() {
         return new Action[]{
                 getOKAction(),

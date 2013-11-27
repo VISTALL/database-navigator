@@ -39,7 +39,7 @@ public class CursorResultFetchNextRecordsAction extends DumbAwareAction {
 
     @Override
     public void update(AnActionEvent e) {
-        ResultSetDataModel model = (ResultSetDataModel) table.getModel();
+        ResultSetDataModel model = table.getModel();
         boolean enabled = !model.isResultSetExhausted();
         e.getPresentation().setEnabled(enabled);
     }

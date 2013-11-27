@@ -241,6 +241,7 @@ public class DatabaseFileSystem extends VirtualFileSystem implements Application
         throw new UnsupportedOperationException(ERR);
     }
 
+    @NotNull
     protected VirtualFile createChildDirectory(Object o, @NotNull VirtualFile virtualFile, @NotNull String s) throws IOException {
         throw new UnsupportedOperationException(ERR);
     }

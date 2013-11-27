@@ -24,10 +24,11 @@ import com.intellij.lang.annotation.Annotation;
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.Annotator;
 import com.intellij.psi.PsiElement;
+import org.jetbrains.annotations.NotNull;
 
 public class PSQLLanguageAnnotator implements Annotator {
 
-    public void annotate(final PsiElement psiElement, final AnnotationHolder holder) {
+    public void annotate(@NotNull final PsiElement psiElement, @NotNull final AnnotationHolder holder) {
         if (psiElement instanceof BasePsiElement) {
             BasePsiElement basePsiElement = (BasePsiElement) psiElement;
             ElementType elementType = basePsiElement.getElementType();

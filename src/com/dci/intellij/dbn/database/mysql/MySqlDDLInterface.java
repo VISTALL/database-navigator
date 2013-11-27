@@ -63,11 +63,7 @@ public class MySqlDDLInterface extends DatabaseDDLInterfaceImpl {
         String methodType = keywordCaseOption.changeCase(method.getObjectType().getName());
         String methodName = method.getName();//objectCaseOption.changeCase(method.getName());
 
-        StringBuilder buffer = new StringBuilder();
-        buffer.append(methodType);
-        buffer.append(" ");
-        buffer.append(methodName);
-        return buffer.toString();
+        return methodType + " " + methodName;
     }
 
     public String getSessionSqlMode(Connection connection) throws SQLException {
