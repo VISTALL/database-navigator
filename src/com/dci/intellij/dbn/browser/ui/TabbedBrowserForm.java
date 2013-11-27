@@ -10,16 +10,16 @@ import com.dci.intellij.dbn.connection.ConnectionBundle;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.ConnectionManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.ui.components.JBList;
 import com.intellij.ui.tabs.TabInfo;
 import com.intellij.ui.tabs.TabsListener;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
-import javax.swing.JList;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.util.Vector;
+import java.util.ArrayList;
 
 public class TabbedBrowserForm extends DatabaseBrowserForm{
     private TabbedPane connectionTabs;
@@ -71,7 +71,7 @@ public class TabbedBrowserForm extends DatabaseBrowserForm{
         }
         if (connectionTabs.getTabCount() == 0) {
             mainPanel.removeAll();
-            mainPanel.add(new JList(new Vector()), BorderLayout.CENTER);
+            mainPanel.add(new JBList(new ArrayList()), BorderLayout.CENTER);
         } else {
             if (mainPanel.getComponentCount() > 0) {
                 Component component = mainPanel.getComponent(0);
