@@ -7,8 +7,8 @@ import com.dci.intellij.dbn.object.filter.name.SimpleFilterCondition;
 import com.intellij.ui.ColoredTreeCellRenderer;
 import com.intellij.ui.SimpleTextAttributes;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JTree;
+import java.awt.Color;
 import java.util.List;
 
 public class FilterSettingsTreeCellRenderer extends ColoredTreeCellRenderer{
@@ -31,7 +31,7 @@ public class FilterSettingsTreeCellRenderer extends ColoredTreeCellRenderer{
         if (value instanceof SimpleFilterCondition) {
             SimpleFilterCondition condition = (SimpleFilterCondition) value;
 
-            append(condition.getObjectType().getName().toUpperCase() + "_NAME ");
+            append(condition.getObjectType().getName().toUpperCase() + "_NAME ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
             append(condition.getOperator().getText(), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
             append(" '" + condition.getText() + "' ", new SimpleTextAttributes(0, Color.BLUE));
 

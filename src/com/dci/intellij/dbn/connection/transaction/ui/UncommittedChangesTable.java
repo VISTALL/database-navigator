@@ -6,6 +6,7 @@ import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.ui.ColoredTableCellRenderer;
+import com.intellij.ui.SimpleTextAttributes;
 
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
@@ -59,9 +60,9 @@ public class UncommittedChangesTable extends DBNTable {
             UncommittedChange change = (UncommittedChange) value;
             if (column == 0) {
                 setIcon(change.getIcon());
-                append(change.getDisplayFilePath());
+                append(change.getDisplayFilePath(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
             } else if (column == 1) {
-                append(change.getChangesCount() + " uncommitted changes");
+                append(change.getChangesCount() + " uncommitted changes", SimpleTextAttributes.REGULAR_ATTRIBUTES);
             }
             setBorder(EMPTY_BORDER);
 

@@ -74,7 +74,7 @@ public class ArgumentValuesTree extends DBNTree{
             if (userValue instanceof DBArgument) {
                 DBArgument argument = (DBArgument) userValue;
                 setIcon(argument.getIcon());
-                append(argument.getName());
+                append(argument.getName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
             }
 
             if (userValue instanceof ArgumentValue) {

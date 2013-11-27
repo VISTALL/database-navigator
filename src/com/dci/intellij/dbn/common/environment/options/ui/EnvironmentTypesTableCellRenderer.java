@@ -3,6 +3,7 @@ package com.dci.intellij.dbn.common.environment.options.ui;
 import com.dci.intellij.dbn.common.util.StringUtil;
 import com.intellij.ui.ColoredSideBorder;
 import com.intellij.ui.ColoredTableCellRenderer;
+import com.intellij.ui.SimpleTextAttributes;
 
 import javax.swing.JTable;
 import javax.swing.border.CompoundBorder;
@@ -20,7 +21,7 @@ public class EnvironmentTypesTableCellRenderer extends ColoredTableCellRenderer{
         } else {
             String stringValue = (String) value;
             if (StringUtil.isNotEmpty(stringValue)) {
-                append(stringValue);
+                append(stringValue, SimpleTextAttributes.REGULAR_ATTRIBUTES);
             }
         }
     }
