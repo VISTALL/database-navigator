@@ -43,5 +43,5 @@ public class DBMaterializedViewImpl extends DBViewImpl implements DBMaterialized
             return getConnectionHandler().getInterfaceProvider().getMetadataInterface().loadMaterializedViewSourceCode(
                    getSchema().getName(), getName(), connection);
         }
-    };
+    }
 }
