@@ -157,10 +157,7 @@ public class SourceCodeFile extends DatabaseContentFile implements DatabaseFile,
     public String createDDLStatement() {
         String content = this.content.trim();
         if (content.length() > 0) {
-            StringBuilder buffer = new StringBuilder();
-            buffer.append(getObject().createDDLStatement(content));
-
-            return buffer.toString();
+            return getObject().createDDLStatement(content);
         }
         return "";
     }

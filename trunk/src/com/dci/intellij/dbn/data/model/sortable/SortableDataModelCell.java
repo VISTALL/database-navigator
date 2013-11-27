@@ -3,6 +3,7 @@ package com.dci.intellij.dbn.data.model.sortable;
 import com.dci.intellij.dbn.data.model.ColumnInfo;
 import com.dci.intellij.dbn.data.model.DataModelCell;
 import com.dci.intellij.dbn.data.model.basic.BasicDataModelCell;
+import org.jetbrains.annotations.NotNull;
 
 public class SortableDataModelCell extends BasicDataModelCell implements Comparable {
 
@@ -10,7 +11,7 @@ public class SortableDataModelCell extends BasicDataModelCell implements Compara
         super(userValue, row, columnInfo);
     }
 
-    public int compareTo(Object o) {
+    public int compareTo(@NotNull Object o) {
         DataModelCell cell = (DataModelCell) o;
         Comparable local = (Comparable) getUserValue();
         Comparable remote = (Comparable) cell.getUserValue();

@@ -23,6 +23,7 @@ public class FormattingDocumentModel implements com.intellij.formatting.Formatti
         return 0;
     }
 
+    @NotNull
     public Document getDocument() {
         return null;
     }

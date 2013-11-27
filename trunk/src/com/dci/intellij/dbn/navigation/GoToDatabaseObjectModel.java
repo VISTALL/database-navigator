@@ -86,6 +86,7 @@ public class GoToDatabaseObjectModel implements ChooseByNameModel {
         return true;
     }
 
+    @NotNull
     public String[] getNames(boolean checkBoxState) {
         boolean databaseLoadActive = objectsLookupSettings.getForceDatabaseLoad().value();
         boolean forceLoad = checkBoxState && databaseLoadActive;
@@ -99,6 +100,7 @@ public class GoToDatabaseObjectModel implements ChooseByNameModel {
                 bucket.toArray(new String[bucket.size()]);
     }
 
+    @NotNull
     public Object[] getElementsByName(String name, boolean checkBoxState, String pattern) {
         boolean forceLoad = checkBoxState && objectsLookupSettings.getForceDatabaseLoad().value();
         ObjectCollector collector = new ObjectCollector(name, forceLoad);

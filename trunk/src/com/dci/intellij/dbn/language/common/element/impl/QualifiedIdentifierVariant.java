@@ -6,6 +6,7 @@ import com.dci.intellij.dbn.language.common.element.TokenElementType;
 import com.dci.intellij.dbn.language.common.psi.LeafPsiElement;
 import com.dci.intellij.dbn.language.common.psi.QualifiedIdentifierPsiElement;
 import com.intellij.psi.PsiElement;
+import org.jetbrains.annotations.NotNull;
 
 public class QualifiedIdentifierVariant implements Comparable{
     private LeafElementType[] leafs;
@@ -69,7 +70,7 @@ public class QualifiedIdentifierVariant implements Comparable{
         return false;
     }
 
-    public int compareTo(Object o) {
+    public int compareTo(@NotNull Object o) {
         QualifiedIdentifierVariant variant = (QualifiedIdentifierVariant) o;
         if (variant.isIncomplete() != this.isIncomplete()) {
             return variant.isIncomplete() ? -1 : 1;

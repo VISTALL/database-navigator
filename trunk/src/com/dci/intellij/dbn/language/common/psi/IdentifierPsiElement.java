@@ -569,7 +569,7 @@ public class IdentifierPsiElement extends LeafPsiElement implements PsiNamedElem
         return ref != null && !ref.isDirty();
     }
 
-    public PsiElement setName(@NonNls String name) throws IncorrectOperationException {
+    public PsiElement setName(@NotNull @NonNls String name) throws IncorrectOperationException {
         return null;
     }
 }

@@ -183,11 +183,11 @@ public class FormattingBlock implements Block {
     }
 
     @Nullable
-    public Spacing getSpacing(Block child1, Block child2) {
+    public Spacing getSpacing(@Nullable Block child1, @NotNull Block child2) {
         FormattingBlock leftBlock = (FormattingBlock) child1;
         FormattingBlock rightBlock = (FormattingBlock) child2;
 
-        if (leftBlock == null || rightBlock == null) {
+        if (leftBlock == null) {
             return null;
         }
 

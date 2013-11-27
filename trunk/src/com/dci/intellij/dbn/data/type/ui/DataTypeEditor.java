@@ -2,9 +2,9 @@ package com.dci.intellij.dbn.data.type.ui;
 
 import com.dci.intellij.dbn.code.common.style.options.CodeStyleCaseOption;
 import com.dci.intellij.dbn.code.psql.style.options.PSQLCodeStyleSettings;
+import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.data.editor.ui.TextFieldWithPopup;
 import com.dci.intellij.dbn.data.type.DataTypeDefinition;
-import com.dci.intellij.dbn.connection.ConnectionHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,8 +18,8 @@ public class DataTypeEditor extends TextFieldWithPopup {
 
         List<DataTypeDefinition> nativeDataTypes = connectionHandler.getInterfaceProvider().getNativeDataTypes().list();
         List<String> nativeDataTypeNames = new ArrayList<String>();
-        for (int i=0; i<nativeDataTypes.size(); i++) {
-            String typeName = nativeDataTypes.get(i).getName();
+        for (DataTypeDefinition nativeDataType : nativeDataTypes) {
+            String typeName = nativeDataType.getName();
             typeName = caseOption.changeCase(typeName);
             nativeDataTypeNames.add(typeName);
         }

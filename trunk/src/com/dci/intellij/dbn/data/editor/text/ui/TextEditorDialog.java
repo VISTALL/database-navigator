@@ -7,6 +7,7 @@ import com.dci.intellij.dbn.data.editor.ui.UserValueHolder;
 import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Action;
@@ -44,6 +45,7 @@ public class TextEditorDialog extends DBNDialog implements DocumentListener {
         }
     }
 
+    @NotNull
     protected final Action[] createActions() {
         return new Action[]{
                 getOKAction(),

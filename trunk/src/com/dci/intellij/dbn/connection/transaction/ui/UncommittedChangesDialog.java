@@ -6,6 +6,7 @@ import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.transaction.DatabaseTransactionManager;
 import com.dci.intellij.dbn.connection.transaction.TransactionAction;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.AbstractAction;
@@ -32,6 +33,7 @@ public class UncommittedChangesDialog extends DBNDialog {
         return "DBNavigator.UncommittedChanges";
     }
 
+    @NotNull
     protected final Action[] createActions() {
         return new Action[]{
                 new CommitAction(),

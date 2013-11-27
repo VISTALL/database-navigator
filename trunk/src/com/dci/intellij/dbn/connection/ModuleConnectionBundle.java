@@ -74,7 +74,7 @@ public class ModuleConnectionBundle extends ConnectionBundle implements ModuleCo
         return "ModuleConnectionBundle[" + getModule().getName() + "]";
     }
 
-    public int compareTo(Object o) {
+    public int compareTo(@NotNull Object o) {
         if (o instanceof ModuleConnectionBundle) {
             ModuleConnectionBundle connectionManager = (ModuleConnectionBundle) o;
             return getModule().getName().compareTo(connectionManager.getModule().getName());

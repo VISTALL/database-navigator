@@ -105,7 +105,7 @@ public class FiltrableList<T> implements List<T> {
     }
 
     @NotNull
-    public <E> E[] toArray(E[] e) {
+    public <E> E[] toArray(@NotNull E[] e) {
         if (isFiltered()) {
             List<T> result = new ArrayList<T>();
             for (T object : list) if (filter.accepts(object)) result.add(object);
@@ -157,7 +157,7 @@ public class FiltrableList<T> implements List<T> {
 
     }
 
-    public boolean containsAll(Collection c) {
+    public boolean containsAll(@NotNull Collection c) {
         if (isFiltered()) {
             List list = Arrays.asList(toArray());
             return list.containsAll(c);
@@ -196,7 +196,7 @@ public class FiltrableList<T> implements List<T> {
         }
     }
 
-    public boolean addAll(int index, Collection<? extends T> c){
+    public boolean addAll(int index, @NotNull Collection<? extends T> c){
         if (isFiltered()) {
             int idx = findIndex(index);
             return list.addAll(idx, c);

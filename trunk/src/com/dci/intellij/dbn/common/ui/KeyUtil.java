@@ -9,7 +9,7 @@ import com.intellij.openapi.keymap.KeymapManager;
 import com.intellij.openapi.keymap.KeymapUtil;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.KeyStroke;
 import java.awt.event.KeyEvent;
 
 public class KeyUtil {
@@ -34,7 +34,7 @@ public class KeyUtil {
     public static ShortcutSet createShortcutSet(int keyCode, int modifiers) {
         KeyStroke keyStroke = KeyStroke.getKeyStroke(keyCode, modifiers);
         Shortcut shortcut = new KeyboardShortcut(keyStroke, null);
-        return new CustomShortcutSet(new Shortcut[]{shortcut});
+        return new CustomShortcutSet(shortcut);
     }
 
     public static boolean isEmacsKeymap() {

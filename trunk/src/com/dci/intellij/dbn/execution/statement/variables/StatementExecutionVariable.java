@@ -3,6 +3,7 @@ package com.dci.intellij.dbn.execution.statement.variables;
 import com.dci.intellij.dbn.data.type.BasicDataType;
 import com.dci.intellij.dbn.language.common.psi.ExecVariablePsiElement;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.NotNull;
 
 public class StatementExecutionVariable implements Comparable<StatementExecutionVariable>{
     private BasicDataType dataType;
@@ -64,7 +65,7 @@ public class StatementExecutionVariable implements Comparable<StatementExecution
     }
 
     @Override
-    public int compareTo(StatementExecutionVariable o) {
+    public int compareTo(@NotNull StatementExecutionVariable o) {
         return o.name.length()-name.length();
     }
 

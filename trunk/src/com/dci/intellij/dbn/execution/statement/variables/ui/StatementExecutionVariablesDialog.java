@@ -6,6 +6,7 @@ import com.dci.intellij.dbn.common.ui.dialog.DBNDialog;
 import com.dci.intellij.dbn.execution.statement.variables.StatementExecutionVariablesBundle;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.AbstractAction;
@@ -35,6 +36,7 @@ public class StatementExecutionVariablesDialog extends DBNDialog {
         return variablesForm.getPreferredFocusComponent();
     }
 
+    @NotNull
     protected final Action[] createActions() {
         return new Action[]{
                 new ExecuteAction(),

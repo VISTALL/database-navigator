@@ -732,7 +732,6 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
 
     @Override
     public PsiFile getContainingFile() throws PsiInvalidElementAccessException {
-        NavigationPsiCache psiCache = getConnectionHandler().getPsiCache();
-        return psiCache.getPsiFile(this);
+        return NavigationPsiCache.getPsiFile(this);
     }
 }

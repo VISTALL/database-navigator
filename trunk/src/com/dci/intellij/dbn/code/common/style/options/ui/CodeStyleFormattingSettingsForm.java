@@ -5,6 +5,7 @@ import com.dci.intellij.dbn.code.common.style.options.CodeStyleFormattingSetting
 import com.dci.intellij.dbn.code.common.style.presets.CodeStylePreset;
 import com.dci.intellij.dbn.common.options.ui.ConfigurationEditorForm;
 import com.intellij.openapi.options.ConfigurationException;
+import com.intellij.openapi.ui.ComboBox;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
@@ -39,7 +40,7 @@ public class CodeStyleFormattingSettingsForm extends ConfigurationEditorForm<Cod
                             GridConstraints.SIZEPOLICY_FIXED,
                             GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 
-            JComboBox comboBox = new JComboBox(option.getPresets().toArray());
+            JComboBox comboBox = new ComboBox(option.getPresets().toArray(), -1);
 
             settingsPanel.add(comboBox,
                     new GridConstraints(i, 1, 1, 1,

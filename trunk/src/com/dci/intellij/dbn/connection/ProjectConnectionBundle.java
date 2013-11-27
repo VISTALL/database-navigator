@@ -86,7 +86,7 @@ public class ProjectConnectionBundle extends ConnectionBundle implements Project
         return "ProjectConnectionBundle";
     }
 
-    public int compareTo(Object o) {
+    public int compareTo(@NotNull Object o) {
         return -1;
     }
 }

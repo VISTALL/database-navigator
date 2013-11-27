@@ -3,6 +3,7 @@ package com.dci.intellij.dbn.execution.method.ui;
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.ui.dialog.DBNDialog;
 import com.dci.intellij.dbn.execution.method.MethodExecutionInput;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.AbstractAction;
@@ -27,6 +28,7 @@ public class MethodExecutionDialog extends DBNDialog {
         return "DBNavigator.MethodExecution";
     }
 
+    @NotNull
     protected final Action[] createActions() {
         return new Action[]{
                 new ExecuteAction(),

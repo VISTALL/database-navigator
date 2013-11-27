@@ -9,6 +9,7 @@ import com.dci.intellij.dbn.language.common.element.TokenElementType;
 import com.dci.intellij.dbn.language.common.element.impl.QualifiedIdentifierVariant;
 import com.dci.intellij.dbn.language.common.element.path.ParsePathNode;
 import com.dci.intellij.dbn.language.common.element.path.PathNode;
+import com.dci.intellij.dbn.language.common.element.util.ParseBuilderErrorHandler;
 import com.intellij.lang.PsiBuilder;
 import gnu.trove.THashSet;
 
@@ -45,7 +46,7 @@ public class QualifiedIdentifierElementTypeParser extends AbstractElementTypePar
             if (variant.isIncomplete()) {
                 Set<TokenType> expected = new THashSet<TokenType>();
                 expected.add(separatorToken.getTokenType());
-                getErrorHandler().updateBuilderError(builder, expected, timestamp);
+                ParseBuilderErrorHandler.updateBuilderError(builder, expected, timestamp);
                 return stepOut(builder, marker, depth, ParseResultType.PARTIAL_MATCH, matchedTokens, node);
             } else {
                 return stepOut(builder, marker, depth, ParseResultType.FULL_MATCH, matchedTokens, node);

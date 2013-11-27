@@ -6,6 +6,7 @@ import com.dci.intellij.dbn.object.DBMethod;
 import com.dci.intellij.dbn.object.common.ui.ObjectTreeModel;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.AbstractAction;
@@ -43,6 +44,7 @@ public class MethodExecutionBrowserDialog extends DBNDialog implements Disposabl
         return mainComponent.getComponent();
     }
 
+    @NotNull
     protected final Action[] createActions() {
         selectAction = new SelectAction();
         selectAction.setEnabled(false);

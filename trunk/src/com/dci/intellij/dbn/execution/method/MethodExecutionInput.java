@@ -18,6 +18,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.InvalidDataException;
 import com.intellij.openapi.util.WriteExternalException;
 import org.jdom.Element;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -222,7 +223,7 @@ public class MethodExecutionInput implements Disposable, PersistentConfiguration
         }
     }
 
-    public int compareTo(MethodExecutionInput executionInput) {
+    public int compareTo(@NotNull MethodExecutionInput executionInput) {
         DBMethodIdentifier localMethodIdentifier = getMethodIdentifier();
         DBMethodIdentifier remoteMethodIdentifier = executionInput.getMethodIdentifier();
         return localMethodIdentifier.compareTo(remoteMethodIdentifier);

@@ -7,10 +7,11 @@ import com.intellij.openapi.fileTypes.SyntaxHighlighter;
 import com.intellij.openapi.fileTypes.SyntaxHighlighterProvider;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class DBSyntaxHighlighterProvider implements SyntaxHighlighterProvider {
-    public SyntaxHighlighter create(FileType fileType, @Nullable Project project, @Nullable VirtualFile virtualFile) {
+    public SyntaxHighlighter create(@NotNull FileType fileType, @Nullable Project project, @Nullable VirtualFile virtualFile) {
         DBLanguageFileType dbFileType = (DBLanguageFileType) (virtualFile == null ? fileType : virtualFile.getFileType());
         DBLanguage language = (DBLanguage) dbFileType.getLanguage();
 

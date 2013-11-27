@@ -5,9 +5,11 @@ import com.intellij.ide.util.projectWizard.ModuleWizardStep;
 import com.intellij.ide.util.projectWizard.WizardContext;
 import com.intellij.openapi.module.ModuleType;
 import com.intellij.openapi.roots.ui.configuration.ModulesProvider;
+import org.jetbrains.annotations.NotNull;
+
+import javax.swing.Icon;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.Icon;
 
 public class DBModuleType<T extends DBModuleBuilder> extends ModuleType<T> {
     public static final DBModuleType MODULE_TYPE = new DBModuleType("DBNavigator.ModuleType.DatabaseModule");
@@ -15,14 +17,17 @@ public class DBModuleType<T extends DBModuleBuilder> extends ModuleType<T> {
         super(id);
     }
 
+    @NotNull
     public T createModuleBuilder() {
         return (T) new DBModuleBuilder();
     }
 
+    @NotNull
     public String getName() {
         return "Database module";
     }
 
+    @NotNull
     public String getDescription() {
         return "<b>Database module</b> is a part of a project which bundles all database related objects like ddl/dml scripts, database connections and so on...";
     }
@@ -34,7 +39,8 @@ public class DBModuleType<T extends DBModuleBuilder> extends ModuleType<T> {
     public Icon getNodeIcon(boolean isOpened) {
         return isOpened ? Icons.DATABASE_MODULE_SMALL_OPEN : Icons.DATABASE_MODULE_SMALL_CLOSED;
     }
-    public ModuleWizardStep[] createWizardSteps(WizardContext wizardContext, T moduleBuilder, ModulesProvider modulesProvider) {
+    @NotNull
+    public ModuleWizardStep[] createWizardSteps(@NotNull WizardContext wizardContext, @NotNull T moduleBuilder, @NotNull ModulesProvider modulesProvider) {
         List<ModuleWizardStep> wizardSteps = new ArrayList<ModuleWizardStep>();
 
         //ProjectWizardStepFactory.getInstance().createNameAndLocationStep(wizardContext);
