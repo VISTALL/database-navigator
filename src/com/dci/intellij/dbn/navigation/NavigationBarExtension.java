@@ -35,8 +35,7 @@ public class NavigationBarExtension implements NavBarModelExtension {
             DBLanguageFile databaseFile = (DBLanguageFile) psiElement;
             DBObject object = databaseFile.getUnderlyingObject();
             if (object != null) {
-                NavigationPsiCache psiCache = object.getConnectionHandler().getPsiCache();
-                return psiCache.getPsiFile(object);
+                return NavigationPsiCache.getPsiFile(object);
             }
         }
         return psiElement;

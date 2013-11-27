@@ -99,7 +99,7 @@ public class DBViewImpl extends DBDatasetImpl implements DBView {
             return getConnectionHandler().getInterfaceProvider().getMetadataInterface().loadViewSourceCode(
                    getSchema().getName(), getName(), connection);
         }
-    };
+    }
 
     /*********************************************************
      *                  DBEditableCodeObject                 *

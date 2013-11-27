@@ -63,7 +63,7 @@ public abstract class DatasetFilterImpl extends Configuration implements Dataset
     }
 
     public void setName(String name) {
-        this.name = StringUtil.first(name, 40, true);;
+        this.name = StringUtil.first(name, 40, true);
     }
 
     public String getConnectionId() {

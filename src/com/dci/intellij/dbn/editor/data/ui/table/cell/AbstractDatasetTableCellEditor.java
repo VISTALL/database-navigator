@@ -39,7 +39,7 @@ public abstract class AbstractDatasetTableCellEditor extends AbstractCellEditor 
                 setCellValueToEditor();
             }
         }
-    };;
+    };
 
     public AbstractDatasetTableCellEditor(DataEditorComponent editorComponent, Project project) {
         this.editorComponent = editorComponent;

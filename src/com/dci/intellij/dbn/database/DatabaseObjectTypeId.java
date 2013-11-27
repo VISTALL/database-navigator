@@ -68,5 +68,5 @@ public enum DatabaseObjectTypeId {
 
     UNKNOWN(),
     NONE(),
-    ANY;
+    ANY
 }
