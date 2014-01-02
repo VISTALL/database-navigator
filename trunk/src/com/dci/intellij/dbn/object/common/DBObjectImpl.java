@@ -55,6 +55,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiInvalidElementAccessException;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 import java.sql.CallableStatement;
@@ -443,6 +444,7 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
         return ddl;
     }
 
+    @Nullable
     public DBObject getUndisposedElement() {
         if (isDisposed()) {
             return identifier.lookupObject();

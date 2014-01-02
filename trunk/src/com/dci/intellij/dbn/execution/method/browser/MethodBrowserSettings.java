@@ -12,6 +12,7 @@ import com.intellij.openapi.util.WriteExternalException;
 import gnu.trove.THashMap;
 import gnu.trove.THashSet;
 import org.jdom.Element;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.Set;
@@ -65,6 +66,7 @@ public class MethodBrowserSettings implements PersistentConfiguration {
         this.schemaName = schema == null ? null : schema.getName();
     }
 
+    @Nullable
     public DBMethod getMethod() {
         return methodIdentifier == null ? null : methodIdentifier.lookupObject();
     }

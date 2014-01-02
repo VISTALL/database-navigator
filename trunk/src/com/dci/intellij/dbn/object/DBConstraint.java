@@ -1,6 +1,7 @@
 package com.dci.intellij.dbn.object;
 
 import com.dci.intellij.dbn.object.common.DBSchemaObject;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -19,6 +20,7 @@ public interface DBConstraint extends DBSchemaObject {
     boolean isUniqueKey();
     DBDataset getDataset();
 
+    @Nullable
     DBConstraint getForeignKeyConstraint();
 
     List<DBColumn> getColumns();

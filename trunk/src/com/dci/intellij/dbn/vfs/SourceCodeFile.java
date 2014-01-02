@@ -175,7 +175,7 @@ public class SourceCodeFile extends DatabaseContentFile implements DatabaseFile,
     }
 
     @Override
-    public <T> void putUserData(Key<T> key, T value) {
+    public <T> void putUserData(@NotNull Key<T> key, T value) {
         if (key == FileDocumentManagerImpl.DOCUMENT_KEY && (contentType == DBContentType.CODE || contentType == DBContentType.CODE_BODY)) {
             databaseFile.putUserData(FileDocumentManagerImpl.DOCUMENT_KEY, (Reference<Document>) value);
         }

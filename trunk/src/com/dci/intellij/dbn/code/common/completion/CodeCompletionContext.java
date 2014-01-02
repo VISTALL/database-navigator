@@ -5,9 +5,11 @@ import com.dci.intellij.dbn.code.common.completion.options.filter.CodeCompletion
 import com.dci.intellij.dbn.code.common.style.options.ProjectCodeStyleSettings;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.language.common.DBLanguage;
+import com.dci.intellij.dbn.language.common.DBLanguageDialect;
 import com.dci.intellij.dbn.language.common.DBLanguageFile;
 import com.dci.intellij.dbn.language.common.psi.BasePsiElement;
 import com.dci.intellij.dbn.language.common.psi.PsiUtil;
+import com.dci.intellij.dbn.language.sql.SQLLanguage;
 import com.dci.intellij.dbn.options.GlobalProjectSettings;
 import com.intellij.codeInsight.completion.CompletionParameters;
 import com.intellij.codeInsight.completion.CompletionResultSet;
@@ -91,6 +93,7 @@ public class CodeCompletionContext {
     }
 
     public DBLanguage getLanguage() {
-        return file.getLanguageDialect().getBaseLanguage();
+        DBLanguageDialect languageDialect = file.getLanguageDialect();
+        return languageDialect == null ? SQLLanguage.INSTANCE : languageDialect.getBaseLanguage();
     }
 }
