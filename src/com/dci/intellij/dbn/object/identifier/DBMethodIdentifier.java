@@ -9,6 +9,7 @@ import com.dci.intellij.dbn.object.common.DBObjectType;
 import com.intellij.openapi.util.InvalidDataException;
 import com.intellij.openapi.util.WriteExternalException;
 import org.jdom.Element;
+import org.jetbrains.annotations.Nullable;
 
 public class DBMethodIdentifier<T extends DBMethod> extends DBObjectIdentifier<DBMethod> implements PersistentConfiguration {
     private int overload;
@@ -22,6 +23,7 @@ public class DBMethodIdentifier<T extends DBMethod> extends DBObjectIdentifier<D
         super();
     }
 
+    @Nullable
     public T lookupObject() {
         ConnectionHandler connectionHandler = lookupConnectionHandler();
         if (connectionHandler == null) return null;

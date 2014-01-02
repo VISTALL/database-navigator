@@ -5,6 +5,7 @@ import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.object.common.DBObject;
 import com.dci.intellij.dbn.object.common.DBObjectType;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -77,6 +78,7 @@ public class DBObjectIdentifier<T extends DBObject> implements Comparable {
         return connectionId;
     }
 
+    @Nullable
     public T lookupObject() {
         ConnectionHandler connectionHandler = lookupConnectionHandler();
 

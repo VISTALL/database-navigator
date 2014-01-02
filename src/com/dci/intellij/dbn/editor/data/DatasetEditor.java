@@ -83,6 +83,7 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
         EventManager.subscribe(project, ConnectionStatusListener.TOPIC, this);
     }
 
+    @Nullable
     public DBDataset getDataset() {
         return (DBDataset) datasetIdentifier.lookupObject();
     }

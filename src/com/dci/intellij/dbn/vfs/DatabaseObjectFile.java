@@ -38,6 +38,7 @@ public class DatabaseObjectFile<T extends DBObject> extends VirtualFile implemen
         return objectIdentifier;
     }
 
+    @Nullable
     public T getObject() {
         return objectIdentifier.lookupObject();
     }

@@ -4,6 +4,7 @@ import com.dci.intellij.dbn.common.content.DynamicContent;
 import com.dci.intellij.dbn.common.content.DynamicContentType;
 import com.dci.intellij.dbn.common.content.VoidDynamicContent;
 import com.dci.intellij.dbn.connection.GenericDatabaseElement;
+import org.jetbrains.annotations.NotNull;
 
 public class LinkedContentDependency extends ContentDependency {
     private GenericDatabaseElement sourceContentOwner;
@@ -15,10 +16,15 @@ public class LinkedContentDependency extends ContentDependency {
         reset();
     }
 
+    @NotNull
     public DynamicContent getSourceContent() {
-        return sourceContentOwner == null ?
-                VoidDynamicContent.INSTANCE :
-                sourceContentOwner.getDynamicContent(sourceContentType);
+        if (sourceContentOwner != null) {
+            DynamicContent sourceContent = sourceContentOwner.getDynamicContent(sourceContentType);
+            if (sourceContent != null) {
+                return sourceContent;
+            }
+        }
+        return VoidDynamicContent.INSTANCE;
     }
 
     public void dispose() {

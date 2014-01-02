@@ -12,6 +12,7 @@ import com.dci.intellij.dbn.object.DBMethod;
 import com.dci.intellij.dbn.object.DBSchema;
 import com.dci.intellij.dbn.object.identifier.DBMethodIdentifier;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.Nullable;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -26,6 +27,7 @@ public abstract class MethodExecutionProcessorImpl<T extends DBMethod> implement
         this.methodIdentifier = method.getIdentifier();
     }
 
+    @Nullable
     public T getMethod() {
         return methodIdentifier.lookupObject();
     }

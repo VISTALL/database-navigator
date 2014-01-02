@@ -17,6 +17,7 @@ import com.dci.intellij.dbn.object.DBConstraint;
 import com.dci.intellij.dbn.object.DBDataset;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
@@ -320,6 +321,7 @@ public class DatasetEditorModel extends ResultSetDataModel<DatasetEditorModelRow
         }
     }
 
+    @Nullable
     public DatasetEditorModelRow getInsertRow() {
         for (DatasetEditorModelRow row : getRows()) {
             if (row.isInsert()) {
@@ -330,7 +332,8 @@ public class DatasetEditorModel extends ResultSetDataModel<DatasetEditorModelRow
     }
 
     public int getInsertRowIndex() {
-        return getInsertRow().getIndex();
+        DatasetEditorModelRow insertRow = getInsertRow();
+        return insertRow == null ? -1 : insertRow.getIndex();
     }
 
     public void revertChanges() {

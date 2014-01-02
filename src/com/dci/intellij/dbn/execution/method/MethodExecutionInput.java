@@ -19,6 +19,7 @@ import com.intellij.openapi.util.InvalidDataException;
 import com.intellij.openapi.util.WriteExternalException;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,6 +55,7 @@ public class MethodExecutionInput implements Disposable, PersistentConfiguration
         executionResult = new MethodExecutionResult(this, resultPanel, debug);
     }
 
+    @Nullable
     public DBMethod getMethod() {
         return methodIdentifier.lookupObject();
     }

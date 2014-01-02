@@ -71,16 +71,18 @@ public class SelectDatasetFilterComboBoxAction extends DBNComboBoxAction {
         if (datasetEditor != null) {
             DBDataset dataset = datasetEditor.getDataset();
 
-            DatasetFilterManager filterManager = DatasetFilterManager.getInstance(dataset.getProject());
-            DatasetFilter activeFilter = filterManager.getActiveFilter(dataset);
+            if (dataset != null) {
+                DatasetFilterManager filterManager = DatasetFilterManager.getInstance(dataset.getProject());
+                DatasetFilter activeFilter = filterManager.getActiveFilter(dataset);
 
-            if (activeFilter == null) {
-                presentation.setText("No Filter");
-                presentation.setIcon(Icons.DATASET_FILTER_EMPTY);
-            } else {
-                //e.getPresentation().setText(activeFilter.getName());
-                presentation.setText(NamingUtil.enhanceNameForDisplay(activeFilter.getName()));
-                presentation.setIcon(activeFilter.getIcon());
+                if (activeFilter == null) {
+                    presentation.setText("No Filter");
+                    presentation.setIcon(Icons.DATASET_FILTER_EMPTY);
+                } else {
+                    //e.getPresentation().setText(activeFilter.getName());
+                    presentation.setText(NamingUtil.enhanceNameForDisplay(activeFilter.getName()));
+                    presentation.setIcon(activeFilter.getIcon());
+                }
             }
         }
 

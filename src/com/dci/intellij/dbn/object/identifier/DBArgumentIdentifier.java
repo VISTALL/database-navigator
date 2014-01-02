@@ -6,6 +6,7 @@ import com.dci.intellij.dbn.object.DBMethod;
 import com.dci.intellij.dbn.object.DBProgram;
 import com.dci.intellij.dbn.object.DBSchema;
 import com.dci.intellij.dbn.object.common.DBObjectType;
+import org.jetbrains.annotations.Nullable;
 
 public class DBArgumentIdentifier extends DBObjectIdentifier<DBArgument>{
     private int overload;
@@ -15,6 +16,7 @@ public class DBArgumentIdentifier extends DBObjectIdentifier<DBArgument>{
         overload = argument.getOverload();
     }
 
+    @Nullable
     public DBArgument lookupObject() {
         ConnectionHandler connectionHandler = lookupConnectionHandler();
         if (connectionHandler == null) return null;

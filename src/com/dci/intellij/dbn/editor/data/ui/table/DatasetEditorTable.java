@@ -352,7 +352,7 @@ public class DatasetEditorTable extends ResultSetTable {
 
         if (model.isInserting() && !e.getValueIsAdjusting()) {
             int insertRowIndex = getModel().getInsertRowIndex();
-            if ((insertRowIndex == e.getFirstIndex() || insertRowIndex == e.getLastIndex()) && getSelectedRow() != insertRowIndex) {
+            if (insertRowIndex != -1 && (insertRowIndex == e.getFirstIndex() || insertRowIndex == e.getLastIndex()) && getSelectedRow() != insertRowIndex) {
                 try {
                     model.postInsertRecord(false, true);
                 } catch (SQLException e1) {

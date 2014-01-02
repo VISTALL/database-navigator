@@ -30,6 +30,7 @@ import com.dci.intellij.dbn.object.properties.DBObjectPresentableProperty;
 import com.dci.intellij.dbn.object.properties.PresentableProperty;
 import com.dci.intellij.dbn.object.properties.SimplePresentableProperty;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 import java.sql.Connection;
@@ -160,6 +161,7 @@ public class DBConstraintImpl extends DBSchemaObjectImpl implements DBConstraint
         return null;
     }
 
+    @Nullable
     public DBConstraint getForeignKeyConstraint() {
         return foreignKeyConstraint == null ? null : (DBConstraint) foreignKeyConstraint.lookupObject();
     }
