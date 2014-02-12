@@ -77,7 +77,6 @@ public class CheckBoxList<T extends Selectable> extends JList {
         public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
             Entry entry = (Entry) value;
             Selectable presentable = entry.presentable;
-            String error = presentable.getError();
             entry.label.setForeground(presentable.isMasterSelected() ? UIUtil.getListForeground() : Color.GRAY);
             entry.checkBox.setEnabled(presentable.isMasterSelected());
 
