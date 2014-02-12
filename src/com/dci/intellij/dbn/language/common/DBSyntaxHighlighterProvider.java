@@ -11,22 +11,29 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class DBSyntaxHighlighterProvider implements SyntaxHighlighterProvider {
+    @Nullable
     public SyntaxHighlighter create(@NotNull FileType fileType, @Nullable Project project, @Nullable VirtualFile virtualFile) {
-        DBLanguageFileType dbFileType = (DBLanguageFileType) (virtualFile == null ? fileType : virtualFile.getFileType());
-        DBLanguage language = (DBLanguage) dbFileType.getLanguage();
+        if (virtualFile != null) {
+            fileType = virtualFile.getFileType();
+        }
+        if (fileType instanceof DBLanguageFileType) {
+            DBLanguageFileType dbFileType = (DBLanguageFileType) fileType;
+            DBLanguage language = (DBLanguage) dbFileType.getLanguage();
 
-        DBLanguageDialect mainLanguageDialect = language.getMainLanguageDialect();
-        if (project != null && virtualFile != null) {
-            ConnectionHandler connectionHandler = FileConnectionMappingManager.getInstance(project).getActiveConnection(virtualFile);
-            DBLanguageDialect languageDialect = connectionHandler == null ?
-                    mainLanguageDialect :
-                    connectionHandler.getLanguageDialect(language);
-            return languageDialect == null ?
-                    mainLanguageDialect.createSyntaxHighlighter() :
-                    languageDialect.createSyntaxHighlighter();
+            DBLanguageDialect mainLanguageDialect = language.getMainLanguageDialect();
+            if (project != null && virtualFile != null) {
+                ConnectionHandler connectionHandler = FileConnectionMappingManager.getInstance(project).getActiveConnection(virtualFile);
+                DBLanguageDialect languageDialect = connectionHandler == null ?
+                        mainLanguageDialect :
+                        connectionHandler.getLanguageDialect(language);
+                return languageDialect == null ?
+                        mainLanguageDialect.createSyntaxHighlighter() :
+                        languageDialect.createSyntaxHighlighter();
+            }
+
+            return mainLanguageDialect.getSyntaxHighlighter();
         }
 
-        return mainLanguageDialect.getSyntaxHighlighter();
-
+        return null;
     }
 }
