@@ -15,9 +15,7 @@ import com.intellij.psi.tree.IFileElementType;
 public class SQLLanguage extends DBLanguage<SQLLanguageDialect> {
     public static final SQLLanguage INSTANCE = new SQLLanguage();
 
-    private IFileElementType fileElementType;
-
-    protected SQLLanguageDialect[] createLanguageDialects() {           
+    protected SQLLanguageDialect[] createLanguageDialects() {
         SQLLanguageDialect oracleSQLLanguageDialect = new OracleSQLLanguageDialect();
         SQLLanguageDialect mysqlSQLLanguageDialect = new MysqlSQLLanguageDialect();
         SQLLanguageDialect iso92SQLLanguageDialect = new Iso92SQLLanguageDialect();
@@ -31,12 +29,9 @@ public class SQLLanguage extends DBLanguage<SQLLanguageDialect> {
         return getAvailableLanguageDialects()[0];
     }
 
-    public IFileElementType getFileElementType() {
-        if (fileElementType == null) {
-            fileElementType = new SQLFileElementType(this);
-
-        }
-        return fileElementType;
+    @Override
+    protected IFileElementType createFileElementType(DBLanguage<SQLLanguageDialect> language) {
+        return new SQLFileElementType(this);
     }
 
     private SQLLanguage() {
