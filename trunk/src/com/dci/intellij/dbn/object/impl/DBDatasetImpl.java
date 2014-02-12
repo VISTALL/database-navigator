@@ -158,7 +158,8 @@ public abstract class DBDatasetImpl extends DBSchemaObjectImpl implements DBData
     private static final DynamicSubcontentLoader<DBConstraint> CONSTRAINTS_LOADER = new DynamicSubcontentLoader<DBConstraint>(true) {
         public boolean match(DBConstraint constraint, DynamicContent dynamicContent) {
             DBDataset dataset = (DBDataset) dynamicContent.getParent();
-            return constraint.getDataset().equals(dataset);
+            DBDataset constraintDataset = constraint.getDataset();
+            return constraintDataset != null && constraintDataset.equals(dataset);
         }
 
         public DynamicContentLoader<DBConstraint> getAlternativeLoader() {
