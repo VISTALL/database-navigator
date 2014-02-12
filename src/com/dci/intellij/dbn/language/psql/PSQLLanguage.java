@@ -13,8 +13,6 @@ import com.intellij.psi.tree.IFileElementType;
 public class PSQLLanguage extends DBLanguage<PSQLLanguageDialect> {
     public static final PSQLLanguage INSTANCE = new PSQLLanguage();
 
-    private IFileElementType fileElementType;
-
     protected PSQLLanguageDialect[] createLanguageDialects() {
         PSQLLanguageDialect oraclePLSQLLanguageDialect = new OraclePLSQLLanguageDialect();
         return new PSQLLanguageDialect[]{ oraclePLSQLLanguageDialect };
@@ -24,12 +22,9 @@ public class PSQLLanguage extends DBLanguage<PSQLLanguageDialect> {
         return getAvailableLanguageDialects()[0];
     }
 
-    public IFileElementType getFileElementType() {
-        if (fileElementType == null) {
-            fileElementType = new PSQLFileElementType(this);
-
-        }
-        return fileElementType;
+    @Override
+    protected IFileElementType createFileElementType(DBLanguage<PSQLLanguageDialect> language) {
+        return new PSQLFileElementType(this);
     }
 
     private PSQLLanguage() {
