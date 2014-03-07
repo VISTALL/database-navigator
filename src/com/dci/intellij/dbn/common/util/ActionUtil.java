@@ -11,6 +11,7 @@ import com.intellij.openapi.actionSystem.DataProvider;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
 import java.awt.Component;
@@ -44,6 +45,7 @@ public class ActionUtil {
         return actionManager.createActionToolbar(place, actionGroup, horizontal);
     }
 
+    @Nullable
     public static Project getProject(AnActionEvent e) {
         return e.getData(PlatformDataKeys.PROJECT);
     }

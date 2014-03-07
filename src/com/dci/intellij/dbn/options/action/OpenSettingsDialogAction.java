@@ -11,8 +11,10 @@ public class OpenSettingsDialogAction extends DumbAwareAction {
 
     public void actionPerformed(AnActionEvent e) {
         Project project = ActionUtil.getProject(e);
-        GlobalProjectSettingsDialog globalSettingsDialog = new GlobalProjectSettingsDialog(project);
-        globalSettingsDialog.show();
+        if (project != null) {
+            GlobalProjectSettingsDialog globalSettingsDialog = new GlobalProjectSettingsDialog(project);
+            globalSettingsDialog.show();
+        }
     }
 
     public void update(AnActionEvent e) {
