@@ -19,7 +19,7 @@ public abstract class AbstractDiffAction extends AbstractSourceCodeEditorAction 
     protected void openDiffWindow(AnActionEvent e, final String referenceText, final String referenceTitle, final String windowTitle) {
         final SourceCodeFile virtualFile = getSourcecodeFile(e);
         final Project project = ActionUtil.getProject(e);
-        if (virtualFile != null) {
+        if (project!= null && virtualFile != null) {
             new SimpleLaterInvocator() {
                 public void run() {
                     SimpleContent originalContent = new SimpleContent(referenceText, virtualFile.getFileType());

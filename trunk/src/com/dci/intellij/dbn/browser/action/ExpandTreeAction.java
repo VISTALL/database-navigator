@@ -17,10 +17,12 @@ public class ExpandTreeAction extends DumbAwareAction {
 
     public void actionPerformed(AnActionEvent e) {
         Project project = ActionUtil.getProject(e);
-        DatabaseBrowserManager browserManager = DatabaseBrowserManager.getInstance(project);
-        DatabaseBrowserTree activeBrowserTree = browserManager.getActiveBrowserTree();
-        if (activeBrowserTree != null) {
-            activeBrowserTree.expandAll();
+        if (project != null) {
+            DatabaseBrowserManager browserManager = DatabaseBrowserManager.getInstance(project);
+            DatabaseBrowserTree activeBrowserTree = browserManager.getActiveBrowserTree();
+            if (activeBrowserTree != null) {
+                activeBrowserTree.expandAll();
+            }
         }
     }
 

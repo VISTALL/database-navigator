@@ -17,9 +17,11 @@ import com.intellij.psi.PsiFile;
 public class ExecuteStatementAction extends AnAction {
     public void actionPerformed(AnActionEvent e) {
         Project project = ActionUtil.getProject(e);
-        Editor editor = EditorUtil.getSelectedEditor(project);
-        StatementExecutionManager.getInstance(project).executeSelectedStatement(editor);
-        DocumentUtil.refreshEditorAnnotations(project);
+        if (project != null) {
+            Editor editor = EditorUtil.getSelectedEditor(project);
+            StatementExecutionManager.getInstance(project).executeSelectedStatement(editor);
+            DocumentUtil.refreshEditorAnnotations(project);
+        }
     }
 
     public void update(AnActionEvent e) {

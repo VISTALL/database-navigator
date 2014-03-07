@@ -17,8 +17,10 @@ public class CreateDDLFileAction extends AnAction {
 
     public void actionPerformed(AnActionEvent e) {
         Project project = ActionUtil.getProject(e);
-        DDLFileAttachmentManager fileAttachmentManager = DDLFileAttachmentManager.getInstance(project);
-        fileAttachmentManager.createDDLFile(object);
+        if (project != null) {
+            DDLFileAttachmentManager fileAttachmentManager = DDLFileAttachmentManager.getInstance(project);
+            fileAttachmentManager.createDDLFile(object);
+        }
     }
 
 }

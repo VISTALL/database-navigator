@@ -22,11 +22,12 @@ public class DetachDDLFileAction extends AnAction {
     }
 
     public void update(AnActionEvent e) {
-
         Project project = ActionUtil.getProject(e);
-        DDLFileAttachmentManager fileAttachmentManager = DDLFileAttachmentManager.getInstance(project);
-        boolean hasBoundDDLFiles = fileAttachmentManager.hasBoundDDLFiles(object);
-        Presentation presentation = e.getPresentation();
-        presentation.setEnabled(hasBoundDDLFiles);
+        if (project != null) {
+            DDLFileAttachmentManager fileAttachmentManager = DDLFileAttachmentManager.getInstance(project);
+            boolean hasBoundDDLFiles = fileAttachmentManager.hasBoundDDLFiles(object);
+            Presentation presentation = e.getPresentation();
+            presentation.setEnabled(hasBoundDDLFiles);
+        }
     }
 }

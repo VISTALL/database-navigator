@@ -14,6 +14,8 @@ public class CloseMessagesWindowAction extends ExecutionMessagesAction {
 
     public void actionPerformed(AnActionEvent e) {
         Project project = ActionUtil.getProject(e);
-        ExecutionManager.getInstance(project).removeMessagesTab();
+        if (project != null) {
+            ExecutionManager.getInstance(project).removeMessagesTab();
+        }
     }
 }

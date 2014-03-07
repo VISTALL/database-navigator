@@ -31,57 +31,60 @@ public class OpenSQLConsoleAction extends DumbAwareAction {
     public void actionPerformed(AnActionEvent e) {
         //FeatureUsageTracker.getInstance().triggerFeatureUsed("navigation.popup.file");
         Project project = ActionUtil.getProject(e);
-        ConnectionManager connectionManager = ConnectionManager.getInstance(project);
-        List<ConnectionBundle> connectionBundles = connectionManager.getConnectionBundles();
+        if (project != null) {
+            ConnectionManager connectionManager = ConnectionManager.getInstance(project);
+            List<ConnectionBundle> connectionBundles = connectionManager.getConnectionBundles();
 
 
-        ConnectionHandler singleConnectionHandler = null;
-        DefaultActionGroup actionGroup = new DefaultActionGroup();
-        for (ConnectionBundle connectionBundle : connectionBundles) {
-            if (connectionBundle.getConnectionHandlers().size() > 0) {
-                actionGroup.addSeparator();
-                for (ConnectionHandler connectionHandler : connectionBundle.getConnectionHandlers()) {
-                    SelectConnectionAction connectionAction = new SelectConnectionAction(connectionHandler);
-                    actionGroup.add(connectionAction);
-                    singleConnectionHandler = connectionHandler;
+            ConnectionHandler singleConnectionHandler = null;
+            DefaultActionGroup actionGroup = new DefaultActionGroup();
+            for (ConnectionBundle connectionBundle : connectionBundles) {
+                if (connectionBundle.getConnectionHandlers().size() > 0) {
+                    actionGroup.addSeparator();
+                    for (ConnectionHandler connectionHandler : connectionBundle.getConnectionHandlers()) {
+                        SelectConnectionAction connectionAction = new SelectConnectionAction(connectionHandler);
+                        actionGroup.add(connectionAction);
+                        singleConnectionHandler = connectionHandler;
+                    }
                 }
             }
-        }
 
-        if (actionGroup.getChildrenCount() > 1) {
-            ListPopup popupBuilder = JBPopupFactory.getInstance().createActionGroupPopup(
-                    "Select console connection",
-                    actionGroup,
-                    e.getDataContext(),
-                    //JBPopupFactory.ActionSelectionAid.SPEEDSEARCH,
-                    true,
-                    true,
-                    true,
-                    null,
-                    actionGroup.getChildrenCount(),
-                    new Condition<AnAction>() {
-                        @Override
-                        public boolean value(AnAction action) {
-                            SelectConnectionAction selectConnectionAction = (SelectConnectionAction) action;
-                            return latestSelection == selectConnectionAction.connectionHandler;
-                        }
-                    });
+            if (actionGroup.getChildrenCount() > 1) {
+                ListPopup popupBuilder = JBPopupFactory.getInstance().createActionGroupPopup(
+                        "Select console connection",
+                        actionGroup,
+                        e.getDataContext(),
+                        //JBPopupFactory.ActionSelectionAid.SPEEDSEARCH,
+                        true,
+                        true,
+                        true,
+                        null,
+                        actionGroup.getChildrenCount(),
+                        new Condition<AnAction>() {
+                            @Override
+                            public boolean value(AnAction action) {
+                                SelectConnectionAction selectConnectionAction = (SelectConnectionAction) action;
+                                return latestSelection == selectConnectionAction.connectionHandler;
+                            }
+                        });
 
-            popupBuilder.showCenteredInCurrentWindow(project);
-        } else {
-            if (singleConnectionHandler != null) {
-                openSQLConsole(singleConnectionHandler);
+                popupBuilder.showCenteredInCurrentWindow(project);
             } else {
-                int selection = Messages.showDialog(project,
-                        "No database connections found. Please setup a connection first",
-                        "No connections available.", new String[] {"Setup Connection", "Cancel"}, 0, Messages.getInformationIcon());
-                if (selection == 0) {
-                    GlobalProjectSettingsDialog globalSettingsDialog = new GlobalProjectSettingsDialog(project);
-                    globalSettingsDialog.show();
+                if (singleConnectionHandler != null) {
+                    openSQLConsole(singleConnectionHandler);
+                } else {
+                    int selection = Messages.showDialog(project,
+                            "No database connections found. Please setup a connection first",
+                            "No connections available.", new String[] {"Setup Connection", "Cancel"}, 0, Messages.getInformationIcon());
+                    if (selection == 0) {
+                        GlobalProjectSettingsDialog globalSettingsDialog = new GlobalProjectSettingsDialog(project);
+                        globalSettingsDialog.show();
+                    }
                 }
-            }
 
+            }
         }
+
     }
 
     private class SelectConnectionAction extends DumbAwareAction{

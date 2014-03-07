@@ -29,7 +29,9 @@ public class SelectConnectionAction extends DumbAwareAction {
 
     public void actionPerformed(AnActionEvent e) {
         Project project = ActionUtil.getProject(e);
-        FileConnectionMappingManager.getInstance(project).selectActiveConnectionForEditor(e.getPlace(), connectionHandler);
+        if (project != null) {
+            FileConnectionMappingManager.getInstance(project).selectActiveConnectionForEditor(e.getPlace(), connectionHandler);
+        }
     }
 
     public void update(AnActionEvent e) {

@@ -18,7 +18,9 @@ public class OpenRecordEditorAction extends AnAction{
     @Override
     public void actionPerformed(AnActionEvent event) {
         Project project = ActionUtil.getProject(event);
-        DatasetEditorManager datasetEditorManager = DatasetEditorManager.getInstance(project);
-        datasetEditorManager.openDataEditor(filterInput);
+        if (project != null) {
+            DatasetEditorManager datasetEditorManager = DatasetEditorManager.getInstance(project);
+            datasetEditorManager.openDataEditor(filterInput);
+        }
     }
 }
