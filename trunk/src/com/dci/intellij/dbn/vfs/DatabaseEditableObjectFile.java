@@ -55,44 +55,49 @@ public class DatabaseEditableObjectFile extends DatabaseObjectFile<DBSchemaObjec
 
     public boolean preOpen() {
         DBSchemaObject object = getObject();
-        Project project = object.getProject();
-        if (object.getContentType() == DBContentType.DATA) {
-            DBDataset dataset = (DBDataset) object;
-            DatasetFilterManager filterManager = DatasetFilterManager.getInstance(project);
-            DatasetFilter filter = filterManager.getActiveFilter(dataset);
+        if (object != null) {
+            Project project = object.getProject();
+            if (object.getContentType() == DBContentType.DATA) {
+                DBDataset dataset = (DBDataset) object;
+                DatasetFilterManager filterManager = DatasetFilterManager.getInstance(project);
+                DatasetFilter filter = filterManager.getActiveFilter(dataset);
 
-            if (filter == null) {
-                DataEditorSettings settings = DataEditorSettings.getInstance(project);
-                if (settings.getFilterSettings().isPromptFilterDialog()) {
-                    int exitCode = filterManager.openFiltersDialog(dataset, true, false, settings.getFilterSettings().getDefaultFilterType());
-                    return exitCode != DialogWrapper.CANCEL_EXIT_CODE;
+                if (filter == null) {
+                    DataEditorSettings settings = DataEditorSettings.getInstance(project);
+                    if (settings.getFilterSettings().isPromptFilterDialog()) {
+                        int exitCode = filterManager.openFiltersDialog(dataset, true, false, settings.getFilterSettings().getDefaultFilterType());
+                        return exitCode != DialogWrapper.CANCEL_EXIT_CODE;
+                    }
                 }
             }
-        }
-        else if (object.getContentType() == DBContentType.CODE ||
-                 object.getContentType() == DBContentType.CODE_SPEC_AND_BODY) {
+            else if (object.getContentType() == DBContentType.CODE ||
+                    object.getContentType() == DBContentType.CODE_SPEC_AND_BODY) {
 
-            DDLFileGeneralSettings ddlFileSettings = DDLFileSettings.getInstance(project).getGeneralSettings();
-            if (ddlFileSettings.getLookupDDLFilesEnabled().value()) {
-                List<VirtualFile> boundDDLFiles = getBoundDDLFiles();
-                if (boundDDLFiles == null || boundDDLFiles.isEmpty()) {
-                    DDLFileAttachmentManager fileAttachmentManager = DDLFileAttachmentManager.getInstance(project);
-                    List<VirtualFile> virtualFiles = fileAttachmentManager.lookupUnboundDDLFiles(object);
-                    if (virtualFiles.size() > 0) {
-                        int exitCode = fileAttachmentManager.showFileAttachDialog(object, virtualFiles);
-                        return exitCode != DialogWrapper.CANCEL_EXIT_CODE;
-                    } else if (ddlFileSettings.getCreateDDLFilesEnabled().value()) {
-                        int exitCode = Messages.showYesNoDialog(
-                                "Could not find any DDL file for " + object.getQualifiedNameWithType() + ". Do you want to create one? \n" +
-                                "(You can disable this check in \"DDL File\" options)",
-                                Constants.DBN_TITLE_PREFIX + "No DDL file found", Messages.getQuestionIcon());
-                        if (exitCode == DialogWrapper.OK_EXIT_CODE) {
-                            fileAttachmentManager.createDDLFile(object);
+                DDLFileGeneralSettings ddlFileSettings = DDLFileSettings.getInstance(project).getGeneralSettings();
+                if (ddlFileSettings.getLookupDDLFilesEnabled().value()) {
+                    List<VirtualFile> boundDDLFiles = getBoundDDLFiles();
+                    if (boundDDLFiles == null || boundDDLFiles.isEmpty()) {
+                        DDLFileAttachmentManager fileAttachmentManager = DDLFileAttachmentManager.getInstance(project);
+                        List<VirtualFile> virtualFiles = fileAttachmentManager.lookupUnboundDDLFiles(object);
+                        if (virtualFiles.size() > 0) {
+                            int exitCode = fileAttachmentManager.showFileAttachDialog(object, virtualFiles);
+                            return exitCode != DialogWrapper.CANCEL_EXIT_CODE;
+                        } else if (ddlFileSettings.getCreateDDLFilesEnabled().value()) {
+                            int exitCode = Messages.showYesNoDialog(
+                                    "Could not find any DDL file for " + object.getQualifiedNameWithType() + ". Do you want to create one? \n" +
+                                            "(You can disable this check in \"DDL File\" options)",
+                                    Constants.DBN_TITLE_PREFIX + "No DDL file found", Messages.getQuestionIcon());
+                            if (exitCode == DialogWrapper.OK_EXIT_CODE) {
+                                fileAttachmentManager.createDDLFile(object);
+                            }
                         }
                     }
                 }
             }
+        } else {
+            return false;
         }
+
         return true;
     }
 
