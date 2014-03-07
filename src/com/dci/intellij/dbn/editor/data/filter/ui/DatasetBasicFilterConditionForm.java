@@ -156,7 +156,10 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
                 }
             }
         }
-        operatorComboBox.setSelectedIndex(0);
+        if (operatorComboBox.getModel().getSize() > 0) {
+            operatorComboBox.setSelectedIndex(0);
+        }
+
     }
 
 
