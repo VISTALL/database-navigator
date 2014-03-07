@@ -16,11 +16,13 @@ public class OpenMethodHistoryAction extends AbstractSelectMethodAction {
     @Override
     public void actionPerformed(AnActionEvent e) {
         Project project = ActionUtil.getProject(e);
-        MethodExecutionManager methodExecutionManager = MethodExecutionManager.getInstance(project);
-        MethodExecutionInput currentInput = getConfiguration().getExecutionInput();
-        MethodExecutionInput methodExecutionInput = methodExecutionManager.selectHistoryMethodExecutionInput(currentInput);
-        if (methodExecutionInput != null) {
-            getConfiguration().setExecutionInput(methodExecutionInput);
+        if (project != null) {
+            MethodExecutionManager methodExecutionManager = MethodExecutionManager.getInstance(project);
+            MethodExecutionInput currentInput = getConfiguration().getExecutionInput();
+            MethodExecutionInput methodExecutionInput = methodExecutionManager.selectHistoryMethodExecutionInput(currentInput);
+            if (methodExecutionInput != null) {
+                getConfiguration().setExecutionInput(methodExecutionInput);
+            }
         }
     }
 }

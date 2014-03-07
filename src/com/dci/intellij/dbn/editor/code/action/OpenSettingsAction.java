@@ -13,10 +13,12 @@ public class OpenSettingsAction extends DumbAwareAction {
 
     public void actionPerformed(AnActionEvent e) {
         Project project = ActionUtil.getProject(e);
-        GlobalProjectSettingsDialog globalSettingsDialog = new GlobalProjectSettingsDialog(project);
-        CodeCompletionSettings settings = CodeCompletionSettings.getInstance(project);
-        globalSettingsDialog.focusSettings(settings);
-        globalSettingsDialog.show();
+        if (project != null) {
+            GlobalProjectSettingsDialog globalSettingsDialog = new GlobalProjectSettingsDialog(project);
+            CodeCompletionSettings settings = CodeCompletionSettings.getInstance(project);
+            globalSettingsDialog.focusSettings(settings);
+            globalSettingsDialog.show();
+        }
     }
 
     public void update(AnActionEvent e) {

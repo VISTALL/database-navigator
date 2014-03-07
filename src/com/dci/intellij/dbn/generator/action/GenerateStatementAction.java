@@ -29,17 +29,19 @@ public abstract class GenerateStatementAction extends AnAction {
     public final void actionPerformed(AnActionEvent event) {
         final Project project = ActionUtil.getProject(event);
 
-        new BackgroundTask(project, "Extracting select statement", false, true) {
-            protected void execute(@NotNull ProgressIndicator progressIndicator) {
-                initProgressIndicator(progressIndicator, true);
-                StatementGeneratorResult result = generateStatement(project);
-                if (result.getMessages().hasErrors()) {
-                    MessageUtil.showErrorDialog(result.getMessages(), "Error generating statement");
-                } else {
-                    pasteStatement(result, project);
+        if (project != null) {
+            new BackgroundTask(project, "Extracting select statement", false, true) {
+                protected void execute(@NotNull ProgressIndicator progressIndicator) {
+                    initProgressIndicator(progressIndicator, true);
+                    StatementGeneratorResult result = generateStatement(project);
+                    if (result.getMessages().hasErrors()) {
+                        MessageUtil.showErrorDialog(result.getMessages(), "Error generating statement");
+                    } else {
+                        pasteStatement(result, project);
+                    }
                 }
-            }
-        }.start();
+            }.start();
+        }
     }
 
     private void pasteStatement(final StatementGeneratorResult result, final Project project) {

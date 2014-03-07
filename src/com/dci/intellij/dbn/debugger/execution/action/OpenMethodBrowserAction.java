@@ -24,37 +24,39 @@ public class OpenMethodBrowserAction extends AbstractSelectMethodAction {
     @Override
     public void actionPerformed(AnActionEvent e) {
         final Project project = ActionUtil.getProject(e);
-        BackgroundTask backgroundTask = new BackgroundTask(project, "Loading executable elements", false) {
-            @Override
-            public void execute(@NotNull ProgressIndicator progressIndicator) {
-                initProgressIndicator(progressIndicator, true);
-                final MethodBrowserSettings settings = MethodExecutionManager.getInstance(project).getBrowserSettings();
-                DBMethod currentMethod = getConfiguration().getExecutionInput() == null ? null : getConfiguration().getExecutionInput().getMethod();
-                if (currentMethod != null) {
-                    settings.setConnectionHandler(currentMethod.getConnectionHandler());
-                    settings.setSchema(currentMethod.getSchema());
-                    settings.setMethod(currentMethod);
-                }
+        if (project != null) {
+            BackgroundTask backgroundTask = new BackgroundTask(project, "Loading executable elements", false) {
+                @Override
+                public void execute(@NotNull ProgressIndicator progressIndicator) {
+                    initProgressIndicator(progressIndicator, true);
+                    final MethodBrowserSettings settings = MethodExecutionManager.getInstance(project).getBrowserSettings();
+                    DBMethod currentMethod = getConfiguration().getExecutionInput() == null ? null : getConfiguration().getExecutionInput().getMethod();
+                    if (currentMethod != null) {
+                        settings.setConnectionHandler(currentMethod.getConnectionHandler());
+                        settings.setSchema(currentMethod.getSchema());
+                        settings.setMethod(currentMethod);
+                    }
 
-                final ObjectTreeModel objectTreeModel = new ObjectTreeModel(settings.getSchema(), settings.getVisibleObjectTypes(), settings.getMethod());
+                    final ObjectTreeModel objectTreeModel = new ObjectTreeModel(settings.getSchema(), settings.getVisibleObjectTypes(), settings.getMethod());
 
-                new SimpleLaterInvocator() {
-                    public void run() {
-                        final MethodExecutionBrowserDialog browserDialog = new MethodExecutionBrowserDialog(project, settings, objectTreeModel);
-                        browserDialog.show();
-                        if (browserDialog.getExitCode() == DialogWrapper.OK_EXIT_CODE) {
-                            DBMethod method = browserDialog.getSelectedMethod();
-                            MethodExecutionManager methodExecutionManager = MethodExecutionManager.getInstance(project);
-                            MethodExecutionInput methodExecutionInput = methodExecutionManager.getExecutionInput(method);
-                            if (methodExecutionInput != null) {
-                                getConfiguration().setExecutionInput(methodExecutionInput);
+                    new SimpleLaterInvocator() {
+                        public void run() {
+                            final MethodExecutionBrowserDialog browserDialog = new MethodExecutionBrowserDialog(project, settings, objectTreeModel);
+                            browserDialog.show();
+                            if (browserDialog.getExitCode() == DialogWrapper.OK_EXIT_CODE) {
+                                DBMethod method = browserDialog.getSelectedMethod();
+                                MethodExecutionManager methodExecutionManager = MethodExecutionManager.getInstance(project);
+                                MethodExecutionInput methodExecutionInput = methodExecutionManager.getExecutionInput(method);
+                                if (methodExecutionInput != null) {
+                                    getConfiguration().setExecutionInput(methodExecutionInput);
+                                }
                             }
                         }
-                    }
-                }.start();
+                    }.start();
 
-            }
-        };
-        backgroundTask.start();
+                }
+            };
+            backgroundTask.start();
+        }
     }
 }

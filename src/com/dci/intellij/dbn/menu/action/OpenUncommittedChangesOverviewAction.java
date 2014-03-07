@@ -11,8 +11,10 @@ public class OpenUncommittedChangesOverviewAction extends DumbAwareAction {
 
     public void actionPerformed(AnActionEvent e) {
         Project project = ActionUtil.getProject(e);
-        DatabaseTransactionManager executionManager = DatabaseTransactionManager.getInstance(project);
-        executionManager.showUncommittedChangesOverviewDialog(null);
+        if (project != null) {
+            DatabaseTransactionManager executionManager = DatabaseTransactionManager.getInstance(project);
+            executionManager.showUncommittedChangesOverviewDialog(null);
+        }
     }
 
     public void update(AnActionEvent e) {

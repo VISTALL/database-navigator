@@ -31,19 +31,21 @@ public class LockUnlockDataEditing extends ToggleAction implements DumbAware {
     public void update(AnActionEvent e) {
         super.update(e);
         Project project = ActionUtil.getProject(e);
-        DatasetEditor datasetEditor = (DatasetEditor) EditorUtil.getFileEditor(project, e.getPlace());
+        if (project != null) {
+            DatasetEditor datasetEditor = (DatasetEditor) EditorUtil.getFileEditor(project, e.getPlace());
 
-        Presentation presentation = e.getPresentation();
-        if (datasetEditor == null) {
-            presentation.setEnabled(false);
-        } else {
-            presentation.setVisible(!datasetEditor.isReadonlyData());
-            presentation.setEnabled(datasetEditor.getActiveConnection().isConnected());
-            presentation.setText(isSelected(e) ? "Unlock Editing" : "Lock Editing");
-            boolean enabled =
+            Presentation presentation = e.getPresentation();
+            if (datasetEditor == null) {
+                presentation.setEnabled(false);
+            } else {
+                presentation.setVisible(!datasetEditor.isReadonlyData());
+                presentation.setEnabled(datasetEditor.getActiveConnection().isConnected());
+                presentation.setText(isSelected(e) ? "Unlock Editing" : "Lock Editing");
+                boolean enabled =
                         datasetEditor.getEditorTable() != null &&
-                        !datasetEditor.isInserting();
-            presentation.setEnabled(enabled);
+                                !datasetEditor.isInserting();
+                presentation.setEnabled(enabled);
+            }
         }
     }
 }

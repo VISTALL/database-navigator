@@ -16,10 +16,12 @@ public class OpenSettingsAction extends AnAction {
 
     public void actionPerformed(AnActionEvent e) {
         Project project = ActionUtil.getProject(e);
-        GlobalProjectSettingsDialog globalSettingsDialog = new GlobalProjectSettingsDialog(project);
-        DatabaseBrowserSettings databaseBrowserSettings = DatabaseBrowserSettings.getInstance(project);
-        globalSettingsDialog.focusSettings(databaseBrowserSettings);
-        globalSettingsDialog.show();
+        if (project != null) {
+            GlobalProjectSettingsDialog globalSettingsDialog = new GlobalProjectSettingsDialog(project);
+            DatabaseBrowserSettings databaseBrowserSettings = DatabaseBrowserSettings.getInstance(project);
+            globalSettingsDialog.focusSettings(databaseBrowserSettings);
+            globalSettingsDialog.show();
+        }
     }
 
     public void update(AnActionEvent e) {

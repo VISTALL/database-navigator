@@ -15,6 +15,8 @@ public class HideObjectPropertiesAction extends AnAction{
     @Override
     public void actionPerformed(AnActionEvent e) {
         Project project = ActionUtil.getProject(e);
-        DatabaseBrowserManager.getInstance(project).showObjectProperties(false);
+        if (project != null) {
+            DatabaseBrowserManager.getInstance(project).showObjectProperties(false);
+        }
     }
 }

@@ -15,9 +15,11 @@ public class OpenSettingsAction extends ExecutionMessagesAction {
 
     public void actionPerformed(AnActionEvent e) {
         Project project = ActionUtil.getProject(e);
-        GlobalProjectSettingsDialog globalSettingsDialog = new GlobalProjectSettingsDialog(project);
-        ExecutionEngineSettings settings = ExecutionEngineSettings.getInstance(project);
-        globalSettingsDialog.focusSettings(settings);
-        globalSettingsDialog.show();
+        if (project != null) {
+            GlobalProjectSettingsDialog globalSettingsDialog = new GlobalProjectSettingsDialog(project);
+            ExecutionEngineSettings settings = ExecutionEngineSettings.getInstance(project);
+            globalSettingsDialog.focusSettings(settings);
+            globalSettingsDialog.show();
+        }
     }
 }

@@ -19,8 +19,10 @@ public class TransactionCommitAction extends DumbAwareAction {
 
     public void actionPerformed(AnActionEvent e) {
         Project project = ActionUtil.getProject(e);
-        DatabaseTransactionManager transactionManager = DatabaseTransactionManager.getInstance(project);
-        transactionManager.commit(connectionHandler, false, false);
+        if (project != null) {
+            DatabaseTransactionManager transactionManager = DatabaseTransactionManager.getInstance(project);
+            transactionManager.commit(connectionHandler, false, false);
+        }
     }
 
     @Override

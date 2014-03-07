@@ -18,8 +18,10 @@ public class OpenConnectionSettingsAction extends DumbAwareAction {
 
     public void actionPerformed(AnActionEvent e) {
         Project project = ActionUtil.getProject(e);
-        GlobalProjectSettingsDialog globalSettingsDialog = new GlobalProjectSettingsDialog(project);
-        globalSettingsDialog.focusConnectionSettings(connectionHandler);
-        globalSettingsDialog.show();
+        if (project != null) {
+            GlobalProjectSettingsDialog globalSettingsDialog = new GlobalProjectSettingsDialog(project);
+            globalSettingsDialog.focusConnectionSettings(connectionHandler);
+            globalSettingsDialog.show();
+        }
     }
 }
