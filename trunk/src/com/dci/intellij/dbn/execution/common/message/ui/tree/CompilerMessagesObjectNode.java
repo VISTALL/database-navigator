@@ -5,6 +5,7 @@ import com.dci.intellij.dbn.common.ui.tree.TreeUtil;
 import com.dci.intellij.dbn.execution.compiler.CompilerMessage;
 import com.dci.intellij.dbn.object.common.DBSchemaObject;
 import com.dci.intellij.dbn.vfs.DatabaseEditableObjectFile;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.tree.TreePath;
 
@@ -20,6 +21,7 @@ public class CompilerMessagesObjectNode extends BundleTreeNode {
         return databaseFile;
     }
 
+    @Nullable
     public DBSchemaObject getObject() {
         return databaseFile.getObject();
     }
