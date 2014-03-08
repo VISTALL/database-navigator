@@ -23,7 +23,7 @@ public class MessagesTreeCellRenderer extends ColoredTreeCellRenderer {
         else if (value instanceof CompilerMessagesNode) {
             BundleTreeNode node = (BundleTreeNode) value;
             append("Compiler Messages", SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
-            append(" (" + node.getChildCount() + " objetcs)", SimpleTextAttributes.GRAY_ATTRIBUTES);
+            append(" (" + node.getChildCount() + " objects)", SimpleTextAttributes.GRAY_ATTRIBUTES);
         }
         else if (value instanceof StatementExecutionMessagesFileNode){
             StatementExecutionMessagesFileNode node = (StatementExecutionMessagesFileNode) value;
@@ -37,9 +37,11 @@ public class MessagesTreeCellRenderer extends ColoredTreeCellRenderer {
             CompilerMessagesObjectNode compilerMessagesObjectNode = (CompilerMessagesObjectNode) value;
             DBSchemaObject object = compilerMessagesObjectNode.getObject();
 
-            setIcon(object.getOriginalIcon());
-            append(object.getQualifiedName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
-            append(" - " + object.getConnectionHandler().getPresentableText(), SimpleTextAttributes.GRAY_ATTRIBUTES);
+            if (object != null) {
+                setIcon(object.getOriginalIcon());
+                append(object.getQualifiedName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
+                append(" - " + object.getConnectionHandler().getPresentableText(), SimpleTextAttributes.GRAY_ATTRIBUTES);
+            }
         }
         else if (value instanceof CompilerMessageNode) {
             CompilerMessageNode node = (CompilerMessageNode) value;
