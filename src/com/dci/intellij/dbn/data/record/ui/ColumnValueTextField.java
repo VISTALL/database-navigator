@@ -9,7 +9,9 @@ import com.dci.intellij.dbn.editor.data.filter.DatasetFilterInput;
 import com.dci.intellij.dbn.object.DBColumn;
 import com.dci.intellij.dbn.object.DBConstraint;
 import com.dci.intellij.dbn.object.DBDataset;
+import com.dci.intellij.dbn.object.common.DBObject;
 import com.intellij.ui.SimpleTextAttributes;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JDialog;
 import javax.swing.JTextField;
@@ -60,18 +62,25 @@ public class ColumnValueTextField extends JTextField {
         }
     }
     
+    @Nullable
     public DatasetFilterInput resolveForeignKeyRecord() {
         for (DBConstraint constraint : column.getConstraints()) {
             if (constraint.isForeignKey()) {
-                DBDataset foreignKeyDataset = constraint.getForeignKeyConstraint().getDataset();
-                DatasetFilterInput filterInput = new DatasetFilterInput(foreignKeyDataset);
+                DBConstraint foreignKeyConstraint = constraint.getForeignKeyConstraint();
+                if (foreignKeyConstraint != null) {
+                    DBDataset foreignKeyDataset = foreignKeyConstraint.getDataset();
+                    DatasetFilterInput filterInput = new DatasetFilterInput(foreignKeyDataset);
 
-                for (DBColumn constraintColumn : constraint.getColumns()) {
-                    DBColumn foreignKeyColumn = ((DBColumn) constraintColumn.getUndisposedElement()).getForeignKeyColumn();
-                    Object value = record.getColumnValue(column);
-                    filterInput.setColumnValue(foreignKeyColumn, value);
+                    for (DBColumn constraintColumn : constraint.getColumns()) {
+                        DBObject constraintCol = constraintColumn.getUndisposedElement();
+                        if (constraintCol != null) {
+                            DBColumn foreignKeyColumn = ((DBColumn) constraintCol).getForeignKeyColumn();
+                            Object value = record.getColumnValue(column);
+                            filterInput.setColumnValue(foreignKeyColumn, value);
+                        }
+                    }
+                    return filterInput;
                 }
-                return filterInput;
             }
         }
         return null;

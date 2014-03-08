@@ -196,10 +196,10 @@ public class DatasetEditorModel extends ResultSetDataModel<DatasetEditorModelRow
 
     public DatasetFilterInput resolveForeignKeyRecord(DatasetEditorModelCell cell) {
         DBColumn column = cell.getColumnInfo().getColumn();
-        if (column.isForeignKey()) {
+        if (column != null && column.isForeignKey()) {
             for (DBConstraint constraint : column.getConstraints()) {
                 constraint = (DBConstraint) constraint.getUndisposedElement();
-                if (constraint.isForeignKey()) {
+                if (constraint != null && constraint.isForeignKey()) {
                     DBDataset foreignKeyDataset = constraint.getForeignKeyConstraint().getDataset();
                     DatasetFilterInput filterInput = new DatasetFilterInput(foreignKeyDataset);
 

@@ -6,6 +6,7 @@ import com.dci.intellij.dbn.data.type.DBDataType;
 import com.dci.intellij.dbn.editor.data.DatasetEditorUtils;
 import com.dci.intellij.dbn.editor.data.options.DataEditorSettings;
 import com.dci.intellij.dbn.object.DBColumn;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +22,7 @@ public class DatasetEditorColumnInfo implements ColumnInfo {
         this.columnIndex = columnIndex;
     }
 
+    @Nullable
     public DBColumn getColumn() {
         // columns loaded with quick loaders get disposed as soon as the main loader finishes
         column = (DBColumn) column.getUndisposedElement();

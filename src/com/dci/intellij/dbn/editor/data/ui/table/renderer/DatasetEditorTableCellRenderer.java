@@ -51,8 +51,8 @@ public class DatasetEditorTableCellRenderer extends BasicTableCellRenderer {
                         isLoading || !datasetEditorTable.getDataset().getConnectionHandler().isConnected() ? configTextAttributes.getLoadingData() :
                         isInserting && !isInsertRow ? configTextAttributes.getReadonlyData() :
                         isDeletedRow ? configTextAttributes.getDeletedData() :
-                        column.isPrimaryKey() ? (isCaretRow ? configTextAttributes.getPrimaryKeyAtCaretRow() : configTextAttributes.getPrimaryKey()) :
-                        column.isForeignKey() ? (isCaretRow ? configTextAttributes.getForeignKeyAtCaretRow() : configTextAttributes.getForeignKey()) :
+                        isPrimaryKey(column) ? (isCaretRow ? configTextAttributes.getPrimaryKeyAtCaretRow() : configTextAttributes.getPrimaryKey()) :
+                        isForeignKey(column) ? (isCaretRow ? configTextAttributes.getForeignKeyAtCaretRow() : configTextAttributes.getForeignKey()) :
                         cell.isModified() ? configTextAttributes.getModifiedData() :
                         cell.isLobValue() ? configTextAttributes.getReadonlyData() :
                                             configTextAttributes.getPlainData();
@@ -89,10 +89,10 @@ public class DatasetEditorTableCellRenderer extends BasicTableCellRenderer {
                     } else if (isInsertRow) {
                         setBackground(configTextAttributes.getPlainData().getBgColor());
 
-                    } else if (column.isPrimaryKey()) {
+                    } else if (isPrimaryKey(column)) {
                         setBackground(configTextAttributes.getPrimaryKey().getBgColor());
 
-                    } else if (column.isForeignKey()) {
+                    } else if (isForeignKey(column)) {
                         setBackground(configTextAttributes.getForeignKey().getBgColor());
 
                     } else {
@@ -101,6 +101,14 @@ public class DatasetEditorTableCellRenderer extends BasicTableCellRenderer {
                 }
             }
         }
+    }
+
+    private boolean isForeignKey(DBColumn column) {
+        return column != null && column.isForeignKey();
+    }
+
+    private boolean isPrimaryKey(DBColumn column) {
+        return column != null && column.isPrimaryKey();
     }
 }
                                                                 
