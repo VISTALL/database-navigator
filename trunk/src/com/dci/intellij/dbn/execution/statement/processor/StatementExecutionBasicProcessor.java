@@ -63,9 +63,10 @@ public class StatementExecutionBasicProcessor implements StatementExecutionProce
                         this.executablePsiElement.matches(executablePsiElement) :
                         this.executablePsiElement.equals(executablePsiElement);
             } else {
-                return lenient ?
+                StatementExecutionInput executionInput = executionResult.getExecutionInput();
+                return lenient || executionInput == null ?
                         this.executablePsiElement.matches(executablePsiElement) :
-                        executionResult.getExecutionInput().getExecutablePsiElement().matches(executablePsiElement);
+                        executionInput.getExecutablePsiElement().matches(executablePsiElement);
             }
         }
 
