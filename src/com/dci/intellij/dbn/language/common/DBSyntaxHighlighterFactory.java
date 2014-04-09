@@ -23,7 +23,7 @@ public class DBSyntaxHighlighterFactory extends SyntaxHighlighterFactory {
                         language.getMainLanguageDialect() :
                         connectionHandler.getLanguageDialect(language);
 
-                return languageDialect.createSyntaxHighlighter();
+                return languageDialect.getSyntaxHighlighter();
             }
         }
 
