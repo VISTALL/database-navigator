@@ -27,8 +27,8 @@ public class DBSyntaxHighlighterProvider implements SyntaxHighlighterProvider {
                         mainLanguageDialect :
                         connectionHandler.getLanguageDialect(language);
                 return languageDialect == null ?
-                        mainLanguageDialect.createSyntaxHighlighter() :
-                        languageDialect.createSyntaxHighlighter();
+                        mainLanguageDialect.getSyntaxHighlighter() :
+                        languageDialect.getSyntaxHighlighter();
             }
 
             return mainLanguageDialect.getSyntaxHighlighter();
