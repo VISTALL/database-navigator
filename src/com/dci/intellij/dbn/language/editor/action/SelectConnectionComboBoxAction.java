@@ -10,13 +10,11 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.actionSystem.Presentation;
-import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.Icon;
-import javax.swing.JComponent;
+import javax.swing.*;
 
 public class SelectConnectionComboBoxAction extends DBNComboBoxAction {
     private static final String NAME = "DB Connections";
@@ -42,8 +40,7 @@ public class SelectConnectionComboBoxAction extends DBNComboBoxAction {
                 icon = activeConnection.getIcon();
             }
 
-            VirtualFile[] selectedFiles = FileEditorManager.getInstance(project).getSelectedFiles();
-            boolean isConsole = selectedFiles.length > 0 && selectedFiles[0] instanceof SQLConsoleFile;
+            boolean isConsole = virtualFile instanceof SQLConsoleFile;
             presentation.setVisible(!isConsole);
         }
 
