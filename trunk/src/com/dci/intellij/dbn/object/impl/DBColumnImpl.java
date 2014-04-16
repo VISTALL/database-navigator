@@ -152,9 +152,11 @@ public class DBColumnImpl extends DBObjectImpl implements DBColumn {
     }
 
     public boolean isSinglePrimaryKey() {
-        for (DBConstraint constraint : getConstraints()) {
-            if (constraint.isPrimaryKey() && constraint.getColumns().size() == 1) {
-                return true;
+        if (isPrimaryKey) {
+            for (DBConstraint constraint : getConstraints()) {
+                if (constraint.isPrimaryKey() && constraint.getColumns().size() == 1) {
+                    return true;
+                }
             }
         }
         return false;
