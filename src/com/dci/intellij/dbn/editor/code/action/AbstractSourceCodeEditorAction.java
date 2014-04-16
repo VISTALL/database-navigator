@@ -5,6 +5,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.DumbAwareAction;
+import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class AbstractSourceCodeEditorAction extends DumbAwareAction {
@@ -19,6 +20,7 @@ public abstract class AbstractSourceCodeEditorAction extends DumbAwareAction {
 
     @Nullable
     protected SourceCodeFile getSourcecodeFile(AnActionEvent e) {
-        return (SourceCodeFile) e.getData(PlatformDataKeys.VIRTUAL_FILE);
+        VirtualFile virtualFile = e.getData(PlatformDataKeys.VIRTUAL_FILE);
+        return virtualFile instanceof SourceCodeFile ? (SourceCodeFile) virtualFile : null;
     }
 }
