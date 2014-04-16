@@ -5,7 +5,6 @@ import com.dci.intellij.dbn.common.thread.ModalTask;
 import com.dci.intellij.dbn.common.thread.SimpleLaterInvocator;
 import com.dci.intellij.dbn.common.ui.MouseUtil;
 import com.dci.intellij.dbn.common.util.ActionUtil;
-import com.dci.intellij.dbn.common.util.EditorUtil;
 import com.dci.intellij.dbn.common.util.MessageUtil;
 import com.dci.intellij.dbn.data.model.ColumnInfo;
 import com.dci.intellij.dbn.data.model.DataModelCell;
@@ -406,8 +405,7 @@ public class DatasetEditorTable extends ResultSetTable {
                 progressIndicator.setIndeterminate(true);
                 ActionGroup actionGroup = new DatasetEditorTableActionGroup(datasetEditor, cell, columnInfo);
                 if (!progressIndicator.isCanceled()) {
-                    String actionPlace = EditorUtil.getEditorActionPlace(getDatasetEditor());
-                    ActionPopupMenu actionPopupMenu = ActionManager.getInstance().createActionPopupMenu(actionPlace, actionGroup);
+                    ActionPopupMenu actionPopupMenu = ActionManager.getInstance().createActionPopupMenu("", actionGroup);
                     final JPopupMenu popupMenu = actionPopupMenu.getComponent();
                     new SimpleLaterInvocator() {
                         public void run() {

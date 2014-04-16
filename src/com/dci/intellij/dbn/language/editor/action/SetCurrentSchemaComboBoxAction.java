@@ -6,10 +6,13 @@ import com.dci.intellij.dbn.common.util.NamingUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.mapping.FileConnectionMappingManager;
 import com.dci.intellij.dbn.object.DBSchema;
+import com.intellij.ide.DataManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
+import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Icon;
@@ -17,12 +20,12 @@ import javax.swing.JComponent;
 
 public class SetCurrentSchemaComboBoxAction extends DBNComboBoxAction {
     private static final String NAME = "Schema";
-    private String place;
 
     @NotNull
     protected DefaultActionGroup createPopupActionGroup(JComponent component) {
         Project project = ActionUtil.getProject(component);
-        ConnectionHandler activeConnection = FileConnectionMappingManager.getInstance(project).lookupActiveConnectionForEditor(place);
+        VirtualFile virtualFile = PlatformDataKeys.VIRTUAL_FILE.getData(DataManager.getInstance().getDataContext(component));
+        ConnectionHandler activeConnection = FileConnectionMappingManager.getInstance(project).getActiveConnection(virtualFile);
         DefaultActionGroup actionGroup = new DefaultActionGroup();
         if (activeConnection != null && !activeConnection.isVirtual() && !activeConnection.isDisposed()) {
             for (DBSchema schema : activeConnection.getObjectBundle().getSchemas()){
@@ -33,20 +36,20 @@ public class SetCurrentSchemaComboBoxAction extends DBNComboBoxAction {
     }
 
     public synchronized void update(AnActionEvent e) {
-        place = e.getPlace();
         Project project = ActionUtil.getProject(e);
+        VirtualFile virtualFile = e.getData(PlatformDataKeys.VIRTUAL_FILE);
         String text = NAME;
 
         Icon icon = null;
         boolean visible = false;
         boolean enabled = true;
 
-        if (project != null) {
+        if (project != null && virtualFile != null) {
             FileConnectionMappingManager mappingManager = FileConnectionMappingManager.getInstance(project);
-            ConnectionHandler activeConnection = mappingManager.lookupActiveConnectionForEditor(place);
+            ConnectionHandler activeConnection = mappingManager.getActiveConnection(virtualFile);
             visible = activeConnection != null && !activeConnection.isVirtual();
             if (visible) {
-                DBSchema schema = mappingManager.lookupCurrentSchemaForEditor(place);
+                DBSchema schema = mappingManager.getCurrentSchema(virtualFile);
                 if (schema != null) {
                     text = NamingUtil.enhanceUnderscoresForDisplay(schema.getName());
                     icon = schema.getIcon();

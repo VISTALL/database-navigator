@@ -20,8 +20,9 @@ public class DBLanguageFileEditorToolbarForm extends DBNFormImpl {
     private JPanel actionsPanel;
     private AutoCommitLabel autoCommitLabel;
 
-    public DBLanguageFileEditorToolbarForm(Project project, VirtualFile file, String actionPlace) {
-        ActionToolbar actionToolbar = ActionUtil.createActionToolbar(actionPlace, true, "DBNavigator.ActionGroup.FileEditor");
+    public DBLanguageFileEditorToolbarForm(Project project, VirtualFile file, JComponent editorComponent) {
+        ActionToolbar actionToolbar = ActionUtil.createActionToolbar("", true, "DBNavigator.ActionGroup.FileEditor");
+        actionToolbar.setTargetComponent(editorComponent);
         actionsPanel.add(actionToolbar.getComponent(), BorderLayout.CENTER);
 
         ConnectionHandler connectionHandler = FileConnectionMappingManager.getInstance(project).getActiveConnection(file);

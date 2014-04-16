@@ -1,6 +1,5 @@
 package com.dci.intellij.dbn.language.editor;
 
-import com.dci.intellij.dbn.common.util.EditorUtil;
 import com.dci.intellij.dbn.language.common.DBLanguageFileType;
 import com.dci.intellij.dbn.language.editor.ui.DBLanguageFileEditorToolbarForm;
 import com.intellij.openapi.fileEditor.FileEditor;
@@ -17,8 +16,7 @@ public class DBLanguageFileEditorListener implements FileEditorManagerListener{
         if (file.isInLocalFileSystem() && file.getFileType() instanceof DBLanguageFileType) {
             FileEditor fileEditor = source.getSelectedEditor(file);
             if (fileEditor != null) {
-                String actionPlace = EditorUtil.getEditorActionPlace(fileEditor);
-                DBLanguageFileEditorToolbarForm toolbarForm = new DBLanguageFileEditorToolbarForm(source.getProject(), file, actionPlace);
+                DBLanguageFileEditorToolbarForm toolbarForm = new DBLanguageFileEditorToolbarForm(source.getProject(), file, fileEditor.getComponent());
                 fileEditor.getComponent().add(toolbarForm.getComponent(), BorderLayout.NORTH);
                 fileEditor.putUserData(DBLanguageFileEditorToolbarForm.USER_DATA_KEY, toolbarForm);
             }

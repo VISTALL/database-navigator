@@ -6,7 +6,6 @@ import com.dci.intellij.dbn.common.ui.DBNForm;
 import com.dci.intellij.dbn.common.ui.DBNFormImpl;
 import com.dci.intellij.dbn.common.ui.dialog.MessageDialog;
 import com.dci.intellij.dbn.common.util.ActionUtil;
-import com.dci.intellij.dbn.common.util.EditorUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.data.find.DataSearchComponent;
 import com.dci.intellij.dbn.data.find.SearchableDataComponent;
@@ -51,8 +50,8 @@ public class DatasetEditorForm extends DBNFormImpl implements DBNForm, Searchabl
             panel.setBorder(UIUtil.getTableHeaderCellBorder());
             datasetTableScrollPane.setCorner(ScrollPaneConstants.UPPER_LEFT_CORNER, panel);
 
-            String actionPlace = EditorUtil.getEditorActionPlace(datasetEditor);
-            ActionToolbar actionToolbar = ActionUtil.createActionToolbar(actionPlace, true, "DBNavigator.ActionGroup.DataEditor");
+            ActionToolbar actionToolbar = ActionUtil.createActionToolbar("", true, "DBNavigator.ActionGroup.DataEditor");
+            actionToolbar.setTargetComponent(actionsPanel);
 
             actionsPanel.add(actionToolbar.getComponent(), BorderLayout.WEST);
             loadingIconPanel.add(new AsyncProcessIcon("Loading"), BorderLayout.CENTER);

@@ -6,8 +6,10 @@ import com.dci.intellij.dbn.common.util.MessageUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.mapping.FileConnectionMappingManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VirtualFile;
 
 import javax.swing.Icon;
 
@@ -18,10 +20,11 @@ public abstract class TransactionEditorAction extends DumbAwareAction {
 
     public void update(AnActionEvent e) {
         Project project = ActionUtil.getProject(e);
+        VirtualFile virtualFile = e.getData(PlatformDataKeys.VIRTUAL_FILE);
         boolean enabled = false;
-        if (project != null) {
+        if (project != null && virtualFile != null) {
             FileConnectionMappingManager connectionMappingManager = FileConnectionMappingManager.getInstance(project);
-            ConnectionHandler activeConnection = connectionMappingManager.lookupActiveConnectionForEditor(e.getPlace());
+            ConnectionHandler activeConnection = connectionMappingManager.getActiveConnection(virtualFile);
             enabled = activeConnection != null && activeConnection.hasUncommittedChanges();
         }
         e.getPresentation().setEnabled(enabled);
@@ -35,10 +38,10 @@ public abstract class TransactionEditorAction extends DumbAwareAction {
         }.start();
     }
 
-    protected ConnectionHandler getConnectionHandler(Project project, String actionPlace) {
+    protected ConnectionHandler getConnectionHandler(Project project, VirtualFile virtualFile) {
         if (project != null) {
             FileConnectionMappingManager connectionMappingManager = FileConnectionMappingManager.getInstance(project);
-            return connectionMappingManager.lookupActiveConnectionForEditor(actionPlace);
+            return connectionMappingManager.getActiveConnection(virtualFile);
         }
         return null;
     }

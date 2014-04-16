@@ -3,7 +3,6 @@ package com.dci.intellij.dbn.editor.code;
 import com.dci.intellij.dbn.common.editor.BasicTextEditor;
 import com.dci.intellij.dbn.common.editor.BasicTextEditorProvider;
 import com.dci.intellij.dbn.common.util.ActionUtil;
-import com.dci.intellij.dbn.common.util.EditorUtil;
 import com.dci.intellij.dbn.editor.DBContentType;
 import com.dci.intellij.dbn.vfs.DatabaseEditableObjectFile;
 import com.dci.intellij.dbn.vfs.SourceCodeFile;
@@ -18,6 +17,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Icon;
+import javax.swing.JComponent;
 import java.awt.BorderLayout;
 
 public abstract class BasicSourceCodeEditorProvider extends BasicTextEditorProvider implements DumbAware {
@@ -91,10 +91,11 @@ public abstract class BasicSourceCodeEditorProvider extends BasicTextEditorProvi
 
     private void updateEditorActions(BasicTextEditor fileEditor) {
         Editor editor = fileEditor.getEditor();
-        String actionPlace = EditorUtil.getEditorActionPlace(fileEditor);
-        ActionToolbar actionToolbar = ActionUtil.createActionToolbar(actionPlace, true, "DBNavigator.ActionGroup.SourceEditor");
+        ActionToolbar actionToolbar = ActionUtil.createActionToolbar("", true, "DBNavigator.ActionGroup.SourceEditor");
+        JComponent editorComponent = editor.getComponent();
+        actionToolbar.setTargetComponent(editorComponent);
         //FileEditorManager.getInstance(editor.getProject()).addTopComponent(fileEditor, actionToolbar.getComponent());
-        editor.getComponent().getParent().add(actionToolbar.getComponent(), BorderLayout.NORTH);
+        editorComponent.getParent().add(actionToolbar.getComponent(), BorderLayout.NORTH);
     }
 
     public void disposeEditor(@NotNull FileEditor editor) {
