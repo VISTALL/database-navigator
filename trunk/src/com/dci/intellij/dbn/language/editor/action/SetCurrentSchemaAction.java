@@ -8,8 +8,9 @@ import com.dci.intellij.dbn.language.common.psi.PsiUtil;
 import com.dci.intellij.dbn.object.DBSchema;
 import com.dci.intellij.dbn.vfs.DatabaseEditableObjectFile;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.actionSystem.Presentation;
-import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -25,8 +26,9 @@ public class SetCurrentSchemaAction extends DumbAwareAction {
 
     public void actionPerformed(AnActionEvent e) {
         Project project = ActionUtil.getProject(e);
-        if (project != null) {
-            FileConnectionMappingManager.getInstance(project).setCurrentSchemaForSelectedEditor(e.getPlace(), schema);
+        Editor editor = e.getData(PlatformDataKeys.EDITOR);
+        if (project != null && editor != null) {
+            FileConnectionMappingManager.getInstance(project).setCurrentSchemaForSelectedEditor(editor, schema);
         }
     }
 
@@ -34,16 +36,12 @@ public class SetCurrentSchemaAction extends DumbAwareAction {
         boolean enabled = true;
         Project project = ActionUtil.getProject(e);
 
-        VirtualFile[] selectedFiles = FileEditorManager.getInstance(project).getSelectedFiles();
-        if (selectedFiles.length == 1) {
-            VirtualFile virtualFile = selectedFiles[0];
-            if (virtualFile instanceof DatabaseEditableObjectFile) {
-                DatabaseEditableObjectFile databaseFile = (DatabaseEditableObjectFile) virtualFile;
-                enabled = false;//objectFile.getObject().getSchema() == schema;
-            } else {
-                PsiFile currentFile = PsiUtil.getPsiFile(project, virtualFile);
-                enabled = currentFile instanceof DBLanguageFile;
-            }
+        VirtualFile virtualFile = e.getData(PlatformDataKeys.VIRTUAL_FILE);
+        if (virtualFile instanceof DatabaseEditableObjectFile) {
+            enabled = false;//objectFile.getObject().getSchema() == schema;
+        } else {
+            PsiFile currentFile = PsiUtil.getPsiFile(project, virtualFile);
+            enabled = currentFile instanceof DBLanguageFile;
         }
 
         Presentation presentation = e.getPresentation();

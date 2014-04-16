@@ -1,11 +1,9 @@
 package com.dci.intellij.dbn.editor.data.action;
 
 import com.dci.intellij.dbn.common.ui.GUIUtil;
-import com.dci.intellij.dbn.common.util.ActionUtil;
-import com.dci.intellij.dbn.common.util.EditorUtil;
 import com.dci.intellij.dbn.editor.data.DatasetEditor;
-import com.intellij.openapi.actionSystem.ActionPlaces;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.DumbAwareAction;
@@ -35,16 +33,6 @@ public abstract class AbstractDataEditorAction extends DumbAwareAction {
     }
 
     public static DatasetEditor getDatasetEditor(AnActionEvent e) {
-        Project project = ActionUtil.getProject(e);
-        if (project != null) {
-            if (ActionPlaces.MAIN_MENU.equals(e.getPlace())) {
-                // action is triggered via shortcut
-                return getActiveDatasetEditor(project);
-            } else {
-                FileEditor fileEditor = EditorUtil.getFileEditor(project, e.getPlace());
-                return (DatasetEditor) fileEditor;
-            }
-        }
-        return null;
+        return (DatasetEditor) e.getData(PlatformDataKeys.FILE_EDITOR);
     }
 }

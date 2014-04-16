@@ -8,6 +8,7 @@ import com.dci.intellij.dbn.connection.mapping.FileConnectionMappingManager;
 import com.dci.intellij.dbn.vfs.SQLConsoleFile;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
+import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
@@ -32,9 +33,10 @@ public class SelectConnectionComboBoxAction extends DBNComboBoxAction {
         Icon icon = null;
 
         Project project = ActionUtil.getProject(e);
-        if (project != null) {
+        VirtualFile virtualFile = e.getData(PlatformDataKeys.VIRTUAL_FILE);
+        if (project != null && virtualFile != null) {
             FileConnectionMappingManager connectionMappingManager = FileConnectionMappingManager.getInstance(project);
-            ConnectionHandler activeConnection = connectionMappingManager.lookupActiveConnectionForEditor(e.getPlace());
+            ConnectionHandler activeConnection = connectionMappingManager.getActiveConnection(virtualFile);
             if (activeConnection != null) {
                 text = NamingUtil.enhanceUnderscoresForDisplay(activeConnection.getQualifiedName());
                 icon = activeConnection.getIcon();

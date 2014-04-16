@@ -3,7 +3,6 @@ package com.dci.intellij.dbn.editor.console.ui;
 import com.dci.intellij.dbn.common.ui.AutoCommitLabel;
 import com.dci.intellij.dbn.common.ui.DBNFormImpl;
 import com.dci.intellij.dbn.common.util.ActionUtil;
-import com.dci.intellij.dbn.common.util.EditorUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.editor.console.SQLConsoleEditor;
 import com.intellij.openapi.actionSystem.ActionToolbar;
@@ -18,9 +17,9 @@ public class SQLConsoleEditorToolbarForm extends DBNFormImpl {
     private AutoCommitLabel autoCommitLabel;
 
     public SQLConsoleEditorToolbarForm(SQLConsoleEditor fileEditor) {
-        String actionPlace = EditorUtil.getEditorActionPlace(fileEditor);
-        ActionToolbar actionToolbar = ActionUtil.createActionToolbar(actionPlace, true, "DBNavigator.ActionGroup.FileEditor");
+        ActionToolbar actionToolbar = ActionUtil.createActionToolbar("", true, "DBNavigator.ActionGroup.FileEditor");
         actionsPanel.add(actionToolbar.getComponent(), BorderLayout.CENTER);
+        actionToolbar.setTargetComponent(fileEditor.getComponent());
 
         ConnectionHandler connectionHandler = fileEditor.getVirtualFile().getConnectionHandler();
         autoCommitLabel.setConnectionHandler(connectionHandler);

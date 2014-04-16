@@ -5,7 +5,9 @@ import com.dci.intellij.dbn.common.util.ActionUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.transaction.DatabaseTransactionManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VirtualFile;
 
 public class TransactionRollbackEditorAction extends TransactionEditorAction {
     public TransactionRollbackEditorAction() {
@@ -14,9 +16,10 @@ public class TransactionRollbackEditorAction extends TransactionEditorAction {
 
     public void actionPerformed(AnActionEvent e) {
         Project project = ActionUtil.getProject(e);
+        VirtualFile virtualFile = e.getData(PlatformDataKeys.VIRTUAL_FILE);
         if (project != null) {
             DatabaseTransactionManager transactionManager = DatabaseTransactionManager.getInstance(project);
-            ConnectionHandler activeConnection = getConnectionHandler(project, e.getPlace());
+            ConnectionHandler activeConnection = getConnectionHandler(project, virtualFile);
             transactionManager.rollback(activeConnection, true, false);
         }
     }
@@ -27,7 +30,9 @@ public class TransactionRollbackEditorAction extends TransactionEditorAction {
         e.getPresentation().setText("Rollback");
 
         Project project = ActionUtil.getProject(e);
-        ConnectionHandler connectionHandler = getConnectionHandler(project, e.getPlace());
+        VirtualFile virtualFile = e.getData(PlatformDataKeys.VIRTUAL_FILE);
+
+        ConnectionHandler connectionHandler = getConnectionHandler(project, virtualFile);
         e.getPresentation().setVisible(connectionHandler != null && !connectionHandler.isAutoCommit());
     }
 

@@ -10,8 +10,9 @@ import com.dci.intellij.dbn.connection.mapping.FileConnectionMappingManager;
 import com.dci.intellij.dbn.language.common.DBLanguageFileType;
 import com.dci.intellij.dbn.vfs.DatabaseEditableObjectFile;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.actionSystem.Presentation;
-import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.openapi.project.DumbAwareAction;
@@ -29,8 +30,9 @@ public class SelectConnectionAction extends DumbAwareAction {
 
     public void actionPerformed(AnActionEvent e) {
         Project project = ActionUtil.getProject(e);
-        if (project != null) {
-            FileConnectionMappingManager.getInstance(project).selectActiveConnectionForEditor(e.getPlace(), connectionHandler);
+        Editor editor = e.getData(PlatformDataKeys.EDITOR);
+        if (project != null && editor != null) {
+            FileConnectionMappingManager.getInstance(project).selectActiveConnectionForEditor(editor, connectionHandler);
         }
     }
 
@@ -38,29 +40,25 @@ public class SelectConnectionAction extends DumbAwareAction {
         Presentation presentation = e.getPresentation();
         boolean enabled = true;
         Project project = ActionUtil.getProject(e);
-        VirtualFile[] selectedFiles = FileEditorManager.getInstance(project).getSelectedFiles();
-        if (selectedFiles.length == 1) {
-            VirtualFile virtualFile = selectedFiles[0];
-            if (virtualFile instanceof DatabaseEditableObjectFile) {
-                enabled = false;
-            } else {
-                if (virtualFile.getFileType() instanceof DBLanguageFileType) {
-                    if (connectionHandler == null) {
-                        enabled = true;
-                    } else {
-                        ConnectionBundle connectionBundle = connectionHandler.getConnectionBundle();
-                        if (connectionBundle instanceof ModuleConnectionBundle) {
-                            Module currentModule = ModuleUtil.findModuleForFile(virtualFile, project);
-                            Module connectionModule = ((ModuleConnectionBundle) connectionBundle).getModule();
-                            enabled = connectionModule == currentModule;
-                        }
-                    }
+        VirtualFile virtualFile = e.getData(PlatformDataKeys.VIRTUAL_FILE);
+        if (virtualFile instanceof DatabaseEditableObjectFile) {
+            enabled = false;
+        } else {
+            if (virtualFile != null && virtualFile.getFileType() instanceof DBLanguageFileType) {
+                if (connectionHandler == null) {
+                    enabled = true;
                 } else {
-                    enabled = false;
+                    ConnectionBundle connectionBundle = connectionHandler.getConnectionBundle();
+                    if (connectionBundle instanceof ModuleConnectionBundle) {
+                        Module currentModule = ModuleUtil.findModuleForFile(virtualFile, project);
+                        Module connectionModule = ((ModuleConnectionBundle) connectionBundle).getModule();
+                        enabled = connectionModule == currentModule;
+                    }
                 }
+            } else {
+                enabled = false;
             }
         }
-
         presentation.setEnabled(enabled);
 
     }

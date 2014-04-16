@@ -26,7 +26,6 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.util.List;
-import java.util.UUID;
 
 public class EditorUtil {
     public static void selectEditor(DatabaseEditableObjectFile databaseFile, FileEditor fileEditor) {
@@ -121,18 +120,6 @@ public class EditorUtil {
         }
         return null;
     }
-
-    public static synchronized  String getEditorActionPlace(FileEditor fileEditor) {
-        String actionPlace = fileEditor.getUserData(DBNDataKeys.ACTION_PLACE_KEY);
-        if (actionPlace == null) {
-            actionPlace = UUID.randomUUID().toString();
-            fileEditor.putUserData(DBNDataKeys.ACTION_PLACE_KEY, actionPlace);
-        }
-        return actionPlace;
-    }
-
-
-
 
     public static FileEditor getSelectedEditor(DatabaseEditableObjectFile databaseFile) {
         return FileEditorManager.getInstance(databaseFile.getProject()).getSelectedEditor(databaseFile);

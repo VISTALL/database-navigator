@@ -1,7 +1,6 @@
 package com.dci.intellij.dbn.connection.mapping;
 
 import com.dci.intellij.dbn.common.util.DocumentUtil;
-import com.dci.intellij.dbn.common.util.EditorUtil;
 import com.dci.intellij.dbn.common.util.StringUtil;
 import com.dci.intellij.dbn.common.util.VirtualFileUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
@@ -224,24 +223,7 @@ public class FileConnectionMappingManager extends VirtualFileAdapter implements 
         return list;
     }
 
-    /**********************************************
-     *            Contextual utilities            *
-     **********************************************/
-    @Nullable
-    public ConnectionHandler lookupActiveConnectionForEditor(String actionPlace) {
-        VirtualFile virtualFile = EditorUtil.getVirtualFile(project, actionPlace);
-        return virtualFile == null ? null : getActiveConnection(virtualFile);
-    }
-
-    @Nullable
-    public DBSchema lookupCurrentSchemaForEditor(String actionPlace) {
-        VirtualFile virtualFile = EditorUtil.getVirtualFile(project, actionPlace);
-        return virtualFile == null ? null : getCurrentSchema(virtualFile);
-    }
-
-    public void selectActiveConnectionForEditor(String actionPlace, @Nullable ConnectionHandler connectionHandler) {
-
-        Editor editor = EditorUtil.getSelectedEditor(project);
+    public void selectActiveConnectionForEditor(Editor editor, @Nullable ConnectionHandler connectionHandler) {
         if (editor!= null) {
             Document document = editor.getDocument();
             VirtualFile virtualFile = FileDocumentManager.getInstance().getFile(document);
@@ -260,8 +242,7 @@ public class FileConnectionMappingManager extends VirtualFileAdapter implements 
         }
     }
 
-    public void setCurrentSchemaForSelectedEditor(String actionPlace, DBSchema schema) {
-        Editor editor = EditorUtil.getSelectedEditor(project);
+    public void setCurrentSchemaForSelectedEditor(Editor editor, DBSchema schema) {
         if (editor!= null) {
             Document document = editor.getDocument();
             VirtualFile virtualFile = FileDocumentManager.getInstance().getFile(document);
