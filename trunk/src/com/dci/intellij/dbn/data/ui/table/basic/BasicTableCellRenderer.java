@@ -90,7 +90,7 @@ public class BasicTableCellRenderer extends ColoredTableCellRenderer {
                  }
 
                  int valueLength = formattedUserValue.length();
-                 int lastOffset = Math.max(0, valueLength-1);
+                 int lastOffset = Math.max(0, valueLength);
                  while (matches.hasNext()) {
                      DataSearchResultMatch match = matches.next();
                      if (match.getStartOffset() > lastEndOffset) {
