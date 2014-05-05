@@ -52,18 +52,14 @@ public class StatementExecutionProcessor {
 
     private void readStatements(String statementText, String prefixes) {
         if (prefixes == null) {
-            StatementDefinition statementDefinition = isPrepared ?
-                    new PreparedStatementDefinition(statementText, null, false):
-                    new BasicStatementDefinition(statementText, null, false);
+            StatementDefinition statementDefinition = new StatementDefinition(statementText, null, false);
             statementDefinitions.add(statementDefinition);
         } else {
             StringTokenizer tokenizer = new StringTokenizer(prefixes, ",");
             while (tokenizer.hasMoreTokens()) {
                 String prefix = tokenizer.nextToken().trim();
                 boolean hasFallback = tokenizer.hasMoreTokens();
-                StatementDefinition statementDefinition = isPrepared ?
-                        new PreparedStatementDefinition(statementText, prefix, hasFallback) :
-                        new BasicStatementDefinition(statementText, prefix, hasFallback);
+                StatementDefinition statementDefinition = new StatementDefinition(statementText, prefix, hasFallback);
                 statementDefinitions.add(statementDefinition);
             }
         }
@@ -99,10 +95,18 @@ public class StatementExecutionProcessor {
             Statement statement = null;
             boolean executionSuccessful = true;
             try {
-                if (statementDefinition instanceof BasicStatementDefinition) {
-                    BasicStatementDefinition basicStatementDefinition = (BasicStatementDefinition) statementDefinition;
-                    statementText = basicStatementDefinition.getStatementText(arguments);
-                    if (SettingsUtil.isDebugEnabled) LOGGER.info("[DBN-INFO] Executing statement: " + statementText);
+                if (SettingsUtil.isDebugEnabled) {
+                    statementText = statementDefinition.prepareStatementText(arguments);
+                    LOGGER.info("[DBN-INFO] Executing statement: " + statementText);
+                }
+                if (isPrepared) {
+                    PreparedStatement preparedStatement = statementDefinition.prepareStatement(connection, arguments);
+                    preparedStatement.setQueryTimeout(60);
+                    statement = preparedStatement;
+                    return preparedStatement.executeQuery();
+                } else {
+                    if (statementText == null)
+                        statementText = statementDefinition.prepareStatementText(arguments);
                     statement = connection.createStatement();
                     statement.setQueryTimeout(60);
                     statement.execute(statementText);
@@ -112,14 +116,6 @@ public class StatementExecutionProcessor {
                         ConnectionUtil.closeStatement(statement);
                         return null;
                     }
-                } else if (statementDefinition instanceof PreparedStatementDefinition) {
-                    PreparedStatementDefinition preparedStatementDefinition = (PreparedStatementDefinition) statementDefinition;
-                    PreparedStatement preparedStatement = preparedStatementDefinition.prepareStatement(connection, arguments);
-                    preparedStatement.setQueryTimeout(60);
-                    statement = preparedStatement;
-                    return preparedStatement.executeQuery();
-                } else {
-                    return null;
                 }
 
             } catch (SQLException exception) {
@@ -145,11 +141,11 @@ public class StatementExecutionProcessor {
         }
     }
 
-    public <T extends CallableStatementOutput> T executeCall(Connection connection, @Nullable T outputReader, @Nullable Object... arguments) throws SQLException {
+    public <T extends CallableStatementOutput> T executeCall(Connection connection, @Nullable T outputReader, Object... arguments) throws SQLException {
         SQLException exception = null;
         for (StatementDefinition statementDefinition : statementDefinitions) {
             try {
-                return executeCall((BasicStatementDefinition) statementDefinition, connection, outputReader, arguments);
+                return executeCall(statementDefinition, connection, outputReader, arguments);
             } catch (SQLException e){
                 exception = e;
             }
@@ -157,8 +153,8 @@ public class StatementExecutionProcessor {
         throw exception;
     }
 
-    private <T extends CallableStatementOutput> T executeCall(BasicStatementDefinition statementDefinition, Connection connection, @Nullable T outputReader, @Nullable Object... arguments) throws SQLException {
-        String statementText = statementDefinition.getStatementText(arguments);
+    private <T extends CallableStatementOutput> T executeCall(StatementDefinition statementDefinition, Connection connection, @Nullable T outputReader, Object... arguments) throws SQLException {
+        String statementText = statementDefinition.prepareStatementText(arguments);
         if (SettingsUtil.isDebugEnabled) LOGGER.info("[DBN-INFO] Executing statement: " + statementText);
 
         CallableStatement callableStatement = connection.prepareCall(statementText);
