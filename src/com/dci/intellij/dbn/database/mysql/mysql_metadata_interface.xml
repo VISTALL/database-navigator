@@ -632,7 +632,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="validate-connection" timeout="5">
+    <statement-execution-processor id="validate-connection" timeout="5" is-prepared="true">
         <statement>
             select 1
         </statement>

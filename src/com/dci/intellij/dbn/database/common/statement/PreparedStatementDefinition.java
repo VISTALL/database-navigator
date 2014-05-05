@@ -37,6 +37,7 @@ public class PreparedStatementDefinition extends StatementDefinition {
         this.statementText = buffer.toString();
         this.placeholders = placeholders.toArray(new Integer[placeholders.size()]);
     }
+
     public PreparedStatement prepareStatement(Connection connection, Object[] arguments) throws SQLException {
         PreparedStatement preparedStatement = connection.prepareStatement(statementText);
         for (int i = 0; i < placeholders.length; i++) {

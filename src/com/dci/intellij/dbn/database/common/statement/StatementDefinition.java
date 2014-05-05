@@ -1,13 +1,13 @@
 package com.dci.intellij.dbn.database.common.statement;
 
-import com.intellij.openapi.util.text.StringUtil;
-
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 
 public abstract class StatementDefinition {
     protected String statementText;
+    protected Integer[] placeholders;
+
     private int connectionSignature;
     private int executionTrials;
     private long lastExecutionTimestamp;
@@ -16,16 +16,9 @@ public abstract class StatementDefinition {
 
     public StatementDefinition(String statementText, String prefix, boolean hasFallback) {
         this.hasFallback = hasFallback;
-        this.statementText = statementText.trim();
-        this.statementText = StringUtil.replace(this.statementText, "\n", " ");
-        String initialStatement = null;
-        while (!this.statementText.equals(initialStatement)) {
-            initialStatement = this.statementText;
-            this.statementText = StringUtil.replace(this.statementText, "  ", " ");
-        }
-
+        this.statementText = statementText.replaceAll("\\s+", " ").trim();
         if (prefix != null) {
-            this.statementText = StringUtil.replace(this.statementText, "[PREFIX]", prefix);
+            this.statementText = this.statementText.replaceAll("\\[PREFIX\\]", prefix);
         }
     }
 
