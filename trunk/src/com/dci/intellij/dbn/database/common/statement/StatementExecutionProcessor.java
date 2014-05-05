@@ -11,6 +11,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -23,6 +24,7 @@ public class StatementExecutionProcessor {
     private static final Logger LOGGER = LoggerFactory.createLogger();
     private String id;
     private boolean isQuery;
+    private boolean isPrepared;
     private int timeout;
     private List<StatementDefinition> statementDefinitions = new ArrayList<StatementDefinition>();
     private SQLException lastException;
@@ -32,6 +34,7 @@ public class StatementExecutionProcessor {
         this.interfaceProvider = interfaceProvider;
         id = element.getAttributeValue("id");
         isQuery = Boolean.parseBoolean(element.getAttributeValue("is-query"));
+        isPrepared = Boolean.parseBoolean(element.getAttributeValue("is-prepared"));
         String timeoutS = element.getAttributeValue("timeout");
         timeout = StringUtil.isEmpty(timeoutS) ? DEFAULT_TIMEOUT : Integer.parseInt(timeoutS);
         if (element.getChildren().isEmpty()) {
@@ -49,13 +52,18 @@ public class StatementExecutionProcessor {
 
     private void readStatements(String statementText, String prefixes) {
         if (prefixes == null) {
-            StatementDefinition statementDefinition = new StatementDefinition(statementText, null, false);
+            StatementDefinition statementDefinition = isPrepared ?
+                    new PreparedStatementDefinition(statementText, null, false):
+                    new BasicStatementDefinition(statementText, null, false);
             statementDefinitions.add(statementDefinition);
         } else {
             StringTokenizer tokenizer = new StringTokenizer(prefixes, ",");
             while (tokenizer.hasMoreTokens()) {
-                String token = tokenizer.nextToken().trim();
-                StatementDefinition statementDefinition = new StatementDefinition(statementText, token, tokenizer.hasMoreTokens());
+                String prefix = tokenizer.nextToken().trim();
+                boolean hasFallback = tokenizer.hasMoreTokens();
+                StatementDefinition statementDefinition = isPrepared ?
+                        new PreparedStatementDefinition(statementText, prefix, hasFallback) :
+                        new BasicStatementDefinition(statementText, prefix, hasFallback);
                 statementDefinitions.add(statementDefinition);
             }
         }
@@ -77,7 +85,7 @@ public class StatementExecutionProcessor {
         SQLException exception = null;
         for (StatementDefinition statementDefinition : statementDefinitions) {
             try {
-                return executeQuery(connection, forceExecution, SettingsUtil.isDebugEnabled, statementDefinition, arguments);
+                return executeQuery(statementDefinition, connection, forceExecution, arguments);
             } catch (SQLException e){
                 exception = e;
             }
@@ -85,33 +93,46 @@ public class StatementExecutionProcessor {
         throw exception;
     }
 
-    private ResultSet executeQuery(Connection connection, boolean forceExecution, boolean debug, StatementDefinition statementDefinition, Object... arguments) throws SQLException {
+    private ResultSet executeQuery(StatementDefinition statementDefinition, Connection connection, boolean forceExecution, Object... arguments) throws SQLException {
         if (forceExecution || statementDefinition.canExecute(connection)) {
-            String statementText = statementDefinition.createStatement(arguments);
-            if (debug) LOGGER.info("[DBN-INFO] Executing statement: " + statementText);
-
-            Statement statement = connection.createStatement();
-            statement.setQueryTimeout(60);
+            String statementText = null;
+            Statement statement = null;
             boolean executionSuccessful = true;
             try {
-                statement.execute(statementText);
-                if (isQuery) {
-                    return statement.getResultSet();
+                if (statementDefinition instanceof BasicStatementDefinition) {
+                    BasicStatementDefinition basicStatementDefinition = (BasicStatementDefinition) statementDefinition;
+                    statementText = basicStatementDefinition.getStatementText(arguments);
+                    if (SettingsUtil.isDebugEnabled) LOGGER.info("[DBN-INFO] Executing statement: " + statementText);
+                    statement = connection.createStatement();
+                    statement.setQueryTimeout(60);
+                    statement.execute(statementText);
+                    if (isQuery) {
+                        return statement.getResultSet();
+                    } else {
+                        ConnectionUtil.closeStatement(statement);
+                        return null;
+                    }
+                } else if (statementDefinition instanceof PreparedStatementDefinition) {
+                    PreparedStatementDefinition preparedStatementDefinition = (PreparedStatementDefinition) statementDefinition;
+                    PreparedStatement preparedStatement = preparedStatementDefinition.prepareStatement(connection, arguments);
+                    preparedStatement.setQueryTimeout(60);
+                    statement = preparedStatement;
+                    return preparedStatement.executeQuery();
                 } else {
-                    ConnectionUtil.closeStatement(statement);
                     return null;
                 }
+
             } catch (SQLException exception) {
                 executionSuccessful = false;
 
-                if (debug) LOGGER.info("[DBN-ERROR] Error executing statement: " + statementText + "\n" + "Cause: " + exception.getMessage());
+                if (SettingsUtil.isDebugEnabled) LOGGER.info("[DBN-ERROR] Error executing statement: " + statementText + "\n" + "Cause: " + exception.getMessage());
                 if (interfaceProvider.getMessageParserInterface().isModelException(exception)) {
                     statementDefinition.setDisabled(true);
                     lastException = new SQLException("Model exception received while executing query '" + getId() +"'. " + exception.getMessage());
                 } else {
                     lastException = new SQLException("Too many failed attempts of executing query '" + getId() +"'. " + exception.getMessage());
                 }
-
+                ConnectionUtil.closeStatement(statement);
                 throw exception;
             } finally {
                 statementDefinition.updateExecutionStatus(executionSuccessful);
@@ -124,11 +145,11 @@ public class StatementExecutionProcessor {
         }
     }
 
-    public <T extends CallableStatementOutput> T executeCall(@Nullable Object[] arguments, @Nullable T outputReader, Connection connection) throws SQLException {
+    public <T extends CallableStatementOutput> T executeCall(Connection connection, @Nullable T outputReader, @Nullable Object... arguments) throws SQLException {
         SQLException exception = null;
         for (StatementDefinition statementDefinition : statementDefinitions) {
             try {
-                return executeCall(statementDefinition, arguments, outputReader, connection, SettingsUtil.isDebugEnabled);
+                return executeCall((BasicStatementDefinition) statementDefinition, connection, outputReader, arguments);
             } catch (SQLException e){
                 exception = e;
             }
@@ -136,11 +157,11 @@ public class StatementExecutionProcessor {
         throw exception;
     }
 
-    private <T extends CallableStatementOutput> T executeCall(StatementDefinition statementDefinition, @Nullable Object[] arguments, @Nullable T outputReader, Connection connection, boolean debug) throws SQLException {
-        String statementText = statementDefinition.createStatement(arguments);
-        if (debug) LOGGER.info("[DBN-INFO] Executing statement: " + statementText);
+    private <T extends CallableStatementOutput> T executeCall(BasicStatementDefinition statementDefinition, Connection connection, @Nullable T outputReader, @Nullable Object... arguments) throws SQLException {
+        String statementText = statementDefinition.getStatementText(arguments);
+        if (SettingsUtil.isDebugEnabled) LOGGER.info("[DBN-INFO] Executing statement: " + statementText);
 
-        CallableStatement callableStatement = connection.prepareCall (statementText);
+        CallableStatement callableStatement = connection.prepareCall(statementText);
         //callableStatement.setQueryTimeout(20);
         try {
             if (outputReader != null) outputReader.registerParameters(callableStatement);
@@ -149,7 +170,7 @@ public class StatementExecutionProcessor {
             if (outputReader != null) outputReader.read(callableStatement);
             return outputReader;
         } catch (SQLException exception) {
-            if (debug)
+            if (SettingsUtil.isDebugEnabled)
                 LOGGER.info(
                         "[DBN-ERROR] Error executing statement: " + statementText +
                                 "\nCause: " + exception.getMessage());

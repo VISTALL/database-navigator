@@ -39,6 +39,6 @@ public class DatabaseInterfaceImpl {
 
     protected <T extends CallableStatementOutput> T executeCall(Connection connection, @Nullable T outputReader, String loaderId, @Nullable Object... arguments) throws SQLException {
         StatementExecutionProcessor executionProcessor = processors.get(loaderId);
-        return executionProcessor.executeCall(arguments, outputReader, connection);
+        return executionProcessor.executeCall(connection, outputReader, arguments);
     }
 }
