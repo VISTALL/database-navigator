@@ -101,28 +101,28 @@ public class DBNativeDataType implements DynamicContentElement {
         }
     }
 
-    public void setValueToPreparedStatement(PreparedStatement callableStatement, int parameterIndex, Object value) throws SQLException {
+    public void setValueToPreparedStatement(PreparedStatement preparedStatement, int parameterIndex, Object value) throws SQLException {
         BasicDataType basicDataType = dataTypeDefinition.getBasicDataType();
         if (basicDataType == BasicDataType.CURSOR) return;
 
         if (value == null) {
-            callableStatement.setObject(parameterIndex, null);
+            preparedStatement.setObject(parameterIndex, null);
         } else {
             Class clazz = dataTypeDefinition.getTypeClass();
             if (value.getClass().isAssignableFrom(clazz)) {
-                if(clazz == String.class) callableStatement.setString(parameterIndex, (String) value); else
-                if(clazz == Byte.class) callableStatement.setByte(parameterIndex, (Byte) value); else
-                if(clazz == Short.class) callableStatement.setShort(parameterIndex, (Short) value); else
-                if(clazz == Integer.class) callableStatement.setInt(parameterIndex, (Integer) value); else
-                if(clazz == Long.class) callableStatement.setLong(parameterIndex, (Long) value); else
-                if(clazz == Float.class) callableStatement.setFloat(parameterIndex, (Float) value); else
-                if(clazz == Double.class) callableStatement.setDouble(parameterIndex, (Double) value); else
-                if(clazz == BigDecimal.class) callableStatement.setBigDecimal(parameterIndex, (BigDecimal) value); else
-                if(clazz == Date.class) callableStatement.setDate(parameterIndex, (Date) value); else
-                if(clazz == Time.class) callableStatement.setTime(parameterIndex, (Time) value); else
-                if(clazz == Timestamp.class) callableStatement.setTimestamp(parameterIndex, (Timestamp) value); else
-                if(clazz == Boolean.class) callableStatement.setBoolean(parameterIndex, (Boolean) value); else
-                        callableStatement.setObject(parameterIndex, value);
+                if(clazz == String.class) preparedStatement.setString(parameterIndex, (String) value); else
+                if(clazz == Byte.class) preparedStatement.setByte(parameterIndex, (Byte) value); else
+                if(clazz == Short.class) preparedStatement.setShort(parameterIndex, (Short) value); else
+                if(clazz == Integer.class) preparedStatement.setInt(parameterIndex, (Integer) value); else
+                if(clazz == Long.class) preparedStatement.setLong(parameterIndex, (Long) value); else
+                if(clazz == Float.class) preparedStatement.setFloat(parameterIndex, (Float) value); else
+                if(clazz == Double.class) preparedStatement.setDouble(parameterIndex, (Double) value); else
+                if(clazz == BigDecimal.class) preparedStatement.setBigDecimal(parameterIndex, (BigDecimal) value); else
+                if(clazz == Date.class) preparedStatement.setDate(parameterIndex, (Date) value); else
+                if(clazz == Time.class) preparedStatement.setTime(parameterIndex, (Time) value); else
+                if(clazz == Timestamp.class) preparedStatement.setTimestamp(parameterIndex, (Timestamp) value); else
+                if(clazz == Boolean.class) preparedStatement.setBoolean(parameterIndex, (Boolean) value); else
+                        preparedStatement.setObject(parameterIndex, value);
             } else {
                 throw new SQLException("Can not convert \"" + value.toString() + "\" into " + dataTypeDefinition.getName());
             }
