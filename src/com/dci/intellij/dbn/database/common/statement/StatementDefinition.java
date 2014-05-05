@@ -2,11 +2,14 @@ package com.dci.intellij.dbn.database.common.statement;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
-public abstract class StatementDefinition {
+public class StatementDefinition {
     protected String statementText;
-    protected Integer[] placeholders;
+    protected Integer[] placeholderIndexes;
 
     private int connectionSignature;
     private int executionTrials;
@@ -16,10 +19,53 @@ public abstract class StatementDefinition {
 
     public StatementDefinition(String statementText, String prefix, boolean hasFallback) {
         this.hasFallback = hasFallback;
-        this.statementText = statementText.replaceAll("\\s+", " ").trim();
+        statementText = statementText.replaceAll("\\s+", " ").trim();
         if (prefix != null) {
-            this.statementText = this.statementText.replaceAll("\\[PREFIX\\]", prefix);
+            statementText = statementText.replaceAll("\\[PREFIX\\]", prefix);
         }
+
+        StringBuilder buffer = new StringBuilder();
+        List<Integer> placeholders = new ArrayList<Integer>();
+        int startIndex = statementText.indexOf('{');
+        if (startIndex == -1) {
+            buffer.append(statementText);
+        } else {
+            int endIndex = 0;
+            while (startIndex > -1) {
+                String segment = statementText.substring(endIndex, startIndex);
+                buffer.append(segment).append(" ? ");
+                endIndex = statementText.indexOf('}', startIndex);
+                String placeholder = statementText.substring(startIndex + 1, endIndex);
+
+                placeholders.add(new Integer(placeholder));
+                startIndex = statementText.indexOf('{', endIndex);
+                endIndex = endIndex + 1;
+            }
+            if (endIndex < statementText.length()) {
+                buffer.append(statementText.substring(endIndex));
+            }
+        }
+        this.statementText = buffer.toString();
+        this.placeholderIndexes = placeholders.toArray(new Integer[placeholders.size()]);
+    }
+
+    public PreparedStatement prepareStatement(Connection connection, Object[] arguments) throws SQLException {
+        PreparedStatement preparedStatement = connection.prepareStatement(statementText);
+        for (int i = 0; i < placeholderIndexes.length; i++) {
+            Integer argumentIndex = placeholderIndexes[i];
+            Object argumentValue = arguments[argumentIndex];
+            preparedStatement.setObject(i + 1, argumentValue);
+        }
+        return preparedStatement;
+    }
+
+    public String prepareStatementText(Object ... arguments) {
+        String statementText = this.statementText;
+        for (Integer argumentIndex : placeholderIndexes) {
+            Object argumentValue = arguments[argumentIndex];
+            statementText = statementText.replaceFirst("\\?", argumentValue.toString());
+        }
+        return statementText;
     }
 
     public boolean canExecute(Connection connection) throws SQLException {
