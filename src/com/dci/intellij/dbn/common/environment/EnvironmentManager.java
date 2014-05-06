@@ -45,7 +45,7 @@ public class EnvironmentManager extends AbstractProjectComponent implements JDOM
         Set<EditorsSplitters> splitters = fileEditorManager.getAllSplitters();
         for (VirtualFile virtualFile : openFiles) {
             ConnectionHandler connectionHandler = DBEditorTabColorProvider.getConnectionHandler(virtualFile, getProject());
-            if (connectionHandler != null && !connectionHandler.isDisposed() && connectionHandler.getSettings().getDetailSettings().getEnvironmentTypeId().equals(environmentTypeId)) {
+            if (connectionHandler != null && !connectionHandler.isDisposed() && !connectionHandler.isVirtual() && connectionHandler.getSettings().getDetailSettings().getEnvironmentTypeId().equals(environmentTypeId)) {
                 for (EditorsSplitters splitter : splitters) {
                     splitter.updateFileBackgroundColor(virtualFile);
                 }
