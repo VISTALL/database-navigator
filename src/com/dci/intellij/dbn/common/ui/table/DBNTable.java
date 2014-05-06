@@ -18,7 +18,7 @@ import java.awt.Point;
 public class DBNTable extends JTable {
     private static final int MAX_COLUMN_WIDTH = 300;
     private static final int MIN_COLUMN_WIDTH = 10;
-    public static final DBNColor GRID_COLOR = new DBNColor(Color.LIGHT_GRAY, Color.DARK_GRAY);
+    public static final DBNColor GRID_COLOR = new DBNColor(new Color(0xE6E6E6), Color.DARK_GRAY);
     private Project project;
 
 

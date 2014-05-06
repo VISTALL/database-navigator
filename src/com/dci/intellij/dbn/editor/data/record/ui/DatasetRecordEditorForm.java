@@ -99,7 +99,7 @@ public class DatasetRecordEditorForm extends DBNFormImpl implements DBNForm {
     }
 
     public JComponent getPreferredFocusComponent() {
-        return columnForms.get(0).getEditorComponent();
+        return isDisposed() ? null : columnForms.get(0).getEditorComponent();
     }
 
     public JPanel getComponent() {
