@@ -113,8 +113,8 @@ public class DatasetTableCellEditorWithPopup extends DatasetTableCellEditor {
      *                  TextFieldWithPopup                  *
      ********************************************************/
     private static class CustomTextFieldWithPopup extends TextFieldWithPopup {
-        protected static final EmptyBorder BUTTON_INSIDE_INSETS = new EmptyBorder(0, 4, 0, 4);
-        protected static final CompoundBorder BUTTON_BORDER = new CompoundBorder(BUTTON_OUTSIDE_BORDER, new CompoundBorder(BUTTON_LINE_BORDER, BUTTON_INSIDE_INSETS));
+        protected static final EmptyBorder BUTTON_INSIDE_BORDER = new EmptyBorder(0, 2, 0, 2);
+        protected static final CompoundBorder BUTTON_BORDER = new CompoundBorder(BUTTON_OUTSIDE_BORDER, new CompoundBorder(BUTTON_LINE_BORDER, BUTTON_INSIDE_BORDER));
         private CustomTextFieldWithPopup(Project project) {
             super(project);
             setBackground(UIUtil.getTableBackground());
