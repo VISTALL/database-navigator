@@ -119,7 +119,8 @@ public class TextFieldWithTextEditor extends JPanel implements DataEditorCompone
     private KeyListener keyListener = new KeyAdapter() {
         public void keyPressed(KeyEvent keyEvent) {
             Shortcut[] shortcuts = KeyUtil.getShortcuts(IdeActions.ACTION_SHOW_INTENTION_ACTIONS);
-            if (KeyUtil.match(shortcuts, keyEvent)) {
+            if (!keyEvent.isConsumed() && KeyUtil.match(shortcuts, keyEvent)) {
+                keyEvent.consume();
                 openEditor();
             }
         }

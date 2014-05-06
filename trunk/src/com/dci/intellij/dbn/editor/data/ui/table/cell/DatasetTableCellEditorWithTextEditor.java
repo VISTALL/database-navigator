@@ -83,7 +83,8 @@ public class DatasetTableCellEditorWithTextEditor extends DatasetTableCellEditor
      ********************************************************/
     public void keyPressed(KeyEvent keyEvent) {
         Shortcut[] shortcuts = KeyUtil.getShortcuts(IdeActions.ACTION_SHOW_INTENTION_ACTIONS);
-        if (KeyUtil.match(shortcuts, keyEvent)) {
+        if (!keyEvent.isConsumed() && KeyUtil.match(shortcuts, keyEvent)) {
+            keyEvent.consume();
             getEditorComponent().openEditor();
         } else {
             super.keyPressed(keyEvent);
