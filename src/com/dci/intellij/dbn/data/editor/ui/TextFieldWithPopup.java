@@ -1,13 +1,18 @@
 package com.dci.intellij.dbn.data.editor.ui;
 
+import com.dci.intellij.dbn.common.Colors;
 import com.dci.intellij.dbn.common.Icons;
 import com.intellij.openapi.project.Project;
+import com.intellij.ui.RoundedLineBorder;
 
-import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
 import javax.swing.text.Document;
 import java.awt.BorderLayout;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
@@ -18,12 +23,20 @@ import java.awt.event.FocusListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.List;
 
 public class TextFieldWithPopup extends JPanel implements DataEditorComponent {
+    protected static final EmptyBorder BUTTON_OUTSIDE_BORDER = new EmptyBorder(1, 1, 1, 1);
+    protected static final EmptyBorder BUTTON_INSIDE_BORDER = new EmptyBorder(0, 8, 0, 8);
+    protected static final RoundedLineBorder BUTTON_LINE_BORDER = new RoundedLineBorder(Colors.BUTTON_BORDER_COLOR, 4);
+    protected static final CompoundBorder BUTTON_BORDER = new CompoundBorder(BUTTON_OUTSIDE_BORDER, new CompoundBorder(BUTTON_LINE_BORDER, BUTTON_INSIDE_BORDER));
+
     private JTextField textField;
-    private JButton button;
+    private JLabel button;
 
     private List<TextFieldPopupProviderForm> popupProviders = new ArrayList<TextFieldPopupProviderForm>();
     private UserValueHolder userValueHolder;
@@ -39,12 +52,10 @@ public class TextFieldWithPopup extends JPanel implements DataEditorComponent {
         textField.setMargin(new Insets(1, 3, 1, 1));
         add(textField, BorderLayout.CENTER);
 
-        button = new JButton(Icons.DATA_EDITOR_BROWSE);
-        button.setFocusable(false);
-        button.addActionListener(actionListener);
-        button.setMargin(new Insets(0, 4, 0, 4));
-        button.setVisible(false);
-        button.setBackground(getBackground());
+        button = new JLabel(Icons.DATA_EDITOR_BROWSE);
+        button.setBorder(BUTTON_BORDER);
+        button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        button.addMouseListener(mouseListener);
         add(button, BorderLayout.EAST);
         textField.setPreferredSize(new Dimension(150, -1));
         textField.addKeyListener(keyListener);
@@ -79,7 +90,7 @@ public class TextFieldWithPopup extends JPanel implements DataEditorComponent {
     }
 
     public void customizeTextField(JTextField textField) {}
-    public void customizeButton(JButton button) {}
+    public void customizeButton(JLabel button) {}
 
     public boolean isSelected() {
         Document document = textField.getDocument();
@@ -110,7 +121,7 @@ public class TextFieldWithPopup extends JPanel implements DataEditorComponent {
         textField.setText(text);
     }
 
-    public JButton getButton() {
+    public JLabel getButton() {
         return button;
     }
 
@@ -246,6 +257,18 @@ public class TextFieldWithPopup extends JPanel implements DataEditorComponent {
      ********************************************************/
     private ActionListener actionListener = new ActionListener() {
         public void actionPerformed(ActionEvent e) {
+            TextFieldPopupProviderForm defaultPopupProvider = getDefaultPopupProvider();
+            TextFieldPopupProviderForm popupProvider = getActivePopupProvider();
+            if (popupProvider == null || popupProvider != defaultPopupProvider) {
+                disposeActivePopup();
+                defaultPopupProvider.showPopup();
+            }
+        }
+    };
+
+    private MouseListener mouseListener = new MouseAdapter() {
+        @Override
+        public void mouseClicked(MouseEvent e) {
             TextFieldPopupProviderForm defaultPopupProvider = getDefaultPopupProvider();
             TextFieldPopupProviderForm popupProvider = getActivePopupProvider();
             if (popupProvider == null || popupProvider != defaultPopupProvider) {
