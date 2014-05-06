@@ -9,13 +9,14 @@ import com.dci.intellij.dbn.editor.data.ui.table.DatasetEditorTable;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.UIUtil;
 
-import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JTextField;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
 import java.awt.Cursor;
 import java.awt.event.KeyEvent;
 
 public class DatasetTableCellEditorWithPopup extends DatasetTableCellEditor {
-
     public DatasetTableCellEditorWithPopup(DatasetEditorTable table) {
         super(table, new CustomTextFieldWithPopup(table.getProject()));
     }
@@ -112,6 +113,8 @@ public class DatasetTableCellEditorWithPopup extends DatasetTableCellEditor {
      *                  TextFieldWithPopup                  *
      ********************************************************/
     private static class CustomTextFieldWithPopup extends TextFieldWithPopup {
+        protected static final EmptyBorder BUTTON_INSIDE_INSETS = new EmptyBorder(0, 4, 0, 4);
+        protected static final CompoundBorder BUTTON_BORDER = new CompoundBorder(BUTTON_OUTSIDE_BORDER, new CompoundBorder(BUTTON_LINE_BORDER, BUTTON_INSIDE_INSETS));
         private CustomTextFieldWithPopup(Project project) {
             super(project);
             setBackground(UIUtil.getTableBackground());
@@ -124,8 +127,8 @@ public class DatasetTableCellEditorWithPopup extends DatasetTableCellEditor {
         }
 
         @Override
-        public void customizeButton(JButton button) {
-            button.setMargin(Borders.EMPTY_INSETS);
+        public void customizeButton(JLabel button) {
+            button.setBorder(BUTTON_BORDER);
             button.setBackground(UIUtil.getTableBackground());
             button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         }
