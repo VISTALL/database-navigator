@@ -16,15 +16,17 @@ import java.util.List;
 public class AttachDDLFileDialog extends DBNDialog {
     private SelectDDLFileForm fileForm;
     private DBSchemaObject object;
+    private boolean showLookupOption;
 
-    public AttachDDLFileDialog(List<VirtualFile> virtualFiles, DBSchemaObject object) {
+    public AttachDDLFileDialog(List<VirtualFile> virtualFiles, DBSchemaObject object, boolean showLookupOption) {
         super(object.getProject(), "Attach DDL File", true);
         this.object = object;
+        this.showLookupOption = showLookupOption;
         String hint =
             "Following DDL files were found matching the name of the selected " + object.getTypeName() + ".\n" +
             "Select files to attach to this object.\n\n" +
             "NOTE: \nBound DDL files will become readonly and their content will change automatically when the database object is edited.";
-        fileForm = new SelectDDLFileForm(object, virtualFiles, hint);
+        fileForm = new SelectDDLFileForm(object, virtualFiles, hint, showLookupOption);
         init();
     }
 
@@ -44,7 +46,7 @@ public class AttachDDLFileDialog extends DBNDialog {
 
     private class SelectAllAction extends AbstractAction {
         private SelectAllAction() {
-            super("Select all");
+            super("Attach all");
         }
 
         public void actionPerformed(ActionEvent e) {
@@ -55,11 +57,14 @@ public class AttachDDLFileDialog extends DBNDialog {
 
     private class SelectNoneAction extends AbstractAction {
         private SelectNoneAction() {
-            super("Select none");
+            super("Attach none");
         }
 
         public void actionPerformed(ActionEvent e) {
             fileForm.selectNone();
+            if (showLookupOption && fileForm.isDoNotPromptSelected()) {
+                object.getConnectionHandler().getSettings().getDetailSettings().setDdlFileBinding(false);
+            }
             close(2);
         }
     }
@@ -71,6 +76,10 @@ public class AttachDDLFileDialog extends DBNDialog {
             VirtualFile virtualFile = (VirtualFile) selectedPsiFile;
             fileAttachmentManager.bindDDLFile(object, virtualFile);
         }
+        if (showLookupOption && fileForm.isDoNotPromptSelected()) {
+            object.getConnectionHandler().getSettings().getDetailSettings().setDdlFileBinding(false);
+        }
+
         super.doOKAction();
     }
 

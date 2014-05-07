@@ -23,7 +23,7 @@ public class DetachDDLFileDialog extends DBNDialog {
         String hint =
             "Following DDL files are currently attached the selected " + object.getTypeName() + ".\n" +
             "Select files to detach from this object.";
-        fileForm = new SelectDDLFileForm(object, virtualFiles, hint);
+        fileForm = new SelectDDLFileForm(object, virtualFiles, hint, false);
         init();
     }
 
@@ -43,7 +43,7 @@ public class DetachDDLFileDialog extends DBNDialog {
 
     private class SelectAllAction extends AbstractAction {
         private SelectAllAction() {
-            super("Select all");
+            super("Detach all");
         }
 
         public void actionPerformed(ActionEvent e) {
@@ -54,7 +54,7 @@ public class DetachDDLFileDialog extends DBNDialog {
 
     private class SelectNoneAction extends AbstractAction {
         private SelectNoneAction() {
-            super("Select none");
+            super("Detach none");
         }
 
         public void actionPerformed(ActionEvent e) {

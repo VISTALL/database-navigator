@@ -47,6 +47,7 @@ public class ConnectionDetailSettingsForm extends ConfigurationEditorForm<Connec
     private JPanel generalGroupPanel;
     private JPanel propertiesGroupPanel;
     private JTextField idleTimeTextField;
+    private JCheckBox ddlFileBindingCheckBox;
     private DBNHeaderForm headerForm;
 
 
@@ -76,6 +77,7 @@ public class ConnectionDetailSettingsForm extends ConfigurationEditorForm<Connec
         registerComponent(propertiesPanel);
         registerComponent(encodingComboBox);
         registerComponent(autoCommitCheckBox);
+        registerComponent(ddlFileBindingCheckBox);
         registerComponent(idleTimeTextField);
         registerComponent(environmentTypesComboBox);
 
@@ -154,13 +156,15 @@ public class ConnectionDetailSettingsForm extends ConfigurationEditorForm<Connec
         Map<String, String> newProperties = propertiesEditorForm.getProperties();
         Charset newCharset = (Charset) encodingComboBox.getSelectedItem();
         boolean newAutoCommit = autoCommitCheckBox.isSelected();
+        boolean newDdlFileBinding = ddlFileBindingCheckBox.isSelected();
         EnvironmentType newEnvironmentType = (EnvironmentType) environmentTypesComboBox.getSelectedItem();
         String newEnvironmentTypeId = newEnvironmentType.getId();
 
         boolean settingsChanged =
                 !configuration.getProperties().equals(newProperties) ||
                 !configuration.getCharset().equals(newCharset) ||
-                configuration.isAutoCommit() != newAutoCommit;
+                configuration.isAutoCommit() != newAutoCommit ||
+                configuration.isDdlFileBinding() != newDdlFileBinding;
 
         boolean environmentChanged =
                 !configuration.getEnvironmentType().getId().equals(newEnvironmentTypeId);
@@ -170,6 +174,7 @@ public class ConnectionDetailSettingsForm extends ConfigurationEditorForm<Connec
         configuration.setProperties(newProperties);
         configuration.setCharset(newCharset);
         configuration.setAutoCommit(newAutoCommit);
+        configuration.setDdlFileBinding(newDdlFileBinding);
         int idleTimeToDisconnect = ConfigurationEditorUtil.validateIntegerInputValue(idleTimeTextField, "Idle Time to Disconnect (minutes)", 0, 60, "");
         configuration.setIdleTimeToDisconnect(idleTimeToDisconnect);
 
@@ -192,6 +197,7 @@ public class ConnectionDetailSettingsForm extends ConfigurationEditorForm<Connec
         encodingComboBox.setSelectedItem(configuration.getCharset());
         propertiesEditorForm.setProperties(configuration.getProperties());
         autoCommitCheckBox.setSelected(configuration.isAutoCommit());
+        ddlFileBindingCheckBox.setSelected(configuration.isDdlFileBinding());
         environmentTypesComboBox.setSelectedItem(configuration.getEnvironmentType());
         idleTimeTextField.setText(Integer.toString(configuration.getIdleTimeToDisconnect()));
     }
