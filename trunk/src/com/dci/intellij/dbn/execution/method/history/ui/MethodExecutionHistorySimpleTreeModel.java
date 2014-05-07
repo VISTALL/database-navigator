@@ -1,7 +1,7 @@
 package com.dci.intellij.dbn.execution.method.history.ui;
 
 import com.dci.intellij.dbn.execution.method.MethodExecutionInput;
-import com.dci.intellij.dbn.object.identifier.DBMethodIdentifier;
+import com.dci.intellij.dbn.object.lookup.DBMethodRef;
 
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
@@ -45,11 +45,11 @@ public class MethodExecutionHistorySimpleTreeModel extends MethodExecutionHistor
             SchemaTreeNode schemaNode,
             MethodTreeNode methodNode) {
         for (MethodExecutionInput executionInput : executionInputs) {
-            DBMethodIdentifier methodIdentifier = executionInput.getMethodIdentifier();
+            DBMethodRef methodRef = executionInput.getMethodRef();
             if (executionInput.getConnectionHandler().getId().equals(connectionNode.getConnectionHandler().getId()) &&
-                methodIdentifier.getSchemaName().equalsIgnoreCase(schemaNode.getName()) &&
-                methodIdentifier.getQualifiedMethodName().equalsIgnoreCase(methodNode.getName()) &&
-                methodIdentifier.getOverload() == methodNode.getOverload() ) {
+                methodRef.getSchemaName().equalsIgnoreCase(schemaNode.getName()) &&
+                methodRef.getQualifiedMethodName().equalsIgnoreCase(methodNode.getName()) &&
+                methodRef.getOverload() == methodNode.getOverload() ) {
 
                 return executionInput;
             }
@@ -58,7 +58,7 @@ public class MethodExecutionHistorySimpleTreeModel extends MethodExecutionHistor
     }
 
     protected String getMethodName(MethodExecutionInput executionInput) {
-        return executionInput.getMethodIdentifier().getQualifiedMethodName();
+        return executionInput.getMethodRef().getQualifiedMethodName();
     }
 
     @Override

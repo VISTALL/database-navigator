@@ -10,7 +10,7 @@ import com.dci.intellij.dbn.object.DBArgument;
 import com.dci.intellij.dbn.object.DBFunction;
 import com.dci.intellij.dbn.object.DBMethod;
 import com.dci.intellij.dbn.object.DBSchema;
-import com.dci.intellij.dbn.object.identifier.DBMethodIdentifier;
+import com.dci.intellij.dbn.object.lookup.DBMethodRef;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.Nullable;
 
@@ -21,15 +21,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class MethodExecutionProcessorImpl<T extends DBMethod> implements MethodExecutionProcessor<T> {
-    private DBMethodIdentifier<T> methodIdentifier;
+    private DBMethodRef<T> method;
 
     protected MethodExecutionProcessorImpl(T method) {
-        this.methodIdentifier = method.getIdentifier();
+        this.method = new DBMethodRef<T>(method);
     }
 
     @Nullable
     public T getMethod() {
-        return methodIdentifier.lookupObject();
+        return (T) method.get();
     }
 
     public List<DBArgument> getArguments() {

@@ -12,7 +12,7 @@ import com.dci.intellij.dbn.execution.method.browser.MethodBrowserSettings;
 import com.dci.intellij.dbn.execution.method.history.ui.MethodExecutionHistoryDialog;
 import com.dci.intellij.dbn.execution.method.ui.MethodExecutionDialog;
 import com.dci.intellij.dbn.object.DBMethod;
-import com.dci.intellij.dbn.object.identifier.DBMethodIdentifier;
+import com.dci.intellij.dbn.object.lookup.DBMethodRef;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
@@ -59,9 +59,8 @@ public class MethodExecutionManager extends AbstractProjectComponent implements 
     }
 
     public MethodExecutionInput getExecutionInput(DBMethod method) {
-        DBMethodIdentifier methodIdentifier = method.getIdentifier();
         for (MethodExecutionInput executionInput : executionInputs) {
-            if (executionInput.getMethodIdentifier().equals(methodIdentifier)) {
+            if (executionInput.getMethodRef().is(method)) {
                 return executionInput;
             }
         }
@@ -71,14 +70,14 @@ public class MethodExecutionManager extends AbstractProjectComponent implements 
         return executionInput;
     }
 
-    public MethodExecutionInput getExecutionInput(DBMethodIdentifier methodIdentifier) {
+    public MethodExecutionInput getExecutionInput(DBMethodRef methodRef) {
         for (MethodExecutionInput executionInput : executionInputs) {
-            if (executionInput.getMethodIdentifier().equals(methodIdentifier)) {
+            if (executionInput.getMethodRef().equals(methodRef)) {
                 return executionInput;
             }
         }
 
-        DBMethod method = methodIdentifier.lookupObject();
+        DBMethod method = methodRef.get();
         if (method != null) {
             MethodExecutionInput executionInput = new MethodExecutionInput(method);
             executionInputs.add(executionInput);
@@ -99,7 +98,7 @@ public class MethodExecutionManager extends AbstractProjectComponent implements 
             if (method == null) {
                 String message =
                         "Can not execute method " +
-                         executionInput.getMethodIdentifier().getPath() + ".\nMethod not found!";
+                         executionInput.getMethodRef().getPath() + ".\nMethod not found!";
                 MessageUtil.showErrorDialog(message);
             } else {
                 MethodExecutionDialog executionDialog = new MethodExecutionDialog(executionInput, debug);
@@ -109,7 +108,7 @@ public class MethodExecutionManager extends AbstractProjectComponent implements 
             }
         } else {
             String message =
-                    "Can not execute method " + executionInput.getMethodIdentifier().getPath() + ".\n" +
+                    "Can not execute method " + executionInput.getMethodRef().getPath() + ".\n" +
                     "No connectivity to '" + executionInput.getConnectionHandler().getQualifiedName() + "'. " +
                     "Please check your connection settings and try again.";
             MessageUtil.showErrorDialog(message);
@@ -247,7 +246,7 @@ public class MethodExecutionManager extends AbstractProjectComponent implements 
             MethodExecutionInput executionInput = new MethodExecutionInput();
             executionInput.readConfiguration(configElement);
             // backward compatibility
-            if (executionInput.getMethodIdentifier().getSchemaName() != null) {
+            if (executionInput.getMethodRef().getSchemaName() != null) {
                 executionInputs.add(executionInput);
             }
         }

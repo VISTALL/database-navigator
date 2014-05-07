@@ -45,7 +45,7 @@ public class DBPackageProcedureImpl extends DBProcedureImpl implements DBPackage
         return overload;
     }
 
-    public boolean isEmbedded() {
+    public boolean isProgramMethod() {
         return true;
     }
 

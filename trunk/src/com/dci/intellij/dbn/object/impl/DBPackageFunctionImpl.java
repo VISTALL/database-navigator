@@ -44,7 +44,7 @@ public class DBPackageFunctionImpl extends DBFunctionImpl implements DBPackageFu
         return overload;
     }
 
-    public boolean isEmbedded() {
+    public boolean isProgramMethod() {
         return true;
     }
 

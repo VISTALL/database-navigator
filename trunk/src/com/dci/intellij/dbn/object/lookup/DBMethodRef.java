@@ -6,6 +6,7 @@ import com.dci.intellij.dbn.object.DBMethod;
 import com.dci.intellij.dbn.object.DBProgram;
 import com.dci.intellij.dbn.object.DBSchema;
 import com.dci.intellij.dbn.object.common.DBObjectType;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.InvalidDataException;
 import com.intellij.openapi.util.WriteExternalException;
 import org.jdom.Element;
@@ -22,6 +23,18 @@ public class DBMethodRef<T extends DBMethod> extends DBObjectRef<DBMethod> imple
 
     public DBMethodRef() {
         super();
+    }
+
+    @Nullable
+    @Override
+    public T get() {
+        return (T) super.get();
+    }
+
+    @Nullable
+    @Override
+    public T get(Project project) {
+        return (T) super.get(project);
     }
 
     @Nullable
@@ -44,6 +57,8 @@ public class DBMethodRef<T extends DBMethod> extends DBObjectRef<DBMethod> imple
 
         return method != null && method.getObjectType() == methodObjectType ? (T) method : null;
     }
+
+
 
     public String getQualifiedMethodName() {
         String programName = getProgramName();

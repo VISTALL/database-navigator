@@ -44,7 +44,7 @@ public class DBTypeProcedureImpl extends DBProcedureImpl implements DBTypeProced
         return overload;
     }
 
-    public boolean isEmbedded() {
+    public boolean isProgramMethod() {
         return true;
     }
 

@@ -6,7 +6,7 @@ import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.object.DBMethod;
 import com.dci.intellij.dbn.object.DBSchema;
 import com.dci.intellij.dbn.object.common.DBObjectType;
-import com.dci.intellij.dbn.object.identifier.DBMethodIdentifier;
+import com.dci.intellij.dbn.object.lookup.DBMethodRef;
 import com.intellij.openapi.util.InvalidDataException;
 import com.intellij.openapi.util.WriteExternalException;
 import gnu.trove.THashMap;
@@ -20,7 +20,7 @@ import java.util.Set;
 public class MethodBrowserSettings implements PersistentConfiguration {
     private String connectionId;
     private String schemaName;
-    private DBMethodIdentifier methodIdentifier;
+    private DBMethodRef method;
     private Map<DBObjectType, Boolean> objectVisibility = new THashMap<DBObjectType, Boolean>();
 
     public MethodBrowserSettings() {
@@ -68,11 +68,11 @@ public class MethodBrowserSettings implements PersistentConfiguration {
 
     @Nullable
     public DBMethod getMethod() {
-        return methodIdentifier == null ? null : methodIdentifier.lookupObject();
+        return method == null ? null : method.get();
     }
 
     public void setMethod(DBMethod method) {
-        methodIdentifier = method.getIdentifier();
+        this.method = new DBMethodRef(method);
     }
 
     public void readConfiguration(Element element) throws InvalidDataException {
@@ -81,8 +81,8 @@ public class MethodBrowserSettings implements PersistentConfiguration {
 
         Element methodElement = element.getChild("selected-method");
         if (methodElement != null) {
-            methodIdentifier = new DBMethodIdentifier();
-            methodIdentifier.readConfiguration(methodElement);
+            method = new DBMethodRef();
+            method.readConfiguration(methodElement);
         }
     }
 
@@ -90,9 +90,9 @@ public class MethodBrowserSettings implements PersistentConfiguration {
         ConnectionHandler connectionHandler = getConnectionHandler();
         if (connectionHandler != null) element.setAttribute("connection-id", connectionHandler.getId());
         if (schemaName != null) element.setAttribute("schema", schemaName);
-        if(methodIdentifier != null) {
+        if(method != null) {
             Element methodElement = new Element("selected-method");
-            methodIdentifier.writeConfiguration(methodElement);
+            method.writeConfiguration(methodElement);
             element.addContent(methodElement);
         }
     }

@@ -83,18 +83,33 @@ public class DBObjectRef<T extends DBObject> implements Comparable {
         return connectionId;
     }
 
+    public boolean is(@NotNull T object) {
+        if (object.getConnectionHandler().getId().equals(connectionId)) {
+            int index = nodes.length -1;
+            DBObject checkObject = object;
+            while (checkObject != null) {
+                Node checkNode = nodes[index];
+                if (!checkNode.matches(checkObject)) return false;
+                checkObject = checkObject.getParentObject();
+                index--;
+            }
+            return true;
+        }
+        return false;
+    }
+
     @Nullable
-    public final T get() {
+    public T get() {
         return load(null);
     }
 
     @Nullable
-    public final T get(Project project) {
+    public T get(Project project) {
         return load(project);
     }
 
     protected final T load(Project project) {
-        T object = reference.get();
+        T object = reference == null ? null : reference.get();
         if (reference == null || object == null || object.isDisposed()) {
             object = null;
             if (reference != null) {
@@ -223,6 +238,10 @@ public class DBObjectRef<T extends DBObject> implements Comparable {
         @Override
         public String toString() {
             return "[" + type.getName() + "] " + getName();
+        }
+
+        public boolean matches(DBObject object) {
+            return type == object.getObjectType() && name.equals(object.getName());
         }
     }
 

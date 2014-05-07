@@ -44,7 +44,7 @@ public class DBTypeFunctionImpl extends DBFunctionImpl implements DBTypeFunction
         return overload;
     }
 
-    public boolean isEmbedded() {
+    public boolean isProgramMethod() {
         return true;
     }
 

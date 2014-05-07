@@ -108,7 +108,7 @@ public abstract class DBMethodImpl extends DBSchemaObjectImpl implements DBMetho
         return 0;
     }
 
-    public boolean isEmbedded() {
+    public boolean isProgramMethod() {
         return false;
     }
 

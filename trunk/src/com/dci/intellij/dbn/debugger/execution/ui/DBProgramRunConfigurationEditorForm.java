@@ -105,7 +105,7 @@ public class DBProgramRunConfigurationEditorForm extends DBNFormImpl implements 
         } else {
             methodLabel.setIcon(null);
         }
-        methodLabel.setText(executionInput == null ? "No method selected" : executionInput.getMethodIdentifier().getPath());
+        methodLabel.setText(executionInput == null ? "No method selected" : executionInput.getMethodRef().getPath());
 
 
         mainPanel.updateUI();

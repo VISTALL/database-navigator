@@ -1,7 +1,7 @@
 package com.dci.intellij.dbn.execution.method.history.ui;
 
 import com.dci.intellij.dbn.execution.method.MethodExecutionInput;
-import com.dci.intellij.dbn.object.identifier.DBMethodIdentifier;
+import com.dci.intellij.dbn.object.lookup.DBMethodRef;
 
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
@@ -19,7 +19,7 @@ public class MethodExecutionHistoryGroupedTreeModel extends MethodExecutionHisto
             ConnectionTreeNode connectionNode = rootNode.getConnectionNode(executionInput);
             SchemaTreeNode schemaNode = connectionNode.getSchemaNode(executionInput);
 
-            String programName = executionInput.getMethodIdentifier().getProgramName();
+            String programName = executionInput.getMethodRef().getProgramName();
             if (programName != null) {
                 ProgramTreeNode programNode = schemaNode.getProgramNode(executionInput);
                 programNode.getMethodNode(executionInput);
@@ -31,7 +31,7 @@ public class MethodExecutionHistoryGroupedTreeModel extends MethodExecutionHisto
 
     @Override
     protected String getMethodName(MethodExecutionInput executionInput) {
-        return executionInput.getMethodIdentifier().getMethodName();   
+        return executionInput.getMethodRef().getMethodName();
     }
 
     @Override
@@ -43,7 +43,7 @@ public class MethodExecutionHistoryGroupedTreeModel extends MethodExecutionHisto
         path.add(connectionTreeNode);
         SchemaTreeNode schemaTreeNode = connectionTreeNode.getSchemaNode(executionInput);
         path.add(schemaTreeNode);
-        if (executionInput.getMethodIdentifier().getProgramName() != null) {
+        if (executionInput.getMethodRef().getProgramName() != null) {
             ProgramTreeNode programTreeNode = schemaTreeNode.getProgramNode(executionInput);
             path.add(programTreeNode);
             MethodTreeNode methodTreeNode = programTreeNode.getMethodNode(executionInput);
@@ -96,7 +96,7 @@ public class MethodExecutionHistoryGroupedTreeModel extends MethodExecutionHisto
             ProgramTreeNode programNode,
             MethodTreeNode methodNode) {
         for (MethodExecutionInput executionInput : executionInputs) {
-            DBMethodIdentifier methodIdentifier = executionInput.getMethodIdentifier();
+            DBMethodRef methodIdentifier = executionInput.getMethodRef();
             if (executionInput.getConnectionHandler().getId().equals(connectionNode.getConnectionHandler().getId()) &&
                 methodIdentifier.getSchemaName().equalsIgnoreCase(schemaNode.getName()) &&
                 methodIdentifier.getMethodName().equalsIgnoreCase(methodNode.getName()) &&
