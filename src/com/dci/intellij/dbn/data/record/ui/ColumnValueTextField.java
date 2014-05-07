@@ -10,6 +10,7 @@ import com.dci.intellij.dbn.object.DBColumn;
 import com.dci.intellij.dbn.object.DBConstraint;
 import com.dci.intellij.dbn.object.DBDataset;
 import com.dci.intellij.dbn.object.common.DBObject;
+import com.dci.intellij.dbn.object.lookup.DBObjectRef;
 import com.intellij.ui.SimpleTextAttributes;
 import org.jetbrains.annotations.Nullable;
 
@@ -23,11 +24,11 @@ import java.awt.event.MouseListener;
 
 public class ColumnValueTextField extends JTextField {
     private DatasetRecord record;
-    private DBColumn column;
+    private DBObjectRef<DBColumn> column;
 
     public ColumnValueTextField(DatasetRecord record, DBColumn column) {
         this.record = record;
-        this.column = column;
+        this.column = column.getRef();
         if (column.isPrimaryKey()) {
             SimpleTextAttributes textAttributes = TextAttributesUtil.getSimpleTextAttributes(DataGridTextAttributesKeys.PRIMARY_KEY);
             setForeground(textAttributes.getFgColor());
@@ -48,7 +49,8 @@ public class ColumnValueTextField extends JTextField {
     }
 
     protected void processMouseMotionEvent(MouseEvent e) {
-        if (column.isForeignKey()) {
+        DBColumn column = getColumn();
+        if (column != null && column.isForeignKey()) {
             if (e.isControlDown() && e.getID() != MouseEvent.MOUSE_DRAGGED && record.getColumnValue(column) != null) {
                 setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                 setToolTipText("<html>Show referenced <b>" + column.getForeignKeyColumn().getDataset().getQualifiedName() + "</b> record<html>");
@@ -64,35 +66,44 @@ public class ColumnValueTextField extends JTextField {
     
     @Nullable
     public DatasetFilterInput resolveForeignKeyRecord() {
-        for (DBConstraint constraint : column.getConstraints()) {
-            if (constraint.isForeignKey()) {
-                DBConstraint foreignKeyConstraint = constraint.getForeignKeyConstraint();
-                if (foreignKeyConstraint != null) {
-                    DBDataset foreignKeyDataset = foreignKeyConstraint.getDataset();
-                    DatasetFilterInput filterInput = new DatasetFilterInput(foreignKeyDataset);
+        DBColumn column = getColumn();
+        if (column != null) {
+            for (DBConstraint constraint : column.getConstraints()) {
+                if (constraint.isForeignKey()) {
+                    DBConstraint foreignKeyConstraint = constraint.getForeignKeyConstraint();
+                    if (foreignKeyConstraint != null) {
+                        DBDataset foreignKeyDataset = foreignKeyConstraint.getDataset();
+                        DatasetFilterInput filterInput = new DatasetFilterInput(foreignKeyDataset);
 
-                    for (DBColumn constraintColumn : constraint.getColumns()) {
-                        DBObject constraintCol = constraintColumn.getUndisposedElement();
-                        if (constraintCol != null) {
-                            DBColumn foreignKeyColumn = ((DBColumn) constraintCol).getForeignKeyColumn();
-                            Object value = record.getColumnValue(column);
-                            filterInput.setColumnValue(foreignKeyColumn, value);
+                        for (DBColumn constraintColumn : constraint.getColumns()) {
+                            DBObject constraintCol = constraintColumn.getUndisposedElement();
+                            if (constraintCol != null) {
+                                DBColumn foreignKeyColumn = ((DBColumn) constraintCol).getForeignKeyColumn();
+                                Object value = record.getColumnValue(column);
+                                filterInput.setColumnValue(foreignKeyColumn, value);
+                            }
                         }
+                        return filterInput;
                     }
-                    return filterInput;
                 }
             }
         }
+
         return null;
     }
-    
+
+    private DBColumn getColumn() {
+        return this.column.get();
+    }
+
     private JDialog getEnclosingDialog() {
         return null;
     }
     
     MouseListener mouseListener = new MouseAdapter() {
         public void mouseClicked(MouseEvent event) {
-            if (MouseUtil.isNavigationEvent(event)) {
+            DBColumn column = getColumn();
+            if (column != null && MouseUtil.isNavigationEvent(event)) {
                 if (column.isForeignKey() && record.getColumnValue(column) != null) {
                     DatasetFilterInput filterInput = resolveForeignKeyRecord();
                     DatasetEditorManager datasetEditorManager = DatasetEditorManager.getInstance(column.getProject());
