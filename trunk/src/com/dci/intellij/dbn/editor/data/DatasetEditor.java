@@ -25,7 +25,7 @@ import com.dci.intellij.dbn.editor.data.ui.DatasetEditorForm;
 import com.dci.intellij.dbn.editor.data.ui.table.DatasetEditorTable;
 import com.dci.intellij.dbn.object.DBDataset;
 import com.dci.intellij.dbn.object.DBSchema;
-import com.dci.intellij.dbn.object.identifier.DBObjectIdentifier;
+import com.dci.intellij.dbn.object.lookup.DBObjectRef;
 import com.dci.intellij.dbn.vfs.DatabaseEditableObjectFile;
 import com.intellij.codeHighlighting.BackgroundEditorHighlighter;
 import com.intellij.ide.structureView.StructureViewBuilder;
@@ -54,8 +54,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class DatasetEditor extends UserDataHolderBase implements FileEditor, FileConnectionMappingProvider, ConnectionStatusListener, TransactionListener {
+    private DBObjectRef<DBDataset> dataset;
     private DatabaseEditableObjectFile databaseFile;
-    private DBObjectIdentifier datasetIdentifier;
     private DatasetEditorForm editorForm;
     private StructureViewModel structureViewModel;
     private ConnectionHandler connectionHandler;
@@ -66,10 +66,10 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
 
     private Set<PropertyChangeListener> propertyChangeListeners = new HashSet<PropertyChangeListener>();
 
-    public DatasetEditor(DatabaseEditableObjectFile databaseFile, DBDataset dataset){
+    public DatasetEditor(DatabaseEditableObjectFile databaseFile, DBDataset dataset) {
         this.project = dataset.getProject();
         this.databaseFile = databaseFile;
-        this.datasetIdentifier = dataset.getIdentifier();
+        this.dataset = new DBObjectRef<DBDataset>(dataset);
         this.settings = DataEditorSettings.getInstance(project);
 
         connectionHandler = dataset.getConnectionHandler();
@@ -85,11 +85,7 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
 
     @Nullable
     public DBDataset getDataset() {
-        return (DBDataset) datasetIdentifier.lookupObject();
-    }
-
-    public DBObjectIdentifier getDatasetIdentifier() {
-        return datasetIdentifier;
+        return dataset.get(project);
     }
 
     public DataEditorSettings getSettings() {
@@ -254,9 +250,11 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
         return null;
     }
 
-    /********************************************************
-     *                    Model operations                  *
-     ********************************************************/
+    /**
+     * *****************************************************
+     * Model operations                  *
+     * ******************************************************
+     */
     public void fetchNextRecords(int records) {
         try {
             DatasetEditorModel model = getTableModel();
@@ -295,26 +293,26 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
                             if (getConnectionHandler().isValid()) {
                                 if (filter == null || filter == DatasetFilterManager.EMPTY_FILTER || filter.getError() != null) {
                                     String message =
-                                        "Error loading data for " + dataset.getQualifiedNameWithType() + ".\n" + (
-                                            messageParserInterface.isTimeoutException(e) ?
-                                                "The operation was timed out. Please check your timeout configuration in Data Editor settings." :
-                                                "Database error message: " + e.getMessage());
+                                            "Error loading data for " + dataset.getQualifiedNameWithType() + ".\n" + (
+                                                    messageParserInterface.isTimeoutException(e) ?
+                                                            "The operation was timed out. Please check your timeout configuration in Data Editor settings." :
+                                                            "Database error message: " + e.getMessage());
 
                                     MessageUtil.showErrorDialog(message);
                                 } else {
                                     String message =
-                                        "Error loading data for " + dataset.getQualifiedNameWithType() + ".\n" + (
-                                                messageParserInterface.isTimeoutException(e) ?
-                                                    "The operation was timed out. Please check your timeout configuration in Data Editor settings." :
-                                                    "Filter \"" + filter.getName() + "\" may be invalid.\n" +
-                                                    "Database error message: " + e.getMessage());
+                                            "Error loading data for " + dataset.getQualifiedNameWithType() + ".\n" + (
+                                                    messageParserInterface.isTimeoutException(e) ?
+                                                            "The operation was timed out. Please check your timeout configuration in Data Editor settings." :
+                                                            "Filter \"" + filter.getName() + "\" may be invalid.\n" +
+                                                                    "Database error message: " + e.getMessage());
                                     String[] options = {"Edit filter", "Remove filter", "Ignore filter", "Cancel"};
 
                                     int option = Messages.showDialog(message, Constants.DBN_TITLE_PREFIX + "Error", options, 0, Messages.getErrorIcon());
                                     if (option == 0) {
                                         filterManager.openFiltersDialog(dataset, false, false, DatasetFilterType.NONE);
                                         load(true, keepChanges);
-                                    } else if (option == 1){
+                                    } else if (option == 1) {
                                         filterManager.setActiveFilter(dataset, null);
                                         load(true, keepChanges);
                                     } else if (option == 2) {
@@ -324,8 +322,8 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
                                 }
                             } else {
                                 String message =
-                                    "Error loading data for " + dataset.getQualifiedNameWithType() + ". Could not connect to database.\n" +
-                                    "Database error message: " + e.getMessage();
+                                        "Error loading data for " + dataset.getQualifiedNameWithType() + ". Could not connect to database.\n" +
+                                                "Database error message: " + e.getMessage();
                                 MessageUtil.showErrorDialog(message);
                             }
                         }
@@ -389,10 +387,10 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
     public void openRecordEditor() {
         DatasetEditorTable editorTable = getEditorTable();
         DatasetEditorModel model = getTableModel();
-        
+
         if (editorTable != null && model != null) {
             int index = editorTable.getSelectedRow();
-            if (index == -1)  index = 0;
+            if (index == -1) index = 0;
             DatasetEditorModelRow row = model.getRowAtIndex(index);
             editorTable.stopCellEditing();
             editorTable.selectRow(row.getIndex());
@@ -445,12 +443,15 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
     }
 
     public ConnectionHandler getConnectionHandler() {
-        return datasetIdentifier.lookupConnectionHandler();
+        DBDataset dataset = getDataset();
+        return dataset == null ? null : dataset.getConnectionHandler();
     }
 
-    /********************************************************
-     *            ConnectionStatusListener                  *
-     ********************************************************/
+    /**
+     * *****************************************************
+     * ConnectionStatusListener                  *
+     * ******************************************************
+     */
     @Override
     public void statusChanged(String connectionId) {
         DatasetEditorTable editorTable = getEditorTable();
@@ -459,9 +460,11 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
         }
     }
 
-    /*********************************************************
-     *               TransactionListener                     *
-     ********************************************************/
+    /**
+     * ******************************************************
+     * TransactionListener                     *
+     * ******************************************************
+     */
     public void beforeAction(ConnectionHandler connectionHandler, TransactionAction action) {
         if (connectionHandler == getConnectionHandler()) {
             DatasetEditorModel model = getTableModel();
@@ -499,7 +502,7 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
             DatasetEditorModel model = getTableModel();
             DatasetEditorTable editorTable = getEditorTable();
             if (model != null && editorTable != null) {
-                if (action == TransactionAction.COMMIT || action == TransactionAction.ROLLBACK){
+                if (action == TransactionAction.COMMIT || action == TransactionAction.ROLLBACK) {
                     if (succeeded && isModified()) load(true, false);
                 }
 
@@ -518,9 +521,11 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
     }
 
 
-    /********************************************************
-     *                    Data Provider                     *
-     ********************************************************/
+    /**
+     * *****************************************************
+     * Data Provider                     *
+     * ******************************************************
+     */
     public DataProvider dataProvider = new DataProvider() {
         @Override
         public Object getData(@NonNls String dataId) {
