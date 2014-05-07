@@ -15,7 +15,7 @@ import com.dci.intellij.dbn.language.common.psi.lookup.SimpleObjectLookupAdapter
 import com.dci.intellij.dbn.language.common.psi.lookup.VirtualObjectLookupAdapter;
 import com.dci.intellij.dbn.object.common.list.DBObjectList;
 import com.dci.intellij.dbn.object.common.list.DBObjectListContainer;
-import com.dci.intellij.dbn.object.identifier.DBObjectIdentifier;
+import com.dci.intellij.dbn.object.lookup.DBObjectRef;
 import com.dci.intellij.dbn.vfs.DatabaseContentFile;
 import com.intellij.ide.util.EditSourceUtil;
 import com.intellij.openapi.editor.Document;
@@ -65,8 +65,8 @@ public class DBVirtualObject extends DBObjectImpl implements PsiReference {
             }
         }
         ConnectionHandler activeConnection = psiElement.getActiveConnection();
-        DBObjectIdentifier identifier = new DBObjectIdentifier(activeConnection == null ? "" : activeConnection.getId());
-        this.identifier = identifier.add(this.objectType, this.name);
+        objectRef = new DBObjectRef(activeConnection == null ? "" : activeConnection.getId());
+        objectRef.append(this.objectType, this.name);
     }
 
     @Override
