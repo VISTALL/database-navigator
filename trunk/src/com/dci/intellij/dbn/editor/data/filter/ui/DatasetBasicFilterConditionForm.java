@@ -204,9 +204,10 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
         }
     }
 
-    private ListCellRenderer cellRenderer = new ColoredListCellRenderer<DBObjectRef<DBColumn>>() {
-        protected void customizeCellRenderer(JList list, DBObjectRef<DBColumn> value, int index, boolean selected, boolean hasFocus) {
-            DBColumn column = value.get();
+    private ListCellRenderer cellRenderer = new ColoredListCellRenderer() {
+        protected void customizeCellRenderer(JList list, Object value, int index, boolean selected, boolean hasFocus) {
+            DBObjectRef<DBColumn> columnRef = (DBObjectRef<DBColumn>) value;
+            DBColumn column = columnRef.get();
             if (column != null) {
                 setIcon(column.getIcon());
                 append(column.getName(), active ? SimpleTextAttributes.REGULAR_ATTRIBUTES : SimpleTextAttributes.GRAYED_ATTRIBUTES);
