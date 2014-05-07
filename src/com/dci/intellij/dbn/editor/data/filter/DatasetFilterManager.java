@@ -7,7 +7,6 @@ import com.dci.intellij.dbn.editor.data.DatasetEditorManager;
 import com.dci.intellij.dbn.editor.data.filter.ui.DatasetFilterDialog;
 import com.dci.intellij.dbn.object.DBColumn;
 import com.dci.intellij.dbn.object.DBDataset;
-import com.dci.intellij.dbn.object.identifier.DBObjectIdentifier;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.InvalidDataException;
 import com.intellij.openapi.util.JDOMExternalizable;
@@ -132,9 +131,8 @@ public class DatasetFilterManager extends AbstractProjectComponent implements JD
     }
 
     public DatasetFilterGroup getFilterGroup(DBDataset dataset) {
-        DBObjectIdentifier identifier = dataset.getIdentifier();
-        String connectionId = identifier.getConnectionId();
-        String datasetName = identifier.getPath();
+        String connectionId = dataset.getConnectionHandler().getId();
+        String datasetName = dataset.getQualifiedName();
         return getFilterGroup(connectionId, datasetName);
     }
 

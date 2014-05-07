@@ -15,6 +15,7 @@ import com.dci.intellij.dbn.editor.data.ui.table.DatasetEditorTable;
 import com.dci.intellij.dbn.object.DBColumn;
 import com.dci.intellij.dbn.object.DBConstraint;
 import com.dci.intellij.dbn.object.DBDataset;
+import com.dci.intellij.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.Nullable;
@@ -32,21 +33,21 @@ import java.util.List;
 public class DatasetEditorModel extends ResultSetDataModel<DatasetEditorModelRow> implements ListSelectionListener {
     private boolean isInserting;
     private DatasetEditorTable editorTable;
-    private DBDataset dataset;
+    private DBObjectRef<DBDataset> dataset;
     private DataEditorSettings settings;
 
     private List<DatasetEditorModelRow> changedRows = new ArrayList<DatasetEditorModelRow>();
 
     public DatasetEditorModel(DBDataset dataset) throws SQLException {
         super(dataset.getConnectionHandler());
-        this.dataset = dataset;
+        this.dataset = dataset.getRef();
         this.header = new DatasetEditorModelHeader(getDataset(), null);
         this.settings =  DataEditorSettings.getInstance(dataset.getProject());
     }
 
     public synchronized void load(ProgressIndicator progressIndicator, boolean useCurrentFilter, boolean keepChanges) throws SQLException {
         if (!isDisposed()) {
-            progressIndicator.setText("Loading data for " + dataset.getQualifiedNameWithType());
+            progressIndicator.setText("Loading data for " + dataset.getObjectType().getName() + " " + dataset.getPath());
             load(useCurrentFilter, keepChanges);
         }
     }
@@ -157,7 +158,8 @@ public class DatasetEditorModel extends ResultSetDataModel<DatasetEditorModelRow
     }
 
     public boolean isEditable() {
-        return dataset.isEditable(DBContentType.DATA);
+        DBDataset dataset = this.dataset.get();
+        return dataset != null && dataset.isEditable(DBContentType.DATA);
     }
 
     @Override
@@ -171,8 +173,7 @@ public class DatasetEditorModel extends ResultSetDataModel<DatasetEditorModelRow
     }
 
     public DBDataset getDataset() {
-        dataset = (DBDataset) dataset.getUndisposedElement();
-        return dataset;
+        return dataset.get();
     }
 
     public void setEditorTable(DatasetEditorTable editorTable) {

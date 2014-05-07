@@ -41,6 +41,7 @@ import com.dci.intellij.dbn.object.common.operation.DBOperationNotSupportedExcep
 import com.dci.intellij.dbn.object.common.operation.DBOperationType;
 import com.dci.intellij.dbn.object.common.property.DBObjectProperties;
 import com.dci.intellij.dbn.object.identifier.DBObjectIdentifier;
+import com.dci.intellij.dbn.object.lookup.DBObjectRef;
 import com.dci.intellij.dbn.object.properties.ConnectionPresentableProperty;
 import com.dci.intellij.dbn.object.properties.DBObjectPresentableProperty;
 import com.dci.intellij.dbn.object.properties.PresentableProperty;
@@ -77,6 +78,7 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
 
     protected String name;
     protected DBObjectIdentifier identifier;
+    protected DBObjectRef objectRef;
     private DBObjectProperties properties;
     private DBObjectListContainer childObjects;
     private DBObjectRelationListContainer childObjectRelations;
@@ -119,6 +121,7 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
         initTreeInfo();
         initLists();
         identifier = createIdentifier();
+        objectRef = createRef();
     }
 
     protected DBObjectIdentifier createIdentifier() {
@@ -169,6 +172,15 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
     @Override
     public DBObjectIdentifier getIdentifier() {
         return identifier;
+    }
+
+    @Override
+    public synchronized DBObjectRef getRef() {
+        return objectRef;
+    }
+
+    protected DBObjectRef createRef() {
+        return new DBObjectRef(this);
     }
 
     public DBObjectProperties getProperties() {
@@ -241,7 +253,7 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
     }
 
     public String getQualifiedName() {
-        return identifier.getPath();
+        return objectRef.getPath();
     }
 
     public String getQualifiedNameWithType() {
@@ -303,7 +315,7 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
 
     public ConnectionHandler getConnectionHandler() {
         return parentDatabaseElement == null ?
-                identifier.lookupConnectionHandler() :
+                objectRef.lookupConnectionHandler() :
                 parentDatabaseElement.getConnectionHandler();
     }
 
@@ -446,10 +458,7 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
 
     @Nullable
     public DBObject getUndisposedElement() {
-        if (isDisposed()) {
-            return identifier.lookupObject();
-        }
-        return this;
+        return objectRef.get();
     }
 
     public DynamicContent getDynamicContent(DynamicContentType dynamicContentType) {
@@ -647,14 +656,14 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
         if (obj == this) return true;
         if (obj instanceof DBObject) {
             DBObject object = (DBObject) obj;
-            return identifier.equals(object.getIdentifier());
+            return objectRef.equals(object.getRef());
         }
         return false;
     }
 
 
     public int hashCode() {
-        return identifier.hashCode();
+        return objectRef.hashCode();
     }
 
     @NotNull
@@ -665,7 +674,7 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
     public int compareTo(@NotNull Object o) {
         if (o instanceof DBObject) {
             DBObject object = (DBObject) o;
-            return identifier.compareTo(object.getIdentifier());
+            return getRef().compareTo(object.getRef());
         }
         return -1;
     }

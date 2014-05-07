@@ -6,7 +6,7 @@ import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.navigation.psi.NavigationPsiCache;
 import com.dci.intellij.dbn.object.common.DBObject;
 import com.dci.intellij.dbn.object.common.list.DBObjectList;
-import com.dci.intellij.dbn.object.identifier.DBObjectIdentifier;
+import com.dci.intellij.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.UnknownFileType;
@@ -23,41 +23,41 @@ import java.io.OutputStream;
 
 public class DatabaseObjectFile<T extends DBObject> extends VirtualFile implements DBVirtualFile, Disposable {
     private static final byte[] EMPTY_BYTE_CONTENT = new byte[0];
-    protected DBObjectIdentifier<T> objectIdentifier;
+    protected DBObjectRef<T> object;
 
     private Project project;
     private String path;
     private String url;
 
     public DatabaseObjectFile(T object) {
-        this.objectIdentifier = object.getIdentifier();
+        this.object = object.getRef();
         this.project = object.getProject();
     }
 
-    public DBObjectIdentifier<T> getObjectIdentifier() {
-        return objectIdentifier;
+    public DBObjectRef<T> getObjectRef() {
+        return object;
     }
 
     @Nullable
     public T getObject() {
-        return objectIdentifier.lookupObject();
+        return object.get();
     }
 
     public ConnectionHandler getConnectionHandler() {
-        return objectIdentifier.lookupConnectionHandler();
+        return object.lookupConnectionHandler();
     }
 
     public boolean equals(Object obj) {
         if (obj instanceof DatabaseObjectFile) {
             DatabaseObjectFile objectFile = (DatabaseObjectFile) obj;
-            return objectFile.objectIdentifier.equals(objectIdentifier);
+            return objectFile.object.equals(object);
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return objectIdentifier.hashCode();
+        return object.hashCode();
     }
 
     public Project getProject() {
@@ -70,12 +70,12 @@ public class DatabaseObjectFile<T extends DBObject> extends VirtualFile implemen
     @NotNull
     @NonNls
     public String getName() {
-        return objectIdentifier.getName();
+        return object.getName();
     }
 
     @Override
     public String getPresentableName() {
-        return objectIdentifier.getName();
+        return object.getName();
     }
 
     @NotNull

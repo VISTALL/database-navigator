@@ -6,6 +6,7 @@ import com.dci.intellij.dbn.data.type.DBDataType;
 import com.dci.intellij.dbn.editor.data.DatasetEditorUtils;
 import com.dci.intellij.dbn.editor.data.options.DataEditorSettings;
 import com.dci.intellij.dbn.object.DBColumn;
+import com.dci.intellij.dbn.object.lookup.DBObjectRef;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -14,23 +15,21 @@ import java.util.List;
 public class DatasetEditorColumnInfo implements ColumnInfo {
     private static final List<String> EMPTY_LIST = new ArrayList<String>(0);
     private List<String> possibleValues;
-    private DBColumn column;
+    private DBObjectRef<DBColumn> column;
     private int columnIndex;
 
     public DatasetEditorColumnInfo(DBColumn column, int columnIndex) {
-        this.column = column;
+        this.column = column.getRef();
         this.columnIndex = columnIndex;
     }
 
     @Nullable
     public DBColumn getColumn() {
-        // columns loaded with quick loaders get disposed as soon as the main loader finishes
-        column = (DBColumn) column.getUndisposedElement();
-        return column;
+        return column.get();
     }
 
     public String getName() {
-        return getColumn().getName();
+        return column.getName();
     }
 
     public int getColumnIndex() {
@@ -41,22 +40,25 @@ public class DatasetEditorColumnInfo implements ColumnInfo {
         return getColumn().getDataType();
     }
 
-    public List<String> getPossibleValues() {
+    public synchronized List<String> getPossibleValues() {
         if (possibleValues == null) {
             setPossibleValues(EMPTY_LIST);
             List<String> values;
-            if (column.isForeignKey()) {
-                DBColumn foreignKeyColumn = column.getForeignKeyColumn();
-                values = DatasetEditorUtils.loadDistinctColumnValues(foreignKeyColumn);
-            } else {
-                values = DatasetEditorUtils.loadDistinctColumnValues(column);
-            }
+            DBColumn column = getColumn();
+            if (column != null) {
+                if (column.isForeignKey()) {
+                    DBColumn foreignKeyColumn = column.getForeignKeyColumn();
+                    values = DatasetEditorUtils.loadDistinctColumnValues(foreignKeyColumn);
+                } else {
+                    values = DatasetEditorUtils.loadDistinctColumnValues(column);
+                }
 
-            if (values != null) {
-                DataEditorSettings dataEditorSettings = DataEditorSettings.getInstance(column.getProject());
-                int maxElementCount = dataEditorSettings.getValueListPopupSettings().getElementCountThreshold();
-                if (values.size() > maxElementCount) values.clear();
-                possibleValues = values;
+                if (values != null) {
+                    DataEditorSettings dataEditorSettings = DataEditorSettings.getInstance(column.getProject());
+                    int maxElementCount = dataEditorSettings.getValueListPopupSettings().getElementCountThreshold();
+                    if (values.size() > maxElementCount) values.clear();
+                    possibleValues = values;
+                }
             }
         }
         return possibleValues;
@@ -67,13 +69,13 @@ public class DatasetEditorColumnInfo implements ColumnInfo {
     }
 
     public void dispose() {
-        column = null;
         if (possibleValues != null) possibleValues.clear();
     }
 
     public boolean isSortable() {
-        DBDataType type = column.getDataType();
-        return column.getDataType().isNative() &&
+        DBColumn column = getColumn();
+        DBDataType type = column == null ? null : column.getDataType();
+        return type != null && type.isNative() &&
                 type.getNativeDataType().getBasicDataType().is(
                         BasicDataType.LITERAL,
                         BasicDataType.NUMERIC,
