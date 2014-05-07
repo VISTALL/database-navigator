@@ -25,7 +25,7 @@ import com.dci.intellij.dbn.object.common.operation.DBOperationType;
 import com.dci.intellij.dbn.object.common.property.DBObjectProperties;
 import com.dci.intellij.dbn.object.common.property.DBObjectProperty;
 import com.dci.intellij.dbn.object.common.status.DBObjectStatus;
-import com.dci.intellij.dbn.object.identifier.DBObjectIdentifier;
+import com.dci.intellij.dbn.object.lookup.DBObjectRef;
 import com.dci.intellij.dbn.object.properties.DBObjectPresentableProperty;
 import com.dci.intellij.dbn.object.properties.PresentableProperty;
 import com.dci.intellij.dbn.object.properties.SimplePresentableProperty;
@@ -41,7 +41,7 @@ import java.util.List;
 
 public class DBConstraintImpl extends DBSchemaObjectImpl implements DBConstraint {
     private int constraintType;
-    private DBObjectIdentifier foreignKeyConstraint;
+    private DBObjectRef<DBConstraint> foreignKeyConstraint;
 
     private String checkCondition;
     private DBObjectList<DBColumn> columns;
@@ -68,9 +68,9 @@ public class DBConstraintImpl extends DBSchemaObjectImpl implements DBConstraint
         if (isForeignKey()) {
             String fkOwner = resultSet.getString("FK_CONSTRAINT_OWNER");
             String fkName = resultSet.getString("FK_CONSTRAINT_NAME");
-            foreignKeyConstraint = new DBObjectIdentifier(getConnectionHandler()).
-                    add(DBObjectType.SCHEMA, fkOwner).
-                    add(DBObjectType.CONSTRAINT, fkName);
+            foreignKeyConstraint = new DBObjectRef<DBConstraint>(getConnectionHandler()).
+                    append(DBObjectType.SCHEMA, fkOwner).
+                    append(DBObjectType.CONSTRAINT, fkName);
         }
     }
 
@@ -123,7 +123,6 @@ public class DBConstraintImpl extends DBSchemaObjectImpl implements DBConstraint
         return constraintType == UNIQUE_KEY;
     }
 
-
     public String getCheckCondition() {
         return checkCondition;
     }
@@ -163,7 +162,7 @@ public class DBConstraintImpl extends DBSchemaObjectImpl implements DBConstraint
 
     @Nullable
     public DBConstraint getForeignKeyConstraint() {
-        return foreignKeyConstraint == null ? null : (DBConstraint) foreignKeyConstraint.lookupObject();
+        return foreignKeyConstraint == null ? null : foreignKeyConstraint.get();
     }
 
     public void buildToolTip(HtmlToolTipBuilder ttb) {

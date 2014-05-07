@@ -18,7 +18,7 @@ import com.dci.intellij.dbn.object.common.DBObject;
 import com.dci.intellij.dbn.object.common.DBSchemaObject;
 import com.dci.intellij.dbn.object.common.list.DBObjectListContainer;
 import com.dci.intellij.dbn.object.common.property.DBObjectProperty;
-import com.dci.intellij.dbn.object.identifier.DBObjectIdentifier;
+import com.dci.intellij.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ApplicationComponent;
 import com.intellij.openapi.fileEditor.FileEditor;
@@ -46,8 +46,8 @@ public class DatabaseFileSystem extends VirtualFileSystem implements Application
     public static final String PROTOCOL_PREFIX = PROTOCOL + "://";
 
     private static final String ERR = "File manipulation not allowed within database file system!";
-    private Map<DBObjectIdentifier, DatabaseEditableObjectFile> openFiles = new HashMap<DBObjectIdentifier, DatabaseEditableObjectFile>();
-    private Map<DBObjectIdentifier, DatabaseEditableObjectFile> filesCache = new HashMap<DBObjectIdentifier, DatabaseEditableObjectFile>();
+    private Map<DBObjectRef, DatabaseEditableObjectFile> openFiles = new HashMap<DBObjectRef, DatabaseEditableObjectFile>();
+    private Map<DBObjectRef, DatabaseEditableObjectFile> filesCache = new HashMap<DBObjectRef, DatabaseEditableObjectFile>();
 
     public static DatabaseFileSystem getInstance() {
         return ApplicationManager.getApplication().getComponent(DatabaseFileSystem.class);
@@ -105,18 +105,18 @@ public class DatabaseFileSystem extends VirtualFileSystem implements Application
 
     @NotNull
     public DatabaseEditableObjectFile findDatabaseFile(DBSchemaObject object) {
-        DBObjectIdentifier identifier = object.getIdentifier();
-        DatabaseEditableObjectFile databaseFile = filesCache.get(identifier);
+        DBObjectRef objectRef = object.getRef();
+        DatabaseEditableObjectFile databaseFile = filesCache.get(objectRef);
         if (databaseFile == null ){
             databaseFile = createDatabaseFile(object);
 
-            filesCache.put(identifier, databaseFile);
+            filesCache.put(objectRef, databaseFile);
         }
         return databaseFile;
     }
 
     public boolean isFileOpened(DBSchemaObject object) {
-        return openFiles.containsKey(object.getIdentifier());
+        return openFiles.containsKey(object.getRef());
     }
 
     public static String createPath(DBObject object, DBContentType contentType) {
@@ -361,14 +361,14 @@ public class DatabaseFileSystem extends VirtualFileSystem implements Application
     public void fileOpened(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
         if (file instanceof DatabaseEditableObjectFile) {
             DatabaseEditableObjectFile databaseFile = (DatabaseEditableObjectFile) file;
-            openFiles.put(databaseFile.getObjectIdentifier(), databaseFile);
+            openFiles.put(databaseFile.getObjectRef(), databaseFile);
         }
     }
 
     public void fileClosed(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
         if (file instanceof DatabaseEditableObjectFile) {
             DatabaseEditableObjectFile databaseFile = (DatabaseEditableObjectFile) file;
-            openFiles.remove(databaseFile.getObjectIdentifier());
+            openFiles.remove(databaseFile.getObjectRef());
         }
     }
 
@@ -382,12 +382,12 @@ public class DatabaseFileSystem extends VirtualFileSystem implements Application
     private ProjectLifecycleListener projectLifecycleListener = new ProjectLifecycleListener.Adapter() {
         @Override
         public void afterProjectClosed(@NotNull Project project) {
-            Iterator<DBObjectIdentifier> identifiers = filesCache.keySet().iterator();
-            while (identifiers.hasNext()) {
-                DBObjectIdentifier identifier = identifiers.next();
-                DatabaseEditableObjectFile file = filesCache.get(identifier);
+            Iterator<DBObjectRef> objectRefs = filesCache.keySet().iterator();
+            while (objectRefs.hasNext()) {
+                DBObjectRef objectRef = objectRefs.next();
+                DatabaseEditableObjectFile file = filesCache.get(objectRef);
                 if (file.getProject() == project) {
-                    identifiers.remove();
+                    objectRefs.remove();
                     file.dispose();
                 }
             }

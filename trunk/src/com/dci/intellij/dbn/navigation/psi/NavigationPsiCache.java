@@ -4,15 +4,15 @@ import com.dci.intellij.dbn.common.dispose.DisposeUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.object.common.DBObject;
 import com.dci.intellij.dbn.object.common.list.DBObjectList;
-import com.dci.intellij.dbn.object.identifier.DBObjectIdentifier;
+import com.dci.intellij.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.Disposable;
 import gnu.trove.THashMap;
 
 import java.util.Map;
 
 public class NavigationPsiCache implements Disposable {
-    private Map<DBObjectIdentifier, DBObjectPsiFile> objectPsiFiles = new THashMap<DBObjectIdentifier, DBObjectPsiFile>();
-    private Map<DBObjectIdentifier, DBObjectPsiDirectory> objectPsiDirectories = new THashMap<DBObjectIdentifier, DBObjectPsiDirectory>();
+    private Map<DBObjectRef, DBObjectPsiFile> objectPsiFiles = new THashMap<DBObjectRef, DBObjectPsiFile>();
+    private Map<DBObjectRef, DBObjectPsiDirectory> objectPsiDirectories = new THashMap<DBObjectRef, DBObjectPsiDirectory>();
     private Map<DBObjectList, DBObjectListPsiDirectory> objectListPsiDirectories = new THashMap<DBObjectList, DBObjectListPsiDirectory>();
     private DBConnectionPsiDirectory connectionPsiDirectory;
 
@@ -25,22 +25,22 @@ public class NavigationPsiCache implements Disposable {
     }
 
     private synchronized DBObjectPsiFile lookupPsiFile(DBObject object) {
-        DBObjectIdentifier identifier = object.getIdentifier();
-        DBObjectPsiFile psiFile = objectPsiFiles.get(identifier);
+        DBObjectRef objectRef = object.getRef();
+        DBObjectPsiFile psiFile = objectPsiFiles.get(objectRef);
         if (psiFile == null) {
             psiFile = new DBObjectPsiFile(object);
-            objectPsiFiles.put(identifier, psiFile);
+            objectPsiFiles.put(objectRef, psiFile);
         }
 
         return psiFile;
     }
 
     private synchronized DBObjectPsiDirectory lookupPsiDirectory(DBObject object) {
-        DBObjectIdentifier identifier = object.getIdentifier();
-        DBObjectPsiDirectory psiDirectory = objectPsiDirectories.get(identifier);
+        DBObjectRef objectRef = object.getRef();
+        DBObjectPsiDirectory psiDirectory = objectPsiDirectories.get(objectRef);
         if (psiDirectory == null) {
             psiDirectory = new DBObjectPsiDirectory(object);
-            objectPsiDirectories.put(identifier, psiDirectory);
+            objectPsiDirectories.put(objectRef, psiDirectory);
         }
 
         return psiDirectory;

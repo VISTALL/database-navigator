@@ -22,6 +22,8 @@ import com.dci.intellij.dbn.object.common.status.DBObjectStatus;
 import com.dci.intellij.dbn.object.common.status.DBObjectStatusHolder;
 import com.dci.intellij.dbn.object.identifier.DBMethodIdentifier;
 import com.dci.intellij.dbn.object.identifier.DBObjectIdentifier;
+import com.dci.intellij.dbn.object.lookup.DBMethodRef;
+import com.dci.intellij.dbn.object.lookup.DBObjectRef;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.Connection;
@@ -76,6 +78,11 @@ public abstract class DBMethodImpl extends DBSchemaObjectImpl implements DBMetho
     public DBMethodIdentifier getIdentifier() {
         return (DBMethodIdentifier) super.getIdentifier();
 
+    }
+
+    @Override
+    protected DBObjectRef createRef() {
+        return new DBMethodRef(this);
     }
 
     @Override

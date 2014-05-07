@@ -13,6 +13,7 @@ import com.dci.intellij.dbn.editor.data.filter.action.DeleteBasicFilterCondition
 import com.dci.intellij.dbn.editor.data.filter.action.EnableDisableBasicFilterConditionAction;
 import com.dci.intellij.dbn.object.DBColumn;
 import com.dci.intellij.dbn.object.DBDataset;
+import com.dci.intellij.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.ui.ColoredListCellRenderer;
@@ -36,7 +37,7 @@ import java.util.List;
 
 public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<DatasetBasicFilterCondition> {
 
-    private JComboBox<DBColumn> columnComboBox;
+    private JComboBox<DBObjectRef<DBColumn>> columnComboBox;
     private JComboBox operatorComboBox;
     private JPanel actionsPanel;
     private JPanel mainPanel;
@@ -54,7 +55,7 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
         List<DBColumn> columns = new ArrayList<DBColumn>(dataset.getColumns()); 
         Collections.sort(columns);
         for (DBColumn column : columns) {
-            columnComboBox.addItem(column);
+            columnComboBox.addItem(column.getRef());
         }
 
         ActionToolbar actionToolbar = ActionUtil.createActionToolbar(
@@ -66,7 +67,7 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
         DBColumn column = dataset.getColumn(condition.getColumnName());
         BasicDataType dataType = null;
         if (column != null) {
-            columnComboBox.setSelectedItem(column);
+            columnComboBox.setSelectedItem(column.getRef());
             dataType = column.getDataType().getNativeDataType().getBasicDataType();
         }
 
@@ -95,9 +96,13 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
         updateValueTextField();
         columnComboBox.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                DBColumn column = (DBColumn) columnComboBox.getSelectedItem();
-                BasicDataType dataType = column.getDataType().getNativeDataType().getBasicDataType();
-                textFieldWithPopup.setPopupEnabled(TextFieldPopupType.CALENDAR, dataType == BasicDataType.DATE_TIME);
+                DBObjectRef<DBColumn> columnRef = (DBObjectRef<DBColumn>) columnComboBox.getSelectedItem();
+                DBColumn column = columnRef.get();
+                if (column != null) {
+                    BasicDataType dataType = column.getDataType().getNativeDataType().getBasicDataType();
+                    textFieldWithPopup.setPopupEnabled(TextFieldPopupType.CALENDAR, dataType == BasicDataType.DATE_TIME);
+                }
+
             }
         });
 
@@ -137,8 +142,8 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
 
     @Nullable
     public DBColumn getSelectedColumn() {
-        DBColumn column = (DBColumn) columnComboBox.getSelectedItem();
-        return column == null ? null : (DBColumn) column.getUndisposedElement();
+        DBObjectRef<DBColumn> column = (DBObjectRef<DBColumn>) columnComboBox.getSelectedItem();
+        return column.get();
     }
 
     public ConditionOperator getSelectedOperator() {
@@ -199,9 +204,9 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
         }
     }
 
-    private ListCellRenderer cellRenderer = new ColoredListCellRenderer() {
-        protected void customizeCellRenderer(JList list, Object value, int index, boolean selected, boolean hasFocus) {
-            DBColumn column = (DBColumn) value;
+    private ListCellRenderer cellRenderer = new ColoredListCellRenderer<DBObjectRef<DBColumn>>() {
+        protected void customizeCellRenderer(JList list, DBObjectRef<DBColumn> value, int index, boolean selected, boolean hasFocus) {
+            DBColumn column = value.get();
             if (column != null) {
                 setIcon(column.getIcon());
                 append(column.getName(), active ? SimpleTextAttributes.REGULAR_ATTRIBUTES : SimpleTextAttributes.GRAYED_ATTRIBUTES);
