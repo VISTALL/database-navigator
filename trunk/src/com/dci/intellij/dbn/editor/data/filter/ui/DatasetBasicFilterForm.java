@@ -12,6 +12,7 @@ import com.dci.intellij.dbn.editor.data.filter.action.CreateBasicFilterCondition
 import com.dci.intellij.dbn.language.sql.SQLFile;
 import com.dci.intellij.dbn.language.sql.SQLLanguage;
 import com.dci.intellij.dbn.object.DBDataset;
+import com.dci.intellij.dbn.object.lookup.DBObjectRef;
 import com.intellij.ide.highlighter.HighlighterFactory;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.editor.Document;
@@ -52,7 +53,7 @@ public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasic
     private JLabel errorLabel;
     private JPanel previewPanel;
 
-    private DBDataset dataset;
+    private DBObjectRef<DBDataset> dataset;
     private List<DatasetBasicFilterConditionForm> conditionForms = new ArrayList<DatasetBasicFilterConditionForm>();
     private Document previewDocument;
     private boolean isCustomNamed;
@@ -62,7 +63,7 @@ public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasic
     public DatasetBasicFilterForm(DBDataset dataset, DatasetBasicFilter filter) {
         super(filter);
         conditionsPanel.setLayout(new BoxLayout(conditionsPanel, BoxLayout.Y_AXIS));
-        this.dataset = dataset;
+        this.dataset = dataset.getRef();
         nameTextField.setText(filter.getDisplayName());
 
         ActionToolbar actionToolbar = ActionUtil.createActionToolbar(
@@ -140,66 +141,70 @@ public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasic
     }
 
     public void updateNameAndPreview() {
-        updateGeneratedName();
-        final StringBuilder selectStatement = new StringBuilder("select * from ");
-        selectStatement.append(dataset.getSchema().getQuotedName(false)).append('.');
-        selectStatement.append(dataset.getQuotedName(false));
-        selectStatement.append(" where\n    ");
+        DBDataset dataset = this.getDataset();
+        if (dataset != null) {
+            updateGeneratedName();
+            final StringBuilder selectStatement = new StringBuilder("select * from ");
+            selectStatement.append(dataset.getSchema().getQuotedName(false)).append('.');
+            selectStatement.append(dataset.getQuotedName(false));
+            selectStatement.append(" where\n    ");
 
-        boolean addJoin = false;
-        for (DatasetBasicFilterConditionForm conditionForm : conditionForms) {
-            DatasetBasicFilterCondition condition = conditionForm.getCondition();
-            if (conditionForm.isActive()) {
-                if (addJoin) {
-                    selectStatement.append(joinAndRadioButton.isSelected() ? " and\n    " : " or\n    ");
+            boolean addJoin = false;
+            for (DatasetBasicFilterConditionForm conditionForm : conditionForms) {
+                DatasetBasicFilterCondition condition = conditionForm.getCondition();
+                if (conditionForm.isActive()) {
+                    if (addJoin) {
+                        selectStatement.append(joinAndRadioButton.isSelected() ? " and\n    " : " or\n    ");
+                    }
+                    addJoin = true;
+                    condition.appendConditionString(selectStatement, dataset);
                 }
-                addJoin = true;
-                condition.appendConditionString(selectStatement, dataset);
+            }
+
+            if (previewDocument == null) {
+                PsiFileFactory psiFileFactory = PsiFileFactory.getInstance(dataset.getProject());
+
+                SQLFile selectStatementFile = (SQLFile)
+                        psiFileFactory.createFileFromText(
+                                "filter.sql",
+                                dataset.getLanguageDialect(SQLLanguage.INSTANCE),
+                                selectStatement.toString());
+
+                selectStatementFile.setActiveConnection(dataset.getConnectionHandler());
+                selectStatementFile.setCurrentSchema(dataset.getSchema());
+                previewDocument = DocumentUtil.getDocument(selectStatementFile);
+
+                viewer = (EditorEx) EditorFactory.getInstance().createViewer(previewDocument, dataset.getProject());
+                viewer.setEmbeddedIntoDialogWrapper(true);
+                JScrollPane viewerScrollPane = viewer.getScrollPane();
+                SyntaxHighlighter syntaxHighlighter = dataset.getLanguageDialect(SQLLanguage.INSTANCE).getSyntaxHighlighter();
+                EditorColorsScheme colorsScheme = viewer.getColorsScheme();
+                viewer.setHighlighter(HighlighterFactory.createHighlighter(syntaxHighlighter, colorsScheme));
+                viewer.setBackgroundColor(colorsScheme.getColor(ColorKey.find("CARET_ROW_COLOR")));
+                viewerScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+                viewerScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+                //viewerScrollPane.setBorder(null);
+                viewerScrollPane.setViewportBorder(new LineBorder(CompatibilityUtil.getEditorBackgroundColor(viewer), 4, false));
+
+                EditorSettings settings = viewer.getSettings();
+                settings.setFoldingOutlineShown(false);
+                settings.setLineMarkerAreaShown(false);
+                settings.setLineNumbersShown(false);
+                settings.setVirtualSpace(false);
+                settings.setDndEnabled(false);
+                settings.setAdditionalLinesCount(2);
+                settings.setRightMarginShown(false);
+                previewPanel.add(viewer.getComponent(), BorderLayout.CENTER);
+
+            } else {
+                new WriteActionRunner() {
+                    public void run() {
+                        previewDocument.setText(selectStatement);
+                    }
+                }.start();
             }
         }
 
-        if (previewDocument == null) {
-            PsiFileFactory psiFileFactory = PsiFileFactory.getInstance(dataset.getProject());
-
-            SQLFile selectStatementFile = (SQLFile)
-                psiFileFactory.createFileFromText(
-                    "filter.sql",
-                    dataset.getLanguageDialect(SQLLanguage.INSTANCE),
-                    selectStatement.toString());
-
-            selectStatementFile.setActiveConnection(dataset.getConnectionHandler());
-            selectStatementFile.setCurrentSchema(dataset.getSchema());
-            previewDocument = DocumentUtil.getDocument(selectStatementFile);
-
-            viewer = (EditorEx) EditorFactory.getInstance().createViewer(previewDocument, dataset.getProject());
-            viewer.setEmbeddedIntoDialogWrapper(true);
-            JScrollPane viewerScrollPane = viewer.getScrollPane();
-            SyntaxHighlighter syntaxHighlighter = dataset.getLanguageDialect(SQLLanguage.INSTANCE).getSyntaxHighlighter();
-            EditorColorsScheme colorsScheme = viewer.getColorsScheme();
-            viewer.setHighlighter(HighlighterFactory.createHighlighter(syntaxHighlighter, colorsScheme));
-            viewer.setBackgroundColor(colorsScheme.getColor(ColorKey.find("CARET_ROW_COLOR")));
-            viewerScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-            viewerScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-            //viewerScrollPane.setBorder(null);
-            viewerScrollPane.setViewportBorder(new LineBorder(CompatibilityUtil.getEditorBackgroundColor(viewer), 4, false));
-
-            EditorSettings settings = viewer.getSettings();
-            settings.setFoldingOutlineShown(false);
-            settings.setLineMarkerAreaShown(false);
-            settings.setLineNumbersShown(false);
-            settings.setVirtualSpace(false);
-            settings.setDndEnabled(false);
-            settings.setAdditionalLinesCount(2);
-            settings.setRightMarginShown(false);
-            previewPanel.add(viewer.getComponent(), BorderLayout.CENTER);
-
-        } else {
-            new WriteActionRunner() {
-                public void run() {
-                    previewDocument.setText(selectStatement);
-                }
-            }.start();
-        }
     }
 
     public String getFilterName() {
@@ -207,7 +212,7 @@ public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasic
     }
 
     public DBDataset getDataset() {
-        return dataset;
+        return dataset.get();
     }
 
     public void addConditionPanel(DatasetBasicFilterCondition condition) {
