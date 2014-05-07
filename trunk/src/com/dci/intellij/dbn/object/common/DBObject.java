@@ -13,7 +13,6 @@ import com.dci.intellij.dbn.object.common.list.DBObjectNavigationList;
 import com.dci.intellij.dbn.object.common.list.DBObjectRelationListContainer;
 import com.dci.intellij.dbn.object.common.operation.DBOperationExecutor;
 import com.dci.intellij.dbn.object.common.property.DBObjectProperties;
-import com.dci.intellij.dbn.object.identifier.DBObjectIdentifier;
 import com.dci.intellij.dbn.object.lookup.DBObjectRef;
 import com.dci.intellij.dbn.object.properties.PresentableProperty;
 import com.dci.intellij.dbn.vfs.DatabaseObjectFile;
@@ -79,9 +78,6 @@ public interface DBObject extends BrowserTreeNode, PsiNamedElement, DynamicConte
     DatabaseObjectFile getVirtualFile();
     List<PresentableProperty> getPresentableProperties();
     EnvironmentType getEnvironmentType();
-
-    DBObjectIdentifier getIdentifier();
-
     DBObjectRef getRef();
 
 }

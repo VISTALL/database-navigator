@@ -40,7 +40,6 @@ import com.dci.intellij.dbn.object.common.operation.DBOperationExecutor;
 import com.dci.intellij.dbn.object.common.operation.DBOperationNotSupportedException;
 import com.dci.intellij.dbn.object.common.operation.DBOperationType;
 import com.dci.intellij.dbn.object.common.property.DBObjectProperties;
-import com.dci.intellij.dbn.object.identifier.DBObjectIdentifier;
 import com.dci.intellij.dbn.object.lookup.DBObjectRef;
 import com.dci.intellij.dbn.object.properties.ConnectionPresentableProperty;
 import com.dci.intellij.dbn.object.properties.DBObjectPresentableProperty;
@@ -77,7 +76,6 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
     private boolean isDisposed = false;
 
     protected String name;
-    protected DBObjectIdentifier identifier;
     protected DBObjectRef objectRef;
     private DBObjectProperties properties;
     private DBObjectListContainer childObjects;
@@ -120,12 +118,7 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
         initProperties();
         initTreeInfo();
         initLists();
-        identifier = createIdentifier();
         objectRef = createRef();
-    }
-
-    protected DBObjectIdentifier createIdentifier() {
-        return new DBObjectIdentifier(this);
     }
 
     protected abstract void initObject(ResultSet resultSet) throws SQLException;
@@ -167,11 +160,6 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
 
     public DBContentType getContentType() {
         return contentType;
-    }
-
-    @Override
-    public DBObjectIdentifier getIdentifier() {
-        return identifier;
     }
 
     @Override
