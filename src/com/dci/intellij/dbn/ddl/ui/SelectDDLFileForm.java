@@ -10,6 +10,7 @@ import com.intellij.util.ui.UIUtil;
 
 import javax.swing.DefaultListModel;
 import javax.swing.Icon;
+import javax.swing.JCheckBox;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
@@ -22,8 +23,9 @@ public class SelectDDLFileForm extends DBNFormImpl implements DBNForm {
     private JTextArea hintTextArea;
     private JList filesList;
     private JPanel headerPanel;
+    private JCheckBox doNotPromptCheckBox;
 
-    public SelectDDLFileForm(DBSchemaObject object, List<VirtualFile> virtualFiles, String hint) {
+    public SelectDDLFileForm(DBSchemaObject object, List<VirtualFile> virtualFiles, String hint, boolean isFileOpenEvent) {
         Project project = object.getProject();
         String headerTitle = object.getSchema().getName() + "." + object.getName();
         Icon headerIcon = object.getOriginalIcon();
@@ -47,6 +49,8 @@ public class SelectDDLFileForm extends DBNFormImpl implements DBNForm {
         filesList.setModel(listModel);
         filesList.setCellRenderer(new FileListCellRenderer(project));
         filesList.setSelectedIndex(0);
+
+        if (!isFileOpenEvent) mainPanel.remove(doNotPromptCheckBox);
     }
 
     public Object[] getSelection() {
@@ -59,6 +63,10 @@ public class SelectDDLFileForm extends DBNFormImpl implements DBNForm {
 
     public void selectNone() {
         filesList.clearSelection();
+    }
+
+    public boolean isDoNotPromptSelected() {
+        return doNotPromptCheckBox.isSelected();
     }
 
     public JPanel getComponent() {

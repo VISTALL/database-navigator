@@ -57,7 +57,8 @@ public class DatabaseEditableObjectFile extends DatabaseObjectFile<DBSchemaObjec
         DBSchemaObject object = getObject();
         if (object != null) {
             Project project = object.getProject();
-            if (object.getContentType() == DBContentType.DATA) {
+            DBContentType contentType = object.getContentType();
+            if (contentType == DBContentType.DATA) {
                 DBDataset dataset = (DBDataset) object;
                 DatasetFilterManager filterManager = DatasetFilterManager.getInstance(project);
                 DatasetFilter filter = filterManager.getActiveFilter(dataset);
@@ -70,17 +71,18 @@ public class DatabaseEditableObjectFile extends DatabaseObjectFile<DBSchemaObjec
                     }
                 }
             }
-            else if (object.getContentType() == DBContentType.CODE ||
-                    object.getContentType() == DBContentType.CODE_SPEC_AND_BODY) {
+            else if (contentType.isOneOf(DBContentType.CODE, DBContentType.CODE_SPEC_AND_BODY)) {
 
                 DDLFileGeneralSettings ddlFileSettings = DDLFileSettings.getInstance(project).getGeneralSettings();
-                if (ddlFileSettings.getLookupDDLFilesEnabled().value()) {
+                ConnectionHandler connectionHandler = object.getConnectionHandler();
+                boolean ddlFileBinding = connectionHandler.getSettings().getDetailSettings().isDdlFileBinding();
+                if (ddlFileBinding && ddlFileSettings.getLookupDDLFilesEnabled().value()) {
                     List<VirtualFile> boundDDLFiles = getBoundDDLFiles();
                     if (boundDDLFiles == null || boundDDLFiles.isEmpty()) {
                         DDLFileAttachmentManager fileAttachmentManager = DDLFileAttachmentManager.getInstance(project);
                         List<VirtualFile> virtualFiles = fileAttachmentManager.lookupUnboundDDLFiles(object);
                         if (virtualFiles.size() > 0) {
-                            int exitCode = fileAttachmentManager.showFileAttachDialog(object, virtualFiles);
+                            int exitCode = fileAttachmentManager.showFileAttachDialog(object, virtualFiles, true);
                             return exitCode != DialogWrapper.CANCEL_EXIT_CODE;
                         } else if (ddlFileSettings.getCreateDDLFilesEnabled().value()) {
                             int exitCode = Messages.showYesNoDialog(

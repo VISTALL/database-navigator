@@ -20,6 +20,7 @@ public class ConnectionDetailSettings extends ProjectConfiguration<ConnectionDet
     private Charset charset = Charset.forName("UTF-8");
     private String environmentTypeId = EnvironmentType.DEFAULT.getId();
     private boolean autoCommit;
+    private boolean ddlFileBinding = true;
     private int idleTimeToDisconnect = 30;
 
     public ConnectionDetailSettings(Project project) {
@@ -75,6 +76,14 @@ public class ConnectionDetailSettings extends ProjectConfiguration<ConnectionDet
         this.autoCommit = autoCommit;
     }
 
+    public boolean isDdlFileBinding() {
+        return ddlFileBinding;
+    }
+
+    public void setDdlFileBinding(boolean ddlFileBinding) {
+        this.ddlFileBinding = ddlFileBinding;
+    }
+
     public int getIdleTimeToDisconnect() {
         return idleTimeToDisconnect;
     }
@@ -102,6 +111,7 @@ public class ConnectionDetailSettings extends ProjectConfiguration<ConnectionDet
         charset = Charset.forName(charsetName);
         
         autoCommit = SettingsUtil.getBoolean(element, "auto-commit", autoCommit);
+        ddlFileBinding = SettingsUtil.getBoolean(element, "ddl-file-binding", ddlFileBinding);
         environmentTypeId = SettingsUtil.getString(element, "environment-type", EnvironmentType.DEFAULT.getId());
         idleTimeToDisconnect = SettingsUtil.getInteger(element, "idle-time-to-disconnect", idleTimeToDisconnect);
 
@@ -121,6 +131,7 @@ public class ConnectionDetailSettings extends ProjectConfiguration<ConnectionDet
         SettingsUtil.setString(element, "charset", charset.name());
         
         SettingsUtil.setBoolean(element, "auto-commit", autoCommit);
+        SettingsUtil.setBoolean(element, "ddl-file-binding", ddlFileBinding);
         SettingsUtil.setString(element, "environment-type", environmentTypeId);
         SettingsUtil.setInteger(element, "idle-time-to-disconnect", idleTimeToDisconnect);
 

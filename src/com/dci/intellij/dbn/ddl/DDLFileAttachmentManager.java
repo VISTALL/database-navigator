@@ -150,8 +150,8 @@ public class DDLFileAttachmentManager extends AbstractProjectComponent implement
         return false;
     }
 
-    public int showFileAttachDialog(DBSchemaObject object, List<VirtualFile> virtualFiles) {
-        AttachDDLFileDialog dialog = new AttachDDLFileDialog(virtualFiles, object);
+    public int showFileAttachDialog(DBSchemaObject object, List<VirtualFile> virtualFiles, boolean showLookupOption) {
+        AttachDDLFileDialog dialog = new AttachDDLFileDialog(virtualFiles, object, showLookupOption);
         dialog.show();
         return dialog.getExitCode();
     }
@@ -230,7 +230,7 @@ public class DDLFileAttachmentManager extends AbstractProjectComponent implement
                 descriptor.addRoot(contentRoot);
             }*/
 
-            VirtualFile[] selectedDirectories = FileChooser.chooseFiles(project, descriptor);
+            VirtualFile[] selectedDirectories = FileChooser.chooseFiles(descriptor, project, null);
             if (selectedDirectories.length > 0) {
                 final String fileName = fileNameProvider.getFileName();
                 final VirtualFile parentDirectory = selectedDirectories[0];
@@ -288,7 +288,7 @@ public class DDLFileAttachmentManager extends AbstractProjectComponent implement
                 createDDLFile(object);
             }
         } else {
-            int exitCode = showFileAttachDialog(object, virtualFiles);
+            int exitCode = showFileAttachDialog(object, virtualFiles, false);
             if (exitCode != DialogWrapper.CANCEL_EXIT_CODE) {
                 DatabaseFileSystem.getInstance().reopenEditor(object);
             }
