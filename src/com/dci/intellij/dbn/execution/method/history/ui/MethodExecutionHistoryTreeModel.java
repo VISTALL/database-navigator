@@ -40,7 +40,7 @@ public abstract class MethodExecutionHistoryTreeModel extends DefaultTreeModel {
             if (!isLeaf())
                 for (TreeNode node : getChildren()) {
                     ConnectionTreeNode connectionNode = (ConnectionTreeNode) node;
-                    if (connectionNode.getConnectionHandler().getId().equals(executionInput.getMethodIdentifier().getConnectionId())) {
+                    if (connectionNode.getConnectionHandler().getId().equals(executionInput.getMethodRef().getConnectionId())) {
                         return connectionNode;
                     }
                 }
@@ -69,7 +69,7 @@ public abstract class MethodExecutionHistoryTreeModel extends DefaultTreeModel {
             if (!isLeaf())
                 for (TreeNode node : getChildren()) {
                     SchemaTreeNode schemaNode = (SchemaTreeNode) node;
-                    if (schemaNode.getName().equalsIgnoreCase(executionInput.getMethodIdentifier().getSchemaName())) {
+                    if (schemaNode.getName().equalsIgnoreCase(executionInput.getMethodRef().getSchemaName())) {
                         return schemaNode;
                     }
                 }
@@ -79,11 +79,11 @@ public abstract class MethodExecutionHistoryTreeModel extends DefaultTreeModel {
 
     protected class SchemaTreeNode extends MethodExecutionHistoryTreeNode {
         SchemaTreeNode(MethodExecutionHistoryTreeNode parent, MethodExecutionInput executionInput) {
-            super(parent, NODE_TYPE_SCHEMA, executionInput.getMethodIdentifier().getSchemaName());
+            super(parent, NODE_TYPE_SCHEMA, executionInput.getMethodRef().getSchemaName());
         }
 
         ProgramTreeNode getProgramNode(MethodExecutionInput executionInput) {
-            String programName = executionInput.getMethodIdentifier().getProgramName();
+            String programName = executionInput.getMethodRef().getProgramName();
             if (!isLeaf())
                 for (TreeNode node : getChildren()) {
                     if (node instanceof ProgramTreeNode) {
@@ -114,12 +114,12 @@ public abstract class MethodExecutionHistoryTreeModel extends DefaultTreeModel {
     protected class ProgramTreeNode extends MethodExecutionHistoryTreeNode {
         ProgramTreeNode(MethodExecutionHistoryTreeNode parent, MethodExecutionInput executionInput) {
             super(parent,
-                    getNodeType(executionInput.getMethodIdentifier().getProgramObjectType()),
-                    executionInput.getMethodIdentifier().getProgramName());
+                    getNodeType(executionInput.getMethodRef().getProgramObjectType()),
+                    executionInput.getMethodRef().getProgramName());
         }
 
         MethodTreeNode getMethodNode(MethodExecutionInput executionInput) {
-            String methodName = executionInput.getMethodIdentifier().getMethodName();
+            String methodName = executionInput.getMethodRef().getMethodName();
             if (!isLeaf())
                 for (TreeNode node : getChildren()) {
                     MethodTreeNode methodNode = (MethodTreeNode) node;
@@ -136,13 +136,13 @@ public abstract class MethodExecutionHistoryTreeModel extends DefaultTreeModel {
 
         MethodTreeNode(MethodExecutionHistoryTreeNode parent, MethodExecutionInput executionInput) {
             super(parent,
-                    getNodeType(executionInput.getMethodIdentifier().getMethodObjectType()),
+                    getNodeType(executionInput.getMethodRef().getMethodObjectType()),
                     getMethodName(executionInput));
             this.executionInput = executionInput;
         }
 
         int getOverload() {
-            return executionInput.getMethodIdentifier().getOverload();
+            return executionInput.getMethodRef().getOverload();
         }
 
         MethodExecutionInput getExecutionInput() {

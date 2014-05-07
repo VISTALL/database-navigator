@@ -30,6 +30,6 @@ public class SelectMethodAction extends AbstractSelectMethodAction{
         } else {
             presentation.setIcon(method.getOriginalIcon());
         }
-        presentation.setText(NamingUtil.enhanceNameForDisplay(executionInput.getMethodIdentifier().getPath()));
+        presentation.setText(NamingUtil.enhanceNameForDisplay(executionInput.getMethodRef().getPath()));
     }
 }

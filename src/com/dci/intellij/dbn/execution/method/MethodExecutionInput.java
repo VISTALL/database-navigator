@@ -11,8 +11,8 @@ import com.dci.intellij.dbn.object.DBMethod;
 import com.dci.intellij.dbn.object.DBSchema;
 import com.dci.intellij.dbn.object.DBTypeAttribute;
 import com.dci.intellij.dbn.object.common.DBObjectType;
-import com.dci.intellij.dbn.object.identifier.DBMethodIdentifier;
-import com.dci.intellij.dbn.object.identifier.DBObjectIdentifier;
+import com.dci.intellij.dbn.object.lookup.DBMethodRef;
+import com.dci.intellij.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.InvalidDataException;
@@ -27,8 +27,8 @@ import java.util.List;
 import java.util.Map;
 
 public class MethodExecutionInput implements Disposable, PersistentConfiguration, Comparable<MethodExecutionInput> {
-    private DBMethodIdentifier methodIdentifier;
-    private DBObjectIdentifier executionSchemaIdentifier;
+    private DBMethodRef<DBMethod> method;
+    private DBObjectRef<DBSchema> executionSchema;
     private Map<String, String> valuesMap = new HashMap<String, String>();
     private boolean usePoolConnection = true;
     private boolean commitAfterExecution = true;
@@ -41,13 +41,13 @@ public class MethodExecutionInput implements Disposable, PersistentConfiguration
     private transient boolean executionCancelled;
 
     public MethodExecutionInput() {
-        methodIdentifier = new DBMethodIdentifier();
-        executionSchemaIdentifier = new DBObjectIdentifier();
+        method = new DBMethodRef<DBMethod>();
+        executionSchema = new DBObjectRef<DBSchema>();
     }
 
     public MethodExecutionInput(DBMethod method) {
-        methodIdentifier = method.getIdentifier();
-        executionSchemaIdentifier = method.getSchema().getIdentifier();
+        this.method = new DBMethodRef<DBMethod>(method);
+        this.executionSchema = new DBObjectRef<DBSchema>(method.getSchema());
     }
 
     public void initExecutionResult(boolean debug) {
@@ -57,19 +57,19 @@ public class MethodExecutionInput implements Disposable, PersistentConfiguration
 
     @Nullable
     public DBMethod getMethod() {
-        return methodIdentifier.lookupObject();
+        return method.get();
     }
 
-    public DBMethodIdentifier getMethodIdentifier() {
-        return methodIdentifier;
+    public DBMethodRef getMethodRef() {
+        return method;
     }
 
     public ConnectionHandler getConnectionHandler() {
-        return methodIdentifier.lookupConnectionHandler();
+        return method.lookupConnectionHandler();
     }
 
     public DBSchema getExecutionSchema() {
-        return (DBSchema) executionSchemaIdentifier.lookupObject();
+        return executionSchema.get();
     }
 
     public boolean isObsolete() {
@@ -85,7 +85,7 @@ public class MethodExecutionInput implements Disposable, PersistentConfiguration
     }
 
     public void setExecutionSchema(DBSchema schema) {
-        executionSchemaIdentifier = schema.getIdentifier();
+        executionSchema = new DBObjectRef<DBSchema>(schema);
     }
 
     public void setInputValue(DBArgument argument, DBTypeAttribute typeAttribute, String value) {
@@ -178,16 +178,15 @@ public class MethodExecutionInput implements Disposable, PersistentConfiguration
         executionResult = null;
         valuesMap.clear();
         argumentValues.clear();
-        methodIdentifier = null;
     }
 
     /*********************************************************
      *                   JDOMExternalizable                  *
      *********************************************************/
     public void readConfiguration(Element element) throws InvalidDataException {
-        methodIdentifier.readConfiguration(element);
-        executionSchemaIdentifier = new DBObjectIdentifier(methodIdentifier.getConnectionId());
-        executionSchemaIdentifier.add(DBObjectType.SCHEMA, element.getAttributeValue("execution-schema"));
+        method.readConfiguration(element);
+        executionSchema = new DBObjectRef<DBSchema>(method.getConnectionId());
+        executionSchema.append(DBObjectType.SCHEMA, element.getAttributeValue("execution-schema"));
         usePoolConnection = SettingsUtil.getBooleanAttribute(element, "use-pool-connection", true);
         commitAfterExecution = SettingsUtil.getBooleanAttribute(element, "commit-after-execution", true);
         Element argumentsElement = element.getChild("argument-list");
@@ -200,8 +199,8 @@ public class MethodExecutionInput implements Disposable, PersistentConfiguration
     }
 
     public void writeConfiguration(Element element) throws WriteExternalException {
-        methodIdentifier.writeConfiguration(element);
-        element.setAttribute("execution-schema", CommonUtil.nvl(executionSchemaIdentifier.getPath(), ""));
+        method.writeConfiguration(element);
+        element.setAttribute("execution-schema", CommonUtil.nvl(executionSchema.getPath(), ""));
         SettingsUtil.setBooleanAttribute(element, "use-pool-connection", usePoolConnection);
         SettingsUtil.setBooleanAttribute(element, "commit-after-execution", commitAfterExecution);
 
@@ -226,29 +225,29 @@ public class MethodExecutionInput implements Disposable, PersistentConfiguration
     }
 
     public int compareTo(@NotNull MethodExecutionInput executionInput) {
-        DBMethodIdentifier localMethodIdentifier = getMethodIdentifier();
-        DBMethodIdentifier remoteMethodIdentifier = executionInput.getMethodIdentifier();
-        return localMethodIdentifier.compareTo(remoteMethodIdentifier);
+        DBMethodRef localMethod = getMethodRef();
+        DBMethodRef remoteMethod = executionInput.getMethodRef();
+        return localMethod.compareTo(remoteMethod);
     }
 
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof MethodExecutionInput) {
             MethodExecutionInput executionInput = (MethodExecutionInput) obj;
-            return methodIdentifier.equals(executionInput.getMethodIdentifier());
+            return method.equals(executionInput.getMethodRef());
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return getMethodIdentifier().hashCode();
+        return method.hashCode();
     }
 
     public MethodExecutionInput clone() {
         MethodExecutionInput executionInput = new MethodExecutionInput();
-        executionInput.methodIdentifier = methodIdentifier;
-        executionInput.executionSchemaIdentifier = executionSchemaIdentifier;
+        executionInput.method = method;
+        executionInput.executionSchema = executionSchema;
         executionInput.usePoolConnection = usePoolConnection;
         executionInput.commitAfterExecution = commitAfterExecution;
         executionInput.valuesMap = new HashMap<String, String>(valuesMap);

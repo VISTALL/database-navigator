@@ -12,7 +12,7 @@ public interface DBMethod extends DBSchemaObject {
     DBProgram getProgram();
     String getMethodType();
     int getOverload();
-    boolean isEmbedded();
+    boolean isProgramMethod();
     boolean isDeterministic();
     boolean hasDeclaredArguments();
 }

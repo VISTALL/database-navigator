@@ -7,21 +7,23 @@ import com.dci.intellij.dbn.database.DatabaseFeature;
 import com.dci.intellij.dbn.execution.method.MethodExecutionInput;
 import com.dci.intellij.dbn.execution.method.MethodExecutionManager;
 import com.dci.intellij.dbn.object.DBMethod;
-import com.dci.intellij.dbn.object.identifier.DBMethodIdentifier;
+import com.dci.intellij.dbn.object.lookup.DBMethodRef;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.Executor;
-import com.intellij.execution.configurations.*;
+import com.intellij.execution.configurations.ConfigurationFactory;
+import com.intellij.execution.configurations.LocatableConfiguration;
+import com.intellij.execution.configurations.RunConfiguration;
+import com.intellij.execution.configurations.RunConfigurationBase;
+import com.intellij.execution.configurations.RunProfileState;
+import com.intellij.execution.configurations.RuntimeConfigurationError;
+import com.intellij.execution.configurations.RuntimeConfigurationException;
 import com.intellij.execution.runners.ExecutionEnvironment;
-import com.intellij.execution.runners.ProgramRunner;
-import com.intellij.openapi.options.SettingsEditor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.InvalidDataException;
-import com.intellij.openapi.util.JDOMExternalizable;
 import com.intellij.openapi.util.WriteExternalException;
 import gnu.trove.THashSet;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -37,22 +39,11 @@ public class DBProgramRunConfiguration extends RunConfigurationBase implements L
         super(project, factory, name);
     }
 
+    @NotNull
     public DBProgramRunConfigurationEditor getConfigurationEditor() {
         if (configurationEditor == null )
             configurationEditor = new DBProgramRunConfigurationEditor(this);
         return configurationEditor;
-    }
-
-    @Nullable
-    @Override
-    public JDOMExternalizable createRunnerSettings(ConfigurationInfoProvider configurationInfoProvider) {
-        return null;
-    }
-
-    @Nullable
-    @Override
-    public SettingsEditor<JDOMExternalizable> getRunnerSettingsEditor(ProgramRunner programRunner) {
-        return null;
     }
 
     public boolean isCompileDependencies() {
@@ -78,7 +69,7 @@ public class DBProgramRunConfiguration extends RunConfigurationBase implements L
 
         if (getMethod() == null) {
             throw new RuntimeConfigurationError(
-                    "Method " + executionInput.getMethodIdentifier().getQualifiedMethodName() + " could not be resolved. " +
+                    "Method " + executionInput.getMethodRef().getQualifiedMethodName() + " could not be resolved. " +
                     "The database connection is down or method has been dropped.");
         }
 
@@ -106,7 +97,7 @@ public class DBProgramRunConfiguration extends RunConfigurationBase implements L
         if (executionInput == null) {
             return "<unnamed>";
         } else {
-            return executionInput.getMethodIdentifier().getPath();
+            return executionInput.getMethodRef().getPath();
         }
     }
 
@@ -129,13 +120,13 @@ public class DBProgramRunConfiguration extends RunConfigurationBase implements L
         SettingsUtil.setBoolean(element, "compile-dependencies", compileDependencies);
         if (executionInput != null) {
             Element methodIdentifierElement = new Element("method-identifier");
-            executionInput.getMethodIdentifier().writeConfiguration(methodIdentifierElement);
+            executionInput.getMethodRef().writeConfiguration(methodIdentifierElement);
             element.addContent(methodIdentifierElement);
 
             Element methodIdentifierHistoryElement = new Element("method-identifier-history");
             for (MethodExecutionInput executionInput : methodSelectionHistory) {
                 methodIdentifierElement = new Element("method-identifier");
-                executionInput.getMethodIdentifier().writeConfiguration(methodIdentifierElement);
+                executionInput.getMethodRef().writeConfiguration(methodIdentifierElement);
                 methodIdentifierHistoryElement.addContent(methodIdentifierElement);
             }
             element.addContent(methodIdentifierHistoryElement);
@@ -149,20 +140,20 @@ public class DBProgramRunConfiguration extends RunConfigurationBase implements L
         MethodExecutionManager executionManager = MethodExecutionManager.getInstance(getProject());
         Element methodIdentifierElement = element.getChild("method-identifier");
         if (methodIdentifierElement != null) {
-            DBMethodIdentifier methodIdentifier = new DBMethodIdentifier();
-            methodIdentifier.readConfiguration(methodIdentifierElement);
+            DBMethodRef methodRef = new DBMethodRef();
+            methodRef.readConfiguration(methodIdentifierElement);
 
-            executionInput = executionManager.getExecutionInput(methodIdentifier);
+            executionInput = executionManager.getExecutionInput(methodRef);
         }
 
         Element methodIdentifierHistoryElement = element.getChild("method-identifier-history");
         if (methodIdentifierHistoryElement != null) {
             for (Object o : methodIdentifierHistoryElement.getChildren()) {
                 methodIdentifierElement = (Element) o;
-                DBMethodIdentifier methodIdentifier = new DBMethodIdentifier();
-                methodIdentifier.readConfiguration(methodIdentifierElement);
+                DBMethodRef methodRef = new DBMethodRef();
+                methodRef.readConfiguration(methodIdentifierElement);
 
-                MethodExecutionInput executionInput = executionManager.getExecutionInput(methodIdentifier);
+                MethodExecutionInput executionInput = executionManager.getExecutionInput(methodRef);
                 methodSelectionHistory.add(executionInput);
             }
         }

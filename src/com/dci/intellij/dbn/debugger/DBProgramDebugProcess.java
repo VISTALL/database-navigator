@@ -25,7 +25,6 @@ import com.dci.intellij.dbn.language.psql.PSQLFile;
 import com.dci.intellij.dbn.object.DBMethod;
 import com.dci.intellij.dbn.object.DBSchema;
 import com.dci.intellij.dbn.object.common.DBSchemaObject;
-import com.dci.intellij.dbn.object.identifier.DBMethodIdentifier;
 import com.dci.intellij.dbn.vfs.DatabaseEditableObjectFile;
 import com.dci.intellij.dbn.vfs.SourceCodeFile;
 import com.intellij.openapi.application.ApplicationManager;
@@ -410,12 +409,8 @@ public class DBProgramDebugProcess extends XDebugProcess {
     }
 
     private DBSchemaObject getMainDatabaseObject() {
-        DBMethodIdentifier methodIdentifier = executionInput.getMethodIdentifier();
-        DBSchema schema = connectionHandler.getObjectBundle().getSchema(methodIdentifier.getSchemaName());
-        DBSchemaObject schemaObject = methodIdentifier.getProgramName() == null ?
-                schema.getMethod(methodIdentifier.getMethodName()) :
-                schema.getProgram(methodIdentifier.getProgramName());
-        return schemaObject;
+        DBMethod method = executionInput.getMethod();
+        return method.isProgramMethod() ? method.getProgram() : method;
     }
 
     private void rollOutDebugger() {
