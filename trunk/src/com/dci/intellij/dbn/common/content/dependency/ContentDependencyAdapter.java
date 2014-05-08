@@ -8,6 +8,7 @@ public interface ContentDependencyAdapter extends Disposable {
     /**
      * This method is called every time the content is being queried.
      * Typical implementation would be to check if dependencies have changed.
+     * @deprecated
      */
     boolean shouldLoad();
 
@@ -18,7 +19,7 @@ public interface ContentDependencyAdapter extends Disposable {
      */
     boolean shouldLoadIfDirty();
 
-    boolean hasDirtyDependencies();
+    boolean isDirty();
 
     /**
      * This operation is triggered before loading the dynamic content is started.
@@ -35,7 +36,7 @@ public interface ContentDependencyAdapter extends Disposable {
 
     void afterReload(DynamicContent dynamicContent);
 
-    boolean isSourceContentLoaded();
-
     boolean isSubContent();
+
+    boolean areDependenciesLoaded();
 }

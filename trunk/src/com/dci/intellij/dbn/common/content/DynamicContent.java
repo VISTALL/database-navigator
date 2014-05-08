@@ -41,7 +41,9 @@ public interface DynamicContent<T extends DynamicContentElement> extends Disposa
      */
     boolean isLoaded();
 
-    boolean isSourceContentLoaded();
+    boolean isSubContent();
+
+    boolean areDependenciesLoaded();
 
     /**
      * Content is currently loading
@@ -69,6 +71,8 @@ public interface DynamicContent<T extends DynamicContentElement> extends Disposa
     DynamicContentLoader getLoader();
     ContentDependencyAdapter getDependencyAdapter();
     ConnectionHandler getConnectionHandler();
+
+    void loadInBackground();
 
     void updateChangeTimestamp();
 

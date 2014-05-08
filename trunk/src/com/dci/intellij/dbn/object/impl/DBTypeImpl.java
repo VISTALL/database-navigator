@@ -228,6 +228,11 @@ public class DBTypeImpl extends DBProgramImpl implements DBType {
             DBType thisType = (DBType) dynamicContent.getParent();
             return superType != null && superType.equals(thisType);
         }
+
+        @Override
+        public DynamicContentLoader<DBType> getAlternativeLoader() {
+            return null;
+        }
     };
 
     private class SpecSourceCodeLoader extends DBSourceCodeLoader {

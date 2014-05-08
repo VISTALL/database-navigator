@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
 
 public class StatementDefinition {
     protected String statementText;
@@ -62,8 +63,8 @@ public class StatementDefinition {
     public String prepareStatementText(Object ... arguments) {
         String statementText = this.statementText;
         for (Integer argumentIndex : placeholderIndexes) {
-            Object argumentValue = arguments[argumentIndex];
-            statementText = statementText.replaceFirst("\\?", argumentValue.toString());
+            String argumentValue = Matcher.quoteReplacement(arguments[argumentIndex].toString());
+            statementText = statementText.replaceFirst("\\?", argumentValue);
         }
         return statementText;
     }

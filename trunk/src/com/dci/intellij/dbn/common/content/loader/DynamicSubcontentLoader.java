@@ -28,26 +28,40 @@ public abstract class DynamicSubcontentLoader<T extends DynamicContentElement> i
         List<T> list = null;
         boolean matchedOnce = false;
         SubcontentDependencyAdapter dependencyAdapter = (SubcontentDependencyAdapter) dynamicContent.getDependencyAdapter();
-        for (Object object : dependencyAdapter.getSourceContent().getElements()) {
-            if (dynamicContent.isDisposed()) return; // stop if disposed during loading
 
-            T element = (T) object;
-            if (match(element, dynamicContent) && dynamicContent.accepts(element)) {
-                matchedOnce = true;
-                if (list == null) list = new ArrayList<T>();
-                list.add(element);
+        DynamicContent sourceContent = dependencyAdapter.getSourceContent();
+        boolean isBackgroundLoad = Thread.currentThread().getName().equals("BACKGROUND_OBJECT_LOAD_THREAD");
+        if (sourceContent.isLoaded() || isBackgroundLoad) {
+            for (Object object : sourceContent.getElements()) {
+                if (dynamicContent.isDisposed()) return; // stop if disposed during loading
+
+                T element = (T) object;
+                if (match(element, dynamicContent) && dynamicContent.accepts(element)) {
+                    matchedOnce = true;
+                    if (list == null) list = new ArrayList<T>();
+                    list.add(element);
+                }
+                else if (matchedOnce && optimized) {
+                    // the optimization check assumes that source content is sorted
+                    // such as all matching elements are building a consecutive segment in the source content.
+                    // If at least one match occurred and current element does not match any more,
+                    // => there are no matching elements left in the source content, hence break the loop
+                    break;
+                }
             }
-            else if (matchedOnce && optimized) {
-                // the optimization check assumes that source content is sorted
-                // such as all matching elements are building a consecutive segment in the source content.
-                // If at least one match occurred and current element does not match any more,
-                // => there are no matching elements left in the source content, hence break the loop
-                break;
+            dynamicContent.setElements(list);
+        } else {
+            DynamicContentLoader<T> alternativeLoader = getAlternativeLoader();
+            if (alternativeLoader != null) {
+                alternativeLoader.loadContent(dynamicContent);
             }
         }
-        dynamicContent.setElements(list);
+
+
         //dynamicContent.setTemporary(false);
     }
+
+    public abstract DynamicContentLoader<T> getAlternativeLoader();
 
     public void reloadContent(DynamicContent<T> dynamicContent) throws DynamicContentLoaderException {
 

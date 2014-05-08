@@ -33,6 +33,12 @@ public class VoidDynamicContent implements DynamicContent{
     }
 
     @Override
+    public void loadInBackground() {
+
+    }
+
+
+    @Override
     public void reload(boolean recursive) {
 
     }
@@ -48,7 +54,12 @@ public class VoidDynamicContent implements DynamicContent{
     }
 
     @Override
-    public boolean isSourceContentLoaded() {
+    public boolean isSubContent() {
+        return false;
+    }
+
+    @Override
+    public boolean areDependenciesLoaded() {
         return true;
     }
 

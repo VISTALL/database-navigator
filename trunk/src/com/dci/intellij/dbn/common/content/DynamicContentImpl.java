@@ -6,9 +6,11 @@ import com.dci.intellij.dbn.common.content.loader.DynamicContentLoader;
 import com.dci.intellij.dbn.common.content.loader.DynamicContentLoaderException;
 import com.dci.intellij.dbn.common.dispose.DisposeUtil;
 import com.dci.intellij.dbn.common.filter.Filter;
+import com.dci.intellij.dbn.common.thread.BackgroundTask;
 import com.dci.intellij.dbn.common.util.CollectionUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.GenericDatabaseElement;
+import com.intellij.openapi.progress.ProgressIndicator;
 import gnu.trove.THashMap;
 import org.jetbrains.annotations.NotNull;
 
@@ -22,6 +24,7 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
 
     private long changeTimestamp = 0;
     private volatile boolean isLoading = false;
+    private volatile boolean isLoadingInBackground = false;
     private volatile boolean isLoaded = false;
     private volatile boolean isDirty = false;
     private volatile boolean isDisposed = false;
@@ -54,7 +57,7 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
     }
 
     public ConnectionHandler getConnectionHandler() {
-        return parent.getConnectionHandler();
+        return parent == null ? null : parent.getConnectionHandler();
     }
 
     public DynamicContentLoader<T> getLoader() {
@@ -73,8 +76,16 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
         return isLoaded;
     }
 
-    public boolean isSourceContentLoaded() {
-        return getDependencyAdapter().isSourceContentLoaded();
+    /**
+     * The content can load
+     */
+    public boolean areDependenciesLoaded() {
+        return dependencyAdapter.areDependenciesLoaded();
+    }
+
+    @Override
+    public boolean isSubContent() {
+        return getDependencyAdapter().isSubContent();
     }
 
     public boolean isLoading() {
@@ -82,7 +93,7 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
     }
 
     public boolean isDirty() {
-        if (isDirty) {
+        if (isDirty || dependencyAdapter.isDirty()) {
             return true;
         }
 
@@ -103,12 +114,30 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
     }
 
     public final synchronized void load() {
-        if (!isLoading && shouldLoad()) {
+        if (shouldLoad()) {
             isLoading = true;
             performLoad();
             isLoaded = true;
-            updateChangeTimestamp();
+            isDirty = false;
             isLoading = false;
+            updateChangeTimestamp();
+        }
+    }
+
+    @Override
+    public final void loadInBackground() {
+        if (!isLoadingInBackground && shouldLoad()) {
+            isLoadingInBackground = true;
+            new BackgroundTask(getProject(), "Loading data dictionary", true) {
+                public void execute(@NotNull ProgressIndicator progressIndicator) {
+                    Thread thread = Thread.currentThread();
+                    String name = thread.getName();
+                    thread.setName("BACKGROUND_OBJECT_LOAD_THREAD");
+                    load();
+                    thread.setName(name);
+                    isLoadingInBackground = false;
+                }
+            }.start();
         }
     }
 
@@ -123,7 +152,6 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
         try {
             // mark first the dirty status since dirty dependencies may
             // become valid due to parallel background load
-            isDirty = dependencyAdapter.hasDirtyDependencies();
             getLoader().loadContent(this);
         } catch (DynamicContentLoaderException e) {
             isDirty = true;
@@ -147,7 +175,7 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
     private void performReload(boolean recursive) {
         dependencyAdapter.beforeReload(this);
         try {
-            if (isDisposed()) return;
+            if (isDisposed) return;
             getLoader().reloadContent(this);
             if (recursive) {
                 for (T element : getElements()) {
@@ -244,10 +272,7 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
     }
 
     public boolean shouldLoad() {
-        if (isDisposed) return false;
-        return !isLoaded ||
-                (isDirty() && dependencyAdapter.shouldLoadIfDirty()) ||
-                dependencyAdapter.shouldLoad();
+        return !(isLoading || isDisposed) && (!isLoaded || (isDirty() && dependencyAdapter.shouldLoadIfDirty()));
     }
 
     public void dispose() {
