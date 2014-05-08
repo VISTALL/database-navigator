@@ -125,12 +125,13 @@ public class DatabaseBrowserTree extends DBNTree implements Disposable {
             targetSelection = (BrowserTreeNode) targetSelection.getUndisposedElement();
             TreePath treePath = DatabaseBrowserUtils.createTreePath(targetSelection);
             for (Object object : treePath.getPath()) {
-                if (object == null) {
+                BrowserTreeNode treeNode = (BrowserTreeNode) object;
+                if (treeNode == null || treeNode.isDisposed()) {
                     targetSelection = null;
                     return;
                 }
 
-                BrowserTreeNode treeNode = (BrowserTreeNode) object;
+
                 if (treeNode.equals(targetSelection)) {
                     break;
                 }
