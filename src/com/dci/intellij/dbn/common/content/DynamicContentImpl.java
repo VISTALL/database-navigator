@@ -118,7 +118,6 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
             isLoading = true;
             performLoad();
             isLoaded = true;
-            isDirty = false;
             isLoading = false;
             updateChangeTimestamp();
         }
@@ -152,6 +151,7 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
         try {
             // mark first the dirty status since dirty dependencies may
             // become valid due to parallel background load
+            isDirty = false;
             getLoader().loadContent(this);
         } catch (DynamicContentLoaderException e) {
             isDirty = true;

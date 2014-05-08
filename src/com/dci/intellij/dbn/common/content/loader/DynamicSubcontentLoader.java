@@ -31,7 +31,8 @@ public abstract class DynamicSubcontentLoader<T extends DynamicContentElement> i
 
         DynamicContent sourceContent = dependencyAdapter.getSourceContent();
         boolean isBackgroundLoad = Thread.currentThread().getName().equals("BACKGROUND_OBJECT_LOAD_THREAD");
-        if (sourceContent.isLoaded() || isBackgroundLoad) {
+        DynamicContentLoader<T> alternativeLoader = getAlternativeLoader();
+        if (sourceContent.isLoaded() || isBackgroundLoad || alternativeLoader == null) {
             for (Object object : sourceContent.getElements()) {
                 if (dynamicContent.isDisposed()) return; // stop if disposed during loading
 
@@ -51,10 +52,8 @@ public abstract class DynamicSubcontentLoader<T extends DynamicContentElement> i
             }
             dynamicContent.setElements(list);
         } else {
-            DynamicContentLoader<T> alternativeLoader = getAlternativeLoader();
-            if (alternativeLoader != null) {
-                alternativeLoader.loadContent(dynamicContent);
-            }
+            sourceContent.loadInBackground();
+            alternativeLoader.loadContent(dynamicContent);
         }
 
 
