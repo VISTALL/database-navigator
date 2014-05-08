@@ -33,7 +33,7 @@ public class DBObjectListContainer implements Disposable {
         return objectLists == null ? null : objectLists.values();
     }
 
-    public void visitLists(DBObjectListVisitor visitor, boolean visitHidden) {
+    public synchronized void visitLists(DBObjectListVisitor visitor, boolean visitHidden) {
         if (objectLists != null) {
             for (DBObjectList<DBObject> objectList : objectLists.values()) {
                 visitor.visitObjectList(objectList);
@@ -46,16 +46,16 @@ public class DBObjectListContainer implements Disposable {
         }
     }
 
-    public DBObjectList getObjectList(DBObjectType objectType) {
+    public synchronized DBObjectList getObjectList(DBObjectType objectType) {
         return objectLists == null ? null : objectLists.get(objectType);
     }
 
-    public DBObjectList getHiddenObjectList(DBObjectType objectType) {
+    public synchronized DBObjectList getHiddenObjectList(DBObjectType objectType) {
         return hiddenObjectLists == null ? null : hiddenObjectLists.get(objectType);
     }
 
 
-    public DBObject getObject(DBObjectType objectType, String name) {
+    public synchronized DBObject getObject(DBObjectType objectType, String name) {
         DBObjectList objectList = getObjectList(objectType);
         if (objectList != null) {
             return objectList.getObject(name);
@@ -74,7 +74,7 @@ public class DBObjectListContainer implements Disposable {
         return null;
     }
 
-    public <T extends DBObject> T getHiddenObject(DBObjectType objectType, String name) {
+    public synchronized <T extends DBObject> T getHiddenObject(DBObjectType objectType, String name) {
         if (objectType.isGeneric()) {
             Set<DBObjectType> objectTypes = objectType.getInheritingTypes();
             for (DBObjectType objType : objectTypes) {
@@ -95,7 +95,7 @@ public class DBObjectListContainer implements Disposable {
         return null;
     }
 
-    public DBObject getObject(String name) {
+    public synchronized DBObject getObject(String name) {
         for (DBObjectList objectList : objectLists.values()) {
             DBObject object = objectList.getObject(name);
             if (object != null) {
@@ -105,7 +105,7 @@ public class DBObjectListContainer implements Disposable {
         return null;
     }
 
-    public DBObject getHiddenObject(String name) {
+    public synchronized DBObject getHiddenObject(String name) {
         for (DBObjectList objectList : hiddenObjectLists.values()) {
             DBObject object = objectList.getObject(name);
             if (object != null) {
@@ -116,7 +116,7 @@ public class DBObjectListContainer implements Disposable {
     }
 
 
-    public DBObject getObjectForParentType(DBObjectType parentObjectType, String name, boolean lookupHidden) {
+    public synchronized DBObject getObjectForParentType(DBObjectType parentObjectType, String name, boolean lookupHidden) {
         for (DBObjectList objectList : objectLists.values()) {
             DBObjectType objectType = objectList.getObjectType();
             if (objectType.getParents().contains(parentObjectType)) {
@@ -147,7 +147,7 @@ public class DBObjectListContainer implements Disposable {
                 DatabaseCompatibilityInterface.getInstance(connectionHandler).supportsObjectType(objectType.getTypeId());
     }
 
-    public DBObject getObjectNoLoad(String name) {
+    public synchronized DBObject getObjectNoLoad(String name) {
         for (DBObjectList objectList : objectLists.values()) {
             if (objectList.isLoaded() && !objectList.isDirty()) {
                 DBObject object = objectList.getObject(name);
@@ -160,7 +160,7 @@ public class DBObjectListContainer implements Disposable {
 
     }
 
-     public <T extends DBObject> DBObjectList<T>  createObjectList(
+     public synchronized <T extends DBObject> DBObjectList<T>  createObjectList(
              DBObjectType objectType,
              BrowserTreeNode treeParent,
              DynamicContentLoader loader,
@@ -173,7 +173,7 @@ public class DBObjectListContainer implements Disposable {
         return null;
     }
 
-    public <T extends DBObject> DBObjectList<T>  createObjectList(
+    public synchronized <T extends DBObject> DBObjectList<T>  createObjectList(
             DBObjectType objectType,
             BrowserTreeNode treeParent,
             DynamicContentLoader loader,
@@ -186,7 +186,7 @@ public class DBObjectListContainer implements Disposable {
         return null;
     }
 
-    public <T extends DBObject> DBObjectList<T> createSubcontentObjectList(
+    public synchronized <T extends DBObject> DBObjectList<T> createSubcontentObjectList(
             DBObjectType objectType,
             BrowserTreeNode treeParent,
             DynamicContentLoader loader,
@@ -206,7 +206,7 @@ public class DBObjectListContainer implements Disposable {
         return null;
     }
 
-    public <T extends DBObject> DBObjectList<T> createSubcontentObjectList(
+    public synchronized <T extends DBObject> DBObjectList<T> createSubcontentObjectList(
             DBObjectType objectType,
             BrowserTreeNode treeParent,
             DynamicContentLoader loader,
@@ -239,7 +239,7 @@ public class DBObjectListContainer implements Disposable {
         return objectList;
     }
 
-    public void addObjectList(DBObjectList objectList) {
+    public synchronized void addObjectList(DBObjectList objectList) {
         if (objectList != null) {
             DBObjectType objectType = objectList.getObjectType();
             if (objectList.isHidden()) {
@@ -259,7 +259,7 @@ public class DBObjectListContainer implements Disposable {
 
     }
 
-    public void reload(boolean recursive) {
+    public synchronized void reload(boolean recursive) {
         if (objectLists != null)  {
             for (DBObjectList objectList : objectLists.values()) {
                 objectList.reload(recursive);
@@ -272,7 +272,7 @@ public class DBObjectListContainer implements Disposable {
         }
     }
 
-    public void load() {
+    public synchronized void load() {
         if (objectLists != null)  {
             for (DBObjectList objectList : objectLists.values()) {
                 objectList.load();
