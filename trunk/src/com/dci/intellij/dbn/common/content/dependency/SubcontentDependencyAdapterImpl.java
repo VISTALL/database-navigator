@@ -36,7 +36,7 @@ public class SubcontentDependencyAdapterImpl extends BasicDependencyAdapter impl
 
     @Override
     public void beforeLoad() {
-        contentDependency.getSourceContent().loadInBackground();
+        //contentDependency.getSourceContent().loadInBackground();
     }
 
     @Override

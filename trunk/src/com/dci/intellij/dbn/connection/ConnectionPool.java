@@ -208,6 +208,7 @@ public class ConnectionPool implements Disposable {
         private Connection connection;
         private long lastCheckTimestamp;
         private long lastAccessTimestamp;
+        private boolean isValid;
 
         public ConnectionWrapper(Connection connection) {
             this.connection = connection;
@@ -218,12 +219,13 @@ public class ConnectionPool implements Disposable {
 
         public boolean isValid() {
             long currentTimeMillis = System.currentTimeMillis();
-            if (currentTimeMillis - lastCheckTimestamp > 5000) {
+            if (currentTimeMillis - lastCheckTimestamp > 10000) {
                 lastCheckTimestamp = currentTimeMillis;
                 DatabaseMetadataInterface metadataInterface = connectionHandler.getInterfaceProvider().getMetadataInterface();
-                return metadataInterface.isValid(connection);
+                isValid = metadataInterface.isValid(connection);
+                return isValid;
             }
-            return true;
+            return isValid;
         }
 
         public int getIdleMinutes() {

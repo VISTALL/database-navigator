@@ -3,10 +3,12 @@ package com.dci.intellij.dbn.connection;
 import com.dci.intellij.dbn.browser.model.BrowserTreeChangeListener;
 import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
 import com.dci.intellij.dbn.common.Icons;
+import com.dci.intellij.dbn.common.LoggerFactory;
 import com.dci.intellij.dbn.common.dispose.DisposeUtil;
 import com.dci.intellij.dbn.common.environment.EnvironmentType;
 import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.common.filter.Filter;
+import com.dci.intellij.dbn.common.options.setting.SettingsUtil;
 import com.dci.intellij.dbn.common.thread.BackgroundTask;
 import com.dci.intellij.dbn.common.ui.tree.TreeEventType;
 import com.dci.intellij.dbn.connection.config.ConnectionSettings;
@@ -19,6 +21,7 @@ import com.dci.intellij.dbn.object.DBSchema;
 import com.dci.intellij.dbn.object.common.DBObjectBundle;
 import com.dci.intellij.dbn.object.common.DBObjectBundleImpl;
 import com.dci.intellij.dbn.vfs.SQLConsoleFile;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
@@ -34,6 +37,8 @@ import java.util.Comparator;
 import java.util.List;
 
 public class ConnectionHandlerImpl implements ConnectionHandler {
+    private static final Logger LOGGER = LoggerFactory.createLogger();
+
     private ConnectionSettings connectionSettings;
     private ConnectionBundle connectionBundle;
     private ConnectionStatus connectionStatus;
@@ -45,6 +50,7 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
 
     private boolean isDisposed;
     private boolean checkingIdleStatus;
+    private long validityCheckTimestamp = 0;
 
     private SQLConsoleFile sqlConsoleFile;
     private NavigationPsiCache psiCache = new NavigationPsiCache(this);
@@ -173,7 +179,27 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
     }
 
     public boolean isValid() {
-        return connectionStatus.isValid() && connectionBundle.containsConnection(this);
+        if (connectionBundle.containsConnection(this)) {
+            long currentTimestamp = System.currentTimeMillis();
+            if (validityCheckTimestamp < currentTimestamp - 30000) {
+                validityCheckTimestamp = currentTimestamp;
+                new Thread() {
+                    @Override
+                    public void run() {
+                        try {
+                            getStandaloneConnection();
+                        } catch (SQLException e) {
+                            if (SettingsUtil.isDebugEnabled) {
+                                LOGGER.warn("[DBN-INFO] Could not connect to database [" + getName() + "]: " + e.getMessage());
+                            }
+                        }
+                    }
+                }.start();
+
+            }
+            return connectionStatus.isValid();
+        }
+        return false;
     }
 
     public boolean isVirtual() {
