@@ -525,7 +525,8 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
     }
 
     public int getTreeDepth() {
-        return getTreeParent().getTreeDepth() + 1;
+        BrowserTreeNode treeParent = getTreeParent();
+        return treeParent == null ? 0 : treeParent.getTreeDepth() + 1;
     }
 
 
