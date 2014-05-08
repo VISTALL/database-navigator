@@ -31,6 +31,7 @@ import com.intellij.openapi.ui.Messages;
 import com.intellij.xdebugger.XDebugSession;
 import com.intellij.xdebugger.XDebuggerManager;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -50,7 +51,11 @@ public class DBProgramRunner extends GenericProgramRunner {
         return false;
     }
 
-    @Override
+    @Nullable
+    protected RunContentDescriptor doExecute(Project project, RunProfileState state, RunContentDescriptor contentToReuse, ExecutionEnvironment env) throws ExecutionException {
+        return doExecute(project, env.getExecutor(), state, contentToReuse, env);
+    }
+
     protected RunContentDescriptor doExecute(
             Project project,
             final Executor executor,
@@ -261,5 +266,6 @@ public class DBProgramRunner extends GenericProgramRunner {
             }
         }.start();
     }
+
 }
 

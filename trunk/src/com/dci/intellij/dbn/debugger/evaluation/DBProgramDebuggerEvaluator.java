@@ -9,6 +9,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import com.intellij.xdebugger.XSourcePosition;
 import com.intellij.xdebugger.evaluation.XDebuggerEvaluator;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -26,6 +27,11 @@ public class DBProgramDebuggerEvaluator extends XDebuggerEvaluator {
 
     public String evaluateMessage(@NotNull String expression) {
         return null;
+    }
+
+    @Override
+    public void evaluate(@NotNull String expression, @NotNull XEvaluationCallback callback, @Nullable XSourcePosition expressionPosition) {
+        evaluate(expression, callback);
     }
 
     public void evaluate(@NotNull String expression, XEvaluationCallback callback) {

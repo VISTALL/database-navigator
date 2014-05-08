@@ -120,8 +120,8 @@ public class DatabaseDebuggerManager extends AbstractProjectComponent implements
         runManager.setSelectedConfiguration(runConfigurationSetting);
         ProgramRunner programRunner = RunnerRegistry.getInstance().findRunnerById(DBProgramRunner.RUNNER_ID);
         try {
-            ExecutionEnvironment executionEnvironment = new ExecutionEnvironment(programRunner, runConfigurationSetting, getProject());
-            programRunner.execute(DefaultDebugExecutor.getDebugExecutorInstance(), executionEnvironment);
+            ExecutionEnvironment executionEnvironment = new ExecutionEnvironment(DefaultDebugExecutor.getDebugExecutorInstance(), programRunner, runConfigurationSetting, getProject());
+            programRunner.execute(executionEnvironment);
         } catch (ExecutionException e) {
             MessageUtil.showErrorDialog(
                     "Could not start debugger for " + method.getQualifiedName() + ". \n" +
