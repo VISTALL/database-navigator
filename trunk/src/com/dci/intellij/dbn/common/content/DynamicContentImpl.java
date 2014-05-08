@@ -25,7 +25,6 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
     private volatile boolean isLoaded = false;
     private volatile boolean isDirty = false;
     private volatile boolean isDisposed = false;
-    private ConnectionHandler connectionHandler;
 
     private GenericDatabaseElement parent;
     protected DynamicContentLoader<T> loader;
@@ -40,7 +39,6 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
         this.parent = parent;
         this.loader = loader;
         this.dependencyAdapter = dependencyAdapter;
-        this.connectionHandler = parent.getConnectionHandler();
         this.indexed = indexed;
     }
 
@@ -56,7 +54,7 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
     }
 
     public ConnectionHandler getConnectionHandler() {
-        return connectionHandler;
+        return parent.getConnectionHandler();
     }
 
     public DynamicContentLoader<T> getLoader() {
@@ -261,7 +259,6 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
             CollectionUtil.clearMap(index);
             dependencyAdapter.dispose();
             dependencyAdapter = VoidContentDependencyAdapter.INSTANCE;
-            connectionHandler = null;
             parent = null;
         }
     }
