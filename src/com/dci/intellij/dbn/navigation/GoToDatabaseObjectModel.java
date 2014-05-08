@@ -155,7 +155,7 @@ public class GoToDatabaseObjectModel implements ChooseByNameModel {
         }
 
         private boolean isListScannable(DBObjectList<DBObject> objectList) {
-            return objectList != null && (objectList.isLoaded() || objectList.isSourceContentLoaded() || forceLoad);
+            return objectList != null && (objectList.isLoaded() || objectList.areDependenciesLoaded() || forceLoad);
         }
 
         private boolean isParentRelationValid(DBObjectList<DBObject> objectList) {
@@ -215,7 +215,7 @@ public class GoToDatabaseObjectModel implements ChooseByNameModel {
         }
 
         private boolean isListScannable(DBObjectList<DBObject> objectList) {
-            return objectList != null && (objectList.isLoaded() || objectList.isSourceContentLoaded() || forceLoad);
+            return objectList != null && (objectList.isLoaded() || objectList.areDependenciesLoaded() || forceLoad);
         }
 
         private boolean isParentRelationValid(DBObjectList<DBObject> objectList) {

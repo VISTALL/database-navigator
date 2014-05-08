@@ -21,31 +21,22 @@ public class SubcontentDependencyAdapterImpl extends BasicDependencyAdapter impl
     @Override
     public boolean shouldLoad() {
         DynamicContent sourceContent = contentDependency.getSourceContent();
-        if (!isDisposed && sourceContent.shouldLoad()) {
-            sourceContent.load();
-        }
         // should reload if the source has been reloaded and is not dirty
         return !sourceContent.isDirty() && contentDependency.isDirty();
     }
 
     @Override
     public boolean shouldLoadIfDirty() {
-        DynamicContent sourceContent = contentDependency.getSourceContent();
-
-        boolean isLoadedAndNotDirty = isConnectionValid() && sourceContent.isLoaded() && !sourceContent.isDirty();
-        boolean shouldReloadAndIsNotLoading = !sourceContent.isLoading() && sourceContent.shouldLoad();
-
-        return isLoadedAndNotDirty || shouldReloadAndIsNotLoading;
+        return isConnectionValid() && contentDependency.getSourceContent().isLoaded();
     }
 
-    public boolean hasDirtyDependencies() {
-        DynamicContent sourceContent = contentDependency.getSourceContent();
-        return sourceContent.isLoading() || sourceContent.isDirty();
+    public boolean isDirty() {
+        return contentDependency.isDirty();
     }
 
     @Override
     public void beforeLoad() {
-        contentDependency.getSourceContent().load();
+        contentDependency.getSourceContent().loadInBackground();
     }
 
     @Override
@@ -70,7 +61,7 @@ public class SubcontentDependencyAdapterImpl extends BasicDependencyAdapter impl
     }
 
     @Override
-    public boolean isSourceContentLoaded() {
+    public boolean areDependenciesLoaded() {
         return getSourceContent().isLoaded();
     }
 

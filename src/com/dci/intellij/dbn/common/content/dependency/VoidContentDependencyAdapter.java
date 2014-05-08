@@ -20,7 +20,7 @@ public class VoidContentDependencyAdapter implements ContentDependencyAdapter{
     }
 
     @Override
-    public boolean hasDirtyDependencies() {
+    public boolean isDirty() {
         return false;
     }
 
@@ -45,7 +45,7 @@ public class VoidContentDependencyAdapter implements ContentDependencyAdapter{
     }
 
     @Override
-    public boolean isSourceContentLoaded() {
+    public boolean areDependenciesLoaded() {
         return true;
     }
 

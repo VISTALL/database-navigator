@@ -31,8 +31,7 @@ public class MultipleContentDependencyAdapter extends BasicDependencyAdapter imp
     public boolean shouldLoadIfDirty() {
         if (isConnectionValid()) {
             for (ContentDependency dependency : dependencies) {
-                DynamicContent dynamicContent = dependency.getSourceContent();
-                if (!dynamicContent.isLoaded() || dynamicContent.isDirty()) {
+                if (!dependency.getSourceContent().isLoaded()) {
                     return false;
                 }
             }
@@ -41,9 +40,9 @@ public class MultipleContentDependencyAdapter extends BasicDependencyAdapter imp
         return false;
     }
 
-    public boolean hasDirtyDependencies() {
+    public boolean isDirty() {
         for (ContentDependency dependency : dependencies) {
-            if (dependency.getSourceContent().isDirty()) {
+            if (dependency.isDirty()) {
                 return true;
             }
         }
@@ -51,10 +50,20 @@ public class MultipleContentDependencyAdapter extends BasicDependencyAdapter imp
     }
 
     @Override
+    public boolean areDependenciesLoaded() {
+        for (ContentDependency dependency : dependencies) {
+            if (!dependency.getSourceContent().isLoaded()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
     public void beforeLoad() {
         // assuming all dependencies are hard, load them first
         for (ContentDependency dependency : dependencies) {
-            dependency.getSourceContent().load();
+            dependency.getSourceContent().loadInBackground();
         }
     }
 

@@ -15,7 +15,7 @@ public class BasicDependencyAdapter implements ContentDependencyAdapter {
     }
 
     protected boolean isConnectionValid() {
-        return connectionHandler.isValid();
+        return connectionHandler != null && connectionHandler.isValid();
     }
 
     public boolean shouldLoad() {
@@ -25,10 +25,10 @@ public class BasicDependencyAdapter implements ContentDependencyAdapter {
 
     public boolean shouldLoadIfDirty() {
         //should reload if connection is valid
-        return connectionHandler == null || isConnectionValid();
+        return isConnectionValid();
     }
 
-    public boolean hasDirtyDependencies() {
+    public boolean isDirty() {
         return false;
     }
 
@@ -48,8 +48,8 @@ public class BasicDependencyAdapter implements ContentDependencyAdapter {
 
     }
 
-    public boolean isSourceContentLoaded() {
-        return false;
+    public boolean areDependenciesLoaded() {
+        return true;
     }
 
     @Override
