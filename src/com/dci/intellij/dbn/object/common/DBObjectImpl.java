@@ -22,7 +22,6 @@ import com.dci.intellij.dbn.common.ui.tree.TreeEventType;
 import com.dci.intellij.dbn.common.util.CollectionUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.ConnectionUtil;
-import com.dci.intellij.dbn.connection.GenericDatabaseElement;
 import com.dci.intellij.dbn.database.DatabaseCompatibilityInterface;
 import com.dci.intellij.dbn.editor.DBContentType;
 import com.dci.intellij.dbn.language.common.DBLanguage;
@@ -70,8 +69,6 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
     private DBContentType contentType = DBContentType.NONE;
     private List<BrowserTreeNode> allPossibleTreeChildren;
     private List<BrowserTreeNode> visibleTreeChildren;
-    private BrowserTreeNode treeParent;
-    private int treeDepth;
     private boolean treeChildrenLoaded;
     private boolean isDisposed = false;
 
@@ -80,7 +77,8 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
     private DBObjectProperties properties;
     private DBObjectListContainer childObjects;
     private DBObjectRelationListContainer childObjectRelations;
-    private GenericDatabaseElement parentDatabaseElement;
+    private DBObjectRef parentObject;
+    private DBObjectBundle objectBundle;
 
     private LookupItemFactory sqlLookupItemFactory;
     private LookupItemFactory psqlLookupItemFactory;
@@ -96,19 +94,19 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
     protected Logger getLogger() {return Logger.getInstance(getClass().getName());}
 
     public DBObjectImpl(DBObject parentObject, DBContentType contentType, ResultSet resultSet) throws SQLException {
-        this.parentDatabaseElement = parentObject;
+        this.parentObject = parentObject.getRef();
         this.contentType = contentType;
         init(resultSet);
     }
 
     public DBObjectImpl(DBObjectBundle objectBundle, DBContentType contentType, ResultSet resultSet) throws SQLException {
-        this.parentDatabaseElement = objectBundle;
+        this.objectBundle = objectBundle;
         this.contentType = contentType;
         init(resultSet);
     }
 
     public DBObjectImpl(DBObjectBundle objectBundle, String name) {
-        this.parentDatabaseElement = objectBundle;
+        this.objectBundle = objectBundle;
         this.name = name;
     }
 
@@ -116,7 +114,6 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
         initObject(resultSet);
         initStatus(resultSet);
         initProperties();
-        initTreeInfo();
         initLists();
         objectRef = createRef();
     }
@@ -128,22 +125,6 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
     protected void initProperties() {}
 
     protected void initLists() {}
-
-    private void initTreeInfo() {
-        if (parentDatabaseElement instanceof DBObjectBundle){
-            DBObjectBundle objectBundle = (DBObjectBundle) parentDatabaseElement;
-            treeParent = objectBundle.getObjectListContainer().getObjectList(getObjectType());
-            treeDepth = treeParent.getTreeDepth() + 1;
-        } else if (parentDatabaseElement instanceof DBObject) {
-            DBObject object = (DBObject) parentDatabaseElement;
-            DBObjectListContainer childObjects = object.getChildObjects();
-            if (childObjects != null) {
-                treeParent = childObjects.getObjectList(getObjectType());
-                treeDepth = treeParent.getTreeDepth() + 1;
-            }
-        }
-
-    }
 
     @Override
     public PsiElement getParent() {
@@ -195,11 +176,7 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
     }
 
     public DBObject getParentObject() {
-        if (parentDatabaseElement instanceof DBObject) {
-            parentDatabaseElement = parentDatabaseElement.getUndisposedElement();
-            return (DBObject) parentDatabaseElement;
-        }
-        return null;
+        return parentObject == null ? null : parentObject.get();
     }
 
     public DBObject getDefaultNavigationObject() {
@@ -253,11 +230,8 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
     }
 
     public DBUser getOwner() {
-        if (parentDatabaseElement instanceof DBObject) {
-            DBObject parentObject = (DBObject) parentDatabaseElement;
-            return parentObject.getOwner();
-        }
-        return null;
+        DBObject parentObject = getParentObject();
+        return parentObject == null ? null : parentObject.getOwner();
     }
 
     public Icon getOriginalIcon() {
@@ -302,9 +276,15 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
     }
 
     public ConnectionHandler getConnectionHandler() {
-        return parentDatabaseElement == null ?
-                objectRef.lookupConnectionHandler() :
-                parentDatabaseElement.getConnectionHandler();
+        if (parentObject != null) {
+            DBObject object = parentObject.get();
+            if (object != null) {
+                return object.getConnectionHandler();
+            }
+        } else if (objectBundle != null) {
+            return objectBundle.getConnectionHandler();
+        }
+        return null;
     }
 
     @Override
@@ -530,15 +510,24 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
     }
 
     public BrowserTreeNode getTreeParent() {
-        if (treeParent != null && treeParent.isDisposed()) {
-            initTreeInfo();
+        if (parentObject != null){
+            DBObject object = parentObject.get();
+            if (object != null) {
+                DBObjectListContainer childObjects = object.getChildObjects();
+                if (childObjects != null) {
+                    return childObjects.getObjectList(getObjectType());
+                }
+            }
+        } else if (objectBundle != null) {
+            return objectBundle.getObjectListContainer().getObjectList(getObjectType());
         }
-        return treeParent;
+        return null;
     }
 
     public int getTreeDepth() {
-        return treeDepth;
+        return getTreeParent().getTreeDepth() + 1;
     }
+
 
     @NotNull
     public synchronized List<BrowserTreeNode> getAllPossibleTreeChildren() {
@@ -691,7 +680,7 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
     *               DynamicContentElement                    *
     *********************************************************/
     public void dispose() {
-        if (!isDisposed()) {
+        if (!isDisposed) {
             isDisposed = true;
             DisposeUtil.dispose(childObjects);
             DisposeUtil.dispose(childObjectRelations);
@@ -699,8 +688,7 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
             CollectionUtil.clearCollection(allPossibleTreeChildren);
             DisposeUtil.dispose(sqlLookupItemFactory);
             DisposeUtil.dispose(psqlLookupItemFactory);
-            treeParent = null;
-            parentDatabaseElement = null;
+            objectBundle = null;
         }
     }
 
