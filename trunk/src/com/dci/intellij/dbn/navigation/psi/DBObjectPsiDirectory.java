@@ -5,6 +5,7 @@ import com.dci.intellij.dbn.language.common.psi.EmptySearchScope;
 import com.dci.intellij.dbn.object.common.DBObject;
 import com.dci.intellij.dbn.object.common.list.DBObjectList;
 import com.dci.intellij.dbn.object.common.list.DBObjectListContainer;
+import com.dci.intellij.dbn.object.lookup.DBObjectRef;
 import com.intellij.lang.ASTNode;
 import com.intellij.lang.Language;
 import com.intellij.navigation.ItemPresentation;
@@ -37,19 +38,19 @@ import java.util.Collection;
 import java.util.List;
 
 public class DBObjectPsiDirectory implements PsiDirectory, Disposable{
-    private DBObject object;
+    private DBObjectRef objectRef;
 
-    public DBObjectPsiDirectory(DBObject object) {
-        this.object = object;
+    public DBObjectPsiDirectory(DBObjectRef objectRef) {
+        this.objectRef = objectRef;
     }
 
+    @Nullable
     public DBObject getObject() {
-        return object;
+        return objectRef.get();
     }
 
     @Override
     public void dispose() {
-        object = null;
     }
 
     /*********************************************************
@@ -57,7 +58,7 @@ public class DBObjectPsiDirectory implements PsiDirectory, Disposable{
      *********************************************************/
     @NotNull
     public String getName() {
-        return getObject().getName();
+        return objectRef.getName();
     }
 
     public ItemPresentation getPresentation() {
@@ -70,7 +71,8 @@ public class DBObjectPsiDirectory implements PsiDirectory, Disposable{
 
     @NotNull
     public Project getProject() throws PsiInvalidElementAccessException {
-        return getObject().getProject();
+        DBObject object = getObject();
+        return object == null ? null : object.getProject();
     }
 
     @NotNull
@@ -79,10 +81,13 @@ public class DBObjectPsiDirectory implements PsiDirectory, Disposable{
     }
 
     public PsiDirectory getParent() {
-        GenericDatabaseElement parent = object.getTreeParent();
-        if (parent instanceof DBObjectList) {
-            DBObjectList objectList = (DBObjectList) parent;
-            return NavigationPsiCache.getPsiDirectory(objectList);
+        DBObject object = getObject();
+        if (object != null) {
+            GenericDatabaseElement parent = object.getTreeParent();
+            if (parent instanceof DBObjectList) {
+                DBObjectList objectList = (DBObjectList) parent;
+                return NavigationPsiCache.getPsiDirectory(objectList);
+            }
         }
 
         return null;
@@ -93,7 +98,11 @@ public class DBObjectPsiDirectory implements PsiDirectory, Disposable{
     }
 
     public void navigate(boolean requestFocus) {
-        getObject().navigate(requestFocus);
+        DBObject object = getObject();
+        if (object != null) {
+            object.navigate(requestFocus);
+        }
+
     }
 
     public boolean canNavigate() {
@@ -110,18 +119,20 @@ public class DBObjectPsiDirectory implements PsiDirectory, Disposable{
 
     @NotNull
     public PsiElement[] getChildren() {
-        List<PsiElement> children = new ArrayList<PsiElement>();
-        DBObjectListContainer childObjects = getObject().getChildObjects();
-        if (childObjects != null) {
-            Collection<DBObjectList<DBObject>> objectLists = childObjects.getObjectLists();
-            if (objectLists != null) {
-                for (DBObjectList objectList : objectLists) {
-                    children.add(NavigationPsiCache.getPsiDirectory(objectList));
+        DBObject object = getObject();
+        if (object != null) {
+            List<PsiElement> children = new ArrayList<PsiElement>();
+            DBObjectListContainer childObjects = object.getChildObjects();
+            if (childObjects != null) {
+                Collection<DBObjectList<DBObject>> objectLists = childObjects.getObjectLists();
+                if (objectLists != null) {
+                    for (DBObjectList objectList : objectLists) {
+                        children.add(NavigationPsiCache.getPsiDirectory(objectList));
+                    }
+                    return children.toArray(new PsiElement[children.size()]);
                 }
-                return children.toArray(new PsiElement[children.size()]);
             }
         }
-
         return new PsiElement[0];
     }
 
@@ -306,7 +317,8 @@ public class DBObjectPsiDirectory implements PsiDirectory, Disposable{
     }
 
     public Icon getIcon(int flags) {
-        return object.getIcon();
+        DBObject object = getObject();
+        return object == null ? null : object.getIcon();
     }
 
     public <T> T getUserData(@NotNull Key<T> key) {
@@ -322,7 +334,8 @@ public class DBObjectPsiDirectory implements PsiDirectory, Disposable{
      *********************************************************/
     @NotNull
     public VirtualFile getVirtualFile() {
-        return getObject().getVirtualFile();
+        DBObject object = getObject();
+        return object == null ? null : object.getVirtualFile();
     }
 
     public boolean processChildren(PsiElementProcessor<PsiFileSystemItem> processor) {

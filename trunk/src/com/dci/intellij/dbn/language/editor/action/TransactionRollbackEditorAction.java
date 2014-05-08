@@ -32,7 +32,7 @@ public class TransactionRollbackEditorAction extends TransactionEditorAction {
         Project project = ActionUtil.getProject(e);
         VirtualFile virtualFile = e.getData(PlatformDataKeys.VIRTUAL_FILE);
 
-        ConnectionHandler connectionHandler = getConnectionHandler(project, virtualFile);
+        ConnectionHandler connectionHandler = virtualFile == null ? null : getConnectionHandler(project, virtualFile);
         e.getPresentation().setVisible(connectionHandler != null && !connectionHandler.isAutoCommit());
     }
 

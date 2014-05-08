@@ -39,7 +39,7 @@ public class NavigationPsiCache implements Disposable {
         DBObjectRef objectRef = object.getRef();
         DBObjectPsiDirectory psiDirectory = objectPsiDirectories.get(objectRef);
         if (psiDirectory == null) {
-            psiDirectory = new DBObjectPsiDirectory(object);
+            psiDirectory = new DBObjectPsiDirectory(objectRef);
             objectPsiDirectories.put(objectRef, psiDirectory);
         }
 
