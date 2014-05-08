@@ -63,7 +63,7 @@ public class MultipleContentDependencyAdapter extends BasicDependencyAdapter imp
     public void beforeLoad() {
         // assuming all dependencies are hard, load them first
         for (ContentDependency dependency : dependencies) {
-            dependency.getSourceContent().loadInBackground();
+            dependency.getSourceContent().load();
         }
     }
 
