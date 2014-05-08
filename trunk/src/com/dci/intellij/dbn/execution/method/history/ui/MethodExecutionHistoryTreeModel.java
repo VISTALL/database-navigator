@@ -3,6 +3,7 @@ package com.dci.intellij.dbn.execution.method.history.ui;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.execution.method.MethodExecutionInput;
 
+import javax.swing.Icon;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
@@ -63,6 +64,11 @@ public abstract class MethodExecutionHistoryTreeModel extends DefaultTreeModel {
         @Override
         public String getName() {
             return connectionHandler.getName();
+        }
+
+        @Override
+        public Icon getIcon() {
+            return connectionHandler.getIcon();
         }
 
         SchemaTreeNode getSchemaNode(MethodExecutionInput executionInput) {
