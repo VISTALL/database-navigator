@@ -146,42 +146,47 @@ public class MethodExecutionManager extends AbstractProjectComponent implements 
     public void execute(final MethodExecutionInput executionInput) {
         executionInput.setExecuting(true);
         final DBMethod method = executionInput.getMethod();
-        final Project project = method.getProject();
-        DatabaseExecutionInterface executionInterface = method.getConnectionHandler().getInterfaceProvider().getDatabaseExecutionInterface();
-        final MethodExecutionProcessor executionProcessor = executionInterface.createExecutionProcessor(method);
+        if (method == null) {
+            DBMethodRef methodRef = executionInput.getMethodRef();
+            MessageUtil.showErrorDialog("Could not resolve " + methodRef.getMethodObjectType().getName() + " \"" + methodRef.getSchemaName() + "." + methodRef.getQualifiedMethodName() + "\".");
+        } else {
+            final Project project = method.getProject();
+            DatabaseExecutionInterface executionInterface = method.getConnectionHandler().getInterfaceProvider().getDatabaseExecutionInterface();
+            final MethodExecutionProcessor executionProcessor = executionInterface.createExecutionProcessor(method);
 
-        new BackgroundTask(project, "Executing method", false) {
-            public void execute(@NotNull ProgressIndicator progressIndicator) {
-                try {
-                    initProgressIndicator(progressIndicator, true, "Executing " + method.getQualifiedNameWithType());
-                    executionInput.initExecutionResult(false);
-                    executionProcessor.execute(executionInput);
-                    if (!executionInput.isExecutionCancelled()) {
-                        new SimpleLaterInvocator() {
-                            public void run() {
-                                ExecutionManager executionManager = ExecutionManager.getInstance(project);
-                                executionManager.showExecutionConsole(executionInput.getExecutionResult());
-                                executionInput.setExecuting(false);
-                            }
-                        }.start();
-                    }
-
-                    executionInput.setExecutionCancelled(false);
-                } catch (final SQLException e) {
-                    executionInput.setExecuting(false);
-                    if (!executionInput.isExecutionCancelled()) {
-                        new SimpleLaterInvocator() {
-                            public void run() {
-                                MessageUtil.showErrorDialog("Could not execute " + method.getTypeName() + ".", e);
-                                if (promptExecutionDialog(executionInput, false)) {
-                                    MethodExecutionManager.this.execute(executionInput);
+            new BackgroundTask(project, "Executing method", false) {
+                public void execute(@NotNull ProgressIndicator progressIndicator) {
+                    try {
+                        initProgressIndicator(progressIndicator, true, "Executing " + method.getQualifiedNameWithType());
+                        executionInput.initExecutionResult(false);
+                        executionProcessor.execute(executionInput);
+                        if (!executionInput.isExecutionCancelled()) {
+                            new SimpleLaterInvocator() {
+                                public void run() {
+                                    ExecutionManager executionManager = ExecutionManager.getInstance(project);
+                                    executionManager.showExecutionConsole(executionInput.getExecutionResult());
+                                    executionInput.setExecuting(false);
                                 }
-                            }
-                        }.start();
+                            }.start();
+                        }
+
+                        executionInput.setExecutionCancelled(false);
+                    } catch (final SQLException e) {
+                        executionInput.setExecuting(false);
+                        if (!executionInput.isExecutionCancelled()) {
+                            new SimpleLaterInvocator() {
+                                public void run() {
+                                    MessageUtil.showErrorDialog("Could not execute " + method.getTypeName() + ".", e);
+                                    if (promptExecutionDialog(executionInput, false)) {
+                                        MethodExecutionManager.this.execute(executionInput);
+                                    }
+                                }
+                            }.start();
+                        }
                     }
                 }
-            }
-        }.start();
+            }.start();
+        }
     }
 
     public boolean debugExecute(final MethodExecutionInput executionInput, final Connection connection) {
