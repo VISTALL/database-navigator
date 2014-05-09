@@ -94,7 +94,7 @@ public class CodeCompletionFilterSettings extends Configuration<CodeCompletionFi
 
     public boolean acceptsObject(DBSchema schema, DBSchema currentSchema, DBObjectType objectType) {
         boolean isPublic = schema.isPublicSchema();
-        boolean isCurrent = schema == currentSchema;
+        boolean isCurrent = schema.equals(currentSchema);
         return
             (isPublic && acceptsPublicSchemaObject(objectType)) ||
             (isCurrent && acceptsCurrentSchemaObject(objectType)) ||

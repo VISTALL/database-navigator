@@ -20,41 +20,56 @@ import java.util.Properties;
 public class ConnectionUtil {
     private static final Logger LOGGER = LoggerFactory.createLogger();
 
-    public static void closeResultSet(ResultSet resultSet) {
+    public static void closeResultSet(final ResultSet resultSet) {
         if (resultSet != null) {
-            try {
-                Statement statement = resultSet.getStatement();
-                if (statement != null) {
-                    statement.close();
+            new Thread() {
+                @Override
+                public void run() {
+                    try {
+                        Statement statement = resultSet.getStatement();
+                        if (statement != null) {
+                            statement.close();
+                        }
+                    } catch (Exception e) {
+                        LOGGER.warn("Error closing statement", e);
+                    }
+                    try {
+                        resultSet.close();
+                    } catch (Exception e) {
+                        LOGGER.warn("Error closing result set", e);
+                    }
                 }
-            } catch (Exception e) {
-                LOGGER.warn("Error closing statement", e);
-            }
-            try {
-                resultSet.close();
-            } catch (Exception e) {
-                LOGGER.warn("Error closing result set", e);
-            }
+            }.start();
         }
     }
 
-    public static void closeStatement(Statement statement) {
+    public static void closeStatement(final Statement statement) {
         if (statement != null) {
-            try {
-                statement.close();
-            } catch (SQLException e) {
-                LOGGER.warn("Error closing statement", e);
-            }
+            new Thread() {
+                @Override
+                public void run() {
+                    try {
+                        statement.close();
+                    } catch (SQLException e) {
+                        LOGGER.warn("Error closing statement", e);
+                    }
+                }
+            }.start();
         }
     }
 
-    public static void closeConnection(Connection connection) {
+    public static void closeConnection(final Connection connection) {
         if (connection != null) {
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                LOGGER.warn("Error closing connection", e);
-            }
+            new Thread() {
+                @Override
+                public void run() {
+                    try {
+                        connection.close();
+                    } catch (SQLException e) {
+                        LOGGER.warn("Error closing connection", e);
+                    }
+                }
+            }.start();
         }
     }
 

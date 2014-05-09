@@ -10,6 +10,7 @@ import com.dci.intellij.dbn.ddl.DDLFileAttachmentManager;
 import com.dci.intellij.dbn.language.editor.ui.DBLanguageFileEditorToolbarForm;
 import com.dci.intellij.dbn.object.DBSchema;
 import com.dci.intellij.dbn.object.common.DBSchemaObject;
+import com.dci.intellij.dbn.object.lookup.DBObjectRef;
 import com.dci.intellij.dbn.vfs.DatabaseContentFile;
 import com.dci.intellij.dbn.vfs.DatabaseEditableObjectFile;
 import com.dci.intellij.dbn.vfs.SQLConsoleFile;
@@ -43,7 +44,7 @@ public class FileConnectionMappingManager extends VirtualFileAdapter implements 
     private Project project;
     private Set<FileConnectionMapping> mappings = new THashSet<FileConnectionMapping>();
     private Key<ConnectionHandler> ACTIVE_CONNECTION_KEY = Key.create("ACTIVE_CONNECTION");
-    private Key<DBSchema> CURRENT_SCHEMA_KEY = Key.create("CURRENT_SCHEMA");
+    private Key<DBObjectRef<DBSchema>> CURRENT_SCHEMA_KEY = Key.create("CURRENT_SCHEMA");
 
     public boolean setActiveConnection(VirtualFile virtualFile, ConnectionHandler connectionHandler) {
         if (VirtualFileUtil.isLocalFileSystem(virtualFile)) {
@@ -76,7 +77,7 @@ public class FileConnectionMappingManager extends VirtualFileAdapter implements 
 
     public boolean setCurrentSchema(VirtualFile virtualFile, DBSchema schema) {
         if (VirtualFileUtil.isLocalFileSystem(virtualFile) || VirtualFileUtil.isVirtualFileSystem(virtualFile)) {
-            virtualFile.putUserData(CURRENT_SCHEMA_KEY, schema);
+            virtualFile.putUserData(CURRENT_SCHEMA_KEY, schema == null ? null : schema.getRef());
             FileConnectionMapping mapping = lookupMapping(virtualFile);
             if (schema != null && mapping != null && !schema.getName().equals(mapping.getCurrentSchema())) {
                 mapping.setCurrentSchema(schema.getName());
@@ -162,25 +163,28 @@ public class FileConnectionMappingManager extends VirtualFileAdapter implements 
             }
 
             // lookup schema mappings
-            DBSchema currentSchema = virtualFile.getUserData(CURRENT_SCHEMA_KEY);
-            if (currentSchema == null) {
+            DBObjectRef<DBSchema> currentSchemaRef = virtualFile.getUserData(CURRENT_SCHEMA_KEY);
+            if (currentSchemaRef == null) {
                 ConnectionHandler connectionHandler = getActiveConnection(virtualFile);
                 if (connectionHandler != null && !connectionHandler.isVirtual()) {
                     FileConnectionMapping mapping = lookupMapping(virtualFile);
                     if (mapping != null) {
                         String schemaName = mapping.getCurrentSchema();
                         if (StringUtil.isEmptyOrSpaces(schemaName)) {
-                            currentSchema = connectionHandler.getUserSchema();
-                            schemaName = currentSchema == null ? null : currentSchema.getName();
+                            DBSchema userSchema = connectionHandler.getUserSchema();
+                            currentSchemaRef = userSchema == null ? null : userSchema.getRef();
+                            schemaName = currentSchemaRef == null ? null : currentSchemaRef.getName();
                         } else {
-                            currentSchema = connectionHandler.getObjectBundle().getSchema(schemaName);
+                            DBSchema schema = connectionHandler.getObjectBundle().getSchema(schemaName);
+                            currentSchemaRef = schema == null ? null : schema.getRef();
                         }
                         mapping.setCurrentSchema(schemaName);
-                        virtualFile.putUserData(CURRENT_SCHEMA_KEY, currentSchema);
+                        virtualFile.putUserData(CURRENT_SCHEMA_KEY, currentSchemaRef);
                     }
                 }
+            } else {
+                return currentSchemaRef.get();
             }
-            return currentSchema;
         }
         return null;
     }

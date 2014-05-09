@@ -34,7 +34,7 @@ public class StatementDefinition {
             int endIndex = 0;
             while (startIndex > -1) {
                 String segment = statementText.substring(endIndex, startIndex);
-                buffer.append(segment).append(" ? ");
+                buffer.append(segment).append("?");
                 endIndex = statementText.indexOf('}', startIndex);
                 String placeholder = statementText.substring(startIndex + 1, endIndex);
 

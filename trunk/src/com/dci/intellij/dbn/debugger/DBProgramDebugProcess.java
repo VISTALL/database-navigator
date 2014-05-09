@@ -156,6 +156,7 @@ public class DBProgramDebugProcess extends XDebugProcess {
                 } catch (SQLException e) {
                     // typically a timeout
                     getSession().stop();
+                    MessageUtil.showErrorDialog("Could not initialize debug environment on connection \"" + connectionHandler.getName() + "\". ", e);
                 }
             }
         }.start();

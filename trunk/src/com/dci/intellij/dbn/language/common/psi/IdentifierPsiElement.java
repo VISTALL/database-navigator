@@ -211,17 +211,19 @@ public class IdentifierPsiElement extends LeafPsiElement implements PsiNamedElem
      *
      * @return real underlying database object behind the identifier.
      */
+    @Nullable
     public synchronized DBObject resolveUnderlyingObject() {
-        DBObject object = null;
+        DBObject underlyingObject = null;
         PsiElement psiElement = isLookupInitialized() ? ref.getReferencedElement() : resolve();
         if (isObject()) {
             if (psiElement instanceof DBObject) {
-                object = (DBObject) psiElement;
+                DBObject object = (DBObject) psiElement;
+                underlyingObject = object.getUndisposedElement();
             } else if (psiElement instanceof IdentifierPsiElement) {
                 IdentifierPsiElement identifierPsiElement = (IdentifierPsiElement) psiElement;
                 PsiElement underlyingPsiElement = identifierPsiElement.resolve();
                 if (underlyingPsiElement instanceof DBObject) {
-                    object = (DBObject) underlyingPsiElement;
+                    underlyingObject = (DBObject) underlyingPsiElement;
                 }
             }
         } else if (isAlias()) {
@@ -242,21 +244,21 @@ public class IdentifierPsiElement extends LeafPsiElement implements PsiNamedElem
                         return aliasedObject.resolveUnderlyingObject();
                     } else if (aliasedObject instanceof IdentifierPsiElement) {
                         IdentifierPsiElement identifierPsiElement = (IdentifierPsiElement) aliasedObject;
-                        PsiElement underlyingObject = identifierPsiElement.resolve();
-                        if (underlyingObject != null && underlyingObject instanceof DBObject) {
-                            object = (DBObject) underlyingObject;
+                        PsiElement underlyingPsiElement = identifierPsiElement.resolve();
+                        if (underlyingPsiElement != null && underlyingPsiElement instanceof DBObject) {
+                            underlyingObject = (DBObject) underlyingPsiElement;
                         }
                     }
                 }
             }
         }
 
-        while (object != null && object instanceof DBSynonym) {
-            DBSynonym synonym = (DBSynonym) object;
-            object = synonym.getUnderlyingObject();
+        while (underlyingObject != null && underlyingObject instanceof DBSynonym) {
+            DBSynonym synonym = (DBSynonym) underlyingObject;
+            underlyingObject = synonym.getUnderlyingObject();
         }
 
-        return object;
+        return underlyingObject;
     }
 
     public NamedPsiElement lookupNamedPsiElement(String id) {

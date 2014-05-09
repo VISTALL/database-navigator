@@ -451,45 +451,48 @@ public class DBObjectBundleImpl implements DBObjectBundle {
         }
     }
 
-    public void lookupChildObjectsOfType(LookupConsumer consumer, DBObject parent, DBObjectType objectType, ObjectTypeFilter filter, DBSchema currentSchema) throws ConsumerStoppedException {
+    public void lookupChildObjectsOfType(LookupConsumer consumer, DBObject parentObject, DBObjectType objectType, ObjectTypeFilter filter, DBSchema currentSchema) throws ConsumerStoppedException {
         if (getConnectionObjectTypeFilter().accepts(objectType)) {
-            if (parent instanceof DBSchema) {
-                DBSchema schema = (DBSchema) parent;
-                if (objectType.isGeneric()) {
-                    Set<DBObjectType> concreteTypes = objectType.getInheritingTypes();
-                    for (DBObjectType concreteType : concreteTypes) {
-                        consumer.check();
-                        if (filter.acceptsObject(schema, currentSchema, concreteType)) {
-                            consumer.consume(schema.getChildObjects(concreteType));
+            if (parentObject != null && currentSchema != null) {
+                if (parentObject instanceof DBSchema) {
+                    DBSchema schema = (DBSchema) parentObject;
+                    if (objectType.isGeneric()) {
+                        Set<DBObjectType> concreteTypes = objectType.getInheritingTypes();
+                        for (DBObjectType concreteType : concreteTypes) {
+                            consumer.check();
+                            if (filter.acceptsObject(schema, currentSchema, concreteType)) {
+                                consumer.consume(schema.getChildObjects(concreteType));
+                            }
+                        }
+                    } else {
+                        if (filter.acceptsObject(schema, currentSchema, objectType)) {
+                            consumer.consume(schema.getChildObjects(objectType));
                         }
                     }
-                } else {
-                    if (filter.acceptsObject(schema, currentSchema, objectType)) {
-                        consumer.consume(schema.getChildObjects(objectType));
-                    }
-                }
 
-                boolean synonymsSupported = DatabaseCompatibilityInterface.getInstance(parent).supportsObjectType(DBObjectType.SYNONYM.getTypeId());
-                if (synonymsSupported && filter.acceptsObject(schema, currentSchema, DBObjectType.SYNONYM)) {
-                    for (DBSynonym synonym : schema.getSynonyms()) {
-                        consumer.check();
-                        if (synonym.getUnderlyingObject().isOfType(objectType)) {
-                            consumer.consume(synonym);
-                        }
-                    }
-                }
-            } else {
-                if (objectType.isGeneric()) {
-                    Set<DBObjectType> concreteTypes = objectType.getInheritingTypes();
-                    for (DBObjectType concreteType : concreteTypes) {
-                        consumer.check();
-                        if (filter.acceptsRootObject(objectType)) {
-                            consumer.consume(parent.getChildObjects(concreteType));
+                    boolean synonymsSupported = DatabaseCompatibilityInterface.getInstance(parentObject).supportsObjectType(DBObjectType.SYNONYM.getTypeId());
+                    if (synonymsSupported && filter.acceptsObject(schema, currentSchema, DBObjectType.SYNONYM)) {
+                        for (DBSynonym synonym : schema.getSynonyms()) {
+                            consumer.check();
+                            DBObject underlyingObject = synonym.getUnderlyingObject();
+                            if (underlyingObject != null && underlyingObject.isOfType(objectType)) {
+                                consumer.consume(synonym);
+                            }
                         }
                     }
                 } else {
-                    if (filter.acceptsRootObject(objectType)) {
-                        consumer.consume(parent.getChildObjects(objectType));
+                    if (objectType.isGeneric()) {
+                        Set<DBObjectType> concreteTypes = objectType.getInheritingTypes();
+                        for (DBObjectType concreteType : concreteTypes) {
+                            consumer.check();
+                            if (filter.acceptsRootObject(objectType)) {
+                                consumer.consume(parentObject.getChildObjects(concreteType));
+                            }
+                        }
+                    } else {
+                        if (filter.acceptsRootObject(objectType)) {
+                            consumer.consume(parentObject.getChildObjects(objectType));
+                        }
                     }
                 }
             }
