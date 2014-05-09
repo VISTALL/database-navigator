@@ -4,11 +4,13 @@ import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.ConnectionManager;
 import com.dci.intellij.dbn.connection.VirtualConnectionHandler;
 import com.dci.intellij.dbn.navigation.options.ObjectsLookupSettings;
+import com.dci.intellij.dbn.object.DBSchema;
 import com.dci.intellij.dbn.object.common.DBObject;
 import com.dci.intellij.dbn.object.common.DBObjectType;
 import com.dci.intellij.dbn.object.common.list.DBObjectList;
 import com.dci.intellij.dbn.object.common.list.DBObjectListContainer;
 import com.dci.intellij.dbn.object.common.list.DBObjectListVisitor;
+import com.dci.intellij.dbn.object.lookup.DBObjectRef;
 import com.dci.intellij.dbn.options.GlobalProjectSettings;
 import com.intellij.ide.util.gotoByName.ChooseByNameModel;
 import com.intellij.openapi.application.ApplicationManager;
@@ -28,22 +30,23 @@ import java.util.Set;
 public class GoToDatabaseObjectModel implements ChooseByNameModel {
     private Project project;
     private boolean cancelled = false;
-    private ConnectionHandler connectionHandler;
+    private ConnectionHandler selectedConnection;
+    private DBObjectRef<DBSchema> selectedSchema;
     private ObjectsLookupSettings objectsLookupSettings;
     private Object[] EMPTY_ARRAY = new Object[0];
     private String[] EMPTY_STRING_ARRAY = new String[0];
 
 
-    public GoToDatabaseObjectModel(@NotNull Project project, @Nullable ConnectionHandler connectionHandler) {
+    public GoToDatabaseObjectModel(@NotNull Project project, @Nullable ConnectionHandler selectedConnection, DBSchema selectedSchema) {
         this.project = project;
-        this.connectionHandler = connectionHandler;
+        this.selectedConnection = selectedConnection;
         objectsLookupSettings = GlobalProjectSettings.getInstance(project).getNavigationSettings().getObjectsLookupSettings();
     }
 
     public String getPromptText() {
-        String connectionIdentifier = connectionHandler == null || connectionHandler instanceof VirtualConnectionHandler ?
+        String connectionIdentifier = selectedConnection == null || selectedConnection instanceof VirtualConnectionHandler ?
                 "All Connections" :
-                connectionHandler.getName();
+                selectedConnection.getName();
         return "Enter database object name (" + connectionIdentifier + ")";
     }
 
@@ -109,7 +112,7 @@ public class GoToDatabaseObjectModel implements ChooseByNameModel {
     }
 
     private void scanObjectLists(DBObjectListVisitor visitor) {
-        if (connectionHandler == null || connectionHandler instanceof VirtualConnectionHandler) {
+        if (selectedConnection == null || selectedConnection instanceof VirtualConnectionHandler) {
             ConnectionManager connectionManager = ConnectionManager.getInstance(project);
             Set<ConnectionHandler> connectionHandlers = connectionManager.getConnectionHandlers();
             for (ConnectionHandler connectionHandler : connectionHandlers) {
@@ -118,8 +121,14 @@ public class GoToDatabaseObjectModel implements ChooseByNameModel {
                 objectListContainer.visitLists(visitor, false);
             }
         } else {
-            DBObjectListContainer objectListContainer = connectionHandler.getObjectBundle().getObjectListContainer();
-            objectListContainer.visitLists(visitor, false);
+            DBSchema schema = DBObjectRef.get(selectedSchema);
+            DBObjectListContainer objectListContainer =
+                    schema == null ?
+                            selectedConnection.getObjectBundle().getObjectListContainer() :
+                            schema.getChildObjects();
+            if (objectListContainer != null) {
+                objectListContainer.visitLists(visitor, false);
+            }
         }
     }
 

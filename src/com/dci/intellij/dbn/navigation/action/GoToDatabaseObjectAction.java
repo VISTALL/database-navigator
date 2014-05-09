@@ -5,6 +5,7 @@ import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.ConnectionManager;
 import com.dci.intellij.dbn.navigation.GoToDatabaseObjectModel;
 import com.dci.intellij.dbn.navigation.options.ObjectsLookupSettings;
+import com.dci.intellij.dbn.object.DBSchema;
 import com.dci.intellij.dbn.object.common.DBObject;
 import com.dci.intellij.dbn.object.common.property.DBObjectProperty;
 import com.dci.intellij.dbn.options.GlobalProjectSettings;
@@ -31,53 +32,54 @@ public class GoToDatabaseObjectAction extends GotoActionBase implements DumbAwar
         //FeatureUsageTracker.getInstance().triggerFeatureUsed("navigation.popup.file");
         Project project = event.getData(PlatformDataKeys.PROJECT);
 
-        ObjectsLookupSettings objectsLookupSettings = GlobalProjectSettings.getInstance(project).getNavigationSettings().getObjectsLookupSettings();
-        if (objectsLookupSettings.getPromptConnectionSelection().value()) {
-            ConnectionHandler singleConnectionHandler = null;
-            DefaultActionGroup actionGroup = new DefaultActionGroup();
+        if (project != null) {
+            ObjectsLookupSettings objectsLookupSettings = GlobalProjectSettings.getInstance(project).getNavigationSettings().getObjectsLookupSettings();
+            if (objectsLookupSettings.getPromptConnectionSelection().value()) {
+                ConnectionHandler singleConnectionHandler = null;
+                DefaultActionGroup actionGroup = new DefaultActionGroup();
 
-            ConnectionManager connectionManager = ConnectionManager.getInstance(project);
-            List<ConnectionBundle> connectionBundles = connectionManager.getConnectionBundles();
-            for (ConnectionBundle connectionBundle : connectionBundles) {
-                if (connectionBundle.getConnectionHandlers().size() > 0) {
-                    actionGroup.addSeparator();
-                    for (ConnectionHandler connectionHandler : connectionBundle.getConnectionHandlers()) {
-                        SelectConnectionAction connectionAction = new SelectConnectionAction(connectionHandler);
-                        actionGroup.add(connectionAction);
-                        singleConnectionHandler = connectionHandler;
+                ConnectionManager connectionManager = ConnectionManager.getInstance(project);
+                List<ConnectionBundle> connectionBundles = connectionManager.getConnectionBundles();
+                for (ConnectionBundle connectionBundle : connectionBundles) {
+                    if (connectionBundle.getConnectionHandlers().size() > 0) {
+                        actionGroup.addSeparator();
+                        for (ConnectionHandler connectionHandler : connectionBundle.getConnectionHandlers()) {
+                            SelectConnectionAction connectionAction = new SelectConnectionAction(connectionHandler);
+                            actionGroup.add(connectionAction);
+                            singleConnectionHandler = connectionHandler;
+                        }
                     }
                 }
-            }
 
-            if (actionGroup.getChildrenCount() > 1) {
-                removeActionLock();
-                ListPopup popupBuilder = JBPopupFactory.getInstance().createActionGroupPopup(
-                        "Select connection for lookup",
-                        actionGroup,
-                        event.getDataContext(),
-                        //JBPopupFactory.ActionSelectionAid.SPEEDSEARCH,
-                        true,
-                        true,
-                        true,
-                        null,
-                        actionGroup.getChildrenCount(),
-                        new Condition<AnAction>() {
-                            public boolean value(AnAction action) {
-                                SelectConnectionAction selectConnectionAction = (SelectConnectionAction) action;
-                                return latestSelection == selectConnectionAction.connectionHandler;
-                            }
-                        });
+                if (actionGroup.getChildrenCount() > 1) {
+                    removeActionLock();
+                    ListPopup popupBuilder = JBPopupFactory.getInstance().createActionGroupPopup(
+                            "Select connection for lookup",
+                            actionGroup,
+                            event.getDataContext(),
+                            //JBPopupFactory.ActionSelectionAid.SPEEDSEARCH,
+                            true,
+                            true,
+                            true,
+                            null,
+                            actionGroup.getChildrenCount(),
+                            new Condition<AnAction>() {
+                                public boolean value(AnAction action) {
+                                    SelectConnectionAction selectConnectionAction = (SelectConnectionAction) action;
+                                    return latestSelection == selectConnectionAction.connectionHandler;
+                                }
+                            });
 
-                popupBuilder.showCenteredInCurrentWindow(project);
+                    popupBuilder.showCenteredInCurrentWindow(project);
+                } else {
+                    showLookupPopup(event, project, singleConnectionHandler, null);
+                }
             } else {
-                showLookupPopup(event, project, singleConnectionHandler);
+                ConnectionManager connectionManager = ConnectionManager.getInstance(project);
+                ConnectionHandler connectionHandler = connectionManager.getActiveConnection(project);
+                showLookupPopup(event, project, connectionHandler, null);
             }
-        } else {
-            ConnectionManager connectionManager = ConnectionManager.getInstance(project);
-            ConnectionHandler connectionHandler = connectionManager.getActiveConnection(project);
-            showLookupPopup(event, project, connectionHandler);
         }
-
     }
 
 
@@ -92,17 +94,17 @@ public class GoToDatabaseObjectAction extends GotoActionBase implements DumbAwar
         @Override
         public void actionPerformed(AnActionEvent e) {
             Project project = connectionHandler.getProject();
-            showLookupPopup(e, project, connectionHandler);
+            showLookupPopup(e, project, connectionHandler, null);
             latestSelection = connectionHandler;
         }
     }
 
-    private void showLookupPopup(AnActionEvent e, Project project, ConnectionHandler connectionHandler) {
+    private void showLookupPopup(AnActionEvent e, Project project, ConnectionHandler connectionHandler, DBSchema selectedSchema) {
         if (connectionHandler == null) {
             // remove action lock here since the pop-up will not be fired to remove it onClose()
             removeActionLock();
         } else {
-            GoToDatabaseObjectModel model = new GoToDatabaseObjectModel(project,  connectionHandler);
+            GoToDatabaseObjectModel model = new GoToDatabaseObjectModel(project, connectionHandler, selectedSchema);
             ChooseByNamePopup popup = ChooseByNamePopup.createPopup(project, model, getPsiContext(e));
             popup.invoke(new Callback(model), ModalityState.current(), false);
         }
