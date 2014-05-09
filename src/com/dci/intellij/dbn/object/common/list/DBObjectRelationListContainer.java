@@ -35,7 +35,7 @@ public class DBObjectRelationListContainer implements Disposable {
                  compatibilityInterface.supportsObjectType(objectRelationType.getTargetType().getTypeId()));
     }
 
-    public synchronized DBObjectRelationList getObjectRelationList(DBObjectRelationType objectRelationType) {
+    public DBObjectRelationList getObjectRelationList(DBObjectRelationType objectRelationType) {
         if (objectRelationLists != null) {
             for (DBObjectRelationList objectRelationList : objectRelationLists) {
                 if (objectRelationList.getObjectRelationType() == objectRelationType) {
@@ -46,7 +46,7 @@ public class DBObjectRelationListContainer implements Disposable {
         return null;
     }
 
-    public synchronized DBObjectRelationList createObjectRelationList(
+    public DBObjectRelationList createObjectRelationList(
             DBObjectRelationType type,
             GenericDatabaseElement parent,
             String name,
@@ -59,7 +59,7 @@ public class DBObjectRelationListContainer implements Disposable {
         return null;
     }
 
-    public synchronized DBObjectRelationList createSubcontentObjectRelationList(
+    public DBObjectRelationList createSubcontentObjectRelationList(
             DBObjectRelationType relationType,
             GenericDatabaseElement parent,
             String name,
@@ -93,7 +93,7 @@ public class DBObjectRelationListContainer implements Disposable {
         owner = null;
     }
 
-    public synchronized void reload(boolean recursive) {
+    public void reload(boolean recursive) {
         for (DBObjectRelationList objectRelationList : objectRelationLists) {
             objectRelationList.reload(recursive);
         }        
