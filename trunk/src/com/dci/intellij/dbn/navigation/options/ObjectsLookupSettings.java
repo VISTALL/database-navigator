@@ -22,6 +22,7 @@ public class ObjectsLookupSettings extends ProjectConfiguration<ObjectsLookupSet
     private Set<DBObjectType> fastLookupObjectTypes;
     private BooleanSetting forceDatabaseLoad = new BooleanSetting("force-database-load", false);
     private BooleanSetting promptConnectionSelection = new BooleanSetting("prompt-connection-selection", true);
+    private BooleanSetting promptSchemaSelection = new BooleanSetting("prompt-schema-selection", true);
 
     public ObjectsLookupSettings(Project project) {
         super(project);
@@ -56,6 +57,10 @@ public class ObjectsLookupSettings extends ProjectConfiguration<ObjectsLookupSet
 
     public BooleanSetting getPromptConnectionSelection() {
         return promptConnectionSelection;
+    }
+
+    public BooleanSetting getPromptSchemaSelection() {
+        return promptSchemaSelection;
     }
 
     private ObjectTypeEntry getObjectTypeEntry(DBObjectType objectType) {
@@ -122,6 +127,7 @@ public class ObjectsLookupSettings extends ProjectConfiguration<ObjectsLookupSet
         }
         forceDatabaseLoad.readConfiguration(element);
         promptConnectionSelection.readConfiguration(element);
+        promptSchemaSelection.readConfiguration(element);
     }
 
     public void writeConfiguration(Element element) throws WriteExternalException {
@@ -136,6 +142,7 @@ public class ObjectsLookupSettings extends ProjectConfiguration<ObjectsLookupSet
         }
         forceDatabaseLoad.writeConfiguration(element);
         promptConnectionSelection.writeConfiguration(element);
+        promptSchemaSelection.writeConfiguration(element);
     }
     
     private class ObjectTypeEntry implements Selectable {
