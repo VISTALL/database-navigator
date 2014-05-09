@@ -11,8 +11,8 @@ import com.dci.intellij.dbn.database.DatabaseCompatibilityInterface;
 import com.dci.intellij.dbn.object.common.DBObject;
 import com.dci.intellij.dbn.object.common.DBObjectRelationType;
 import com.intellij.openapi.Disposable;
+import com.intellij.util.containers.ContainerUtil;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class DBObjectRelationListContainer implements Disposable {
@@ -81,7 +81,7 @@ public class DBObjectRelationListContainer implements Disposable {
             ContentDependencyAdapter dependencyAdapter) {
         if (isSupported(type)) {
             DBObjectRelationList objectRelationList = new DBObjectRelationListImpl(type, parent, name, loader, dependencyAdapter);
-            if (objectRelationLists == null) objectRelationLists = new ArrayList<DBObjectRelationList>();
+            if (objectRelationLists == null) objectRelationLists = ContainerUtil.createLockFreeCopyOnWriteList();
             objectRelationLists.add(objectRelationList);
             return objectRelationList;
         }

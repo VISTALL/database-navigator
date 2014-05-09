@@ -57,6 +57,7 @@ public abstract class DynamicContentResultSetLoader<T extends DynamicContentElem
         if (progressIndicator != null) {
             progressIndicator.setText("Loading " + dynamicContent.getContentDescription());
         }
+        if (dynamicContent.isDisposed()) return;
         ConnectionHandler connectionHandler = dynamicContent.getConnectionHandler();
         LoaderCache loaderCache = new LoaderCache();
         Connection connection = null;
@@ -64,6 +65,7 @@ public abstract class DynamicContentResultSetLoader<T extends DynamicContentElem
         int count = 0;
         try {
             connection = connectionHandler.getPoolConnection();
+            if (dynamicContent.isDisposed()) return;
             resultSet = createResultSet(dynamicContent, connection);
             List<T> list = null;
             while (resultSet != null && resultSet.next()) {
