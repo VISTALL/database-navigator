@@ -202,6 +202,10 @@ public class DBObjectRef<T extends DBObject> implements Comparable {
         return nodes[nodes.length-1].getType();
     }
 
+    public boolean isOfType(DBObjectType objectType) {
+        return getObjectType().matches(objectType);
+    }
+
     public static class Node {
         private DBObjectType type;
         private String name;

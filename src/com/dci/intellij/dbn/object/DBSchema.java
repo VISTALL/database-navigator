@@ -1,6 +1,7 @@
 package com.dci.intellij.dbn.object;
 
 import com.dci.intellij.dbn.object.common.DBObject;
+import com.dci.intellij.dbn.object.lookup.DBObjectRef;
 
 import java.util.List;
 
@@ -40,4 +41,7 @@ public interface DBSchema extends DBObject {
     DBDatabaseLink getDatabaseLink(String name);
 
     void refreshObjectsStatus();
+
+    @Override
+    DBObjectRef<DBSchema> getRef();
 }

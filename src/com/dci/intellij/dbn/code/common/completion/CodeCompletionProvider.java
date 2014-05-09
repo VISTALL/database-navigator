@@ -295,7 +295,7 @@ public class CodeCompletionProvider extends CompletionProvider<CompletionParamet
                         DBSchema currentSchema = PsiUtil.getCurrentSchema(sourceScope);
                         objectBundle.lookupChildObjectsOfType(
                                 consumer,
-                                parentObject,
+                                parentObject.getUndisposedElement(),
                                 objectType,
                                 filter,
                                 currentSchema);

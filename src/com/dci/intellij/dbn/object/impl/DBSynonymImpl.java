@@ -17,6 +17,7 @@ import com.dci.intellij.dbn.object.common.status.DBObjectStatus;
 import com.dci.intellij.dbn.object.properties.DBObjectPresentableProperty;
 import com.dci.intellij.dbn.object.properties.PresentableProperty;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 import java.sql.ResultSet;
@@ -72,6 +73,7 @@ public class DBSynonymImpl extends DBSchemaObjectImpl implements DBSynonym {
         return Icons.DBO_SYNONYM;
     }
 
+    @Nullable
     public DBObject getUnderlyingObject() {
         if (underlyingObject == null && objectOwner != null && objectName != null) {
             DBSchema underlyingSchema = getConnectionHandler().getObjectBundle().getSchema(objectOwner);

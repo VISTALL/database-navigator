@@ -12,6 +12,7 @@ import com.dci.intellij.dbn.language.common.psi.NamedPsiElement;
 import com.dci.intellij.dbn.navigation.psi.NavigationPsiCache;
 import com.dci.intellij.dbn.object.DBSchema;
 import com.dci.intellij.dbn.object.common.DBObject;
+import com.dci.intellij.dbn.object.lookup.DBObjectRef;
 import com.dci.intellij.dbn.vfs.DatabaseContentFile;
 import com.dci.intellij.dbn.vfs.DatabaseFile;
 import com.dci.intellij.dbn.vfs.DatabaseFileSystem;
@@ -50,7 +51,7 @@ public abstract class DBLanguageFile extends PsiFileImpl implements FileConnecti
     private String parseRootId;
     private ConnectionHandler activeConnection;
     private DBSchema currentSchema;
-    private DBObject underlyingObject;
+    private DBObjectRef underlyingObject;
 
     public DBLanguageFile(FileViewProvider viewProvider, DBLanguageFileType fileType, DBLanguage language) {
         super(viewProvider);
@@ -63,7 +64,7 @@ public abstract class DBLanguageFile extends PsiFileImpl implements FileConnecti
         VirtualFile virtualFile = viewProvider.getVirtualFile();
         if (virtualFile instanceof SourceCodeFile) {
             SourceCodeFile sourceCodeFile = (SourceCodeFile) virtualFile;
-            this.underlyingObject = sourceCodeFile.getObject();
+            this.underlyingObject = sourceCodeFile.getObject().getRef();
         }
 
         parseRootId = CompatibilityUtil.getParseRootId(virtualFile);
@@ -74,7 +75,7 @@ public abstract class DBLanguageFile extends PsiFileImpl implements FileConnecti
     }
 
     public void setUnderlyingObject(DBObject underlyingObject) {
-        this.underlyingObject = underlyingObject;
+        this.underlyingObject = underlyingObject.getRef();
     }
 
     public DBObject getUnderlyingObject() {
@@ -89,7 +90,7 @@ public abstract class DBLanguageFile extends PsiFileImpl implements FileConnecti
             return sourceCodeFile.getObject();
         }
 
-        return underlyingObject;
+        return underlyingObject == null ? null : underlyingObject.get();
     }
 
     public DBLanguageFile(Project project,  DBLanguageFileType fileType, @NotNull DBLanguage language) {
