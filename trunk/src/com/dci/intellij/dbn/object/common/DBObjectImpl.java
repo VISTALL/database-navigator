@@ -144,7 +144,7 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
     }
 
     @Override
-    public synchronized DBObjectRef getRef() {
+    public DBObjectRef getRef() {
         return objectRef;
     }
 
