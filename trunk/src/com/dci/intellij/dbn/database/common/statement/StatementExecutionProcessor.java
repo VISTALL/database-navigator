@@ -24,7 +24,7 @@ public class StatementExecutionProcessor {
     private static final Logger LOGGER = LoggerFactory.createLogger();
     private String id;
     private boolean isQuery;
-    private boolean isPrepared;
+    private boolean isPreparedStatement;
     private int timeout;
     private List<StatementDefinition> statementDefinitions = new ArrayList<StatementDefinition>();
     private SQLException lastException;
@@ -34,7 +34,7 @@ public class StatementExecutionProcessor {
         this.interfaceProvider = interfaceProvider;
         id = element.getAttributeValue("id");
         isQuery = Boolean.parseBoolean(element.getAttributeValue("is-query"));
-        isPrepared = Boolean.parseBoolean(element.getAttributeValue("is-prepared"));
+        isPreparedStatement = Boolean.parseBoolean(element.getAttributeValue("is-prepared-statement"));
         String timeoutS = element.getAttributeValue("timeout");
         timeout = StringUtil.isEmpty(timeoutS) ? DEFAULT_TIMEOUT : Integer.parseInt(timeoutS);
         if (element.getChildren().isEmpty()) {
@@ -52,14 +52,14 @@ public class StatementExecutionProcessor {
 
     private void readStatements(String statementText, String prefixes) {
         if (prefixes == null) {
-            StatementDefinition statementDefinition = new StatementDefinition(statementText, null, false);
+            StatementDefinition statementDefinition = new StatementDefinition(statementText, null, isPreparedStatement, false);
             statementDefinitions.add(statementDefinition);
         } else {
             StringTokenizer tokenizer = new StringTokenizer(prefixes, ",");
             while (tokenizer.hasMoreTokens()) {
                 String prefix = tokenizer.nextToken().trim();
                 boolean hasFallback = tokenizer.hasMoreTokens();
-                StatementDefinition statementDefinition = new StatementDefinition(statementText, prefix, hasFallback);
+                StatementDefinition statementDefinition = new StatementDefinition(statementText, prefix, isPreparedStatement, hasFallback);
                 statementDefinitions.add(statementDefinition);
             }
         }
@@ -99,7 +99,7 @@ public class StatementExecutionProcessor {
                     statementText = statementDefinition.prepareStatementText(arguments);
                     LOGGER.info("[DBN-INFO] Executing statement: " + statementText);
                 }
-                if (isPrepared) {
+                if (isPreparedStatement) {
                     PreparedStatement preparedStatement = statementDefinition.prepareStatement(connection, arguments);
                     preparedStatement.setQueryTimeout(60);
                     statement = preparedStatement;
