@@ -8,6 +8,7 @@ import com.dci.intellij.dbn.language.common.DBLanguageDialect;
 import com.dci.intellij.dbn.language.common.DBLanguageFile;
 import com.dci.intellij.dbn.language.sql.SQLFileType;
 import com.dci.intellij.dbn.object.DBSchema;
+import com.dci.intellij.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -29,7 +30,7 @@ public class SQLConsoleFile extends VirtualFile implements DatabaseFile, DBVirtu
     private long modificationTimestamp = LocalTimeCounter.currentTime();
     private CharSequence content = "";
     private ConnectionHandler connectionHandler;
-    private DBSchema currentSchema;
+    private DBObjectRef<DBSchema> currentSchemaRef;
     protected String name;
     protected String path;
     protected String url;
@@ -37,7 +38,7 @@ public class SQLConsoleFile extends VirtualFile implements DatabaseFile, DBVirtu
 
     public SQLConsoleFile(ConnectionHandler connectionHandler) {
         this.connectionHandler = connectionHandler;
-        this.currentSchema = connectionHandler.getUserSchema();
+        this.currentSchemaRef = DBObjectRef.from(connectionHandler.getUserSchema());
         name = connectionHandler.getName();
         path = DatabaseFileSystem.createPath(connectionHandler) + " CONSOLE";
         url = DatabaseFileSystem.createUrl(connectionHandler);
@@ -70,15 +71,15 @@ public class SQLConsoleFile extends VirtualFile implements DatabaseFile, DBVirtu
     @Override
     public void dispose() {
         connectionHandler = null;
-        currentSchema = null;
+        currentSchemaRef = null;
     }
 
     public void setCurrentSchema(DBSchema currentSchema) {
-        this.currentSchema = currentSchema;
+        this.currentSchemaRef = DBObjectRef.from(currentSchema);
     }
 
     public DBSchema getCurrentSchema() {
-        return currentSchema;
+        return DBObjectRef.get(currentSchemaRef);
     }
 
     @NotNull

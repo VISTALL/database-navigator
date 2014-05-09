@@ -98,6 +98,14 @@ public class DBObjectRef<T extends DBObject> implements Comparable {
         return false;
     }
 
+    public static <T extends DBObject> DBObjectRef<T> from(T object) {
+        return object == null ? null : object.getRef();
+    }
+
+    public static <T extends DBObject> T get(DBObjectRef<T> objectRef) {
+        return objectRef == null ? null : objectRef.get();
+    }
+
     @Nullable
     public T get() {
         return load(null);
