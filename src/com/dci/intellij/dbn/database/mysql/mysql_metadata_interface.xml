@@ -4,12 +4,12 @@
         <!ATTLIST statement-execution-processor
                 id CDATA #REQUIRED
                 is-query CDATA #IMPLIED
-                is-prepared CDATA #IMPLIED
+                is-prepared-statement CDATA #IMPLIED
                 timeout CDATA #IMPLIED>
         <!ELEMENT statement (#PCDATA)>
         ]>
 <data-dictionary>
-    <statement-execution-processor id="schemas" is-query="true" is-prepared="true">
+    <statement-execution-processor id="schemas" is-query="true" is-prepared-statement="true">
         <statement>
             select
                 SCHEMA_NAME,
@@ -19,7 +19,7 @@
             order by SCHEMA_NAME asc
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="users" is-query="true" is-prepared="true">
+    <statement-execution-processor id="users" is-query="true" is-prepared-statement="true">
         <statement>
             select distinct
                 GRANTEE as USER_NAME,
@@ -29,14 +29,14 @@
             order by GRANTEE asc
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="privileges" is-query="true" is-prepared="true">
+    <statement-execution-processor id="privileges" is-query="true" is-prepared-statement="true">
         <statement>
             select distinct PRIVILEGE_TYPE as PRIVILEGE_NAME
             from INFORMATION_SCHEMA.USER_PRIVILEGES
             order by PRIVILEGE_TYPE asc
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="all-user-privileges" is-query="true" is-prepared="true">
+    <statement-execution-processor id="all-user-privileges" is-query="true" is-prepared-statement="true">
         <statement>
             select
                 GRANTEE as USER_NAME,
@@ -46,7 +46,7 @@
             order by GRANTEE, PRIVILEGE_TYPE asc
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="charsets" is-query="true" is-prepared="true">
+    <statement-execution-processor id="charsets" is-query="true" is-prepared-statement="true">
         <statement>
             select
                 CHARACTER_SET_NAME as CHARSET_NAME,
@@ -56,7 +56,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="tables" is-query="true" is-prepared="true">
+    <statement-execution-processor id="tables" is-query="true" is-prepared-statement="true">
         <statement>
             select
                 TABLE_NAME,
@@ -69,7 +69,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="views" is-query="true" is-prepared="true">
+    <statement-execution-processor id="views" is-query="true" is-prepared-statement="true">
         <statement>
             select
                 TABLE_NAME as VIEW_NAME,
@@ -84,7 +84,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="dataset-columns" is-query="true" is-prepared="true">
+    <statement-execution-processor id="dataset-columns" is-query="true" is-prepared-statement="true">
         <!--<statement>
             select
                 col.COLUMN_NAME,
@@ -153,7 +153,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="all-dataset-columns" is-query="true" is-prepared="true">
+    <statement-execution-processor id="all-dataset-columns" is-query="true" is-prepared-statement="true">
        <!-- <statement>
             select
                 col.COLUMN_NAME,
@@ -226,7 +226,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="all-constraints" is-query="true" is-prepared="true">
+    <statement-execution-processor id="all-constraints" is-query="true" is-prepared-statement="true">
         <statement>
             select
                 tc.TABLE_NAME as DATASET_NAME,
@@ -279,7 +279,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="constraints" is-query="true" is-prepared="true">
+    <statement-execution-processor id="constraints" is-query="true" is-prepared-statement="true">
         <statement>
             select
                 tc.TABLE_NAME as DATASET_NAME,
@@ -334,7 +334,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="column-constraint-relations" is-query="true" is-prepared="true">
+    <statement-execution-processor id="column-constraint-relations" is-query="true" is-prepared-statement="true">
         <statement>
             select
                 COLUMN_NAME,
@@ -352,7 +352,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="all-column-constraint-relations" is-query="true" is-prepared="true">
+    <statement-execution-processor id="all-column-constraint-relations" is-query="true" is-prepared-statement="true">
         <statement>
             select
                TABLE_NAME as DATASET_NAME,
@@ -369,7 +369,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="indexes" is-query="true" is-prepared="true">
+    <statement-execution-processor id="indexes" is-query="true" is-prepared-statement="true">
         <statement>
             select distinct
                 INDEX_NAME,
@@ -383,7 +383,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="all-indexes" is-query="true" is-prepared="true">
+    <statement-execution-processor id="all-indexes" is-query="true" is-prepared-statement="true">
         <statement>
             select distinct
                 INDEX_NAME,
@@ -398,7 +398,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="column-index-relations" is-query="true" is-prepared="true">
+    <statement-execution-processor id="column-index-relations" is-query="true" is-prepared-statement="true">
         <statement>
             select
                 COLUMN_NAME,
@@ -411,7 +411,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="all-column-index-relations" is-query="true" is-prepared="true">
+    <statement-execution-processor id="all-column-index-relations" is-query="true" is-prepared-statement="true">
         <statement>
             select
                 TABLE_NAME,
@@ -423,7 +423,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="triggers" is-query="true" is-prepared="true">
+    <statement-execution-processor id="triggers" is-query="true" is-prepared-statement="true">
         <statement>
             select
                 EVENT_OBJECT_TABLE as DATASET_NAME,
@@ -442,7 +442,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="all-triggers" is-query="true" is-prepared="true">
+    <statement-execution-processor id="all-triggers" is-query="true" is-prepared-statement="true">
         <statement>
             select
                 EVENT_OBJECT_TABLE as DATASET_NAME,
@@ -461,7 +461,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="functions" is-query="true" is-prepared="true">
+    <statement-execution-processor id="functions" is-query="true" is-prepared-statement="true">
         <statement>
             select
                 ROUTINE_NAME as FUNCTION_NAME,
@@ -476,7 +476,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="procedures" is-query="true" is-prepared="true">
+    <statement-execution-processor id="procedures" is-query="true" is-prepared-statement="true">
         <statement>
             select
                 ROUTINE_NAME as PROCEDURE_NAME,
@@ -491,7 +491,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="method-arguments" is-query="true" is-prepared="true">
+    <statement-execution-processor id="method-arguments" is-query="true" is-prepared-statement="true">
         <statement>
             select
                 PARAMETER_NAME as ARGUMENT_NAME,
@@ -518,7 +518,7 @@
                 ORDINAL_POSITION asc
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="alternative-method-arguments" is-query="true" is-prepared="true">
+    <statement-execution-processor id="alternative-method-arguments" is-query="true" is-prepared-statement="true">
         <statement>
             select
                 case when TYPE = 'FUNCTION' then concat('OUT return ', RETURNS, ', ', PARAM_LIST) else PARAM_LIST end as ARGUMENTS,
@@ -533,7 +533,7 @@
     </statement-execution-processor>
 
 
-    <statement-execution-processor id="all-method-arguments" is-query="true" is-prepared="true">
+    <statement-execution-processor id="all-method-arguments" is-query="true" is-prepared-statement="true">
         <statement>
             select
                 PARAMETER_NAME as ARGUMENT_NAME,
@@ -559,7 +559,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="alternative-all-method-arguments" is-query="true" is-prepared="true">
+    <statement-execution-processor id="alternative-all-method-arguments" is-query="true" is-prepared-statement="true">
         <statement>
             select
                 case when TYPE = 'FUNCTION' then concat('OUT return ', RETURNS, ', ', PARAM_LIST) else PARAM_LIST end as ARGUMENTS,
@@ -570,7 +570,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="view-source-code" is-query="true" is-prepared="true">
+    <statement-execution-processor id="view-source-code" is-query="true" is-prepared-statement="true">
         <statement>
             select VIEW_DEFINITION
             from INFORMATION_SCHEMA.VIEWS
@@ -580,7 +580,7 @@
         </statement>
     </statement-execution-processor>    
 
-    <statement-execution-processor id="trigger-source-code" is-query="true" is-prepared="true">
+    <statement-execution-processor id="trigger-source-code" is-query="true" is-prepared-statement="true">
         <statement>
             select ACTION_STATEMENT
             from INFORMATION_SCHEMA.TRIGGERS
@@ -590,7 +590,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="object-source-code" is-query="true" is-prepared="true">
+    <statement-execution-processor id="object-source-code" is-query="true" is-prepared-statement="true">
         <statement>
             select concat(
                 '(', PARAM_LIST, ')',
@@ -609,7 +609,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="object-change-timestamp" is-query="true" is-prepared="true">
+    <statement-execution-processor id="object-change-timestamp" is-query="true" is-prepared-statement="true">
         <statement>
             select MODIFIED
             from MYSQL.PROC
@@ -632,7 +632,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="validate-connection" timeout="5" is-prepared="true">
+    <statement-execution-processor id="validate-connection" timeout="5" is-prepared-statement="true">
         <statement>
             select 1
         </statement>

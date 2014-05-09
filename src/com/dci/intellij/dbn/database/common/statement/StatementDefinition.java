@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 
 public class StatementDefinition {
+    public static final String DBN_PARAM_PLACEHOLDER = "DBN_PARAM_PLACEHOLDER";
     protected String statementText;
     protected Integer[] placeholderIndexes;
 
@@ -17,9 +18,11 @@ public class StatementDefinition {
     private long lastExecutionTimestamp;
     private boolean hasFallback;
     private boolean disabled;
+    private boolean isPreparedStatement;
 
-    public StatementDefinition(String statementText, String prefix, boolean hasFallback) {
+    public StatementDefinition(String statementText, String prefix, boolean isPreparedStatement, boolean hasFallback) {
         this.hasFallback = hasFallback;
+        this.isPreparedStatement = isPreparedStatement;
         statementText = statementText.replaceAll("\\s+", " ").trim();
         if (prefix != null) {
             statementText = statementText.replaceAll("\\[PREFIX\\]", prefix);
@@ -34,7 +37,7 @@ public class StatementDefinition {
             int endIndex = 0;
             while (startIndex > -1) {
                 String segment = statementText.substring(endIndex, startIndex);
-                buffer.append(segment).append("?");
+                buffer.append(segment).append(isPreparedStatement ? "?" : DBN_PARAM_PLACEHOLDER);
                 endIndex = statementText.indexOf('}', startIndex);
                 String placeholder = statementText.substring(startIndex + 1, endIndex);
 
@@ -64,7 +67,7 @@ public class StatementDefinition {
         String statementText = this.statementText;
         for (Integer argumentIndex : placeholderIndexes) {
             String argumentValue = Matcher.quoteReplacement(arguments[argumentIndex].toString());
-            statementText = statementText.replaceFirst("\\?", argumentValue);
+            statementText = statementText.replaceFirst(isPreparedStatement ? "\\?" : DBN_PARAM_PLACEHOLDER, argumentValue);
         }
         return statementText;
     }
