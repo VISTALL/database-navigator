@@ -31,6 +31,8 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.sql.Driver;
+import java.util.List;
 
 public class GenericDatabaseSettingsForm extends ConfigurationEditorForm<GenericConnectionDatabaseSettings> implements ConnectionPresentationChangeListener{
     private JButton testButton;
@@ -180,15 +182,15 @@ public class GenericDatabaseSettingsForm extends ConfigurationEditorForm<Generic
     private void populateDriverList(final String driverLibrary) {
         boolean fileExists = fileExists(driverLibrary);
         if (fileExists) {
-            String[] classes = DatabaseDriverManager.getInstance().loadDriverClasses(driverLibrary);
+            List<Driver> drivers = DatabaseDriverManager.getInstance().loadDrivers(driverLibrary);
             Object selected = driverComboBox.getSelectedItem();
             driverComboBox.removeAllItems();
             //driverComboBox.addItem("");
-            for (String driverClass : classes) {
-                driverComboBox.addItem(driverClass);
+            for (Driver driver : drivers) {
+                driverComboBox.addItem(driver.getClass().getName());
             }
-            if (selected == null && classes.length > 0) {
-                selected = classes[0];
+            if (selected == null && drivers.size() > 0) {
+                selected = drivers.get(0).getClass().getName();
             }
             driverComboBox.setSelectedItem(selected);
         } else {

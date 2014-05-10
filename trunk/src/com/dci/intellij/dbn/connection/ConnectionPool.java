@@ -1,39 +1,38 @@
 package com.dci.intellij.dbn.connection;
 
 import com.dci.intellij.dbn.common.Constants;
-import com.dci.intellij.dbn.common.TimeUtil;
+import com.dci.intellij.dbn.common.LoggerFactory;
 import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.common.notification.NotificationUtil;
+import com.dci.intellij.dbn.common.util.TimeUtil;
 import com.dci.intellij.dbn.database.DatabaseMetadataInterface;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.util.containers.ContainerUtil;
 
+import java.lang.ref.WeakReference;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class ConnectionPool implements Disposable {
-    private Logger logger = Logger.getInstance(getClass().getName());
+
+    private static Logger LOGGER = LoggerFactory.createLogger();
+    private long lastAccessTimestamp = 0;
     private int peakSize = 0;
     private boolean isDisposed;
-
-    private enum Status {FREE, BUSY};
 
     protected final Logger log = Logger.getInstance(getClass().getName());
     private ConnectionHandler connectionHandler;
 
-    private Map<ConnectionWrapper, Status> poolConnections =  Collections.synchronizedMap(new HashMap<ConnectionWrapper, Status>());
+    private List<ConnectionWrapper> poolConnections = ContainerUtil.<ConnectionWrapper> createConcurrentList();
     private ConnectionWrapper standaloneConnection;
-    private Timer poolCleaner;
 
     public ConnectionPool(ConnectionHandler connectionHandler) {
         this.connectionHandler = connectionHandler;
-        poolCleaner = new Timer("Connection pool cleaner [" + connectionHandler.getName() + "]");
-        poolCleaner.schedule(new PoolCleanerTask(), TimeUtil.ONE_MINUTE, TimeUtil.ONE_MINUTE);
+        POOL_CLEANER_TASK.registerConnectionPool(this);
     }
 
     public synchronized Connection getStandaloneConnection(boolean recover) throws SQLException {
@@ -67,45 +66,54 @@ public class ConnectionPool implements Disposable {
 
     public Connection allocateConnection() throws SQLException {
         ConnectionStatus connectionStatus = connectionHandler.getConnectionStatus();
-        for (ConnectionWrapper connectionWrapper : poolConnections.keySet()) {
-            if (poolConnections.get(connectionWrapper) == Status.FREE) {
+        for (ConnectionWrapper connectionWrapper : poolConnections) {
+            if (!connectionWrapper.isBusy()) {
+                connectionWrapper.setBusy(true);
                 if (connectionWrapper.isValid()) {
                     connectionStatus.setConnected(true);
                     connectionStatus.setValid(true);
-                    poolConnections.put(connectionWrapper, Status.BUSY);
+                    lastAccessTimestamp = System.currentTimeMillis();
                     return connectionWrapper.getConnection();
+                } else {
+                    connectionWrapper.closeConnection();
+                    poolConnections.remove(connectionWrapper);
                 }
             }
         }
 
-        logger.debug("[DBN-INFO] Attempt to create new pool connection for '" + connectionHandler.getName() + "'");
+        LOGGER.debug("[DBN-INFO] Attempt to create new pool connection for '" + connectionHandler.getName() + "'");
         Connection connection = ConnectionUtil.connect(connectionHandler);
+        connectionStatus.setConnected(true);
+        connectionStatus.setValid(true);
 
         //connectionHandler.getConnectionBundle().notifyConnectionStatusListeners(connectionHandler);
 
         // pool connections do not need to have current schema set
         //connectionHandler.getDataDictionary().setCurrentSchema(connectionHandler.getCurrentSchemaName(), connection);
         ConnectionWrapper connectionWrapper = new ConnectionWrapper(connection);
-        poolConnections.put(connectionWrapper, Status.BUSY);
+        connectionWrapper.setBusy(true);
+        poolConnections.add(connectionWrapper);
         int size = poolConnections.size();
         if (size > peakSize) peakSize = size;
-        logger.debug("[DBN-INFO] Pool connection for '" + connectionHandler.getName() + "' created. Pool size = " + getSize());
+        lastAccessTimestamp = System.currentTimeMillis();
+        LOGGER.debug("[DBN-INFO] Pool connection for '" + connectionHandler.getName() + "' created. Pool size = " + getSize());
         return connection;
     }
 
     public void releaseConnection(Connection connection) {
         if (connection != null) {
-            for (ConnectionWrapper connectionWrapper : poolConnections.keySet()) {
+            for (ConnectionWrapper connectionWrapper : poolConnections) {
                 if (connectionWrapper.getConnection() == connection) {
-                    poolConnections.put(connectionWrapper, Status.FREE);
+                    connectionWrapper.setBusy(false);
                     break;
                 }
             }
         }
+        lastAccessTimestamp = System.currentTimeMillis();
     }
 
     public void closeConnectionsSilently() {
-        for (ConnectionWrapper connectionWrapper : poolConnections.keySet()) {
+        for (ConnectionWrapper connectionWrapper : poolConnections) {
             connectionWrapper.closeConnection();
         }
         poolConnections.clear();
@@ -116,9 +124,9 @@ public class ConnectionPool implements Disposable {
         }
     }
 
-    public synchronized void closeConnections() throws SQLException {
+    public void closeConnections() throws SQLException {
         SQLException exception = null;
-        for (ConnectionWrapper connectionWrapper : poolConnections.keySet()) {
+        for (ConnectionWrapper connectionWrapper : poolConnections) {
             try {
                 connectionWrapper.getConnection().close();
             } catch (SQLException e) {
@@ -162,8 +170,6 @@ public class ConnectionPool implements Disposable {
     public void dispose() {
         if (!isDisposed) {
             isDisposed = true;
-            poolCleaner.cancel();
-            poolCleaner.purge();
             closeConnectionsSilently();
             connectionHandler = null;
         }
@@ -174,28 +180,44 @@ public class ConnectionPool implements Disposable {
             standaloneConnection.setAutoCommit(autoCommit);
         }
 
-        for (ConnectionWrapper connection : poolConnections.keySet()) {
+        for (ConnectionWrapper connection : poolConnections) {
             if (!connection.isClosed()) {
                 connection.setAutoCommit(autoCommit);
             }
         }
     }
 
-    private class PoolCleanerTask extends TimerTask {
-        public void run() {
-            // close connections only if pool is passive
-            synchronized (ConnectionPool.this) {
-                for (ConnectionWrapper connection : poolConnections.keySet()) {
-                    if (poolConnections.get(connection) == Status.BUSY) return;
-                }
+    private static class ConnectionPoolCleanTask extends TimerTask {
+        List<WeakReference<ConnectionPool>> connectionPools = ContainerUtil.<WeakReference<ConnectionPool>>createConcurrentList();
 
-                for (ConnectionWrapper connection : poolConnections.keySet()) {
-                    connection.closeConnection();
+        public void run() {
+            for (WeakReference<ConnectionPool> connectionPoolRef : connectionPools) {
+                ConnectionPool connectionPool = connectionPoolRef.get();
+                if (connectionPool != null && TimeUtil.isOlderThan(connectionPool.lastAccessTimestamp, TimeUtil.FIVE_MINUTES)) {
+                    // close connections only if pool is passive
+                    for (ConnectionWrapper connection : connectionPool.poolConnections) {
+                        if (connection.isBusy()) return;
+                    }
+
+                    for (ConnectionWrapper connection : connectionPool.poolConnections) {
+                        connection.closeConnection();
+                    }
+                    connectionPool.poolConnections.clear();
+                    LOGGER.debug("[DBN-INFO] Clearing pool for connection '" + connectionPool.connectionHandler.getName() + "'");
                 }
-                poolConnections.clear();
-                logger.debug("[DBN-INFO] Clearing pool for connection '" + connectionHandler.getName() + "'");
             }
+
         }
+
+        public void registerConnectionPool(ConnectionPool connectionPool) {
+            connectionPools.add(new WeakReference<ConnectionPool>(connectionPool));
+        }
+    }
+
+    private static ConnectionPoolCleanTask POOL_CLEANER_TASK = new ConnectionPoolCleanTask();
+    static {
+        Timer poolCleaner = new Timer("DBN Connection pool cleaner");
+        poolCleaner.schedule(POOL_CLEANER_TASK, TimeUtil.ONE_MINUTE, TimeUtil.ONE_MINUTE);
     }
 
 
@@ -204,6 +226,7 @@ public class ConnectionPool implements Disposable {
         private long lastCheckTimestamp;
         private long lastAccessTimestamp;
         private boolean isValid;
+        private boolean isBusy = false;
 
         public ConnectionWrapper(Connection connection) {
             this.connection = connection;
@@ -214,7 +237,7 @@ public class ConnectionPool implements Disposable {
 
         public boolean isValid() {
             long currentTimeMillis = System.currentTimeMillis();
-            if (currentTimeMillis - lastCheckTimestamp > 10000) {
+            if (TimeUtil.isOlderThan(lastAccessTimestamp, TimeUtil.TEN_SECONDS)) {
                 lastCheckTimestamp = currentTimeMillis;
                 DatabaseMetadataInterface metadataInterface = connectionHandler.getInterfaceProvider().getMetadataInterface();
                 isValid = metadataInterface.isValid(connection);
@@ -243,6 +266,14 @@ public class ConnectionPool implements Disposable {
 
         public boolean isClosed() throws SQLException {
             return connection.isClosed();
+        }
+
+        public boolean isBusy() {
+            return isBusy;
+        }
+
+        public void setBusy(boolean isFree) {
+            this.isBusy = isFree;
         }
 
         public void keepAlive() {

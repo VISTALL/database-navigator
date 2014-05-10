@@ -1,7 +1,7 @@
 package com.dci.intellij.dbn.common.ui.dialog;
 
-import com.dci.intellij.dbn.common.TimeUtil;
 import com.dci.intellij.dbn.common.thread.SimpleLaterInvocator;
+import com.dci.intellij.dbn.common.util.TimeUtil;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.Nullable;
 

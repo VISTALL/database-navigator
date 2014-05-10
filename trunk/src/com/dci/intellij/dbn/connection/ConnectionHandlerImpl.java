@@ -294,11 +294,6 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
             connectionPool.releaseConnection(connection);
     }
 
-    public void closePoolConnection(Connection connection) {
-        if (!isDisposed)
-            connectionPool.releaseConnection(connection);
-    }
-
     public ConnectionPool getConnectionPool() {
         return connectionPool;
     }
