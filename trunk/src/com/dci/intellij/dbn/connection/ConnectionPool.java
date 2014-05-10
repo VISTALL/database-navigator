@@ -64,7 +64,7 @@ public class ConnectionPool implements Disposable {
         changeListener.statusChanged(connectionHandler.getId());
     }
 
-    public Connection allocateConnection() throws SQLException {
+    public synchronized Connection allocateConnection() throws SQLException {
         ConnectionStatus connectionStatus = connectionHandler.getConnectionStatus();
         for (ConnectionWrapper connectionWrapper : poolConnections) {
             if (!connectionWrapper.isBusy()) {
@@ -225,7 +225,7 @@ public class ConnectionPool implements Disposable {
         private Connection connection;
         private long lastCheckTimestamp;
         private long lastAccessTimestamp;
-        private boolean isValid;
+        private boolean isValid = true;
         private boolean isBusy = false;
 
         public ConnectionWrapper(Connection connection) {

@@ -143,7 +143,7 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
     @Nullable
     public DBColumn getSelectedColumn() {
         DBObjectRef<DBColumn> column = (DBObjectRef<DBColumn>) columnComboBox.getSelectedItem();
-        return column.get();
+        return DBObjectRef.get(column);
     }
 
     public ConditionOperator getSelectedOperator() {
@@ -207,7 +207,7 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
     private ListCellRenderer cellRenderer = new ColoredListCellRenderer() {
         protected void customizeCellRenderer(JList list, Object value, int index, boolean selected, boolean hasFocus) {
             DBObjectRef<DBColumn> columnRef = (DBObjectRef<DBColumn>) value;
-            DBColumn column = columnRef.get();
+            DBColumn column = DBObjectRef.get(columnRef);
             if (column != null) {
                 setIcon(column.getIcon());
                 append(column.getName(), active ? SimpleTextAttributes.REGULAR_ATTRIBUTES : SimpleTextAttributes.GRAYED_ATTRIBUTES);
@@ -252,8 +252,8 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
     private void updateValueTextField() {
         JTextField valueTextField = editorComponent.getTextField();
         ConditionOperator selectedOperator = getSelectedOperator();
-        valueTextField.setEnabled(!selectedOperator.isFinal() && active);
-        if (selectedOperator.isFinal()) valueTextField.setText(null);
+        valueTextField.setEnabled(selectedOperator!= null && !selectedOperator.isFinal() && active);
+        if (selectedOperator == null || selectedOperator.isFinal()) valueTextField.setText(null);
     }
 
     public void resetChanges() {
