@@ -2,7 +2,6 @@ package com.dci.intellij.dbn.driver;
 
 import com.dci.intellij.dbn.common.Constants;
 import com.dci.intellij.dbn.common.util.ActionUtil;
-import com.dci.intellij.dbn.common.util.NamingUtil;
 import com.dci.intellij.dbn.common.util.StringUtil;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ApplicationComponent;
@@ -26,8 +25,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 public class DatabaseDriverManager implements ApplicationComponent {
-    private Map<String, String[]> cache = new HashMap<String, String[]>();
-    private Map<String, ClassLoader> classLoaders = new HashMap<String, ClassLoader>();
+    private Map<String, List<Driver>> driversCache = new HashMap<String, List<Driver>>();
 
     public static DatabaseDriverManager getInstance() {
         return ApplicationManager.getApplication().getComponent(DatabaseDriverManager.class);
@@ -47,11 +45,11 @@ public class DatabaseDriverManager implements ApplicationComponent {
     public void initComponent() {}
     public void disposeComponent() {}
 
-    public String[] loadDriverClassesWithProgressBar(String libraryName) {
+    public List<Driver> loadDriverClassesWithProgressBar(String libraryName) {
         LoaderThread loader = new LoaderThread(libraryName);
         Project project = ActionUtil.getProject();
         ProgressManager.getInstance().runProcessWithProgressSynchronously(loader, Constants.DBN_TITLE_PREFIX + "Loading database drivers" , false, project);
-        return loader.getClasses();
+        return loader.getDrivers();
     }
 
     class LoaderThread implements Runnable{
@@ -59,29 +57,28 @@ public class DatabaseDriverManager implements ApplicationComponent {
             this.libraryName = libraryName;
         }
 
-        String[] classes;
+        List<Driver> drivers;
         String libraryName;
         public void run() {
-            classes = loadDriverClasses(libraryName);
+            drivers = loadDrivers(libraryName);
         }
-        public String[] getClasses() {
-                return classes;
+        public List<Driver> getDrivers() {
+                return drivers;
         }
     }
 
 
-    public String[] loadDriverClasses(String libraryName) {
+    public List<Driver> loadDrivers(String libraryName) {
         ProgressIndicator progressIndicator = ProgressManager.getInstance().getProgressIndicator();
         if (progressIndicator != null) {
             progressIndicator.setText("Loading jdbc drivers from " + libraryName);
         }
-        String[] classNames = cache.get(libraryName);
-        if (classNames == null && new File(libraryName).isFile()) {
+        List<Driver> drivers = driversCache.get(libraryName);
+        if (drivers == null && new File(libraryName).isFile()) {
             try {
-                List<String> drivers = new ArrayList<String>();
+                drivers = new ArrayList<Driver>();
                 URL[] urls = new URL[]{new File(libraryName).toURL()};
                 URLClassLoader classLoader = new URLClassLoader(urls);
-                classLoaders.put(libraryName, classLoader);
 
                 JarFile jarFile = new JarFile(libraryName);
                 Enumeration<JarEntry> entries = jarFile.entries();
@@ -98,9 +95,8 @@ public class DatabaseDriverManager implements ApplicationComponent {
                             if (className.contains("Driver")) {
                                 Class<?> clazz = classLoader.loadClass(className);
                                 if (Driver.class.isAssignableFrom(clazz)) {
-                                    drivers.add(clazz.getName());
-                                } else {
-
+                                    Driver driver = (Driver) clazz.newInstance();
+                                    drivers.add(driver);
                                 }
                             }
                         }
@@ -109,27 +105,30 @@ public class DatabaseDriverManager implements ApplicationComponent {
                         }
                     }
                 }
-                classNames = drivers.toArray(new String[drivers.size()]);
-                cache.put(libraryName, classNames);
+                driversCache.put(libraryName, drivers);
             } catch(Exception e) {
                 e.printStackTrace();
             }
         }
-        return classNames == null ? new String[0] : classNames ;
+        return drivers;
     }
 
     public synchronized Driver getDriver(String libraryName, String className) throws Exception {
         if (StringUtil.isEmptyOrSpaces(className)) {
             throw new Exception("No driver class specified.");
         }
-        if (!classLoaders.containsKey(libraryName)) {
-            if (new File(libraryName).exists()) {
-                loadDriverClasses(libraryName);
-            } else {
-                throw new Exception("Could not find file \"" + libraryName +"\".");
+        if (new File(libraryName).exists()) {
+            List<Driver> drivers = loadDrivers(libraryName);
+            for (Driver driver : drivers) {
+                if (driver.getClass().getName().equals(className)) {
+                    return driver;
+                }
             }
+        } else {
+            throw new Exception("Could not find library \"" + libraryName +"\".");
         }
-        ClassLoader classLoader = classLoaders.get(libraryName);
+        throw new Exception("Could not locate driver \"" + className + "\" in library \"" + libraryName + "\"");
+/*        ClassLoader classLoader = classLoaders.get(libraryName);
         try {
             return (Driver) Class.forName(className, true, classLoader).newInstance();
         } catch (Exception e) {
@@ -137,12 +136,12 @@ public class DatabaseDriverManager implements ApplicationComponent {
                     "Could not load class \"" + className + "\" " +
                     "from library \"" + libraryName + "\". " +
                     "[" + NamingUtil.getClassName(e.getClass()) + "] " + e.getMessage());
-        }
+        }*/
     }
 
     public static void main(String[] args) {
         DatabaseDriverManager m = new DatabaseDriverManager();
         File file = new File("D:\\Projects\\DBNavigator\\lib\\classes12.jar");
-        String[] classes = m.loadDriverClasses(file.getPath());
+        List<Driver> drivers = m.loadDrivers(file.getPath());
     }
 }

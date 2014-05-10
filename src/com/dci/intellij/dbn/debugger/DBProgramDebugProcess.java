@@ -179,7 +179,7 @@ public class DBProgramDebugProcess extends XDebugProcess {
                 }
 
                 getStatus().TARGET_EXECUTION_TERMINATED = true;
-                connectionHandler.closePoolConnection(targetConnection);
+                connectionHandler.freePoolConnection(targetConnection);
                 targetConnection = null;
             }
         }.start();
@@ -281,7 +281,7 @@ public class DBProgramDebugProcess extends XDebugProcess {
                     runtimeInfo = debuggerInterface.stopExecution(debugConnection);
                     debuggerInterface.detachSession(debugConnection);
 
-                    connectionHandler.closePoolConnection(debugConnection);
+                    connectionHandler.freePoolConnection(debugConnection);
                     debugConnection = null;
                     getStatus().PROCESS_IS_TERMINATED = true;
                 } catch (final SQLException e) {

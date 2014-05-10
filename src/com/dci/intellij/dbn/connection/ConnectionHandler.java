@@ -29,7 +29,6 @@ public interface ConnectionHandler extends Disposable{
     Connection getStandaloneConnection() throws SQLException;
     Connection getStandaloneConnection(DBSchema schema) throws SQLException;
     void freePoolConnection(Connection connection);
-    void closePoolConnection(Connection connection);
     ConnectionSettings getSettings();
     ConnectionStatus getConnectionStatus();
     ConnectionBundle getConnectionBundle();

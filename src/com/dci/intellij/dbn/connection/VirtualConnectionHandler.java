@@ -105,7 +105,6 @@ public class VirtualConnectionHandler implements ConnectionHandler {
     public Connection getStandaloneConnection() throws SQLException {return null;}
     public Connection getStandaloneConnection(DBSchema schema) throws SQLException {return null;}
     public void freePoolConnection(Connection connection) {}
-    public void closePoolConnection(Connection connection) {}
 
     public ConnectionSettings getSettings() {return null;}
     public ConnectionStatus getConnectionStatus() {return null;}
