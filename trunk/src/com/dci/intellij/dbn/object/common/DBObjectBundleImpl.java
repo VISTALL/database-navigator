@@ -357,7 +357,7 @@ public class DBObjectBundleImpl implements DBObjectBundle {
                 append(true, "Pool size: ", "-2", null, false);
                 append(false, "" + connectionPool.getSize(), false);
                 append(false, " (", false);
-                append(false, "peak&nbsp;" + connectionPool.getPeakSize(), false);
+                append(false, "peak&nbsp;" + connectionPool.getPeakPoolSize(), false);
                 append(false, ")", false);
             }
         }.getToolTip();

@@ -5,6 +5,7 @@ import com.dci.intellij.dbn.common.LoggerFactory;
 import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.common.notification.NotificationUtil;
 import com.dci.intellij.dbn.common.util.TimeUtil;
+import com.dci.intellij.dbn.connection.config.ConnectionDetailSettings;
 import com.dci.intellij.dbn.database.DatabaseMetadataInterface;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.Logger;
@@ -21,7 +22,7 @@ public class ConnectionPool implements Disposable {
 
     private static Logger LOGGER = LoggerFactory.createLogger();
     private long lastAccessTimestamp = 0;
-    private int peakSize = 0;
+    private int peakPoolSize = 0;
     private boolean isDisposed;
 
     protected final Logger log = Logger.getInstance(getClass().getName());
@@ -81,7 +82,18 @@ public class ConnectionPool implements Disposable {
             }
         }
 
-        LOGGER.debug("[DBN-INFO] Attempt to create new pool connection for '" + connectionHandler.getName() + "'");
+        String connectionName = connectionHandler.getName();
+        ConnectionDetailSettings detailSettings = connectionHandler.getSettings().getDetailSettings();
+        if (poolConnections.size() >= detailSettings.getMaxConnectionPoolSize()) {
+            try {
+                Thread.currentThread().sleep(TimeUtil.ONE_SECOND);
+                return allocateConnection();
+            } catch (InterruptedException e) {
+                throw new SQLException("Could not allocate connection for '" + connectionName + "'. ");
+            }
+        }
+
+        LOGGER.debug("[DBN-INFO] Attempt to create new pool connection for '" + connectionName + "'");
         Connection connection = ConnectionUtil.connect(connectionHandler);
         connectionStatus.setConnected(true);
         connectionStatus.setValid(true);
@@ -94,9 +106,9 @@ public class ConnectionPool implements Disposable {
         connectionWrapper.setBusy(true);
         poolConnections.add(connectionWrapper);
         int size = poolConnections.size();
-        if (size > peakSize) peakSize = size;
+        if (size > peakPoolSize) peakPoolSize = size;
         lastAccessTimestamp = System.currentTimeMillis();
-        LOGGER.debug("[DBN-INFO] Pool connection for '" + connectionHandler.getName() + "' created. Pool size = " + getSize());
+        LOGGER.debug("[DBN-INFO] Pool connection for '" + connectionName + "' created. Pool size = " + getSize());
         return connection;
     }
 
@@ -163,8 +175,8 @@ public class ConnectionPool implements Disposable {
         return poolConnections.size();
     }
 
-    public int getPeakSize() {
-        return peakSize;
+    public int getPeakPoolSize() {
+        return peakPoolSize;
     }
 
     public void dispose() {
