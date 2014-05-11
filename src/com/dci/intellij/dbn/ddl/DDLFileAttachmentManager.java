@@ -2,6 +2,7 @@ package com.dci.intellij.dbn.ddl;
 
 import com.dci.intellij.dbn.common.AbstractProjectComponent;
 import com.dci.intellij.dbn.common.Constants;
+import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.common.thread.WriteActionRunner;
 import com.dci.intellij.dbn.common.ui.ListUtil;
 import com.dci.intellij.dbn.common.util.MessageUtil;
@@ -166,11 +167,13 @@ public class DDLFileAttachmentManager extends AbstractProjectComponent implement
     public void bindDDLFile(DBSchemaObject object, VirtualFile virtualFile) {
         cache.put(virtualFile, object.getRef());
         mappings.put(virtualFile.getPath(), object.getQualifiedNameWithConnectionId());
+        EventManager.notify(getProject(), DDLMappingListener.TOPIC).ddlFileAttached(virtualFile);
     }
 
     public void detachDDLFile(VirtualFile virtualFile) {
         cache.remove(virtualFile);
         mappings.remove(virtualFile.getPath());
+        EventManager.notify(getProject(), DDLMappingListener.TOPIC).ddlFileDetached(virtualFile);
     }
 
     private List<VirtualFile> lookupApplicableDDLFiles(DBSchemaObject object) {
