@@ -13,6 +13,7 @@ import com.dci.intellij.dbn.ddl.ui.DDLFileNameListCellRenderer;
 import com.dci.intellij.dbn.ddl.ui.DetachDDLFileDialog;
 import com.dci.intellij.dbn.object.DBSchema;
 import com.dci.intellij.dbn.object.common.DBSchemaObject;
+import com.dci.intellij.dbn.object.lookup.DBObjectRef;
 import com.dci.intellij.dbn.vfs.DatabaseEditableObjectFile;
 import com.dci.intellij.dbn.vfs.DatabaseFileSystem;
 import com.intellij.openapi.fileChooser.FileChooser;
@@ -51,7 +52,7 @@ import java.util.Map;
 public class DDLFileAttachmentManager extends AbstractProjectComponent implements VirtualFileListener, JDOMExternalizable {
 
     private Map<String, String> mappings = new HashMap<String, String>();
-    private Map<VirtualFile, DBSchemaObject> cache = new HashMap<VirtualFile, DBSchemaObject>();
+    private Map<VirtualFile, DBObjectRef<DBSchemaObject>> cache = new HashMap<VirtualFile, DBObjectRef<DBSchemaObject>>();
     private DDLFileAttachmentManager(Project project) {
         super(project);
         VirtualFileManager.getInstance().addVirtualFileListener(this);
@@ -80,7 +81,7 @@ public class DDLFileAttachmentManager extends AbstractProjectComponent implement
     @Nullable
     public DBSchemaObject getEditableObject(VirtualFile ddlFile) {
         if (cache.containsKey(ddlFile)) {
-            return cache.get(ddlFile);
+            return DBObjectRef.get(cache.get(ddlFile));
         }
 
         String objectPath = mappings.get(ddlFile.getPath());
@@ -101,7 +102,7 @@ public class DDLFileAttachmentManager extends AbstractProjectComponent implement
                     endIndex = objectPath.length();
                     String objectName = objectPath.substring(startIndex, endIndex);
                     DBSchemaObject object = (DBSchemaObject) schema.getChildObject(objectName, false);
-                    cache.put(ddlFile, object);
+                    cache.put(ddlFile, DBObjectRef.from(object));
                     return object;
                 }
             }
@@ -163,7 +164,7 @@ public class DDLFileAttachmentManager extends AbstractProjectComponent implement
     }
 
     public void bindDDLFile(DBSchemaObject object, VirtualFile virtualFile) {
-        cache.put(virtualFile, object);
+        cache.put(virtualFile, object.getRef());
         mappings.put(virtualFile.getPath(), object.getQualifiedNameWithConnectionId());
     }
 
@@ -386,7 +387,7 @@ public class DDLFileAttachmentManager extends AbstractProjectComponent implement
 
     @Override
     public void fileDeleted(VirtualFileEvent event) {
-        DBSchemaObject object = cache.get(event.getFile());
+        DBSchemaObject object = DBObjectRef.get(cache.get(event.getFile()));
         if (object != null) {
             detachDDLFile(event.getFile());
             DatabaseFileSystem.getInstance().reopenEditor(object);
