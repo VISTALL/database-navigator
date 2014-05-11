@@ -50,14 +50,14 @@ public abstract class DynamicContentResultSetLoader<T extends DynamicContentElem
         }
     }
 
-    public void loadContent(DynamicContent<T> dynamicContent) throws DynamicContentLoaderException {
+    public void loadContent(DynamicContent<T> dynamicContent) throws DynamicContentLoadException, DynamicContentLoadInterruptedException {
         DebugInfo debugInfo = preLoadContent(dynamicContent);
 
         ProgressIndicator progressIndicator = ProgressManager.getInstance().getProgressIndicator();
         if (progressIndicator != null) {
             progressIndicator.setText("Loading " + dynamicContent.getContentDescription());
         }
-        if (dynamicContent.isDisposed()) return;
+        dynamicContent.check();
         ConnectionHandler connectionHandler = dynamicContent.getConnectionHandler();
         LoaderCache loaderCache = new LoaderCache();
         Connection connection = null;
@@ -65,11 +65,11 @@ public abstract class DynamicContentResultSetLoader<T extends DynamicContentElem
         int count = 0;
         try {
             connection = connectionHandler.getPoolConnection();
-            if (dynamicContent.isDisposed()) return;
+            dynamicContent.check();
             resultSet = createResultSet(dynamicContent, connection);
             List<T> list = null;
             while (resultSet != null && resultSet.next()) {
-                if (dynamicContent.isDisposed()) return;
+                dynamicContent.check();
                 
                 T element = null;
                 try {
@@ -79,6 +79,7 @@ public abstract class DynamicContentResultSetLoader<T extends DynamicContentElem
                 }
 
                 if (element != null && dynamicContent.accepts(element)) {
+                    dynamicContent.check();
                     if (list == null) list = new ArrayList<T>();
                     list.add(element);
                     if (progressIndicator != null && count%10 == 0) {
@@ -89,19 +90,19 @@ public abstract class DynamicContentResultSetLoader<T extends DynamicContentElem
                     count++;
                 }
             }
+            dynamicContent.check();
             dynamicContent.setElements(list);
-
             postLoadContent(dynamicContent, debugInfo);
         } catch (Exception e) {
             LOGGER.warn("Error loading database content (" + dynamicContent.getContentDescription() + "): " + StringUtil.trim(e.getMessage()));
-            throw new DynamicContentLoaderException(e);
+            throw new DynamicContentLoadException(e);
         } finally {
             ConnectionUtil.closeResultSet(resultSet);
             connectionHandler.freePoolConnection(connection);
         }
     }
 
-    public void reloadContent(DynamicContent<T> dynamicContent) throws DynamicContentLoaderException {
+    public void reloadContent(DynamicContent<T> dynamicContent) throws DynamicContentLoadException, DynamicContentLoadInterruptedException {
         loadContent(dynamicContent);
     }
 
