@@ -24,15 +24,16 @@ public abstract class DynamicSubcontentLoader<T extends DynamicContentElement> i
      */
     public abstract boolean match(T sourceElement, DynamicContent dynamicContent);
 
-    public void loadContent(DynamicContent<T> dynamicContent) throws DynamicContentLoadException, DynamicContentLoadInterruptedException {
-        List<T> list = null;
-        boolean matchedOnce = false;
+    public void loadContent(DynamicContent<T> dynamicContent, boolean force) throws DynamicContentLoadException, InterruptedException {
         SubcontentDependencyAdapter dependencyAdapter = (SubcontentDependencyAdapter) dynamicContent.getDependencyAdapter();
 
         DynamicContent sourceContent = dependencyAdapter.getSourceContent();
         boolean isBackgroundLoad = Thread.currentThread().getName().equals("BACKGROUND_OBJECT_LOAD_THREAD");
         DynamicContentLoader<T> alternativeLoader = getAlternativeLoader();
-        if (sourceContent.isLoaded() || isBackgroundLoad || alternativeLoader == null) {
+        if ((sourceContent.isLoaded() && !force) || isBackgroundLoad || alternativeLoader == null) {
+            //load from sub-content
+            boolean matchedOnce = false;
+            List<T> list = null;
             for (Object object : sourceContent.getElements()) {
                 dynamicContent.check();
 
@@ -52,17 +53,14 @@ public abstract class DynamicSubcontentLoader<T extends DynamicContentElement> i
             }
             dynamicContent.setElements(list);
         } else {
-            sourceContent.loadInBackground();
-            alternativeLoader.loadContent(dynamicContent);
+            sourceContent.loadInBackground(force);
+            alternativeLoader.loadContent(dynamicContent, force);
         }
-
-
-        //dynamicContent.setTemporary(false);
     }
 
     public abstract DynamicContentLoader<T> getAlternativeLoader();
 
-    public void reloadContent(DynamicContent<T> dynamicContent) throws DynamicContentLoadException {
-
+    public void reloadContent(DynamicContent<T> dynamicContent) throws DynamicContentLoadException, InterruptedException {
+        loadContent(dynamicContent, true);
     }
 }

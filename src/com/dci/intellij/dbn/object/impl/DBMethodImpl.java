@@ -108,7 +108,7 @@ public abstract class DBMethodImpl extends DBSchemaObjectImpl implements DBMetho
 
     @Override
     public void reload() {
-        arguments.reload(true);
+        arguments.reload();
     }
 
     @Override

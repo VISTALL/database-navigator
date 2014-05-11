@@ -10,11 +10,7 @@ import java.util.List;
 public abstract class DynamicSubcontentCustomLoader<T extends DynamicContentElement> implements DynamicContentLoader<T> {
     public abstract T resolveElement(DynamicContent<T> dynamicContent, DynamicContentElement sourceElement);
 
-    public void reloadContent(DynamicContent<T> dynamicContent) throws DynamicContentLoadException, DynamicContentLoadInterruptedException {
-        loadContent(dynamicContent);
-    }
-
-    public void loadContent(DynamicContent<T> dynamicContent) throws DynamicContentLoadException, DynamicContentLoadInterruptedException {
+    public void loadContent(DynamicContent<T> dynamicContent, boolean forceReload) throws DynamicContentLoadException, InterruptedException {
         List<T> list = null;
         SubcontentDependencyAdapter dependencyAdapter = (SubcontentDependencyAdapter) dynamicContent.getDependencyAdapter();
         for (Object object : dependencyAdapter.getSourceContent().getElements()) {
@@ -28,5 +24,11 @@ public abstract class DynamicSubcontentCustomLoader<T extends DynamicContentElem
             }
         }
         dynamicContent.setElements(list);
+    }
+
+    public void reloadContent(DynamicContent<T> dynamicContent) throws DynamicContentLoadException, InterruptedException {
+        SubcontentDependencyAdapter dependencyAdapter = (SubcontentDependencyAdapter) dynamicContent.getDependencyAdapter();
+        dependencyAdapter.getSourceContent().reload();
+        loadContent(dynamicContent, true);
     }
 }

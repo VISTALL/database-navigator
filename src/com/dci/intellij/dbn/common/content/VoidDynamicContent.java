@@ -2,7 +2,6 @@ package com.dci.intellij.dbn.common.content;
 
 import com.dci.intellij.dbn.common.content.dependency.ContentDependencyAdapter;
 import com.dci.intellij.dbn.common.content.dependency.VoidContentDependencyAdapter;
-import com.dci.intellij.dbn.common.content.loader.DynamicContentLoadInterruptedException;
 import com.dci.intellij.dbn.common.content.loader.DynamicContentLoader;
 import com.dci.intellij.dbn.common.content.loader.VoidDynamicContentLoader;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
@@ -24,23 +23,23 @@ public class VoidDynamicContent implements DynamicContent{
     }
 
     @Override
-    public boolean shouldLoad() {
+    public boolean shouldLoad(boolean force) {
         return false;
     }
 
     @Override
-    public void load() {
+    public void load(boolean force) {
 
     }
 
     @Override
-    public void loadInBackground() {
+    public void loadInBackground(boolean force) {
 
     }
 
 
     @Override
-    public void reload(boolean recursive) {
+    public void reload() {
 
     }
 
@@ -161,7 +160,7 @@ public class VoidDynamicContent implements DynamicContent{
     }
 
     @Override
-    public void check() throws DynamicContentLoadInterruptedException {
+    public void check() throws InterruptedException {
 
     }
 

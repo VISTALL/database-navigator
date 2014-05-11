@@ -50,7 +50,7 @@ public abstract class DynamicContentResultSetLoader<T extends DynamicContentElem
         }
     }
 
-    public void loadContent(DynamicContent<T> dynamicContent) throws DynamicContentLoadException, DynamicContentLoadInterruptedException {
+    public void loadContent(DynamicContent<T> dynamicContent, boolean forceReload) throws DynamicContentLoadException, InterruptedException {
         DebugInfo debugInfo = preLoadContent(dynamicContent);
 
         ProgressIndicator progressIndicator = ProgressManager.getInstance().getProgressIndicator();
@@ -102,8 +102,8 @@ public abstract class DynamicContentResultSetLoader<T extends DynamicContentElem
         }
     }
 
-    public void reloadContent(DynamicContent<T> dynamicContent) throws DynamicContentLoadException, DynamicContentLoadInterruptedException {
-        loadContent(dynamicContent);
+    public void reloadContent(DynamicContent<T> dynamicContent) throws DynamicContentLoadException, InterruptedException {
+        loadContent(dynamicContent, true);
     }
 
     public class LoaderCache {

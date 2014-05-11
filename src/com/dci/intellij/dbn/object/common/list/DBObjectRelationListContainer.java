@@ -95,7 +95,7 @@ public class DBObjectRelationListContainer implements Disposable {
 
     public void reload(boolean recursive) {
         for (DBObjectRelationList objectRelationList : objectRelationLists) {
-            objectRelationList.reload(recursive);
+            objectRelationList.reload();
         }        
     }
 }

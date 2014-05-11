@@ -3,7 +3,6 @@ package com.dci.intellij.dbn.common.content;
 import com.dci.intellij.dbn.common.content.dependency.ContentDependencyAdapter;
 import com.dci.intellij.dbn.common.content.dependency.VoidContentDependencyAdapter;
 import com.dci.intellij.dbn.common.content.loader.DynamicContentLoadException;
-import com.dci.intellij.dbn.common.content.loader.DynamicContentLoadInterruptedException;
 import com.dci.intellij.dbn.common.content.loader.DynamicContentLoader;
 import com.dci.intellij.dbn.common.dispose.DisposeUtil;
 import com.dci.intellij.dbn.common.filter.Filter;
@@ -114,12 +113,12 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
         isDirty = dirty;
     }
 
-    public final synchronized void load() {
-        if (shouldLoad()) {
+    public final synchronized void load(boolean force) {
+        if (shouldLoad(force)) {
             isLoading = true;
             try {
                 performLoad();
-            } catch (DynamicContentLoadInterruptedException e) {
+            } catch (InterruptedException e) {
                 setElements(EMPTY_LIST);
                 isDirty = false;
             }
@@ -130,15 +129,15 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
     }
 
     @Override
-    public final void loadInBackground() {
-        if (!isLoadingInBackground && shouldLoad()) {
+    public final void loadInBackground(final boolean force) {
+        if (!isLoadingInBackground && shouldLoad(force)) {
             isLoadingInBackground = true;
             new BackgroundTask(getProject(), "Loading data dictionary", true) {
                 public void execute(@NotNull ProgressIndicator progressIndicator) {
                     Thread thread = Thread.currentThread();
                     String name = thread.getName();
                     thread.setName("BACKGROUND_OBJECT_LOAD_THREAD");
-                    load();
+                    load(force);
                     thread.setName(name);
                     isLoadingInBackground = false;
                 }
@@ -150,7 +149,7 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
         changeTimestamp = System.currentTimeMillis();
     }
 
-    private void performLoad() throws DynamicContentLoadInterruptedException {
+    private void performLoad() throws InterruptedException {
         check();
         dependencyAdapter.beforeLoad();
         check();
@@ -158,7 +157,7 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
             // mark first the dirty status since dirty dependencies may
             // become valid due to parallel background load
             isDirty = false;
-            getLoader().loadContent(this);
+            getLoader().loadContent(this, false);
         } catch (DynamicContentLoadException e) {
             isDirty = true;
         }
@@ -166,12 +165,12 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
         dependencyAdapter.afterLoad();
     }
 
-    public final synchronized void reload(boolean recursive) {
-        if (!isDisposed) {
+    public final synchronized void reload() {
+        if (!isDisposed && !isLoading) {
             isLoading = true;
             try {
-                performReload(recursive);
-            } catch (DynamicContentLoadInterruptedException e) {
+                performReload();
+            } catch (InterruptedException e) {
                 setElements(EMPTY_LIST);
                 isDirty = false;
             }
@@ -181,16 +180,11 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
         }
     }
 
-    private void performReload(boolean recursive) throws DynamicContentLoadInterruptedException {
+    private void performReload() throws InterruptedException {
         dependencyAdapter.beforeReload(this);
         try {
             check();
             getLoader().reloadContent(this);
-            if (recursive) {
-                for (T element : getElements()) {
-                    element.reload();
-                }
-            }
         } catch (DynamicContentLoadException e) {
             isDirty = true;
         }
@@ -237,7 +231,7 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
 
     @NotNull
     public synchronized List<T> getElements() {
-        load();
+        load(false);
         return elements;
     }
 
@@ -276,12 +270,12 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
         return getElements().size();
     }
 
-    public boolean shouldLoad() {
-        return !(isLoading || isDisposed) && (!isLoaded || (isDirty() && dependencyAdapter.shouldLoadIfDirty()));
+    public boolean shouldLoad(boolean force) {
+        return !(isLoading || isDisposed) && (force || !isLoaded || (isDirty() && dependencyAdapter.shouldLoadIfDirty()));
     }
 
-    public void check() throws DynamicContentLoadInterruptedException {
-        if (isDisposed) throw new DynamicContentLoadInterruptedException();
+    public void check() throws InterruptedException {
+        if (isDisposed) throw new InterruptedException();
     }
 
     public void dispose() {
