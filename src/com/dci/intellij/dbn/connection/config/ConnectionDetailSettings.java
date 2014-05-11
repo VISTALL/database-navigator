@@ -22,6 +22,7 @@ public class ConnectionDetailSettings extends ProjectConfiguration<ConnectionDet
     private boolean autoCommit;
     private boolean ddlFileBinding = true;
     private int idleTimeToDisconnect = 30;
+    private int maxConnectionPoolSize = 7;
 
     public ConnectionDetailSettings(Project project) {
         super(project);
@@ -84,6 +85,14 @@ public class ConnectionDetailSettings extends ProjectConfiguration<ConnectionDet
         this.ddlFileBinding = ddlFileBinding;
     }
 
+    public int getMaxConnectionPoolSize() {
+        return maxConnectionPoolSize;
+    }
+
+    public void setMaxConnectionPoolSize(int maxConnectionPoolSize) {
+        this.maxConnectionPoolSize = maxConnectionPoolSize;
+    }
+
     public int getIdleTimeToDisconnect() {
         return idleTimeToDisconnect;
     }
@@ -114,6 +123,7 @@ public class ConnectionDetailSettings extends ProjectConfiguration<ConnectionDet
         ddlFileBinding = SettingsUtil.getBoolean(element, "ddl-file-binding", ddlFileBinding);
         environmentTypeId = SettingsUtil.getString(element, "environment-type", EnvironmentType.DEFAULT.getId());
         idleTimeToDisconnect = SettingsUtil.getInteger(element, "idle-time-to-disconnect", idleTimeToDisconnect);
+        maxConnectionPoolSize = SettingsUtil.getInteger(element, "max-connection-pool-size", maxConnectionPoolSize);
 
         Element propertiesElement = element.getChild("properties");
         if (propertiesElement != null) {
@@ -134,6 +144,7 @@ public class ConnectionDetailSettings extends ProjectConfiguration<ConnectionDet
         SettingsUtil.setBoolean(element, "ddl-file-binding", ddlFileBinding);
         SettingsUtil.setString(element, "environment-type", environmentTypeId);
         SettingsUtil.setInteger(element, "idle-time-to-disconnect", idleTimeToDisconnect);
+        SettingsUtil.setInteger(element, "max-connection-pool-size", maxConnectionPoolSize);
 
         if (properties.size() > 0) {
             Element propertiesElement = new Element("properties");

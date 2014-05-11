@@ -46,6 +46,7 @@ public class ConnectionDetailSettingsForm extends ConfigurationEditorForm<Connec
     private JPanel headerPanel;
     private JPanel generalGroupPanel;
     private JPanel propertiesGroupPanel;
+    private JTextField maxPoolSizeTextField;
     private JTextField idleTimeTextField;
     private JCheckBox ddlFileBindingCheckBox;
     private DBNHeaderForm headerForm;
@@ -78,6 +79,7 @@ public class ConnectionDetailSettingsForm extends ConfigurationEditorForm<Connec
         registerComponent(encodingComboBox);
         registerComponent(autoCommitCheckBox);
         registerComponent(ddlFileBindingCheckBox);
+        registerComponent(maxPoolSizeTextField);
         registerComponent(idleTimeTextField);
         registerComponent(environmentTypesComboBox);
 
@@ -176,6 +178,7 @@ public class ConnectionDetailSettingsForm extends ConfigurationEditorForm<Connec
         configuration.setAutoCommit(newAutoCommit);
         configuration.setDdlFileBinding(newDdlFileBinding);
         int idleTimeToDisconnect = ConfigurationEditorUtil.validateIntegerInputValue(idleTimeTextField, "Idle Time to Disconnect (minutes)", 0, 60, "");
+        int maxPoolSize = ConfigurationEditorUtil.validateIntegerInputValue(maxPoolSizeTextField, "Max Connection Pool Size", 3, 20, "");
         configuration.setIdleTimeToDisconnect(idleTimeToDisconnect);
 
         Project project = getConfiguration().getProject();
@@ -200,6 +203,7 @@ public class ConnectionDetailSettingsForm extends ConfigurationEditorForm<Connec
         ddlFileBindingCheckBox.setSelected(configuration.isDdlFileBinding());
         environmentTypesComboBox.setSelectedItem(configuration.getEnvironmentType());
         idleTimeTextField.setText(Integer.toString(configuration.getIdleTimeToDisconnect()));
+        maxPoolSizeTextField.setText(Integer.toString(configuration.getMaxConnectionPoolSize()));
     }
 
     @Override
