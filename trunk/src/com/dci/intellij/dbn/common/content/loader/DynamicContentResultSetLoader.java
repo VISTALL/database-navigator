@@ -78,8 +78,8 @@ public abstract class DynamicContentResultSetLoader<T extends DynamicContentElem
                     System.out.println("RuntimeException: " + e.getMessage());
                 }
 
+                dynamicContent.check();
                 if (element != null && dynamicContent.accepts(element)) {
-                    dynamicContent.check();
                     if (list == null) list = new ArrayList<T>();
                     list.add(element);
                     if (progressIndicator != null && count%10 == 0) {
