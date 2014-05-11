@@ -352,10 +352,12 @@ public class DatabaseFileSystem extends VirtualFileSystem implements Application
     }
 
     public void reopenEditor(DBSchemaObject object) {
-        VirtualFile virtualFile = findDatabaseFile(object);
         FileEditorManager fileEditorManager = FileEditorManager.getInstance(object.getProject());
-        fileEditorManager.closeFile(virtualFile);
-        fileEditorManager.openFile(virtualFile, true);
+        VirtualFile virtualFile = findDatabaseFile(object);
+        if (fileEditorManager.isFileOpen(virtualFile)) {
+            fileEditorManager.closeFile(virtualFile);
+            fileEditorManager.openFile(virtualFile, false);
+        }
     }
 
     public void fileOpened(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
