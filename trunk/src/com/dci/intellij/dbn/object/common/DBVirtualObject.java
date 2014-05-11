@@ -166,7 +166,7 @@ public class DBVirtualObject extends DBObjectImpl implements PsiReference {
     }
 
     private static final DynamicContentLoader VOID_CONTENT_LOADER = new DynamicContentLoader() {
-        public void loadContent(DynamicContent dynamicContent) throws DynamicContentLoadException {}
+        public void loadContent(DynamicContent dynamicContent, boolean forceReload) throws DynamicContentLoadException {}
         public void reloadContent(DynamicContent dynamicContent) throws DynamicContentLoadException {}
     };
 

@@ -109,8 +109,8 @@ public abstract class DBProgramImpl<P extends DBProcedure, F extends DBFunction>
 
     @Override
     public void reload() {
-        if (functions != null) functions.reload(true);
-        if (procedures != null) procedures.reload(true);
+        if (functions != null) functions.reload();
+        if (procedures != null) procedures.reload();
     }
 
 

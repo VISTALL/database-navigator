@@ -263,12 +263,12 @@ public class DBObjectListContainer implements Disposable {
     public void reload(boolean recursive) {
         if (objectLists != null)  {
             for (DBObjectList objectList : objectLists.values()) {
-                objectList.reload(recursive);
+                objectList.reload();
             }
         }
         if (hiddenObjectLists != null)  {
             for (DBObjectList objectList : hiddenObjectLists.values()) {
-                objectList.reload(recursive);
+                objectList.reload();
             }
         }
     }
@@ -276,12 +276,12 @@ public class DBObjectListContainer implements Disposable {
     public void load() {
         if (objectLists != null)  {
             for (DBObjectList objectList : objectLists.values()) {
-                objectList.load();
+                objectList.load(false);
             }
         }
         if (hiddenObjectLists != null)  {
             for (DBObjectList objectList : hiddenObjectLists.values()) {
-                objectList.load();
+                objectList.load(false);
             }
         }
     }

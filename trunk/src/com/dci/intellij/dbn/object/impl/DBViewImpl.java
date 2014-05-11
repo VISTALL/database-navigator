@@ -59,9 +59,9 @@ public class DBViewImpl extends DBDatasetImpl implements DBView {
      *********************************************************/
     @Override
     public void reload() {
-        columns.reload(true);
-        constraints.reload(true);
-        triggers.reload(true);
+        columns.reload();
+        constraints.reload();
+        triggers.reload();
     }
 
     @NotNull

@@ -22,7 +22,7 @@ public class ReloadObjectsAction extends AnAction {
             @Override
             public void execute(@NotNull final ProgressIndicator progressIndicator) throws InterruptedException {
                 initProgressIndicator(progressIndicator, true);
-                objectList.reload(false);
+                objectList.reload();
             }
         }.start();
 

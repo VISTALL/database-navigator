@@ -25,7 +25,7 @@ public class ReloadObjectsAction extends AnAction {
                 @Override
                 public void execute(@NotNull ProgressIndicator progressIndicator) {
                     initProgressIndicator(progressIndicator, false);
-                    objectList.reload(false);
+                    objectList.reload();
                 }
             }.start();
         }

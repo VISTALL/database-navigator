@@ -11,7 +11,7 @@ public class VoidDynamicContentLoader implements DynamicContentLoader{
     }
 
     @Override
-    public void loadContent(DynamicContent dynamicContent) throws DynamicContentLoadException {
+    public void loadContent(DynamicContent dynamicContent, boolean forceReload) throws DynamicContentLoadException {
         // do nothing
     }
 

@@ -175,7 +175,7 @@ public class DBPackageImpl extends DBProgramImpl implements DBPackage {
     @Override
     public void reload() {
         super.reload();
-        types.reload(true);
+        types.reload();
     }
 
     private class SpecSourceCodeLoader extends DBSourceCodeLoader {

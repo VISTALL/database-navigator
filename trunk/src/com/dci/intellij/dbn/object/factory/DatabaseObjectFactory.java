@@ -90,7 +90,7 @@ public class DatabaseObjectFactory extends AbstractProjectComponent {
                 Connection connection = connectionHandler.getStandaloneConnection(schema);
                 connectionHandler.getInterfaceProvider().getDDLInterface().createMethod(methodFactoryInput, connection);
                 DBObjectList<DBMethod> methods = (DBObjectList<DBMethod>) schema.getDynamicContent(methodFactoryInput.isFunction() ? DBObjectType.FUNCTION : DBObjectType.PROCEDURE);
-                methods.reload(true);
+                methods.reload();
                 DBMethod method = methods.getObject(factoryInput.getObjectName());
                 DatabaseFileSystem.getInstance().openEditor(method);
                 notifyFactoryEvent(new ObjectFactoryEvent(method, ObjectFactoryEvent.EVENT_TYPE_CREATE));
@@ -122,7 +122,7 @@ public class DatabaseObjectFactory extends AbstractProjectComponent {
                         "Database Navigator - Object dropped");*/
 
                         DBObjectList objectList = (DBObjectList) object.getTreeParent();
-                        objectList.reload(true);
+                        objectList.reload();
                         notifyFactoryEvent(new ObjectFactoryEvent(object, ObjectFactoryEvent.EVENT_TYPE_DROP));
                     } catch (SQLException e) {
                         String message = "Could not drop " + object.getQualifiedNameWithType() + ".";
