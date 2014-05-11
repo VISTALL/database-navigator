@@ -22,39 +22,29 @@ public class ConnectionUtil {
 
     public static void closeResultSet(final ResultSet resultSet) {
         if (resultSet != null) {
-            new Thread() {
-                @Override
-                public void run() {
-                    try {
-                        Statement statement = resultSet.getStatement();
-                        if (statement != null) {
-                            statement.close();
-                        }
-                    } catch (Exception e) {
-                        LOGGER.warn("Error closing statement", e);
-                    }
-                    try {
-                        resultSet.close();
-                    } catch (Exception e) {
-                        LOGGER.warn("Error closing result set", e);
-                    }
+            try {
+                Statement statement = resultSet.getStatement();
+                if (statement != null) {
+                    statement.close();
                 }
-            }.start();
+            } catch (Exception e) {
+                LOGGER.warn("Error closing statement", e);
+            }
+            try {
+                resultSet.close();
+            } catch (Exception e) {
+                LOGGER.warn("Error closing result set", e);
+            }
         }
     }
 
     public static void closeStatement(final Statement statement) {
         if (statement != null) {
-            new Thread() {
-                @Override
-                public void run() {
-                    try {
-                        statement.close();
-                    } catch (SQLException e) {
-                        LOGGER.warn("Error closing statement", e);
-                    }
-                }
-            }.start();
+            try {
+                statement.close();
+            } catch (SQLException e) {
+                LOGGER.warn("Error closing statement", e);
+            }
         }
     }
 
