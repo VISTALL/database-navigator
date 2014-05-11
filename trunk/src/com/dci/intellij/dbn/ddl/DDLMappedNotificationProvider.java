@@ -1,23 +1,44 @@
 package com.dci.intellij.dbn.ddl;
 
+import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.ddl.ui.DDLMappedNotificationPanel;
 import com.dci.intellij.dbn.language.common.DBLanguageFileType;
 import com.dci.intellij.dbn.object.common.DBSchemaObject;
 import com.dci.intellij.dbn.vfs.DBVirtualFile;
 import com.dci.intellij.dbn.vfs.DatabaseFileSystem;
+import com.intellij.ide.FrameStateManager;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.EditorNotifications;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class DDLMappedNotificationProvider extends EditorNotifications.Provider<DDLMappedNotificationPanel> {
     private static final Key<DDLMappedNotificationPanel> KEY = Key.create("ddl.mapped.notification.panel");
     private Project project;
 
-    public DDLMappedNotificationProvider(Project project) {
+    public DDLMappedNotificationProvider(final Project project, @NotNull FrameStateManager frameStateManager) {
         this.project = project;
+        DDLMappingListener ddlMappingListener = new DDLMappingListener() {
+            @Override
+            public void ddlFileDetached(VirtualFile virtualFile) {
+                if (!project.isDisposed()) {
+                    EditorNotifications notifications = EditorNotifications.getInstance(project);
+                    notifications.updateNotifications(virtualFile);
+                }
+            }
+
+            @Override
+            public void ddlFileAttached(VirtualFile virtualFile) {
+                if (!project.isDisposed()) {
+                    EditorNotifications notifications = EditorNotifications.getInstance(project);
+                    notifications.updateNotifications(virtualFile);
+                }
+            }
+        };
+        EventManager.subscribe(project, DDLMappingListener.TOPIC, ddlMappingListener);
     }
 
     @Override
@@ -27,19 +48,32 @@ public class DDLMappedNotificationProvider extends EditorNotifications.Provider<
 
     @Nullable
     @Override
-    public DDLMappedNotificationPanel createNotificationPanel(VirtualFile file, FileEditor fileEditor) {
-        if (file instanceof DBVirtualFile) {
+    public DDLMappedNotificationPanel createNotificationPanel(VirtualFile virtualFile, FileEditor fileEditor) {
+        if (virtualFile instanceof DBVirtualFile) {
             return null;
         }
-        if (file.getFileType() instanceof DBLanguageFileType) {
+        if (virtualFile.getFileType() instanceof DBLanguageFileType) {
             DDLFileAttachmentManager attachmentManager = DDLFileAttachmentManager.getInstance(project);
-            DBSchemaObject editableObject = attachmentManager.getEditableObject(file);
+            DBSchemaObject editableObject = attachmentManager.getEditableObject(virtualFile);
             if (editableObject != null) {
                 DatabaseFileSystem databaseFileSystem = DatabaseFileSystem.getInstance();
                 if (databaseFileSystem.isFileOpened(editableObject))
-                System.out.println();
+                return createPanel(virtualFile, editableObject);
             }
         }
         return null;
+    }
+
+    private DDLMappedNotificationPanel createPanel(@NotNull final VirtualFile file, DBSchemaObject editableObject) {
+        DDLMappedNotificationPanel panel = new DDLMappedNotificationPanel();
+        panel.setText("This DDL file is attached to the database " + editableObject.getQualifiedNameWithType() + ". Any change done to the " + editableObject.getObjectType().getName() + " will be automatically updated to this DDL file, potentially overwriting any changes you do to this file.");
+        panel.createActionLabel("Detach", new Runnable() {
+            @Override
+            public void run() {
+                if (!project.isDisposed()) {
+                }
+            }
+        });
+        return panel;
     }
 }
