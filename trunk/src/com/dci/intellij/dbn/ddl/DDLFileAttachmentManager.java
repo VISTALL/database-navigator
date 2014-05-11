@@ -217,7 +217,7 @@ public class DDLFileAttachmentManager extends AbstractProjectComponent implement
             //ConnectionHandler connectionHandler = object.getConnectionHandler();
             final Project project = object.getProject();
             FileChooserDescriptor descriptor = new FileChooserDescriptor(false, true, false, false, false, false);
-            descriptor.setTitle("Select new ddl-file location");
+            descriptor.setTitle("Select New DDL-File Location");
 
 /*            VirtualFile[] contentRoots;
 
@@ -277,7 +277,7 @@ public class DDLFileAttachmentManager extends AbstractProjectComponent implement
 
 
             if (boundFiles.size() > 0) {
-                message.append("\n\nFollowing files are already bound to ");
+                message.append("\n\nFollowing files are already attached to ");
                 message.append(object.getQualifiedNameWithType());
                 message.append(":");
                 for (String boundFile : boundFiles) {
