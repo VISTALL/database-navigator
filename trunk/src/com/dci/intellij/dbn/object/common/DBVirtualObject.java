@@ -2,8 +2,8 @@ package com.dci.intellij.dbn.object.common;
 
 import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
 import com.dci.intellij.dbn.common.content.DynamicContent;
+import com.dci.intellij.dbn.common.content.loader.DynamicContentLoadException;
 import com.dci.intellij.dbn.common.content.loader.DynamicContentLoader;
-import com.dci.intellij.dbn.common.content.loader.DynamicContentLoaderException;
 import com.dci.intellij.dbn.common.util.DocumentUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.language.common.DBLanguageFile;
@@ -166,8 +166,8 @@ public class DBVirtualObject extends DBObjectImpl implements PsiReference {
     }
 
     private static final DynamicContentLoader VOID_CONTENT_LOADER = new DynamicContentLoader() {
-        public void loadContent(DynamicContent dynamicContent) throws DynamicContentLoaderException {}
-        public void reloadContent(DynamicContent dynamicContent) throws DynamicContentLoaderException {}
+        public void loadContent(DynamicContent dynamicContent) throws DynamicContentLoadException {}
+        public void reloadContent(DynamicContent dynamicContent) throws DynamicContentLoadException {}
     };
 
     /*********************************************************

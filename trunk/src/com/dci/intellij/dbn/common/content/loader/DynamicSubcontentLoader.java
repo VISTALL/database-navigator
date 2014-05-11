@@ -24,7 +24,7 @@ public abstract class DynamicSubcontentLoader<T extends DynamicContentElement> i
      */
     public abstract boolean match(T sourceElement, DynamicContent dynamicContent);
 
-    public void loadContent(DynamicContent<T> dynamicContent) throws DynamicContentLoaderException {
+    public void loadContent(DynamicContent<T> dynamicContent) throws DynamicContentLoadException, DynamicContentLoadInterruptedException {
         List<T> list = null;
         boolean matchedOnce = false;
         SubcontentDependencyAdapter dependencyAdapter = (SubcontentDependencyAdapter) dynamicContent.getDependencyAdapter();
@@ -34,7 +34,7 @@ public abstract class DynamicSubcontentLoader<T extends DynamicContentElement> i
         DynamicContentLoader<T> alternativeLoader = getAlternativeLoader();
         if (sourceContent.isLoaded() || isBackgroundLoad || alternativeLoader == null) {
             for (Object object : sourceContent.getElements()) {
-                if (dynamicContent.isDisposed()) return; // stop if disposed during loading
+                dynamicContent.check();
 
                 T element = (T) object;
                 if (match(element, dynamicContent) && dynamicContent.accepts(element)) {
@@ -62,7 +62,7 @@ public abstract class DynamicSubcontentLoader<T extends DynamicContentElement> i
 
     public abstract DynamicContentLoader<T> getAlternativeLoader();
 
-    public void reloadContent(DynamicContent<T> dynamicContent) throws DynamicContentLoaderException {
+    public void reloadContent(DynamicContent<T> dynamicContent) throws DynamicContentLoadException {
 
     }
 }

@@ -11,12 +11,12 @@ public class VoidDynamicContentLoader implements DynamicContentLoader{
     }
 
     @Override
-    public void loadContent(DynamicContent dynamicContent) throws DynamicContentLoaderException {
+    public void loadContent(DynamicContent dynamicContent) throws DynamicContentLoadException {
         // do nothing
     }
 
     @Override
-    public void reloadContent(DynamicContent dynamicContent) throws DynamicContentLoaderException {
+    public void reloadContent(DynamicContent dynamicContent) throws DynamicContentLoadException {
         // do nothing
     }
 }
