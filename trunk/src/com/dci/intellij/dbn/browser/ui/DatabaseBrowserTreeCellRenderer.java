@@ -60,6 +60,7 @@ public class DatabaseBrowserTreeCellRenderer implements TreeCellRenderer {
             BrowserTreeNode treeNode = (BrowserTreeNode) value;
             setIcon(treeNode.getIcon(0));
 
+            boolean isLoading = false;
             String displayName;
             if (treeNode instanceof ModuleConnectionBundle) {
                 ModuleConnectionBundle connectionManager = (ModuleConnectionBundle) treeNode;
@@ -72,9 +73,11 @@ public class DatabaseBrowserTreeCellRenderer implements TreeCellRenderer {
 
             if (treeNode instanceof DBObjectList) {
                 DBObjectList objectsList = (DBObjectList) treeNode;
+                boolean isEmpty = objectsList.getTreeChildCount() == 0;
+                isLoading = objectsList.isLoading();
                 SimpleTextAttributes textAttributes =
-                        //objectsList.isDirty() ? SimpleTextAttributes.ERROR_ATTRIBUTES :
-                        objectsList.getTreeChildCount() == 0 ? SimpleTextAttributes.REGULAR_ATTRIBUTES :
+                        isLoading ? SimpleTextAttributes.GRAY_ITALIC_ATTRIBUTES :
+                        isEmpty ? SimpleTextAttributes.REGULAR_ATTRIBUTES :
                         SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES;
 
                 append(displayName, textAttributes);
@@ -116,8 +119,9 @@ public class DatabaseBrowserTreeCellRenderer implements TreeCellRenderer {
             }
             String displayDetails = treeNode.getPresentableTextDetails();
             if (!StringUtil.isEmptyOrSpaces(displayDetails)) {
-                append(" " + displayDetails, SimpleTextAttributes.GRAY_ATTRIBUTES);
+                append(" " + displayDetails, isLoading ? SimpleTextAttributes.GRAY_ITALIC_ATTRIBUTES : SimpleTextAttributes.GRAY_ATTRIBUTES);
             }
+
 
             if (browserSettings.getGeneralSettings().getShowObjectDetails().value()) {
                 String conditionalDetails = treeNode.getPresentableTextConditionalDetails();
