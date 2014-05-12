@@ -68,9 +68,11 @@ public class DDLMappedNotificationProvider extends EditorNotifications.Provider<
                 DBSchemaObject schemaObject = editableObjectFile.getObject();
                 DDLFileAttachmentManager attachmentManager = DDLFileAttachmentManager.getInstance(project);
                 List<VirtualFile> boundDDLFiles = attachmentManager.getBoundDDLFiles(schemaObject);
-                EditorNotifications notifications = EditorNotifications.getInstance(project);
-                for (VirtualFile virtualFile : boundDDLFiles) {
-                    notifications.updateNotifications(virtualFile);
+                if (boundDDLFiles != null) {
+                    EditorNotifications notifications = EditorNotifications.getInstance(project);
+                    for (VirtualFile virtualFile : boundDDLFiles) {
+                        notifications.updateNotifications(virtualFile);
+                    }
                 }
             }
         }
