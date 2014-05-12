@@ -71,50 +71,55 @@ public class DatasetRecordEditorColumnForm extends DBNFormImpl implements DBNFor
         dataTypeLabel.setForeground(UIUtil.getInactiveTextColor());
 
         DBNativeDataType nativeDataType = dataType.getNativeDataType();
-        DataTypeDefinition dataTypeDefinition = nativeDataType.getDataTypeDefinition();
-        BasicDataType basicDataType = dataTypeDefinition.getBasicDataType();
+        if (nativeDataType != null) {
+            DataTypeDefinition dataTypeDefinition = nativeDataType.getDataTypeDefinition();
+            BasicDataType basicDataType = dataTypeDefinition.getBasicDataType();
 
-        DataEditorSettings dataEditorSettings = DataEditorSettings.getInstance(project);
+            DataEditorSettings dataEditorSettings = DataEditorSettings.getInstance(project);
 
-        long dataLength = dataType.getLength();
+            long dataLength = dataType.getLength();
 
-        if (basicDataType.is(BasicDataType.DATE_TIME, BasicDataType.LITERAL)) {
-            TextFieldWithPopup textFieldWithPopup = new TextFieldWithPopup(project);
+            if (basicDataType.is(BasicDataType.DATE_TIME, BasicDataType.LITERAL)) {
+                TextFieldWithPopup textFieldWithPopup = new TextFieldWithPopup(project);
 
-            textFieldWithPopup.setPreferredSize(new Dimension(200, -1));
-            JTextField valueTextField = textFieldWithPopup.getTextField();
-            valueTextField.getDocument().addDocumentListener(documentListener);
-            valueTextField.addKeyListener(keyAdapter);
-            valueTextField.addFocusListener(focusListener);
+                textFieldWithPopup.setPreferredSize(new Dimension(200, -1));
+                JTextField valueTextField = textFieldWithPopup.getTextField();
+                valueTextField.getDocument().addDocumentListener(documentListener);
+                valueTextField.addKeyListener(keyAdapter);
+                valueTextField.addFocusListener(focusListener);
 
-            if (cell.getRow().getModel().isEditable()) {
-                if (basicDataType == BasicDataType.DATE_TIME) {
-                    textFieldWithPopup.createCalendarPopup(false);
-                }
+                if (cell.getRow().getModel().isEditable()) {
+                    if (basicDataType == BasicDataType.DATE_TIME) {
+                        textFieldWithPopup.createCalendarPopup(false);
+                    }
 
-                if (basicDataType == BasicDataType.LITERAL) {
-                    if (dataLength > 20 && !column.isPrimaryKey() && !column.isForeignKey())
-                    textFieldWithPopup.createTextAreaPopup(false);
-                    DataEditorValueListPopupSettings valueListPopupSettings = dataEditorSettings.getValueListPopupSettings();
+                    if (basicDataType == BasicDataType.LITERAL) {
+                        if (dataLength > 20 && !column.isPrimaryKey() && !column.isForeignKey())
+                            textFieldWithPopup.createTextAreaPopup(false);
+                        DataEditorValueListPopupSettings valueListPopupSettings = dataEditorSettings.getValueListPopupSettings();
 
-                    if (column.isForeignKey() || (dataLength <= valueListPopupSettings.getDataLengthThreshold() &&
-                            (!column.isSinglePrimaryKey() || valueListPopupSettings.isActiveForPrimaryKeyColumns()))) {
-                        ListPopupValuesProvider valuesProvider = new ListPopupValuesProvider() {
-                            public List<String> getValues() {
-                                return columnInfo.getPossibleValues();
-                            }
-                        };
-                        textFieldWithPopup.createValuesListPopup(valuesProvider, false);
+                        if (column.isForeignKey() || (dataLength <= valueListPopupSettings.getDataLengthThreshold() &&
+                                (!column.isSinglePrimaryKey() || valueListPopupSettings.isActiveForPrimaryKeyColumns()))) {
+                            ListPopupValuesProvider valuesProvider = new ListPopupValuesProvider() {
+                                public List<String> getValues() {
+                                    return columnInfo.getPossibleValues();
+                                }
+                            };
+                            textFieldWithPopup.createValuesListPopup(valuesProvider, false);
+                        }
                     }
                 }
+                editorComponent = textFieldWithPopup;
+            } else if (basicDataType.is(BasicDataType.BLOB, BasicDataType.CLOB)) {
+                editorComponent = new TextFieldWithTextEditor(project);
+            } else {
+                editorComponent = new BasicDataEditorComponent();
             }
-            editorComponent = textFieldWithPopup;
-        } else if (basicDataType.is(BasicDataType.BLOB, BasicDataType.CLOB)) {
-            editorComponent = new TextFieldWithTextEditor(project);
         } else {
             editorComponent = new BasicDataEditorComponent();
+            editorComponent.setEnabled(false);
+            editorComponent.setEditable(false);
         }
-
 
         valueFieldPanel.add((Component) editorComponent, BorderLayout.CENTER);
         editorComponent.getTextField().setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
