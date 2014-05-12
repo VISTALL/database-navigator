@@ -132,6 +132,10 @@ public class MethodExecutionResult implements ExecutionResult, Disposable {
         resultPanel = null;
         executionInput.setExecutionResult(null);
         executionInput = null;
+        for (ResultSetDataModel resultSetDataModel : cursorModels.values()) {
+            resultSetDataModel.dispose();
+        }
+        cursorModels.clear();
         argumentValues.clear();
     }
 
