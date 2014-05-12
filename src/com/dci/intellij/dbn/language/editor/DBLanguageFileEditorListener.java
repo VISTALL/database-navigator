@@ -9,14 +9,15 @@ import com.intellij.openapi.fileEditor.FileEditorManagerListener;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 
+import java.awt.BorderLayout;
+
 public class DBLanguageFileEditorListener implements FileEditorManagerListener{
-    public void fileOpened(@NotNull FileEditorManager fileEditorManager, @NotNull VirtualFile file) {
+    public void fileOpened(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
         if (file.isInLocalFileSystem() && file.getFileType() instanceof DBLanguageFileType) {
-            FileEditor fileEditor = fileEditorManager.getSelectedEditor(file);
+            FileEditor fileEditor = source.getSelectedEditor(file);
             if (fileEditor != null) {
-                DBLanguageFileEditorToolbarForm toolbarForm = new DBLanguageFileEditorToolbarForm(fileEditorManager.getProject(), file, fileEditor.getComponent());
-                fileEditorManager.addTopComponent(fileEditor, toolbarForm.getComponent());
-                //fileEditor.getComponent().add(toolbarForm.getComponent(), BorderLayout.NORTH);
+                DBLanguageFileEditorToolbarForm toolbarForm = new DBLanguageFileEditorToolbarForm(source.getProject(), file, fileEditor.getComponent());
+                fileEditor.getComponent().add(toolbarForm.getComponent(), BorderLayout.NORTH);
                 fileEditor.putUserData(DBLanguageFileEditorToolbarForm.USER_DATA_KEY, toolbarForm);
             }
         }
