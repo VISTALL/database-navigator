@@ -40,8 +40,10 @@ public class StatementExecutionMessage extends ConsoleMessage {
     }
 
     public void dispose() {
-        executionResult.getExecutionProcessor().reset();
-        executionResult = null;
+        if (executionResult != null) {
+            executionResult.getExecutionProcessor().reset();
+            executionResult = null;
+        }
     }
 
     public void navigateToEditor() {
