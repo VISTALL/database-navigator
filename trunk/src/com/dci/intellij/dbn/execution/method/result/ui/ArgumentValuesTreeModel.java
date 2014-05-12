@@ -1,9 +1,9 @@
 package com.dci.intellij.dbn.execution.method.result.ui;
 
 import com.dci.intellij.dbn.execution.method.ArgumentValue;
-import com.dci.intellij.dbn.object.DBArgument;
 import com.dci.intellij.dbn.object.DBMethod;
 import com.dci.intellij.dbn.object.DBTypeAttribute;
+import com.dci.intellij.dbn.object.lookup.DBArgumentRef;
 
 import javax.swing.event.TreeModelListener;
 import javax.swing.tree.TreeModel;
@@ -25,9 +25,9 @@ public class ArgumentValuesTreeModel implements TreeModel {
     }
 
     private void createArgumentValueNodes(ArgumentValuesTreeNode parentNode, List<ArgumentValue> inputArgumentValues) {
-        Map<DBArgument, ArgumentValuesTreeNode> nodeMap = new HashMap<DBArgument, ArgumentValuesTreeNode>();
+        Map<DBArgumentRef, ArgumentValuesTreeNode> nodeMap = new HashMap<DBArgumentRef, ArgumentValuesTreeNode>();
         for (ArgumentValue argumentValue : inputArgumentValues) {
-            DBArgument argument = argumentValue.getArgument();
+            DBArgumentRef argumentRef = argumentValue.getArgumentRef();
             DBTypeAttribute attribute = argumentValue.getAttribute();
 
             if (attribute == null) {
@@ -35,10 +35,10 @@ public class ArgumentValuesTreeModel implements TreeModel {
                 new ArgumentValuesTreeNode(parentNode, argumentValue);
             } else {
                 // multiple attribute values
-                ArgumentValuesTreeNode treeNode = nodeMap.get(argument);
+                ArgumentValuesTreeNode treeNode = nodeMap.get(argumentRef);
                 if (treeNode == null) {
-                    treeNode = new ArgumentValuesTreeNode(parentNode, argument);
-                    nodeMap.put(argument, treeNode);
+                    treeNode = new ArgumentValuesTreeNode(parentNode, argumentRef);
+                    nodeMap.put(argumentRef, treeNode);
                 }
                 new ArgumentValuesTreeNode(treeNode, argumentValue);
             }
