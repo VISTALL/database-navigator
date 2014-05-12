@@ -3,7 +3,10 @@ package com.dci.intellij.dbn.common.about.ui;
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.ui.DBNFormImpl;
 import com.intellij.ide.BrowserUtil;
+import com.intellij.ide.plugins.IdeaPluginDescriptor;
+import com.intellij.ide.plugins.PluginManager;
 import com.intellij.openapi.editor.colors.CodeInsightColors;
+import com.intellij.openapi.extensions.PluginId;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.ComponentPopupBuilder;
 import com.intellij.openapi.ui.popup.JBPopup;
@@ -23,6 +26,7 @@ public class AboutComponent extends DBNFormImpl{
     private JLabel downloadPageLinkLabel;
     private JLabel supportPageLinkLabel;
     private JLabel requestTrackerPageLinkLabel;
+    private JLabel buildLabel;
 
     public AboutComponent() {
         Cursor handCursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR);
@@ -71,7 +75,9 @@ public class AboutComponent extends DBNFormImpl{
                 BrowserUtil.launchBrowser("http://dci.myjetbrains.com/youtrack/issues");
             }
         });
-
+        IdeaPluginDescriptor ideaPluginDescriptor = PluginManager.getPlugin(PluginId.getId("DBN"));
+        String version = ideaPluginDescriptor.getVersion();
+        buildLabel.setText("Build: " + version.substring(version.lastIndexOf(".") + 1));
     }
 
     @Override
