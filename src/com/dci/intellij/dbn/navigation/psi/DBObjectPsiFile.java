@@ -4,6 +4,7 @@ import com.dci.intellij.dbn.connection.GenericDatabaseElement;
 import com.dci.intellij.dbn.language.common.psi.EmptySearchScope;
 import com.dci.intellij.dbn.object.common.DBObject;
 import com.dci.intellij.dbn.object.common.list.DBObjectList;
+import com.dci.intellij.dbn.object.lookup.DBObjectRef;
 import com.dci.intellij.dbn.vfs.DatabaseFileViewProvider;
 import com.intellij.lang.FileASTNode;
 import com.intellij.lang.Language;
@@ -37,19 +38,18 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.Icon;
 
 public class DBObjectPsiFile implements PsiFile, Disposable {
-    private DBObject object;
+    private DBObjectRef objectRef;
 
     public DBObjectPsiFile(DBObject object) {
-        this.object = object;
+        this.objectRef = object.getRef();
     }
 
     public DBObject getObject() {
-        return object;
+        return objectRef.get();
     }
 
     @Override
     public void dispose() {
-        object = null;
     }
 
 
@@ -80,6 +80,7 @@ public class DBObjectPsiFile implements PsiFile, Disposable {
     }
 
     public PsiDirectory getParent() {
+        DBObject object = getObject();
         GenericDatabaseElement parent = object.getTreeParent();
         if (parent instanceof DBObjectList) {
             DBObjectList objectList = (DBObjectList) parent;
@@ -294,7 +295,8 @@ public class DBObjectPsiFile implements PsiFile, Disposable {
     }
 
     public Icon getIcon(int flags) {
-        return object.getIcon();
+        DBObject object = getObject();
+        return object == null ? null : object.getIcon();
     }
 
     public <T> T getUserData(@NotNull Key<T> key) {
