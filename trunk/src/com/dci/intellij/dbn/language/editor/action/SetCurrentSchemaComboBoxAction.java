@@ -5,7 +5,10 @@ import com.dci.intellij.dbn.common.util.ActionUtil;
 import com.dci.intellij.dbn.common.util.NamingUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.mapping.FileConnectionMappingManager;
+import com.dci.intellij.dbn.ddl.DDLFileAttachmentManager;
 import com.dci.intellij.dbn.object.DBSchema;
+import com.dci.intellij.dbn.object.common.DBSchemaObject;
+import com.dci.intellij.dbn.vfs.DatabaseFileSystem;
 import com.intellij.ide.DataManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
@@ -54,6 +57,17 @@ public class SetCurrentSchemaComboBoxAction extends DBNComboBoxAction {
                     text = NamingUtil.enhanceUnderscoresForDisplay(schema.getName());
                     icon = schema.getIcon();
                     enabled = true;
+                }
+
+                if (virtualFile.isInLocalFileSystem()) {
+                    DDLFileAttachmentManager fileAttachmentManager = DDLFileAttachmentManager.getInstance(project);
+                    DBSchemaObject editableObject = fileAttachmentManager.getEditableObject(virtualFile);
+                    if (editableObject != null) {
+                        boolean isOpened = DatabaseFileSystem.getInstance().isFileOpened(editableObject);
+                        if (isOpened) {
+                            enabled = false;
+                        }
+                    }
                 }
             }
         }
