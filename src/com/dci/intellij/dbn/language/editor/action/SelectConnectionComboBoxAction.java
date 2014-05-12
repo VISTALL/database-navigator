@@ -5,6 +5,9 @@ import com.dci.intellij.dbn.common.util.ActionUtil;
 import com.dci.intellij.dbn.common.util.NamingUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.mapping.FileConnectionMappingManager;
+import com.dci.intellij.dbn.ddl.DDLFileAttachmentManager;
+import com.dci.intellij.dbn.object.common.DBSchemaObject;
+import com.dci.intellij.dbn.vfs.DatabaseFileSystem;
 import com.dci.intellij.dbn.vfs.SQLConsoleFile;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
@@ -14,7 +17,8 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
+import javax.swing.Icon;
+import javax.swing.JComponent;
 
 public class SelectConnectionComboBoxAction extends DBNComboBoxAction {
     private static final String NAME = "DB Connections";
@@ -42,6 +46,15 @@ public class SelectConnectionComboBoxAction extends DBNComboBoxAction {
 
             boolean isConsole = virtualFile instanceof SQLConsoleFile;
             presentation.setVisible(!isConsole);
+
+            if (virtualFile.isInLocalFileSystem()) {
+                DDLFileAttachmentManager fileAttachmentManager = DDLFileAttachmentManager.getInstance(project);
+                DBSchemaObject editableObject = fileAttachmentManager.getEditableObject(virtualFile);
+                if (editableObject != null) {
+                    boolean isOpened = DatabaseFileSystem.getInstance().isFileOpened(editableObject);
+                    presentation.setEnabled(!isOpened);
+                }
+            }
         }
 
         presentation.setText(text);

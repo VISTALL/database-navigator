@@ -13,6 +13,7 @@ import com.dci.intellij.dbn.object.common.DBSchemaObject;
 import com.dci.intellij.dbn.object.lookup.DBObjectRef;
 import com.dci.intellij.dbn.vfs.DatabaseContentFile;
 import com.dci.intellij.dbn.vfs.DatabaseEditableObjectFile;
+import com.dci.intellij.dbn.vfs.DatabaseFileSystem;
 import com.dci.intellij.dbn.vfs.SQLConsoleFile;
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.editor.Document;
@@ -115,9 +116,9 @@ public class FileConnectionMappingManager extends VirtualFileAdapter implements 
         if (VirtualFileUtil.isLocalFileSystem(virtualFile)) {
             // if the file is a bound ddl file, then resolve the object which it is
             // linked to, and return its database connection
-            DBSchemaObject object = DDLFileAttachmentManager.getInstance(project).getEditableObject(virtualFile);
-            if (object != null) {
-                return object.getConnectionHandler();
+            DBSchemaObject schemaObject = DDLFileAttachmentManager.getInstance(project).getEditableObject(virtualFile);
+            if (schemaObject != null && DatabaseFileSystem.getInstance().isFileOpened(schemaObject)) {
+                return schemaObject.getConnectionHandler();
             }
 
             // lookup connection mappings
@@ -157,9 +158,9 @@ public class FileConnectionMappingManager extends VirtualFileAdapter implements 
         if (VirtualFileUtil.isLocalFileSystem(virtualFile) || VirtualFileUtil.isVirtualFileSystem(virtualFile)) {
             // if the file is a bound ddl file, then resolve the object which it is
             // linked to, and return its parent schema
-            DBSchemaObject object = DDLFileAttachmentManager.getInstance(project).getEditableObject(virtualFile);
-            if (object != null) {
-                return object.getSchema();
+            DBSchemaObject schemaObject = DDLFileAttachmentManager.getInstance(project).getEditableObject(virtualFile);
+            if (schemaObject != null && DatabaseFileSystem.getInstance().isFileOpened(schemaObject)) {
+                return schemaObject.getSchema();
             }
 
             // lookup schema mappings

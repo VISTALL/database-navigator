@@ -10,6 +10,9 @@ import com.dci.intellij.dbn.vfs.DatabaseEditableObjectFile;
 import com.dci.intellij.dbn.vfs.DatabaseFileSystem;
 import com.intellij.ide.FrameStateManager;
 import com.intellij.openapi.fileEditor.FileEditor;
+import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.fileEditor.FileEditorManagerAdapter;
+import com.intellij.openapi.fileEditor.FileEditorManagerListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -17,31 +20,61 @@ import com.intellij.ui.EditorNotifications;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
+
 public class DDLMappedNotificationProvider extends EditorNotifications.Provider<DDLMappedNotificationPanel> {
     private static final Key<DDLMappedNotificationPanel> KEY = Key.create("ddl.mapped.notification.panel");
     private Project project;
 
     public DDLMappedNotificationProvider(final Project project, @NotNull FrameStateManager frameStateManager) {
         this.project = project;
-        DDLMappingListener ddlMappingListener = new DDLMappingListener() {
-            @Override
-            public void ddlFileDetached(VirtualFile virtualFile) {
-                if (!project.isDisposed()) {
-                    EditorNotifications notifications = EditorNotifications.getInstance(project);
-                    notifications.updateNotifications(virtualFile);
-                }
-            }
 
-            @Override
-            public void ddlFileAttached(VirtualFile virtualFile) {
-                if (!project.isDisposed()) {
-                    EditorNotifications notifications = EditorNotifications.getInstance(project);
+        EventManager.subscribe(project, DDLMappingListener.TOPIC, ddlMappingListener);
+        EventManager.subscribe(project, FileEditorManagerListener.FILE_EDITOR_MANAGER, fileEditorManagerAdapter);
+    }
+
+    DDLMappingListener ddlMappingListener = new DDLMappingListener() {
+        @Override
+        public void ddlFileDetached(VirtualFile virtualFile) {
+            if (!project.isDisposed()) {
+                EditorNotifications notifications = EditorNotifications.getInstance(project);
+                notifications.updateNotifications(virtualFile);
+            }
+        }
+
+        @Override
+        public void ddlFileAttached(VirtualFile virtualFile) {
+            if (!project.isDisposed()) {
+                EditorNotifications notifications = EditorNotifications.getInstance(project);
+                notifications.updateNotifications(virtualFile);
+            }
+        }
+    };
+
+    FileEditorManagerAdapter fileEditorManagerAdapter = new FileEditorManagerAdapter() {
+        @Override
+        public void fileOpened(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
+            updateDdlFileHeaders(file);
+        }
+
+        @Override
+        public void fileClosed(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
+            updateDdlFileHeaders(file);
+        }
+
+        private void updateDdlFileHeaders(VirtualFile file) {
+            if (!project.isDisposed() && file instanceof DatabaseEditableObjectFile) {
+                DatabaseEditableObjectFile editableObjectFile = (DatabaseEditableObjectFile) file;
+                DBSchemaObject schemaObject = editableObjectFile.getObject();
+                DDLFileAttachmentManager attachmentManager = DDLFileAttachmentManager.getInstance(project);
+                List<VirtualFile> boundDDLFiles = attachmentManager.getBoundDDLFiles(schemaObject);
+                EditorNotifications notifications = EditorNotifications.getInstance(project);
+                for (VirtualFile virtualFile : boundDDLFiles) {
                     notifications.updateNotifications(virtualFile);
                 }
             }
-        };
-        EventManager.subscribe(project, DDLMappingListener.TOPIC, ddlMappingListener);
-    }
+        }
+    };
 
     @Override
     public Key<DDLMappedNotificationPanel> getKey() {
