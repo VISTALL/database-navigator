@@ -12,9 +12,11 @@ import com.dci.intellij.dbn.connection.config.ConnectionConfigListCellRenderer;
 import com.dci.intellij.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dci.intellij.dbn.connection.config.ConnectionSettings;
 import com.dci.intellij.dbn.connection.config.action.AddConnectionAction;
+import com.dci.intellij.dbn.connection.config.action.CopyConnectionsAction;
 import com.dci.intellij.dbn.connection.config.action.DuplicateConnectionAction;
 import com.dci.intellij.dbn.connection.config.action.MoveConnectionDownAction;
 import com.dci.intellij.dbn.connection.config.action.MoveConnectionUpAction;
+import com.dci.intellij.dbn.connection.config.action.PasteConnectionAction;
 import com.dci.intellij.dbn.connection.config.action.RemoveConnectionAction;
 import com.dci.intellij.dbn.connection.config.action.SortConnectionsAction;
 import com.intellij.openapi.actionSystem.ActionToolbar;
@@ -59,6 +61,9 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
                 new AddConnectionAction(connectionsList, connectionBundle),
                 new RemoveConnectionAction(connectionsList, connectionBundle),
                 new DuplicateConnectionAction(connectionsList, connectionBundle),
+                ActionUtil.SEPARATOR,
+                new CopyConnectionsAction(connectionsList, connectionBundle),
+                new PasteConnectionAction(connectionsList, connectionBundle),
                 ActionUtil.SEPARATOR,
                 new MoveConnectionUpAction(connectionsList, connectionBundle),
                 new MoveConnectionDownAction(connectionsList, connectionBundle),

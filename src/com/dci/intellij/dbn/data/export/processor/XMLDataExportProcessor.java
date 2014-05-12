@@ -2,6 +2,7 @@ package com.dci.intellij.dbn.data.export.processor;
 
 import com.dci.intellij.dbn.common.locale.Formatter;
 import com.dci.intellij.dbn.common.locale.options.RegionalSettings;
+import com.dci.intellij.dbn.common.util.ClipboardUtil;
 import com.dci.intellij.dbn.common.util.StringUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.data.export.DataExportException;
@@ -10,10 +11,7 @@ import com.dci.intellij.dbn.data.export.DataExportInstructions;
 import com.dci.intellij.dbn.data.export.DataExportModel;
 import com.dci.intellij.dbn.data.type.BasicDataType;
 
-import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
-import java.awt.datatransfer.UnsupportedFlavorException;
-import java.io.IOException;
 import java.util.Date;
 
 
@@ -49,42 +47,8 @@ public class XMLDataExportProcessor extends DataExportProcessor{
 
     @Override
     public Transferable createClipboardContent(String content) {
-        return new XmlContent(content);
+        return ClipboardUtil.createXmlContent(content);
     }
-
-    public class XmlContent implements Transferable {
-        private DataFlavor[] dataFlavors;
-        private String content;
-
-        public XmlContent(String htmlText) {
-            content = htmlText;
-            try {
-                dataFlavors = new DataFlavor[3];
-                dataFlavors[0] = new DataFlavor("text/xml;class=java.lang.String");
-                dataFlavors[1] = new DataFlavor("text/rtf;class=java.lang.String");
-                dataFlavors[2] = new DataFlavor("text/plain;class=java.lang.String");
-
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            }
-        }
-
-        public DataFlavor[] getTransferDataFlavors() {
-            return dataFlavors;
-        }
-
-        public boolean isDataFlavorSupported(DataFlavor flavor) {
-            return
-                    "text/xml".equals(flavor.getMimeType()) ||
-                    "text/rtf".equals(flavor.getMimeType()) ||
-                    "text/plain".equals(flavor.getMimeType());
-        }
-
-        public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException, IOException{
-            return content;
-        }
-    }
-
 
     public void performExport(DataExportModel model, DataExportInstructions instructions, ConnectionHandler connectionHandler) throws DataExportException {
         StringBuilder buffer = new StringBuilder();
