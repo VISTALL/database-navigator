@@ -22,6 +22,10 @@ public class ArgumentValue {
         this.value = value;
     }
 
+    public DBArgumentRef getArgumentRef() {
+        return argumentRef;
+    }
+
     public DBArgument getArgument() {
         return argumentRef.get();
     }

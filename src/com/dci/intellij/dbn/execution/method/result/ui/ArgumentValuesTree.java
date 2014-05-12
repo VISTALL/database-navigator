@@ -1,5 +1,6 @@
 package com.dci.intellij.dbn.execution.method.result.ui;
 
+import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.ui.tree.DBNTree;
 import com.dci.intellij.dbn.common.util.TextAttributesUtil;
 import com.dci.intellij.dbn.data.editor.color.DataGridTextAttributesKeys;
@@ -8,6 +9,8 @@ import com.dci.intellij.dbn.execution.method.ArgumentValue;
 import com.dci.intellij.dbn.object.DBArgument;
 import com.dci.intellij.dbn.object.DBMethod;
 import com.dci.intellij.dbn.object.DBTypeAttribute;
+import com.dci.intellij.dbn.object.lookup.DBArgumentRef;
+import com.dci.intellij.dbn.object.lookup.DBObjectRef;
 import com.intellij.ui.ColoredTreeCellRenderer;
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.util.ui.UIUtil;
@@ -71,10 +74,11 @@ public class ArgumentValuesTree extends DBNTree{
                         SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
             }
 
-            if (userValue instanceof DBArgument) {
-                DBArgument argument = (DBArgument) userValue;
-                setIcon(argument.getIcon());
-                append(argument.getName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
+            if (userValue instanceof DBArgumentRef) {
+                DBArgumentRef argumentRef = (DBArgumentRef) userValue;
+                DBArgument argument = DBObjectRef.get(argumentRef);
+                setIcon(argument == null ? Icons.DBO_ARGUMENT : argument.getIcon());
+                append(argumentRef.getName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
             }
 
             if (userValue instanceof ArgumentValue) {
