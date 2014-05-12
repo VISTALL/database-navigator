@@ -2,27 +2,28 @@ package com.dci.intellij.dbn.execution.method;
 
 import com.dci.intellij.dbn.object.DBArgument;
 import com.dci.intellij.dbn.object.DBTypeAttribute;
+import com.dci.intellij.dbn.object.lookup.DBArgumentRef;
 
 import java.sql.ResultSet;
 
 public class ArgumentValue {
-    private DBArgument argument;
+    private DBArgumentRef argumentRef;
     private DBTypeAttribute attribute;
     private Object value;
 
     public ArgumentValue(DBArgument argument, DBTypeAttribute attribute, Object value) {
-        this.argument = argument;
+        this.argumentRef = argument.getRef();
         this.attribute = attribute;
         this.value = value;
     }
 
     public ArgumentValue(DBArgument argument, Object value) {
-        this.argument = argument;
+        this.argumentRef = argument.getRef();
         this.value = value;
     }
 
     public DBArgument getArgument() {
-        return argument;
+        return argumentRef.get();
     }
 
     public DBTypeAttribute getAttribute() {
@@ -32,8 +33,8 @@ public class ArgumentValue {
     public String getName() {
         return
             attribute == null ?
-            argument.getName() :
-            argument.getName() + "." + attribute.getName();        
+                    argumentRef.getName() :
+                    argumentRef.getName() + "." + attribute.getName();
     }
 
     public Object getValue() {
@@ -49,6 +50,6 @@ public class ArgumentValue {
     }
 
     public String toString() {
-        return argument.getName() + " = " + value;
+        return argumentRef.getName() + " = " + value;
     }
 }

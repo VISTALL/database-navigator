@@ -63,6 +63,11 @@ public class DBArgumentImpl extends DBObjectImpl implements DBArgument {
         return new DBArgumentRef(this);
     }
 
+    @Override
+    public DBArgumentRef getRef() {
+        return (DBArgumentRef) super.getRef();
+    }
+
     public DBDataType getDataType() {
         return dataType;
     }
