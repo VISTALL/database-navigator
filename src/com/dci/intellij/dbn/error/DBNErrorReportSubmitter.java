@@ -56,7 +56,9 @@ public class DBNErrorReportSubmitter extends ErrorReportSubmitter {
         @NonNls StringBuilder description = new StringBuilder();
 
         String platformBuild = ApplicationInfo.getInstance().getBuild().asString();
-        description.append("Platform version: ").append(platformBuild).append('\n');
+        description.append("Java Version: ").append(System.getProperty("java.version")).append('\n');
+        description.append("Operating System: ").append(System.getProperty("os.name")).append('\n');
+        description.append("IDE Version: ").append(platformBuild).append('\n');
         Throwable t = firstEvent.getThrowable();
         String pluginVersion = null;
         if (t != null) {
@@ -65,7 +67,7 @@ public class DBNErrorReportSubmitter extends ErrorReportSubmitter {
                 IdeaPluginDescriptor ideaPluginDescriptor = PluginManager.getPlugin(pluginId);
                 if (ideaPluginDescriptor != null && !ideaPluginDescriptor.isBundled()) {
                     pluginVersion = ideaPluginDescriptor.getVersion();
-                    description.append(ideaPluginDescriptor.getName()).append(" version: ").append(pluginVersion).append("\n");
+                    description.append(ideaPluginDescriptor.getName()).append(" Version: ").append(pluginVersion).append("\n");
                 }
             }
         }
