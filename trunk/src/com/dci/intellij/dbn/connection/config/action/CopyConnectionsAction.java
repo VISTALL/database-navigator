@@ -50,7 +50,7 @@ public class CopyConnectionsAction extends DumbAwareAction {
     }
 
     public void update(AnActionEvent e) {
-        int length = list.getSelectedValuesList().size();
+        int length = list.getSelectedValues().length;
         e.getPresentation().setEnabled(length > 0);
     }
 }
