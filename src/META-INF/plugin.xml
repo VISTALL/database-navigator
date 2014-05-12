@@ -28,6 +28,7 @@
         <ul>
             <li><b>3.0.NEXT</b>
              <ul>
+                - Copy / Paste feature for connection settings<br>
                 - Metadata layer performance improvements (use prepared statements)<br>
                 - Discontinued support for IntelliJ IDEA 10.x and related products<br>
                 - Bug fixes and performance improvements<br>
