@@ -10,6 +10,7 @@ import com.dci.intellij.dbn.execution.method.result.ui.MethodExecutionResultForm
 import com.dci.intellij.dbn.object.DBArgument;
 import com.dci.intellij.dbn.object.DBMethod;
 import com.dci.intellij.dbn.object.DBTypeAttribute;
+import com.dci.intellij.dbn.object.lookup.DBArgumentRef;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
 
@@ -25,7 +26,7 @@ public class MethodExecutionResult implements ExecutionResult, Disposable {
     private MethodExecutionInput executionInput;
     private MethodExecutionResultForm resultPanel;
     private List<ArgumentValue> argumentValues = new ArrayList<ArgumentValue>();
-    private Map<DBArgument, ResultSetDataModel> cursorModels;
+    private Map<DBArgumentRef, ResultSetDataModel> cursorModels;
     private int executionDuration;
     private boolean debug;
 
@@ -54,13 +55,13 @@ public class MethodExecutionResult implements ExecutionResult, Disposable {
         if (value instanceof ResultSet) {
             ResultSet resultSet = (ResultSet) value;
             if (cursorModels == null) {
-                cursorModels = new HashMap<DBArgument, ResultSetDataModel>();
+                cursorModels = new HashMap<DBArgumentRef, ResultSetDataModel>();
             }
 
             ExecutionEngineSettings settings = ExecutionEngineSettings.getInstance(argument.getProject());
             int maxRecords = settings.getStatementExecutionSettings().getResultSetFetchBlockSize();
             ResultSetDataModel dataModel = new ResultSetDataModel(resultSet, getConnectionHandler(), maxRecords);
-            cursorModels.put(argument, dataModel);
+            cursorModels.put(argument.getRef(), dataModel);
         }
     }
 
@@ -148,6 +149,6 @@ public class MethodExecutionResult implements ExecutionResult, Disposable {
     }
 
     public ResultSetDataModel getTableModel(DBArgument argument) {
-        return cursorModels.get(argument);
+        return cursorModels.get(argument.getRef());
     }
 }
