@@ -61,7 +61,7 @@ public class SubcontentDependencyAdapterImpl extends BasicDependencyAdapter impl
     }
 
     @Override
-    public boolean areDependenciesLoaded() {
+    public boolean canLoadFast() {
         return getSourceContent().isLoaded();
     }
 

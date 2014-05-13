@@ -45,7 +45,7 @@ public class VoidContentDependencyAdapter implements ContentDependencyAdapter{
     }
 
     @Override
-    public boolean areDependenciesLoaded() {
+    public boolean canLoadFast() {
         return true;
     }
 

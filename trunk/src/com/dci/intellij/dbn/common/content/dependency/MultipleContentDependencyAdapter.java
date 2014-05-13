@@ -50,7 +50,7 @@ public class MultipleContentDependencyAdapter extends BasicDependencyAdapter imp
     }
 
     @Override
-    public boolean areDependenciesLoaded() {
+    public boolean canLoadFast() {
         for (ContentDependency dependency : dependencies) {
             if (!dependency.getSourceContent().isLoaded()) {
                 return false;
