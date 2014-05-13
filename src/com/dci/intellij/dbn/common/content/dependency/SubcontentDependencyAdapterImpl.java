@@ -45,19 +45,19 @@ public class SubcontentDependencyAdapterImpl extends BasicDependencyAdapter impl
     }
 
     public void beforeReload(DynamicContent dynamicContent) {
-        DynamicContent sourceContent = contentDependency.getSourceContent();
+/*        DynamicContent sourceContent = contentDependency.getSourceContent();
         sourceContent.getDependencyAdapter().beforeReload(sourceContent);
-        sourceContent.removeElements(dynamicContent.getElements());
+        sourceContent.removeElements(dynamicContent.getElements());*/
     }
 
     public void afterReload(DynamicContent dynamicContent) {
-        DynamicContent sourceContent = contentDependency.getSourceContent();
+/*        DynamicContent sourceContent = contentDependency.getSourceContent();
         if (sourceContent.getClass().isAssignableFrom(dynamicContent.getClass())) {
             sourceContent.addElements(dynamicContent.getElements());
             sourceContent.getDependencyAdapter().afterReload(sourceContent);
             sourceContent.updateChangeTimestamp();
             contentDependency.reset();
-        }
+        }*/
     }
 
     @Override
