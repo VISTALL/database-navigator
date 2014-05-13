@@ -28,6 +28,7 @@
         <ul>
             <li><b>3.0.2756</b>
              <ul>
+                - Improved object lookup functionality (Ctrl-Shift-D)<br>
                 - Copy / Paste feature for connection settings<br>
                 - Metadata layer performance improvements (use prepared statements)<br>
                 - Discontinued support for IntelliJ IDEA 10.x and related products<br>
