@@ -9,7 +9,6 @@ import com.dci.intellij.dbn.connection.config.ConnectionDetailSettings;
 import com.dci.intellij.dbn.database.DatabaseMetadataInterface;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.util.containers.ContainerUtil;
 
 import java.lang.ref.WeakReference;
 import java.sql.Connection;
@@ -17,6 +16,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ConnectionPool implements Disposable {
 
@@ -28,7 +28,7 @@ public class ConnectionPool implements Disposable {
     protected final Logger log = Logger.getInstance(getClass().getName());
     private ConnectionHandler connectionHandler;
 
-    private List<ConnectionWrapper> poolConnections = ContainerUtil.<ConnectionWrapper> createConcurrentList();
+    private List<ConnectionWrapper> poolConnections = new CopyOnWriteArrayList<ConnectionWrapper>();
     private ConnectionWrapper standaloneConnection;
 
     public ConnectionPool(ConnectionHandler connectionHandler) {
@@ -200,7 +200,7 @@ public class ConnectionPool implements Disposable {
     }
 
     private static class ConnectionPoolCleanTask extends TimerTask {
-        List<WeakReference<ConnectionPool>> connectionPools = ContainerUtil.<WeakReference<ConnectionPool>>createConcurrentList();
+        List<WeakReference<ConnectionPool>> connectionPools = new CopyOnWriteArrayList<WeakReference<ConnectionPool>>();
 
         public void run() {
             for (WeakReference<ConnectionPool> connectionPoolRef : connectionPools) {
