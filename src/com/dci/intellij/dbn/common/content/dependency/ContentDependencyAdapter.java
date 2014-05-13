@@ -38,5 +38,5 @@ public interface ContentDependencyAdapter extends Disposable {
 
     boolean isSubContent();
 
-    boolean areDependenciesLoaded();
+    boolean canLoadFast();
 }

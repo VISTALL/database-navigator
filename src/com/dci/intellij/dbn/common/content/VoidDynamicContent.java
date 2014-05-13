@@ -59,7 +59,7 @@ public class VoidDynamicContent implements DynamicContent{
     }
 
     @Override
-    public boolean areDependenciesLoaded() {
+    public boolean canLoadFast() {
         return true;
     }
 

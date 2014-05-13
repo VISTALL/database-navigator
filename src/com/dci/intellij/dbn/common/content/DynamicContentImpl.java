@@ -79,8 +79,8 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
     /**
      * The content can load
      */
-    public boolean areDependenciesLoaded() {
-        return dependencyAdapter.areDependenciesLoaded();
+    public boolean canLoadFast() {
+        return dependencyAdapter.canLoadFast();
     }
 
     @Override

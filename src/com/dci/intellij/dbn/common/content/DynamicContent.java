@@ -44,7 +44,7 @@ public interface DynamicContent<T extends DynamicContentElement> extends Disposa
 
     boolean isSubContent();
 
-    boolean areDependenciesLoaded();
+    boolean canLoadFast();
 
     /**
      * Content is currently loading

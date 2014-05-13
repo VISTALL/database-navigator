@@ -48,8 +48,8 @@ public class BasicDependencyAdapter implements ContentDependencyAdapter {
 
     }
 
-    public boolean areDependenciesLoaded() {
-        return true;
+    public boolean canLoadFast() {
+        return false;
     }
 
     @Override
