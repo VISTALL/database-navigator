@@ -16,7 +16,6 @@ import org.jdom.output.XMLOutputter;
 import javax.swing.JList;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
-import java.util.List;
 
 public class CopyConnectionsAction extends DumbAwareAction {
     private static final Logger LOGGER = LoggerFactory.createLogger();
@@ -30,7 +29,7 @@ public class CopyConnectionsAction extends DumbAwareAction {
     }
 
     public void actionPerformed(AnActionEvent anActionEvent) {
-        List<ConnectionSettings> configurations = (List<ConnectionSettings>) list.getSelectedValuesList();
+        ConnectionSettings[] configurations = (ConnectionSettings[]) list.getSelectedValues();
         try {
             Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
             Element rootElement = new Element("connection-configurations");
