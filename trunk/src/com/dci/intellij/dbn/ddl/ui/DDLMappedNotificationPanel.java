@@ -1,5 +1,6 @@
 package com.dci.intellij.dbn.ddl.ui;
 
+import com.dci.intellij.dbn.common.Icons;
 import com.intellij.ide.DataManager;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionPlaces;
@@ -35,6 +36,7 @@ public class DDLMappedNotificationPanel extends JPanel{
         setPreferredSize(new Dimension(-1, 24));
 
         add(label, BorderLayout.CENTER);
+        label.setIcon(Icons.DATASET_FILTER_CONDITION_ACTIVE);
 
         linksPanel = new JPanel(new FlowLayout());
         linksPanel.setBackground(getBackground());

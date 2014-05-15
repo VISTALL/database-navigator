@@ -112,7 +112,7 @@ public class DDLMappedNotificationProvider extends EditorNotifications.Provider<
     private DDLMappedNotificationPanel createPanel(@NotNull final VirtualFile virtualFile, final DBSchemaObject editableObject) {
         final DBObjectRef<DBSchemaObject> editableObjectRef = editableObject.getRef();
         DDLMappedNotificationPanel panel = new DDLMappedNotificationPanel();
-        panel.setText("This DDL file is attached to the database " + editableObject.getQualifiedNameWithType() + ". Any change done to the " + editableObject.getObjectType().getName() + " will be automatically updated to this DDL file, potentially overwriting any changes you do to this file.");
+        panel.setText("This DDL file is attached to the database " + editableObject.getQualifiedNameWithType() + ". Changes done to the " + editableObject.getObjectType().getName() + " are automatically mirrored to this DDL file, overwriting any changes you may do to it.");
         panel.createActionLabel("Detach", new Runnable() {
             @Override
             public void run() {
