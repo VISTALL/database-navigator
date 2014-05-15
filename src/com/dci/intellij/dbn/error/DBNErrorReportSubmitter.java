@@ -1,10 +1,10 @@
 package com.dci.intellij.dbn.error;
 
+import com.dci.intellij.dbn.DatabaseNavigator;
 import com.dci.intellij.dbn.common.Constants;
 import com.dci.intellij.dbn.common.LoggerFactory;
 import com.dci.intellij.dbn.common.notification.NotificationUtil;
 import com.dci.intellij.dbn.common.util.StringUtil;
-import com.intellij.diagnostic.IdeErrorsDialog;
 import com.intellij.diagnostic.LogMessage;
 import com.intellij.ide.DataManager;
 import com.intellij.ide.plugins.IdeaPluginDescriptor;
@@ -42,6 +42,20 @@ public class DBNErrorReportSubmitter extends ErrorReportSubmitter {
     private static final String LOGIN_URL = URL + "rest/user/login";
     private static final String ENC = "UTF-8";
 
+    public DBNErrorReportSubmitter() {
+        System.out.println();
+    }
+
+    @Override
+    public IdeaPluginDescriptor getPluginDescriptor() {
+        IdeaPluginDescriptor pluginDescriptor = (IdeaPluginDescriptor) super.getPluginDescriptor();
+        if (pluginDescriptor == null) {
+            pluginDescriptor = PluginManager.getPlugin(PluginId.getId(DatabaseNavigator.DBN_PLUGIN_ID));
+            setPluginDescriptor(pluginDescriptor);
+        }
+        return pluginDescriptor;
+    }
+
     @Override
     public String getReportActionText() {
         return "Submit Issue Report";
@@ -49,32 +63,44 @@ public class DBNErrorReportSubmitter extends ErrorReportSubmitter {
 
     @Override
     public SubmittedReportInfo submit(IdeaLoggingEvent[] events, Component parentComponent) {
+        DataContext dataContext = DataManager.getInstance().getDataContext(parentComponent);
+        Project project = PlatformDataKeys.PROJECT.getData(dataContext);
+
+        String localPluginVersion = getPluginDescriptor().getVersion();
+        String repositoryPluginVersion = DatabaseNavigator.getInstance().getRepositoryPluginVersion();
+
+        if (repositoryPluginVersion != null && repositoryPluginVersion.compareTo(localPluginVersion) > 0) {
+            NotificationUtil.sendWarningNotification(project, Constants.DBN_TITLE_PREFIX + "New Plugin Version Available", "A newer version of Database Navigator plugin is available in repository" + ". Error report not sent.");
+            return new SubmittedReportInfo(ISSUE_URL, "", FAILED);
+        }
+
         IdeaLoggingEvent firstEvent = events[0];
         String firstEventText = firstEvent.getThrowableText();
         String summary = firstEventText.substring(0, Math.min(Math.max(80, firstEventText.length()), 80));
 
-        @NonNls StringBuilder description = new StringBuilder();
-
-        String platformBuild = ApplicationInfo.getInstance().getBuild().asString();
-        description.append("Java Version: ").append(System.getProperty("java.version")).append('\n');
-        description.append("Operating System: ").append(System.getProperty("os.name")).append('\n');
-        description.append("IDE Version: ").append(platformBuild).append('\n');
+/*
         Throwable t = firstEvent.getThrowable();
-        String pluginVersion = null;
         if (t != null) {
             PluginId pluginId = IdeErrorsDialog.findPluginId(t);
             if (pluginId != null) {
                 IdeaPluginDescriptor ideaPluginDescriptor = PluginManager.getPlugin(pluginId);
                 if (ideaPluginDescriptor != null && !ideaPluginDescriptor.isBundled()) {
-                    pluginVersion = ideaPluginDescriptor.getVersion();
-                    description.append(ideaPluginDescriptor.getName()).append(" Version: ").append(pluginVersion).append("\n");
+                    localPluginVersion = ideaPluginDescriptor.getVersion();
                 }
             }
         }
+*/
+        String platformBuild = ApplicationInfo.getInstance().getBuild().asString();
+
+        @NonNls StringBuilder description = new StringBuilder();
+        description.append("Java Version: ").append(System.getProperty("java.version")).append('\n');
+        description.append("Operating System: ").append(System.getProperty("os.name")).append('\n');
+        description.append("IDE Version: ").append(platformBuild).append('\n');
+        description.append("DBN Version: ").append(localPluginVersion).append("\n");
 
         for (IdeaLoggingEvent event : events) {
             LogMessage logMessage = (LogMessage) event.getData();
-            String additionalInfo = logMessage.getAdditionalInfo();
+            String additionalInfo = logMessage == null ? null : logMessage.getAdditionalInfo();
             if (StringUtil.isNotEmpty(additionalInfo)) {
                 description.append("\n\nUser Message:");
                 description.append("\n__________________________________________________________________\n");
@@ -85,10 +111,7 @@ public class DBNErrorReportSubmitter extends ErrorReportSubmitter {
         }
 
 
-        String result = submit(pluginVersion, summary, description.toString());
-        DataContext dataContext = DataManager.getInstance().getDataContext(parentComponent);
-        Project project = PlatformDataKeys.PROJECT.getData(dataContext);
-
+        String result = submit(localPluginVersion, summary, description.toString());
 
         LOGGER.info("Error report submitted, response: " + result);
 
