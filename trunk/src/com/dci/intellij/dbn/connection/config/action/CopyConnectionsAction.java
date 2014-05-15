@@ -29,11 +29,12 @@ public class CopyConnectionsAction extends DumbAwareAction {
     }
 
     public void actionPerformed(AnActionEvent anActionEvent) {
-        ConnectionSettings[] configurations = (ConnectionSettings[]) list.getSelectedValues();
+        Object[] configurations = list.getSelectedValues();
         try {
             Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
             Element rootElement = new Element("connection-configurations");
-            for (ConnectionSettings configuration : configurations) {
+            for (Object o : configurations) {
+                ConnectionSettings configuration = (ConnectionSettings) o;
                 Element configElement = new Element("config");
                 configuration.writeConfiguration(configElement);
                 rootElement.addContent(configElement);

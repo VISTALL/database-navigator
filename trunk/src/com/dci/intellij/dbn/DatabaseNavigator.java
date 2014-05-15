@@ -4,10 +4,12 @@ import com.dci.intellij.dbn.common.Constants;
 import com.dci.intellij.dbn.common.options.setting.SettingsUtil;
 import com.dci.intellij.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dci.intellij.dbn.common.thread.SimpleLaterInvocator;
+import com.dci.intellij.dbn.common.util.TimeUtil;
 import com.dci.intellij.dbn.execution.ExecutionManager;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
 import com.intellij.ide.plugins.IdeaPluginDescriptor;
 import com.intellij.ide.plugins.PluginManager;
+import com.intellij.ide.plugins.RepositoryHelper;
 import com.intellij.notification.NotificationDisplayType;
 import com.intellij.notification.NotificationGroup;
 import com.intellij.openapi.application.ApplicationManager;
@@ -22,10 +24,12 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.Icon;
 import java.io.IOException;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class DatabaseNavigator implements ApplicationComponent, JDOMExternalizable {
     private static final String SQL_PLUGIN_ID = "com.intellij.sql";
-    private static final String DBN_PLUGIN_ID = "DBN";
+    public static final String DBN_PLUGIN_ID = "DBN";
     /*static {
         Extensions.getRootArea().
                 getExtensionPoint(CodeStyleSettingsProvider.EXTENSION_POINT_NAME).
@@ -39,6 +43,7 @@ public class DatabaseNavigator implements ApplicationComponent, JDOMExternalizab
 
     private boolean debugModeEnabled;
     private boolean showPluginConflictDialog;
+    private String repositoryPluginVersion;
 
     public void initComponent() {
         //ModuleTypeManager.getInstance().registerModuleType(DBModuleType.MODULE_TYPE);
@@ -53,6 +58,9 @@ public class DatabaseNavigator implements ApplicationComponent, JDOMExternalizab
         }
 
         NotificationGroup notificationGroup = new NotificationGroup("Database Navigator", NotificationDisplayType.TOOL_WINDOW, true, ExecutionManager.TOOL_WINDOW_ID);
+
+        Timer updateChecker = new Timer("Plugin Update check task");
+        updateChecker.schedule(new PluginUpdateChecker(), TimeUtil.ONE_MINUTE, TimeUtil.ONE_HOUR);
     }
 
     private boolean sqlPluginActive() {
@@ -133,6 +141,25 @@ public class DatabaseNavigator implements ApplicationComponent, JDOMExternalizab
 
     public ConfigurationEditorForm createSettingsEditor() {
         return null;
+    }
+
+    public String getRepositoryPluginVersion() {
+        return repositoryPluginVersion;
+    }
+
+    private class PluginUpdateChecker extends TimerTask {
+        public void run() {
+            try {
+                List<IdeaPluginDescriptor> descriptors = RepositoryHelper.loadPluginsFromRepository(null);
+                for (IdeaPluginDescriptor descriptor : descriptors) {
+                    if (descriptor.getPluginId().toString().equals(DatabaseNavigator.DBN_PLUGIN_ID)) {
+                        repositoryPluginVersion = descriptor.getVersion();
+                        break;
+                    }
+                }
+            } catch (Exception e) {
+            }
+        }
     }
 }
 
