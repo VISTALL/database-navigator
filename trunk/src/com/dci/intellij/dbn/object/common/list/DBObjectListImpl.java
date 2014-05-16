@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DBObjectListImpl<T extends DBObject> extends DynamicContentImpl<T> implements DBObjectList<T> {
-    private int treeDepth;
     private boolean isHidden;
     private boolean isTouched;
 
@@ -35,7 +34,6 @@ public class DBObjectListImpl<T extends DBObject> extends DynamicContentImpl<T> 
 
     public DBObjectListImpl(DBObjectType objectType, BrowserTreeNode treeParent, DynamicContentLoader<T> loader, ContentDependencyAdapter dependencyAdapter, boolean indexed) {
         super(treeParent, loader, dependencyAdapter, indexed);
-        this.treeDepth = treeParent.getTreeDepth() + 1;
         this.objectType = objectType;
     }
 
@@ -138,7 +136,8 @@ public class DBObjectListImpl<T extends DBObject> extends DynamicContentImpl<T> 
     }
 
     public int getTreeDepth() {
-        return treeDepth;
+        BrowserTreeNode treeParent = getTreeParent();
+        return treeParent == null ? 0 : treeParent.getTreeDepth() + 1;
     }
 
     public BrowserTreeNode getTreeChild(int index) {
