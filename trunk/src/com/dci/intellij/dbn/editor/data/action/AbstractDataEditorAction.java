@@ -8,6 +8,7 @@ import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 
@@ -32,7 +33,12 @@ public abstract class AbstractDataEditorAction extends DumbAwareAction {
         return null;
     }
 
+    @Nullable
     public static DatasetEditor getDatasetEditor(AnActionEvent e) {
-        return (DatasetEditor) e.getData(PlatformDataKeys.FILE_EDITOR);
+        FileEditor fileEditor = e.getData(PlatformDataKeys.FILE_EDITOR);
+        if (fileEditor instanceof DatasetEditor) {
+            return (DatasetEditor) fileEditor;
+        }
+        return null;
     }
 }
