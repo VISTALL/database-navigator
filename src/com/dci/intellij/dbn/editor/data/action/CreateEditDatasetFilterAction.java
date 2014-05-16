@@ -17,24 +17,26 @@ public class CreateEditDatasetFilterAction extends AbstractDataEditorAction {
 
     @Override
     public void actionPerformed(AnActionEvent e) {
+
         DatasetEditor datasetEditor = getDatasetEditor(e);
         if (datasetEditor != null) {
             DBDataset dataset = datasetEditor.getDataset();
+            if (dataset != null) {
+                DatasetFilterManager filterManager = DatasetFilterManager.getInstance(dataset.getProject());
+                DatasetFilter activeFilter = filterManager.getActiveFilter(dataset);
+                if (activeFilter == null || activeFilter.getFilterType() == DatasetFilterType.NONE) {
+                    DataEditorSettings settings = DataEditorSettings.getInstance(dataset.getProject());
+                    DatasetFilterType filterType = settings.getFilterSettings().getDefaultFilterType();
+                    if (filterType == null || filterType == DatasetFilterType.NONE) {
+                        filterType = DatasetFilterType.BASIC;
+                    }
 
-            DatasetFilterManager filterManager = DatasetFilterManager.getInstance(dataset.getProject());
-            DatasetFilter activeFilter = filterManager.getActiveFilter(dataset);
-            if (activeFilter == null || activeFilter.getFilterType() == DatasetFilterType.NONE) {
-                DataEditorSettings settings = DataEditorSettings.getInstance(dataset.getProject());
-                DatasetFilterType filterType = settings.getFilterSettings().getDefaultFilterType();
-                if (filterType == null || filterType == DatasetFilterType.NONE) {
-                    filterType = DatasetFilterType.BASIC;
+
+                    filterManager.openFiltersDialog(dataset, false, true, filterType);
                 }
-
-
-                filterManager.openFiltersDialog(dataset, false, true, filterType);
-            }
-            else {
-                filterManager.openFiltersDialog(dataset, false, false,DatasetFilterType.NONE);
+                else {
+                    filterManager.openFiltersDialog(dataset, false, false,DatasetFilterType.NONE);
+                }
             }
         }
     }
@@ -47,20 +49,24 @@ public class CreateEditDatasetFilterAction extends AbstractDataEditorAction {
             presentation.setEnabled(false);
         } else {
             DBDataset dataset = datasetEditor.getDataset();
-            boolean enabled =
-                !datasetEditor.isInserting() &&
-                !datasetEditor.isLoading();
+            if (dataset != null) {
+                boolean enabled =
+                        !datasetEditor.isInserting() &&
+                                !datasetEditor.isLoading();
 
-            presentation.setEnabled(enabled);
+                presentation.setEnabled(enabled);
 
-            DatasetFilterManager filterManager = DatasetFilterManager.getInstance(dataset.getProject());
-            DatasetFilter activeFilter = filterManager.getActiveFilter(dataset);
-            if (activeFilter == null || activeFilter.getFilterType() == DatasetFilterType.NONE) {
-                presentation.setText("Create filter");
-                presentation.setIcon(Icons.DATASET_FILTER_NEW);
+                DatasetFilterManager filterManager = DatasetFilterManager.getInstance(dataset.getProject());
+                DatasetFilter activeFilter = filterManager.getActiveFilter(dataset);
+                if (activeFilter == null || activeFilter.getFilterType() == DatasetFilterType.NONE) {
+                    presentation.setText("Create filter");
+                    presentation.setIcon(Icons.DATASET_FILTER_NEW);
+                } else {
+                    presentation.setText("Edit filter");
+                    presentation.setIcon(Icons.DATASET_FILTER_EDIT);
+                }
             } else {
-                presentation.setText("Edit filter");
-                presentation.setIcon(Icons.DATASET_FILTER_EDIT);
+                presentation.setEnabled(false);
             }
         }
     }
