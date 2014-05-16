@@ -10,7 +10,7 @@ public class OpenSQLConsoleAction extends DumbAwareAction {
     private ConnectionHandler connectionHandler;
 
     public OpenSQLConsoleAction(ConnectionHandler connectionHandler) {
-        super("Open SQL console", null, Icons.FILE_SQL_CONSOLE);
+        super("Open SQL Console", null, Icons.FILE_SQL_CONSOLE);
         this.connectionHandler = connectionHandler;
     }
 
