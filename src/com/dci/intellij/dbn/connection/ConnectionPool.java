@@ -116,6 +116,7 @@ public class ConnectionPool implements Disposable {
         if (connection != null) {
             for (ConnectionWrapper connectionWrapper : poolConnections) {
                 if (connectionWrapper.getConnection() == connection) {
+                    ConnectionUtil.rollback(connection);
                     connectionWrapper.setBusy(false);
                     break;
                 }

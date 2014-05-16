@@ -52,12 +52,15 @@ public abstract class MethodExecutionProcessorImpl<T extends DBMethod> implement
 
     public void execute(MethodExecutionInput executionInput) throws SQLException {
         boolean usePoolConnection = executionInput.isUsePoolConnection();
-        ConnectionHandler connectionHandler = getMethod().getConnectionHandler();
-        DBSchema executionSchema = executionInput.getExecutionSchema();
-        Connection connection = usePoolConnection ?
-                connectionHandler.getPoolConnection(executionSchema) :
-                connectionHandler.getStandaloneConnection(executionSchema);
-        execute(executionInput, connection);
+        T method = getMethod();
+        if (method != null) {
+            ConnectionHandler connectionHandler = method.getConnectionHandler();
+            DBSchema executionSchema = executionInput.getExecutionSchema();
+            Connection connection = usePoolConnection ?
+                    connectionHandler.getPoolConnection(executionSchema) :
+                    connectionHandler.getStandaloneConnection(executionSchema);
+            execute(executionInput, connection);
+        }
     }
 
     public void execute(MethodExecutionInput executionInput, Connection connection) throws SQLException {
@@ -67,25 +70,32 @@ public abstract class MethodExecutionProcessorImpl<T extends DBMethod> implement
             long startTime = System.currentTimeMillis();
 
             String command = buildExecutionCommand(executionInput);
-            connectionHandler = getMethod().getConnectionHandler();
-            usePoolConnection = executionInput.isUsePoolConnection();
-            CallableStatement callableStatement = connection.prepareCall (command);
+            T method = getMethod();
+            if (method != null) {
+                connectionHandler = method.getConnectionHandler();
+                usePoolConnection = executionInput.isUsePoolConnection();
+                CallableStatement callableStatement = connection.prepareCall (command);
 
-            prepareCall(executionInput, callableStatement);
-            callableStatement.execute();
-            callableStatement.setQueryTimeout(10);
-            if (!usePoolConnection) connectionHandler.notifyChanges(executionInput.getMethod().getVirtualFile());
+                prepareCall(executionInput, callableStatement);
+                callableStatement.execute();
+                callableStatement.setQueryTimeout(10);
+                if (!usePoolConnection) connectionHandler.notifyChanges(method.getVirtualFile());
 
-            MethodExecutionResult executionResult = executionInput.getExecutionResult();
-            if (executionResult != null) {
-                loadValues(executionResult, callableStatement);
-                executionResult.setExecutionDuration((int) (System.currentTimeMillis() - startTime));
+                MethodExecutionResult executionResult = executionInput.getExecutionResult();
+                if (executionResult != null) {
+                    loadValues(executionResult, callableStatement);
+                    executionResult.setExecutionDuration((int) (System.currentTimeMillis() - startTime));
+                }
             }
 
-            if (executionInput.isCommitAfterExecution()) {
-                if (usePoolConnection) connection.commit(); else connectionHandler.commit();
-            }
         } finally {
+            if (executionInput.isCommitAfterExecution()) {
+                if (usePoolConnection) {
+                    connection.commit();
+                } else {
+                    if (connectionHandler != null) connectionHandler.commit();
+                }
+            }
             if (connectionHandler != null && usePoolConnection) connectionHandler.freePoolConnection(connection);
         }
 

@@ -125,4 +125,22 @@ public class ConnectionUtil {
         }
         return DatabaseType.UNKNOWN;
     }
+
+    public static void commit(Connection connection) {
+        try {
+            if (connection != null) connection.commit();
+        } catch (SQLException e) {
+            LOGGER.warn("Error committing connection", e);
+        }
+    }
+
+    public static void rollback(Connection connection) {
+        try {
+            if (connection != null) connection.rollback();
+        } catch (SQLException e) {
+            LOGGER.warn("Error rolling connection back", e);
+        }
+    }
+
+
 }
