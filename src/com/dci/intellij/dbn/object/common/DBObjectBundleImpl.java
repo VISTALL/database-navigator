@@ -75,7 +75,6 @@ public class DBObjectBundleImpl implements DBObjectBundle {
     private BrowserTreeNode treeParent;
     private List<BrowserTreeNode> allPossibleTreeChildren;
     private List<BrowserTreeNode> visibleTreeChildren;
-    private int treeDepth;
     private boolean treeChildrenLoaded;
     private boolean isDisposed;
 
@@ -94,7 +93,6 @@ public class DBObjectBundleImpl implements DBObjectBundle {
     public DBObjectBundleImpl(ConnectionHandler connectionHandler, BrowserTreeNode treeParent) {
         this.connectionHandler = connectionHandler;
         this.treeParent = treeParent;
-        this.treeDepth = treeParent.getTreeDepth() + 1;
         connectionConfigHash = connectionHandler.getSettings().getDatabaseSettings().hashCode();
 
         this.objectLists = new DBObjectListContainer(this);
@@ -223,7 +221,7 @@ public class DBObjectBundleImpl implements DBObjectBundle {
     }
 
     public int getTreeDepth() {
-        return treeDepth;
+        return treeParent == null ? 0 : treeParent.getTreeDepth() + 1;
     }
 
     public BrowserTreeNode getTreeChild(int index) {
