@@ -20,6 +20,7 @@ public class ConnectionActionGroup extends DefaultActionGroup {
         add(new ShowDatabaseInformationAction(connectionHandler));
         add(new DisconnectAction(connectionHandler));
         add(new TestConnectivityAction(connectionHandler));
+        add(new LoadAllObjectsAction(connectionHandler));
         addSeparator();
         add(new OpenConnectionSettingsAction(connectionHandler));
     }
