@@ -33,8 +33,8 @@ public abstract class ConnectionBundle
     protected Logger log = Logger.getInstance(this.getClass().getName());
 
     public static final Filter<ConnectionHandler> ACTIVE_CONNECTIONS_FILTER = new Filter<ConnectionHandler>() {
-        public boolean accepts(ConnectionHandler object) {
-            return object.isActive();
+        public boolean accepts(ConnectionHandler connectionHandler) {
+            return connectionHandler.isActive();
         }
     };
 
