@@ -27,6 +27,7 @@ import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class DatasetFilterForm extends ConfigurationEditorForm<DatasetFilterGroup> implements ListSelectionListener {
@@ -120,7 +121,8 @@ public class DatasetFilterForm extends ConfigurationEditorForm<DatasetFilterGrou
         DatasetFilterGroup configuration = getConfiguration();
         if (configuration != null && (e == null || !e.getValueIsAdjusting())) {
             int[] indices = filtersList.getSelectedIndices();
-            DatasetFilterImpl filter = indices.length == 1 ? (DatasetFilterImpl) configuration.getFilters().get(indices[0]) : null;
+            List<DatasetFilter> filters = configuration.getFilters();
+            DatasetFilterImpl filter = filters.size() > 0 && indices.length == 1 ? (DatasetFilterImpl) filters.get(indices[0]) : null;
 
             CardLayout cardLayout = (CardLayout) filterDetailsPanel.getLayout();
             if (filter == null) {
