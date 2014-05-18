@@ -77,7 +77,8 @@ public class SourceCodeFile extends DatabaseContentFile implements DatabaseFile,
     }
 
     public String getParseRootId() {
-        return getObject().getCodeParseRootId(contentType);
+        DBSchemaObject schemaObject = getObject();
+        return schemaObject == null ? null : schemaObject.getCodeParseRootId(contentType);
     }
 
     public DBLanguageFile getPsiFile() {
