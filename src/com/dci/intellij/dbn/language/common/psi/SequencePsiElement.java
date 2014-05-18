@@ -357,7 +357,7 @@ public class SequencePsiElement extends BasePsiElement {
     public boolean matches(BasePsiElement basePsiElement) {
         if (this == basePsiElement) {
             return true;
-        } else {
+        } else if (basePsiElement != null && basePsiElement.isValid()){
             PsiElement localChild = getFirstChild();
             PsiElement remoteChild = basePsiElement.getFirstChild();
 
@@ -376,6 +376,7 @@ public class SequencePsiElement extends BasePsiElement {
             }
             return localChild == null && remoteChild == null;
         }
+        return false;
     }
 
 
