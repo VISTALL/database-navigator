@@ -94,8 +94,10 @@ public class DatasetRecordEditorForm extends DBNFormImpl implements DBNForm {
         int height = (int) Math.min(preferredSize.getHeight(), 380);
         mainPanel.setPreferredSize(new Dimension(width, height));
 
-        int scrollUnitIncrement = (int) columnForms.get(0).getComponent().getPreferredSize().getHeight();
-        columnsPanelScrollPane.getVerticalScrollBar().setUnitIncrement(scrollUnitIncrement);
+        if (columnForms.size() > 0) {
+            int scrollUnitIncrement = (int) columnForms.get(0).getComponent().getPreferredSize().getHeight();
+            columnsPanelScrollPane.getVerticalScrollBar().setUnitIncrement(scrollUnitIncrement);
+        }
     }
 
     public JComponent getPreferredFocusComponent() {
