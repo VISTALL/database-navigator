@@ -282,7 +282,11 @@ public class DatabaseBrowserManager extends AbstractProjectComponent implements 
 
                     if (newFile instanceof SQLConsoleFile) {
                         SQLConsoleFile sqlConsoleFile = (SQLConsoleFile) newFile;
-                        navigateToElement(sqlConsoleFile.getConnectionHandler().getObjectBundle());
+                        ConnectionHandler connectionHandler = sqlConsoleFile.getConnectionHandler();
+                        if (connectionHandler!= null && !connectionHandler.isDisposed()) {
+                            navigateToElement(connectionHandler.getObjectBundle());
+                        }
+
                     }
                 }
             }
