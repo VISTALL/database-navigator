@@ -608,10 +608,12 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
     public abstract List<BrowserTreeNode> buildAllPossibleTreeChildren();
 
     public boolean isLeafTreeElement() {
-        Filter<BrowserTreeNode> filter = getConnectionHandler().getObjectFilter();
-        for (BrowserTreeNode treeNode : getAllPossibleTreeChildren() ) {
-            if (treeNode != null && filter.accepts(treeNode)) {
-                return false;
+        if (!isDisposed()) {
+            Filter<BrowserTreeNode> filter = getConnectionHandler().getObjectFilter();
+            for (BrowserTreeNode treeNode : getAllPossibleTreeChildren() ) {
+                if (treeNode != null && filter.accepts(treeNode)) {
+                    return false;
+                }
             }
         }
         return true;
