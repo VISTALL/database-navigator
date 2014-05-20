@@ -4,6 +4,7 @@ import com.dci.intellij.dbn.common.editor.document.OverrideReadonlyFragmentModif
 import com.dci.intellij.dbn.common.thread.CommandWriteActionRunner;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.language.common.DBLanguage;
+import com.dci.intellij.dbn.language.common.DBLanguageDialect;
 import com.dci.intellij.dbn.language.common.DBLanguageFile;
 import com.dci.intellij.dbn.language.common.DBLanguageSyntaxHighlighter;
 import com.dci.intellij.dbn.language.common.psi.PsiUtil;
@@ -36,9 +37,7 @@ public class DocumentUtil {
             DBLanguage dbLanguage = dbLanguageFile.getDBLanguage();
             if (dbLanguage != null) {
                 ConnectionHandler connectionHandler = dbLanguageFile.getActiveConnection();
-                DBLanguageSyntaxHighlighter syntaxHighlighter = connectionHandler == null ?
-                        dbLanguage.getMainLanguageDialect().getSyntaxHighlighter() :
-                        connectionHandler.getLanguageDialect(dbLanguage).getSyntaxHighlighter();
+                DBLanguageSyntaxHighlighter syntaxHighlighter = getSyntaxHighlighter(dbLanguage, connectionHandler);
 
                 EditorHighlighter editorHighlighter = HighlighterFactory.createHighlighter(syntaxHighlighter, editor.getColorsScheme());
                 ((EditorEx) editor).setHighlighter(editorHighlighter);
@@ -57,6 +56,16 @@ public class DocumentUtil {
         }.start();
 
         //refreshEditorAnnotations(editor.getProject());
+    }
+
+    private static DBLanguageSyntaxHighlighter getSyntaxHighlighter(DBLanguage dbLanguage, ConnectionHandler connectionHandler) {
+        if (connectionHandler != null) {
+            DBLanguageDialect languageDialect = connectionHandler.getLanguageDialect(dbLanguage);
+            if (languageDialect != null) {
+                return languageDialect.getSyntaxHighlighter();
+            }
+        }
+        return dbLanguage.getMainLanguageDialect().getSyntaxHighlighter();
     }
 
 
