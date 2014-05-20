@@ -61,8 +61,10 @@ public class ConnectionPool implements Disposable {
     }
 
     private void notifyStatusChange() {
-        ConnectionStatusListener changeListener = EventManager.notify(connectionHandler.getProject(), ConnectionStatusListener.TOPIC);
-        changeListener.statusChanged(connectionHandler.getId());
+        if (!isDisposed) {
+            ConnectionStatusListener changeListener = EventManager.notify(connectionHandler.getProject(), ConnectionStatusListener.TOPIC);
+            changeListener.statusChanged(connectionHandler.getId());
+        }
     }
 
     public synchronized Connection allocateConnection() throws SQLException {
