@@ -298,7 +298,7 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
         return connectionPool;
     }
 
-    public DatabaseInterfaceProvider getInterfaceProvider() {
+    public synchronized DatabaseInterfaceProvider getInterfaceProvider() {
         if (interfaceProvider == null || interfaceProvider.getDatabaseType() != getDatabaseType()) {
             try {
                 interfaceProvider = DatabaseInterfaceProviderFactory.createInterfaceProvider(this);

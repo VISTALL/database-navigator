@@ -3,6 +3,7 @@ package com.dci.intellij.dbn.connection;
 public enum DatabaseType {
     ORACLE("ORACLE", "Oracle"),
     MYSQL("MYSQL", "MySQL"),
+    POSTGRES("MYSQL", "PostgreSQL"),
     UNKNOWN("UNKNOWN", "Unknown Database");
 
     private String name;
