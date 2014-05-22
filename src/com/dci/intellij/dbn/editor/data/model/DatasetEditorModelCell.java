@@ -249,8 +249,10 @@ public class DatasetEditorModelCell extends ResultSetDataModelCell implements Ch
                         DBDataset dataset = getDataset();
                         DatabaseFileSystem.getInstance().openEditor(dataset);
                     }
-                    DatasetEditorErrorForm errorForm = new DatasetEditorErrorForm(DatasetEditorModelCell.this);
-                    errorForm.show();
+                    if (error != null) {
+                        DatasetEditorErrorForm errorForm = new DatasetEditorErrorForm(DatasetEditorModelCell.this);
+                        errorForm.show();
+                    }
                 }
             }
         }.start();
