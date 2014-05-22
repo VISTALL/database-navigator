@@ -106,7 +106,7 @@ public class LoadInProgressTreeNode implements BrowserTreeNode {
     }
 
     public boolean isDisposed() {
-        return disposed;
+        return disposed || parent.isDisposed();
     }
 
     /*********************************************************
