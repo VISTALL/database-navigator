@@ -64,6 +64,22 @@ public class StringUtil extends com.intellij.openapi.util.text.StringUtil {
         return !isEmptyOrSpaces(string);
     }
 
+    public static boolean isOneOf(String string, String ... values) {
+        for (String value : values) {
+            if (value.equals(string)) return true;
+        }
+        return false;
+    }
+
+    public static boolean isOneOfIgnoreCase(String string, String ... values) {
+        for (String value : values) {
+            if (value.equalsIgnoreCase(string)) return true;
+        }
+        return false;
+    }
+
+
+
     public static boolean isInteger(String string) {
         try {
             Integer.parseInt(string);

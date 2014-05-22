@@ -159,7 +159,7 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
             isDirty = false;
             getLoader().loadContent(this, false);
         } catch (DynamicContentLoadException e) {
-            isDirty = true;
+            isDirty = !e.isModelException();
         }
         check();
         dependencyAdapter.afterLoad();

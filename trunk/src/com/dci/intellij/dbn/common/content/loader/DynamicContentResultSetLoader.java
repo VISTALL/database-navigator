@@ -7,6 +7,7 @@ import com.dci.intellij.dbn.common.options.setting.SettingsUtil;
 import com.dci.intellij.dbn.common.util.StringUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.ConnectionUtil;
+import com.dci.intellij.dbn.database.DatabaseInterfaceProvider;
 import com.dci.intellij.dbn.object.common.DBObject;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -95,7 +96,14 @@ public abstract class DynamicContentResultSetLoader<T extends DynamicContentElem
             postLoadContent(dynamicContent, debugInfo);
         } catch (Exception e) {
             LOGGER.warn("Error loading database content (" + dynamicContent.getContentDescription() + "): " + StringUtil.trim(e.getMessage()));
-            throw new DynamicContentLoadException(e);
+
+            boolean modelException = false;
+            if (e instanceof SQLException) {
+                SQLException sqlException = (SQLException) e;
+                DatabaseInterfaceProvider interfaceProvider = dynamicContent.getConnectionHandler().getInterfaceProvider();
+                modelException = interfaceProvider.getMessageParserInterface().isModelException(sqlException);
+            }
+            throw new DynamicContentLoadException(e, modelException);
         } finally {
             ConnectionUtil.closeResultSet(resultSet);
             connectionHandler.freePoolConnection(connection);
