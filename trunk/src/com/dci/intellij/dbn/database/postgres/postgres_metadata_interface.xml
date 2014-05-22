@@ -14,7 +14,7 @@
             select
                 SCHEMA_NAME,
                 'N' as IS_PUBLIC,
-                CASE WHEN lower(SCHEMA_NAME)='information_schema' THEN 'Y' ELSE 'N' END as IS_SYSTEM
+                case when lower(SCHEMA_NAME)='information_schema' then 'Y' else 'N' end as IS_SYSTEM
             from INFORMATION_SCHEMA.SCHEMATA
             order by SCHEMA_NAME asc
         </statement>
@@ -75,7 +75,7 @@
                 TABLE_NAME as VIEW_NAME,
                 null as VIEW_TYPE_OWNER,
                 null as VIEW_TYPE,
-                CASE WHEN TABLE_TYPE = 'VIEW' THEN 'N' ELSE 'Y' END as IS_SYSTEM_VIEW
+                case when TABLE_TYPE = 'VIEW' then 'N' else 'Y' end as IS_SYSTEM_VIEW
             from INFORMATION_SCHEMA.TABLES
             where
                 TABLE_SCHEMA = {0} and
@@ -133,8 +133,8 @@
                 col.NUMERIC_SCALE as DATA_SCALE,
                 left(col.IS_NULLABLE, 1) as IS_NULLABLE,
                 'N' as IS_HIDDEN,
-                CASE WHEN col.COLUMN_KEY  = 'PRI' THEN 'Y' ELSE 'N' END  as IS_PRIMARY_KEY,
-                CASE WHEN kcu.COLUMN_NAME is null THEN 'N' ELSE 'Y' END  as IS_FOREIGN_KEY
+                case when col.COLUMN_KEY  = 'PRI' then 'Y' else 'N' end as IS_PRIMARY_KEY,
+                case when kcu.COLUMN_NAME is null then 'N' else 'Y' end as IS_FOREIGN_KEY
             from INFORMATION_SCHEMA.`COLUMNS` col
                     left join (
                         select
@@ -205,8 +205,8 @@
                 col.NUMERIC_SCALE as DATA_SCALE,
                 left(col.IS_NULLABLE, 1) as IS_NULLABLE,
                 'N' as IS_HIDDEN,
-                CASE WHEN col.COLUMN_KEY  = 'PRI' THEN 'Y' ELSE 'N' END  as IS_PRIMARY_KEY,
-                CASE WHEN kcu.COLUMN_NAME is null THEN 'N' ELSE 'Y' END  as IS_FOREIGN_KEY
+                case when col.COLUMN_KEY  = 'PRI' then 'Y' else 'N' end as IS_PRIMARY_KEY,
+                case when kcu.COLUMN_NAME is null then 'N' else 'Y' end as IS_FOREIGN_KEY
 
             from INFORMATION_SCHEMA.`COLUMNS` col
                     left join (
@@ -271,7 +271,7 @@
                 'Y' as IS_ENABLED,
                 null as CHECK_CONDITION
             from
-                INFORMATION_SCHEMA.TABLE_CONSTRAINTS tc 
+                INFORMATION_SCHEMA.TABLE_CONSTRAINTS tc
             where
                 tc.TABLE_SCHEMA = {0}
             order by
@@ -374,7 +374,7 @@
         <statement>
             select distinct
                 INDEX_NAME,
-                CASE WHEN NON_UNIQUE = 'YES' THEN 'N' ELSE 'Y' END  as IS_UNIQUE,
+                case when NON_UNIQUE = 'YES' then 'N' else 'Y' end as IS_UNIQUE,
                 'Y' as IS_VALID
             from INFORMATION_SCHEMA.STATISTICS
             where
@@ -389,7 +389,7 @@
             select distinct
                 INDEX_NAME,
                 TABLE_NAME,
-                if (NON_UNIQUE = 'YES', 'N', 'Y') as IS_UNIQUE,
+                case when NON_UNIQUE = 'YES' then 'N' else 'Y' end as IS_UNIQUE,
                 'Y' as IS_VALID
             from INFORMATION_SCHEMA.STATISTICS
             where TABLE_SCHEMA = {0}
@@ -502,7 +502,7 @@
                 0 as OVERLOAD,
                 ORDINAL_POSITION as POSITION,
                 ORDINAL_POSITION as SEQUENCE,
-                if (PARAMETER_MODE is null, 'OUT', PARAMETER_MODE) as IN_OUT,
+                case when PARAMETER_MODE is null then 'OUT' else PARAMETER_MODE end as IN_OUT,
                 null as DATA_TYPE_OWNER,
                 null as DATA_TYPE_PACKAGE,
                 DATA_TYPE as DATA_TYPE_NAME,
@@ -544,7 +544,7 @@
                 0 as OVERLOAD,
                 ORDINAL_POSITION as POSITION,
                 ORDINAL_POSITION as SEQUENCE,
-                if (PARAMETER_MODE is null, 'OUT', PARAMETER_MODE) as IN_OUT,
+                case when PARAMETER_MODE is null then 'OUT' else PARAMETER_MODE end as IN_OUT,
                 null as DATA_TYPE_OWNER,
                 null as DATA_TYPE_PACKAGE,
                 DATA_TYPE as DATA_TYPE_NAME,
@@ -595,9 +595,9 @@
         <statement>
             select concat(
                 '(', PARAM_LIST, ')',
-                if({2}='FUNCTION', '\nRETURNS ', ''), RETURNS,
+                case when {2}='FUNCTION' then '\nRETURNS ' else '' end, RETURNS,
                 '\nLANGUAGE ', LANGUAGE,
-                if(IS_DETERMINISTIC = 'YES', '\nDETERMINISTIC', ''),
+                case when IS_DETERMINISTIC = 'YES' then '\nDETERMINISTIC' else '' end,
                 case when SQL_DATA_ACCESS = 'READS_SQL_DATA' then '\nREADS SQL DATA'
                      when SQL_DATA_ACCESS = 'CONTAINS_SQL' then '\nREADS SQL DATA' end,
                 '\nSQL SECURITY ', SECURITY_TYPE,
