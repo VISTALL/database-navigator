@@ -1,6 +1,8 @@
 package com.dci.intellij.dbn.common.content.loader;
 
 public class DynamicContentLoadException extends Exception{
+    private boolean modelException;
+
     public DynamicContentLoadException() {
     }
 
@@ -12,7 +14,12 @@ public class DynamicContentLoadException extends Exception{
         super(message, cause);
     }
 
-    public DynamicContentLoadException(Throwable cause) {
+    public DynamicContentLoadException(Throwable cause, boolean modelException) {
         super(cause);
+        this.modelException = modelException;
+    }
+
+    public boolean isModelException() {
+        return modelException;
     }
 }
