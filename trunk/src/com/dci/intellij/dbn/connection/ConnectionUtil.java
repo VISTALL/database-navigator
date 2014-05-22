@@ -122,6 +122,8 @@ public class ConnectionUtil {
             return DatabaseType.ORACLE;
         } else if (productName.toUpperCase().contains("MYSQL")) {
             return DatabaseType.MYSQL;
+        } else if (productName.toUpperCase().contains("POSTGRESQL")) {
+            return DatabaseType.POSTGRES;
         }
         return DatabaseType.UNKNOWN;
     }
