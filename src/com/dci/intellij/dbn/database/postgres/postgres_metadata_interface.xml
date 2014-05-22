@@ -25,24 +25,24 @@
                 GRANTEE as USER_NAME,
                 'N' as IS_EXPIRED,
                 'N' as IS_LOCKED
-            from INFORMATION_SCHEMA.USER_PRIVILEGES
+            from INFORMATION_SCHEMA.USAGE_PRIVILEGES
             order by GRANTEE asc
         </statement>
     </statement-execution-processor>
     <statement-execution-processor id="privileges" is-query="true" is-prepared-statement="true">
         <statement>
             select distinct PRIVILEGE_TYPE as PRIVILEGE_NAME
-            from INFORMATION_SCHEMA.USER_PRIVILEGES
+            from INFORMATION_SCHEMA.USAGE_PRIVILEGES
             order by PRIVILEGE_TYPE asc
         </statement>
     </statement-execution-processor>
     <statement-execution-processor id="all-user-privileges" is-query="true" is-prepared-statement="true">
         <statement>
-            select
+            select distinct
                 GRANTEE as USER_NAME,
                 PRIVILEGE_TYPE as GRANTED_PRIVILEGE_NAME,
                 IS_GRANTABLE as IS_ADMIN_OPTION
-            from INFORMATION_SCHEMA.USER_PRIVILEGES
+            from INFORMATION_SCHEMA.USAGE_PRIVILEGES
             order by GRANTEE, PRIVILEGE_TYPE asc
         </statement>
     </statement-execution-processor>
@@ -50,7 +50,7 @@
         <statement>
             select
                 CHARACTER_SET_NAME as CHARSET_NAME,
-                MAXLEN as MAX_LENGTH
+                -1 as MAX_LENGTH
             from INFORMATION_SCHEMA.CHARACTER_SETS
             order by CHARACTER_SET_NAME asc
         </statement>
@@ -85,46 +85,10 @@
     </statement-execution-processor>
 
     <statement-execution-processor id="dataset-columns" is-query="true" is-prepared-statement="true">
-        <!--<statement>
-            select
-                col.COLUMN_NAME,
-                col.ORDINAL_POSITION as `POSITION`,
-                col.DATA_TYPE as DATA_TYPE_NAME,
-                null as DATA_TYPE_OWNER,
-                null as DATA_TYPE_PACKAGE,
-                col.CHARACTER_MAXIMUM_LENGTH as DATA_LENGTH,
-                col.NUMERIC_PRECISION as DATA_PRECISION,
-                col.NUMERIC_SCALE as DATA_SCALE,
-                left(col.IS_NULLABLE, 1) as IS_NULLABLE,
-                'N' as IS_HIDDEN,
-                if(col.COLUMN_KEY = 'PRI', 'Y', 'N') as IS_PRIMARY_KEY,
-                if(con.CONSTRAINT_NAME is null, 'N', 'Y') as IS_FOREIGN_KEY
-            from INFORMATION_SCHEMA.`COLUMNS` col
-                    left join (
-                        select
-                            rc.CONSTRAINT_SCHEMA,
-                            rc.TABLE_NAME,
-                            rc.CONSTRAINT_NAME,
-                            kcu.COLUMN_NAME
-                        from
-                            INFORMATION_SCHEMA.KEY_COLUMN_USAGE kcu,
-                            INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS rc
-                        where
-                            rc.CONSTRAINT_SCHEMA = kcu.CONSTRAINT_SCHEMA and
-                            rc.TABLE_NAME = kcu.TABLE_NAME and
-                            rc.CONSTRAINT_NAME = kcu.CONSTRAINT_NAME) con on
-                                    con.CONSTRAINT_SCHEMA = col.TABLE_SCHEMA and
-                                    con.TABLE_NAME = col.TABLE_NAME and
-                                    con.COLUMN_NAME = col.COLUMN_NAME
-            where
-                col.TABLE_SCHEMA = {0} and
-                col.TABLE_NAME = {1}
-            order by col.COLUMN_NAME asc
-        </statement>-->
         <statement>
             select
                 col.COLUMN_NAME,
-                col.ORDINAL_POSITION as `POSITION`,
+                col.ORDINAL_POSITION as "POSITION",
                 col.DATA_TYPE as DATA_TYPE_NAME,
                 null as DATA_TYPE_OWNER,
                 null as DATA_TYPE_PACKAGE,
@@ -133,10 +97,11 @@
                 col.NUMERIC_SCALE as DATA_SCALE,
                 left(col.IS_NULLABLE, 1) as IS_NULLABLE,
                 'N' as IS_HIDDEN,
-                case when col.COLUMN_KEY  = 'PRI' then 'Y' else 'N' end as IS_PRIMARY_KEY,
-                case when kcu.COLUMN_NAME is null then 'N' else 'Y' end as IS_FOREIGN_KEY
-            from INFORMATION_SCHEMA.`COLUMNS` col
-                    left join (
+                case when col.DATA_TYPE  = 'oid' then 'Y' else 'N' end as IS_PRIMARY_KEY,
+                /* case when kcu.COLUMN_NAME is null then 'N' else 'Y' end as IS_FOREIGN_KEY */
+                'N' as IS_FOREIGN_KEY
+            from INFORMATION_SCHEMA.COLUMNS col
+                    /* left join (
                         select
                             TABLE_SCHEMA,
                             TABLE_NAME,
@@ -145,7 +110,7 @@
                     where REFERENCED_COLUMN_NAME is not null) kcu on
                         kcu.TABLE_SCHEMA = col.TABLE_SCHEMA and
                         kcu.TABLE_NAME = col.TABLE_NAME and
-                        kcu.COLUMN_NAME = col.COLUMN_NAME
+                        kcu.COLUMN_NAME = col.COLUMN_NAME */
             where
                 col.TABLE_SCHEMA = {0} and
                 col.TABLE_NAME = {1}
@@ -154,49 +119,11 @@
     </statement-execution-processor>
 
     <statement-execution-processor id="all-dataset-columns" is-query="true" is-prepared-statement="true">
-       <!-- <statement>
-            select
-                col.COLUMN_NAME,
-                col.TABLE_NAME as DATASET_NAME,
-                col.ORDINAL_POSITION as `POSITION`,
-                col.DATA_TYPE as DATA_TYPE_NAME,
-                null as DATA_TYPE_OWNER,
-                null as DATA_TYPE_PACKAGE,
-                col.CHARACTER_MAXIMUM_LENGTH as DATA_LENGTH,
-                col.NUMERIC_PRECISION as DATA_PRECISION,
-                col.NUMERIC_SCALE as DATA_SCALE,
-                left(col.IS_NULLABLE, 1) as IS_NULLABLE,
-                'N' as IS_HIDDEN,
-                if(col.COLUMN_KEY = 'PRI', 'Y', 'N') as IS_PRIMARY_KEY,
-                if(con.CONSTRAINT_NAME is null, 'N', 'Y') as IS_FOREIGN_KEY
-            from INFORMATION_SCHEMA.`COLUMNS` col
-                    left join (
-                        select
-                            rc.CONSTRAINT_SCHEMA,
-                            rc.TABLE_NAME,
-                            rc.CONSTRAINT_NAME,
-                            kcu.COLUMN_NAME
-                        from
-                            INFORMATION_SCHEMA.KEY_COLUMN_USAGE kcu,
-                            INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS rc
-                        where
-                            rc.CONSTRAINT_SCHEMA = kcu.CONSTRAINT_SCHEMA and
-                            rc.TABLE_NAME = kcu.TABLE_NAME and
-                            rc.CONSTRAINT_NAME = kcu.CONSTRAINT_NAME) con on
-                                    con.CONSTRAINT_SCHEMA = col.TABLE_SCHEMA and
-                                    con.TABLE_NAME = col.TABLE_NAME and
-                                    con.COLUMN_NAME = col.COLUMN_NAME
-            where
-                col.TABLE_SCHEMA = {0}
-            order by
-                col.TABLE_NAME,
-                col.COLUMN_NAME asc
-        </statement>-->
         <statement>
             select
                 col.COLUMN_NAME,
                 col.TABLE_NAME as DATASET_NAME,
-                col.ORDINAL_POSITION as `POSITION`,
+                col.ORDINAL_POSITION as "POSITION",
                 col.DATA_TYPE as DATA_TYPE_NAME,
                 null as DATA_TYPE_OWNER,
                 null as DATA_TYPE_PACKAGE,
@@ -205,20 +132,20 @@
                 col.NUMERIC_SCALE as DATA_SCALE,
                 left(col.IS_NULLABLE, 1) as IS_NULLABLE,
                 'N' as IS_HIDDEN,
-                case when col.COLUMN_KEY  = 'PRI' then 'Y' else 'N' end as IS_PRIMARY_KEY,
-                case when kcu.COLUMN_NAME is null then 'N' else 'Y' end as IS_FOREIGN_KEY
-
-            from INFORMATION_SCHEMA.`COLUMNS` col
-                    left join (
-                        select
-                            TABLE_SCHEMA,
-                            TABLE_NAME,
-                            COLUMN_NAME
-                    from INFORMATION_SCHEMA.KEY_COLUMN_USAGE
-                    where REFERENCED_COLUMN_NAME is not null) kcu on
-                        kcu.TABLE_SCHEMA = col.TABLE_SCHEMA and
-                        kcu.TABLE_NAME = col.TABLE_NAME and
-                        kcu.COLUMN_NAME = col.COLUMN_NAME
+                case when col.DATA_TYPE  = 'oid' then 'Y' else 'N' end as IS_PRIMARY_KEY,
+                /* case when kcu.COLUMN_NAME is null then 'N' else 'Y' end as IS_FOREIGN_KEY */
+                'N' as IS_FOREIGN_KEY
+            from INFORMATION_SCHEMA.COLUMNS col
+                    /* left join (
+                         select
+                             TABLE_SCHEMA,
+                             TABLE_NAME,
+                             COLUMN_NAME
+                     from INFORMATION_SCHEMA.KEY_COLUMN_USAGE
+                     where REFERENCED_COLUMN_NAME is not null) kcu on
+                         kcu.TABLE_SCHEMA = col.TABLE_SCHEMA and
+                         kcu.TABLE_NAME = col.TABLE_NAME and
+                         kcu.COLUMN_NAME = col.COLUMN_NAME */
             where
                 col.TABLE_SCHEMA = {0}
             order by
@@ -629,7 +556,7 @@
 
     <statement-execution-processor id="set-current-schema">
         <statement>
-            use {0}
+            set search_path to {0}
         </statement>
     </statement-execution-processor>
 
