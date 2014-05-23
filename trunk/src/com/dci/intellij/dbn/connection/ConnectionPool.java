@@ -218,7 +218,6 @@ public class ConnectionPool implements Disposable {
                         connection.closeConnection();
                     }
                     connectionPool.poolConnections.clear();
-                    LOGGER.debug("[DBN-INFO] Clearing pool for connection '" + connectionPool.connectionHandler.getName() + "'");
                 }
             }
 
