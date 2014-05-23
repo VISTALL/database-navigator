@@ -97,27 +97,23 @@
                 col.NUMERIC_SCALE as DATA_SCALE,
                 left(col.IS_NULLABLE, 1) as IS_NULLABLE,
                 'N' as IS_HIDDEN,
-                case when kcu.COLUMN_NAME is null then 'N' else 'Y' end as IS_PRIMARY_KEY
+                case when v_constraints.COLUMN_NAME is null then 'N' else 'Y' end as IS_PRIMARY_KEY,
                 'N' as IS_FOREIGN_KEY
             from INFORMATION_SCHEMA.COLUMNS col
                     left join (
                             select
                                 scm.NSPNAME as TABLE_SCHEMA,
                                 tbl.RELNAME as TABLE_NAME,
-                                idx.RELNAME as INDEX_NAME,
-                                col.ATTNAME as COLUMN_NAME,
-                                def.ADSRC as DEFAULT_VALUE
+                                col.ATTNAME as COLUMN_NAME
                             from
                                 PG_CLASS tbl join
                                 PG_NAMESPACE scm on scm.OID = tbl.RELNAMESPACE join
                                 PG_ATTRIBUTE col on col.ATTRELID = tbl.OID join
-                                PG_INDEX ix on tbl.OID = ix.INDRELID and col.ATTNUM = ANY (ix.INDKEY) join
-                                PG_CLASS idx on idx.OID = ix.INDEXRELID left join
-                                PG_ATTRDEF def on def.ADRELID = tbl.OID and def.ADNUM = col.ATTNUM
-                            where tbl.RELKIND = 'r') kcu on
-                                            kcu.TABLE_SCHEMA = col.TABLE_SCHEMA and
-                                            kcu.TABLE_NAME = col.TABLE_NAME and
-                                            kcu.COLUMN_NAME = col.COLUMN_NAME
+                                PG_INDEX ix on tbl.OID = ix.INDRELID and col.ATTNUM = ANY (ix.INDKEY)
+                            where tbl.RELKIND = 'r') v_constraints on
+                                        v_constraints.TABLE_SCHEMA = col.TABLE_SCHEMA and
+                                        v_constraints.TABLE_NAME = col.TABLE_NAME and
+                                        v_constraints.COLUMN_NAME = col.COLUMN_NAME
             where
                 col.TABLE_SCHEMA = {0} and
                 col.TABLE_NAME = {1}
@@ -139,27 +135,23 @@
                 col.NUMERIC_SCALE as DATA_SCALE,
                 left(col.IS_NULLABLE, 1) as IS_NULLABLE,
                 'N' as IS_HIDDEN,
-                case when kcu.COLUMN_NAME is null then 'N' else 'Y' end as IS_PRIMARY_KEY,
+                case when v_constraints.COLUMN_NAME is null then 'N' else 'Y' end as IS_PRIMARY_KEY,
                 'N' as IS_FOREIGN_KEY
             from INFORMATION_SCHEMA.COLUMNS col
                     left join (
                             select
                                 scm.NSPNAME as TABLE_SCHEMA,
                                 tbl.RELNAME as TABLE_NAME,
-                                idx.RELNAME as INDEX_NAME,
-                                col.ATTNAME as COLUMN_NAME,
-                                def.ADSRC as DEFAULT_VALUE
+                                col.ATTNAME as COLUMN_NAME
                             from
                                 PG_CLASS tbl join
                                 PG_NAMESPACE scm on scm.OID = tbl.RELNAMESPACE join
                                 PG_ATTRIBUTE col on col.ATTRELID = tbl.OID join
-                                PG_INDEX ix on tbl.OID = ix.INDRELID and col.ATTNUM = ANY (ix.INDKEY) join
-                                PG_CLASS idx on idx.OID = ix.INDEXRELID left join
-                                PG_ATTRDEF def on def.ADRELID = tbl.OID and def.ADNUM = col.ATTNUM
-                            where tbl.RELKIND = 'r') kcu on
-                                            kcu.TABLE_SCHEMA = col.TABLE_SCHEMA and
-                                            kcu.TABLE_NAME = col.TABLE_NAME and
-                                            kcu.COLUMN_NAME = col.COLUMN_NAME
+                                PG_INDEX ix on tbl.OID = ix.INDRELID and col.ATTNUM = ANY (ix.INDKEY)
+                            where tbl.RELKIND = 'r') v_constraints on
+                                        v_constraints.TABLE_SCHEMA = col.TABLE_SCHEMA and
+                                        v_constraints.TABLE_NAME = col.TABLE_NAME and
+                                        v_constraints.COLUMN_NAME = col.COLUMN_NAME
             where
                 col.TABLE_SCHEMA = {0}
             order by
