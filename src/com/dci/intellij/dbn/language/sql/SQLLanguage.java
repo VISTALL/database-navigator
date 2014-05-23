@@ -7,6 +7,7 @@ import com.dci.intellij.dbn.language.sql.dialect.SQLLanguageDialect;
 import com.dci.intellij.dbn.language.sql.dialect.iso92.Iso92SQLLanguageDialect;
 import com.dci.intellij.dbn.language.sql.dialect.mysql.MysqlSQLLanguageDialect;
 import com.dci.intellij.dbn.language.sql.dialect.oracle.OracleSQLLanguageDialect;
+import com.dci.intellij.dbn.language.sql.dialect.postgres.PostgresSQLLanguageDialect;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
@@ -18,10 +19,12 @@ public class SQLLanguage extends DBLanguage<SQLLanguageDialect> {
     protected SQLLanguageDialect[] createLanguageDialects() {
         SQLLanguageDialect oracleSQLLanguageDialect = new OracleSQLLanguageDialect();
         SQLLanguageDialect mysqlSQLLanguageDialect = new MysqlSQLLanguageDialect();
+        SQLLanguageDialect postgresSQLLanguageDialect = new PostgresSQLLanguageDialect();
         SQLLanguageDialect iso92SQLLanguageDialect = new Iso92SQLLanguageDialect();
         return new SQLLanguageDialect[]{
                 oracleSQLLanguageDialect,
                 mysqlSQLLanguageDialect,
+                postgresSQLLanguageDialect,
                 iso92SQLLanguageDialect};
     }
 

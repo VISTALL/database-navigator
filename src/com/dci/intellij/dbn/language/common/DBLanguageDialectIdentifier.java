@@ -4,6 +4,7 @@ public enum DBLanguageDialectIdentifier {
     ORACLE_SQL("ORACLE-SQL"),
     ORACLE_PLSQL("ORACLE-PLSQL"),
     MYSQL_SQL("MYSQL-SQL"),
+    POSTGRES_SQL("POSTGRES-SQL"),
     ISO92_SQL("ISO92-SQL");
 
     private String value;
