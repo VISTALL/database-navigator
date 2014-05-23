@@ -89,7 +89,7 @@
             select
                 col.COLUMN_NAME,
                 col.ORDINAL_POSITION as "POSITION",
-                col.DATA_TYPE as DATA_TYPE_NAME,
+                replace(col.DATA_TYPE, '"', '') as DATA_TYPE_NAME,
                 null as DATA_TYPE_OWNER,
                 null as DATA_TYPE_PACKAGE,
                 col.CHARACTER_MAXIMUM_LENGTH as DATA_LENGTH,
@@ -97,20 +97,27 @@
                 col.NUMERIC_SCALE as DATA_SCALE,
                 left(col.IS_NULLABLE, 1) as IS_NULLABLE,
                 'N' as IS_HIDDEN,
-                case when col.DATA_TYPE  = 'oid' then 'Y' else 'N' end as IS_PRIMARY_KEY,
-                /* case when kcu.COLUMN_NAME is null then 'N' else 'Y' end as IS_FOREIGN_KEY */
+                case when kcu.COLUMN_NAME is null then 'N' else 'Y' end as IS_PRIMARY_KEY
                 'N' as IS_FOREIGN_KEY
             from INFORMATION_SCHEMA.COLUMNS col
-                    /* left join (
-                        select
-                            TABLE_SCHEMA,
-                            TABLE_NAME,
-                            COLUMN_NAME
-                    from INFORMATION_SCHEMA.KEY_COLUMN_USAGE
-                    where REFERENCED_COLUMN_NAME is not null) kcu on
-                        kcu.TABLE_SCHEMA = col.TABLE_SCHEMA and
-                        kcu.TABLE_NAME = col.TABLE_NAME and
-                        kcu.COLUMN_NAME = col.COLUMN_NAME */
+                    left join (
+                            select
+                                scm.NSPNAME as TABLE_SCHEMA,
+                                tbl.RELNAME as TABLE_NAME,
+                                idx.RELNAME as INDEX_NAME,
+                                col.ATTNAME as COLUMN_NAME,
+                                def.ADSRC as DEFAULT_VALUE
+                            from
+                                PG_CLASS tbl join
+                                PG_NAMESPACE scm on scm.OID = tbl.RELNAMESPACE join
+                                PG_ATTRIBUTE col on col.ATTRELID = tbl.OID join
+                                PG_INDEX ix on tbl.OID = ix.INDRELID and col.ATTNUM = ANY (ix.INDKEY) join
+                                PG_CLASS idx on idx.OID = ix.INDEXRELID left join
+                                PG_ATTRDEF def on def.ADRELID = tbl.OID and def.ADNUM = col.ATTNUM
+                            where tbl.RELKIND = 'r') kcu on
+                                            kcu.TABLE_SCHEMA = col.TABLE_SCHEMA and
+                                            kcu.TABLE_NAME = col.TABLE_NAME and
+                                            kcu.COLUMN_NAME = col.COLUMN_NAME
             where
                 col.TABLE_SCHEMA = {0} and
                 col.TABLE_NAME = {1}
@@ -124,7 +131,7 @@
                 col.COLUMN_NAME,
                 col.TABLE_NAME as DATASET_NAME,
                 col.ORDINAL_POSITION as "POSITION",
-                col.DATA_TYPE as DATA_TYPE_NAME,
+                replace(col.DATA_TYPE, '"', '') as DATA_TYPE_NAME,
                 null as DATA_TYPE_OWNER,
                 null as DATA_TYPE_PACKAGE,
                 col.CHARACTER_MAXIMUM_LENGTH as DATA_LENGTH,
@@ -132,20 +139,27 @@
                 col.NUMERIC_SCALE as DATA_SCALE,
                 left(col.IS_NULLABLE, 1) as IS_NULLABLE,
                 'N' as IS_HIDDEN,
-                case when col.DATA_TYPE  = 'oid' then 'Y' else 'N' end as IS_PRIMARY_KEY,
-                /* case when kcu.COLUMN_NAME is null then 'N' else 'Y' end as IS_FOREIGN_KEY */
+                case when kcu.COLUMN_NAME is null then 'N' else 'Y' end as IS_PRIMARY_KEY,
                 'N' as IS_FOREIGN_KEY
             from INFORMATION_SCHEMA.COLUMNS col
-                    /* left join (
-                         select
-                             TABLE_SCHEMA,
-                             TABLE_NAME,
-                             COLUMN_NAME
-                     from INFORMATION_SCHEMA.KEY_COLUMN_USAGE
-                     where REFERENCED_COLUMN_NAME is not null) kcu on
-                         kcu.TABLE_SCHEMA = col.TABLE_SCHEMA and
-                         kcu.TABLE_NAME = col.TABLE_NAME and
-                         kcu.COLUMN_NAME = col.COLUMN_NAME */
+                    left join (
+                            select
+                                scm.NSPNAME as TABLE_SCHEMA,
+                                tbl.RELNAME as TABLE_NAME,
+                                idx.RELNAME as INDEX_NAME,
+                                col.ATTNAME as COLUMN_NAME,
+                                def.ADSRC as DEFAULT_VALUE
+                            from
+                                PG_CLASS tbl join
+                                PG_NAMESPACE scm on scm.OID = tbl.RELNAMESPACE join
+                                PG_ATTRIBUTE col on col.ATTRELID = tbl.OID join
+                                PG_INDEX ix on tbl.OID = ix.INDRELID and col.ATTNUM = ANY (ix.INDKEY) join
+                                PG_CLASS idx on idx.OID = ix.INDEXRELID left join
+                                PG_ATTRDEF def on def.ADRELID = tbl.OID and def.ADNUM = col.ATTNUM
+                            where tbl.RELKIND = 'r') kcu on
+                                            kcu.TABLE_SCHEMA = col.TABLE_SCHEMA and
+                                            kcu.TABLE_NAME = col.TABLE_NAME and
+                                            kcu.COLUMN_NAME = col.COLUMN_NAME
             where
                 col.TABLE_SCHEMA = {0}
             order by

@@ -170,8 +170,9 @@ public class DBObjectBundleImpl implements DBObjectBundle {
     }
 
     public DBNativeDataType getNativeDataType(String name) {
+        String upperCaseName = name.toUpperCase();
         for (DBNativeDataType dataType : getNativeDataTypes()) {
-            if (name.toUpperCase().startsWith(dataType.getName())) {
+            if (upperCaseName.startsWith(dataType.getName())) {
                 return dataType;
             }
         }
