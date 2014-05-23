@@ -1,6 +1,6 @@
 package com.dci.intellij.dbn.data.export;
 
-import com.dci.intellij.dbn.data.type.BasicDataType;
+import com.dci.intellij.dbn.data.type.GenericDataType;
 import com.intellij.openapi.project.Project;
 
 public interface DataExportModel {
@@ -9,6 +9,6 @@ public interface DataExportModel {
     int getRowCount();
     Object getValue(int rowIndex, int columnIndex);
     String getColumnName(int columnIndex);
-    BasicDataType getBasicDataType(int columnIndex);
+    GenericDataType getGenericDataType(int columnIndex);
     Project getProject();
 }

@@ -1,12 +1,12 @@
 package com.dci.intellij.dbn.execution.statement.variables;
 
-import com.dci.intellij.dbn.data.type.BasicDataType;
+import com.dci.intellij.dbn.data.type.GenericDataType;
 import com.dci.intellij.dbn.language.common.psi.ExecVariablePsiElement;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 public class StatementExecutionVariable implements Comparable<StatementExecutionVariable>{
-    private BasicDataType dataType;
+    private GenericDataType dataType;
     private String name;
     private String value;
     private TemporaryValueProvider temporaryValueProvider;
@@ -25,11 +25,11 @@ public class StatementExecutionVariable implements Comparable<StatementExecution
         return name;
     }
 
-    public BasicDataType getDataType() {
+    public GenericDataType getDataType() {
         return dataType;
     }
 
-    public void setDataType(BasicDataType dataType) {
+    public void setDataType(GenericDataType dataType) {
         this.dataType = dataType;
     }
 
@@ -71,6 +71,6 @@ public class StatementExecutionVariable implements Comparable<StatementExecution
 
     public interface TemporaryValueProvider {
         String getValue();
-        BasicDataType getDataType();
+        GenericDataType getDataType();
     }
 }

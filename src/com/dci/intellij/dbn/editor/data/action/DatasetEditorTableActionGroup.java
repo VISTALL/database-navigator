@@ -4,8 +4,8 @@ import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.util.NamingUtil;
 import com.dci.intellij.dbn.data.model.ColumnInfo;
 import com.dci.intellij.dbn.data.sorting.SortDirection;
-import com.dci.intellij.dbn.data.type.BasicDataType;
 import com.dci.intellij.dbn.data.type.DBDataType;
+import com.dci.intellij.dbn.data.type.GenericDataType;
 import com.dci.intellij.dbn.editor.data.DatasetEditor;
 import com.dci.intellij.dbn.editor.data.filter.ConditionOperator;
 import com.dci.intellij.dbn.editor.data.filter.DatasetBasicFilter;
@@ -59,7 +59,7 @@ public class DatasetEditorTableActionGroup extends DefaultActionGroup {
         String text = getClipboardContent((int) dataType.getLength());
         if (text != null) {
             filterActionGroup.add(new CreateClipboardFilterAction(text, false));
-            if (dataType.isNative() && dataType.getNativeDataType().getBasicDataType() == BasicDataType.LITERAL) {
+            if (dataType.isNative() && dataType.getNativeDataType().getBasicDataType() == GenericDataType.LITERAL) {
                 filterActionGroup.add(new CreateClipboardFilterAction(text, true));
             }
         }

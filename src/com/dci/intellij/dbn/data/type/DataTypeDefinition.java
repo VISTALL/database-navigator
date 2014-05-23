@@ -4,6 +4,6 @@ public interface DataTypeDefinition {
     String getName();
     Class getTypeClass();
     int getSqlType();
-    BasicDataType getBasicDataType();
+    GenericDataType getGenericDataType();
     Object convert(Object object);
 }

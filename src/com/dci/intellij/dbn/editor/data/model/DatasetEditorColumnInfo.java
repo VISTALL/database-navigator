@@ -1,8 +1,8 @@
 package com.dci.intellij.dbn.editor.data.model;
 
 import com.dci.intellij.dbn.data.model.ColumnInfo;
-import com.dci.intellij.dbn.data.type.BasicDataType;
 import com.dci.intellij.dbn.data.type.DBDataType;
+import com.dci.intellij.dbn.data.type.GenericDataType;
 import com.dci.intellij.dbn.editor.data.DatasetEditorUtils;
 import com.dci.intellij.dbn.editor.data.options.DataEditorSettings;
 import com.dci.intellij.dbn.object.DBColumn;
@@ -77,9 +77,9 @@ public class DatasetEditorColumnInfo implements ColumnInfo {
         DBDataType type = column == null ? null : column.getDataType();
         return type != null && type.isNative() &&
                 type.getNativeDataType().getBasicDataType().is(
-                        BasicDataType.LITERAL,
-                        BasicDataType.NUMERIC,
-                        BasicDataType.DATE_TIME);
+                        GenericDataType.LITERAL,
+                        GenericDataType.NUMERIC,
+                        GenericDataType.DATE_TIME);
     }
 
 }

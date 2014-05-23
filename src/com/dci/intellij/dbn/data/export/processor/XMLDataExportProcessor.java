@@ -9,7 +9,7 @@ import com.dci.intellij.dbn.data.export.DataExportException;
 import com.dci.intellij.dbn.data.export.DataExportFormat;
 import com.dci.intellij.dbn.data.export.DataExportInstructions;
 import com.dci.intellij.dbn.data.export.DataExportModel;
-import com.dci.intellij.dbn.data.type.BasicDataType;
+import com.dci.intellij.dbn.data.type.GenericDataType;
 
 import java.awt.datatransfer.Transferable;
 import java.util.Date;
@@ -63,11 +63,11 @@ public class XMLDataExportProcessor extends DataExportProcessor{
             buffer.append("\">\n");
             for (int columnIndex=0; columnIndex < model.getColumnCount(); columnIndex++){
                 String columnName = model.getColumnName(columnIndex);
-                BasicDataType basicDataType = model.getBasicDataType(columnIndex);
+                GenericDataType genericDataType = model.getGenericDataType(columnIndex);
                 String value = null;
-                if (basicDataType == BasicDataType.LITERAL ||
-                        basicDataType == BasicDataType.NUMERIC ||
-                        basicDataType == BasicDataType.DATE_TIME) {
+                if (genericDataType == GenericDataType.LITERAL ||
+                        genericDataType == GenericDataType.NUMERIC ||
+                        genericDataType == GenericDataType.DATE_TIME) {
 
                     Object object = model.getValue(rowIndex, columnIndex);
 

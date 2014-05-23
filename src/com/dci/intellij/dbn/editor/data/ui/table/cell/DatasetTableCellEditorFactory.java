@@ -2,10 +2,10 @@ package com.dci.intellij.dbn.editor.data.ui.table.cell;
 
 import com.dci.intellij.dbn.data.editor.ui.ListPopupValuesProvider;
 import com.dci.intellij.dbn.data.model.ColumnInfo;
-import com.dci.intellij.dbn.data.type.BasicDataType;
 import com.dci.intellij.dbn.data.type.DBDataType;
 import com.dci.intellij.dbn.data.type.DBNativeDataType;
 import com.dci.intellij.dbn.data.type.DataTypeDefinition;
+import com.dci.intellij.dbn.data.type.GenericDataType;
 import com.dci.intellij.dbn.editor.data.model.DatasetEditorColumnInfo;
 import com.dci.intellij.dbn.editor.data.options.DataEditorSettings;
 import com.dci.intellij.dbn.editor.data.options.DataEditorValueListPopupSettings;
@@ -38,16 +38,16 @@ public class DatasetTableCellEditorFactory implements Disposable {
         DBDataType dataType = columnInfo.getDataType();
         DBNativeDataType nativeDataType = dataType.getNativeDataType();
         DataTypeDefinition dataTypeDefinition = nativeDataType.getDataTypeDefinition();
-        BasicDataType basicDataType = dataTypeDefinition.getBasicDataType();
-        if (basicDataType == BasicDataType.NUMERIC) {
+        GenericDataType genericDataType = dataTypeDefinition.getGenericDataType();
+        if (genericDataType == GenericDataType.NUMERIC) {
             return new DatasetTableCellEditor(table);
         }
-        else if (basicDataType == BasicDataType.DATE_TIME) {
+        else if (genericDataType == GenericDataType.DATE_TIME) {
             DatasetTableCellEditorWithPopup tableCellEditor = new DatasetTableCellEditorWithPopup(table);
             tableCellEditor.getEditorComponent().createCalendarPopup(false);
             return tableCellEditor;
         }
-        else if (basicDataType == BasicDataType.LITERAL) {
+        else if (genericDataType == GenericDataType.LITERAL) {
             long dataLength = dataType.getLength();
 
 
@@ -77,7 +77,7 @@ public class DatasetTableCellEditorFactory implements Disposable {
                 return tableCellEditor;
             }
 
-        } else if (basicDataType.isLOB()) {
+        } else if (genericDataType.isLOB()) {
             DatasetTableCellEditorWithTextEditor tableCellEditor = new DatasetTableCellEditorWithTextEditor(table);
             tableCellEditor.setEditable(false);
             return tableCellEditor;

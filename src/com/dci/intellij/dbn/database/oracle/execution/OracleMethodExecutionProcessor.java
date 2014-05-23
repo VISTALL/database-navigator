@@ -2,8 +2,8 @@ package com.dci.intellij.dbn.database.oracle.execution;
 
 import com.dci.intellij.dbn.data.type.DBDataType;
 import com.dci.intellij.dbn.data.type.DBNativeDataType;
+import com.dci.intellij.dbn.data.type.GenericDataType;
 import com.dci.intellij.dbn.database.common.execution.MethodExecutionProcessorImpl;
-import com.dci.intellij.dbn.database.oracle.OracleNativeDataTypes;
 import com.dci.intellij.dbn.execution.method.MethodExecutionInput;
 import com.dci.intellij.dbn.execution.method.result.MethodExecutionResult;
 import com.dci.intellij.dbn.object.DBArgument;
@@ -254,7 +254,7 @@ public class OracleMethodExecutionProcessor extends MethodExecutionProcessorImpl
 
     private boolean isBoolean(DBDataType dataType) {
         DBNativeDataType nativeDataType = dataType.getNativeDataType();
-        return nativeDataType != null && nativeDataType.getDataTypeDefinition() == OracleNativeDataTypes.PL_SQL_BOOLEAN;
+        return nativeDataType != null && nativeDataType.getDataTypeDefinition().getGenericDataType() == GenericDataType.BOOLEAN;
     }
 
     private static String parseBoolean(String argumentName, String booleanString) throws SQLException {

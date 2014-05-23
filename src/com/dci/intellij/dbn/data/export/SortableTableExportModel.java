@@ -2,8 +2,8 @@ package com.dci.intellij.dbn.data.export;
 
 import com.dci.intellij.dbn.data.model.ColumnInfo;
 import com.dci.intellij.dbn.data.model.sortable.SortableDataModelCell;
-import com.dci.intellij.dbn.data.type.BasicDataType;
 import com.dci.intellij.dbn.data.type.DBNativeDataType;
+import com.dci.intellij.dbn.data.type.GenericDataType;
 import com.dci.intellij.dbn.data.ui.table.sortable.SortableTable;
 import com.intellij.openapi.project.Project;
 
@@ -56,14 +56,14 @@ public class SortableTableExportModel implements DataExportModel{
         return table.getModel().getColumnName(realColumnIndex);
     }
 
-    public BasicDataType getBasicDataType(int columnIndex) {
+    public GenericDataType getGenericDataType(int columnIndex) {
         int realColumnIndex = getRealColumnIndex(columnIndex);
         ColumnInfo columnInfo = table.getModel().getColumnInfo(realColumnIndex);
         DBNativeDataType nativeDataType = columnInfo.getDataType().getNativeDataType();
 
         return nativeDataType == null ?
-                BasicDataType.LITERAL :
-                nativeDataType.getDataTypeDefinition().getBasicDataType();
+                GenericDataType.LITERAL :
+                nativeDataType.getDataTypeDefinition().getGenericDataType();
 
     }
 

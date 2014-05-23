@@ -1,20 +1,17 @@
 package com.dci.intellij.dbn.data.type;
 
-import java.util.List;
-
 public class BasicDataTypeDefinition implements DataTypeDefinition {
-    private BasicDataType basicDataType;
+    private GenericDataType genericDataType;
     private String name;
     private Class typeClass;
     private int sqlType;
 
 
-    public BasicDataTypeDefinition(String name, Class typeClass, int sqlType, BasicDataType basicDataType, List<DataTypeDefinition> bundle) {
+    public BasicDataTypeDefinition(String name, Class typeClass, int sqlType, GenericDataType genericDataType) {
         this.name = name;
         this.typeClass = typeClass;
         this.sqlType = sqlType;
-        this.basicDataType = basicDataType;
-        bundle.add(this);
+        this.genericDataType = genericDataType;
     }
 
     public String getName() {
@@ -29,8 +26,8 @@ public class BasicDataTypeDefinition implements DataTypeDefinition {
         return sqlType;
     }
 
-    public BasicDataType getBasicDataType() {
-        return basicDataType;
+    public GenericDataType getGenericDataType() {
+        return genericDataType;
     }
 
     @Override

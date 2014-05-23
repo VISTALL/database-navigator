@@ -9,10 +9,10 @@ import com.dci.intellij.dbn.data.editor.ui.DataEditorComponent;
 import com.dci.intellij.dbn.data.editor.ui.ListPopupValuesProvider;
 import com.dci.intellij.dbn.data.editor.ui.TextFieldWithPopup;
 import com.dci.intellij.dbn.data.editor.ui.TextFieldWithTextEditor;
-import com.dci.intellij.dbn.data.type.BasicDataType;
 import com.dci.intellij.dbn.data.type.DBDataType;
 import com.dci.intellij.dbn.data.type.DBNativeDataType;
 import com.dci.intellij.dbn.data.type.DataTypeDefinition;
+import com.dci.intellij.dbn.data.type.GenericDataType;
 import com.dci.intellij.dbn.data.value.LazyLoadedValue;
 import com.dci.intellij.dbn.editor.data.model.DatasetEditorColumnInfo;
 import com.dci.intellij.dbn.editor.data.model.DatasetEditorModelCell;
@@ -73,13 +73,13 @@ public class DatasetRecordEditorColumnForm extends DBNFormImpl implements DBNFor
         DBNativeDataType nativeDataType = dataType.getNativeDataType();
         if (nativeDataType != null) {
             DataTypeDefinition dataTypeDefinition = nativeDataType.getDataTypeDefinition();
-            BasicDataType basicDataType = dataTypeDefinition.getBasicDataType();
+            GenericDataType genericDataType = dataTypeDefinition.getGenericDataType();
 
             DataEditorSettings dataEditorSettings = DataEditorSettings.getInstance(project);
 
             long dataLength = dataType.getLength();
 
-            if (basicDataType.is(BasicDataType.DATE_TIME, BasicDataType.LITERAL)) {
+            if (genericDataType.is(GenericDataType.DATE_TIME, GenericDataType.LITERAL)) {
                 TextFieldWithPopup textFieldWithPopup = new TextFieldWithPopup(project);
 
                 textFieldWithPopup.setPreferredSize(new Dimension(200, -1));
@@ -89,11 +89,11 @@ public class DatasetRecordEditorColumnForm extends DBNFormImpl implements DBNFor
                 valueTextField.addFocusListener(focusListener);
 
                 if (cell.getRow().getModel().isEditable()) {
-                    if (basicDataType == BasicDataType.DATE_TIME) {
+                    if (genericDataType == GenericDataType.DATE_TIME) {
                         textFieldWithPopup.createCalendarPopup(false);
                     }
 
-                    if (basicDataType == BasicDataType.LITERAL) {
+                    if (genericDataType == GenericDataType.LITERAL) {
                         if (dataLength > 20 && !column.isPrimaryKey() && !column.isForeignKey())
                             textFieldWithPopup.createTextAreaPopup(false);
                         DataEditorValueListPopupSettings valueListPopupSettings = dataEditorSettings.getValueListPopupSettings();
@@ -110,7 +110,7 @@ public class DatasetRecordEditorColumnForm extends DBNFormImpl implements DBNFor
                     }
                 }
                 editorComponent = textFieldWithPopup;
-            } else if (basicDataType.is(BasicDataType.BLOB, BasicDataType.CLOB)) {
+            } else if (genericDataType.is(GenericDataType.BLOB, GenericDataType.CLOB)) {
                 editorComponent = new TextFieldWithTextEditor(project);
             } else {
                 editorComponent = new BasicDataEditorComponent();

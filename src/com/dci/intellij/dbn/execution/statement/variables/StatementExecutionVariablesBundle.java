@@ -2,8 +2,8 @@ package com.dci.intellij.dbn.execution.statement.variables;
 
 import com.dci.intellij.dbn.common.locale.options.RegionalSettings;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
-import com.dci.intellij.dbn.data.type.BasicDataType;
 import com.dci.intellij.dbn.data.type.DBDataType;
+import com.dci.intellij.dbn.data.type.GenericDataType;
 import com.dci.intellij.dbn.database.DatabaseMetadataInterface;
 import com.dci.intellij.dbn.language.common.element.util.IdentifierRole;
 import com.dci.intellij.dbn.language.common.psi.BasePsiElement;
@@ -52,7 +52,7 @@ public class StatementExecutionVariablesBundle {
                 if (dataType != null && dataType.isNative()) {
                     variable.setDataType(dataType.getNativeDataType().getBasicDataType());
                 } else {
-                    variable.setDataType(BasicDataType.LITERAL);
+                    variable.setDataType(GenericDataType.LITERAL);
                 }
             }
             newVariables.add(variable);
@@ -132,15 +132,15 @@ public class StatementExecutionVariablesBundle {
         Collections.sort(variables);
         for (StatementExecutionVariable variable : variables) {
             String value = temporary ? variable.getTemporaryValueProvider().getValue() : variable.getValue();
-            BasicDataType basicDataType = temporary ? variable.getTemporaryValueProvider().getDataType() : variable.getDataType();
+            GenericDataType genericDataType = temporary ? variable.getTemporaryValueProvider().getDataType() : variable.getDataType();
 
             if (!StringUtil.isEmpty(value)) {
                 RegionalSettings regionalSettings = RegionalSettings.getInstance(connectionHandler.getProject());
 
-                if (basicDataType == BasicDataType.LITERAL) {
+                if (genericDataType == GenericDataType.LITERAL) {
                     value = StringUtil.replace(value, "'", "''");
                     value = "'" + value + "'" ;
-                } else if (basicDataType == BasicDataType.DATE_TIME){
+                } else if (genericDataType == GenericDataType.DATE_TIME){
                     DatabaseMetadataInterface metadataInterface = connectionHandler.getInterfaceProvider().getMetadataInterface();
                     try {
                         Date date = regionalSettings.getFormatter().parseDateTime(value);
@@ -153,7 +153,7 @@ public class StatementExecutionVariablesBundle {
                             addError(variable, "Invalid date");
                         }
                     }
-                } else if (basicDataType == BasicDataType.NUMERIC){
+                } else if (genericDataType == GenericDataType.NUMERIC){
                     try {
                         regionalSettings.getFormatter().parseNumber(value);
                     } catch (ParseException e) {
@@ -161,7 +161,7 @@ public class StatementExecutionVariablesBundle {
                     }
 
                 } else {
-                    throw new IllegalArgumentException("Data type " + basicDataType.getName() + " not supported with execution variables.");
+                    throw new IllegalArgumentException("Data type " + genericDataType.getName() + " not supported with execution variables.");
                 }
 
                 statementText = StringUtil.replaceIgnoreCase(statementText, variable.getName(), value);

@@ -8,7 +8,7 @@ import com.dci.intellij.dbn.data.export.DataExportException;
 import com.dci.intellij.dbn.data.export.DataExportFormat;
 import com.dci.intellij.dbn.data.export.DataExportInstructions;
 import com.dci.intellij.dbn.data.export.DataExportModel;
-import com.dci.intellij.dbn.data.type.BasicDataType;
+import com.dci.intellij.dbn.data.type.GenericDataType;
 
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
@@ -115,11 +115,11 @@ public class HTMLDataExportProcessor extends DataExportProcessor{
             buffer.append("            <tr>\n");
 
             for (int columnIndex=0; columnIndex < model.getColumnCount(); columnIndex++){
-                BasicDataType basicDataType = model.getBasicDataType(columnIndex);
+                GenericDataType genericDataType = model.getGenericDataType(columnIndex);
                 String value = null;
-                if (basicDataType == BasicDataType.LITERAL ||
-                        basicDataType == BasicDataType.NUMERIC ||
-                        basicDataType == BasicDataType.DATE_TIME) {
+                if (genericDataType == GenericDataType.LITERAL ||
+                        genericDataType == GenericDataType.NUMERIC ||
+                        genericDataType == GenericDataType.DATE_TIME) {
 
                     Object object = model.getValue(rowIndex, columnIndex);
 
@@ -143,11 +143,11 @@ public class HTMLDataExportProcessor extends DataExportProcessor{
                 if (StringUtil.isEmptyOrSpaces(value)) value = "&nbsp;";
 
                 boolean isNoWrap =
-                        basicDataType == BasicDataType.NUMERIC ||
-                        basicDataType == BasicDataType.DATE_TIME ||
+                        genericDataType == GenericDataType.NUMERIC ||
+                        genericDataType == GenericDataType.DATE_TIME ||
                         value.length() < 100;
 
-                boolean isAlignRight = basicDataType == BasicDataType.NUMERIC;
+                boolean isAlignRight = genericDataType == GenericDataType.NUMERIC;
 
                 buffer.append("                <td");
                 if (isNoWrap) buffer.append(" nowrap");

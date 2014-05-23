@@ -4,8 +4,8 @@ import com.dci.intellij.dbn.common.locale.options.RegionalSettings;
 import com.dci.intellij.dbn.common.options.Configuration;
 import com.dci.intellij.dbn.common.util.StringUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
-import com.dci.intellij.dbn.data.type.BasicDataType;
 import com.dci.intellij.dbn.data.type.DBDataType;
+import com.dci.intellij.dbn.data.type.GenericDataType;
 import com.dci.intellij.dbn.database.DatabaseMetadataInterface;
 import com.dci.intellij.dbn.editor.data.filter.ui.DatasetBasicFilterConditionForm;
 import com.dci.intellij.dbn.object.DBColumn;
@@ -115,11 +115,11 @@ public class DatasetBasicFilterCondition extends Configuration<DatasetBasicFilte
             if (dataType != null && dataType.isNative()) {
                 ConnectionHandler connectionHandler = dataset.getConnectionHandler();
                 RegionalSettings regionalSettings = RegionalSettings.getInstance(connectionHandler.getProject());
-                BasicDataType basicDataType = dataType.getNativeDataType().getBasicDataType();
-                if (basicDataType == BasicDataType.LITERAL) {
+                GenericDataType genericDataType = dataType.getNativeDataType().getBasicDataType();
+                if (genericDataType == GenericDataType.LITERAL) {
                     value = com.intellij.openapi.util.text.StringUtil.replace(value, "'", "''");
                     value = "'" + value + "'";
-                } else if (basicDataType == BasicDataType.DATE_TIME) {
+                } else if (genericDataType == GenericDataType.DATE_TIME) {
                     DatabaseMetadataInterface metadataInterface = connectionHandler.getInterfaceProvider().getMetadataInterface();
                     try {
                         Date date = regionalSettings.getFormatter().parseDateTime(value);
@@ -133,7 +133,7 @@ public class DatasetBasicFilterCondition extends Configuration<DatasetBasicFilte
                             //e1.printStackTrace();
                         }
                     }
-                } else if (basicDataType == BasicDataType.NUMERIC) {
+                } else if (genericDataType == GenericDataType.NUMERIC) {
                     /*try {
                         regionalSettings.getFormatter().parseNumber(value);
                     } catch (ParseException e) {
