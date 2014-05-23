@@ -1,8 +1,8 @@
 package com.dci.intellij.dbn.data.model.basic;
 
 import com.dci.intellij.dbn.data.model.ColumnInfo;
-import com.dci.intellij.dbn.data.type.BasicDataType;
 import com.dci.intellij.dbn.data.type.DBDataType;
+import com.dci.intellij.dbn.data.type.GenericDataType;
 
 public class BasicColumnInfo implements ColumnInfo {
     protected String name;
@@ -32,7 +32,7 @@ public class BasicColumnInfo implements ColumnInfo {
     }
 
     public boolean isSortable() {
-        return dataType.isNative() && dataType.getNativeDataType().getBasicDataType().is(BasicDataType.LITERAL, BasicDataType.NUMERIC, BasicDataType.DATE_TIME);
+        return dataType.isNative() && dataType.getNativeDataType().getBasicDataType().is(GenericDataType.LITERAL, GenericDataType.NUMERIC, GenericDataType.DATE_TIME);
     }
 
 }

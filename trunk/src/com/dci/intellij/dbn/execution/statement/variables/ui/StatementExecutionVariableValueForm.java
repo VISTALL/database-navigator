@@ -7,7 +7,7 @@ import com.dci.intellij.dbn.common.ui.DBNFormImpl;
 import com.dci.intellij.dbn.data.editor.ui.DataEditorComponent;
 import com.dci.intellij.dbn.data.editor.ui.TextFieldPopupType;
 import com.dci.intellij.dbn.data.editor.ui.TextFieldWithPopup;
-import com.dci.intellij.dbn.data.type.BasicDataType;
+import com.dci.intellij.dbn.data.type.GenericDataType;
 import com.dci.intellij.dbn.execution.statement.variables.StatementExecutionVariable;
 
 import javax.swing.DefaultListCellRenderer;
@@ -43,15 +43,15 @@ public class StatementExecutionVariableValueForm extends DBNFormImpl implements 
         variableNameLabel.setText(variable.getName().substring(1).trim());
         variableNameLabel.setIcon(Icons.DBO_VARIABLE);
 
-        dataTypeComboBox.addItem(BasicDataType.LITERAL);
-        dataTypeComboBox.addItem(BasicDataType.NUMERIC);
-        dataTypeComboBox.addItem(BasicDataType.DATE_TIME);
+        dataTypeComboBox.addItem(GenericDataType.LITERAL);
+        dataTypeComboBox.addItem(GenericDataType.NUMERIC);
+        dataTypeComboBox.addItem(GenericDataType.DATE_TIME);
         dataTypeComboBox.setRenderer(new DataTypeCellRenderer());
         dataTypeComboBox.setSelectedItem(variable.getDataType());
 
         final TextFieldWithPopup textFieldWithPopup = new TextFieldWithPopup(variable.getProject());
         textFieldWithPopup.createCalendarPopup(false);
-        textFieldWithPopup.setPopupEnabled(TextFieldPopupType.CALENDAR, variable.getDataType() == BasicDataType.DATE_TIME);
+        textFieldWithPopup.setPopupEnabled(TextFieldPopupType.CALENDAR, variable.getDataType() == GenericDataType.DATE_TIME);
         valueFieldPanel.add(textFieldWithPopup, BorderLayout.CENTER);
         editorComponent = textFieldWithPopup;
         final JTextField textField = editorComponent.getTextField();
@@ -61,12 +61,12 @@ public class StatementExecutionVariableValueForm extends DBNFormImpl implements 
 
         variable.setTemporaryValueProvider(new StatementExecutionVariable.TemporaryValueProvider() {
             public String getValue() { return textField.getText().trim(); }
-            public BasicDataType getDataType() { return (BasicDataType) dataTypeComboBox.getSelectedItem();}
+            public GenericDataType getDataType() { return (GenericDataType) dataTypeComboBox.getSelectedItem();}
         });
 
         dataTypeComboBox.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                textFieldWithPopup.setPopupEnabled(TextFieldPopupType.CALENDAR, dataTypeComboBox.getSelectedItem() == BasicDataType.DATE_TIME);
+                textFieldWithPopup.setPopupEnabled(TextFieldPopupType.CALENDAR, dataTypeComboBox.getSelectedItem() == GenericDataType.DATE_TIME);
             }
         });
 
@@ -89,7 +89,7 @@ public class StatementExecutionVariableValueForm extends DBNFormImpl implements 
 
     public void saveValue() {
         variable.setValue(editorComponent.getTextField().getText().trim());
-        variable.setDataType((BasicDataType) dataTypeComboBox.getSelectedItem());
+        variable.setDataType((GenericDataType) dataTypeComboBox.getSelectedItem());
     }
 
     public void addDocumentListener(DocumentListener documentListener) {
@@ -103,7 +103,7 @@ public class StatementExecutionVariableValueForm extends DBNFormImpl implements 
     private class DataTypeCellRenderer extends DefaultListCellRenderer {
         public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
             JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-            BasicDataType dataType = (BasicDataType) value;
+            GenericDataType dataType = (GenericDataType) value;
             label.setText(" " + dataType.getName() + " ");
             return label;
         }

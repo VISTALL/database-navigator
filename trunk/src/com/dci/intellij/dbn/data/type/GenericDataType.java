@@ -1,6 +1,6 @@
 package com.dci.intellij.dbn.data.type;
 
-public enum BasicDataType {
+public enum GenericDataType {
     LITERAL("Literal"),
     NUMERIC("Numeric"),
     DATE_TIME("Date/Time"),
@@ -9,11 +9,12 @@ public enum BasicDataType {
     ROWID("Row ID"),
     FILE("File"),
     BOOLEAN("Boolean"),
-    CURSOR("Cursor");
+    CURSOR("Cursor"),
+    OBJECT("Object");
 
     private String name;
 
-    private BasicDataType(String name) {
+    private GenericDataType(String name) {
         this.name = name;
     }
 
@@ -21,14 +22,14 @@ public enum BasicDataType {
         return name;
     }
 
-    public boolean is(BasicDataType ... basicDataTypes) {
-        for (BasicDataType basicDataType : basicDataTypes) {
-            if (this == basicDataType) return true;
+    public boolean is(GenericDataType... genericDataTypes) {
+        for (GenericDataType genericDataType : genericDataTypes) {
+            if (this == genericDataType) return true;
         }
         return false;
     }
 
     public boolean isLOB() {
-        return is(BasicDataType.BLOB, BasicDataType.CLOB);
+        return is(GenericDataType.BLOB, GenericDataType.CLOB);
     }
 }

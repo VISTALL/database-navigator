@@ -4,10 +4,10 @@ import com.dci.intellij.dbn.common.ui.DBNForm;
 import com.dci.intellij.dbn.common.ui.DBNFormImpl;
 import com.dci.intellij.dbn.common.util.CommonUtil;
 import com.dci.intellij.dbn.data.editor.ui.TextFieldWithPopup;
-import com.dci.intellij.dbn.data.type.BasicDataType;
 import com.dci.intellij.dbn.data.type.DBDataType;
 import com.dci.intellij.dbn.data.type.DBNativeDataType;
 import com.dci.intellij.dbn.data.type.DataTypeDefinition;
+import com.dci.intellij.dbn.data.type.GenericDataType;
 import com.dci.intellij.dbn.object.DBArgument;
 import com.dci.intellij.dbn.object.DBTypeAttribute;
 import com.intellij.util.ui.UIUtil;
@@ -46,10 +46,10 @@ public class MethodExecutionTypeAttributeForm extends DBNFormImpl implements DBN
         DBDataType dataType = typeAttribute.getDataType();
         DBNativeDataType nativeDataType = dataType.getNativeDataType();
         DataTypeDefinition dataTypeDefinition = nativeDataType.getDataTypeDefinition();
-        BasicDataType basicDataType = dataTypeDefinition.getBasicDataType();
+        GenericDataType genericDataType = dataTypeDefinition.getGenericDataType();
 
 
-        if (basicDataType == BasicDataType.DATE_TIME) {
+        if (genericDataType == GenericDataType.DATE_TIME) {
             TextFieldWithPopup inputField = new TextFieldWithPopup(argument.getProject());
             inputField.setPreferredSize(new Dimension(200, -1));
             inputField.createCalendarPopup(false);

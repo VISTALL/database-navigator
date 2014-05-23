@@ -5,8 +5,8 @@
  import com.dci.intellij.dbn.data.editor.ui.BasicDataEditorComponent;
  import com.dci.intellij.dbn.data.editor.ui.DataEditorComponent;
  import com.dci.intellij.dbn.data.model.ColumnInfo;
- import com.dci.intellij.dbn.data.type.BasicDataType;
  import com.dci.intellij.dbn.data.type.DBDataType;
+ import com.dci.intellij.dbn.data.type.GenericDataType;
  import com.dci.intellij.dbn.editor.data.DatasetEditorManager;
  import com.dci.intellij.dbn.editor.data.filter.DatasetFilterInput;
  import com.dci.intellij.dbn.editor.data.model.DatasetEditorModelCell;
@@ -74,13 +74,13 @@
         ColumnInfo columnInfo = cell.getColumnInfo();
         DBDataType dataType = columnInfo.getDataType();
         if (dataType.isNative()) {
-            BasicDataType basicDataType = dataType.getNativeDataType().getBasicDataType();
+            GenericDataType genericDataType = dataType.getNativeDataType().getBasicDataType();
             highlight(cell.hasError() ? HIGHLIGHT_TYPE_ERROR : HIGHLIGHT_TYPE_NONE);
             Object userValue = cell.getUserValue();
-            if (basicDataType == BasicDataType.LITERAL) {
+            if (genericDataType == GenericDataType.LITERAL) {
                 String value = (String) userValue;
                 setEditable(value == null || value.indexOf('\n') == -1);
-            } else if (basicDataType.is(BasicDataType.DATE_TIME, BasicDataType.NUMERIC)) {
+            } else if (genericDataType.is(GenericDataType.DATE_TIME, GenericDataType.NUMERIC)) {
                 setEditable(true);                    
             } else {
                 setEditable(false);

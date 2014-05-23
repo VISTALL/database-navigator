@@ -2,12 +2,11 @@ package com.dci.intellij.dbn.data.type;
 
 import java.lang.reflect.Constructor;
 import java.util.Date;
-import java.util.List;
 
 public class DateTimeDataTypeDefinition extends BasicDataTypeDefinition {
     private Constructor constructor;
-    public DateTimeDataTypeDefinition(String name, Class typeClass, int sqlType, BasicDataType basicDataType, List<DataTypeDefinition> bundle) {
-        super(name, typeClass, sqlType, basicDataType, bundle);
+    public DateTimeDataTypeDefinition(String name, Class typeClass, int sqlType) {
+        super(name, typeClass, sqlType, GenericDataType.DATE_TIME);
         try {
             constructor = typeClass.getConstructor(long.class);
         } catch (Throwable e) {

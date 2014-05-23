@@ -33,8 +33,8 @@ public class DBNativeDataType implements DynamicContentElement {
         return dataTypeDefinition;
     }
     
-    public BasicDataType getBasicDataType() {
-        return dataTypeDefinition.getBasicDataType();
+    public GenericDataType getBasicDataType() {
+        return dataTypeDefinition.getGenericDataType();
     }
 
     public boolean isLOB() {
@@ -43,11 +43,11 @@ public class DBNativeDataType implements DynamicContentElement {
 
     public Object getValueFromResultSet(ResultSet resultSet, int columnIndex) throws SQLException {
         // FIXME: add support for stream updatable types
-        BasicDataType basicDataType = dataTypeDefinition.getBasicDataType();
-        if (basicDataType == BasicDataType.BLOB) return new BlobValue(resultSet.getBlob(columnIndex));
-        if (basicDataType == BasicDataType.CLOB) return new ClobValue(resultSet.getClob(columnIndex));
-        if (basicDataType == BasicDataType.ROWID) return "[ROWID]";
-        if (basicDataType == BasicDataType.FILE) return "[FILE]";
+        GenericDataType genericDataType = dataTypeDefinition.getGenericDataType();
+        if (genericDataType == GenericDataType.BLOB) return new BlobValue(resultSet.getBlob(columnIndex));
+        if (genericDataType == GenericDataType.CLOB) return new ClobValue(resultSet.getClob(columnIndex));
+        if (genericDataType == GenericDataType.ROWID) return "[ROWID]";
+        if (genericDataType == GenericDataType.FILE) return "[FILE]";
 
         Class clazz = dataTypeDefinition.getTypeClass();
         if (Number.class.isAssignableFrom(clazz) && resultSet.getString(columnIndex) == null) {
@@ -72,11 +72,11 @@ public class DBNativeDataType implements DynamicContentElement {
 
     public void setValueToResultSet(ResultSet resultSet, int columnIndex, Object value) throws SQLException {
         // FIXME: add support for stream updatable types
-        BasicDataType basicDataType = dataTypeDefinition.getBasicDataType();
-        if (basicDataType == BasicDataType.BLOB) return;
-        if (basicDataType == BasicDataType.CLOB) return;
-        if (basicDataType == BasicDataType.ROWID) return;
-        if (basicDataType == BasicDataType.FILE) return;
+        GenericDataType genericDataType = dataTypeDefinition.getGenericDataType();
+        if (genericDataType == GenericDataType.BLOB) return;
+        if (genericDataType == GenericDataType.CLOB) return;
+        if (genericDataType == GenericDataType.ROWID) return;
+        if (genericDataType == GenericDataType.FILE) return;
 
         if (value == null) {
             resultSet.updateObject(columnIndex, null);
@@ -102,8 +102,8 @@ public class DBNativeDataType implements DynamicContentElement {
     }
 
     public void setValueToPreparedStatement(PreparedStatement preparedStatement, int parameterIndex, Object value) throws SQLException {
-        BasicDataType basicDataType = dataTypeDefinition.getBasicDataType();
-        if (basicDataType == BasicDataType.CURSOR) return;
+        GenericDataType genericDataType = dataTypeDefinition.getGenericDataType();
+        if (genericDataType == GenericDataType.CURSOR) return;
 
         if (value == null) {
             preparedStatement.setObject(parameterIndex, null);

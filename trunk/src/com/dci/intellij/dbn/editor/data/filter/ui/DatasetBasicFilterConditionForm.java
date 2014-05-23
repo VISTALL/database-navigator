@@ -6,7 +6,7 @@ import com.dci.intellij.dbn.common.util.ActionUtil;
 import com.dci.intellij.dbn.data.editor.ui.DataEditorComponent;
 import com.dci.intellij.dbn.data.editor.ui.TextFieldPopupType;
 import com.dci.intellij.dbn.data.editor.ui.TextFieldWithPopup;
-import com.dci.intellij.dbn.data.type.BasicDataType;
+import com.dci.intellij.dbn.data.type.GenericDataType;
 import com.dci.intellij.dbn.editor.data.filter.ConditionOperator;
 import com.dci.intellij.dbn.editor.data.filter.DatasetBasicFilterCondition;
 import com.dci.intellij.dbn.editor.data.filter.action.DeleteBasicFilterConditionAction;
@@ -65,7 +65,7 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
         actionsPanel.add(actionToolbar.getComponent(), BorderLayout.CENTER);
 
         DBColumn column = dataset.getColumn(condition.getColumnName());
-        BasicDataType dataType = null;
+        GenericDataType dataType = null;
         if (column != null) {
             columnComboBox.setSelectedItem(column.getRef());
             dataType = column.getDataType().getNativeDataType().getBasicDataType();
@@ -77,7 +77,7 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
 
         final TextFieldWithPopup textFieldWithPopup = new TextFieldWithPopup(dataset.getProject());
         textFieldWithPopup.createCalendarPopup(false);
-        textFieldWithPopup.setPopupEnabled(TextFieldPopupType.CALENDAR, dataType == BasicDataType.DATE_TIME);
+        textFieldWithPopup.setPopupEnabled(TextFieldPopupType.CALENDAR, dataType == GenericDataType.DATE_TIME);
         
         valueFieldPanel.add(textFieldWithPopup, BorderLayout.CENTER);
         editorComponent = textFieldWithPopup;
@@ -99,8 +99,8 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
                 DBObjectRef<DBColumn> columnRef = (DBObjectRef<DBColumn>) columnComboBox.getSelectedItem();
                 DBColumn column = columnRef.get();
                 if (column != null) {
-                    BasicDataType dataType = column.getDataType().getNativeDataType().getBasicDataType();
-                    textFieldWithPopup.setPopupEnabled(TextFieldPopupType.CALENDAR, dataType == BasicDataType.DATE_TIME);
+                    GenericDataType dataType = column.getDataType().getNativeDataType().getBasicDataType();
+                    textFieldWithPopup.setPopupEnabled(TextFieldPopupType.CALENDAR, dataType == GenericDataType.DATE_TIME);
                 }
 
             }

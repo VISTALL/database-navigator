@@ -5,7 +5,7 @@ import com.dci.intellij.dbn.data.export.DataExportException;
 import com.dci.intellij.dbn.data.export.DataExportFormat;
 import com.dci.intellij.dbn.data.export.DataExportInstructions;
 import com.dci.intellij.dbn.data.export.DataExportModel;
-import com.dci.intellij.dbn.data.type.BasicDataType;
+import com.dci.intellij.dbn.data.type.GenericDataType;
 import com.intellij.openapi.util.text.StringUtil;
 
 import java.util.Date;
@@ -51,10 +51,10 @@ public class SQLDataExportProcessor extends DataExportProcessor{
 
             int realColumnIndex = 0;
             for (int columnIndex=0; columnIndex < model.getColumnCount(); columnIndex++){
-                BasicDataType basicDataType = model.getBasicDataType(columnIndex);
-                if (basicDataType == BasicDataType.LITERAL ||
-                        basicDataType == BasicDataType.NUMERIC ||
-                        basicDataType == BasicDataType.DATE_TIME) {
+                GenericDataType genericDataType = model.getGenericDataType(columnIndex);
+                if (genericDataType == GenericDataType.LITERAL ||
+                        genericDataType == GenericDataType.NUMERIC ||
+                        genericDataType == GenericDataType.DATE_TIME) {
                     if (realColumnIndex > 0) buffer.append(", ");
                     buffer.append(model.getColumnName(columnIndex));
                     realColumnIndex++;
@@ -64,24 +64,24 @@ public class SQLDataExportProcessor extends DataExportProcessor{
 
             realColumnIndex = 0;
             for (int columnIndex=0; columnIndex < model.getColumnCount(); columnIndex++){
-                BasicDataType basicDataType = model.getBasicDataType(columnIndex);
-                if (basicDataType == BasicDataType.LITERAL ||
-                        basicDataType == BasicDataType.NUMERIC ||
-                        basicDataType == BasicDataType.DATE_TIME) {
+                GenericDataType genericDataType = model.getGenericDataType(columnIndex);
+                if (genericDataType == GenericDataType.LITERAL ||
+                        genericDataType == GenericDataType.NUMERIC ||
+                        genericDataType == GenericDataType.DATE_TIME) {
                     if (columnIndex > 0) buffer.append(", ");
                     Object object = model.getValue(rowIndex, columnIndex);
                     String value = object == null ? null : object.toString();
                     if (value == null) {
                         buffer.append("null");
                     } else {
-                        if (basicDataType == BasicDataType.LITERAL) {
+                        if (genericDataType == GenericDataType.LITERAL) {
                             buffer.append("'");
                             value = StringUtil.replace(value, "'", "''");
                             buffer.append(value);
                             buffer.append("'");
-                        } else if (basicDataType == BasicDataType.NUMERIC) {
+                        } else if (genericDataType == GenericDataType.NUMERIC) {
                             buffer.append(value);
-                        } else if (basicDataType == BasicDataType.DATE_TIME) {
+                        } else if (genericDataType == GenericDataType.DATE_TIME) {
                             Date date = (Date) object;
                             String dateString = connectionHandler.getInterfaceProvider().getMetadataInterface().createDateString(date);
                             buffer.append(dateString);
