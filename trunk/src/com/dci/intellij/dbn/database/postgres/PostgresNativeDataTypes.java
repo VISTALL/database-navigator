@@ -2,6 +2,7 @@ package com.dci.intellij.dbn.database.postgres;
 
 import com.dci.intellij.dbn.data.type.GenericDataType;
 import com.dci.intellij.dbn.database.common.DatabaseNativeDataTypes;
+import oracle.jdbc.OracleTypes;
 
 import java.math.BigDecimal;
 import java.security.Timestamp;
@@ -11,6 +12,7 @@ import java.sql.Types;
 
 public class PostgresNativeDataTypes extends DatabaseNativeDataTypes {
     {
+        createNumericDefinition("OID", BigDecimal.class, OracleTypes.NUMBER);
         createNumericDefinition("SMALLINT", Integer.class, Types.SMALLINT);
         createNumericDefinition("INTEGER", Integer.class, Types.INTEGER);
         createNumericDefinition("BIGINT", Long.class, Types.BIGINT);
