@@ -13,6 +13,10 @@ import java.sql.Types;
 public class PostgresNativeDataTypes extends DatabaseNativeDataTypes {
     {
         createNumericDefinition("OID", BigDecimal.class, OracleTypes.NUMBER);
+        createNumericDefinition("XID", BigDecimal.class, OracleTypes.NUMBER);
+        createNumericDefinition("CID", BigDecimal.class, OracleTypes.NUMBER);
+        createNumericDefinition("TID", BigDecimal.class, OracleTypes.NUMBER);
+
         createNumericDefinition("SMALLINT", Integer.class, Types.SMALLINT);
         createNumericDefinition("INTEGER", Integer.class, Types.INTEGER);
         createNumericDefinition("BIGINT", Long.class, Types.BIGINT);
@@ -32,6 +36,7 @@ public class PostgresNativeDataTypes extends DatabaseNativeDataTypes {
         createLiteralDefinition("CHARACTER", String.class, Types.CHAR);
         createLiteralDefinition("CHAR", String.class, Types.CHAR);
         createLiteralDefinition("TEXT", String.class, Types.VARCHAR);
+        createLiteralDefinition("NAME", String.class, Types.VARCHAR);
 
         createLiteralDefinition("BYTEA", String.class, Types.BINARY);
         createLiteralDefinition("BIT", String.class, Types.VARCHAR);
