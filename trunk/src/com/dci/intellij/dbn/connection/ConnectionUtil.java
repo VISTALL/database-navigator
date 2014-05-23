@@ -88,7 +88,7 @@ public class ConnectionUtil {
 
             Connection connection = driver.connect(databaseSettings.getDatabaseUrl(), properties);
             if (connection == null) {
-                throw new SQLException("Unknown reason.");
+                throw new SQLException("Driver refused to create connection for this configuration. No failure information provided.");
             }
             connection.setAutoCommit(autoCommit);
             if (connectionStatus != null) {
