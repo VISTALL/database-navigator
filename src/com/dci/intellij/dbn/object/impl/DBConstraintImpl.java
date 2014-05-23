@@ -4,7 +4,6 @@ import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
 import com.dci.intellij.dbn.browser.ui.HtmlToolTipBuilder;
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.content.loader.DynamicContentLoader;
-import com.dci.intellij.dbn.common.util.CommonUtil;
 import com.dci.intellij.dbn.database.DatabaseMetadataInterface;
 import com.dci.intellij.dbn.editor.DBContentType;
 import com.dci.intellij.dbn.object.DBColumn;
@@ -54,7 +53,7 @@ public class DBConstraintImpl extends DBSchemaObjectImpl implements DBConstraint
     @Override
     protected void initObject(ResultSet resultSet) throws SQLException {
         name = resultSet.getString("CONSTRAINT_NAME");
-        checkCondition = CommonUtil.nvl(resultSet.getString("CHECK_CONDITION"), "");
+        checkCondition = resultSet.getString("CHECK_CONDITION");
 
         String typeString = resultSet.getString("CONSTRAINT_TYPE");
         constraintType =
@@ -65,6 +64,8 @@ public class DBConstraintImpl extends DBSchemaObjectImpl implements DBConstraint
             typeString.equals("FOREIGN KEY") ? DBConstraint.FOREIGN_KEY :
             typeString.equals("VIEW CHECK") ? DBConstraint.VIEW_CHECK :
             typeString.equals("VIEW READONLY") ? DBConstraint.VIEW_READONLY : -1;
+
+        if (checkCondition == null && constraintType == CHECK) checkCondition = "";
 
         if (isForeignKey()) {
             String fkOwner = resultSet.getString("FK_CONSTRAINT_OWNER");
