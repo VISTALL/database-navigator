@@ -5,9 +5,9 @@ import com.dci.intellij.dbn.database.common.DatabaseNativeDataTypes;
 import oracle.jdbc.OracleTypes;
 
 import java.math.BigDecimal;
-import java.security.Timestamp;
 import java.sql.Date;
 import java.sql.Time;
+import java.sql.Timestamp;
 import java.sql.Types;
 
 public class PostgresNativeDataTypes extends DatabaseNativeDataTypes {

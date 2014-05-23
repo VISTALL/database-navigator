@@ -31,6 +31,7 @@ public class MySqlCompatibilityInterface extends DatabaseCompatibilityInterface 
             case OBJECT_REPLACING: return false;
             case OBJECT_DDL_EXTRACTION: return false;
             case OBJECT_DISABLING: return false;
+            case OBJECT_CHANGE_TRACING: return true;
             case AUTHID_METHOD_EXECUTION: return false;
             case FUNCTION_OUT_ARGUMENTS: return false;
             case DEBUGGING: return false;
