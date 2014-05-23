@@ -545,12 +545,7 @@
 
     <statement-execution-processor id="object-change-timestamp" is-query="true" is-prepared-statement="true">
         <statement>
-            select MODIFIED
-            from MYSQL.PROC
-            where
-                DB = {0} and
-                NAME = {1} and
-                TYPE = {2}
+            select timestamp '2000-01-01 00:00' as MODIFIED
         </statement>
     </statement-execution-processor>
 

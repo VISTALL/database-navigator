@@ -17,6 +17,7 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
             case OBJECT_REPLACING: return true;
             case OBJECT_DDL_EXTRACTION: return true;
             case OBJECT_DISABLING: return true;
+            case OBJECT_CHANGE_TRACING: return true;
             case AUTHID_METHOD_EXECUTION: return true;
             case FUNCTION_OUT_ARGUMENTS: return true;
             case DEBUGGING: return true;
