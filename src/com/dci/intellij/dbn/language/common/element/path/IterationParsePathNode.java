@@ -4,8 +4,8 @@ import com.dci.intellij.dbn.language.common.element.ElementType;
 
 public class IterationParsePathNode extends ParsePathNode{
     private int currentOffset;
-    public IterationParsePathNode(ElementType elementType, ParsePathNode parent, int startOffset, int indexInParent) {
-        super(elementType, parent, startOffset, indexInParent);
+    public IterationParsePathNode(ElementType elementType, ParsePathNode parent, int startOffset, int position) {
+        super(elementType, parent, startOffset, position);
         currentOffset = startOffset;
     }
 

@@ -5,6 +5,7 @@ import com.dci.intellij.dbn.common.options.setting.SettingsUtil;
 import com.dci.intellij.dbn.language.common.TokenType;
 import com.dci.intellij.dbn.language.common.element.ElementType;
 import com.dci.intellij.dbn.language.common.element.ElementTypeBundle;
+import com.dci.intellij.dbn.language.common.element.QualifiedIdentifierElementType;
 import com.dci.intellij.dbn.language.common.element.SequenceElementType;
 import com.dci.intellij.dbn.language.common.element.path.ParsePathNode;
 import com.dci.intellij.dbn.language.common.element.path.PathNode;
@@ -80,14 +81,10 @@ public abstract class AbstractElementTypeParser<T extends ElementType> implement
     protected boolean isSuppressibleReservedWord(TokenType tokenType, PathNode node) {
         if (tokenType != null) {
             if (tokenType.isSuppressibleReservedWord()) {
-                /*ElementType elementType = node.getElementType();
-                ElementType enclosingStatement =
-                        elementType.is(ElementTypeAttribute.STATEMENT) ?
-                                elementType :
-                                elementType.getEnclosingElementType(node, ElementTypeAttribute.STATEMENT);
-                if (enclosingStatement != null && enclosingStatement.getLookupCache().canStartWithToken(tokenType)) {
-                    return false;
-                }*/
+                ElementType elementType = node.getElementType();
+                if (elementType instanceof QualifiedIdentifierElementType) {
+                    if (node.getPosition() > 0) return true;
+                }
 
                 ElementType namedElementType = ElementTypeUtil.getEnclosingNamedElementType(node);
                 if (namedElementType != null && namedElementType.getLookupCache().containsToken(tokenType)) {
@@ -106,7 +103,7 @@ public abstract class AbstractElementTypeParser<T extends ElementType> implement
         while (parent != null) {
             if (parent.getElementType() instanceof SequenceElementType) {
                 SequenceElementType sequenceElementType = (SequenceElementType) parent.getElementType();
-                if (sequenceElementType.isPossibleTokenFromIndex(tokenType, parent.getIndexInParent() + 1)) {
+                if (sequenceElementType.isPossibleTokenFromIndex(tokenType, parent.getPosition() + 1)) {
                     return true;
                 }
             }
