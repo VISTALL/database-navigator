@@ -47,6 +47,6 @@ public class PostgresCompatibilityInterface extends DatabaseCompatibilityInterfa
     }
 
     public char getIdentifierQuotes() {
-        return '`';
+        return '"';
     }
 }

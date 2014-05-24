@@ -13,7 +13,7 @@
         <statement>
             select
                 SCHEMA_NAME,
-                'N' as IS_PUBLIC,
+                case when lower(SCHEMA_NAME)='public' then 'Y' else 'N' end as IS_PUBLIC,
                 case when lower(SCHEMA_NAME)='information_schema' then 'Y' else 'N' end as IS_SYSTEM
             from INFORMATION_SCHEMA.SCHEMATA
             order by SCHEMA_NAME asc
@@ -97,23 +97,37 @@
                 col.NUMERIC_SCALE as DATA_SCALE,
                 left(col.IS_NULLABLE, 1) as IS_NULLABLE,
                 'N' as IS_HIDDEN,
-                case when v_constraints.COLUMN_NAME is null then 'N' else 'Y' end as IS_PRIMARY_KEY,
-                'N' as IS_FOREIGN_KEY
+                case when pk.COLUMN_NAME is null then 'N' else 'Y' end as IS_PRIMARY_KEY,
+                case when fk.COLUMN_NAME is null then 'N' else 'Y' end as IS_FOREIGN_KEY
             from INFORMATION_SCHEMA.COLUMNS col
-                    left join (
-                            select
-                                scm.NSPNAME as TABLE_SCHEMA,
-                                tbl.RELNAME as TABLE_NAME,
-                                col.ATTNAME as COLUMN_NAME
-                            from
-                                PG_CLASS tbl join
-                                PG_NAMESPACE scm on scm.OID = tbl.RELNAMESPACE join
-                                PG_ATTRIBUTE col on col.ATTRELID = tbl.OID join
-                                PG_INDEX ix on tbl.OID = ix.INDRELID and col.ATTNUM = ANY (ix.INDKEY)
-                            where tbl.RELKIND = 'r') v_constraints on
-                                        v_constraints.TABLE_SCHEMA = col.TABLE_SCHEMA and
-                                        v_constraints.TABLE_NAME = col.TABLE_NAME and
-                                        v_constraints.COLUMN_NAME = col.COLUMN_NAME
+                    left join (select
+                                   kcu.TABLE_SCHEMA,
+                                   kcu.COLUMN_NAME,
+                                   kcu.TABLE_NAME
+                               from
+                                   INFORMATION_SCHEMA.table_constraints tc,
+                                   INFORMATION_SCHEMA.key_column_usage kcu
+                               where
+                                   tc.TABLE_SCHEMA = kcu.TABLE_SCHEMA and
+                                   tc.TABLE_NAME = kcu.TABLE_NAME and
+                                   tc.CONSTRAINT_SCHEMA = kcu.CONSTRAINT_SCHEMA and
+                                   tc.CONSTRAINT_NAME = kcu.CONSTRAINT_NAME and
+                                   tc.constraint_type = 'PRIMARY KEY') pk
+                    using (TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME)
+                    left join (select
+                                   kcu.TABLE_SCHEMA,
+                                   kcu.COLUMN_NAME,
+                                   kcu.TABLE_NAME
+                               from
+                                   INFORMATION_SCHEMA.table_constraints tc,
+                                   INFORMATION_SCHEMA.key_column_usage kcu
+                               where
+                                   tc.TABLE_SCHEMA = kcu.TABLE_SCHEMA and
+                                   tc.TABLE_NAME = kcu.TABLE_NAME and
+                                   tc.CONSTRAINT_SCHEMA = kcu.CONSTRAINT_SCHEMA and
+                                   tc.CONSTRAINT_NAME = kcu.CONSTRAINT_NAME and
+                                   tc.constraint_type = 'FOREIGN KEY') fk
+                    using (TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME)
             where
                 col.TABLE_SCHEMA = {0} and
                 col.TABLE_NAME = {1}
@@ -135,23 +149,37 @@
                 col.NUMERIC_SCALE as DATA_SCALE,
                 left(col.IS_NULLABLE, 1) as IS_NULLABLE,
                 'N' as IS_HIDDEN,
-                case when v_constraints.COLUMN_NAME is null then 'N' else 'Y' end as IS_PRIMARY_KEY,
-                'N' as IS_FOREIGN_KEY
+                case when pk.COLUMN_NAME is null then 'N' else 'Y' end as IS_PRIMARY_KEY,
+                case when fk.COLUMN_NAME is null then 'N' else 'Y' end as IS_FOREIGN_KEY
             from INFORMATION_SCHEMA.COLUMNS col
-                    left join (
-                            select
-                                scm.NSPNAME as TABLE_SCHEMA,
-                                tbl.RELNAME as TABLE_NAME,
-                                col.ATTNAME as COLUMN_NAME
-                            from
-                                PG_CLASS tbl join
-                                PG_NAMESPACE scm on scm.OID = tbl.RELNAMESPACE join
-                                PG_ATTRIBUTE col on col.ATTRELID = tbl.OID join
-                                PG_INDEX ix on tbl.OID = ix.INDRELID and col.ATTNUM = ANY (ix.INDKEY)
-                            where tbl.RELKIND = 'r') v_constraints on
-                                        v_constraints.TABLE_SCHEMA = col.TABLE_SCHEMA and
-                                        v_constraints.TABLE_NAME = col.TABLE_NAME and
-                                        v_constraints.COLUMN_NAME = col.COLUMN_NAME
+                    left join (select
+                                   kcu.TABLE_SCHEMA,
+                                   kcu.COLUMN_NAME,
+                                   kcu.TABLE_NAME
+                               from
+                                   INFORMATION_SCHEMA.table_constraints tc,
+                                   INFORMATION_SCHEMA.key_column_usage kcu
+                               where
+                                   tc.TABLE_SCHEMA = kcu.TABLE_SCHEMA and
+                                   tc.TABLE_NAME = kcu.TABLE_NAME and
+                                   tc.CONSTRAINT_SCHEMA = kcu.CONSTRAINT_SCHEMA and
+                                   tc.CONSTRAINT_NAME = kcu.CONSTRAINT_NAME and
+                                   tc.constraint_type = 'PRIMARY KEY') pk
+                    using (TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME)
+                    left join (select
+                                   kcu.TABLE_SCHEMA,
+                                   kcu.COLUMN_NAME,
+                                   kcu.TABLE_NAME
+                               from
+                                   INFORMATION_SCHEMA.table_constraints tc,
+                                   INFORMATION_SCHEMA.key_column_usage kcu
+                               where
+                                   tc.TABLE_SCHEMA = kcu.TABLE_SCHEMA and
+                                   tc.TABLE_NAME = kcu.TABLE_NAME and
+                                   tc.CONSTRAINT_SCHEMA = kcu.CONSTRAINT_SCHEMA and
+                                   tc.CONSTRAINT_NAME = kcu.CONSTRAINT_NAME and
+                                   tc.constraint_type = 'FOREIGN KEY') fk
+                    using (TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME)
             where
                 col.TABLE_SCHEMA = {0}
             order by
@@ -164,47 +192,16 @@
         <statement>
             select
                 tc.TABLE_NAME as DATASET_NAME,
-                case
-                    when tc.CONSTRAINT_TYPE = 'PRIMARY KEY' then concat('pk_', tc.TABLE_NAME)
-                    when tc.CONSTRAINT_TYPE = 'UNIQUE' then concat('unq_', tc.TABLE_NAME)
-                    else tc.CONSTRAINT_NAME
-                end as CONSTRAINT_NAME,
+                tc.CONSTRAINT_NAME,
                 tc.CONSTRAINT_TYPE,
                 rc.UNIQUE_CONSTRAINT_SCHEMA as FK_CONSTRAINT_OWNER,
-                case
-                    when rc.UNIQUE_CONSTRAINT_NAME = 'PRIMARY' then concat('pk_', rc.REFERENCED_TABLE_NAME)
-                    when rc.UNIQUE_CONSTRAINT_NAME = 'name' then concat('unq_', rc.REFERENCED_TABLE_NAME)
-                    else rc.UNIQUE_CONSTRAINT_NAME
-                end as FK_CONSTRAINT_NAME,
+                rc.UNIQUE_CONSTRAINT_NAME as FK_CONSTRAINT_NAME,
                 'Y' as IS_ENABLED,
-                null as CHECK_CONDITION
+                check_clause as CHECK_CONDITION
             from
                 INFORMATION_SCHEMA.TABLE_CONSTRAINTS tc left join
-                INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS rc on
-                    rc.CONSTRAINT_SCHEMA = tc.CONSTRAINT_SCHEMA and
-                    rc.CONSTRAINT_NAME = tc.CONSTRAINT_NAME and
-                    rc.TABLE_NAME = tc.TABLE_NAME
-            where
-                tc.TABLE_SCHEMA = {0}
-            order by
-                tc.TABLE_NAME,
-                tc.CONSTRAINT_NAME asc
-        </statement>
-        <statement>
-            select
-                tc.TABLE_NAME as DATASET_NAME,
-                case
-                    when tc.CONSTRAINT_TYPE = 'PRIMARY KEY' then concat('pk_', tc.TABLE_NAME)
-                    when tc.CONSTRAINT_TYPE = 'UNIQUE' then concat('unq_', tc.TABLE_NAME)
-                    else tc.CONSTRAINT_NAME
-                end as CONSTRAINT_NAME,
-                tc.CONSTRAINT_TYPE,
-                null as FK_CONSTRAINT_OWNER,
-                null as FK_CONSTRAINT_NAME,
-                'Y' as IS_ENABLED,
-                null as CHECK_CONDITION
-            from
-                INFORMATION_SCHEMA.TABLE_CONSTRAINTS tc
+                INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS rc using (CONSTRAINT_SCHEMA, CONSTRAINT_NAME) left join
+                INFORMATION_SCHEMA.CHECK_CONSTRAINTS cc using (CONSTRAINT_SCHEMA, CONSTRAINT_NAME)
             where
                 tc.TABLE_SCHEMA = {0}
             order by
@@ -217,48 +214,16 @@
         <statement>
             select
                 tc.TABLE_NAME as DATASET_NAME,
-                case
-                    when tc.CONSTRAINT_TYPE = 'PRIMARY KEY' then concat('pk_', tc.TABLE_NAME)
-                    when tc.CONSTRAINT_TYPE = 'UNIQUE' then concat('unq_', tc.TABLE_NAME)
-                    else tc.CONSTRAINT_NAME
-                end as CONSTRAINT_NAME,
+                tc.CONSTRAINT_NAME,
                 tc.CONSTRAINT_TYPE,
                 rc.UNIQUE_CONSTRAINT_SCHEMA as FK_CONSTRAINT_OWNER,
-                case
-                    when rc.UNIQUE_CONSTRAINT_NAME = 'PRIMARY' then concat('pk_', rc.REFERENCED_TABLE_NAME)
-                    when rc.UNIQUE_CONSTRAINT_NAME = 'name' then concat('unq_', rc.REFERENCED_TABLE_NAME)
-                    else rc.UNIQUE_CONSTRAINT_NAME
-                end as FK_CONSTRAINT_NAME,
+                rc.UNIQUE_CONSTRAINT_NAME as FK_CONSTRAINT_NAME,
                 'Y' as IS_ENABLED,
-                null as CHECK_CONDITION
+                check_clause as CHECK_CONDITION
             from
                 INFORMATION_SCHEMA.TABLE_CONSTRAINTS tc left join
-                INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS rc on
-                    rc.CONSTRAINT_SCHEMA = tc.CONSTRAINT_SCHEMA and
-                    rc.CONSTRAINT_NAME = tc.CONSTRAINT_NAME and
-                    rc.TABLE_NAME = tc.TABLE_NAME
-            where
-                tc.TABLE_SCHEMA = {0} and
-                tc.TABLE_NAME = {1}
-            order by
-                tc.TABLE_NAME,
-                tc.CONSTRAINT_NAME asc
-        </statement>
-        <statement>
-            select
-                tc.TABLE_NAME as DATASET_NAME,
-                case
-                    when tc.CONSTRAINT_TYPE = 'PRIMARY KEY' then concat('pk_', tc.TABLE_NAME)
-                    when tc.CONSTRAINT_TYPE = 'UNIQUE' then concat('unq_', tc.TABLE_NAME)
-                    else tc.CONSTRAINT_NAME
-                end as CONSTRAINT_NAME,
-                tc.CONSTRAINT_TYPE,
-                null as FK_CONSTRAINT_OWNER,
-                null as FK_CONSTRAINT_NAME,
-                'Y' as IS_ENABLED,
-                null as CHECK_CONDITION
-            from
-                INFORMATION_SCHEMA.TABLE_CONSTRAINTS tc
+                INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS rc using (CONSTRAINT_SCHEMA, CONSTRAINT_NAME) left join
+                INFORMATION_SCHEMA.CHECK_CONSTRAINTS cc using (CONSTRAINT_SCHEMA, CONSTRAINT_NAME)
             where
                 tc.TABLE_SCHEMA = {0} and
                 tc.TABLE_NAME = {1}
@@ -272,11 +237,7 @@
         <statement>
             select
                 COLUMN_NAME,
-                case
-                    when CONSTRAINT_NAME = 'PRIMARY' then concat('pk_', TABLE_NAME)
-                    when CONSTRAINT_NAME = 'name' then concat('unq_', TABLE_NAME)
-                    else CONSTRAINT_NAME
-                end as CONSTRAINT_NAME,
+                CONSTRAINT_NAME,
                 ORDINAL_POSITION as POSITION
             from INFORMATION_SCHEMA.KEY_COLUMN_USAGE
             where
@@ -289,14 +250,10 @@
     <statement-execution-processor id="all-column-constraint-relations" is-query="true" is-prepared-statement="true">
         <statement>
             select
-               TABLE_NAME as DATASET_NAME,
-               COLUMN_NAME,
-               case
-                    when CONSTRAINT_NAME = 'PRIMARY' then concat('pk_', TABLE_NAME)
-                    when CONSTRAINT_NAME = 'name' then concat('unq_', TABLE_NAME)
-                    else CONSTRAINT_NAME
-               end as CONSTRAINT_NAME,
-               ORDINAL_POSITION as POSITION
+                TABLE_NAME as DATASET_NAME,
+                COLUMN_NAME,
+                CONSTRAINT_NAME,
+                ORDINAL_POSITION as POSITION
             from INFORMATION_SCHEMA.KEY_COLUMN_USAGE
             where TABLE_SCHEMA = {0}
             order by TABLE_NAME asc
@@ -306,29 +263,29 @@
     <statement-execution-processor id="indexes" is-query="true" is-prepared-statement="true">
         <statement>
             select distinct
-                INDEX_NAME,
-                case when NON_UNIQUE = 'YES' then 'N' else 'Y' end as IS_UNIQUE,
+                indexname as INDEX_NAME,
+                case when position('UNIQUE' in indexdef) > 1 then 'Y' else 'N' end as IS_UNIQUE,
                 'Y' as IS_VALID
-            from INFORMATION_SCHEMA.STATISTICS
+            from pg_catalog.pg_indexes
             where
-                TABLE_SCHEMA = {0} and
-                TABLE_NAME = {1}
-            order by INDEX_NAME asc
+                schemaname = {0} and
+                tablename = {1}
+            order by indexname asc
         </statement>
     </statement-execution-processor>
 
     <statement-execution-processor id="all-indexes" is-query="true" is-prepared-statement="true">
         <statement>
             select distinct
-                INDEX_NAME,
-                TABLE_NAME,
-                case when NON_UNIQUE = 'YES' then 'N' else 'Y' end as IS_UNIQUE,
+                indexname as INDEX_NAME,
+                tablename as TABLE_NAME,
+                case when position('UNIQUE' in indexdef) > 1 then 'Y' else 'N' end as IS_UNIQUE,
                 'Y' as IS_VALID
-            from INFORMATION_SCHEMA.STATISTICS
-            where TABLE_SCHEMA = {0}
+            from pg_catalog.pg_indexes
+            where schemaname = {0}
             order by
-                TABLE_NAME,
-                INDEX_NAME asc
+                tablename,
+                indexname asc
         </statement>
     </statement-execution-processor>
 
