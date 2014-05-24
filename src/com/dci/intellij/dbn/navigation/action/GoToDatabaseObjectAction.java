@@ -42,7 +42,10 @@ public class GoToDatabaseObjectAction extends GotoActionBase implements DumbAwar
                 List<ConnectionBundle> connectionBundles = connectionManager.getConnectionBundles();
                 for (ConnectionBundle connectionBundle : connectionBundles) {
                     if (connectionBundle.getConnectionHandlers().size() > 0) {
-                        actionGroup.addSeparator();
+                        if ((actionGroup.getChildrenCount() > 1)) {
+                            actionGroup.addSeparator();
+                        }
+
                         for (ConnectionHandler connectionHandler : connectionBundle.getConnectionHandlers()) {
                             SelectConnectionAction connectionAction = new SelectConnectionAction(connectionHandler);
                             actionGroup.add(connectionAction);
