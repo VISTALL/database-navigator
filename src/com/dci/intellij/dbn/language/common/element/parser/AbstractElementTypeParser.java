@@ -83,7 +83,7 @@ public abstract class AbstractElementTypeParser<T extends ElementType> implement
             if (tokenType.isSuppressibleReservedWord()) {
                 ElementType elementType = node.getElementType();
                 if (elementType instanceof QualifiedIdentifierElementType) {
-                    if (node.getPosition() > 0) return true;
+                    if (node.getCurrentSiblingPosition() > 0) return true;
                 }
 
                 ElementType namedElementType = ElementTypeUtil.getEnclosingNamedElementType(node);
@@ -103,7 +103,7 @@ public abstract class AbstractElementTypeParser<T extends ElementType> implement
         while (parent != null) {
             if (parent.getElementType() instanceof SequenceElementType) {
                 SequenceElementType sequenceElementType = (SequenceElementType) parent.getElementType();
-                if (sequenceElementType.isPossibleTokenFromIndex(tokenType, parent.getPosition() + 1)) {
+                if (sequenceElementType.isPossibleTokenFromIndex(tokenType, parent.getCurrentSiblingPosition() + 1)) {
                     return true;
                 }
             }

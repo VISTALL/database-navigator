@@ -174,7 +174,7 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends A
             while (parseNode != null) {
                 if (parseNode.getElementType() instanceof SequenceElementType) {
                     SequenceElementType sequenceElementType = (SequenceElementType) parseNode.getElementType();
-                    if ( sequenceElementType.containsLandmarkTokenFromIndex(tokenType, parseNode.getPosition() + 1)) {
+                    if ( sequenceElementType.containsLandmarkTokenFromIndex(tokenType, parseNode.getCurrentSiblingPosition() + 1)) {
                         return -1;
                     }
                 }
