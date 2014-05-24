@@ -5,8 +5,8 @@ import com.dci.intellij.dbn.language.common.element.ElementType;
 public class ParsePathNode extends BasicPathNode {
     private int startOffset;
 
-    public ParsePathNode(ElementType elementType, ParsePathNode parent, int startOffset, int indexInParent) {
-        super(elementType, parent, indexInParent);
+    public ParsePathNode(ElementType elementType, ParsePathNode parent, int startOffset, int position) {
+        super(elementType, parent, position);
         this.startOffset = startOffset;
     }
 

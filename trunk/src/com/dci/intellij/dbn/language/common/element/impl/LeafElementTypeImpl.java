@@ -62,16 +62,16 @@ public abstract class LeafElementTypeImpl extends AbstractElementType implements
     }
 
     public ElementType getPreviousElement(PathNode pathNode) {
-        int indexInParent = 0;
+        int position = 0;
         while (pathNode != null) {
             ElementType elementType = pathNode.getElementType();
             if (elementType instanceof SequenceElementType) {
                 SequenceElementType sequenceElementType = (SequenceElementType) elementType;
-                if (indexInParent > 0 ) {
-                    return sequenceElementType.getElementTypes()[indexInParent-1];
+                if (position > 0 ) {
+                    return sequenceElementType.getElementTypes()[position-1];
                 }
             }
-            indexInParent = pathNode.getIndexInParent();
+            position = pathNode.getPosition();
             pathNode = pathNode.getParent();
         }
         return null;
@@ -85,7 +85,7 @@ public abstract class LeafElementTypeImpl extends AbstractElementType implements
 
     public Set<LeafElementType> getNextPossibleLeafs(PathNode pathNode, CodeCompletionFilterSettings filterSettings) {
         Set<LeafElementType> possibleLeafs = new THashSet<LeafElementType>();
-        int indexInParent = 0;
+        int position = 0;
         while (pathNode != null) {
             ElementType elementType = pathNode.getElementType();
 
@@ -94,7 +94,7 @@ public abstract class LeafElementTypeImpl extends AbstractElementType implements
 
                 int elementsCount = sequenceElementType.getElementTypes().length;
 
-                for (int i=indexInParent+1; i<elementsCount; i++) {
+                for (int i=position+1; i<elementsCount; i++) {
                     ElementType next = sequenceElementType.getElementTypes()[i];
                     possibleLeafs.addAll(next.getLookupCache().getFirstPossibleLeafs());
                     if (!sequenceElementType.isOptional(i)) {
@@ -117,7 +117,7 @@ public abstract class LeafElementTypeImpl extends AbstractElementType implements
                 }
             }
             if (pathNode != null) {
-                indexInParent = pathNode.getIndexInParent();
+                position = pathNode.getPosition();
                 pathNode = pathNode.getParent();
             }
         }
@@ -148,7 +148,7 @@ public abstract class LeafElementTypeImpl extends AbstractElementType implements
                 Collections.addAll(requiredLeafs, separatorTokens);
             }
             if (pathNode != null) {
-                index = pathNode.getIndexInParent();
+                index = pathNode.getPosition();
                 pathNode = pathNode.getParent();
             }
         }
