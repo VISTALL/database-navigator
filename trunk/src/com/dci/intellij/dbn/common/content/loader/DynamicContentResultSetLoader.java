@@ -95,7 +95,8 @@ public abstract class DynamicContentResultSetLoader<T extends DynamicContentElem
             dynamicContent.setElements(list);
             postLoadContent(dynamicContent, debugInfo);
         } catch (Exception e) {
-            LOGGER.warn("Error loading database content (" + dynamicContent.getContentDescription() + "): " + StringUtil.trim(e.getMessage()));
+            String message = StringUtil.trim(e.getMessage()).replace("\n", " ");
+            LOGGER.warn("Error loading database content (" + dynamicContent.getContentDescription() + "): " + message);
 
             boolean modelException = false;
             if (e instanceof SQLException) {
