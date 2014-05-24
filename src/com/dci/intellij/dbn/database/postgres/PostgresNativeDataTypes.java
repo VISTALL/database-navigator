@@ -19,6 +19,10 @@ public class PostgresNativeDataTypes extends DatabaseNativeDataTypes {
 
         createNumericDefinition("SMALLINT", Integer.class, Types.SMALLINT);
         createNumericDefinition("INTEGER", Integer.class, Types.INTEGER);
+        createNumericDefinition("INT", Integer.class, Types.INTEGER);
+        createNumericDefinition("INT2", Integer.class, Types.INTEGER);
+        createNumericDefinition("INT4", Integer.class, Types.INTEGER);
+        createNumericDefinition("INT8", Integer.class, Types.INTEGER);
         createNumericDefinition("BIGINT", Long.class, Types.BIGINT);
         createNumericDefinition("SMALLSERIAL", Integer.class, Types.SMALLINT);
         createNumericDefinition("SERIAL", Long.class, Types.INTEGER);
@@ -71,5 +75,6 @@ public class PostgresNativeDataTypes extends DatabaseNativeDataTypes {
         createLiteralDefinition("TSQUERY", String.class, Types.VARCHAR);
         createLiteralDefinition("UUID", String.class, Types.VARCHAR);
         createLiteralDefinition("XML", String.class, Types.VARCHAR);
+        createLiteralDefinition("UNKNOWN", String.class, Types.VARCHAR);
     }
 }

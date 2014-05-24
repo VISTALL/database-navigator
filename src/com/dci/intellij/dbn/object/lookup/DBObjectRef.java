@@ -130,7 +130,7 @@ public class DBObjectRef<T extends DBObject> implements Comparable {
                     project == null ?
                             ConnectionCache.findConnectionHandler(connectionId) :
                             ConnectionManager.getInstance(project).getConnectionHandler(connectionId);
-            if (connectionHandler != null) {
+            if (connectionHandler != null && !connectionHandler.isDisposed() && connectionHandler.isActive()) {
                 object = lookup(connectionHandler);
                 if (object != null) {
                     reference = new WeakReference<T>(object);

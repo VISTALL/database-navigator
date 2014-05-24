@@ -69,7 +69,7 @@ public class DatabaseFileSystem extends VirtualFileSystem implements Application
 
         String connectionId = url.substring(startIndex, index == -1 ? url.length() : index);
         ConnectionHandler connectionHandler = ConnectionCache.findConnectionHandler(connectionId);
-        if (connectionHandler != null) {
+        if (connectionHandler != null && !connectionHandler.isDisposed() && connectionHandler.isActive()) {
             if (index > -1) {
                 StringTokenizer path = new StringTokenizer(url.substring(index + 1), ".");
                 DBObject object = connectionHandler.getObjectBundle().getSchema(path.nextToken());
