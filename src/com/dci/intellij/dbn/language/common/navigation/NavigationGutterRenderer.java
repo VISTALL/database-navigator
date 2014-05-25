@@ -8,8 +8,8 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.Icon;
 
 public class NavigationGutterRenderer extends GutterIconRenderer {
-    private NavigationAction action;
-    public NavigationGutterRenderer(NavigationAction action) {
+    private AnAction action;
+    public NavigationGutterRenderer(AnAction action) {
         this.action = action;
     }
 
