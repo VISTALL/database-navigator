@@ -15,7 +15,8 @@ public class PostgresPSQLLanguageDialect extends PSQLLanguageDialect {
 }
 
     protected PostgresPSQLParserDefinition createParserDefinition() {
-        return new PostgresPSQLParserDefinition();
+        PostgresPSQLParser parser = new PostgresPSQLParser(this);
+        return new PostgresPSQLParserDefinition(parser);
     }
 
 }
