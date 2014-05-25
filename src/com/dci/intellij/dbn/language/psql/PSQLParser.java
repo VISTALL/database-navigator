@@ -4,8 +4,8 @@ import com.dci.intellij.dbn.language.common.DBLanguageDialect;
 import com.dci.intellij.dbn.language.common.DBLanguageParser;
 
 public class PSQLParser extends DBLanguageParser {
-    public PSQLParser(DBLanguageDialect languageDialect, String tokenTypesFile, String elementTypesFile, String elementTokenIndexFile, String defaultParseRootId) {
-        super(languageDialect, tokenTypesFile, elementTypesFile, elementTokenIndexFile, defaultParseRootId);
+    public PSQLParser(DBLanguageDialect languageDialect, String tokenTypesFile, String elementTypesFile, String defaultParseRootId) {
+        super(languageDialect, tokenTypesFile, elementTypesFile, defaultParseRootId);
     }
 
 /*

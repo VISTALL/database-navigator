@@ -11,20 +11,17 @@ import com.intellij.psi.tree.IElementType;
 import org.jdom.Document;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Properties;
-
 public abstract class DBLanguageParser implements PsiParser {
     private DBLanguageDialect languageDialect;
     private ElementTypeBundle elementTypes;
     private TokenTypeBundle tokenTypes;
     private String defaultParseRootId;
 
-    public DBLanguageParser(DBLanguageDialect languageDialect, String tokenTypesFile, String elementTypesFile, String elementTokenIndexFile, String defaultParseRootId) {
+    public DBLanguageParser(DBLanguageDialect languageDialect, String tokenTypesFile, String elementTypesFile, String defaultParseRootId) {
         this.languageDialect = languageDialect;
         this.tokenTypes = new TokenTypeBundle(languageDialect, CommonUtil.loadXmlFile(getClass(), tokenTypesFile));
         Document document = CommonUtil.loadXmlFile(getClass(), elementTypesFile);
-        Properties elementTokenIndex = CommonUtil.loadProperties(getClass(), elementTokenIndexFile);
-        this.elementTypes = new ElementTypeBundle(languageDialect, tokenTypes, document, elementTokenIndex);
+        this.elementTypes = new ElementTypeBundle(languageDialect, tokenTypes, document);
         this.defaultParseRootId = defaultParseRootId;
     }
 

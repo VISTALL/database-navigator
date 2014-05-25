@@ -2,7 +2,6 @@ package com.dci.intellij.dbn.language.psql.dialect.oracle;
 
 import com.intellij.lexer.FlexLexer;
 import com.intellij.psi.tree.IElementType;
-import com.dci.intellij.dbn.language.sql.SQLLanguage;
 import com.dci.intellij.dbn.language.common.TokenTypeBundle;
 
 %%
@@ -52,7 +51,7 @@ INTEGER = {digit}+("e"{sign}?{digit}+)?
 NUMBER = {INTEGER}?"."{digit}+(("e"{sign}?{digit}+)|(("f"|"d"){ws}))?
 
 operator_equals             = "="
-operator_not_equals         = (("!"|"^"|"¬"){wso}"=")|("<"{wso}">")
+operator_not_equals         = (("!"|"^"|"ï¿½"){wso}"=")|("<"{wso}">")
 operator_greater_than       = ">"
 operator_greater_equal_than = ">"{wso}"="
 operator_less_than          = "<"
