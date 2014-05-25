@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--<!DOCTYPE element-defs SYSTEM "/../../../common/definition/language-parser-elements.dtd">-->
+<element-defs language="POSTGRES-PSQL" version="5.6">
+    <element-def attributes="ROOT" description="PSQL block" icon="FILE_BLOCK_PSQL" id="psql_block">
+        <iteration id="000000000">
+            <one-of id="000000001">
+                <token id="000001124" type-id="IDENTIFIER" />
+                <token id="000001124" type-id="OPR_ASSIGNMENT" />
+                <token id="000001124" type-id="OPR_CONCATENATION" />
+                <token id="000001124" type-id="OPR_RANGE_DOTS" />
+                <token id="000001124" type-id="CHR_AT" />
+                <token id="000001124" type-id="CHR_COLON" />
+                <token id="000001124" type-id="CHR_COMMA" />
+                <token id="000001124" type-id="CHR_DOT" />
+                <token id="000001124" type-id="CHR_EQUAL" />
+                <token id="000001124" type-id="CHR_EXCLAMATION" />
+                <token id="000001124" type-id="CHR_GREATER" />
+                <token id="000001124" type-id="CHR_LEFT_PARENTHESIS" />
+                <token id="000001124" type-id="CHR_LESS" />
+                <token id="000001124" type-id="CHR_MINUS" />
+                <token id="000001124" type-id="CHR_PERCENT" />
+                <token id="000001124" type-id="CHR_PLUS" />
+                <token id="000001124" type-id="CHR_RIGHT_PARENTHESIS" />
+                <token id="000001124" type-id="CHR_SEMICOLON" />
+                <token id="000001124" type-id="CHR_SLASH" />
+                <token id="000001124" type-id="CHR_STAR" />
+                <token id="000001124" type-id="STRING" />
+                <token id="000001124" type-id="NUMBER" />
+                <token id="000001124" type-id="INTEGER" />
+            </one-of>
+        </iteration>
+    </element-def>
+</element-defs>
