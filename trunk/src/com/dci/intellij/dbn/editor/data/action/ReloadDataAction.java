@@ -14,7 +14,7 @@ public class ReloadDataAction extends AbstractDataEditorAction {
     public void actionPerformed(AnActionEvent e) {
         DatasetEditor datasetEditor = getDatasetEditor(e);
         if (datasetEditor != null) {
-            datasetEditor.load(true, true);
+            datasetEditor.load(true, true, true);
         }
     }
 

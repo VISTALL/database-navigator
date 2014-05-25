@@ -65,6 +65,7 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
 
 
     private Set<PropertyChangeListener> propertyChangeListeners = new HashSet<PropertyChangeListener>();
+    private String dataLoadError;
 
     public DatasetEditor(DatabaseEditableObjectFile databaseFile, DBDataset dataset) {
         this.project = dataset.getProject();
@@ -77,7 +78,7 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
 
 
         if (!EditorUtil.hasEditingHistory(databaseFile, project)) {
-            load(true, true);
+            load(true, true, false);
         }
         EventManager.subscribe(project, TransactionListener.TOPIC, this);
         EventManager.subscribe(project, ConnectionStatusListener.TOPIC, this);
@@ -164,7 +165,7 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
             }
 
             if (isNew) {
-                load(true, false);
+                load(true, false, false);
             }
         }
     }
@@ -261,13 +262,19 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
             if (model != null) {
                 model.fetchNextRecords(records, false);
             }
+            dataLoadError = null;
         } catch (SQLException e) {
+            dataLoadError = e.getMessage();
+/*
             String message = "Error loading data for " + getDataset().getQualifiedNameWithType() + ".\nCause: " + e.getMessage();
             MessageUtil.showErrorDialog(message, e);
+*/
+        } finally {
+            EventManager.notify(getProject(), DatasetLoadListener.TOPIC).datasetLoaded(databaseFile);
         }
     }
 
-    public void load(final boolean useCurrentFilter, final boolean keepChanges) {
+    public void load(final boolean useCurrentFilter, final boolean keepChanges, final boolean isDeliberateAction) {
         new BackgroundTask(project, "Loading data", true) {
             public void execute(@NotNull ProgressIndicator progressIndicator) {
                 if (isDisposed) return;
@@ -280,7 +287,9 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
                         setLoading(true);
                         model.load(progressIndicator, useCurrentFilter, keepChanges);
                     }
+                    dataLoadError = null;
                 } catch (final SQLException e) {
+                    dataLoadError = e.getMessage();
                     new SimpleLaterInvocator() {
                         public void run() {
                             if (isDisposed) return;
@@ -292,13 +301,15 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
                             DatasetFilter filter = filterManager.getActiveFilter(dataset);
                             if (getConnectionHandler().isValid()) {
                                 if (filter == null || filter == DatasetFilterManager.EMPTY_FILTER || filter.getError() != null) {
-                                    String message =
-                                            "Error loading data for " + dataset.getQualifiedNameWithType() + ".\n" + (
-                                                    messageParserInterface.isTimeoutException(e) ?
-                                                            "The operation was timed out. Please check your timeout configuration in Data Editor settings." :
-                                                            "Database error message: " + e.getMessage());
+                                    if (isDeliberateAction) {
+                                        String message =
+                                                "Error loading data for " + dataset.getQualifiedNameWithType() + ".\n" + (
+                                                        messageParserInterface.isTimeoutException(e) ?
+                                                                "The operation was timed out. Please check your timeout configuration in Data Editor settings." :
+                                                                "Database error message: " + e.getMessage());
 
-                                    MessageUtil.showErrorDialog(message);
+                                        MessageUtil.showErrorDialog(message);
+                                    }
                                 } else {
                                     String message =
                                             "Error loading data for " + dataset.getQualifiedNameWithType() + ".\n" + (
@@ -311,13 +322,13 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
                                     int option = Messages.showDialog(message, Constants.DBN_TITLE_PREFIX + "Error", options, 0, Messages.getErrorIcon());
                                     if (option == 0) {
                                         filterManager.openFiltersDialog(dataset, false, false, DatasetFilterType.NONE);
-                                        load(true, keepChanges);
+                                        load(true, keepChanges, true);
                                     } else if (option == 1) {
                                         filterManager.setActiveFilter(dataset, null);
-                                        load(true, keepChanges);
+                                        load(true, keepChanges, true);
                                     } else if (option == 2) {
                                         filter.setError(e.getMessage());
-                                        load(false, keepChanges);
+                                        load(false, keepChanges, true);
                                     }
                                 }
                             } else {
@@ -333,7 +344,7 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
                         editorForm.hideLoadingHint();
                     }
                     setLoading(false);
-
+                    EventManager.notify(getProject(), DatasetLoadListener.TOPIC).datasetLoaded(databaseFile);
                 }
             }
         }.start();
@@ -503,7 +514,7 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
             DatasetEditorTable editorTable = getEditorTable();
             if (model != null && editorTable != null) {
                 if (action == TransactionAction.COMMIT || action == TransactionAction.ROLLBACK) {
-                    if (succeeded && isModified()) load(true, false);
+                    if (succeeded && isModified()) load(true, false, false);
                 }
 
                 if (action == TransactionAction.DISCONNECT) {
@@ -543,4 +554,7 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
         return dataProvider;
     }
 
+    public String getDataLoadError() {
+        return dataLoadError;
+    }
 }
