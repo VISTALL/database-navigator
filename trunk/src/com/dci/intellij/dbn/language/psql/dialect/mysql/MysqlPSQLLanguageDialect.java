@@ -15,7 +15,12 @@ public class MysqlPSQLLanguageDialect extends PSQLLanguageDialect {
 }
 
     protected MysqlPSQLParserDefinition createParserDefinition() {
-        return new MysqlPSQLParserDefinition();
+        MysqlPSQLParser parser = new MysqlPSQLParser(this);
+        return new MysqlPSQLParserDefinition(parser);
     }
 
+    @Override
+    public boolean isImplemented() {
+        return true;
+    }
 }

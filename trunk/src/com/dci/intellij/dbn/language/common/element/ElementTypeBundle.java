@@ -29,7 +29,6 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.io.StringWriter;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 
 public class ElementTypeBundle {
@@ -47,15 +46,11 @@ public class ElementTypeBundle {
     private final DBLanguageDialect languageDialect;
     private boolean rewriteIndexes;
 
-    /** @deprecated */
-    private Properties lookupCacheIndex;
-
     private int idCursor;
 
-    public ElementTypeBundle(DBLanguageDialect languageDialect, TokenTypeBundle tokenTypeBundle, Document elementTypesDef, Properties lookupCacheIndex) {
+    public ElementTypeBundle(DBLanguageDialect languageDialect, TokenTypeBundle tokenTypeBundle, Document elementTypesDef) {
         this.languageDialect = languageDialect;
         this.tokenTypeBundle = tokenTypeBundle;
-        this.lookupCacheIndex = lookupCacheIndex;
         try {
             Element root = elementTypesDef.getRootElement();
             for (Object o : root.getChildren()) {
@@ -91,7 +86,6 @@ public class ElementTypeBundle {
             }
 
             if (rewriteIndexes) {
-                lookupCacheIndex.clear();
                 StringWriter stringWriter = new StringWriter();
                 new XMLOutputter().output(elementTypesDef, stringWriter);
 

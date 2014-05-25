@@ -20,8 +20,8 @@ public class PSQLLanguage extends DBLanguage<PSQLLanguageDialect> {
         PSQLLanguageDialect mysqlPSQLLanguageDialect = new MysqlPSQLLanguageDialect();
         PSQLLanguageDialect postgresPSQLLanguageDialect = new PostgresPSQLLanguageDialect();
         return new PSQLLanguageDialect[]{
-                oraclePLSQLLanguageDialect/*,
-                mysqlPSQLLanguageDialect,
+                oraclePLSQLLanguageDialect,
+                mysqlPSQLLanguageDialect/*,
                 postgresPSQLLanguageDialect*/};
     }
 
