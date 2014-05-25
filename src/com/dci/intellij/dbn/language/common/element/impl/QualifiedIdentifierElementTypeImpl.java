@@ -2,6 +2,7 @@ package com.dci.intellij.dbn.language.common.element.impl;
 
 import com.dci.intellij.dbn.language.common.element.ElementType;
 import com.dci.intellij.dbn.language.common.element.ElementTypeBundle;
+import com.dci.intellij.dbn.language.common.element.IdentifierElementType;
 import com.dci.intellij.dbn.language.common.element.LeafElementType;
 import com.dci.intellij.dbn.language.common.element.QualifiedIdentifierElementType;
 import com.dci.intellij.dbn.language.common.element.TokenElementType;
@@ -9,16 +10,20 @@ import com.dci.intellij.dbn.language.common.element.lookup.QualifiedIdentifierEl
 import com.dci.intellij.dbn.language.common.element.parser.QualifiedIdentifierElementTypeParser;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeDefinitionException;
 import com.dci.intellij.dbn.language.common.psi.QualifiedIdentifierPsiElement;
+import com.dci.intellij.dbn.object.common.DBObjectType;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
+import gnu.trove.THashSet;
 import org.jdom.Element;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class QualifiedIdentifierElementTypeImpl extends AbstractElementType implements QualifiedIdentifierElementType {
     protected TokenElementType separatorToken;
     private final List<LeafElementType[]> variants = new ArrayList<LeafElementType[]>();
+    private Set<DBObjectType> objectTypeCache = new THashSet<DBObjectType>();
     public int maxLength;
 
     public QualifiedIdentifierElementTypeImpl(ElementTypeBundle bundle, ElementType parent, String id, Element def) throws ElementTypeDefinitionException {
@@ -27,6 +32,14 @@ public class QualifiedIdentifierElementTypeImpl extends AbstractElementType impl
         for (Object o : children) {
             Element child = (Element) o;
             List<LeafElementType[]> childVariants = createVariants(child);
+            for (LeafElementType[] childVariant : childVariants) {
+                for (LeafElementType leafElementType : childVariant) {
+                    if (leafElementType instanceof IdentifierElementType) {
+                        IdentifierElementType identifierElementType = (IdentifierElementType) leafElementType;
+                        objectTypeCache.add(identifierElementType.getObjectType());
+                    }
+                }
+            }
             variants.addAll(childVariants);
         }
         String separatorId = def.getAttributeValue("separator");
@@ -118,6 +131,11 @@ public class QualifiedIdentifierElementTypeImpl extends AbstractElementType impl
 
     public TokenElementType getSeparatorToken() {
         return separatorToken;
+    }
+
+    @Override
+    public boolean containsObjectType(DBObjectType objectType) {
+        return objectTypeCache.contains(objectType);
     }
 
 }

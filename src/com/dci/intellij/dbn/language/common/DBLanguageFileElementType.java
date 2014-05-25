@@ -18,7 +18,7 @@ public class DBLanguageFileElementType extends IFileElementType {
         DBLanguageFile file = (DBLanguageFile) chameleon.getPsi();
         Project project = file.getProject();
         DBLanguageDialect languageDialect = file.getLanguageDialect();
-        if (languageDialect == null) {
+        if (languageDialect == null || !languageDialect.isImplemented()) {
             return super.parseContents(chameleon);
         }
 

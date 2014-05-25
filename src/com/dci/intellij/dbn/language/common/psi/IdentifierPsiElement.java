@@ -5,6 +5,7 @@ import com.dci.intellij.dbn.common.util.StringUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.language.common.element.IdentifierElementType;
 import com.dci.intellij.dbn.language.common.element.LeafElementType;
+import com.dci.intellij.dbn.language.common.element.QualifiedIdentifierElementType;
 import com.dci.intellij.dbn.language.common.element.impl.QualifiedIdentifierVariant;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dci.intellij.dbn.language.common.psi.lookup.AliasDefinitionLookupAdapter;
@@ -109,6 +110,14 @@ public class IdentifierPsiElement extends LeafPsiElement implements PsiNamedElem
         if (lookupAdapter instanceof IdentifierLookupAdapter) {
             IdentifierLookupAdapter identifierLookupAdapter = (IdentifierLookupAdapter) lookupAdapter;
             if (identifierLookupAdapter.matchesName(this)) {
+                PsiElement parentPsiElement = getParent();
+                if (parentPsiElement instanceof QualifiedIdentifierPsiElement) {
+                    QualifiedIdentifierPsiElement qualifiedIdentifierPsiElement = (QualifiedIdentifierPsiElement) parentPsiElement;
+                    QualifiedIdentifierElementType qualifiedIdentifierElementType = qualifiedIdentifierPsiElement.getElementType();
+                    if (!qualifiedIdentifierElementType.containsObjectType(identifierLookupAdapter.getObjectType())) {
+                        return null;
+                    }
+                }
                 initLookup();
                 return lookupAdapter.matches(this) ? this : null;
             }

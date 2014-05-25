@@ -21,7 +21,9 @@ public class PostgresInterfaceProvider extends DatabaseInterfaceProviderImpl {
     private DatabaseNativeDataTypes NATIVE_DATA_TYPES = new PostgresNativeDataTypes();
 
     public PostgresInterfaceProvider() {
-        super(SQLLanguage.INSTANCE.getLanguageDialect(DBLanguageDialectIdentifier.POSTGRES_SQL.getValue()), null);
+        super(
+            SQLLanguage.INSTANCE.getLanguageDialect(DBLanguageDialectIdentifier.POSTGRES_SQL),
+            null/*PSQLLanguage.INSTANCE.getLanguageDialect(DBLanguageDialectIdentifier.POSTGRES_PSQL)*/);
     }
 
     @Override

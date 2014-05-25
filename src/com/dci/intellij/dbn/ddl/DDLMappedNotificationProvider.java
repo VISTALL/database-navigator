@@ -23,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public class DDLMappedNotificationProvider extends EditorNotifications.Provider<DDLMappedNotificationPanel> {
-    private static final Key<DDLMappedNotificationPanel> KEY = Key.create("ddl.mapped.notification.panel");
+    private static final Key<DDLMappedNotificationPanel> KEY = Key.create("DBNavigator.DDLMappedNotificationPanel");
     private Project project;
 
     public DDLMappedNotificationProvider(final Project project, @NotNull FrameStateManager frameStateManager) {

@@ -1,5 +1,6 @@
 package com.dci.intellij.dbn.common.editor;
 
+import com.dci.intellij.dbn.common.util.DocumentUtil;
 import com.intellij.codeInsight.folding.CodeFoldingManager;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
@@ -14,6 +15,7 @@ import com.intellij.openapi.fileEditor.TextEditor;
 import com.intellij.openapi.fileEditor.impl.text.CodeFoldingState;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.WriteExternalException;
+import com.intellij.openapi.vfs.VirtualFile;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
@@ -37,7 +39,7 @@ public class BasicTextEditorState implements FileEditorState {
         this.foldingState = foldingState;
     }
 
-    public void readState(@NotNull Element sourceElement, Project project, Document document) {
+    public void readState(@NotNull Element sourceElement, Project project, VirtualFile virtualFile) {
         line = Integer.parseInt(sourceElement.getAttributeValue("line"));
         column = Integer.parseInt(sourceElement.getAttributeValue("column"));
         selectionStart = Integer.parseInt(sourceElement.getAttributeValue("selection-start"));
@@ -46,6 +48,7 @@ public class BasicTextEditorState implements FileEditorState {
 
         Element foldingElement = sourceElement.getChild("folding");
         if (foldingElement != null) {
+            Document document = DocumentUtil.getDocument(virtualFile);
             foldingState = CodeFoldingManager.getInstance(project).readFoldingState(foldingElement, document);
         }
 

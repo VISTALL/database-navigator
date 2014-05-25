@@ -104,4 +104,8 @@ public abstract class DBLanguageDialect extends LanguageDialect implements DBFil
         }
         return chameleonElementType;
     }
+
+    public boolean isImplemented() {
+        return false;
+    }
 }

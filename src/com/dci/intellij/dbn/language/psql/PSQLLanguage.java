@@ -4,7 +4,9 @@ import com.dci.intellij.dbn.code.psql.style.options.PSQLCodeStyleSettings;
 import com.dci.intellij.dbn.code.psql.style.options.PSQLCustomCodeStyleSettings;
 import com.dci.intellij.dbn.language.common.DBLanguage;
 import com.dci.intellij.dbn.language.psql.dialect.PSQLLanguageDialect;
+import com.dci.intellij.dbn.language.psql.dialect.mysql.MysqlPSQLLanguageDialect;
 import com.dci.intellij.dbn.language.psql.dialect.oracle.OraclePLSQLLanguageDialect;
+import com.dci.intellij.dbn.language.psql.dialect.postgres.PostgresPSQLLanguageDialect;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
@@ -15,7 +17,12 @@ public class PSQLLanguage extends DBLanguage<PSQLLanguageDialect> {
 
     protected PSQLLanguageDialect[] createLanguageDialects() {
         PSQLLanguageDialect oraclePLSQLLanguageDialect = new OraclePLSQLLanguageDialect();
-        return new PSQLLanguageDialect[]{ oraclePLSQLLanguageDialect };
+        PSQLLanguageDialect mysqlPSQLLanguageDialect = new MysqlPSQLLanguageDialect();
+        PSQLLanguageDialect postgresPSQLLanguageDialect = new PostgresPSQLLanguageDialect();
+        return new PSQLLanguageDialect[]{
+                oraclePLSQLLanguageDialect/*,
+                mysqlPSQLLanguageDialect,
+                postgresPSQLLanguageDialect*/};
     }
 
     public PSQLLanguageDialect getMainLanguageDialect() {

@@ -1,11 +1,9 @@
 package com.dci.intellij.dbn.common.editor;
 
 import com.dci.intellij.dbn.common.thread.SimpleLaterInvocator;
-import com.dci.intellij.dbn.common.util.DocumentUtil;
 import com.dci.intellij.dbn.common.util.EditorUtil;
 import com.dci.intellij.dbn.vfs.DatabaseEditableObjectFile;
 import com.intellij.openapi.components.ApplicationComponent;
-import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileEditorProvider;
 import com.intellij.openapi.fileEditor.FileEditorState;
 import com.intellij.openapi.project.DumbAware;
@@ -20,8 +18,7 @@ public abstract class BasicTextEditorProvider implements FileEditorProvider, App
     @NotNull
     public FileEditorState readState(@NotNull Element sourceElement, @NotNull final Project project, @NotNull final VirtualFile virtualFile) {
         BasicTextEditorState editorState = new BasicTextEditorState();
-        Document document = DocumentUtil.getDocument(virtualFile);
-        editorState.readState(sourceElement, project, document);
+        editorState.readState(sourceElement, project, virtualFile);
         return editorState;
     }
 

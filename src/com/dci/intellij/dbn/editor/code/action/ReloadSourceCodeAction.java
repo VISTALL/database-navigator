@@ -2,14 +2,11 @@ package com.dci.intellij.dbn.editor.code.action;
 
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.thread.WriteActionRunner;
-import com.dci.intellij.dbn.common.util.MessageUtil;
 import com.dci.intellij.dbn.editor.DBContentType;
 import com.dci.intellij.dbn.vfs.SourceCodeFile;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.editor.Editor;
-
-import java.sql.SQLException;
 
 public class ReloadSourceCodeAction extends AbstractSourceCodeEditorAction {
     public ReloadSourceCodeAction() {
@@ -18,18 +15,18 @@ public class ReloadSourceCodeAction extends AbstractSourceCodeEditorAction {
 
     public void actionPerformed(AnActionEvent e) {
         final Editor editor = getEditor(e);
-        final SourceCodeFile virtualFile = getSourcecodeFile(e);
-        try {
-            virtualFile.reloadFromDatabase();
-            new WriteActionRunner() {
-                public void run() {
-                    editor.getDocument().setText(virtualFile.getContent());
-                    virtualFile.setModified(false);
-                }
-            }.start();
+        final SourceCodeFile sourcecodeFile = getSourcecodeFile(e);
 
-        } catch (SQLException ex) {
-            MessageUtil.showErrorDialog("Could not reload source code for " + virtualFile.getObject().getQualifiedNameWithType() + " from database.", ex);
+        if (editor != null && sourcecodeFile != null) {
+            boolean reloaded = sourcecodeFile.reloadFromDatabase();
+            if (reloaded) {
+                new WriteActionRunner() {
+                    public void run() {
+                        editor.getDocument().setText(sourcecodeFile.getContent());
+                        sourcecodeFile.setModified(false);
+                    }
+                }.start();
+            }
         }
     }
 

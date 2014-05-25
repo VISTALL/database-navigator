@@ -21,7 +21,8 @@ public class MySqlInterfaceProvider extends DatabaseInterfaceProviderImpl {
     private DatabaseNativeDataTypes NATIVE_DATA_TYPES = new MySqlNativeDataTypes();
 
     public MySqlInterfaceProvider() {
-        super(SQLLanguage.INSTANCE.getLanguageDialect(DBLanguageDialectIdentifier.MYSQL_SQL.getValue()), null);
+        super(SQLLanguage.INSTANCE.getLanguageDialect(DBLanguageDialectIdentifier.MYSQL_SQL),
+                null /*PSQLLanguage.INSTANCE.getLanguageDialect(DBLanguageDialectIdentifier.MYSQL_PSQL)*/);
     }
 
     @Override

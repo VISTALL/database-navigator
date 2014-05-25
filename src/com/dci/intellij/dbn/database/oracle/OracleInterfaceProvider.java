@@ -24,8 +24,8 @@ public class OracleInterfaceProvider extends DatabaseInterfaceProviderImpl {
 
 
     public OracleInterfaceProvider() {
-        super(SQLLanguage.INSTANCE.getLanguageDialect(DBLanguageDialectIdentifier.ORACLE_SQL.getValue()),
-                PSQLLanguage.INSTANCE.getLanguageDialect(DBLanguageDialectIdentifier.ORACLE_PLSQL.getValue()));
+        super(SQLLanguage.INSTANCE.getLanguageDialect(DBLanguageDialectIdentifier.ORACLE_SQL),
+                PSQLLanguage.INSTANCE.getLanguageDialect(DBLanguageDialectIdentifier.ORACLE_PLSQL));
     }
 
     @Override
