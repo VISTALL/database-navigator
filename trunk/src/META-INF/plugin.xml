@@ -358,6 +358,7 @@
         <defaultLiveTemplatesProvider implementation="com.dci.intellij.dbn.language.sql.template.SQLTemplateProvider"/>
         <defaultLiveTemplatesProvider implementation="com.dci.intellij.dbn.language.psql.template.PSQLTemplateProvider"/>
         <editorNotificationProvider implementation="com.dci.intellij.dbn.ddl.DDLMappedNotificationProvider"/>
+        <editorNotificationProvider implementation="com.dci.intellij.dbn.editor.code.SourceCodeLoadErrorNotificationProvider"/>
     </extensions>
     <helpset file="help.jar" path="/Help.hs"/>
 

@@ -1,10 +1,8 @@
 package com.dci.intellij.dbn.editor.console;
 
 import com.dci.intellij.dbn.common.editor.BasicTextEditorProvider;
-import com.dci.intellij.dbn.common.util.DocumentUtil;
 import com.dci.intellij.dbn.editor.console.ui.SQLConsoleEditorToolbarForm;
 import com.dci.intellij.dbn.vfs.SQLConsoleFile;
-import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorPolicy;
 import com.intellij.openapi.fileEditor.FileEditorState;
@@ -26,8 +24,7 @@ public class SQLConsoleEditorProvider extends BasicTextEditorProvider {
     @NotNull
     public FileEditorState readState(@NotNull Element sourceElement, @NotNull Project project, @NotNull VirtualFile virtualFile) {
         SQLConsoleEditorState editorState = new SQLConsoleEditorState();
-        Document document = DocumentUtil.getDocument(virtualFile);
-        editorState.readState(sourceElement, project, document);
+        editorState.readState(sourceElement, project, virtualFile);
         return editorState;
     }
 

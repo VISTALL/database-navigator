@@ -21,7 +21,7 @@ public class GenericInterfaceProvider extends DatabaseInterfaceProviderImpl {
     private DatabaseNativeDataTypes NATIVE_DATA_TYPES = new GenericNativeDataTypes();
 
     public GenericInterfaceProvider() {
-        super(SQLLanguage.INSTANCE.getLanguageDialect(DBLanguageDialectIdentifier.ISO92_SQL.getValue()), null);
+        super(SQLLanguage.INSTANCE.getLanguageDialect(DBLanguageDialectIdentifier.ISO92_SQL), null);
     }
 
     @Override

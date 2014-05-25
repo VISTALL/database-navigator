@@ -49,7 +49,7 @@ public class IdentifierLookupAdapter extends PsiLookupAdapter {
         return identifierType == null ||identifierType == identifierPsiElement.getElementType().getIdentifierType();
     }
 
-    private boolean matchesObjectType(IdentifierPsiElement identifierPsiElement) {
+    public boolean matchesObjectType(IdentifierPsiElement identifierPsiElement) {
         return identifierPsiElement.isObjectOfType(objectType);
     }
 

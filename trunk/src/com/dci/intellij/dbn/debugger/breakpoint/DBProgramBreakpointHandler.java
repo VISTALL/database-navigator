@@ -24,7 +24,7 @@ import java.sql.SQLException;
 
 public class DBProgramBreakpointHandler extends XBreakpointHandler<XLineBreakpoint<DBProgramBreakpointProperties>> {
     public static final Key<Integer> BREAKPOINT_ID_KEY = new Key<Integer>("BREAKPOINT_ID");
-    public static final Key<DatabaseEditableObjectFile> DATABASE_FILE_KEY = Key.create("DATABASE_FILE");
+    public static final Key<DatabaseEditableObjectFile> DATABASE_FILE_KEY = Key.create("DBNavigator.DatabaseEditableObjectFile");
 
     private XDebugSession session;
     private DBProgramDebugProcess debugProcess;

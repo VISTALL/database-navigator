@@ -6,11 +6,11 @@ import com.dci.intellij.dbn.common.thread.WriteActionRunner;
 import com.dci.intellij.dbn.common.util.DocumentUtil;
 import com.dci.intellij.dbn.object.DBSchema;
 import com.dci.intellij.dbn.vfs.SQLConsoleFile;
-import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileEditorStateLevel;
 import com.intellij.openapi.fileEditor.TextEditor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.openapi.vfs.VirtualFile;
 import org.jdom.CDATA;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
@@ -33,8 +33,8 @@ public class SQLConsoleEditorState extends BasicTextEditorState {
     }
 
     @Override
-    public void readState(@NotNull Element sourceElement, Project project, Document document) {
-        super.readState(sourceElement, project, document);
+    public void readState(@NotNull Element sourceElement, Project project, VirtualFile virtualFile) {
+        super.readState(sourceElement, project, virtualFile);
         Element contentElement = sourceElement.getChild("content");
         if (contentElement != null) {
             currentSchema = contentElement.getAttributeValue("current-schema");

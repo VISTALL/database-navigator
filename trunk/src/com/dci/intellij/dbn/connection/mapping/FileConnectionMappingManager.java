@@ -44,8 +44,8 @@ import java.util.Set;
 public class FileConnectionMappingManager extends VirtualFileAdapter implements ProjectComponent, JDOMExternalizable {
     private Project project;
     private Set<FileConnectionMapping> mappings = new THashSet<FileConnectionMapping>();
-    private Key<ConnectionHandler> ACTIVE_CONNECTION_KEY = Key.create("ACTIVE_CONNECTION");
-    private Key<DBObjectRef<DBSchema>> CURRENT_SCHEMA_KEY = Key.create("CURRENT_SCHEMA");
+    private Key<ConnectionHandler> ACTIVE_CONNECTION_KEY = Key.create("DBNavigator.ActiveConnection");
+    private Key<DBObjectRef<DBSchema>> CURRENT_SCHEMA_KEY = Key.create("DBNavigator.CurrentSchema");
 
     public boolean setActiveConnection(VirtualFile virtualFile, ConnectionHandler connectionHandler) {
         if (VirtualFileUtil.isLocalFileSystem(virtualFile)) {

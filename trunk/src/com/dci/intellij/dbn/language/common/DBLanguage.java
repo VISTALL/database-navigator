@@ -56,9 +56,9 @@ public abstract class DBLanguage<D extends DBLanguageDialect> extends Language i
         }
     }
 
-    public D getLanguageDialect(String id) {
+    public D getLanguageDialect(DBLanguageDialectIdentifier id) {
         for (D languageDialect: getAvailableLanguageDialects()) {
-            if (languageDialect.getID().equals(id)) {
+            if (languageDialect.getID().equals(id.getValue())) {
                 return languageDialect;
             }
         }

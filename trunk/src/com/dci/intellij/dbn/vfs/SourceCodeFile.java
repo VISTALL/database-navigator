@@ -1,12 +1,14 @@
 package com.dci.intellij.dbn.vfs;
 
 import com.dci.intellij.dbn.common.DevNullStreams;
+import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.common.util.DocumentUtil;
 import com.dci.intellij.dbn.common.util.MessageUtil;
 import com.dci.intellij.dbn.common.util.StringUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.database.DatabaseDDLInterface;
 import com.dci.intellij.dbn.editor.DBContentType;
+import com.dci.intellij.dbn.editor.code.SourceCodeLoadListener;
 import com.dci.intellij.dbn.language.common.DBLanguage;
 import com.dci.intellij.dbn.language.common.DBLanguageDialect;
 import com.dci.intellij.dbn.language.common.DBLanguageFile;
@@ -35,6 +37,7 @@ public class SourceCodeFile extends DatabaseContentFile implements DatabaseFile,
     private String lastSavedContent;
     private String content;
     private Timestamp changeTimestamp;
+    private String sourceLoadError;
     public int documentHashCode;
     private int hashCode;
 
@@ -49,9 +52,8 @@ public class SourceCodeFile extends DatabaseContentFile implements DatabaseFile,
             this.content = StringUtil.removeCharacter(content, '\r');
         } catch (SQLException e) {
             content = "";
-            MessageUtil.showErrorDialog(
-                    "Could not load sourcecode for " +
-                            databaseFile.getObject().getQualifiedNameWithType() + " from database.", e);
+            sourceLoadError = e.getMessage();
+            //MessageUtil.showErrorDialog("Could not load sourcecode for " + object.getQualifiedNameWithType() + " from database.", e);
         }
     }
 
@@ -125,15 +127,27 @@ public class SourceCodeFile extends DatabaseContentFile implements DatabaseFile,
         return content;
     }
 
-    public void reloadFromDatabase() throws SQLException {
-        updateChangeTimestamp();
-        originalContent = null;
+    public boolean reloadFromDatabase() {
+        try {
+            updateChangeTimestamp();
+            originalContent = null;
 
-        String content = getObject().loadCodeFromDatabase(contentType);
-        this.content = StringUtil.removeCharacter(content, '\r');
+            String content = getObject().loadCodeFromDatabase(contentType);
+            this.content = StringUtil.removeCharacter(content, '\r');
 
-        getDatabaseFile().updateDDLFiles(getContentType());
-        setModified(false);
+            getDatabaseFile().updateDDLFiles(getContentType());
+            setModified(false);
+            return true;
+        } catch (SQLException e) {
+            sourceLoadError = e.getMessage();
+            DBSchemaObject object = databaseFile.getObject();
+            if (object != null) {
+                MessageUtil.showErrorDialog("Could not reload sourcecode for " + object.getQualifiedNameWithType() + " from database.", e);
+            }
+            return false;
+        } finally {
+            EventManager.notify(getProject(), SourceCodeLoadListener.TOPIC).sourceCodeLoaded(databaseFile);
+        }
     }
 
     public void updateToDatabase() throws SQLException {
@@ -173,6 +187,10 @@ public class SourceCodeFile extends DatabaseContentFile implements DatabaseFile,
 
     public void setDocumentHashCode(int documentHashCode) {
         this.documentHashCode = documentHashCode;
+    }
+
+    public String getSourceLoadError() {
+        return sourceLoadError;
     }
 
     @Override

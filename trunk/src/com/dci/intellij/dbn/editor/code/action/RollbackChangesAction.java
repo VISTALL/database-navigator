@@ -2,13 +2,10 @@ package com.dci.intellij.dbn.editor.code.action;
 
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.thread.WriteActionRunner;
-import com.dci.intellij.dbn.common.util.MessageUtil;
 import com.dci.intellij.dbn.vfs.SourceCodeFile;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.editor.Editor;
-
-import java.sql.SQLException;
 
 public class RollbackChangesAction extends AbstractSourceCodeEditorAction {
     public RollbackChangesAction() {
@@ -17,20 +14,21 @@ public class RollbackChangesAction extends AbstractSourceCodeEditorAction {
 
     public void actionPerformed(AnActionEvent e) {
         final Editor editor = getEditor(e);
-        final SourceCodeFile contentFile = getSourcecodeFile(e);
-        try {
-            contentFile.reloadFromDatabase();
+        final SourceCodeFile sourceCodeFile = getSourcecodeFile(e);
 
-            new WriteActionRunner() {
-                public void run() {
-                    editor.getDocument().setText(contentFile.getContent());
-                    contentFile.setModified(false);
-                }
-            }.start();
+        if (editor != null && sourceCodeFile != null) {
+            boolean reloaded = sourceCodeFile.reloadFromDatabase();
 
-            contentFile.getDatabaseFile().updateDDLFiles(contentFile.getContentType());
-        } catch (SQLException ex) {
-            MessageUtil.showErrorDialog("Could not reload source code for " + contentFile.getObject().getQualifiedNameWithType() + " from database.", ex);
+            if (reloaded) {
+                new WriteActionRunner() {
+                    public void run() {
+                        editor.getDocument().setText(sourceCodeFile.getContent());
+                        sourceCodeFile.setModified(false);
+                    }
+                }.start();
+
+                sourceCodeFile.getDatabaseFile().updateDDLFiles(sourceCodeFile.getContentType());
+            }
         }
     }
 
