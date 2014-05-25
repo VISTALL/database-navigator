@@ -1,6 +1,7 @@
 package com.dci.intellij.dbn.editor.data;
 
 import com.dci.intellij.dbn.common.event.EventManager;
+import com.dci.intellij.dbn.common.util.StringUtil;
 import com.dci.intellij.dbn.editor.data.ui.DatasetLoadErrorNotificationPanel;
 import com.dci.intellij.dbn.object.common.DBSchemaObject;
 import com.dci.intellij.dbn.vfs.DatabaseEditableObjectFile;
@@ -12,7 +13,6 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.EditorNotifications;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.generate.tostring.util.StringUtil;
 
 public class DatasetLoadErrorNotificationProvider extends EditorNotifications.Provider<DatasetLoadErrorNotificationPanel> {
     private static final Key<DatasetLoadErrorNotificationPanel> KEY = Key.create("DBNavigator.DatasetLoadErrorNotificationPanel");
