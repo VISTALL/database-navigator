@@ -50,6 +50,7 @@ public class SourceCodeFile extends DatabaseContentFile implements DatabaseFile,
         try {
             String content = object.loadCodeFromDatabase(contentType);
             this.content = StringUtil.removeCharacter(content, '\r');
+            sourceLoadError = null;
         } catch (SQLException e) {
             content = "";
             sourceLoadError = e.getMessage();
@@ -137,6 +138,7 @@ public class SourceCodeFile extends DatabaseContentFile implements DatabaseFile,
 
             getDatabaseFile().updateDDLFiles(getContentType());
             setModified(false);
+            sourceLoadError = null;
             return true;
         } catch (SQLException e) {
             sourceLoadError = e.getMessage();

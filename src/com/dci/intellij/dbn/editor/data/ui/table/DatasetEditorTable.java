@@ -293,7 +293,7 @@ public class DatasetEditorTable extends ResultSetTable {
         if (columnInfo.isSortable()) {
             if (!isLoading() && super.sort(columnIndex, sortDirection)) {
                 if (!getModel().isResultSetExhausted()) {
-                    datasetEditor.load(true, true);
+                    datasetEditor.load(true, true, true);
                 }
                 return true;
             }
