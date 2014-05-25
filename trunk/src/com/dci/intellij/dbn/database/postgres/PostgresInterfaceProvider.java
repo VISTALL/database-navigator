@@ -10,6 +10,7 @@ import com.dci.intellij.dbn.database.DatabaseMetadataInterface;
 import com.dci.intellij.dbn.database.common.DatabaseInterfaceProviderImpl;
 import com.dci.intellij.dbn.database.common.DatabaseNativeDataTypes;
 import com.dci.intellij.dbn.language.common.DBLanguageDialectIdentifier;
+import com.dci.intellij.dbn.language.psql.PSQLLanguage;
 import com.dci.intellij.dbn.language.sql.SQLLanguage;
 
 public class PostgresInterfaceProvider extends DatabaseInterfaceProviderImpl {
@@ -23,7 +24,7 @@ public class PostgresInterfaceProvider extends DatabaseInterfaceProviderImpl {
     public PostgresInterfaceProvider() {
         super(
             SQLLanguage.INSTANCE.getLanguageDialect(DBLanguageDialectIdentifier.POSTGRES_SQL),
-            null/*PSQLLanguage.INSTANCE.getLanguageDialect(DBLanguageDialectIdentifier.POSTGRES_PSQL)*/);
+            PSQLLanguage.INSTANCE.getLanguageDialect(DBLanguageDialectIdentifier.POSTGRES_PSQL));
     }
 
     @Override
