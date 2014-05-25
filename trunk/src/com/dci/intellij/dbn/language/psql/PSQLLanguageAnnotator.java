@@ -10,6 +10,7 @@ import com.dci.intellij.dbn.execution.statement.processor.StatementExecutionProc
 import com.dci.intellij.dbn.language.common.element.ElementType;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dci.intellij.dbn.language.common.navigation.NavigateToDefinitionAction;
+import com.dci.intellij.dbn.language.common.navigation.NavigateToObjectAction;
 import com.dci.intellij.dbn.language.common.navigation.NavigateToSpecificationAction;
 import com.dci.intellij.dbn.language.common.navigation.NavigationAction;
 import com.dci.intellij.dbn.language.common.navigation.NavigationGutterRenderer;
@@ -142,6 +143,11 @@ public class PSQLLanguageAnnotator implements Annotator {
                                 Annotation annotation = holder.createInfoAnnotation(basePsiElement, null);
                                 annotation.setGutterIconRenderer(new NavigationGutterRenderer(navigationAction));
                             }
+                            NavigateToObjectAction navigateToObjectAction = new NavigateToObjectAction(null, objectType);
+                            Annotation annotation = holder.createInfoAnnotation(basePsiElement, null);
+                            annotation.setGutterIconRenderer(new NavigationGutterRenderer(navigateToObjectAction));
+
+
                         }
                     } else if (object.getContentType() == DBContentType.CODE_SPEC_AND_BODY) {
                         SourceCodeEditorManager codeEditorManager = SourceCodeEditorManager.getInstance(object.getProject());
@@ -155,6 +161,9 @@ public class PSQLLanguageAnnotator implements Annotator {
                             Annotation annotation = holder.createInfoAnnotation(basePsiElement, null);
                             annotation.setGutterIconRenderer(new NavigationGutterRenderer(navigationAction));
                         }
+                        NavigateToObjectAction navigateToObjectAction = new NavigateToObjectAction(identifierPsiElement.resolveUnderlyingObject(), objectType);
+                        Annotation annotation = holder.createInfoAnnotation(basePsiElement, null);
+                        annotation.setGutterIconRenderer(new NavigationGutterRenderer(navigateToObjectAction));
                     }
                 }
             }
