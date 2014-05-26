@@ -1,11 +1,18 @@
 package com.dci.intellij.dbn.database;
 
-import com.dci.intellij.dbn.database.common.debug.*;
+import com.dci.intellij.dbn.database.common.debug.BasicOperationInfo;
+import com.dci.intellij.dbn.database.common.debug.BreakpointInfo;
+import com.dci.intellij.dbn.database.common.debug.BreakpointOperationInfo;
+import com.dci.intellij.dbn.database.common.debug.DebuggerRuntimeInfo;
+import com.dci.intellij.dbn.database.common.debug.DebuggerSessionInfo;
+import com.dci.intellij.dbn.database.common.debug.ExecutionBacktraceInfo;
+import com.dci.intellij.dbn.database.common.debug.ExecutionStatusInfo;
+import com.dci.intellij.dbn.database.common.debug.VariableInfo;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public interface DatabaseDebuggerInterface {
+public interface DatabaseDebuggerInterface extends DatabaseInterface{
 
     DebuggerSessionInfo initializeSession(Connection connection) throws SQLException;
 
@@ -50,5 +57,4 @@ public interface DatabaseDebuggerInterface {
     ExecutionBacktraceInfo getExecutionBacktraceInfo(Connection connection) throws SQLException;
 
     String[] getRequiredPrivilegeNames();
-
 }

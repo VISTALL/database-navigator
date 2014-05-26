@@ -22,4 +22,11 @@ public abstract class DatabaseInterfaceProviderImpl implements DatabaseInterface
         if (language == PSQLLanguage.INSTANCE) return psqlLanguageDialect;
         return null;
     }
+
+    @Override
+    public void reset() {
+        getMetadataInterface().reset();
+        getDDLInterface().reset();
+        getDebuggerInterface().reset();
+    }
 }

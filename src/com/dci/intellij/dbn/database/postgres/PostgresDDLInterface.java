@@ -63,7 +63,7 @@ public class PostgresDDLInterface extends DatabaseDDLInterfaceImpl {
         String methodType = keywordCaseOption.changeCase(method.getObjectType().getName());
         String methodName = method.getName();//objectCaseOption.changeCase(method.getName());
 
-        return methodType + " " + methodName;
+        return methodType + " ";
     }
 
     public String getSessionSqlMode(Connection connection) throws SQLException {
@@ -94,17 +94,7 @@ public class PostgresDDLInterface extends DatabaseDDLInterfaceImpl {
     }
 
     public void updateObject(String objectName, String objectType, String oldCode, String newCode, Connection connection) throws SQLException {
-        String sqlMode = getSessionSqlMode(connection);
-        try {
-            setSessionSqlMode("TRADITIONAL", connection);
-            dropObjectIfExists(objectType, objectName, connection);
-            createObject(newCode, connection);
-        } catch (SQLException e) {
-            createObject(oldCode, connection);
-            throw e;
-        } finally {
-            setSessionSqlMode(sqlMode, connection);
-        }
+        executeQuery(connection, "change-object", newCode);
     }
 
     /*********************************************************

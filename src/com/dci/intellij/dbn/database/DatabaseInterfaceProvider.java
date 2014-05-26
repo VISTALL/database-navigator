@@ -23,4 +23,6 @@ public interface DatabaseInterfaceProvider {
     DatabaseDDLInterface getDDLInterface();
 
     DatabaseExecutionInterface getDatabaseExecutionInterface();
+
+    void reset();
 }
