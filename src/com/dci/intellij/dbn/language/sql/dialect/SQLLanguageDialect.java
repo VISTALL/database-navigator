@@ -17,8 +17,4 @@ public abstract class SQLLanguageDialect extends DBLanguageDialect {
         return new SQLFileElementType(this);
     }
 
-    @Override
-    public boolean isImplemented() {
-        return true;
-    }
 }

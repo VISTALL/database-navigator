@@ -20,41 +20,41 @@ import java.io.OutputStream;
 
 public class DatabaseObjectFile<T extends DBObject> extends VirtualFile implements DBVirtualFile, Disposable {
     private static final byte[] EMPTY_BYTE_CONTENT = new byte[0];
-    protected DBObjectRef<T> object;
+    protected DBObjectRef<T> objectRef;
 
     private Project project;
     private String path;
     private String url;
 
     public DatabaseObjectFile(T object) {
-        this.object = object.getRef();
+        this.objectRef = object.getRef();
         this.project = object.getProject();
     }
 
     public DBObjectRef<T> getObjectRef() {
-        return object;
+        return objectRef;
     }
 
     @Nullable
     public T getObject() {
-        return object.get();
+        return objectRef.get();
     }
 
     public ConnectionHandler getConnectionHandler() {
-        return object.lookupConnectionHandler();
+        return objectRef.lookupConnectionHandler();
     }
 
     public boolean equals(Object obj) {
         if (obj instanceof DatabaseObjectFile) {
             DatabaseObjectFile objectFile = (DatabaseObjectFile) obj;
-            return objectFile.object.equals(object);
+            return objectFile.objectRef.equals(objectRef);
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return object.hashCode();
+        return objectRef.hashCode();
     }
 
     public Project getProject() {
@@ -67,12 +67,12 @@ public class DatabaseObjectFile<T extends DBObject> extends VirtualFile implemen
     @NotNull
     @NonNls
     public String getName() {
-        return object.getName();
+        return objectRef.getName();
     }
 
     @Override
     public String getPresentableName() {
-        return object.getName();
+        return objectRef.getName();
     }
 
     @NotNull
@@ -133,7 +133,7 @@ public class DatabaseObjectFile<T extends DBObject> extends VirtualFile implemen
     }
 
     public Icon getIcon() {
-        return getObject().getOriginalIcon();
+        return objectRef.getObjectType().getIcon();
     }
 
     public VirtualFile[] getChildren() {

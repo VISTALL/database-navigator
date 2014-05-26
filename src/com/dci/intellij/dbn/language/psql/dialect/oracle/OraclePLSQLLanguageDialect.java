@@ -17,10 +17,4 @@ public class OraclePLSQLLanguageDialect extends PSQLLanguageDialect {
         OraclePLSQLParser parser = new OraclePLSQLParser(this);
         return new OraclePLSQLParserDefinition(parser);
     }
-
-    @Override
-    public boolean isImplemented() {
-        return true;
-    }
-
 }
