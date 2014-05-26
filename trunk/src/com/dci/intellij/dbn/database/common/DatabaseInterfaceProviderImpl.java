@@ -1,5 +1,6 @@
 package com.dci.intellij.dbn.database.common;
 
+import com.dci.intellij.dbn.database.DatabaseDebuggerInterface;
 import com.dci.intellij.dbn.database.DatabaseInterfaceProvider;
 import com.dci.intellij.dbn.language.common.DBLanguage;
 import com.dci.intellij.dbn.language.common.DBLanguageDialect;
@@ -27,6 +28,7 @@ public abstract class DatabaseInterfaceProviderImpl implements DatabaseInterface
     public void reset() {
         getMetadataInterface().reset();
         getDDLInterface().reset();
-        getDebuggerInterface().reset();
+        DatabaseDebuggerInterface debuggerInterface = getDebuggerInterface();
+        if (debuggerInterface != null) debuggerInterface.reset();
     }
 }

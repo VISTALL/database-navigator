@@ -97,8 +97,10 @@ public class ConnectionPool implements Disposable {
 
         LOGGER.debug("[DBN-INFO] Attempt to create new pool connection for '" + connectionName + "'");
         Connection connection = ConnectionUtil.connect(connectionHandler);
+        connection.setAutoCommit(true);
         connectionStatus.setConnected(true);
         connectionStatus.setValid(true);
+
 
         //connectionHandler.getConnectionBundle().notifyConnectionStatusListeners(connectionHandler);
 
@@ -119,6 +121,7 @@ public class ConnectionPool implements Disposable {
             for (ConnectionWrapper connectionWrapper : poolConnections) {
                 if (connectionWrapper.getConnection() == connection) {
                     ConnectionUtil.rollback(connection);
+                    ConnectionUtil.setAutocommit(connection, true);
                     connectionWrapper.setBusy(false);
                     break;
                 }
@@ -193,12 +196,6 @@ public class ConnectionPool implements Disposable {
     public void setAutoCommit(boolean autoCommit) throws SQLException {
         if (standaloneConnection != null && !standaloneConnection.isClosed()) {
             standaloneConnection.setAutoCommit(autoCommit);
-        }
-
-        for (ConnectionWrapper connection : poolConnections) {
-            if (!connection.isClosed()) {
-                connection.setAutoCommit(autoCommit);
-            }
         }
     }
 
