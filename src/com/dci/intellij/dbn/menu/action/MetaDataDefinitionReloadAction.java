@@ -6,7 +6,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.DumbAwareAction;
 
-public class DevelopmentResetAction extends DumbAwareAction {
+public class MetaDataDefinitionReloadAction extends DumbAwareAction {
 
     public void actionPerformed(AnActionEvent e) {
         DatabaseInterfaceProviderFactory.reset();
@@ -14,7 +14,7 @@ public class DevelopmentResetAction extends DumbAwareAction {
 
     public void update(AnActionEvent e) {
         Presentation presentation = e.getPresentation();
-        presentation.setVisible(DatabaseNavigator.getInstance().isDebugModeEnabled());
+        presentation.setVisible(DatabaseNavigator.getInstance().isDeveloperModeEnabled());
     }
 
 }

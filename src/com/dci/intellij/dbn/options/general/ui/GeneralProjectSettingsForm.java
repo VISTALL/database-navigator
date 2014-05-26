@@ -18,14 +18,19 @@ public class GeneralProjectSettingsForm extends CompositeConfigurationEditorForm
     private JCheckBox enableDebugCheckBox;
     private JPanel localeSettingsPanel;
     private JPanel environmentSettingsPanel;
+    private JCheckBox enableDeveloperCheckBox;
+    private JLabel developerInfoLabel;
 
     public GeneralProjectSettingsForm(GeneralProjectSettings generalSettings) {
         super(generalSettings);
         debugInfoLabel.setIcon(Icons.COMMON_WARNING);
-        debugInfoLabel.setText("NOTE: Active debug mode may considerably slow down your system.");
+        debugInfoLabel.setText("NOTE: Active debug mode considerably slows down your system.");
+        developerInfoLabel.setIcon(Icons.COMMON_WARNING);
+        developerInfoLabel.setText("NOTE: Active developer mode enables actions that may compromise your system stability and database integrity.");
         resetChanges();
 
         registerComponent(enableDebugCheckBox);
+        registerComponent(enableDeveloperCheckBox);
 
         localeSettingsPanel.add(generalSettings.getRegionalSettings().createComponent(), BorderLayout.CENTER);
         environmentSettingsPanel.add(generalSettings.getEnvironmentSettings().createComponent(), BorderLayout.CENTER);
@@ -36,6 +41,7 @@ public class GeneralProjectSettingsForm extends CompositeConfigurationEditorForm
             public void actionPerformed(ActionEvent e) {
                 getConfiguration().setModified(true);
                 debugInfoLabel.setVisible(enableDebugCheckBox.isSelected());
+                developerInfoLabel.setVisible(enableDeveloperCheckBox.isSelected());
             }
         };
     }
@@ -46,10 +52,13 @@ public class GeneralProjectSettingsForm extends CompositeConfigurationEditorForm
 
     public void applyChanges() {
         DatabaseNavigator.getInstance().setDebugModeEnabled(enableDebugCheckBox.isSelected());
+        DatabaseNavigator.getInstance().setDeveloperModeEnabled(enableDeveloperCheckBox.isSelected());
     }
 
     public void resetChanges() {
         enableDebugCheckBox.setSelected(DatabaseNavigator.getInstance().isDebugModeEnabled());
         debugInfoLabel.setVisible(enableDebugCheckBox.isSelected());
+        enableDeveloperCheckBox.setSelected(DatabaseNavigator.getInstance().isDebugModeEnabled());
+        developerInfoLabel.setVisible(enableDeveloperCheckBox.isSelected());
     }
 }

@@ -42,6 +42,7 @@ public class DatabaseNavigator implements ApplicationComponent, JDOMExternalizab
     }
 
     private boolean debugModeEnabled;
+    private boolean developerModeEnabled;
     private boolean showPluginConflictDialog;
     private String repositoryPluginVersion;
 
@@ -120,18 +121,27 @@ public class DatabaseNavigator implements ApplicationComponent, JDOMExternalizab
         SettingsUtil.isDebugEnabled = debugModeEnabled;
     }
 
+    public boolean isDeveloperModeEnabled() {
+        return developerModeEnabled;
+    }
+
+    public void setDeveloperModeEnabled(boolean developerModeEnabled) {
+        this.developerModeEnabled = developerModeEnabled;
+    }
 
     public void disposeComponent() {
     }
 
     public void readExternal(Element element) throws InvalidDataException {
         debugModeEnabled = SettingsUtil.getBoolean(element, "enable-debug-mode", false);
+        developerModeEnabled = SettingsUtil.getBoolean(element, "enable-developer-mode", false);
         showPluginConflictDialog = SettingsUtil.getBoolean(element, "show-plugin-conflict-dialog", true);
         SettingsUtil.isDebugEnabled = debugModeEnabled;
     }
 
     public void writeExternal(Element element) throws WriteExternalException {
         SettingsUtil.setBoolean(element, "enable-debug-mode", debugModeEnabled);
+        SettingsUtil.setBoolean(element, "enable-developer-mode", developerModeEnabled);
         SettingsUtil.setBoolean(element, "show-plugin-conflict-dialog", showPluginConflictDialog);
     }
 

@@ -1,5 +1,6 @@
 package com.dci.intellij.dbn.connection.action;
 
+import com.dci.intellij.dbn.DatabaseNavigator;
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.thread.BackgroundTask;
 import com.dci.intellij.dbn.common.util.ActionUtil;
@@ -36,6 +37,11 @@ public class LoadAllObjectsAction extends DumbAwareAction {
 
             }
         }.start();
+    }
 
+    @Override
+    public void update(AnActionEvent e) {
+        e.getPresentation().setVisible(DatabaseNavigator.getInstance().isDeveloperModeEnabled());
+        super.update(e);
     }
 }
