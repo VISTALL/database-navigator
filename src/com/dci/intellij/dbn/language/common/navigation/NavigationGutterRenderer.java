@@ -9,8 +9,10 @@ import javax.swing.Icon;
 
 public class NavigationGutterRenderer extends GutterIconRenderer {
     private AnAction action;
-    public NavigationGutterRenderer(AnAction action) {
+    private Alignment alignment;
+    public NavigationGutterRenderer(AnAction action, Alignment alignment) {
         this.action = action;
+        this.alignment = alignment;
     }
 
     @NotNull
@@ -44,5 +46,10 @@ public class NavigationGutterRenderer extends GutterIconRenderer {
     @Override
     public int hashCode() {
         return action.hashCode();
+    }
+
+    @Override
+    public Alignment getAlignment() {
+        return alignment;
     }
 }

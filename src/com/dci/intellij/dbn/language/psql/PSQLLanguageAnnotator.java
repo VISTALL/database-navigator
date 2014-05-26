@@ -24,6 +24,7 @@ import com.dci.intellij.dbn.object.common.DBSchemaObject;
 import com.intellij.lang.annotation.Annotation;
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.Annotator;
+import com.intellij.openapi.editor.markup.GutterIconRenderer;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 
@@ -141,11 +142,12 @@ public class PSQLLanguageAnnotator implements Annotator {
                                         new NavigateToDefinitionAction(null, targetElement, objectType) :
                                         new NavigateToSpecificationAction(null, targetElement, objectType);
                                 Annotation annotation = holder.createInfoAnnotation(basePsiElement, null);
-                                annotation.setGutterIconRenderer(new NavigationGutterRenderer(navigationAction));
+                                NavigationGutterRenderer gutterIconRenderer = new NavigationGutterRenderer(navigationAction, GutterIconRenderer.Alignment.RIGHT);
+                                annotation.setGutterIconRenderer(gutterIconRenderer);
                             }
                             NavigateToObjectAction navigateToObjectAction = new NavigateToObjectAction(null, objectType);
                             Annotation annotation = holder.createInfoAnnotation(basePsiElement, null);
-                            annotation.setGutterIconRenderer(new NavigationGutterRenderer(navigateToObjectAction));
+                            annotation.setGutterIconRenderer(new NavigationGutterRenderer(navigateToObjectAction, GutterIconRenderer.Alignment.LEFT));
 
 
                         }
@@ -159,11 +161,11 @@ public class PSQLLanguageAnnotator implements Annotator {
                                     new NavigateToDefinitionAction(object, targetElement, objectType) :
                                     new NavigateToSpecificationAction(object, targetElement, objectType);
                             Annotation annotation = holder.createInfoAnnotation(basePsiElement, null);
-                            annotation.setGutterIconRenderer(new NavigationGutterRenderer(navigationAction));
+                            annotation.setGutterIconRenderer(new NavigationGutterRenderer(navigationAction, GutterIconRenderer.Alignment.RIGHT));
                         }
                         NavigateToObjectAction navigateToObjectAction = new NavigateToObjectAction(identifierPsiElement.resolveUnderlyingObject(), objectType);
                         Annotation annotation = holder.createInfoAnnotation(basePsiElement, null);
-                        annotation.setGutterIconRenderer(new NavigationGutterRenderer(navigateToObjectAction));
+                        annotation.setGutterIconRenderer(new NavigationGutterRenderer(navigateToObjectAction, GutterIconRenderer.Alignment.LEFT));
                     }
                 }
             }
