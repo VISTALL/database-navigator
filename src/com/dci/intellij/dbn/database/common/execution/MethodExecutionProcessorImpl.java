@@ -59,6 +59,9 @@ public abstract class MethodExecutionProcessorImpl<T extends DBMethod> implement
             Connection connection = usePoolConnection ?
                     connectionHandler.getPoolConnection(executionSchema) :
                     connectionHandler.getStandaloneConnection(executionSchema);
+            if (usePoolConnection) {
+                connection.setAutoCommit(false);
+            }
             execute(executionInput, connection);
         }
     }

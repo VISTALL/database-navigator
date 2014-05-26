@@ -487,7 +487,7 @@
                 concat(
                     r.ROUTINE_NAME,
                     '(', (select array_to_string( array(
-                                select p.PARAMETER_MODE||' '||p.PARAMETER_NAME::text||' '||p.DATA_TYPE from INFORMATION_SCHEMA.PARAMETERS p
+                                select p.PARAMETER_MODE||' '||(case when p.PARAMETER_NAME is not null then p.PARAMETER_NAME else '' end)||' '||p.DATA_TYPE from INFORMATION_SCHEMA.PARAMETERS p
                                 where
                                     p.SPECIFIC_SCHEMA = r.SPECIFIC_SCHEMA and
                                     p.SPECIFIC_NAME = r.SPECIFIC_NAME
@@ -499,7 +499,7 @@
                     E'\n\$BODY$ ',
                     E'\n\r', r.ROUTINE_DEFINITION,
                     E'\n\$BODY$ ',
-                    E'\n\rLANGUAGE ', r.EXTERNAL_LANGUAGE, case when prc.PROVOLATILE = 'v' then ' VOLATILE ' else ' ' end)
+                    E'\n\rLANGUAGE ', r.EXTERNAL_LANGUAGE, case when prc.PROVOLATILE = 'v' then ' VOLATILE' else '' end, ';')
             from
                 INFORMATION_SCHEMA.ROUTINES r,
                 pg_catalog.pg_proc prc,

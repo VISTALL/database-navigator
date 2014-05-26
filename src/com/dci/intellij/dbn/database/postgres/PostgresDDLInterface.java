@@ -72,7 +72,7 @@ public class PostgresDDLInterface extends DatabaseDDLInterfaceImpl {
 
     public void setSessionSqlMode(String sqlMode, Connection connection) throws SQLException {
         if (sqlMode != null) {
-            executeQuery(connection, "set-session-sql-mode", sqlMode);
+            executeQuery(connection, true, "set-session-sql-mode", sqlMode);
         }
     }
 
@@ -94,14 +94,14 @@ public class PostgresDDLInterface extends DatabaseDDLInterfaceImpl {
     }
 
     public void updateObject(String objectName, String objectType, String oldCode, String newCode, Connection connection) throws SQLException {
-        executeQuery(connection, "change-object", newCode);
+        executeQuery(connection, true, "change-object", newCode);
     }
 
     /*********************************************************
      *                     DROP statements                   *
      *********************************************************/
     private void dropObjectIfExists(String objectType, String objectName, Connection connection) throws SQLException {
-        executeQuery(connection, "drop-object-if-exists", objectType, objectName);
+        executeQuery(connection, true, "drop-object-if-exists", objectType, objectName);
     }
 
     /*********************************************************

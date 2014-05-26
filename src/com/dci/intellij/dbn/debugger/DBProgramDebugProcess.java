@@ -113,6 +113,7 @@ public class DBProgramDebugProcess extends XDebugProcess {
             public void execute(@NotNull ProgressIndicator progressIndicator) {
                 try {
                     targetConnection = connectionHandler.getPoolConnection(executionInput.getExecutionSchema());
+                    targetConnection.setAutoCommit(false);
                     debugConnection = connectionHandler.getPoolConnection();
 
                     DatabaseDebuggerInterface debuggerInterface = getDebuggerInterface();
