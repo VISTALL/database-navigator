@@ -45,6 +45,12 @@ public class DatabaseInterfaceProviderFactory {
             return POSTGRES_INTERFACE_PROVIDER;
         }
         return GENERIC_INTERFACE_PROVIDER;
+    }
 
+    public static void reset() {
+        GENERIC_INTERFACE_PROVIDER.reset();
+        ORACLE_INTERFACE_PROVIDER.reset();
+        MYSQL_INTERFACE_PROVIDER.reset();
+        POSTGRES_INTERFACE_PROVIDER.reset();
     }
 }

@@ -7,7 +7,7 @@ import com.dci.intellij.dbn.object.factory.MethodFactoryInput;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public interface DatabaseDDLInterface {
+public interface DatabaseDDLInterface extends DatabaseInterface{
     int getEditorHeaderEndOffset(DatabaseObjectTypeId objectTypeId, String objectName, String sourceContent);
 
     boolean includesTypeAndNameInSourceContent(DatabaseObjectTypeId objectTypeId);

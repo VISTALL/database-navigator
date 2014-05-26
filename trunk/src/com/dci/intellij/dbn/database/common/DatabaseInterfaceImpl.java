@@ -1,6 +1,7 @@
 package com.dci.intellij.dbn.database.common;
 
 import com.dci.intellij.dbn.common.util.CommonUtil;
+import com.dci.intellij.dbn.database.DatabaseInterface;
 import com.dci.intellij.dbn.database.DatabaseInterfaceProvider;
 import com.dci.intellij.dbn.database.common.statement.CallableStatementOutput;
 import com.dci.intellij.dbn.database.common.statement.StatementExecutionProcessor;
@@ -14,10 +15,19 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DatabaseInterfaceImpl {
+public class DatabaseInterfaceImpl implements DatabaseInterface{
+    private String fileName;
+    private DatabaseInterfaceProvider provider;
     protected Map<String, StatementExecutionProcessor> processors = new HashMap<String, StatementExecutionProcessor>();
 
     public DatabaseInterfaceImpl(String fileName, DatabaseInterfaceProvider provider) {
+        this.fileName = fileName;
+        this.provider = provider;
+        reset();
+    }
+
+    public void reset() {
+        processors.clear();
         Document document = CommonUtil.loadXmlFile(getClass(), fileName);
         Element root = document.getRootElement();
         for (Object child : root.getChildren()) {

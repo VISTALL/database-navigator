@@ -5,7 +5,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
 
-public interface DatabaseMetadataInterface {
+public interface DatabaseMetadataInterface extends DatabaseInterface{
     ResultSet getDistinctValues(String ownerName, String datasetName, String columnName, Connection connection) throws SQLException;
 
     /**
