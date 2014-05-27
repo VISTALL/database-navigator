@@ -5,6 +5,7 @@ import com.dci.intellij.dbn.database.common.DatabaseNativeDataTypes;
 import oracle.jdbc.OracleTypes;
 
 import java.math.BigDecimal;
+import java.sql.Array;
 import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -66,6 +67,7 @@ public class PostgresNativeDataTypes extends DatabaseNativeDataTypes {
         createBasicDefinition("POLYGON", Object.class, Types.OTHER, GenericDataType.OBJECT);
         createBasicDefinition("CIRCLE", Object.class, Types.OTHER, GenericDataType.OBJECT);
         createBasicDefinition("JSON", Object.class, Types.OTHER, GenericDataType.OBJECT);
+        createBasicDefinition("ARRAY", Array.class, Types.ARRAY, GenericDataType.ARRAY);
 
         createLiteralDefinition("CIDR", String.class, Types.VARCHAR);
         createLiteralDefinition("INET", String.class, Types.VARCHAR);
