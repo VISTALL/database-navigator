@@ -10,7 +10,9 @@ public enum GenericDataType {
     FILE("File"),
     BOOLEAN("Boolean"),
     CURSOR("Cursor"),
-    OBJECT("Object");
+    OBJECT("Object"),
+    ARRAY("Array"),
+    ;
 
     private String name;
 
