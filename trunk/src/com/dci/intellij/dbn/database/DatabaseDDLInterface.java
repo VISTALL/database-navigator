@@ -1,6 +1,5 @@
 package com.dci.intellij.dbn.database;
 
-import com.dci.intellij.dbn.object.DBMethod;
 import com.dci.intellij.dbn.object.DBTrigger;
 import com.dci.intellij.dbn.object.factory.MethodFactoryInput;
 
@@ -13,8 +12,6 @@ public interface DatabaseDDLInterface extends DatabaseInterface{
     boolean includesTypeAndNameInSourceContent(DatabaseObjectTypeId objectTypeId);
 
     String createTriggerEditorHeader(DBTrigger trigger);
-
-    String createMethodEditorHeader(DBMethod method);
 
     /*********************************************************
      *                   CREATE statements                   *

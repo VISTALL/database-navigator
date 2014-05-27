@@ -593,6 +593,7 @@
     <statement-execution-processor id="object-source-code" is-query="true" is-prepared-statement="true">
         <statement>
             select concat(
+                lower(TYPE), ' ', NAME,
                 '(', PARAM_LIST, ')',
                 if({2}='FUNCTION', '\nRETURNS ', ''), RETURNS,
                 '\nLANGUAGE ', LANGUAGE,

@@ -6,7 +6,6 @@ import com.dci.intellij.dbn.code.psql.style.options.PSQLCodeStyleSettings;
 import com.dci.intellij.dbn.database.DatabaseInterfaceProvider;
 import com.dci.intellij.dbn.database.DatabaseObjectTypeId;
 import com.dci.intellij.dbn.database.common.DatabaseDDLInterfaceImpl;
-import com.dci.intellij.dbn.object.DBMethod;
 import com.dci.intellij.dbn.object.DBTrigger;
 import com.dci.intellij.dbn.object.factory.ArgumentFactoryInput;
 import com.dci.intellij.dbn.object.factory.MethodFactoryInput;
@@ -53,17 +52,6 @@ public class MySqlDDLInterface extends DatabaseDDLInterfaceImpl {
             buffer.append(keywordCaseOption.changeCase(" for each row\n"));
         }
         return buffer.toString();
-    }
-
-    public String createMethodEditorHeader(DBMethod method) {
-        CodeStyleCaseSettings styleCaseSettings = PSQLCodeStyleSettings.getInstance(method.getProject()).getCaseSettings();
-        CodeStyleCaseOption keywordCaseOption = styleCaseSettings.getKeywordCaseOption();
-        CodeStyleCaseOption objectCaseOption = styleCaseSettings.getObjectCaseOption();
-
-        String methodType = keywordCaseOption.changeCase(method.getObjectType().getName());
-        String methodName = method.getName();//objectCaseOption.changeCase(method.getName());
-
-        return methodType + " " + methodName;
     }
 
     public String getSessionSqlMode(Connection connection) throws SQLException {
