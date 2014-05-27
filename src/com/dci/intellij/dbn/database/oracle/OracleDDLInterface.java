@@ -6,7 +6,6 @@ import com.dci.intellij.dbn.code.psql.style.options.PSQLCodeStyleSettings;
 import com.dci.intellij.dbn.database.DatabaseInterfaceProvider;
 import com.dci.intellij.dbn.database.DatabaseObjectTypeId;
 import com.dci.intellij.dbn.database.common.DatabaseDDLInterfaceImpl;
-import com.dci.intellij.dbn.object.DBMethod;
 import com.dci.intellij.dbn.object.DBTrigger;
 import com.dci.intellij.dbn.object.factory.ArgumentFactoryInput;
 import com.dci.intellij.dbn.object.factory.MethodFactoryInput;
@@ -36,10 +35,6 @@ public class OracleDDLInterface extends DatabaseDDLInterfaceImpl {
 
     public String createTriggerEditorHeader(DBTrigger trigger) {
         return ""; // oracle provides the trigger header in the ALL_SOURCE
-    }
-
-    public String createMethodEditorHeader(DBMethod method) {
-        return ""; // oracle provides the procedure header in the ALL_SOURCE
     }
 
     /*********************************************************

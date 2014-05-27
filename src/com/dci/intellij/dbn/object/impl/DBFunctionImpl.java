@@ -111,10 +111,7 @@ public class DBFunctionImpl extends DBMethodImpl implements DBFunction {
      *********************************************************/
 
     public String loadCodeFromDatabase(DBContentType contentType) throws SQLException {
-        SourceCodeLoader loader = new SourceCodeLoader(this);
-        String body = loader.load();
-        String header = getConnectionHandler().getInterfaceProvider().getDDLInterface().createMethodEditorHeader(this);
-        return header + body;
+        return new SourceCodeLoader(this).load();
     }
 
     public String getCodeParseRootId(DBContentType contentType) {

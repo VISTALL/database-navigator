@@ -99,9 +99,7 @@ public class DBProcedureImpl extends DBMethodImpl implements DBProcedure {
      *********************************************************/
 
     public String loadCodeFromDatabase(DBContentType contentType) throws SQLException {
-        String header = getConnectionHandler().getInterfaceProvider().getDDLInterface().createMethodEditorHeader(this);
-        String body = new SourceCodeLoader(this).load();
-        return header + body;
+        return new SourceCodeLoader(this).load();
     }
 
     public String getCodeParseRootId(DBContentType contentType) {
