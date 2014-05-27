@@ -500,16 +500,16 @@
                     E'\n\$BODY$ ',
                     E'\n\r', r.ROUTINE_DEFINITION,
                     E'\n\$BODY$ ',
-                    E'\n\r\tlanguage ', r.EXTERNAL_LANGUAGE,
+                    E'\n\rlanguage ', r.EXTERNAL_LANGUAGE,
                     case when prc.PROVOLATILE = 'v' then ' volatile'
                          when prc.PROVOLATILE = 'i' then ' immutable'
                          when prc.PROVOLATILE = 's' then ' stable' else '' end,
                     case when prc.PROISSTRICT then ' strict' else '' end,
                     case when prc.PROSECDEF then ' security definer' else '' end,
-                    case when prc.PROCOST > 0 then E'\n\r\tcost '||prc.PROCOST end,
-                    case when prc.PROROWS > 0 then E'\n\r\trows '||prc.PROROWS end,
+                    case when prc.PROCOST > 0 then E'\n\rcost '||prc.PROCOST end,
+                    case when prc.PROROWS > 0 then E'\n\rrows '||prc.PROROWS end,
                         ';',
-                    E'\n\r\talter function ', r.ROUTINE_NAME,
+                    E'\n\ralter function ', r.ROUTINE_NAME,
                     '(', (select array_to_string( array(
                                     select p.PARAMETER_MODE||' '||(case when p.PARAMETER_NAME is not null then p.PARAMETER_NAME||' ' else '' end)||p.DATA_TYPE from INFORMATION_SCHEMA.PARAMETERS p where
                                         p.SPECIFIC_SCHEMA = r.SPECIFIC_SCHEMA and
