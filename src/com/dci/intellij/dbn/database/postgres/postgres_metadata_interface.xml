@@ -491,15 +491,31 @@
                                 where
                                     p.SPECIFIC_SCHEMA = r.SPECIFIC_SCHEMA and
                                     p.SPECIFIC_NAME = r.SPECIFIC_NAME
-                                order by p.ORDINAL_POSITION), ', ' )), ')',
-                    case when {2}='FUNCTION'
-                         then E'\n\rRETURNS '|| (case when prc.PRORETSET then 'SETOF ' else '' end) ||r.DATA_TYPE else ''
-                    end,
-                    E'\n\AS ',
+                                order by p.ORDINAL_POSITION), ', ' )),
+                    ')',
+                    case when {2}='FUNCTION' then E'\n\rRETURNS '||
+                                (case when prc.PRORETSET then 'SETOF ' else '' end) ||
+                                (case when r.DATA_TYPE = 'USER-DEFINED' then r.TYPE_UDT_NAME else r.DATA_TYPE end) else '' end,
+                    ' AS ',
                     E'\n\$BODY$ ',
                     E'\n\r', r.ROUTINE_DEFINITION,
                     E'\n\$BODY$ ',
-                    E'\n\rLANGUAGE ', r.EXTERNAL_LANGUAGE, case when prc.PROVOLATILE = 'v' then ' VOLATILE' else '' end, ';')
+                    E'\n\rLANGUAGE ', r.EXTERNAL_LANGUAGE,
+                    case when prc.PROVOLATILE = 'v' then ' VOLATILE'
+                         when prc.PROVOLATILE = 'i' then ' IMMUTABLE'
+                         when prc.PROVOLATILE = 's' then ' STABLE' else '' end,
+                    case when prc.PROISSTRICT then ' STRICT' else '' end,
+                    case when prc.PROSECDEF then ' SECURITY DEFINER' else '' end,
+                    case when prc.PROCOST > 0 then E'\n\rCOST '||prc.PROCOST end,
+                    case when prc.PROROWS > 0 then E'\n\rROWS '||prc.PROROWS end,
+                        ';',
+                    E'\n\rALTER FUNCTION ', r.ROUTINE_NAME,
+                    '(', (select array_to_string( array(
+                                    select p.PARAMETER_MODE||' '||(case when p.PARAMETER_NAME is not null then p.PARAMETER_NAME else '' end)||' '||p.DATA_TYPE from INFORMATION_SCHEMA.PARAMETERS p where
+                                        p.SPECIFIC_SCHEMA = r.SPECIFIC_SCHEMA and
+                                        p.SPECIFIC_NAME = r.SPECIFIC_NAME
+                                    order by p.ORDINAL_POSITION), ', ' )),
+                    ') OWNER TO ', (select session_user), ';')
             from
                 INFORMATION_SCHEMA.ROUTINES r,
                 pg_catalog.pg_proc prc,
