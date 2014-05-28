@@ -1,11 +1,16 @@
 package com.dci.intellij.dbn.editor.code.action;
 
 import com.dci.intellij.dbn.common.Icons;
+import com.dci.intellij.dbn.common.thread.BackgroundTask;
+import com.dci.intellij.dbn.common.util.ActionUtil;
 import com.dci.intellij.dbn.common.util.MessageUtil;
 import com.dci.intellij.dbn.object.common.DBSchemaObject;
 import com.dci.intellij.dbn.vfs.SourceCodeFile;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
 
@@ -14,26 +19,36 @@ public class CompareWithDatabaseAction extends AbstractDiffAction {
         super("Compare with database", null, Icons.CODE_EDITOR_DIFF_DB);
     }
 
-    public void actionPerformed(AnActionEvent e) {
-        SourceCodeFile virtualFile = getSourcecodeFile(e);
-        if (virtualFile == null) {
-            e.getPresentation().setEnabled(false);
-        } else {
-            Editor editor = getEditor(e);
-            String content = editor.getDocument().getText();
-            virtualFile.setContent(content);
-            DBSchemaObject object = virtualFile.getObject();
-            try {
-                String referenceText = object.loadCodeFromDatabase(virtualFile.getContentType());
-                openDiffWindow(e, referenceText, "Database version", "Local version vs. database version");
-            } catch (SQLException e1) {
-                MessageUtil.showErrorDialog(
-                        "Could not load sourcecode for " +
-                        object.getQualifiedNameWithType() + " from database.", e1);
-            }
+    public void actionPerformed(final AnActionEvent e) {
+        Project project = ActionUtil.getProject(e);
+        if (project != null) {
+            new BackgroundTask(project, "Loading C", false, true) {
+                @Override
+                protected void execute(@NotNull ProgressIndicator progressIndicator) throws InterruptedException {
+                    SourceCodeFile virtualFile = getSourcecodeFile(e);
+                    Editor editor = getEditor(e);
+                    if (virtualFile != null && editor != null) {
+                        String content = editor.getDocument().getText();
+                        virtualFile.setContent(content);
+                        DBSchemaObject object = virtualFile.getObject();
+                        if (object != null) {
+                            try {
+                                String referenceText = object.loadCodeFromDatabase(virtualFile.getContentType());
+                                if (!progressIndicator.isCanceled()) {
+                                    openDiffWindow(e, referenceText, "Database version", "Local version vs. database version");
+                                }
 
-
+                            } catch (SQLException e1) {
+                                MessageUtil.showErrorDialog(
+                                        "Could not load sourcecode for " +
+                                                object.getQualifiedNameWithType() + " from database.", e1);
+                            }
+                        }
+                    }
+                }
+            }.start();
         }
+
     }
 
     public void update(AnActionEvent e) {
