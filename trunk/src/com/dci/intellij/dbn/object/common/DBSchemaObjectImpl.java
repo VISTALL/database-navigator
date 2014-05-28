@@ -3,6 +3,7 @@ package com.dci.intellij.dbn.object.common;
 import com.dci.intellij.dbn.common.content.DynamicContent;
 import com.dci.intellij.dbn.common.content.loader.DynamicContentLoader;
 import com.dci.intellij.dbn.common.content.loader.DynamicContentResultSetLoader;
+import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.database.DatabaseDDLInterface;
 import com.dci.intellij.dbn.database.DatabaseMetadataInterface;
 import com.dci.intellij.dbn.ddl.DDLFileType;
@@ -121,9 +122,14 @@ public abstract class DBSchemaObjectImpl extends DBObjectImpl implements DBSchem
     }
 
     public void executeUpdateDDL(DBContentType contentType, String oldCode, String newCode) throws SQLException {
-        Connection connection = getConnectionHandler().getStandaloneConnection(getSchema());
-        DatabaseDDLInterface ddlInterface = getConnectionHandler().getInterfaceProvider().getDDLInterface();
-        ddlInterface.updateObject(getName(), getObjectType().getName(), oldCode,  newCode, connection);
+        ConnectionHandler connectionHandler = getConnectionHandler();
+        Connection connection = connectionHandler.getPoolConnection(getSchema());
+        try {
+            DatabaseDDLInterface ddlInterface = connectionHandler.getInterfaceProvider().getDDLInterface();
+            ddlInterface.updateObject(getName(), getObjectType().getName(), oldCode,  newCode, connection);
+        } finally {
+            connectionHandler.freePoolConnection(connection);
+        }
     }
 
     /*********************************************************

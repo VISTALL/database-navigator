@@ -1,5 +1,6 @@
 package com.dci.intellij.dbn.object.common.loader;
 
+import com.dci.intellij.dbn.common.util.StringUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.ConnectionUtil;
 import com.dci.intellij.dbn.object.common.DBObject;
@@ -37,7 +38,7 @@ public abstract class DBSourceCodeLoader {
             if (sourceCode.length() == 0 && !lenient)
                 throw new SQLException("Object not found in database.");
 
-            return sourceCode.toString();
+            return StringUtil.removeCharacter(sourceCode.toString(), '\r');
         } finally {
             ConnectionUtil.closeResultSet(resultSet);
             connectionHandler.freePoolConnection(connection);

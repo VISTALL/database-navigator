@@ -480,6 +480,7 @@
         <statement>
             select
                 concat(
+                    lower(r.ROUTINE_TYPE), ' ',
                     r.ROUTINE_NAME,
                     '(', (select array_to_string( array(
                                 select p.PARAMETER_MODE||' '||(case when p.PARAMETER_NAME is not null then p.PARAMETER_NAME||' ' else '' end)||p.DATA_TYPE from INFORMATION_SCHEMA.PARAMETERS p
@@ -493,8 +494,8 @@
                                 (case when r.DATA_TYPE = 'USER-DEFINED' then r.TYPE_UDT_NAME else r.DATA_TYPE end) else '' end,
                     ' as ',
                     E'\n\$BODY$ ',
-                    E'\n\r', r.ROUTINE_DEFINITION,
-                    E'\n\$BODY$ ',
+                    r.ROUTINE_DEFINITION,
+                    '$BODY$ ',
                     E'\n\rlanguage ', r.EXTERNAL_LANGUAGE,
                     case when prc.PROVOLATILE = 'v' then ' volatile'
                          when prc.PROVOLATILE = 'i' then ' immutable'

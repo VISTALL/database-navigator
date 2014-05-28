@@ -4,7 +4,6 @@ import com.dci.intellij.dbn.common.DevNullStreams;
 import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.common.util.DocumentUtil;
 import com.dci.intellij.dbn.common.util.MessageUtil;
-import com.dci.intellij.dbn.common.util.StringUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.database.DatabaseDDLInterface;
 import com.dci.intellij.dbn.editor.DBContentType;
@@ -48,8 +47,7 @@ public class SourceCodeFile extends DatabaseContentFile implements DatabaseFile,
         updateChangeTimestamp();
         setCharset(databaseFile.getConnectionHandler().getSettings().getDetailSettings().getCharset());
         try {
-            String content = object.loadCodeFromDatabase(contentType);
-            this.content = StringUtil.removeCharacter(content, '\r');
+            this.content = object.loadCodeFromDatabase(contentType);
             sourceLoadError = null;
         } catch (SQLException e) {
             content = "";
@@ -133,8 +131,7 @@ public class SourceCodeFile extends DatabaseContentFile implements DatabaseFile,
             updateChangeTimestamp();
             originalContent = null;
 
-            String content = getObject().loadCodeFromDatabase(contentType);
-            this.content = StringUtil.removeCharacter(content, '\r');
+            this.content = getObject().loadCodeFromDatabase(contentType);
 
             getDatabaseFile().updateDDLFiles(getContentType());
             setModified(false);
