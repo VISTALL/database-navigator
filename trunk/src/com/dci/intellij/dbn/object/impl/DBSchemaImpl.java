@@ -59,6 +59,7 @@ import com.dci.intellij.dbn.object.common.list.DBObjectRelationListContainer;
 import com.dci.intellij.dbn.object.common.status.DBObjectStatus;
 import com.dci.intellij.dbn.object.common.status.DBObjectStatusHolder;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -317,12 +318,18 @@ public class DBSchemaImpl extends DBObjectImpl implements DBSchema {
         return dataset;
     }
 
+    @Nullable
     private DBSchemaObject getObjectFallbackOnSynonym(DBObjectList<? extends DBSchemaObject> objects, String name) {
         DBSchemaObject object = objects.getObject(name);
         if (object == null && DatabaseCompatibilityInterface.getInstance(this).supportsObjectType(DBObjectType.SYNONYM.getTypeId())) {
             DBSynonym synonym = synonyms.getObject(name);
-            if (synonym != null && synonym.getUnderlyingObject().getObjectType() == objects.getObjectType()) {
-                return (DBSchemaObject) synonym.getUnderlyingObject();
+            if (synonym != null) {
+                DBObject underlyingObject = synonym.getUnderlyingObject();
+                if (underlyingObject != null) {
+                    if (underlyingObject.getObjectType() == objects.getObjectType()) {
+                        return (DBSchemaObject) underlyingObject;
+                    }
+                }
             }
         } else {
             return object;

@@ -23,6 +23,7 @@ import com.dci.intellij.dbn.common.util.CollectionUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.ConnectionUtil;
 import com.dci.intellij.dbn.database.DatabaseCompatibilityInterface;
+import com.dci.intellij.dbn.database.DatabaseFeature;
 import com.dci.intellij.dbn.editor.DBContentType;
 import com.dci.intellij.dbn.language.common.DBLanguage;
 import com.dci.intellij.dbn.language.common.DBLanguageDialect;
@@ -60,6 +61,7 @@ import javax.swing.Icon;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
@@ -112,11 +114,26 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
     }
 
     private void init(ResultSet resultSet) throws SQLException {
+        initInternalName(resultSet);
         initObject(resultSet);
         initStatus(resultSet);
         initProperties();
         initLists();
         objectRef = createRef();
+    }
+
+    protected void initInternalName(ResultSet resultSet) throws SQLException {
+        DatabaseCompatibilityInterface compatibilityInterface = getConnectionHandler().getInterfaceProvider().getCompatibilityInterface();
+        if (compatibilityInterface.supportsFeature(DatabaseFeature.INTERNAL_OBJECT_NAMES)) {
+            ResultSetMetaData metaData = resultSet.getMetaData();
+            for (int i=0; i<metaData.getColumnCount(); i++) {
+                String columnName = metaData.getColumnName(i+1);
+                if (columnName.equalsIgnoreCase("INTERNAL_NAME")) {
+                    internalName = resultSet.getString(i);
+                    break;
+                }
+            }
+        }
     }
 
     protected abstract void initObject(ResultSet resultSet) throws SQLException;
@@ -199,7 +216,7 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
 
     @Override
     public String getInternalName() {
-        return internalName;
+        return internalName == null ? name : internalName;
     }
 
     @Override

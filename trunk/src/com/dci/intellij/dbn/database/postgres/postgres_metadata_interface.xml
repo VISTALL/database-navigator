@@ -356,6 +356,7 @@
         <statement>
             select distinct
                 ROUTINE_NAME as FUNCTION_NAME,
+                SPECIFIC_NAME as INTERNAL_NAME,
                 'Y' as IS_VALID,
                 'N' as IS_DEBUG,
                 left(IS_DETERMINISTIC, 1) as IS_DETERMINISTIC
@@ -388,6 +389,7 @@
                 case when p.PARAMETER_NAME is null then 'param'||p.ORDINAL_POSITION else p.PARAMETER_NAME end as ARGUMENT_NAME,
                 null as PROGRAM_NAME,
                 r.ROUTINE_NAME as METHOD_NAME,
+                r.SPECIFIC_NAME as METHOD_INTERNAL_NAME,
                 'FUNCTION' as METHOD_TYPE,
                 p.DATA_TYPE as DATA_TYPE_NAME,
                 0 as OVERLOAD,
@@ -426,6 +428,7 @@
                 case when p.PARAMETER_NAME is null then 'param'||p.ORDINAL_POSITION else p.PARAMETER_NAME end as ARGUMENT_NAME,
                 null as PROGRAM_NAME,
                 r.ROUTINE_NAME as METHOD_NAME,
+                r.SPECIFIC_NAME as METHOD_INTERNAL_NAME,
                 'FUNCTION' as METHOD_TYPE,
                 p.DATA_TYPE as DATA_TYPE_NAME,
                 0 as OVERLOAD,
