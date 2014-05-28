@@ -4,6 +4,7 @@ import com.dci.intellij.dbn.common.DevNullStreams;
 import com.dci.intellij.dbn.editor.DBContentType;
 import com.dci.intellij.dbn.object.DBDataset;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -13,6 +14,7 @@ public class DatasetFile extends DatabaseContentFile {
         super(databaseFile, contentType);
     }
 
+    @Nullable
     public DBDataset getObject() {
         return (DBDataset) super.getObject();
     }

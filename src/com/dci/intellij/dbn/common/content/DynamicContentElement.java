@@ -4,7 +4,8 @@ import com.intellij.openapi.Disposable;
 
 public interface DynamicContentElement extends Disposable, Comparable {
     boolean isDisposed();
-    String getName();                                                            
+    String getName();
+    String getInternalName();
     String getDescription();
     void reload();
 }

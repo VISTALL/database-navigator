@@ -76,8 +76,9 @@ public abstract class DatabaseContentFile extends VirtualFile implements FileCon
         this.modified = modified;
     }
 
+    @Nullable
     public DBSchemaObject getObject() {
-        return databaseFile.getObject();
+        return databaseFile == null ? null : databaseFile.getObject();
     }
 
     @Override

@@ -9,6 +9,7 @@ public enum DatabaseFeature {
     OBJECT_CHANGE_TRACING("Tracing objects changes"),
     AUTHID_METHOD_EXECUTION("AUDHID method execution (execution on different schema)"),
     FUNCTION_OUT_ARGUMENTS("OUT arguments for functions"),
+    INTERNAL_OBJECT_NAMES("Internal object names"),
     DEBUGGING("Program execution debugging");
 
     private String description;

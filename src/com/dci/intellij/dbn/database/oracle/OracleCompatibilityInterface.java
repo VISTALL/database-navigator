@@ -20,6 +20,7 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
             case OBJECT_CHANGE_TRACING: return true;
             case AUTHID_METHOD_EXECUTION: return true;
             case FUNCTION_OUT_ARGUMENTS: return true;
+            case INTERNAL_OBJECT_NAMES: return false;
             case DEBUGGING: return true;
             default: return false;
         }
