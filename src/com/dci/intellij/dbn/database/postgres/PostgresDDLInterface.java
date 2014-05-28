@@ -67,18 +67,11 @@ public class PostgresDDLInterface extends DatabaseDDLInterfaceImpl {
     /*********************************************************
      *                   CHANGE statements                   *
      *********************************************************/
+    /*********************************************************
+     *                   CHANGE statements                   *
+     *********************************************************/
     public void updateView(String viewName, String oldCode, String newCode, Connection connection) throws SQLException {
-        String sqlMode = getSessionSqlMode(connection);
-        try {
-            setSessionSqlMode("TRADITIONAL", connection);
-            dropObjectIfExists("view", viewName, connection);
-            createView(viewName, newCode, connection);
-        } catch (SQLException e) {
-            createView(viewName, oldCode, connection);
-            throw e;
-        } finally {
-            setSessionSqlMode(sqlMode, connection);
-        }
+        executeQuery(connection, true, "change-view", viewName, newCode);
     }
 
     public void updateObject(String objectName, String objectType, String oldCode, String newCode, Connection connection) throws SQLException {

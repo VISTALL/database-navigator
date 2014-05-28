@@ -14,7 +14,9 @@
         <statement>create view {0} as {1}</statement>
     </statement-execution-processor>
 
-
+    <statement-execution-processor id="change-view">
+        <statement>create or replace view {0} as {1}</statement>
+    </statement-execution-processor>
 
 
     <statement-execution-processor id="create-object">
