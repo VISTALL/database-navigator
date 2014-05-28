@@ -385,41 +385,37 @@
     <statement-execution-processor id="method-arguments" is-query="true" is-prepared-statement="true">
         <statement>
             select
-                PARAMETER_NAME as ARGUMENT_NAME,
+                case when p.PARAMETER_NAME is null then 'param'||p.ORDINAL_POSITION else p.PARAMETER_NAME end as ARGUMENT_NAME,
                 null as PROGRAM_NAME,
-                SPECIFIC_NAME as METHOD_NAME,
-                ROUTINE_TYPE as METHOD_TYPE,
+                r.ROUTINE_NAME as METHOD_NAME,
+                'FUNCTION' as METHOD_TYPE,
+                p.DATA_TYPE as DATA_TYPE_NAME,
                 0 as OVERLOAD,
-                ORDINAL_POSITION as POSITION,
-                ORDINAL_POSITION as SEQUENCE,
-                case when PARAMETER_MODE is null then 'OUT' else PARAMETER_MODE end as IN_OUT,
+                p.ORDINAL_POSITION as POSITION,
+                p.ORDINAL_POSITION as SEQUENCE,
+                p.PARAMETER_MODE as IN_OUT,
                 null as DATA_TYPE_OWNER,
                 null as DATA_TYPE_PACKAGE,
-                DATA_TYPE as DATA_TYPE_NAME,
-                CHARACTER_MAXIMUM_LENGTH  as DATA_LENGTH,
-                NUMERIC_PRECISION as DATA_PRECISION,
-                NUMERIC_SCALE as DATA_SCALE
-            from INFORMATION_SCHEMA.PARAMETERS
+                p.DATA_TYPE as DATA_TYPE_NAME,
+                0 as DATA_LENGTH,
+                0 as DATA_PRECISION,
+                0 as DATA_SCALE
+            from
+                INFORMATION_SCHEMA.ROUTINES r,
+                INFORMATION_SCHEMA.PARAMETERS p,
+                PG_CATALOG.PG_PROC prc,
+                PG_CATALOG.PG_NAMESPACE schm
             where
-                SPECIFIC_SCHEMA = {0} and
-                SPECIFIC_NAME = {1} and
-                ROUTINE_TYPE = {2}
+                r.ROUTINE_SCHEMA = {0} and
+                r.ROUTINE_NAME = {1} and
+                r.ROUTINE_TYPE = {2} and
+                r.ROUTINE_SCHEMA = schm.NSPNAME and
+                prc.PRONAMESPACE = schm.OID and
+                prc.PRONAME = r.ROUTINE_NAME and
+                p.SPECIFIC_SCHEMA = r.SPECIFIC_SCHEMA and
+                p.SPECIFIC_NAME = r.SPECIFIC_NAME
             order by
-                SPECIFIC_NAME,
-                ORDINAL_POSITION asc
-        </statement>
-    </statement-execution-processor>
-    <statement-execution-processor id="alternative-method-arguments" is-query="true" is-prepared-statement="true">
-        <statement>
-            select
-                case when TYPE = 'FUNCTION' then concat('OUT return ', RETURNS, ', ', PARAM_LIST) else PARAM_LIST end as ARGUMENTS,
-                NAME as METHOD_NAME,
-                TYPE as METHOD_TYPE
-            from MYSQL.PROC
-            where
-                DB = {0} and
-                NAME = {1} and
-                TYPE = {2}
+                p.ORDINAL_POSITION
         </statement>
     </statement-execution-processor>
 
@@ -427,37 +423,36 @@
     <statement-execution-processor id="all-method-arguments" is-query="true" is-prepared-statement="true">
         <statement>
             select
-                PARAMETER_NAME as ARGUMENT_NAME,
+                case when p.PARAMETER_NAME is null then 'param'||p.ORDINAL_POSITION else p.PARAMETER_NAME end as ARGUMENT_NAME,
                 null as PROGRAM_NAME,
-                SPECIFIC_NAME as METHOD_NAME,
-                ROUTINE_TYPE as METHOD_TYPE,
+                r.ROUTINE_NAME as METHOD_NAME,
+                'FUNCTION' as METHOD_TYPE,
+                p.DATA_TYPE as DATA_TYPE_NAME,
                 0 as OVERLOAD,
-                ORDINAL_POSITION as POSITION,
-                ORDINAL_POSITION as SEQUENCE,
-                case when PARAMETER_MODE is null then 'OUT' else PARAMETER_MODE end as IN_OUT,
+                p.ORDINAL_POSITION as POSITION,
+                p.ORDINAL_POSITION as SEQUENCE,
+                p.PARAMETER_MODE as IN_OUT,
                 null as DATA_TYPE_OWNER,
                 null as DATA_TYPE_PACKAGE,
-                DATA_TYPE as DATA_TYPE_NAME,
-                CHARACTER_MAXIMUM_LENGTH  as DATA_LENGTH,
-                NUMERIC_PRECISION as DATA_PRECISION,
-                NUMERIC_SCALE as DATA_SCALE
-            from INFORMATION_SCHEMA.PARAMETERS
+                p.DATA_TYPE as DATA_TYPE_NAME,
+                0 as DATA_LENGTH,
+                0 as DATA_PRECISION,
+                0 as DATA_SCALE
+            from
+                INFORMATION_SCHEMA.ROUTINES r,
+                INFORMATION_SCHEMA.PARAMETERS p,
+                PG_CATALOG.PG_PROC prc,
+                PG_CATALOG.PG_NAMESPACE schm
             where
-                SPECIFIC_SCHEMA = {0}
+                r.ROUTINE_SCHEMA = {0} and
+                r.ROUTINE_SCHEMA = schm.NSPNAME and
+                prc.PRONAMESPACE = schm.OID and
+                prc.PRONAME = r.ROUTINE_NAME and
+                p.SPECIFIC_SCHEMA = r.SPECIFIC_SCHEMA and
+                p.SPECIFIC_NAME = r.SPECIFIC_NAME
             order by
-                SPECIFIC_NAME,
-                ORDINAL_POSITION asc
-        </statement>
-    </statement-execution-processor>
-
-    <statement-execution-processor id="alternative-all-method-arguments" is-query="true" is-prepared-statement="true">
-        <statement>
-            select
-                case when TYPE = 'FUNCTION' then concat('OUT return ', RETURNS, ', ', PARAM_LIST) else PARAM_LIST end as ARGUMENTS,
-                NAME as METHOD_NAME,
-                TYPE as METHOD_TYPE
-            from MYSQL.PROC
-            where DB = {0}
+                p.SPECIFIC_NAME,
+                p.ORDINAL_POSITION
         </statement>
     </statement-execution-processor>
 

@@ -22,26 +22,6 @@ public class PostgresMetadataInterface extends DatabaseMetadataInterfaceImpl {
         return null;
     }
 
-    @Override
-    public ResultSet loadMethodArguments(String ownerName, String methodName, String methodType, String overload, Connection connection) throws SQLException {
-        try {
-            return super.loadMethodArguments(ownerName, methodName, methodType, overload, connection);
-        } catch (SQLException e) {
-            ResultSet resultSet = executeQuery(connection, "alternative-method-arguments", ownerName, methodName, methodType, overload);
-            return new PostgresArgumentsResultSet(resultSet);
-        }
-    }
-
-    @Override
-    public ResultSet loadAllMethodArguments(String ownerName, Connection connection) throws SQLException {
-        try {
-            return super.loadAllMethodArguments(ownerName, connection);
-        } catch (SQLException e) {
-            ResultSet resultSet = executeQuery(connection, "alternative-all-method-arguments", ownerName);
-            return new PostgresArgumentsResultSet(resultSet);
-        }
-    }
-
     public ResultSet loadCharsets(Connection connection) throws SQLException {
         return executeQuery(connection, "charsets");
     }
