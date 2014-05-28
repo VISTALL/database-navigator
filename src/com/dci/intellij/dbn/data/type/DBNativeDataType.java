@@ -28,7 +28,7 @@ public class DBNativeDataType implements DynamicContentElement {
     public String getName() {
         return dataTypeDefinition.getName();
     }
-    public String getInternalName() {
+    public String getDisplayName() {
         return dataTypeDefinition.getName();
     }
 

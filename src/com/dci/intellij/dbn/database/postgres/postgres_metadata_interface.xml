@@ -355,8 +355,8 @@
     <statement-execution-processor id="functions" is-query="true" is-prepared-statement="true">
         <statement>
             select distinct
-                ROUTINE_NAME as FUNCTION_NAME,
-                SPECIFIC_NAME as INTERNAL_NAME,
+                SPECIFIC_NAME as FUNCTION_NAME,
+                ROUTINE_NAME as DISPLAY_NAME,
                 'Y' as IS_VALID,
                 'N' as IS_DEBUG,
                 left(IS_DETERMINISTIC, 1) as IS_DETERMINISTIC
@@ -364,14 +364,15 @@
             where
                 ROUTINE_SCHEMA = {0} and
                 ROUTINE_TYPE = 'FUNCTION'
-            order by ROUTINE_NAME asc
+            order by SPECIFIC_NAME asc
         </statement>
     </statement-execution-processor>
 
     <statement-execution-processor id="procedures" is-query="true" is-prepared-statement="true">
         <statement>
             select distinct
-                ROUTINE_NAME as PROCEDURE_NAME,
+                SPECIFIC_NAME as PROCEDURE_NAME,
+                ROUTINE_NAME as DISPLAY_NAME,
                 'Y' as IS_VALID,
                 'N' as IS_DEBUG,
                 left(IS_DETERMINISTIC, 1) as IS_DETERMINISTIC
@@ -379,7 +380,7 @@
             where
                 ROUTINE_SCHEMA = {0} and
                 ROUTINE_TYPE = 'PROCEDURE'
-            order by ROUTINE_NAME asc
+            order by SPECIFIC_NAME asc
         </statement>
     </statement-execution-processor>
 
@@ -388,8 +389,7 @@
             select
                 case when p.PARAMETER_NAME is null then 'param'||p.ORDINAL_POSITION else p.PARAMETER_NAME end as ARGUMENT_NAME,
                 null as PROGRAM_NAME,
-                r.ROUTINE_NAME as METHOD_NAME,
-                r.SPECIFIC_NAME as METHOD_INTERNAL_NAME,
+                r.SPECIFIC_NAME as METHOD_NAME,
                 'FUNCTION' as METHOD_TYPE,
                 p.DATA_TYPE as DATA_TYPE_NAME,
                 0 as OVERLOAD,
@@ -404,16 +404,11 @@
                 0 as DATA_SCALE
             from
                 INFORMATION_SCHEMA.ROUTINES r,
-                INFORMATION_SCHEMA.PARAMETERS p,
-                PG_CATALOG.PG_PROC prc,
-                PG_CATALOG.PG_NAMESPACE schm
+                INFORMATION_SCHEMA.PARAMETERS p
             where
                 r.ROUTINE_SCHEMA = {0} and
-                r.ROUTINE_NAME = {1} and
+                r.SPECIFIC_NAME = {1} and
                 r.ROUTINE_TYPE = {2} and
-                r.ROUTINE_SCHEMA = schm.NSPNAME and
-                prc.PRONAMESPACE = schm.OID and
-                prc.PRONAME = r.ROUTINE_NAME and
                 p.SPECIFIC_SCHEMA = r.SPECIFIC_SCHEMA and
                 p.SPECIFIC_NAME = r.SPECIFIC_NAME
             order by
@@ -427,8 +422,7 @@
             select
                 case when p.PARAMETER_NAME is null then 'param'||p.ORDINAL_POSITION else p.PARAMETER_NAME end as ARGUMENT_NAME,
                 null as PROGRAM_NAME,
-                r.ROUTINE_NAME as METHOD_NAME,
-                r.SPECIFIC_NAME as METHOD_INTERNAL_NAME,
+                r.SPECIFIC_NAME as METHOD_NAME,
                 'FUNCTION' as METHOD_TYPE,
                 p.DATA_TYPE as DATA_TYPE_NAME,
                 0 as OVERLOAD,
@@ -443,14 +437,9 @@
                 0 as DATA_SCALE
             from
                 INFORMATION_SCHEMA.ROUTINES r,
-                INFORMATION_SCHEMA.PARAMETERS p,
-                PG_CATALOG.PG_PROC prc,
-                PG_CATALOG.PG_NAMESPACE schm
+                INFORMATION_SCHEMA.PARAMETERS p
             where
                 r.ROUTINE_SCHEMA = {0} and
-                r.ROUTINE_SCHEMA = schm.NSPNAME and
-                prc.PRONAMESPACE = schm.OID and
-                prc.PRONAME = r.ROUTINE_NAME and
                 p.SPECIFIC_SCHEMA = r.SPECIFIC_SCHEMA and
                 p.SPECIFIC_NAME = r.SPECIFIC_NAME
             order by
@@ -521,10 +510,10 @@
                 pg_catalog.pg_namespace schm
             where
                 r.ROUTINE_SCHEMA = {0} and
-                r.ROUTINE_NAME = {1} and
+                r.SPECIFIC_NAME = {1} and
                 r.ROUTINE_TYPE = {2} and
                 r.ROUTINE_SCHEMA = schm.NSPNAME and
-                prc.PRONAME = r.ROUTINE_NAME and
+                prc.PRONAME||'_'||prc.OID = r.SPECIFIC_NAME and
                 prc.PRONAMESPACE = schm.OID
         </statement>
     </statement-execution-processor>
