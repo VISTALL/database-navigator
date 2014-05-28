@@ -73,6 +73,7 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
     private boolean isDisposed = false;
 
     protected String name;
+    protected String internalName;
     protected DBObjectRef objectRef;
     private DBObjectProperties properties;
     private DBObjectListContainer childObjects;
@@ -194,6 +195,11 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
     @NotNull
     public String getName() {
         return name;
+    }
+
+    @Override
+    public String getInternalName() {
+        return internalName;
     }
 
     @Override
