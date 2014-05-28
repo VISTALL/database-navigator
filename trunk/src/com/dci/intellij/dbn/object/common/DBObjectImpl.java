@@ -75,7 +75,7 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
     private boolean isDisposed = false;
 
     protected String name;
-    protected String internalName;
+    protected String displayName;
     protected DBObjectRef objectRef;
     private DBObjectProperties properties;
     private DBObjectListContainer childObjects;
@@ -114,7 +114,7 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
     }
 
     private void init(ResultSet resultSet) throws SQLException {
-        initInternalName(resultSet);
+        initDisplayName(resultSet);
         initObject(resultSet);
         initStatus(resultSet);
         initProperties();
@@ -122,14 +122,14 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
         objectRef = createRef();
     }
 
-    protected void initInternalName(ResultSet resultSet) throws SQLException {
+    protected void initDisplayName(ResultSet resultSet) throws SQLException {
         DatabaseCompatibilityInterface compatibilityInterface = getConnectionHandler().getInterfaceProvider().getCompatibilityInterface();
         if (compatibilityInterface.supportsFeature(DatabaseFeature.INTERNAL_OBJECT_NAMES)) {
             ResultSetMetaData metaData = resultSet.getMetaData();
-            for (int i=0; i<metaData.getColumnCount(); i++) {
-                String columnName = metaData.getColumnName(i+1);
-                if (columnName.equalsIgnoreCase("INTERNAL_NAME")) {
-                    internalName = resultSet.getString(i);
+            for (int i=1; i<metaData.getColumnCount() + 1; i++) {
+                String columnName = metaData.getColumnName(i);
+                if (columnName.equalsIgnoreCase("DISPLAY_NAME")) {
+                    displayName = resultSet.getString(i);
                     break;
                 }
             }
@@ -215,8 +215,8 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
     }
 
     @Override
-    public String getInternalName() {
-        return internalName == null ? name : internalName;
+    public String getDisplayName() {
+        return displayName == null ? name : displayName;
     }
 
     @Override
@@ -521,7 +521,7 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
     }
 
     public String getPresentableText() {
-        return getName();
+        return getDisplayName();
     }
 
     public String getPresentableTextDetails() {

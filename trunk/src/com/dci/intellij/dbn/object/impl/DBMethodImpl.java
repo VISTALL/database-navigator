@@ -147,14 +147,22 @@ public abstract class DBMethodImpl extends DBSchemaObjectImpl implements DBMetho
             DatabaseMetadataInterface metadataInterface = dynamicContent.getConnectionHandler().getInterfaceProvider().getMetadataInterface();
             DBMethod method = (DBMethod) dynamicContent.getParent();
             String ownerName = method.getSchema().getName();
-            String methodName = method.getName();
-            String methodType = method.getMethodType();
             String overload = Integer.toString(method.getOverload());
             DBProgram program = method.getProgram();
             if (program == null) {
-                return metadataInterface.loadMethodArguments(ownerName, methodName, methodType, overload, connection);
+                return metadataInterface.loadMethodArguments(
+                        ownerName,
+                        method.getName(),
+                        method.getMethodType(),
+                        overload,
+                        connection);
             } else {
-                return metadataInterface.loadProgramMethodArguments(ownerName, program.getName(), methodName, overload, connection);
+                return metadataInterface.loadProgramMethodArguments(
+                        ownerName,
+                        program.getName(),
+                        method.getName(),
+                        overload,
+                        connection);
             }
         }
 

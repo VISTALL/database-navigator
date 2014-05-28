@@ -1,6 +1,5 @@
 package com.dci.intellij.dbn.object.lookup;
 
-import com.dci.intellij.dbn.common.util.CommonUtil;
 import com.dci.intellij.dbn.connection.ConnectionCache;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.ConnectionManager;
@@ -18,7 +17,6 @@ import java.util.List;
 public class DBObjectRef<T extends DBObject> implements Comparable {
     protected String connectionId;
     protected Node[] nodes;
-    private String internalName;
     private WeakReference<T> reference;
 
     public DBObjectRef(T object) {
@@ -39,7 +37,6 @@ public class DBObjectRef<T extends DBObject> implements Comparable {
             DBObject chainObject = chain.get(i);
             nodes[i] = new Node(chainObject.getObjectType(), chainObject.getName());
         }
-        internalName=object.getInternalName();
     }
 
     public DBObjectRef(ConnectionHandler connectionHandler) {
@@ -52,10 +49,6 @@ public class DBObjectRef<T extends DBObject> implements Comparable {
 
     public DBObjectRef() {
 
-    }
-
-    public String getInternalName() {
-        return internalName == null ? getName() : internalName;
     }
 
     public DBObjectRef append(DBObjectType objectType, String name) {
@@ -161,9 +154,6 @@ public class DBObjectRef<T extends DBObject> implements Comparable {
             }
             if (object == null) break;
         }
-        if (object != null) {
-            internalName = object.getInternalName();
-        }
         return (T) object;
     }
 
@@ -203,14 +193,13 @@ public class DBObjectRef<T extends DBObject> implements Comparable {
 
         if (!connectionId.equals(that.connectionId)) return false;
         if (!Arrays.equals(nodes, that.nodes)) return false;
-        if (!CommonUtil.safeEqual(internalName, that.internalName)) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = (connectionId + internalName).hashCode();
+        int result = connectionId.hashCode();
         result = 31 * result + Arrays.hashCode(nodes);
         return result;
     }

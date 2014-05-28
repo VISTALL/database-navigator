@@ -89,7 +89,7 @@ public class DatabaseObjectFactory extends AbstractProjectComponent {
                 ConnectionHandler connectionHandler = schema.getConnectionHandler();
                 Connection connection = connectionHandler.getStandaloneConnection(schema);
                 connectionHandler.getInterfaceProvider().getDDLInterface().createMethod(methodFactoryInput, connection);
-                DBObjectList<DBMethod> methods = (DBObjectList<DBMethod>) schema.getDynamicContent(methodFactoryInput.isFunction() ? DBObjectType.FUNCTION : DBObjectType.PROCEDURE);
+                DBObjectList<DBMethod> methods = (DBObjectList<DBMethod>) schema.getChildObjects(methodFactoryInput.isFunction() ? DBObjectType.FUNCTION : DBObjectType.PROCEDURE);
                 methods.reload();
                 DBMethod method = methods.getObject(factoryInput.getObjectName());
                 DatabaseFileSystem.getInstance().openEditor(method);
