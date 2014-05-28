@@ -72,7 +72,12 @@ public class DatabaseObjectFile<T extends DBObject> extends VirtualFile implemen
 
     @Override
     public String getPresentableName() {
-        return objectRef.getName();
+        T object = objectRef.get();
+        if (object == null) {
+            return objectRef.getName();
+        } else {
+            return object.getDisplayName();
+        }
     }
 
     @NotNull
@@ -85,6 +90,7 @@ public class DatabaseObjectFile<T extends DBObject> extends VirtualFile implemen
         return DatabaseFileSystem.getInstance();
     }
 
+    @NotNull
     public String getPath() {
         if (path == null) {
             path = DatabaseFileSystem.createPath(getObject());
