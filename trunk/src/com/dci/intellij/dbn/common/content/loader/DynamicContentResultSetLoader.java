@@ -3,6 +3,7 @@ package com.dci.intellij.dbn.common.content.loader;
 import com.dci.intellij.dbn.common.LoggerFactory;
 import com.dci.intellij.dbn.common.content.DynamicContent;
 import com.dci.intellij.dbn.common.content.DynamicContentElement;
+import com.dci.intellij.dbn.common.load.ProgressMonitor;
 import com.dci.intellij.dbn.common.options.setting.SettingsUtil;
 import com.dci.intellij.dbn.common.util.StringUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
@@ -10,8 +11,6 @@ import com.dci.intellij.dbn.connection.ConnectionUtil;
 import com.dci.intellij.dbn.database.DatabaseInterfaceProvider;
 import com.dci.intellij.dbn.object.common.DBObject;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.ProgressManager;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -52,12 +51,10 @@ public abstract class DynamicContentResultSetLoader<T extends DynamicContentElem
     }
 
     public void loadContent(DynamicContent<T> dynamicContent, boolean forceReload) throws DynamicContentLoadException, InterruptedException {
+        ProgressMonitor.setTaskDescription("Loading " + dynamicContent.getContentDescription());
+
         DebugInfo debugInfo = preLoadContent(dynamicContent);
 
-        ProgressIndicator progressIndicator = ProgressManager.getInstance().getProgressIndicator();
-        if (progressIndicator != null) {
-            progressIndicator.setText("Loading " + dynamicContent.getContentDescription());
-        }
         dynamicContent.check();
         ConnectionHandler connectionHandler = dynamicContent.getConnectionHandler();
         LoaderCache loaderCache = new LoaderCache();
@@ -83,10 +80,10 @@ public abstract class DynamicContentResultSetLoader<T extends DynamicContentElem
                 if (element != null && dynamicContent.accepts(element)) {
                     if (list == null) list = new ArrayList<T>();
                     list.add(element);
-                    if (progressIndicator != null && count%10 == 0) {
+                    if (count%10 == 0) {
                         String description = element.getDescription();
                         if (description != null)
-                            progressIndicator.setText2(description);    
+                            ProgressMonitor.setSubtaskDescription(description);
                     }
                     count++;
                 }

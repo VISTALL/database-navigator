@@ -71,7 +71,7 @@ public class PostgresDDLInterface extends DatabaseDDLInterfaceImpl {
      *                   CHANGE statements                   *
      *********************************************************/
     public void updateView(String viewName, String oldCode, String newCode, Connection connection) throws SQLException {
-        executeQuery(connection, true, "change-view", viewName, newCode);
+        executeCall(connection, null, "change-view", viewName, newCode);
     }
 
     public void updateObject(String objectName, String objectType, String oldCode, String newCode, Connection connection) throws SQLException {

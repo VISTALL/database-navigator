@@ -4,7 +4,9 @@ import com.dci.intellij.dbn.common.content.DynamicContent;
 import com.dci.intellij.dbn.common.content.loader.DynamicContentLoader;
 import com.dci.intellij.dbn.common.content.loader.DynamicContentResultSetLoader;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
+import com.dci.intellij.dbn.database.DatabaseCompatibilityInterface;
 import com.dci.intellij.dbn.database.DatabaseDDLInterface;
+import com.dci.intellij.dbn.database.DatabaseFeature;
 import com.dci.intellij.dbn.database.DatabaseMetadataInterface;
 import com.dci.intellij.dbn.ddl.DDLFileType;
 import com.dci.intellij.dbn.editor.DBContentType;
@@ -84,7 +86,11 @@ public abstract class DBSchemaObjectImpl extends DBObjectImpl implements DBSchem
     }
 
     public Timestamp loadChangeTimestamp(DBContentType contentType) throws SQLException {
-        return getTimestampLoader(contentType).load(this);
+        DatabaseCompatibilityInterface compatibilityInterface = DatabaseCompatibilityInterface.getInstance(this);
+        if (compatibilityInterface.supportsFeature(DatabaseFeature.OBJECT_CHANGE_TRACING)) {
+            return getTimestampLoader(contentType).load(this);
+        }
+        return null;
     }
 
     public DBObjectTimestampLoader getTimestampLoader(DBContentType contentType) {

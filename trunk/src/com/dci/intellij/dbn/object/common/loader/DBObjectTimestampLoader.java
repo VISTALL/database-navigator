@@ -1,18 +1,17 @@
 package com.dci.intellij.dbn.object.common.loader;
 
+import com.dci.intellij.dbn.common.load.ProgressMonitor;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.ConnectionUtil;
 import com.dci.intellij.dbn.object.common.DBSchemaObject;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.ProgressManager;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 
-public class DBObjectTimestampLoader {
+public class DBObjectTimestampLoader{
     protected Logger logger = Logger.getInstance(getClass().getName());
     private String objectType;
 
@@ -21,10 +20,7 @@ public class DBObjectTimestampLoader {
     }
 
     public Timestamp load(final DBSchemaObject object) throws SQLException{
-        ProgressIndicator progressIndicator = ProgressManager.getInstance().getProgressIndicator();
-        if (progressIndicator != null) {
-            progressIndicator.setText("Loading timestamp for " + object.getQualifiedNameWithType());
-        }
+        ProgressMonitor.setTaskDescription("Loading timestamp for " + object.getQualifiedNameWithType());
         Connection connection = null;
         ResultSet resultSet = null;
         ConnectionHandler connectionHandler = object.getConnectionHandler();

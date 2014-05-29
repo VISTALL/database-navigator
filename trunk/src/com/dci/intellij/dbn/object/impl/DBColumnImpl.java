@@ -4,6 +4,7 @@ import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
 import com.dci.intellij.dbn.browser.ui.HtmlToolTipBuilder;
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.content.loader.DynamicContentLoader;
+import com.dci.intellij.dbn.common.load.ProgressMonitor;
 import com.dci.intellij.dbn.data.type.DBDataType;
 import com.dci.intellij.dbn.editor.DBContentType;
 import com.dci.intellij.dbn.object.DBColumn;
@@ -29,8 +30,6 @@ import com.dci.intellij.dbn.object.properties.DBDataTypePresentableProperty;
 import com.dci.intellij.dbn.object.properties.DBObjectPresentableProperty;
 import com.dci.intellij.dbn.object.properties.PresentableProperty;
 import com.dci.intellij.dbn.object.properties.SimplePresentableProperty;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.ProgressManager;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Icon;
@@ -220,8 +219,7 @@ public class DBColumnImpl extends DBObjectImpl implements DBColumn {
         List<DBColumn> list = new ArrayList<DBColumn>();
         boolean isSystemSchema = getDataset().getSchema().isSystemSchema();
         for (DBSchema schema : getConnectionHandler().getObjectBundle().getSchemas()) {
-            ProgressIndicator progressIndicator = ProgressManager.getInstance().getProgressIndicator();
-            if (progressIndicator != null && progressIndicator.isCanceled()) {
+            if (ProgressMonitor.isCancelled()) {
                 break;
             }
             if (schema.isSystemSchema() == isSystemSchema) {

@@ -87,19 +87,23 @@ public class SourceCodeFile extends DatabaseContentFile implements DatabaseFile,
     }
 
     public int getEditorHeaderEndOffset() {
-        DatabaseDDLInterface ddlInterface = getObject().getConnectionHandler().getInterfaceProvider().getDDLInterface();
-        return ddlInterface.getEditorHeaderEndOffset(getObject().getObjectType().getTypeId(), getObject().getName(), content);
+        DBSchemaObject object = getObject();
+        DatabaseDDLInterface ddlInterface = object.getConnectionHandler().getInterfaceProvider().getDDLInterface();
+        return ddlInterface.getEditorHeaderEndOffset(object.getObjectType().getTypeId(), object.getName(), content);
     }
 
 
     public void updateChangeTimestamp() {
-        try {
-            Timestamp timestamp = getObject().loadChangeTimestamp(getContentType());
-            if (timestamp != null) {
-                changeTimestamp = timestamp;
+        DBSchemaObject object = getObject();
+        if (object != null) {
+            try {
+                Timestamp timestamp = object.loadChangeTimestamp(getContentType());
+                if (timestamp != null) {
+                    changeTimestamp = timestamp;
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
     }
 
@@ -131,12 +135,17 @@ public class SourceCodeFile extends DatabaseContentFile implements DatabaseFile,
             updateChangeTimestamp();
             originalContent = null;
 
-            this.content = getObject().loadCodeFromDatabase(contentType);
+            DBSchemaObject object = getObject();
+            if (object != null) {
+                this.content = object.loadCodeFromDatabase(contentType);
 
-            getDatabaseFile().updateDDLFiles(getContentType());
-            setModified(false);
-            sourceLoadError = null;
-            return true;
+                getDatabaseFile().updateDDLFiles(getContentType());
+                setModified(false);
+                sourceLoadError = null;
+                return true;
+            } else {
+                return false;
+            }
         } catch (SQLException e) {
             sourceLoadError = e.getMessage();
             DBSchemaObject object = databaseFile.getObject();
@@ -151,11 +160,13 @@ public class SourceCodeFile extends DatabaseContentFile implements DatabaseFile,
 
     public void updateToDatabase() throws SQLException {
         DBSchemaObject object = getObject();
-        object.executeUpdateDDL(getContentType(), getLastSavedContent(), content);
-        updateChangeTimestamp();
-        getDatabaseFile().updateDDLFiles(getContentType());
-        setModified(false);
-        lastSavedContent = content;
+        if (object != null) {
+            object.executeUpdateDDL(getContentType(), getLastSavedContent(), content);
+            updateChangeTimestamp();
+            getDatabaseFile().updateDDLFiles(getContentType());
+            setModified(false);
+            lastSavedContent = content;
+        }
     }
 
     @NotNull
@@ -169,9 +180,12 @@ public class SourceCodeFile extends DatabaseContentFile implements DatabaseFile,
     }
 
     public String createDDLStatement() {
-        String content = this.content.trim();
-        if (content.length() > 0) {
-            return getObject().createDDLStatement(content);
+        DBSchemaObject object = getObject();
+        if (object != null) {
+            String content = this.content.trim();
+            if (content.length() > 0) {
+                return object.createDDLStatement(content);
+            }
         }
         return "";
     }

@@ -5,12 +5,17 @@ import com.intellij.openapi.application.ApplicationManager;
 public abstract class WriteActionRunner {
 
     public final void start() {
-        Runnable writeAction = new Runnable() {
+        new ConditionalLaterInvocator() {
+            @Override
             public void run() {
-                WriteActionRunner.this.run();
+                Runnable writeAction = new Runnable() {
+                    public void run() {
+                        WriteActionRunner.this.run();
+                    }
+                };
+                ApplicationManager.getApplication().runWriteAction(writeAction);
             }
-        };
-        ApplicationManager.getApplication().runWriteAction(writeAction);
+        }.start();
     }
 
     public abstract void run();
