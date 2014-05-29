@@ -51,4 +51,17 @@ public class DatabaseInterfaceImpl implements DatabaseInterface{
         StatementExecutionProcessor executionProcessor = processors.get(loaderId);
         return executionProcessor.executeCall(connection, outputReader, arguments);
     }
+
+    protected boolean executeStatement(Connection connection, String loaderId, @Nullable Object... arguments) throws SQLException {
+        StatementExecutionProcessor executionProcessor = processors.get(loaderId);
+        return executionProcessor.executeStatement(connection, arguments);
+    }
+
+    protected void executeUpdate(Connection connection, String loaderId, @Nullable Object... arguments) throws SQLException {
+        StatementExecutionProcessor executionProcessor = processors.get(loaderId);
+        executionProcessor.executeUpdate(connection, arguments);
+    }
+
+
+
 }
