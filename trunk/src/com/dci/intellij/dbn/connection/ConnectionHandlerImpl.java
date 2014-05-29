@@ -283,9 +283,9 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
 
     public Connection getPoolConnection(DBSchema schema) throws SQLException {
         Connection connection = connectionPool.allocateConnection();
-        if (!schema.isPublicSchema()) {
+        //if (!schema.isPublicSchema()) {
             getInterfaceProvider().getMetadataInterface().setCurrentSchema(schema.getQuotedName(false), connection);
-        }
+        //}
         return connection;
     }
 
