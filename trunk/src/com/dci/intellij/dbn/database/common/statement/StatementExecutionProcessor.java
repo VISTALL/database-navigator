@@ -158,7 +158,6 @@ public class StatementExecutionProcessor {
         if (SettingsUtil.isDebugEnabled) LOGGER.info("[DBN-INFO] Executing statement: " + statementText);
 
         CallableStatement callableStatement = connection.prepareCall(statementText);
-        //callableStatement.setQueryTimeout(20);
         try {
             if (outputReader != null) outputReader.registerParameters(callableStatement);
             callableStatement.setQueryTimeout(timeout);
@@ -174,6 +173,71 @@ public class StatementExecutionProcessor {
             throw exception;
         } finally {
             ConnectionUtil.closeStatement(callableStatement);
+        }
+    }
+
+    public void executeUpdate(Connection connection, Object... arguments) throws SQLException {
+        SQLException exception = null;
+        for (StatementDefinition statementDefinition : statementDefinitions) {
+            try {
+                executeUpdate(statementDefinition, connection, arguments);
+                return;
+            } catch (SQLException e){
+                exception = e;
+            }
+        }
+        throw exception;
+    }
+
+    private void executeUpdate(StatementDefinition statementDefinition, Connection connection, Object... arguments) throws SQLException {
+        String statementText = statementDefinition.prepareStatementText(arguments);
+        if (SettingsUtil.isDebugEnabled) LOGGER.info("[DBN-INFO] Executing statement: " + statementText);
+
+        PreparedStatement preparedStatement = connection.prepareStatement(statementText);
+        try {
+            preparedStatement.setQueryTimeout(timeout);
+            preparedStatement.executeUpdate();
+        } catch (SQLException exception) {
+            if (SettingsUtil.isDebugEnabled)
+                LOGGER.info(
+                        "[DBN-ERROR] Error executing statement: " + statementText +
+                                "\nCause: " + exception.getMessage());
+
+            throw exception;
+        } finally {
+            ConnectionUtil.closeStatement(preparedStatement);
+        }
+    }
+
+    public boolean executeStatement(Connection connection, Object... arguments) throws SQLException {
+        SQLException exception = null;
+        for (StatementDefinition statementDefinition : statementDefinitions) {
+            try {
+                return executeStatement(statementDefinition, connection, arguments);
+            } catch (SQLException e){
+                exception = e;
+            }
+        }
+        throw exception;
+    }
+
+    private boolean executeStatement(StatementDefinition statementDefinition, Connection connection, Object... arguments) throws SQLException {
+        String statementText = statementDefinition.prepareStatementText(arguments);
+        if (SettingsUtil.isDebugEnabled) LOGGER.info("[DBN-INFO] Executing statement: " + statementText);
+
+        PreparedStatement preparedStatement = connection.prepareStatement(statementText);
+        try {
+            preparedStatement.setQueryTimeout(timeout);
+            return preparedStatement.execute();
+        } catch (SQLException exception) {
+            if (SettingsUtil.isDebugEnabled)
+                LOGGER.info(
+                        "[DBN-ERROR] Error executing statement: " + statementText +
+                                "\nCause: " + exception.getMessage());
+
+            throw exception;
+        } finally {
+            ConnectionUtil.closeStatement(preparedStatement);
         }
     }
 }

@@ -41,12 +41,12 @@ public class OracleDDLInterface extends DatabaseDDLInterfaceImpl {
      *                   CHANGE statements                   *
      *********************************************************/
     public void updateView(String viewName, String oldCode, String newCode, Connection connection) throws SQLException {
-        executeQuery(connection, true, "change-view", viewName, newCode);
+        executeStatement(connection, "change-view", viewName, newCode);
     }
 
     public void updateObject(String objectName, String objectType, String oldCode, String newCode, Connection connection) throws SQLException {
         // code contains object type and name
-        executeQuery(connection, true, "change-object", newCode);
+        executeStatement(connection, "change-object", newCode);
     }
 
     /*********************************************************
