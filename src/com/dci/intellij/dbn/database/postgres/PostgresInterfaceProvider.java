@@ -29,7 +29,7 @@ public class PostgresInterfaceProvider extends DatabaseInterfaceProviderImpl {
 
     @Override
     public DatabaseType getDatabaseType() {
-        return DatabaseType.MYSQL;
+        return DatabaseType.POSTGRES;
     }
 
     public DatabaseNativeDataTypes getNativeDataTypes() {
