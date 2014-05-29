@@ -44,11 +44,11 @@ public abstract class DatabaseDDLInterfaceImpl extends DatabaseInterfaceImpl imp
      *                   CREATE statements                   *
      *********************************************************/
     public void createView(String viewName, String code, Connection connection) throws SQLException {
-        executeCall(connection, null, "create-view", viewName, code);
+        executeUpdate(connection, "create-view", viewName, code);
     }
 
     public void createObject(String code, Connection connection) throws SQLException {
-        executeCall(connection, null, "create-object", code);
+        executeUpdate(connection, "create-object", code);
     }
 
 
@@ -56,7 +56,7 @@ public abstract class DatabaseDDLInterfaceImpl extends DatabaseInterfaceImpl imp
     *                   DROP statements                     *
     *********************************************************/
    public void dropObject(String objectType, String objectName, Connection connection) throws SQLException {
-       executeCall(connection, null, "drop-object", objectType, objectName);
+       executeUpdate(connection, "drop-object", objectType, objectName);
    }
 
 }

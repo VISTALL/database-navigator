@@ -68,6 +68,7 @@ public class MySqlDDLInterface extends DatabaseDDLInterfaceImpl {
      *                   CHANGE statements                   *
      *********************************************************/
     public void updateView(String viewName, String oldCode, String newCode, Connection connection) throws SQLException {
+        connection.setAutoCommit(false);
         String sqlMode = getSessionSqlMode(connection);
         try {
             setSessionSqlMode("TRADITIONAL", connection);
@@ -99,7 +100,7 @@ public class MySqlDDLInterface extends DatabaseDDLInterfaceImpl {
      *                     DROP statements                   *
      *********************************************************/
     private void dropObjectIfExists(String objectType, String objectName, Connection connection) throws SQLException {
-        executeCall(connection, null, "drop-object-if-exists", objectType, objectName);
+        executeUpdate(connection, "drop-object-if-exists", objectType, objectName);
     }
 
     /*********************************************************
