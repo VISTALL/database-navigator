@@ -60,7 +60,7 @@ public class MySqlDDLInterface extends DatabaseDDLInterfaceImpl {
 
     public void setSessionSqlMode(String sqlMode, Connection connection) throws SQLException {
         if (sqlMode != null) {
-            executeQuery(connection, true, "set-session-sql-mode", sqlMode);
+            executeCall(connection, null, "set-session-sql-mode", sqlMode);
         }
     }
 
@@ -99,7 +99,7 @@ public class MySqlDDLInterface extends DatabaseDDLInterfaceImpl {
      *                     DROP statements                   *
      *********************************************************/
     private void dropObjectIfExists(String objectType, String objectName, Connection connection) throws SQLException {
-        executeQuery(connection, true, "drop-object-if-exists", objectType, objectName);
+        executeCall(connection, null, "drop-object-if-exists", objectType, objectName);
     }
 
     /*********************************************************
