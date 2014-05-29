@@ -1,11 +1,11 @@
 package com.dci.intellij.dbn.driver;
 
 import com.dci.intellij.dbn.common.Constants;
+import com.dci.intellij.dbn.common.load.ProgressMonitor;
 import com.dci.intellij.dbn.common.util.ActionUtil;
 import com.dci.intellij.dbn.common.util.StringUtil;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ApplicationComponent;
-import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NonNls;
@@ -69,10 +69,7 @@ public class DatabaseDriverManager implements ApplicationComponent {
 
 
     public List<Driver> loadDrivers(String libraryName) {
-        ProgressIndicator progressIndicator = ProgressManager.getInstance().getProgressIndicator();
-        if (progressIndicator != null) {
-            progressIndicator.setText("Loading jdbc drivers from " + libraryName);
-        }
+        ProgressMonitor.setTaskDescription("Loading jdbc drivers from " + libraryName);
         List<Driver> drivers = driversCache.get(libraryName);
         if (drivers == null && new File(libraryName).isFile()) {
             try {

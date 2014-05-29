@@ -22,7 +22,7 @@ public class CompareWithDatabaseAction extends AbstractDiffAction {
     public void actionPerformed(final AnActionEvent e) {
         Project project = ActionUtil.getProject(e);
         if (project != null) {
-            new BackgroundTask(project, "Loading C", false, true) {
+            new BackgroundTask(project, "Loading database source code", false, true) {
                 @Override
                 protected void execute(@NotNull ProgressIndicator progressIndicator) throws InterruptedException {
                     SourceCodeFile virtualFile = getSourcecodeFile(e);

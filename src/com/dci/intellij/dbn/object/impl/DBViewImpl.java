@@ -2,6 +2,8 @@ package com.dci.intellij.dbn.object.impl;
 
 import com.dci.intellij.dbn.browser.DatabaseBrowserUtils;
 import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
+import com.dci.intellij.dbn.connection.ConnectionHandler;
+import com.dci.intellij.dbn.database.DatabaseDDLInterface;
 import com.dci.intellij.dbn.ddl.DDLFileManager;
 import com.dci.intellij.dbn.ddl.DDLFileType;
 import com.dci.intellij.dbn.ddl.DDLFileTypeId;
@@ -111,9 +113,14 @@ public class DBViewImpl extends DBDatasetImpl implements DBView {
     }
 
     public void executeUpdateDDL(DBContentType contentType, String oldCode, String newCode) throws SQLException {
-        Connection connection = getConnectionHandler().getStandaloneConnection(getSchema());
-        getConnectionHandler().getInterfaceProvider().getDDLInterface().
-                updateView(getName(), oldCode, newCode, connection);
+        ConnectionHandler connectionHandler = getConnectionHandler();
+        Connection connection = connectionHandler.getPoolConnection(getSchema());
+        try {
+            DatabaseDDLInterface ddlInterface = connectionHandler.getInterfaceProvider().getDDLInterface();
+            ddlInterface.updateView(getName(), oldCode, newCode, connection);
+        } finally {
+            connectionHandler.freePoolConnection(connection);
+        }
     }
 
     public String getCodeParseRootId(DBContentType contentType) {

@@ -26,15 +26,17 @@ public abstract class AbstractDiffAction extends AbstractSourceCodeEditorAction 
                     DBSourceFileContent changedContent = new DBSourceFileContent(project, virtualFile);
 
                     DBSchemaObject object = virtualFile.getObject();
-                    String title =
-                            object.getSchema().getName() + "." +
-                                    object.getName() + " " +
-                                    object.getTypeName() + " - " + windowTitle;
-                    SimpleDiffRequest diffRequest = new SimpleDiffRequest(project, title);
-                    diffRequest.setContents(originalContent, changedContent);
-                    diffRequest.setContentTitles(referenceTitle + " ", "Your version ");
+                    if (object != null) {
+                        String title =
+                                object.getSchema().getName() + "." +
+                                        object.getName() + " " +
+                                        object.getTypeName() + " - " + windowTitle;
+                        SimpleDiffRequest diffRequest = new SimpleDiffRequest(project, title);
+                        diffRequest.setContents(originalContent, changedContent);
+                        diffRequest.setContentTitles(referenceTitle + " ", "Your version ");
 
-                    DiffManager.getInstance().getIdeaDiffTool().show(diffRequest);
+                        DiffManager.getInstance().getIdeaDiffTool().show(diffRequest);
+                    }
                 }
             }.start();
         }

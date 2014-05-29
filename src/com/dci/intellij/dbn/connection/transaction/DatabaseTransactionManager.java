@@ -2,6 +2,7 @@ package com.dci.intellij.dbn.connection.transaction;
 
 import com.dci.intellij.dbn.common.AbstractProjectComponent;
 import com.dci.intellij.dbn.common.event.EventManager;
+import com.dci.intellij.dbn.common.load.ProgressMonitor;
 import com.dci.intellij.dbn.common.notification.NotificationUtil;
 import com.dci.intellij.dbn.common.option.InteractiveOptionHandler;
 import com.dci.intellij.dbn.common.thread.ModalTask;
@@ -12,7 +13,6 @@ import com.dci.intellij.dbn.connection.transaction.ui.UncommittedChangesDialog;
 import com.dci.intellij.dbn.connection.transaction.ui.UncommittedChangesOverviewDialog;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.project.ProjectManagerListener;
@@ -85,11 +85,8 @@ public class DatabaseTransactionManager extends AbstractProjectComponent impleme
                 try {
                     // notify pre-action
                     transactionListener.beforeAction(connectionHandler, action);
-                    ProgressIndicator indicator = ProgressManager.getInstance().getProgressIndicator();
-                    if (indicator != null){
-                        indicator.setIndeterminate(true);
-                        indicator.setText("Performing " + action.getName() + " on connection " + connectionName);
-                    }
+                    ProgressMonitor.setTaskDescription("Performing " + action.getName() + " on connection " + connectionName);
+
                     action.execute(connectionHandler);
                     if (action.getNotificationType() != null) {
                         NotificationUtil.sendNotification(

@@ -101,50 +101,53 @@ public class SourceCodeEditorManager extends AbstractProjectComponent implements
     public void updateSourceToDatabase(final Editor editor, final SourceCodeFile virtualFile) {
         DatabaseDebuggerManager debuggerManager = DatabaseDebuggerManager.getInstance(virtualFile.getProject());
         final DBSchemaObject object = virtualFile.getObject();
-        if (!debuggerManager.checkForbiddenOperation(virtualFile.getActiveConnection())) {
-            object.getStatus().set(DBObjectStatus.SAVING, false);
-            return;
+        if (object != null) {
+            if (!debuggerManager.checkForbiddenOperation(virtualFile.getActiveConnection())) {
+                object.getStatus().set(DBObjectStatus.SAVING, false);
+                return;
+            }
+
+            final Project project = virtualFile.getProject();
+            final DBContentType contentType = virtualFile.getContentType();
+            object.getStatus().set(DBObjectStatus.SAVING, true);
+
+            new BackgroundTask(project, "Checking for third party changes on " + object.getQualifiedNameWithType(), true) {
+                public void execute(@NotNull ProgressIndicator progressIndicator) {
+                    try {
+                        String content = editor.getDocument().getText();
+                        if (isValidObjectTypeAndName(content, object, contentType)) {
+                            Timestamp lastUpdated = object.loadChangeTimestamp(contentType);
+                            if (lastUpdated != null && lastUpdated.after(virtualFile.getChangeTimestamp())) {
+
+                                virtualFile.setContent(content);
+                                String message =
+                                        "The " + object.getQualifiedNameWithType() +
+                                                " has been changed by another user. \nYou will be prompted to merge the changes";
+                                MessageUtil.showErrorDialog(message, "Version conflict");
+
+                                String databaseContent = object.loadCodeFromDatabase(contentType);
+                                showSourceDiffDialog(databaseContent, virtualFile, editor);
+                            } else {
+                                doUpdateSourceToDatabase(object, virtualFile, editor);
+                                //sourceCodeEditor.afterSave();
+                            }
+
+                        } else {
+                            String message = "You are not allowed to change the name or the type of the object";
+                            object.getStatus().set(DBObjectStatus.SAVING, false);
+                            MessageUtil.showErrorDialog(message, "Illegal action");
+                        }
+                    } catch (SQLException ex) {
+                        if (!DatabaseCompatibilityInterface.getInstance(object).supportsFeature(DatabaseFeature.OBJECT_REPLACING)) {
+                            virtualFile.updateChangeTimestamp();
+                        }
+                        MessageUtil.showErrorDialog("Could not save changes to database.", ex);
+                        object.getStatus().set(DBObjectStatus.SAVING, false);
+                    }
+                }
+            }.start();
         }
 
-        final Project project = virtualFile.getProject();
-        final DBContentType contentType = virtualFile.getContentType();
-        object.getStatus().set(DBObjectStatus.SAVING, true);
-
-        new BackgroundTask(project, "Checking for third party changes on " + object.getQualifiedNameWithType(), true) {
-            public void execute(@NotNull ProgressIndicator progressIndicator) {
-                try {
-                    String content = editor.getDocument().getText();
-                    if (isValidObjectTypeAndName(content, object, contentType)) {
-                        Timestamp lastUpdated = object.loadChangeTimestamp(contentType);
-                        if (lastUpdated != null && lastUpdated.after(virtualFile.getChangeTimestamp())) {
-
-                            virtualFile.setContent(content);
-                            String message =
-                                    "The " + object.getQualifiedNameWithType() +
-                                    " has been changed by another user. \nYou will be prompted to merge the changes";
-                            MessageUtil.showErrorDialog(message, "Version conflict");
-
-                            String databaseContent = object.loadCodeFromDatabase(contentType);
-                            showSourceDiffDialog(databaseContent, virtualFile, editor);
-                        } else {
-                            doUpdateSourceToDatabase(object, virtualFile, editor);
-                            //sourceCodeEditor.afterSave();
-                        }
-
-                    } else {
-                        String message = "You are not allowed to change the name or the type of the object";
-                        object.getStatus().set(DBObjectStatus.SAVING, false);
-                        MessageUtil.showErrorDialog(message, "Illegal action");
-                    }
-                } catch (SQLException ex) {
-                    if (!DatabaseCompatibilityInterface.getInstance(object).supportsFeature(DatabaseFeature.OBJECT_REPLACING)) {
-                        virtualFile.updateChangeTimestamp();
-                    }
-                    MessageUtil.showErrorDialog("Could not save changes to database.", ex);
-                    object.getStatus().set(DBObjectStatus.SAVING, false);
-                }
-            }
-        }.start();
     }
 
     private boolean isValidObjectTypeAndName(String text, DBSchemaObject object, DBContentType contentType) {
