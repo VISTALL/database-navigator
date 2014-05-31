@@ -87,12 +87,15 @@ public abstract class DatabaseContentFile extends VirtualFile implements FileCon
     }
 
     public DBLanguageDialect getLanguageDialect() {
+        DBSchemaObject object = getObject();
         DBLanguage language =
-                getObject() instanceof DBView ?
+                object instanceof DBView ?
                         SQLLanguage.INSTANCE :
                         PSQLLanguage.INSTANCE;
         
-        return getObject().getLanguageDialect(language);
+        return object == null ?
+                language.getMainLanguageDialect() :
+                object.getLanguageDialect(language);
     }
 
     /*********************************************************
@@ -114,6 +117,7 @@ public abstract class DatabaseContentFile extends VirtualFile implements FileCon
         return DatabaseFileSystem.getInstance();
     }
 
+    @NotNull
     public String getPath() {
         return path;
     }
@@ -124,7 +128,8 @@ public abstract class DatabaseContentFile extends VirtualFile implements FileCon
     }
 
     public Project getProject() {
-        return getObject().getProject();
+        DBSchemaObject object = getObject();
+        return object == null ? null : object.getProject();
     }
 
     public boolean isWritable() {

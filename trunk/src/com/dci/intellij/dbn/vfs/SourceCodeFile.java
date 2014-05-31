@@ -17,6 +17,7 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.fileEditor.impl.FileDocumentManagerImpl;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
@@ -154,7 +155,10 @@ public class SourceCodeFile extends DatabaseContentFile implements DatabaseFile,
             }
             return false;
         } finally {
-            EventManager.notify(getProject(), SourceCodeLoadListener.TOPIC).sourceCodeLoaded(databaseFile);
+            Project project = getProject();
+            if (project != null && !project.isDisposed()) {
+                EventManager.notify(project, SourceCodeLoadListener.TOPIC).sourceCodeLoaded(databaseFile);
+            }
         }
     }
 
