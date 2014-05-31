@@ -157,7 +157,8 @@ public abstract class DatabaseContentFile extends VirtualFile implements FileCon
     }
 
     public Icon getIcon() {
-        return getObject().getOriginalIcon();
+        DBSchemaObject object = getObject();
+        return object == null ? null : object.getOriginalIcon();
     }
 
     public VirtualFile[] getChildren() {
