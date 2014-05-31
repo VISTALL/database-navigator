@@ -455,7 +455,7 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
 
     public ConnectionHandler getConnectionHandler() {
         DBDataset dataset = getDataset();
-        return dataset == null ? null : dataset.getConnectionHandler();
+        return dataset == null ? this.dataset.lookupConnectionHandler() : dataset.getConnectionHandler();
     }
 
     /**

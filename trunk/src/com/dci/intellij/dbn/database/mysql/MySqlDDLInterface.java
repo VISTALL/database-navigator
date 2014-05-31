@@ -68,7 +68,6 @@ public class MySqlDDLInterface extends DatabaseDDLInterfaceImpl {
      *                   CHANGE statements                   *
      *********************************************************/
     public void updateView(String viewName, String oldCode, String newCode, Connection connection) throws SQLException {
-        connection.setAutoCommit(false);
         String sqlMode = getSessionSqlMode(connection);
         try {
             setSessionSqlMode("TRADITIONAL", connection);
