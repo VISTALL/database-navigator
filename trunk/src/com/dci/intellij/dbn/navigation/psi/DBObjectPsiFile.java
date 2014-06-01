@@ -17,6 +17,7 @@ import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.vcs.FileStatus;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.newvfs.impl.NullVirtualFile;
 import com.intellij.psi.FileViewProvider;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
@@ -44,6 +45,7 @@ public class DBObjectPsiFile implements PsiFile, Disposable {
         this.objectRef = object.getRef();
     }
 
+    @Nullable
     public DBObject getObject() {
         return objectRef.get();
     }
@@ -58,7 +60,7 @@ public class DBObjectPsiFile implements PsiFile, Disposable {
      *********************************************************/
     @NotNull
     public String getName() {
-        return getObject().getName();
+        return objectRef.getName();
     }
 
     public ItemPresentation getPresentation() {
@@ -312,7 +314,8 @@ public class DBObjectPsiFile implements PsiFile, Disposable {
      *********************************************************/
     @NotNull
     public VirtualFile getVirtualFile() {
-        return getObject().getVirtualFile();
+        DBObject object = getObject();
+        return object == null ? NullVirtualFile.INSTANCE : object.getVirtualFile();
     }
 
     public boolean processChildren(PsiElementProcessor<PsiFileSystemItem> processor) {
