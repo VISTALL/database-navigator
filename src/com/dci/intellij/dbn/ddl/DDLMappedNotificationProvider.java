@@ -66,14 +66,17 @@ public class DDLMappedNotificationProvider extends EditorNotifications.Provider<
             if (!project.isDisposed() && file instanceof DatabaseEditableObjectFile) {
                 DatabaseEditableObjectFile editableObjectFile = (DatabaseEditableObjectFile) file;
                 DBSchemaObject schemaObject = editableObjectFile.getObject();
-                DDLFileAttachmentManager attachmentManager = DDLFileAttachmentManager.getInstance(project);
-                List<VirtualFile> boundDDLFiles = attachmentManager.getBoundDDLFiles(schemaObject);
-                if (boundDDLFiles != null) {
-                    EditorNotifications notifications = EditorNotifications.getInstance(project);
-                    for (VirtualFile virtualFile : boundDDLFiles) {
-                        notifications.updateNotifications(virtualFile);
+                if (schemaObject != null) {
+                    DDLFileAttachmentManager attachmentManager = DDLFileAttachmentManager.getInstance(project);
+                    List<VirtualFile> boundDDLFiles = attachmentManager.getBoundDDLFiles(schemaObject);
+                    if (boundDDLFiles != null) {
+                        EditorNotifications notifications = EditorNotifications.getInstance(project);
+                        for (VirtualFile virtualFile : boundDDLFiles) {
+                            notifications.updateNotifications(virtualFile);
+                        }
                     }
                 }
+
             }
         }
     };
