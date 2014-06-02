@@ -34,12 +34,13 @@ PLSQL_BLOCK_END = ";"{wso}"/"[^*]
 
 WHITE_SPACE= {white_space_char}|{line_terminator}
 line_terminator = \r|\n|\r\n
+input_character = [^\r\n]
 white_space_char= [\ \n\r\t\f]
 ws  = {WHITE_SPACE}+
 wso = {WHITE_SPACE}*
 
 BLOCK_COMMENT = "/*"([^*/] | "*"[^/]? | [^*]"/" | {ws})*"*/"
-LINE_COMMENT ={wso} "--" .*
+LINE_COMMENT = "--" {input_character}*
 REM_LINE_COMMENT = {wso} "rem" [^a-zA-Z] .*
 
 
@@ -58,7 +59,7 @@ NUMBER = {INTEGER}?"."{digit}+(("e"{sign}?{digit}+)|(("f"|"d"){ws}))?
 VARIABLE = ":"{wso}({IDENTIFIER}|{INTEGER})
 
 operator_equals             = "="
-operator_not_equals         = (("!"|"^"|"¬"){wso}"=")|("<"{wso}">")
+operator_not_equals         = (("!"|"^"|"ï¿½"){wso}"=")|("<"{wso}">")
 operator_greater_than       = ">"
 operator_greater_equal_than = ">"{wso}"="
 operator_less_than          = "<"

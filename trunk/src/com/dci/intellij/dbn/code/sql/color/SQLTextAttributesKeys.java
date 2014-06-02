@@ -17,7 +17,7 @@ public interface SQLTextAttributesKeys {
     TextAttributesKey IDENTIFIER         = TextAttributesKey.createTextAttributesKey("DBNavigator.TextAttributes.SQL.Identifier",        DefaultLanguageHighlighterColors.IDENTIFIER);
     TextAttributesKey QUOTED_IDENTIFIER  = TextAttributesKey.createTextAttributesKey("DBNavigator.TextAttributes.SQL.QuotedIdentifier",  DefaultLanguageHighlighterColors.IDENTIFIER);
     TextAttributesKey KEYWORD            = TextAttributesKey.createTextAttributesKey("DBNavigator.TextAttributes.SQL.Keyword",           DefaultLanguageHighlighterColors.KEYWORD);
-    TextAttributesKey FUNCTION           = TextAttributesKey.createTextAttributesKey("DBNavigator.TextAttributes.SQL.Function",          DefaultLanguageHighlighterColors.FUNCTION_CALL);
+    TextAttributesKey FUNCTION           = TextAttributesKey.createTextAttributesKey("DBNavigator.TextAttributes.SQL.Function",          DefaultLanguageHighlighterColors.PREDEFINED_SYMBOL);
     TextAttributesKey PARAMETER          = TextAttributesKey.createTextAttributesKey("DBNavigator.TextAttributes.SQL.Parameter",         TemplateColors.TEMPLATE_VARIABLE_ATTRIBUTES);
     TextAttributesKey OPERATOR           = TextAttributesKey.createTextAttributesKey("DBNavigator.TextAttributes.SQL.Operator",          DefaultLanguageHighlighterColors.OPERATION_SIGN);
     TextAttributesKey PARENTHESIS        = TextAttributesKey.createTextAttributesKey("DBNavigator.TextAttributes.SQL.Parenthesis",       DefaultLanguageHighlighterColors.PARENTHESES);

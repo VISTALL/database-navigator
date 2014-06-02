@@ -93,37 +93,28 @@ public abstract class LeafPsiElement extends BasePsiElement implements PsiRefere
 
                 if (filter == null || filter.acceptsCurrentSchemaObject(objectType)) {
                     DBSchema currentSchema = sourceScope.getCurrentSchema();
-                    if (currentSchema != null) {
-                        parentObjects = new THashSet<DBObject>();
-                        parentObjects.add(currentSchema);
-                    }
+                    parentObjects = addObjectToSet(parentObjects, currentSchema);
                 }
 
                 if (filter == null || filter.acceptsPublicSchemaObject(objectType)) {
                     DBSchema publicSchema = objectBundle.getPublicSchema();
-                    if (publicSchema != null) {
-                        if (parentObjects == null) parentObjects = new THashSet<DBObject>();
-                        parentObjects.add(publicSchema);
-                    }
+                    parentObjects = addObjectToSet(parentObjects, publicSchema);
                 }
-            } else {
-                Set<BasePsiElement> parentObjectPsiElements = null;
-                for (DBObjectType parentObjectType : parentTypes) {
-                    PsiLookupAdapter lookupAdapter = new ObjectDefinitionLookupAdapter(lookupIssuer, parentObjectType, null);
-                    parentObjectPsiElements = parentObjectType.isSchemaObject() ?
-                            lookupAdapter.collectInScope(sourceScope, parentObjectPsiElements) :
-                            lookupAdapter.collectInParentScopeOf(sourceScope, parentObjectPsiElements);
-                }
+            }
 
-                if (parentObjectPsiElements != null) {
-                    for (BasePsiElement parentObjectPsiElement : parentObjectPsiElements) {
-                        if (!parentObjectPsiElement.containsPsiElement(sourceScope)) {
-                            DBObject parentObject = parentObjectPsiElement.resolveUnderlyingObject();
-                            if (parentObject != null) {
-                                if (parentObjects == null) parentObjects = new THashSet<DBObject>();
-                                parentObjects.add(parentObject);
-                            }
-                        }
+            Set<BasePsiElement> parentObjectPsiElements = null;
+            for (DBObjectType parentObjectType : parentTypes) {
+                PsiLookupAdapter lookupAdapter = new ObjectDefinitionLookupAdapter(lookupIssuer, parentObjectType, null);
+                parentObjectPsiElements = !objectType.isSchemaObject() && parentObjectType.isSchemaObject() ?
+                        lookupAdapter.collectInScope(sourceScope, parentObjectPsiElements) :
+                        lookupAdapter.collectInParentScopeOf(sourceScope, parentObjectPsiElements);
+            }
+
+            if (parentObjectPsiElements != null) {
+                for (BasePsiElement parentObjectPsiElement : parentObjectPsiElements) {
+                    if (!parentObjectPsiElement.containsPsiElement(sourceScope)) {
+                        DBObject parentObject = parentObjectPsiElement.resolveUnderlyingObject();
+                        parentObjects = addObjectToSet(parentObjects, parentObject);
                     }
                 }
             }
@@ -131,12 +122,18 @@ public abstract class LeafPsiElement extends BasePsiElement implements PsiRefere
 
         DBObject fileObject = sourceScope.getFile().getUnderlyingObject();
         if (fileObject != null && fileObject.getObjectType().isParentOf(objectType)) {
-            if (parentObjects == null) parentObjects = new THashSet<DBObject>();
-            parentObjects.add(fileObject);
-            return parentObjects;
+            parentObjects = addObjectToSet(parentObjects, fileObject);
         }
 
         return parentObjects;
+    }
+
+    private static Set<DBObject> addObjectToSet(Set<DBObject> objects, DBObject object) {
+        if (object != null) {
+            if (objects == null) objects = new THashSet<DBObject>();
+            objects.add(object);
+        }
+        return objects;
     }
 
     @Override

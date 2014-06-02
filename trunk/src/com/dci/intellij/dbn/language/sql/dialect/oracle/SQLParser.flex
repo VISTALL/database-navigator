@@ -35,12 +35,13 @@ PLSQL_BLOCK = {PLSQL_BLOCK_START}([^/;] | ";"{wso}[^/] | [^;]{wso}"/" | {ws})*{P
 
 WHITE_SPACE= {white_space_char}|{line_terminator}
 line_terminator = \r|\n|\r\n
+input_character = [^\r\n]
 white_space_char= [\ \n\r\t\f]
 ws  = {WHITE_SPACE}+
 wso = {WHITE_SPACE}*
 
 BLOCK_COMMENT = "/*"([^*/] | "*"[^/]? | [^*]"/" | {ws})*"*/"
-LINE_COMMENT ={wso} "--" .*
+LINE_COMMENT = "--" {input_character}*
 REM_LINE_COMMENT = {wso} "rem" [^a-zA-Z] .*
 
 
