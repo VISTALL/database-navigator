@@ -51,7 +51,6 @@ public abstract class DDLFileEditorProvider extends BasicTextEditorProvider impl
     public void disposeEditor(@NotNull FileEditor editor) {
         DDLFileEditor sourceEditor = (DDLFileEditor) editor;
         Document document = sourceEditor.getEditor().getDocument();
-        document.setReadOnly(false);
         //DocumentUtil.removeGuardedBlock(document);
         sourceEditor.dispose();
     }

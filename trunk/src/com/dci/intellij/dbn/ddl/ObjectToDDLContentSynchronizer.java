@@ -57,9 +57,7 @@ public class ObjectToDDLContentSynchronizer implements Runnable {
                     buffer.append("\n");
                 }
                 Document document = DocumentUtil.getDocument(ddlFile);
-                document.setReadOnly(false);
                 document.setText(buffer.toString());
-                document.setReadOnly(true);
             }
         }
     }
