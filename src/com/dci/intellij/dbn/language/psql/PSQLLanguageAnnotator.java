@@ -145,7 +145,7 @@ public class PSQLLanguageAnnotator implements Annotator {
                                 NavigationGutterRenderer gutterIconRenderer = new NavigationGutterRenderer(navigationAction, GutterIconRenderer.Alignment.RIGHT);
                                 annotation.setGutterIconRenderer(gutterIconRenderer);
                             }
-                            NavigateToObjectAction navigateToObjectAction = new NavigateToObjectAction(null, objectType);
+                            NavigateToObjectAction navigateToObjectAction = new NavigateToObjectAction(identifierPsiElement.resolveUnderlyingObject(), objectType);
                             Annotation annotation = holder.createInfoAnnotation(basePsiElement, null);
                             annotation.setGutterIconRenderer(new NavigationGutterRenderer(navigateToObjectAction, GutterIconRenderer.Alignment.LEFT));
 

@@ -7,11 +7,13 @@ import com.dci.intellij.dbn.common.util.VirtualFileUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.mapping.FileConnectionMappingManager;
 import com.dci.intellij.dbn.connection.mapping.FileConnectionMappingProvider;
+import com.dci.intellij.dbn.ddl.DDLFileAttachmentManager;
 import com.dci.intellij.dbn.language.common.element.ElementTypeBundle;
 import com.dci.intellij.dbn.language.common.psi.NamedPsiElement;
 import com.dci.intellij.dbn.navigation.psi.NavigationPsiCache;
 import com.dci.intellij.dbn.object.DBSchema;
 import com.dci.intellij.dbn.object.common.DBObject;
+import com.dci.intellij.dbn.object.common.DBSchemaObject;
 import com.dci.intellij.dbn.object.lookup.DBObjectRef;
 import com.dci.intellij.dbn.vfs.DatabaseContentFile;
 import com.dci.intellij.dbn.vfs.DatabaseFile;
@@ -89,6 +91,13 @@ public abstract class DBLanguageFile extends PsiFileImpl implements FileConnecti
             SourceCodeFile sourceCodeFile = (SourceCodeFile) virtualFile;
             return sourceCodeFile.getObject();
         }
+
+        DDLFileAttachmentManager instance = DDLFileAttachmentManager.getInstance(getProject());
+        DBSchemaObject editableObject = instance.getEditableObject(virtualFile);
+        if (editableObject != null) {
+            return editableObject;
+        }
+
 
         return underlyingObject == null ? null : underlyingObject.get();
     }
