@@ -467,7 +467,7 @@ public class IdentifierPsiElement extends LeafPsiElement implements PsiNamedElem
 
     @Nullable
     public synchronized PsiElement resolve() {
-        if (/*isDefinition() &&*/ (isAlias() || isVariable())) {
+        if (isDefinition() && (isAlias() || isVariable())) {
             // alias definitions do not have references.
             // underlying object is determined on runtime
             return null;
