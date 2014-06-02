@@ -15,7 +15,6 @@ import com.dci.intellij.dbn.language.common.element.parser.ElementTypeParser;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeAttributesBundle;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeDefinitionException;
-import com.dci.intellij.dbn.language.common.element.util.ElementTypeLogger;
 import com.dci.intellij.dbn.object.common.DBObjectType;
 import com.intellij.psi.tree.IElementType;
 import org.jdom.Element;
@@ -40,7 +39,6 @@ public abstract class AbstractElementType extends IElementType implements Elemen
     private DBObjectType virtualObjectType;
     private boolean isVirtualObjectInsideLookup;
     private ElementTypeAttributesBundle attributes = ElementTypeAttributesBundle.EMPTY;
-    private ElementTypeLogger logger = new ElementTypeLogger(this);
 
     public AbstractElementType(ElementTypeBundle bundle, ElementType parent, String id, @Nullable String description) {
         super(id, bundle.getLanguageDialect(), false);
@@ -121,10 +119,6 @@ public abstract class AbstractElementType extends IElementType implements Elemen
 
     public @NotNull ElementTypeParser getParser() {
         return parser;
-    }
-
-    public ElementTypeLogger getLogger() {
-        return logger;
     }
 
     public boolean is(ElementTypeAttribute attribute) {
