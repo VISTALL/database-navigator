@@ -106,7 +106,6 @@ public abstract class LeafPsiElement extends BasePsiElement implements PsiRefere
                         parentObjects.add(publicSchema);
                     }
                 }
-                return parentObjects;
             } else {
                 Set<BasePsiElement> parentObjectPsiElements = null;
                 for (DBObjectType parentObjectType : parentTypes) {
@@ -127,15 +126,16 @@ public abstract class LeafPsiElement extends BasePsiElement implements PsiRefere
                         }
                     }
                 }
-
-                DBObject fileObject = sourceScope.getFile().getUnderlyingObject();
-                if (fileObject != null && fileObject.getObjectType().isParentOf(objectType)) {
-                    if (parentObjects == null) parentObjects = new THashSet<DBObject>();
-                    parentObjects.add(fileObject);
-                    return parentObjects;
-                }
             }
         }
+
+        DBObject fileObject = sourceScope.getFile().getUnderlyingObject();
+        if (fileObject != null && fileObject.getObjectType().isParentOf(objectType)) {
+            if (parentObjects == null) parentObjects = new THashSet<DBObject>();
+            parentObjects.add(fileObject);
+            return parentObjects;
+        }
+
         return parentObjects;
     }
 
