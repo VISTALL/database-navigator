@@ -1,6 +1,7 @@
 package com.dci.intellij.dbn.editor.code;
 
 import com.dci.intellij.dbn.common.event.EventManager;
+import com.dci.intellij.dbn.common.thread.ConditionalLaterInvocator;
 import com.dci.intellij.dbn.common.util.StringUtil;
 import com.dci.intellij.dbn.editor.code.ui.SourceCodeLoadErrorNotificationPanel;
 import com.dci.intellij.dbn.object.common.DBSchemaObject;
@@ -28,11 +29,16 @@ public class SourceCodeLoadErrorNotificationProvider extends EditorNotifications
 
     SourceCodeLoadListener sourceCodeLoadListener = new SourceCodeLoadListener() {
         @Override
-        public void sourceCodeLoaded(VirtualFile virtualFile) {
-            if (!project.isDisposed()) {
-                EditorNotifications notifications = EditorNotifications.getInstance(project);
-                notifications.updateNotifications(virtualFile);
-            }
+        public void sourceCodeLoaded(final VirtualFile virtualFile) {
+            new ConditionalLaterInvocator() {
+                @Override
+                public void run() {
+                    if (!project.isDisposed()) {
+                        EditorNotifications notifications = EditorNotifications.getInstance(project);
+                        notifications.updateNotifications(virtualFile);
+                    }
+                }
+            }.start();
         }
     };
 
