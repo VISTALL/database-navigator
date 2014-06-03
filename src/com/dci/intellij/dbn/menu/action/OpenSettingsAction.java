@@ -12,7 +12,7 @@ public class OpenSettingsAction extends DumbAwareAction {
 
     public void actionPerformed(AnActionEvent e) {
         Project project = ActionUtil.getProject(e);
-        if (project != null) {
+        if (project != null && !project.isDisposed()) {
             GlobalProjectSettingsDialog globalSettingsDialog = new GlobalProjectSettingsDialog(project);
             globalSettingsDialog.show();
         }
