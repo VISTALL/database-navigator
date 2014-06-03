@@ -1,9 +1,11 @@
 package com.dci.intellij.dbn.data.type;
 
+import com.dci.intellij.dbn.common.LoggerFactory;
 import com.dci.intellij.dbn.common.content.DynamicContent;
 import com.dci.intellij.dbn.common.content.DynamicContentElement;
 import com.dci.intellij.dbn.data.value.BlobValue;
 import com.dci.intellij.dbn.data.value.ClobValue;
+import com.intellij.openapi.diagnostic.Logger;
 import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
@@ -14,7 +16,9 @@ import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
 
-public class DBNativeDataType implements DynamicContentElement {
+public class DBNativeDataType implements DynamicContentElement{
+    private static final Logger LOGGER = LoggerFactory.createLogger();
+
     private DataTypeDefinition dataTypeDefinition;
 
     public DBNativeDataType(DataTypeDefinition dataTypeDefinition) {
@@ -58,19 +62,24 @@ public class DBNativeDataType implements DynamicContentElement {
             // FIXME make this database dependent (e.g. in CompatibilityInterface).
             return null;
         }
-        return
-                clazz == String.class ? resultSet.getString(columnIndex) :
-                clazz == Byte.class ? resultSet.getByte(columnIndex) :
-                clazz == Short.class ? resultSet.getShort(columnIndex) :
-                clazz == Integer.class ? resultSet.getInt(columnIndex) :
-                clazz == Long.class ? resultSet.getLong(columnIndex) :
-                clazz == Float.class ? resultSet.getFloat(columnIndex) :
-                clazz == Double.class ? resultSet.getDouble(columnIndex) :
-                clazz == BigDecimal.class ? resultSet.getBigDecimal(columnIndex) :
-                clazz == Date.class ? resultSet.getDate(columnIndex) :
-                clazz == Time.class ? resultSet.getTime(columnIndex) :
-                clazz == Timestamp.class ? resultSet.getTimestamp(columnIndex) :
-                        resultSet.getObject(columnIndex);
+        try {
+            return
+                    clazz == String.class ? resultSet.getString(columnIndex) :
+                    clazz == Byte.class ? resultSet.getByte(columnIndex) :
+                    clazz == Short.class ? resultSet.getShort(columnIndex) :
+                    clazz == Integer.class ? resultSet.getInt(columnIndex) :
+                    clazz == Long.class ? resultSet.getLong(columnIndex) :
+                    clazz == Float.class ? resultSet.getFloat(columnIndex) :
+                    clazz == Double.class ? resultSet.getDouble(columnIndex) :
+                    clazz == BigDecimal.class ? resultSet.getBigDecimal(columnIndex) :
+                    clazz == Date.class ? resultSet.getDate(columnIndex) :
+                    clazz == Time.class ? resultSet.getTime(columnIndex) :
+                    clazz == Timestamp.class ? resultSet.getTimestamp(columnIndex) :
+                            resultSet.getObject(columnIndex);
+        } catch (SQLException e) {
+            LOGGER.error("Error resolving result set value", e);
+            return resultSet.getObject(columnIndex);
+        }
     }
 
     public void setValueToResultSet(ResultSet resultSet, int columnIndex, Object value) throws SQLException {

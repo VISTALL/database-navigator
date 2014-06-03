@@ -59,6 +59,7 @@ public class PostgresNativeDataTypes extends DatabaseNativeDataTypes {
         createDateTimeDefinition("INTERVAL", Time.class, Types.TIME);
 
         createBasicDefinition("BOOLEAN", Boolean.class, Types.BOOLEAN, GenericDataType.BOOLEAN);
+        createBasicDefinition("BOOL", Boolean.class, Types.BOOLEAN, GenericDataType.BOOLEAN);
         createBasicDefinition("POINT", Object.class, Types.OTHER, GenericDataType.OBJECT);
         createBasicDefinition("LINE", Object.class, Types.OTHER, GenericDataType.OBJECT);
         createBasicDefinition("LSEG", Object.class, Types.OTHER, GenericDataType.OBJECT);
@@ -68,6 +69,8 @@ public class PostgresNativeDataTypes extends DatabaseNativeDataTypes {
         createBasicDefinition("CIRCLE", Object.class, Types.OTHER, GenericDataType.OBJECT);
         createBasicDefinition("JSON", Object.class, Types.OTHER, GenericDataType.OBJECT);
         createBasicDefinition("ARRAY", Array.class, Types.ARRAY, GenericDataType.ARRAY);
+
+        createBasicDefinition("INT2VECTOR", Array.class, Types.ARRAY, GenericDataType.ARRAY);
 
         createLiteralDefinition("CIDR", String.class, Types.VARCHAR);
         createLiteralDefinition("INET", String.class, Types.VARCHAR);
