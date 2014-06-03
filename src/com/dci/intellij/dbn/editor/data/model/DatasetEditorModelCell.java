@@ -60,8 +60,9 @@ public class DatasetEditorModelCell extends ResultSetDataModelCell implements Ch
                     lazyLoadedValue.updateValue(resultSet, columnIndex, (String) userValue);
                 } else {
                     dataType.setValueToResultSet(resultSet, columnIndex, userValue);
-                    if (!row.isInsert()) resultSet.updateRow();
                 }
+
+                if (!row.isInsert()) resultSet.updateRow();
             } catch (Exception e) {
                 DatasetEditorError error = new DatasetEditorError(getConnectionHandler(), e);
 
