@@ -2,6 +2,7 @@ package com.dci.intellij.dbn.editor.code;
 
 import com.dci.intellij.dbn.common.editor.BasicTextEditorImpl;
 import com.dci.intellij.dbn.common.thread.ConditionalLaterInvocator;
+import com.dci.intellij.dbn.common.util.DocumentUtil;
 import com.dci.intellij.dbn.language.common.psi.BasePsiElement;
 import com.dci.intellij.dbn.language.common.psi.PsiUtil;
 import com.dci.intellij.dbn.language.psql.PSQLFile;
@@ -26,11 +27,11 @@ public class SourceCodeEditor extends BasicTextEditorImpl<SourceCodeFile> implem
         Document document = this.textEditor.getEditor().getDocument();
         if (document.getTextLength() > 0) {
             headerEndOffset = sourceCodeFile.getEditorHeaderEndOffset();
-            /*int guardedBlockEndOffset = sourceCodeFile.getGuardedBlockEndOffset();
+            int guardedBlockEndOffset = sourceCodeFile.getGuardedBlockEndOffset();
             if (guardedBlockEndOffset > 0) {
-                DocumentUtil.createGuardedBlock(document, 0, guardedBlockEndOffset,
-                        "You are not allowed to change the name of the " + object.getTypeName());
-            }*/
+                DocumentUtil.createGuardedBlock(document, 0, guardedBlockEndOffset, null
+                        /*"You are not allowed to change the name of the " + object.getTypeName()*/);
+            }
         }
         DatabaseObjectFactory.getInstance(project).addFactoryListener(this);
     }

@@ -4,6 +4,7 @@ import com.dci.intellij.dbn.common.DevNullStreams;
 import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.common.util.DocumentUtil;
 import com.dci.intellij.dbn.common.util.MessageUtil;
+import com.dci.intellij.dbn.common.util.StringUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.database.DatabaseDDLInterface;
 import com.dci.intellij.dbn.editor.DBContentType;
@@ -250,5 +251,17 @@ public class SourceCodeFile extends DatabaseContentFile implements DatabaseFile,
         lastSavedContent = null;
         content = null;
         super.dispose();
+    }
+
+    public int getGuardedBlockEndOffset() {
+        DBSchemaObject object = getObject();
+        if (object != null) {
+            String displayName = object.getDisplayName();
+            int index = StringUtil.indexOfIgnoreCase(content, displayName, 0);
+            if (index > -1) {
+                return index + displayName.length();
+            }
+        }
+        return 0;
     }
 }
