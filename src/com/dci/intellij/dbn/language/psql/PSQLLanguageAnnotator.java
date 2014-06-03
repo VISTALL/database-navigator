@@ -126,7 +126,7 @@ public class PSQLLanguageAnnotator implements Annotator {
                     DBSchemaObject object = (DBSchemaObject) file.getUnderlyingObject();
                     VirtualFile virtualFile = file.getVirtualFile();
 
-                    if (virtualFile.isInLocalFileSystem()) {
+                    if (object == null || virtualFile.isInLocalFileSystem()) {
                         ElementTypeAttribute targetAttribute =
                                 elementType.is(ElementTypeAttribute.OBJECT_DECLARATION) ? ElementTypeAttribute.OBJECT_SPECIFICATION :
                                 elementType.is(ElementTypeAttribute.OBJECT_SPECIFICATION) ? ElementTypeAttribute.OBJECT_DECLARATION : null;
