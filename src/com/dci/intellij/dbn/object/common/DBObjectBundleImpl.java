@@ -67,6 +67,8 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
@@ -165,12 +167,23 @@ public class DBObjectBundleImpl implements DBObjectBundle {
                 DBNativeDataType dataType = new DBNativeDataType(dataTypeDefinition);
                 nativeDataTypes.add(dataType);
             }
+            Collections.sort(nativeDataTypes, new Comparator<DBNativeDataType>() {
+                @Override
+                public int compare(DBNativeDataType o1, DBNativeDataType o2) {
+                    return -o1.compareTo(o2);
+                }
+            });
         }
         return nativeDataTypes;
     }
 
     public DBNativeDataType getNativeDataType(String name) {
         String upperCaseName = name.toUpperCase();
+        for (DBNativeDataType dataType : getNativeDataTypes()) {
+            if (upperCaseName.equals(dataType.getName())) {
+                return dataType;
+            }
+        }
         for (DBNativeDataType dataType : getNativeDataTypes()) {
             if (upperCaseName.startsWith(dataType.getName())) {
                 return dataType;

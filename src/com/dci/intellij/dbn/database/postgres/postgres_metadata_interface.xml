@@ -318,7 +318,8 @@
         <statement>
             select
                 EVENT_OBJECT_TABLE as DATASET_NAME,
-                TRIGGER_NAME,
+                TRIGGER_NAME||'_'||EVENT_MANIPULATION as TRIGGER_NAME,
+                TRIGGER_NAME as DISPLAY_NAME,
                 ACTION_TIMING as TRIGGER_TYPE,
                 EVENT_MANIPULATION as TRIGGERING_EVENT,
                 'Y' as IS_ENABLED,
@@ -337,7 +338,8 @@
         <statement>
             select
                 EVENT_OBJECT_TABLE as DATASET_NAME,
-                TRIGGER_NAME,
+                TRIGGER_NAME||'_'||EVENT_MANIPULATION as TRIGGER_NAME
+                TRIGGER_NAME as DISPLAY_NAME,
                 ACTION_TIMING as TRIGGER_TYPE,
                 EVENT_MANIPULATION as TRIGGERING_EVENT,
                 'Y' as IS_ENABLED,
