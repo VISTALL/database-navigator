@@ -22,19 +22,21 @@ public class BasicInsertHandler implements InsertHandler<DBLookupItem> {
                 Editor editor = insertionContext.getEditor();
                 CaretModel caretModel = editor.getCaretModel();
 
-                LeafPsiElement leafPsiElement = PsiUtil.lookupLeafAtOffset(insertionContext.getFile(), caretModel.getOffset());
+                LeafPsiElement leafPsiElement = PsiUtil.lookupLeafAtOffset(insertionContext.getFile(), insertionContext.getTailOffset());
                 if (leafPsiElement == null || leafPsiElement.getTextOffset() != caretModel.getOffset()) {
-                    caretModel.moveCaretRelatively(1, 0, false, false, false);
-                    return;
+                    if (completionChar == '\t' || completionChar == '\u0000' || completionChar == '\n') {
+                        insertionContext.getDocument().insertString(insertionContext.getTailOffset(), " ");
+                        caretModel.moveCaretRelatively(1, 0, false, false, false);
+                    }
                 }
             }
         }
 
-        if (completionChar == ' ' || completionChar == '\t' || completionChar == '\u0000') {
+/*        if (completionChar == ' ' || completionChar == '\t' || completionChar == '\u0000') {
             Editor editor = insertionContext.getEditor();
             CaretModel caretModel = editor.getCaretModel();
             caretModel.moveCaretRelatively(1, 0, false, false, false);
-        }
+        }*/
 
 
     }

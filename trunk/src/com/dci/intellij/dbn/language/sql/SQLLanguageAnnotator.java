@@ -73,13 +73,15 @@ public class SQLLanguageAnnotator implements Annotator {
     }
 
     private void annotateObject(IdentifierPsiElement objectReference, AnnotationHolder holder) {
-        PsiElement reference = objectReference.resolve();
-        ConnectionHandler connectionHandler = objectReference.getActiveConnection();
-        if (reference == null && connectionHandler != null && connectionHandler.getConnectionStatus().isValid()) {
-            if (!objectReference.isDefinition()) {
-                Annotation annotation = holder.createWarningAnnotation(objectReference.getNode(),
-                        "Unknown identifier");
-                annotation.setTextAttributes(SQLTextAttributesKeys.UNKNOWN_IDENTIFIER);
+        if (!objectReference.isResolving()) {
+            PsiElement reference = objectReference.resolve();
+            ConnectionHandler connectionHandler = objectReference.getActiveConnection();
+            if (reference == null && connectionHandler != null && connectionHandler.getConnectionStatus().isValid()) {
+                if (!objectReference.isDefinition()) {
+                    Annotation annotation = holder.createWarningAnnotation(objectReference.getNode(),
+                            "Unknown identifier");
+                    annotation.setTextAttributes(SQLTextAttributesKeys.UNKNOWN_IDENTIFIER);
+                }
             }
         }
     }

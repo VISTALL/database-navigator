@@ -223,7 +223,7 @@ public class IdentifierPsiElement extends LeafPsiElement implements PsiNamedElem
     @Nullable
     public synchronized DBObject resolveUnderlyingObject() {
         DBObject underlyingObject = null;
-        PsiElement psiElement = isLookupInitialized() ? ref.getReferencedElement() : resolve();
+        PsiElement psiElement = isResolving() ? ref.getReferencedElement() : resolve();
         if (isObject()) {
             if (psiElement instanceof DBObject) {
                 DBObject object = (DBObject) psiElement;
@@ -454,10 +454,6 @@ public class IdentifierPsiElement extends LeafPsiElement implements PsiNamedElem
         return false;
     }
 
-    public boolean isLookupInitialized() {
-        return ref != null && ref.isResolving();
-    }
-
     /**
      * ******************************************************
      * PsiReference                    *
@@ -578,6 +574,10 @@ public class IdentifierPsiElement extends LeafPsiElement implements PsiNamedElem
 
     public boolean isResolved() {
         return ref != null && !ref.isDirty();
+    }
+
+    public boolean isResolving() {
+        return ref != null && ref.isResolving();
     }
 
     public PsiElement setName(@NotNull @NonNls String name) throws IncorrectOperationException {
