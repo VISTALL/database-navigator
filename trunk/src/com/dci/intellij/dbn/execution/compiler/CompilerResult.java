@@ -54,7 +54,7 @@ public class CompilerResult implements Disposable {
                 compilerMessages.addAll(echoMessages);
                 isError = true;
             } else {
-                compilerMessages.add(new CompilerMessage(this, "The " + getObject().getQualifiedNameWithType() + " was compiled successfully."));
+                compilerMessages.add(new CompilerMessage(this, "The " + getObject().getQualifiedNameWithType() + " was updated successfully."));
             }
         }
     }

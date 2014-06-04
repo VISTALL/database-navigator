@@ -182,7 +182,9 @@ public class SourceCodeEditorManager extends AbstractProjectComponent implements
                 nameEndIndex = nameEndIndex + 1;
             }
 
-            if (!StringUtil.isEmptyOrSpaces(text.substring(typeEndIndex, nameIndex))) return false;
+            String typeNameGap = text.substring(typeEndIndex, nameIndex);
+            typeNameGap = StringUtil.replaceIgnoreCase(typeNameGap, object.getSchema().getName(), "").replace(".", " ");
+            if (!StringUtil.isEmptyOrSpaces(typeNameGap)) return false;
             if (!Character.isWhitespace(text.charAt(nameEndIndex)) && text.charAt(nameEndIndex) != '(') return false;
         }
 

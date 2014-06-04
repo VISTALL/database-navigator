@@ -111,4 +111,9 @@ public class StatementDefinition {
         String userName = metaData.getUserName();
         return (driver + url + userName).hashCode();
     }
+
+    @Override
+    public String toString() {
+        return statementText;
+    }
 }
