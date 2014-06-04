@@ -1,11 +1,13 @@
 package com.dci.intellij.dbn.driver;
 
 import com.dci.intellij.dbn.common.Constants;
+import com.dci.intellij.dbn.common.LoggerFactory;
 import com.dci.intellij.dbn.common.load.ProgressMonitor;
 import com.dci.intellij.dbn.common.util.ActionUtil;
 import com.dci.intellij.dbn.common.util.StringUtil;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ApplicationComponent;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NonNls;
@@ -25,6 +27,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 public class DatabaseDriverManager implements ApplicationComponent {
+    private static final Logger LOGGER = LoggerFactory.createLogger();
     private Map<String, List<Driver>> driversCache = new HashMap<String, List<Driver>>();
 
     public static DatabaseDriverManager getInstance() {
@@ -69,9 +72,10 @@ public class DatabaseDriverManager implements ApplicationComponent {
 
 
     public List<Driver> loadDrivers(String libraryName) {
-        ProgressMonitor.setTaskDescription("Loading jdbc drivers from " + libraryName);
         List<Driver> drivers = driversCache.get(libraryName);
         if (drivers == null && new File(libraryName).isFile()) {
+            String taskDescription = ProgressMonitor.getTaskDescription();
+            ProgressMonitor.setTaskDescription("Loading jdbc drivers from " + libraryName);
             try {
                 drivers = new ArrayList<Driver>();
                 URL[] urls = new URL[]{new File(libraryName).toURL()};
@@ -104,7 +108,9 @@ public class DatabaseDriverManager implements ApplicationComponent {
                 }
                 driversCache.put(libraryName, drivers);
             } catch(Exception e) {
-                e.printStackTrace();
+                LOGGER.error("Error loading drivers from library " + libraryName, e);
+            } finally {
+                ProgressMonitor.setTaskDescription(taskDescription);
             }
         }
         return drivers;
