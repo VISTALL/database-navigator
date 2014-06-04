@@ -11,6 +11,7 @@ import com.dci.intellij.dbn.data.model.DataModelCell;
 import com.dci.intellij.dbn.data.preview.LargeValuePreviewPopup;
 import com.dci.intellij.dbn.data.record.RecordViewInfo;
 import com.dci.intellij.dbn.data.sorting.SortDirection;
+import com.dci.intellij.dbn.data.ui.table.basic.BasicTableCellRenderer;
 import com.dci.intellij.dbn.data.ui.table.basic.BasicTableGutter;
 import com.dci.intellij.dbn.data.ui.table.resultSet.ResultSetTable;
 import com.dci.intellij.dbn.data.value.LazyLoadedValue;
@@ -52,7 +53,6 @@ import java.util.EventObject;
 
 public class DatasetEditorTable extends ResultSetTable {
     private DatasetTableCellEditorFactory cellEditorFactory = new DatasetTableCellEditorFactory();
-    private TableCellRenderer cellRenderer;
     private DatasetEditor datasetEditor;
     private boolean isEditingEnabled = true;
     private DatasetEditorMouseListener tableMouseListener = new DatasetEditorMouseListener(this);
@@ -63,7 +63,6 @@ public class DatasetEditorTable extends ResultSetTable {
                     datasetEditor.getDataset().getQualifiedName(),
                     datasetEditor.getDataset().getIcon()));
         this.datasetEditor = datasetEditor;
-        cellRenderer = new DatasetEditorTableCellRenderer(datasetEditor.getProject());
 
         getModel().setEditorTable(this);
         getSelectionModel().addListSelectionListener(getModel());
@@ -76,6 +75,11 @@ public class DatasetEditorTable extends ResultSetTable {
         ActionUtil.registerDataProvider(this, dataProvider, false);
         ActionUtil.registerDataProvider(getTableGutter(), dataProvider, false);
         ActionUtil.registerDataProvider(getTableHeader(), dataProvider, false);
+    }
+
+    @Override
+    protected BasicTableCellRenderer createCellRenderer(Project project) {
+        return new DatasetEditorTableCellRenderer(project);
     }
 
     public Project getProject() {
@@ -119,7 +123,7 @@ public class DatasetEditorTable extends ResultSetTable {
 
     @Override
     public TableCellRenderer getCellRenderer(int row, int column) {
-        return cellRenderer;
+        return getCellRenderer();
     }
 
     public void editingStopped(ChangeEvent e) {

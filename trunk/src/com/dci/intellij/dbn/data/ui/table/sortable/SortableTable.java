@@ -8,7 +8,6 @@ import com.dci.intellij.dbn.data.model.sortable.SortableTableHeaderMouseListener
 import com.dci.intellij.dbn.data.model.sortable.SortableTableMouseListener;
 import com.dci.intellij.dbn.data.sorting.SortDirection;
 import com.dci.intellij.dbn.data.ui.table.basic.BasicTable;
-import com.dci.intellij.dbn.data.ui.table.basic.BasicTableCellRenderer;
 import com.dci.intellij.dbn.data.ui.table.basic.BasicTableSpeedSearch;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
@@ -21,7 +20,6 @@ public class SortableTable extends BasicTable {
     public SortableTable(SortableDataModel dataModel, boolean enableSpeedSearch) {
         super(dataModel.getProject(), dataModel);
         Project project = dataModel.getProject();
-        this.cellRenderer = new BasicTableCellRenderer(project);
         regionalSettings = RegionalSettings.getInstance(project);
         addMouseListener(new SortableTableMouseListener(this));
         getTableHeader().setDefaultRenderer(SortableTableHeaderRenderer.INSTANCE);
