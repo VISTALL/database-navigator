@@ -78,7 +78,7 @@ public enum DBObjectType implements DynamicContentType {
 
     UNKNOWN(DatabaseObjectTypeId.UNKNOWN, "unknown", null, null, null, true),
     NONE(DatabaseObjectTypeId.NONE, "none", null, null, null, true),
-    ANY(DatabaseObjectTypeId.ANY, "any", null, null, null, true);
+    ANY(DatabaseObjectTypeId.ANY, "any", "dependencies", null, null, true);
 
     private DatabaseObjectTypeId typeId;
     private String name;
