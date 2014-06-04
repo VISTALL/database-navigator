@@ -1,9 +1,14 @@
 package com.dci.intellij.dbn.vfs;
 
+import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
 import com.dci.intellij.dbn.common.DevNullStreams;
+import com.dci.intellij.dbn.common.util.CommonUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
+import com.dci.intellij.dbn.navigation.psi.NavigationPsiCache;
 import com.dci.intellij.dbn.object.common.DBObject;
+import com.dci.intellij.dbn.object.common.list.DBObjectList;
 import com.dci.intellij.dbn.object.lookup.DBObjectRef;
+import com.intellij.ide.navigationToolbar.NavBarPresentation;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.UnknownFileType;
@@ -125,16 +130,16 @@ public class DatabaseObjectFile<T extends DBObject> extends VirtualFile implemen
 
     @Nullable
     public VirtualFile getParent() {
-/*
-        T object = getObject();
-        if (object != null) {
-            BrowserTreeNode treeParent = object.getTreeParent();
-            if (treeParent instanceof DBObjectList<?>) {
-                DBObjectList objectList = (DBObjectList) treeParent;
-                return NavigationPsiCache.getPsiDirectory(objectList).getVirtualFile();
+        if (CommonUtil.isCalledThrough(NavBarPresentation.class)) {
+            T object = getObject();
+            if (object != null) {
+                BrowserTreeNode treeParent = object.getTreeParent();
+                if (treeParent instanceof DBObjectList<?>) {
+                    DBObjectList objectList = (DBObjectList) treeParent;
+                    return NavigationPsiCache.getPsiDirectory(objectList).getVirtualFile();
+                }
             }
         }
-*/
         return null;
     }
 
