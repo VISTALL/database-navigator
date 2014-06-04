@@ -31,14 +31,14 @@ import com.dci.intellij.dbn.language.common.TokenTypeBundle;
 WHITE_SPACE= {white_space_char}|{line_terminator}
 line_terminator = \r|\n|\r\n
 input_character = [^\r\n]
-white_space_char= [\ \n\r\t\f]
+white_space = [ \t\f]
+white_space_char= [ \n\r\t\f]
 ws  = {WHITE_SPACE}+
 wso = {WHITE_SPACE}*
 
 comment_tail =([^"*"]*("*"+[^"*""/"])?)*("*"+"/")?
 BLOCK_COMMENT=("/*"[^]{comment_tail})|"/*"
 LINE_COMMENT = "--" {input_character}*
-REM_LINE_COMMENT = {wso} "rem" [^a-zA-Z] .*
 
 IDENTIFIER = [:jletter:] [:jletterdigit:]*
 QUOTED_IDENTIFIER = "`"[^\`]*"`"?
@@ -78,7 +78,6 @@ DATA_TYPE = "bit"|"tinyint"|"bool"|"boolean"|"smallint"|"mediumint"|"int"|"integ
 
 {BLOCK_COMMENT}      { return tt.getTokenType("BLOCK_COMMENT"); }
 {LINE_COMMENT}       { return tt.getTokenType("LINE_COMMENT"); }
-{REM_LINE_COMMENT}   { return tt.getTokenType("LINE_COMMENT"); }
 
 {INTEGER}     { return tt.getTokenType("INTEGER"); }
 {NUMBER}      { return tt.getTokenType("NUMBER"); }
