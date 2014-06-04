@@ -6,7 +6,6 @@ import com.dci.intellij.dbn.data.find.DataSearchResult;
 import com.dci.intellij.dbn.data.find.DataSearchResultMatch;
 import com.dci.intellij.dbn.data.model.DataModel;
 import com.dci.intellij.dbn.data.model.DataModelCell;
-import com.dci.intellij.dbn.data.model.basic.BasicDataModel;
 import com.dci.intellij.dbn.data.ui.table.sortable.SortableTable;
 import com.dci.intellij.dbn.data.value.LazyLoadedValue;
 import com.intellij.openapi.project.Project;
@@ -14,12 +13,26 @@ import com.intellij.ui.ColoredTableCellRenderer;
 import com.intellij.ui.SimpleTextAttributes;
 
 import javax.swing.JTable;
+import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 import java.awt.Color;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 
 public class BasicTableCellRenderer extends ColoredTableCellRenderer {
+    private Map<Color, Border> lineBorderCache = new HashMap<Color, Border>();
+
+    protected Border getLineBorder(Color color) {
+        Border border = lineBorderCache.get(color);
+        if (border == null) {
+            border = new LineBorder(color, 1);
+            lineBorderCache.put(color, border);
+        }
+        return border;
+    }
+
     private DataGridTextAttributes attributes = new DataGridTextAttributes();
 
     public BasicTableCellRenderer(Project project) {
@@ -29,41 +42,39 @@ public class BasicTableCellRenderer extends ColoredTableCellRenderer {
         return attributes;
     }
 
-    protected void customizeCellRenderer(JTable table, Object value, boolean selected, boolean hasFocus, int rowIndex, int columnIndex) {
+    protected void customizeCellRenderer(JTable table, Object value, boolean isSelected, boolean hasFocus, int rowIndex, int columnIndex) {
 
         SortableTable sortableTable = (SortableTable) table;
         boolean isLoading = sortableTable.isLoading();
 
         boolean isCaretRow = table.getCellSelectionEnabled() && table.getSelectedRow() == rowIndex && table.getSelectedRowCount() == 1;
+
+
+
         DataModelCell cell = (DataModelCell) value;
-        if (cell != null && cell.getUserValue() != null) {
+        if (cell != null && !cell.isDisposed()) {
             boolean isLazyValue = cell.getUserValue() instanceof LazyLoadedValue;
-            //append(cell.getFormattedUserValue(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
-            SimpleTextAttributes textAttributes =
-                    isLoading ? attributes.getLoadingData(isCaretRow) :
-                    isLazyValue ? attributes.getReadonlyData(isCaretRow) : attributes.getPlainData(isCaretRow);
+
+            DataGridTextAttributes attributes = getAttributes();
+            SimpleTextAttributes textAttributes = attributes.getPlainData(isCaretRow);
+
+
+            if (isSelected) {
+                textAttributes = attributes.getSelection();
+            } else if (isLoading) {
+                textAttributes = attributes.getLoadingData(isCaretRow);
+            } else if (isLazyValue) {
+                textAttributes = attributes.getReadonlyData(isCaretRow);
+            }
+
+            Color background = CommonUtil.nvl(textAttributes.getBgColor(), table.getBackground());
+            Color foreground = CommonUtil.nvl(textAttributes.getFgColor(), table.getForeground());
+            Border border = getLineBorder(background);
+
+            setBorder(border);
+            setBackground(background);
+            setForeground(foreground);
             writeUserValue(cell, textAttributes, attributes);
-        }
-
-        //updateBorder(cell, sortableTable);
-        if (!selected) {
-            if (isLoading) {
-                setBackground(attributes.getLoadingData(isCaretRow).getBgColor());
-            } else {
-                setBackground(attributes.getPlainData(isCaretRow).getBgColor());
-            }
-        }
-    }
-
-    protected void updateBorder(DataModelCell cell, BasicTable table) {
-        BasicDataModel model = table.getModel();
-        if (model.hasSearchResult()) {
-            DataSearchResult searchResult = model.getSearchResult();
-            if (searchResult.getSelectedMatch() != null && searchResult.getSelectedMatch().getCell() == cell) {
-                setBorder(new LineBorder(Color.BLACK));
-            }
-        } else {
-            setBorder(null);
         }
     }
 
@@ -76,7 +87,7 @@ public class BasicTableCellRenderer extends ColoredTableCellRenderer {
              }
 
          } else {
-             formattedUserValue = cell.getFormattedUserValue();
+             formattedUserValue = CommonUtil.nvl(cell.getFormattedUserValue(), "");
          }
 
          if (cell.isDisposed()) return;
@@ -116,7 +127,7 @@ public class BasicTableCellRenderer extends ColoredTableCellRenderer {
              }
 
          } else {
-             append(CommonUtil.nvl(formattedUserValue, ""), textAttributes);
+             append(formattedUserValue, textAttributes);
          }
      }
 
