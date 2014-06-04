@@ -225,10 +225,10 @@ public class StatementExecutionProcessor {
         String statementText = statementDefinition.prepareStatementText(arguments);
         if (SettingsUtil.isDebugEnabled) LOGGER.info("[DBN-INFO] Executing statement: " + statementText);
 
-        PreparedStatement preparedStatement = connection.prepareStatement(statementText);
+        Statement statement = connection.createStatement();
         try {
-            preparedStatement.setQueryTimeout(timeout);
-            return preparedStatement.execute();
+            statement.setQueryTimeout(timeout);
+            return statement.execute(statementText);
         } catch (SQLException exception) {
             if (SettingsUtil.isDebugEnabled)
                 LOGGER.info(
@@ -237,7 +237,7 @@ public class StatementExecutionProcessor {
 
             throw exception;
         } finally {
-            ConnectionUtil.closeStatement(preparedStatement);
+            ConnectionUtil.closeStatement(statement);
         }
     }
 }

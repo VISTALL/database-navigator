@@ -23,6 +23,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.text.BlockSupport;
 
 public class DocumentUtil {
 
@@ -31,7 +32,7 @@ public class DocumentUtil {
         final Document document = editor.getDocument();
 
         // restart highlighting
-        PsiFile file = DocumentUtil.getFile(editor);
+        final PsiFile file = DocumentUtil.getFile(editor);
         if (file instanceof DBLanguageFile) {
             DBLanguageFile dbLanguageFile = (DBLanguageFile) file;
             DBLanguage dbLanguage = dbLanguageFile.getDBLanguage();
@@ -48,10 +49,9 @@ public class DocumentUtil {
             public void run() {
                 // touch the editor to trigger parsing
 
-                int length = document.getTextLength();
-                document.insertString(length, " ");
-                document.deleteString(length, length + 1);
-                refreshEditorAnnotations(editor.getProject());
+                String text = document.getText();
+                BlockSupport.getInstance(file.getProject()).reparseRange(file, 0, text.length(), text);
+                refreshEditorAnnotations(file);
             }
         }.start();
 
@@ -69,8 +69,8 @@ public class DocumentUtil {
     }
 
 
-    public static void refreshEditorAnnotations(Project project) {
-        DaemonCodeAnalyzer.getInstance(project).restart();
+    public static void refreshEditorAnnotations(PsiFile psiFile) {
+        DaemonCodeAnalyzer.getInstance(psiFile.getProject()).restart(psiFile);
     }
 
     public static Document getDocument(PsiFile file) {

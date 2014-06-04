@@ -20,6 +20,7 @@ import com.dci.intellij.dbn.execution.method.result.MethodExecutionResult;
 import com.dci.intellij.dbn.execution.statement.StatementExecutionMessage;
 import com.dci.intellij.dbn.execution.statement.result.StatementExecutionCursorResult;
 import com.dci.intellij.dbn.execution.statement.result.StatementExecutionResult;
+import com.dci.intellij.dbn.language.common.DBLanguageFile;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.tabs.JBTabsPosition;
 import com.intellij.ui.tabs.TabInfo;
@@ -284,16 +285,25 @@ public class ExecutionConsoleForm extends DBNFormImpl implements DBNForm, Enviro
     }
 
     public void removeResultTab(ExecutionResult executionResult) {
-        ExecutionResultForm resultComponent = executionResult.getResultPanel();
-        TabInfo tabInfo = resultTabs.findInfo(resultComponent.getComponent());
-        if (resultTabs.getTabs().contains(tabInfo)) {
-            resultTabs.removeTab(tabInfo);
+        try {
+            canScrollToSource = false;
+            ExecutionResultForm resultComponent = executionResult.getResultPanel();
+            TabInfo tabInfo = resultTabs.findInfo(resultComponent.getComponent());
+            if (resultTabs.getTabs().contains(tabInfo)) {
+                resultTabs.removeTab(tabInfo);
+                if (executionResult instanceof StatementExecutionResult) {
+                    StatementExecutionResult statementExecutionResult = (StatementExecutionResult) executionResult;
+                    DBLanguageFile file = statementExecutionResult.getExecutionInput().getExecutablePsiElement().getFile();
+                    DocumentUtil.refreshEditorAnnotations(file);
+                }
+                resultComponent.dispose();
+            }
+            if (getTabCount() == 0) {
+                ExecutionManager.getInstance(project).hideExecutionConsole();
+            }
 
-            resultComponent.dispose();
-            DocumentUtil.refreshEditorAnnotations(project);
-        }
-        if (getTabCount() == 0) {
-            ExecutionManager.getInstance(project).hideExecutionConsole();
+        } finally {
+            canScrollToSource = true;
         }
     }
 
@@ -322,9 +332,12 @@ public class ExecutionConsoleForm extends DBNFormImpl implements DBNForm, Enviro
     }
 
     private void selectResultTab(TabInfo tabInfo) {
-        canScrollToSource = false;
-        resultTabs.select(tabInfo, true);
-        canScrollToSource = true;
+        try {
+            canScrollToSource = false;
+            resultTabs.select(tabInfo, true);
+        } finally {
+            canScrollToSource = true;
+        }
     }
 
     @NonNls

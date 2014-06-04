@@ -44,7 +44,7 @@ public class ExecuteStatementIntentionAction extends GenericIntentionAction {
         ExecutablePsiElement executable = PsiUtil.lookupExecutableAtCaret(psiFile);
         StatementExecutionManager executionManager = StatementExecutionManager.getInstance(project);
         executionManager.fireExecution(executable.getExecutionProcessor());
-        DocumentUtil.refreshEditorAnnotations(project);
+        DocumentUtil.refreshEditorAnnotations(executable.getFile());
     }
 
     public boolean startInWriteAction() {

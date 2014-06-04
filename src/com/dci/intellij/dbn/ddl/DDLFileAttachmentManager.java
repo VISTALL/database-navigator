@@ -9,6 +9,7 @@ import com.dci.intellij.dbn.common.util.MessageUtil;
 import com.dci.intellij.dbn.common.util.VirtualFileUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.ConnectionManager;
+import com.dci.intellij.dbn.connection.mapping.FileConnectionMappingManager;
 import com.dci.intellij.dbn.ddl.ui.AttachDDLFileDialog;
 import com.dci.intellij.dbn.ddl.ui.DDLFileNameListCellRenderer;
 import com.dci.intellij.dbn.ddl.ui.DetachDDLFileDialog;
@@ -171,8 +172,22 @@ public class DDLFileAttachmentManager extends AbstractProjectComponent implement
     }
 
     public void detachDDLFile(VirtualFile virtualFile) {
-        cache.remove(virtualFile);
+        DBObjectRef<DBSchemaObject> objectRef = cache.remove(virtualFile);
         mappings.remove(virtualFile.getPath());
+
+        // map last used connection/schema
+        FileConnectionMappingManager connectionMappingManager = FileConnectionMappingManager.getInstance(getProject());
+        ConnectionHandler activeConnection = connectionMappingManager.getActiveConnection(virtualFile);
+        if (activeConnection == null) {
+            DBSchemaObject schemaObject = objectRef.get();
+            if (schemaObject != null) {
+                ConnectionHandler connectionHandler = schemaObject.getConnectionHandler();
+                DBSchema schema = schemaObject.getSchema();
+                connectionMappingManager.setActiveConnection(virtualFile, connectionHandler);
+                connectionMappingManager.setCurrentSchema(virtualFile, schema);
+            }
+        }
+
         EventManager.notify(getProject(), DDLMappingListener.TOPIC).ddlFileDetached(virtualFile);
     }
 

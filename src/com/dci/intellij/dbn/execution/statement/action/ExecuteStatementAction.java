@@ -20,7 +20,8 @@ public class ExecuteStatementAction extends AnAction {
         Editor editor = e.getData(PlatformDataKeys.EDITOR);
         if (project != null && editor != null) {
             StatementExecutionManager.getInstance(project).executeSelectedStatement(editor);
-            DocumentUtil.refreshEditorAnnotations(project);
+            PsiFile file = DocumentUtil.getFile(editor);
+            DocumentUtil.refreshEditorAnnotations(file);
         }
     }
 
