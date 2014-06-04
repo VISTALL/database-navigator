@@ -45,7 +45,7 @@
 
     public DatasetTableCellEditor(DatasetEditorTable table) {
         this(table, new BasicDataEditorComponent());
-        SimpleTextAttributes selectionTextAttributes = table.getConfigTextAttributes().getSelection();
+        SimpleTextAttributes selectionTextAttributes = table.getCellRenderer().getAttributes().getSelection();
 
         JTextField textField = getTextField();
         textField.setSelectionColor(selectionTextAttributes.getBgColor());
@@ -60,7 +60,7 @@
         textField.addMouseListener(mouseListener);
         textField.addMouseMotionListener(mouseMotionListener);
 
-        SimpleTextAttributes selectionTextAttributes = table.getConfigTextAttributes().getSelection();
+        SimpleTextAttributes selectionTextAttributes = table.getCellRenderer().getAttributes().getSelection();
         textField.setSelectionColor(selectionTextAttributes.getBgColor());
         textField.setSelectedTextColor(selectionTextAttributes.getFgColor());
     }

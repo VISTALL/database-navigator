@@ -28,8 +28,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 
 public class BasicTable extends DBNTable implements EditorColorsListener, Disposable {
-    protected DataGridTextAttributes configTextAttributes = new DataGridTextAttributes();
-    protected BasicTableCellRenderer cellRenderer;
+    private BasicTableCellRenderer cellRenderer;
     private BasicTableGutter tableGutter;
     private JBPopup valuePopup;
     private boolean isLoading;
@@ -37,15 +36,18 @@ public class BasicTable extends DBNTable implements EditorColorsListener, Dispos
 
     public BasicTable(Project project, BasicDataModel dataModel) {
         super(project, dataModel, true);
-        setSelectionForeground(configTextAttributes.getSelection().getFgColor());
-        setSelectionBackground(configTextAttributes.getSelection().getBgColor());
+        cellRenderer = createCellRenderer(project);
+        DataGridTextAttributes displayAttributes = cellRenderer.getAttributes();
+        setSelectionForeground(displayAttributes.getSelection().getFgColor());
+        setSelectionBackground(displayAttributes.getSelection().getBgColor());
         EditorColorsManager.getInstance().addEditorColorsListener(this);
-        Color bgColor = configTextAttributes.getPlainData().getBgColor();
+        Color bgColor = displayAttributes.getPlainData(false).getBgColor();
         setBackground(bgColor == null ? UIUtil.getTableBackground() : bgColor);
+        setRowHeight(rowHeight +1);
     }
 
-    public DataGridTextAttributes getConfigTextAttributes() {
-        return configTextAttributes;
+    protected BasicTableCellRenderer createCellRenderer(Project project) {
+        return new BasicTableCellRenderer(project);
     }
 
     @Override
@@ -84,6 +86,10 @@ public class BasicTable extends DBNTable implements EditorColorsListener, Dispos
         return cellRenderer;
     }
 
+    public BasicTableCellRenderer getCellRenderer() {
+        return cellRenderer;
+    }
+
     public void tableChanged(TableModelEvent e) {
         super.tableChanged(e);
         if (e.getType() == TableModelEvent.INSERT || e.getType() == TableModelEvent.DELETE) {
@@ -117,7 +123,7 @@ public class BasicTable extends DBNTable implements EditorColorsListener, Dispos
      *********************************************************/
     @Override
     public void globalSchemeChange(EditorColorsScheme scheme) {
-        configTextAttributes.load();
+        cellRenderer.getAttributes().load();
         repaint();
     }
 
