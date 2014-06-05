@@ -1,20 +1,22 @@
 package com.dci.intellij.dbn.data.sorting;
 
+import com.dci.intellij.dbn.object.DBColumn;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class MultiColumnSortingState<T> {
+public class MultiColumnSortingState {
     private int maxColumns = 3;     
-    private List<SortingInstruction<T>> sortingInstructions = new ArrayList<SortingInstruction<T>>();
+    private List<SortingInstruction> sortingInstructions = new ArrayList<SortingInstruction>();
 
-    public void applySorting(T column, SortDirection direction, boolean isAddition) {
-        SortingInstruction<T> instruction = getInstruction(column);
+    public void applySorting(DBColumn column, SortDirection direction, boolean isAddition) {
+        SortingInstruction instruction = getInstruction(column);
         boolean isNewColumn = instruction == null;
         if (isNewColumn) {
             if (direction.isIndefinite()) {
                 direction = SortDirection.ASCENDING;
             }
-            instruction = new SortingInstruction<T>(column, direction);
+            instruction = new SortingInstruction(column, direction);
         } else {
             if (direction.isIndefinite()) {
                 instruction.switchDirection();
@@ -38,8 +40,8 @@ public class MultiColumnSortingState<T> {
         }
     }
     
-    private SortingInstruction<T> getInstruction(T column) {
-        for (SortingInstruction<T> instruction : sortingInstructions) {
+    private SortingInstruction getInstruction(DBColumn column) {
+        for (SortingInstruction instruction : sortingInstructions) {
             if (instruction.getColumn().equals(column)) {
                 return instruction;
             }
@@ -47,7 +49,7 @@ public class MultiColumnSortingState<T> {
         return null;
     }
 
-    public List<SortingInstruction<T>> getSortingInstructions() {
+    public List<SortingInstruction> getSortingInstructions() {
         return sortingInstructions;
     }
 
@@ -58,13 +60,13 @@ public class MultiColumnSortingState<T> {
     public void setMaxColumns(int maxColumns) {
         this.maxColumns = maxColumns;
         if (sortingInstructions.size() > maxColumns) {
-            sortingInstructions = new ArrayList<SortingInstruction<T>>(sortingInstructions.subList(0, maxColumns));
+            sortingInstructions = new ArrayList<SortingInstruction>(sortingInstructions.subList(0, maxColumns));
         }
     }
     
-    public MultiColumnSortingState<T> clone() {
-        MultiColumnSortingState<T> clone = new MultiColumnSortingState<T>();
-        for (SortingInstruction<T> criterion : sortingInstructions) {
+    public MultiColumnSortingState clone() {
+        MultiColumnSortingState clone = new MultiColumnSortingState();
+        for (SortingInstruction criterion : sortingInstructions) {
             clone.sortingInstructions.add(criterion.clone());
         }
         return clone;

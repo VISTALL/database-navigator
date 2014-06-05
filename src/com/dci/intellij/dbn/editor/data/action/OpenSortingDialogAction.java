@@ -7,6 +7,7 @@ import com.dci.intellij.dbn.editor.data.DatasetEditor;
 import com.dci.intellij.dbn.editor.data.sorting.DatasetSortingManager;
 import com.dci.intellij.dbn.editor.data.sorting.DatasetSortingState;
 import com.dci.intellij.dbn.object.DBColumn;
+import com.dci.intellij.dbn.object.DBDataset;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 
@@ -20,15 +21,19 @@ public class OpenSortingDialogAction extends AbstractDataEditorAction {
         DatasetEditor datasetEditor = getDatasetEditor(e);
 
         if (datasetEditor != null) {
-            DatasetSortingManager sortingManager = DatasetSortingManager.getInstance(datasetEditor.getProject());
+            DBDataset dataset = datasetEditor.getDataset();
+            if (dataset != null) {
+                DatasetSortingManager sortingManager = DatasetSortingManager.getInstance(datasetEditor.getProject());
 
-            DatasetSortingState sortingState = new DatasetSortingState();
-            for (DBColumn column : datasetEditor.getDataset().getColumns()) {
-                sortingState.applySorting(column, SortDirection.ASCENDING, true);
-                if (sortingState.getSortingInstructions().size() > 3) break;
+                DatasetSortingState sortingState = new DatasetSortingState();
+
+                for (DBColumn column : dataset.getColumns()) {
+                    sortingState.applySorting(column, SortDirection.ASCENDING, true);
+                    if (sortingState.getSortingInstructions().size() > 3) break;
+                }
+
+                sortingManager.openSortingDialog(dataset, sortingState);
             }
-
-            sortingManager.openSortingDialog(datasetEditor.getDataset(), sortingState);
         }
     }
 
