@@ -41,14 +41,7 @@ public class DatasetEditorTableCellRenderer extends BasicTableCellRenderer {
 
             DBColumn column = columnInfo.getColumn();
             if (isSelected) {
-                if (datasetEditorTable.isCellEditable(rowIndex, columnIndex)) {
-                    /*if (!hasFocus || table.getSelectedRowCount() > 1 || table.getSelectedColumnCount() > 1) {
-                        textAttributes = attributes.getSelection();
-                    }*/
-                    textAttributes = attributes.getSelection();
-                } else {
-                    textAttributes = attributes.getSelection();
-                }
+                textAttributes = attributes.getSelection();
             } else if (isLoading || !datasetEditorTable.getDataset().getConnectionHandler().isConnected()) {
                 textAttributes = attributes.getLoadingData(isCaretRow);
             } else if (isDeletedRow) {
@@ -81,67 +74,6 @@ public class DatasetEditorTableCellRenderer extends BasicTableCellRenderer {
             setBackground(background);
             setForeground(foreground);
             writeUserValue(cell, textAttributes, attributes);
-
-
-/*            //DataModelCell cellAtMouseLocation = datasetEditorTable.getCellAtMouseLocation();
-            if (true) return;
-
-
-            if (cell.getUserValue() != null) {
-                textAttributes =
-                        isSelected ? attributes.getSelection() :
-                        isLoading || !datasetEditorTable.getDataset().getConnectionHandler().isConnected() ? attributes.getLoadingData() :
-                        isInserting && !isInsertRow ? attributes.getReadonlyData() :
-                        isDeletedRow ? attributes.getDeletedData() :
-                        isPrimaryKey(column) ? (isCaretRow ? attributes.getPrimaryKeyAtCaretRow() : attributes.getPrimaryKey()) :
-                        isForeignKey(column) ? (isCaretRow ? attributes.getForeignKeyAtCaretRow() : attributes.getForeignKey()) :
-                        cell.isModified() ? attributes.getModifiedData() :
-                        cell.isLobValue() ? attributes.getReadonlyData() :
-                                            attributes.getPlainData();
-
-                writeUserValue(cell, textAttributes, attributes);
-
-                
-            } *//*else {
-                    append("[null]", SimpleTextAttributes.GRAYED_ATTRIBUTES);
-                }*//*
-
-            //updateBorder(cell, datasetEditorTable);
-            
-
-
-            setBorder(null);
-            if (!isSelected) {
-                if (isLoading || !datasetEditorTable.getDataset().getConnectionHandler().isConnected()) {
-                    setBackground(attributes.getLoadingData().getBgColor());
-                } else {
-
-                    if (isCaretRow) {
-                        setBackground(attributes.getCaretRowBgColor());
-
-                    } else if (isDeletedRow) {
-                        setBackground(attributes.getDeletedData().getBgColor());
-
-                    } else if (cell.hasError()) {
-                        setBackground(attributes.getErrorData().getBgColor());
-
-                    } else if (isInserting && !isInsertRow) {
-                        setBackground(attributes.getReadonlyData().getBgColor());
-
-                    } else if (isInsertRow) {
-                        setBackground(attributes.getPlainData().getBgColor());
-
-                    } else if (isPrimaryKey(column)) {
-                        setBackground(attributes.getPrimaryKey().getBgColor());
-
-                    } else if (isForeignKey(column)) {
-                        setBackground(attributes.getForeignKey().getBgColor());
-
-                    } else {
-                        setBackground(attributes.getPlainData().getBgColor());
-                    }
-                }
-            }*/
         }
     }
 
