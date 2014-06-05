@@ -14,7 +14,7 @@ import com.intellij.openapi.project.Project;
 
 import javax.swing.JTable;
 
-public class SortableTable extends BasicTable {
+public abstract class SortableTable extends BasicTable {
     protected Logger logger = LoggerFactory.createLogger();
 
     public SortableTable(SortableDataModel dataModel, boolean enableSpeedSearch) {

@@ -56,8 +56,12 @@ public class DBNTable extends JTable {
      *********************************************************/
     public void accommodateColumnsSize() {
         for (int columnIndex = 0; columnIndex < getColumnCount(); columnIndex++){
-            accommodateColumnSize(columnIndex, 22);
+            accommodateColumnSize(columnIndex, getColumnWidthSpan());
         }
+    }
+
+    public int getColumnWidthSpan() {
+        return 22;
     }
 
     @Override

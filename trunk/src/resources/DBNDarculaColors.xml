@@ -13,8 +13,8 @@
 
     <option name="DBNavigator.DefaultTextAttributes.DataEditor.DeletedData">
         <value>
-            <option name="FOREGROUND" value="999999"/>
-            <option name="BACKGROUND" value="393939"/>
+            <option name="FOREGROUND" value="6A6A6A"/>
+            <!--<option name="BACKGROUND" value="393939"/>-->
         </value>
     </option>
 
@@ -27,15 +27,15 @@
 
     <option name="DBNavigator.DefaultTextAttributes.DataEditor.ReadonlyData">
         <value>
-            <option name="FOREGROUND" value="999999"/>
-            <option name="BACKGROUND" value="393939"/>
+            <option name="FOREGROUND" value="858585"/>
+            <!--<option name="BACKGROUND" value="393939"/>-->
         </value>
     </option>
 
     <option name="DBNavigator.DefaultTextAttributes.DataEditor.LoadingData">
         <value>
-            <option name="FOREGROUND" value="999999"/>
-            <option name="BACKGROUND" value="393939"/>
+            <option name="FOREGROUND" value="858585"/>
+            <!--<option name="BACKGROUND" value="393939"/>-->
         </value>
     </option>
 

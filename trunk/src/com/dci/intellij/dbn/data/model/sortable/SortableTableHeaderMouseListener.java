@@ -26,7 +26,7 @@ public class SortableTableHeaderMouseListener extends MouseAdapter {
             boolean isEdgeClick = colRect.getMaxX() - 8 < mousePoint.getX();
             if (isEdgeClick) {
                 if (event.getClickCount() == 2) {
-                    table.accommodateColumnSize(columnIndex, 20);
+                    table.accommodateColumnSize(columnIndex, table.getColumnWidthSpan());
                 }
             } else {
                 table.sort(columnIndex, SortDirection.INDEFINITE);
