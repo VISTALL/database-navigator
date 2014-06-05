@@ -1,9 +1,14 @@
 package com.dci.intellij.dbn.editor.data.ui.table.renderer;
 
 import com.dci.intellij.dbn.common.Icons;
+import com.dci.intellij.dbn.common.ui.table.DBNTable;
+import com.dci.intellij.dbn.data.ui.table.basic.BasicTableGutter;
 import com.dci.intellij.dbn.data.ui.table.basic.BasicTableGutterCellRenderer;
 import com.dci.intellij.dbn.editor.data.model.DatasetEditorModel;
 import com.dci.intellij.dbn.editor.data.model.DatasetEditorModelRow;
+import com.intellij.openapi.editor.colors.EditorColorsManager;
+import com.intellij.openapi.editor.colors.EditorFontType;
+import com.intellij.ui.border.CustomLineBorder;
 import com.intellij.util.ui.UIUtil;
 
 import javax.swing.Icon;
@@ -11,38 +16,40 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.ListCellRenderer;
-import javax.swing.UIManager;
+import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 
 public class DatasetEditorTableGutterRenderer extends JPanel implements ListCellRenderer {
-    private static final Border BORDER = new CompoundBorder(
-            UIManager.getBorder("TableHeader.cellBorder"),
-            new EmptyBorder(0, 2, 0, 6));
-
-
     private JLabel textLabel;
     private JLabel imageLabel;
+    private JPanel textPanel;
 
-    public static ListCellRenderer INSTANCE = new DatasetEditorTableGutterRenderer();
+    private Border border = new CompoundBorder(new CustomLineBorder(UIUtil.getPanelBackground(), 0, 0, 1, 1), new EmptyBorder(0, 3, 1, 3));
 
-    private DatasetEditorTableGutterRenderer() {
-        setForeground(BasicTableGutterCellRenderer.Colors.FOREGROUND);
+    public DatasetEditorTableGutterRenderer() {
         setBackground(UIUtil.getPanelBackground());
-        setBorder(BORDER);
+        setBorder(border);
         setLayout(new BorderLayout());
         textLabel = new JLabel();
-        imageLabel = new JLabel();
+        textLabel.setFont(EditorColorsManager.getInstance().getGlobalScheme().getFont(EditorFontType.PLAIN));
+        imageLabel = new JLabel(Icons.DATA_EDITOR_ROW_DEFAULT);
 
-        add(textLabel, BorderLayout.WEST);
+        textPanel = new JPanel(new BorderLayout());
+        textPanel.setBorder(new EmptyBorder(0,0,0,3));
+        textPanel.add(textLabel, BorderLayout.EAST);
+        add(textPanel, BorderLayout.CENTER);
         add(imageLabel, BorderLayout.EAST);
+        textLabel.setHorizontalTextPosition(SwingConstants.RIGHT);
     }
 
     public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+        BasicTableGutter tableGutter = (BasicTableGutter) list;
         DatasetEditorModel model = (DatasetEditorModel) list.getModel();
         DatasetEditorModelRow row = model.getRowAtIndex(index);
         if (row != null) {
@@ -50,14 +57,24 @@ public class DatasetEditorTableGutterRenderer extends JPanel implements ListCell
                     row.isNew() ? Icons.DATA_EDITOR_ROW_NEW :
                             row.isInsert() ? Icons.DATA_EDITOR_ROW_INSERT :
                                     row.isDeleted() ? Icons.DATA_EDITOR_ROW_DELETED :
-                                            row.isModified() ? Icons.DATA_EDITOR_ROW_MODIFIED : null;
+                                            row.isModified() ? Icons.DATA_EDITOR_ROW_MODIFIED : Icons.DATA_EDITOR_ROW_DEFAULT;
 
             textLabel.setText("" + row.getIndex());
             imageLabel.setIcon(icon);
         }
         //lText.setFont(isSelected ? BOLD_FONT : REGULAR_FONT);
         textLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        textLabel.setForeground(isSelected ? BasicTableGutterCellRenderer.Colors.SELECTED_FOREGROUND : BasicTableGutterCellRenderer.Colors.FOREGROUND);
+
+        DBNTable table = tableGutter.getTable();
+        boolean isCaretRow = table.getCellSelectionEnabled() && table.getSelectedRow() == index && table.getSelectedRowCount() == 1;
+        Color background = isSelected ?
+                BasicTableGutterCellRenderer.Colors.SELECTION_BACKGROUND_COLOR :
+                isCaretRow ?
+                        BasicTableGutterCellRenderer.Colors.CARET_ROW_COLOR :
+                        UIUtil.getPanelBackground();
+        setBackground(background);
+        textPanel.setBackground(background);
+        textLabel.setForeground(isSelected ? BasicTableGutterCellRenderer.Colors.SELECTION_FOREGROUND_COLOR : BasicTableGutterCellRenderer.Colors.LINE_NUMBER_COLOR);
         return this;
     }
 }

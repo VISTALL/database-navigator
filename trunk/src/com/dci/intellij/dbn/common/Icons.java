@@ -109,6 +109,7 @@ public class Icons {
     public static final Icon BROWSER_OBJECT_PROPERTIES = load("/img/v1/ObjectProperties.png");
 
 
+    public static final Icon DATA_EDITOR_ROW_DEFAULT = load("/img/v1/DefaultRow.png");
     public static final Icon DATA_EDITOR_ROW_INSERT = load("/img/v1/InsertRow.png");
     public static final Icon DATA_EDITOR_ROW_NEW = load("/img/v1/NewRow.png");
     public static final Icon DATA_EDITOR_ROW_MODIFIED = load("/img/v1/ModifiedRow.png");

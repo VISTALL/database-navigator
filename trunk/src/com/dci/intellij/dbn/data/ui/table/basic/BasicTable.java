@@ -201,7 +201,10 @@ public class BasicTable extends DBNTable implements EditorColorsListener, Dispos
     public void dispose() {
         EditorColorsManager.getInstance().removeEditorColorsListener(this);
         getModel().dispose();
-        tableGutter = null;
+        if (tableGutter != null) {
+            tableGutter.dispose();
+            tableGutter = null;
+        }
     }
 
     public Rectangle getCellRect(DataModelCell cell) {

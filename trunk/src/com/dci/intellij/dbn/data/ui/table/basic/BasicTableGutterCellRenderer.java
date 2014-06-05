@@ -1,15 +1,19 @@
 package com.dci.intellij.dbn.data.ui.table.basic;
 
-import com.dci.intellij.dbn.common.ui.DBNColor;
+import com.dci.intellij.dbn.common.ui.table.DBNTable;
 import com.dci.intellij.dbn.data.model.DataModelRow;
 import com.dci.intellij.dbn.data.model.basic.BasicDataModel;
+import com.intellij.openapi.editor.colors.EditorColors;
+import com.intellij.openapi.editor.colors.EditorColorsManager;
+import com.intellij.openapi.editor.colors.EditorColorsScheme;
+import com.intellij.openapi.editor.colors.EditorFontType;
+import com.intellij.ui.border.CustomLineBorder;
 import com.intellij.util.ui.UIUtil;
 
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.ListCellRenderer;
-import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
@@ -19,33 +23,43 @@ import java.awt.Component;
 
 public class BasicTableGutterCellRenderer extends JPanel implements ListCellRenderer {
     public interface Colors {
-        DBNColor FOREGROUND = new DBNColor(new Color(0x454545), new Color(0x808080));
-        DBNColor SELECTED_FOREGROUND = new DBNColor(new Color(0x808080), new Color(0x171717));
+        Color LINE_NUMBER_COLOR = getGlobalScheme().getColor(EditorColors.LINE_NUMBERS_COLOR);
+        Color SELECTION_FOREGROUND_COLOR = getGlobalScheme().getColor(EditorColors.SELECTION_FOREGROUND_COLOR);
+        Color SELECTION_BACKGROUND_COLOR = getGlobalScheme().getColor(EditorColors.SELECTION_BACKGROUND_COLOR);
+        Color CARET_ROW_COLOR = getGlobalScheme().getColor(EditorColors.CARET_ROW_COLOR);
     }
 
-    private static final Border BORDER = new CompoundBorder(
-            UIManager.getBorder("TableHeader.cellBorder"),
-            new EmptyBorder(0, 2, 0, 6));
+    static EditorColorsScheme getGlobalScheme() {
+        return EditorColorsManager.getInstance().getGlobalScheme();
+    }
 
-    private JLabel lText;
-
-    public static final ListCellRenderer INSTANCE = new BasicTableGutterCellRenderer();
+    private Border border = new CompoundBorder(new CustomLineBorder(UIUtil.getPanelBackground(), 0, 0, 1, 1), new EmptyBorder(0, 3, 1, 3));
+    private JLabel textLabel;
 
     public BasicTableGutterCellRenderer() {
-        setForeground(Colors.FOREGROUND);
         setBackground(UIUtil.getPanelBackground());
-        setBorder(BORDER);
+        setBorder(border);
         setLayout(new BorderLayout());
-        lText = new JLabel();
-        add(lText, BorderLayout.WEST);
+        textLabel = new JLabel();
+        textLabel.setForeground(Colors.LINE_NUMBER_COLOR);
+        textLabel.setFont(EditorColorsManager.getInstance().getGlobalScheme().getFont(EditorFontType.PLAIN));
+        add(textLabel, BorderLayout.EAST);
     }
 
     public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-        BasicDataModel model = (BasicDataModel) list.getModel();
+        BasicTableGutter tableGutter = (BasicTableGutter) list;
+        BasicDataModel model = tableGutter.getModel();
         DataModelRow row = model.getRowAtIndex(index);
-        lText.setText("" + row.getIndex());
-        //lText.setFont(isSelected ? BOLD_FONT : REGULAR_FONT);
-        lText.setForeground(isSelected ? Colors.SELECTED_FOREGROUND : Colors.FOREGROUND);
+        textLabel.setText("" + row.getIndex());
+        DBNTable table = tableGutter.getTable();
+        boolean isCaretRow = table.getCellSelectionEnabled() && table.getSelectedRow() == index && table.getSelectedRowCount() == 1;
+
+        setBackground(isSelected ?
+                Colors.SELECTION_BACKGROUND_COLOR :
+                isCaretRow ?
+                        Colors.CARET_ROW_COLOR :
+                        UIUtil.getPanelBackground());
+        textLabel.setForeground(isSelected ? Colors.SELECTION_FOREGROUND_COLOR : Colors.LINE_NUMBER_COLOR);
         return this;
     }
 }
