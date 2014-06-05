@@ -20,7 +20,7 @@
 
     <option name="DBNavigator.DefaultTextAttributes.DataEditor.ErrorData">
         <value>
-            <option name="FOREGROUND" value="FF0000"/>
+            <option name="FOREGROUND" value="000000"/>
             <option name="BACKGROUND" value="FFCCCC"/>
         </value>
     </option>

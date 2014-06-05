@@ -33,7 +33,7 @@ public class BasicTableGutterCellRenderer extends JPanel implements ListCellRend
         return EditorColorsManager.getInstance().getGlobalScheme();
     }
 
-    private Border border = new CompoundBorder(new CustomLineBorder(UIUtil.getPanelBackground(), 0, 0, 1, 1), new EmptyBorder(0, 3, 1, 3));
+    private Border border = new CompoundBorder(new CustomLineBorder(UIUtil.getPanelBackground(), 0, 0, 1, 1), new EmptyBorder(0, 3, 0, 3));
     private JLabel textLabel;
 
     public BasicTableGutterCellRenderer() {
@@ -50,7 +50,7 @@ public class BasicTableGutterCellRenderer extends JPanel implements ListCellRend
         BasicTableGutter tableGutter = (BasicTableGutter) list;
         BasicDataModel model = tableGutter.getModel();
         DataModelRow row = model.getRowAtIndex(index);
-        textLabel.setText("" + row.getIndex());
+        textLabel.setText(row == null ? "" : "" + row.getIndex());
         DBNTable table = tableGutter.getTable();
         boolean isCaretRow = table.getCellSelectionEnabled() && table.getSelectedRow() == index && table.getSelectedRowCount() == 1;
 

@@ -95,6 +95,12 @@ public class BasicTable extends DBNTable implements EditorColorsListener, Dispos
         if (e.getType() == TableModelEvent.INSERT || e.getType() == TableModelEvent.DELETE) {
             accommodateColumnsSize();
         }
+
+        BasicTableGutter tableGutter = getTableGutter();
+        tableGutter.setFixedCellWidth(getModel().getSize() == 0 ? 10 : -1);
+        int rowHeight = getRowHeight();
+        if (rowHeight != 0) tableGutter.setFixedCellHeight(rowHeight);
+
     }
 
     public DataModelCell getCellAtLocation(Point point) {
@@ -196,6 +202,11 @@ public class BasicTable extends DBNTable implements EditorColorsListener, Dispos
             }
         }
         return true;
+    }
+
+    @Override
+    public void repaint() {
+        super.repaint();
     }
 
     public void dispose() {

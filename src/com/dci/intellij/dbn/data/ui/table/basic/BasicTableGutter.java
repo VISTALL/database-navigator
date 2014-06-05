@@ -5,6 +5,7 @@ import com.dci.intellij.dbn.data.model.basic.BasicDataModel;
 import com.intellij.openapi.Disposable;
 
 import javax.swing.JList;
+import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -18,7 +19,7 @@ public class BasicTableGutter extends JList implements Disposable {
         super(table.getModel());
         this.table = table;
         this.table.getSelectionModel().addListSelectionListener(tableSelectionListener);
-        setCellRenderer(new BasicTableGutterCellRenderer());
+        setCellRenderer(createCellRenderer());
         addListSelectionListener(gutterSelectionListener);
         int rowHeight = table.getRowHeight();
         if (rowHeight != 0) setFixedCellHeight(rowHeight);
@@ -26,6 +27,10 @@ public class BasicTableGutter extends JList implements Disposable {
         if (getModel().getSize() == 0) {
             setFixedCellWidth(10);
         }
+    }
+
+    protected ListCellRenderer createCellRenderer() {
+        return new BasicTableGutterCellRenderer();
     }
 
     public DBNTable getTable() {

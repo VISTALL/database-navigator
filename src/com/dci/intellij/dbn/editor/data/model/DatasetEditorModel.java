@@ -189,6 +189,7 @@ public class DatasetEditorModel extends ResultSetDataModel<DatasetEditorModelRow
     }
 
     public boolean isModified() {
+        if (isInserting) return true;
         for (DatasetEditorModelRow row : getRows()) {
             if (row.isModified() || row.isNew() || row.isDeleted()) return true;
         }
