@@ -41,7 +41,7 @@ public class BasicTable extends DBNTable implements EditorColorsListener, Dispos
         setSelectionForeground(displayAttributes.getSelection().getFgColor());
         setSelectionBackground(displayAttributes.getSelection().getBgColor());
         EditorColorsManager.getInstance().addEditorColorsListener(this);
-        Color bgColor = displayAttributes.getPlainData(false).getBgColor();
+        Color bgColor = displayAttributes.getPlainData(false, false).getBgColor();
         setBackground(bgColor == null ? UIUtil.getTableBackground() : bgColor);
         setRowHeight(rowHeight +1);
     }

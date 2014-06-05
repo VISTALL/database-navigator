@@ -10,13 +10,17 @@ import java.awt.Color;
 
 public class DataGridTextAttributes {
     private SimpleTextAttributes plainData;
+    private SimpleTextAttributes plainDataModified;
     private SimpleTextAttributes plainDataAtCaretRow;
+    private SimpleTextAttributes plainDataAtCaretRowModified;
     private SimpleTextAttributes modifiedData;
     private SimpleTextAttributes modifiedDataAtCaretRow;
     private SimpleTextAttributes deletedData;
     private SimpleTextAttributes errorData;
     private SimpleTextAttributes readonlyData;
+    private SimpleTextAttributes readonlyDataModified;
     private SimpleTextAttributes readonlyDataAtCaretRow;
+    private SimpleTextAttributes readonlyDataAtCaretRowModified;
     private SimpleTextAttributes loadingData;
     private SimpleTextAttributes loadingDataAtCaretRow;
     private SimpleTextAttributes primaryKey;
@@ -40,30 +44,43 @@ public class DataGridTextAttributes {
         EditorColorsScheme globalScheme = EditorColorsManager.getInstance().getGlobalScheme();
         caretRowBgColor = globalScheme.getColor(DataGridTextAttributesKeys.CARET_ROW_BACKGROUND);
 
-        plainData = TextAttributesUtil.getSimpleTextAttributes(DataGridTextAttributesKeys.PLAIN_DATA);
-        plainDataAtCaretRow = new SimpleTextAttributes(caretRowBgColor, plainData.getFgColor(), null, plainData.getFontStyle());
-        modifiedData = TextAttributesUtil.getSimpleTextAttributes(DataGridTextAttributesKeys.MODIFIED_DATA);
-        modifiedDataAtCaretRow = new SimpleTextAttributes(caretRowBgColor, modifiedData.getFgColor(), null, modifiedData.getFontStyle());
         deletedData = TextAttributesUtil.getSimpleTextAttributes(DataGridTextAttributesKeys.DELETED_DATA);
         errorData = TextAttributesUtil.getSimpleTextAttributes(DataGridTextAttributesKeys.ERROR_DATA);
+        modifiedData = TextAttributesUtil.getSimpleTextAttributes(DataGridTextAttributesKeys.MODIFIED_DATA);
+        modifiedDataAtCaretRow = new SimpleTextAttributes(caretRowBgColor, modifiedData.getFgColor(), null, modifiedData.getFontStyle());
+
+        plainData = TextAttributesUtil.getSimpleTextAttributes(DataGridTextAttributesKeys.PLAIN_DATA);
+        plainDataModified = new SimpleTextAttributes(modifiedData.getBgColor(), modifiedData.getFgColor(), null, modifiedData.getFontStyle());
+        plainDataAtCaretRow = new SimpleTextAttributes(caretRowBgColor, plainData.getFgColor(), null, plainData.getFontStyle());
+        plainDataAtCaretRowModified = new SimpleTextAttributes(caretRowBgColor, modifiedData.getFgColor(), null, modifiedData.getFontStyle());
+
+
         readonlyData = TextAttributesUtil.getSimpleTextAttributes(DataGridTextAttributesKeys.READONLY_DATA);
+        readonlyDataModified = new SimpleTextAttributes(readonlyData.getBgColor(), modifiedData.getFgColor(), null, modifiedData.getFontStyle());
         readonlyDataAtCaretRow = new SimpleTextAttributes(caretRowBgColor, readonlyData.getFgColor(), null, readonlyData.getFontStyle());
+        readonlyDataAtCaretRowModified = new SimpleTextAttributes(caretRowBgColor, modifiedData.getFgColor(), null, modifiedData.getFontStyle());
+
         loadingData = TextAttributesUtil.getSimpleTextAttributes(DataGridTextAttributesKeys.LOADING_DATA);
         loadingDataAtCaretRow = new SimpleTextAttributes(caretRowBgColor, loadingData.getFgColor(), null, loadingData.getFontStyle());
+
         primaryKey= TextAttributesUtil.getSimpleTextAttributes(DataGridTextAttributesKeys.PRIMARY_KEY);
         primaryKeyModified = new SimpleTextAttributes(primaryKey.getBgColor(), primaryKey.getFgColor(), null, modifiedData.getStyle());
         primaryKeyAtCaretRow = new SimpleTextAttributes(caretRowBgColor, primaryKey.getFgColor(), null, primaryKey.getStyle());
         primaryKeyAtCaretRowModified = new SimpleTextAttributes(caretRowBgColor, primaryKey.getFgColor(), null, modifiedData.getStyle());
+
         foreignKey = TextAttributesUtil.getSimpleTextAttributes(DataGridTextAttributesKeys.FOREIGN_KEY);
         foreignKeyModified = new SimpleTextAttributes(foreignKey.getBgColor(), foreignKey.getFgColor(), null, modifiedData.getStyle());
         foreignKeyAtCaretRow = new SimpleTextAttributes(caretRowBgColor, foreignKey.getFgColor(), null, foreignKey.getStyle());
         foreignKeyAtCaretRowModified = new SimpleTextAttributes(caretRowBgColor, foreignKey.getFgColor(), null, modifiedData.getStyle());
+
         selection = TextAttributesUtil.getSimpleTextAttributes(DataGridTextAttributesKeys.SELECTION);
         searchResult = TextAttributesUtil.getSimpleTextAttributes(EditorColors.TEXT_SEARCH_RESULT_ATTRIBUTES);
     }
 
-    public SimpleTextAttributes getPlainData(boolean atCaretRow) {
-        return atCaretRow ? plainDataAtCaretRow : plainData;
+    public SimpleTextAttributes getPlainData(boolean modified, boolean atCaretRow) {
+        return modified && atCaretRow ? plainDataAtCaretRowModified :
+                atCaretRow ? plainDataAtCaretRow :
+                        modified ? plainDataModified : plainData;
     }
 
     public SimpleTextAttributes getModifiedData(boolean atCaretRow) {
@@ -78,8 +95,10 @@ public class DataGridTextAttributes {
         return errorData;
     }
 
-    public SimpleTextAttributes getReadonlyData(boolean atCaretRow) {
-        return atCaretRow ? readonlyDataAtCaretRow : readonlyData;
+    public SimpleTextAttributes getReadonlyData(boolean modified, boolean atCaretRow) {
+        return modified && atCaretRow ? readonlyDataAtCaretRowModified :
+                atCaretRow ? readonlyDataAtCaretRow :
+                        modified ? readonlyDataModified : readonlyData;
     }
 
     public SimpleTextAttributes getLoadingData(boolean atCaretRow) {

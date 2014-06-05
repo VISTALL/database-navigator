@@ -56,7 +56,7 @@ public class BasicTableCellRenderer extends ColoredTableCellRenderer {
             boolean isLazyValue = cell.getUserValue() instanceof LazyLoadedValue;
 
             DataGridTextAttributes attributes = getAttributes();
-            SimpleTextAttributes textAttributes = attributes.getPlainData(isCaretRow);
+            SimpleTextAttributes textAttributes = attributes.getPlainData(false, isCaretRow);
 
 
             if (isSelected) {
@@ -64,7 +64,7 @@ public class BasicTableCellRenderer extends ColoredTableCellRenderer {
             } else if (isLoading) {
                 textAttributes = attributes.getLoadingData(isCaretRow);
             } else if (isLazyValue) {
-                textAttributes = attributes.getReadonlyData(isCaretRow);
+                textAttributes = attributes.getReadonlyData(false, isCaretRow);
             }
 
             Color background = CommonUtil.nvl(textAttributes.getBgColor(), table.getBackground());
