@@ -55,6 +55,7 @@
 
     <option name="DBNavigator.DefaultTextAttributes.DataEditor.Selection">
         <value>
+            <option name="FOREGROUND" value="9A9A9A"/>
             <option name="BACKGROUND" value="214283"/>
         </value>
     </option>
