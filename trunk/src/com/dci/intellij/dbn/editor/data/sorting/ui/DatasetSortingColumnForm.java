@@ -27,9 +27,9 @@ public class DatasetSortingColumnForm extends DBNFormImpl {
     private JPanel mainPanel;
 
     private DatasetSortingForm parentForm;
-    private SortingInstruction<DBColumn> sortingInstruction;
+    private SortingInstruction sortingInstruction;
 
-    public DatasetSortingColumnForm(DatasetSortingForm parentForm, SortingInstruction<DBColumn> sortingInstruction) {
+    public DatasetSortingColumnForm(DatasetSortingForm parentForm, SortingInstruction sortingInstruction) {
         this.parentForm = parentForm;
         this.sortingInstruction = sortingInstruction;
         DBColumn sortingColumn = sortingInstruction.getColumn();
@@ -37,6 +37,7 @@ public class DatasetSortingColumnForm extends DBNFormImpl {
         columnComboBox.setRenderer(cellRenderer);
         List<DBColumn> columns = new ArrayList<DBColumn>(dataset.getColumns());
         Collections.sort(columns);
+
         for (DBColumn column : columns) {
             columnComboBox.addItem(column);
         }
@@ -56,12 +57,12 @@ public class DatasetSortingColumnForm extends DBNFormImpl {
         return mainPanel;
     }
 
-    public SortingInstruction<DBColumn> getSortingInstruction() {
+    public SortingInstruction getSortingInstruction() {
         return sortingInstruction;
     }
 
     public void remove() {
-        //parentForm.removeConditionPanel(this);
+        parentForm.removeChildPanel(this);
     }
 
     private ListCellRenderer cellRenderer = new ColoredListCellRenderer() {
@@ -73,4 +74,14 @@ public class DatasetSortingColumnForm extends DBNFormImpl {
             }
         }
     };
+
+    public DBDataset getDataset() {
+        return parentForm.getDataset();
+    }
+
+    @Override
+    public void dispose() {
+        super.dispose();
+        parentForm = null;
+    }
 }

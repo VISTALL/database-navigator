@@ -4,8 +4,8 @@ import com.dci.intellij.dbn.common.ui.DBNFormImpl;
 import com.dci.intellij.dbn.common.ui.DBNHeaderForm;
 import com.dci.intellij.dbn.data.sorting.SortingInstruction;
 import com.dci.intellij.dbn.editor.data.sorting.DatasetSortingState;
-import com.dci.intellij.dbn.object.DBColumn;
 import com.dci.intellij.dbn.object.DBDataset;
+import com.dci.intellij.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.UIUtil;
 
@@ -23,11 +23,11 @@ public class DatasetSortingForm extends DBNFormImpl{
     private JPanel headerPanel;
     private JPanel sortingInstructionsPanel;
 
-    private DBDataset dataset;
+    private DBObjectRef<DBDataset> datasetRef;
     private List<DatasetSortingColumnForm> sortingInstructionForms = new ArrayList<DatasetSortingColumnForm>();
 
     public DatasetSortingForm(DBDataset dataset, DatasetSortingState sortingState) {
-        this.dataset = dataset;
+        this.datasetRef = dataset.getRef();
         Project project = dataset.getProject();
 
         String headerTitle = dataset.getQualifiedName();
@@ -45,7 +45,7 @@ public class DatasetSortingForm extends DBNFormImpl{
         BoxLayout sortingInstructionsPanelLayout = new BoxLayout(sortingInstructionsPanel, BoxLayout.Y_AXIS);
         sortingInstructionsPanel.setLayout(sortingInstructionsPanelLayout);
 
-        for (SortingInstruction<DBColumn> sortingInstruction : sortingState.getSortingInstructions()) {
+        for (SortingInstruction sortingInstruction : sortingState.getSortingInstructions()) {
             DatasetSortingColumnForm sortingInstructionForm = new DatasetSortingColumnForm(this, sortingInstruction);
             sortingInstructionForms.add(sortingInstructionForm);
             sortingInstructionsPanel.add(sortingInstructionForm.getComponent());
@@ -60,6 +60,22 @@ public class DatasetSortingForm extends DBNFormImpl{
     }
 
     public DBDataset getDataset() {
-        return dataset;
+        return datasetRef.get();
+    }
+
+    public void removeChildPanel(DatasetSortingColumnForm sortingInstructionForm) {
+        sortingInstructionsPanel.remove(sortingInstructionForm.getComponent());
+        sortingInstructionsPanel.updateUI();
+        sortingInstructionForms.remove(sortingInstructionForm);
+        sortingInstructionForm.dispose();
+    }
+
+    @Override
+    public void dispose() {
+        super.dispose();
+        for (DatasetSortingColumnForm sortingColumnForm : sortingInstructionForms) {
+            sortingColumnForm.dispose();
+        }
+        sortingInstructionForms.clear();
     }
 }

@@ -4,7 +4,6 @@ import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.data.sorting.SortDirection;
 import com.dci.intellij.dbn.data.sorting.SortingInstruction;
 import com.dci.intellij.dbn.editor.data.sorting.ui.DatasetSortingColumnForm;
-import com.dci.intellij.dbn.object.DBColumn;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAwareAction;
 
@@ -18,7 +17,7 @@ public class ChangeSortingDirectionAction extends DumbAwareAction {
     }
 
     public void update(AnActionEvent e) {
-        SortingInstruction<DBColumn> sortingInstruction = form.getSortingInstruction();
+        SortingInstruction sortingInstruction = form.getSortingInstruction();
         SortDirection direction = sortingInstruction.getDirection();
         Icon icon =
             direction == SortDirection.ASCENDING ? Icons.DATA_SORTING_ASC :
