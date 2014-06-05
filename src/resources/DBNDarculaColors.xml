@@ -1,0 +1,61 @@
+<?xml version='1.0'?>
+<list>
+    <option name="DBNavigator.DefaultTextAttributes.DataEditor.PlainData">
+        <value>
+
+        </value>
+    </option>
+    <option name="DBNavigator.DefaultTextAttributes.DataEditor.ModifiedData">
+        <value>
+            <option name="FONT_TYPE" value="1"/>
+        </value>
+    </option>
+
+    <option name="DBNavigator.DefaultTextAttributes.DataEditor.DeletedData">
+        <value>
+            <option name="FOREGROUND" value="999999"/>
+            <option name="BACKGROUND" value="393939"/>
+        </value>
+    </option>
+
+    <option name="DBNavigator.DefaultTextAttributes.DataEditor.ErrorData">
+        <value>
+            <option name="FOREGROUND" value="BC3F3C"/>
+            <option name="BACKGROUND" value="450505"/>
+        </value>
+    </option>
+
+    <option name="DBNavigator.DefaultTextAttributes.DataEditor.ReadonlyData">
+        <value>
+            <option name="FOREGROUND" value="999999"/>
+            <option name="BACKGROUND" value="393939"/>
+        </value>
+    </option>
+
+    <option name="DBNavigator.DefaultTextAttributes.DataEditor.LoadingData">
+        <value>
+            <option name="FOREGROUND" value="999999"/>
+            <option name="BACKGROUND" value="393939"/>
+        </value>
+    </option>
+
+    <option name="DBNavigator.DefaultTextAttributes.DataEditor.PrimaryKey">
+        <value>
+            <option name="FOREGROUND" value="95A8B4"/>
+            <option name="BACKGROUND" value="2B3447"/>
+        </value>
+    </option>
+
+    <option name="DBNavigator.DefaultTextAttributes.DataEditor.ForeignKey">
+        <value>
+            <option name="FOREGROUND" value="A1A8A1"/>
+            <option name="BACKGROUND" value="2A3B2A"/>
+        </value>
+    </option>
+
+    <option name="DBNavigator.DefaultTextAttributes.DataEditor.Selection">
+        <value>
+            <option name="BACKGROUND" value="214283"/>
+        </value>
+    </option>
+</list>
