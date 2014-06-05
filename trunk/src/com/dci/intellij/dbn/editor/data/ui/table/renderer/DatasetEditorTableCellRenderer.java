@@ -33,7 +33,7 @@ public class DatasetEditorTableCellRenderer extends BasicTableCellRenderer {
 
             boolean isDeletedRow = row.isDeleted();
             boolean isInsertRow = row.isInsert();
-            boolean isCaretRow = table.getCellSelectionEnabled() && table.getSelectedRow() == rowIndex && table.getSelectedRowCount() == 1;
+            boolean isCaretRow = !isInsertRow && table.getCellSelectionEnabled() && table.getSelectedRow() == rowIndex && table.getSelectedRowCount() == 1;
             boolean isModified = cell.isModified();
 
             DataGridTextAttributes attributes = getAttributes();
@@ -70,6 +70,10 @@ public class DatasetEditorTableCellRenderer extends BasicTableCellRenderer {
 
             if (cell.hasError()) {
                 border = getLineBorder(SimpleTextAttributes.ERROR_ATTRIBUTES.getFgColor());
+                SimpleTextAttributes errorData = attributes.getErrorData();
+                background = errorData.getBgColor();
+                foreground = errorData.getFgColor();
+                textAttributes = textAttributes.derive(errorData.getStyle(), foreground, background, null);
             }
 
             setBorder(border);

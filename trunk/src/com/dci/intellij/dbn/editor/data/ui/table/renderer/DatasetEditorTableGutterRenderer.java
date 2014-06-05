@@ -1,11 +1,11 @@
 package com.dci.intellij.dbn.editor.data.ui.table.renderer;
 
 import com.dci.intellij.dbn.common.Icons;
-import com.dci.intellij.dbn.common.ui.table.DBNTable;
 import com.dci.intellij.dbn.data.ui.table.basic.BasicTableGutter;
 import com.dci.intellij.dbn.data.ui.table.basic.BasicTableGutterCellRenderer;
 import com.dci.intellij.dbn.editor.data.model.DatasetEditorModel;
 import com.dci.intellij.dbn.editor.data.model.DatasetEditorModelRow;
+import com.dci.intellij.dbn.editor.data.ui.table.DatasetEditorTable;
 import com.intellij.openapi.editor.colors.EditorColorsManager;
 import com.intellij.openapi.editor.colors.EditorFontType;
 import com.intellij.ui.border.CustomLineBorder;
@@ -30,7 +30,7 @@ public class DatasetEditorTableGutterRenderer extends JPanel implements ListCell
     private JLabel imageLabel;
     private JPanel textPanel;
 
-    private Border border = new CompoundBorder(new CustomLineBorder(UIUtil.getPanelBackground(), 0, 0, 1, 1), new EmptyBorder(0, 3, 1, 3));
+    private Border border = new CompoundBorder(new CustomLineBorder(UIUtil.getPanelBackground(), 0, 0, 1, 1), new EmptyBorder(0, 3, 0, 3));
 
     public DatasetEditorTableGutterRenderer() {
         setBackground(UIUtil.getPanelBackground());
@@ -38,7 +38,7 @@ public class DatasetEditorTableGutterRenderer extends JPanel implements ListCell
         setLayout(new BorderLayout());
         textLabel = new JLabel();
         textLabel.setFont(EditorColorsManager.getInstance().getGlobalScheme().getFont(EditorFontType.PLAIN));
-        imageLabel = new JLabel(Icons.DATA_EDITOR_ROW_DEFAULT);
+        imageLabel = new JLabel();
 
         textPanel = new JPanel(new BorderLayout());
         textPanel.setBorder(new EmptyBorder(0,0,0,3));
@@ -52,12 +52,14 @@ public class DatasetEditorTableGutterRenderer extends JPanel implements ListCell
         BasicTableGutter tableGutter = (BasicTableGutter) list;
         DatasetEditorModel model = (DatasetEditorModel) list.getModel();
         DatasetEditorModelRow row = model.getRowAtIndex(index);
+        DatasetEditorTable table = (DatasetEditorTable) tableGutter.getTable();
         if (row != null) {
             Icon icon =
                     row.isNew() ? Icons.DATA_EDITOR_ROW_NEW :
                             row.isInsert() ? Icons.DATA_EDITOR_ROW_INSERT :
                                     row.isDeleted() ? Icons.DATA_EDITOR_ROW_DELETED :
-                                            row.isModified() ? Icons.DATA_EDITOR_ROW_MODIFIED : Icons.DATA_EDITOR_ROW_DEFAULT;
+                                            row.isModified() ? Icons.DATA_EDITOR_ROW_MODIFIED :
+                                                    table.getModel().isModified() ? Icons.DATA_EDITOR_ROW_DEFAULT : null;
 
             textLabel.setText("" + row.getIndex());
             imageLabel.setIcon(icon);
@@ -65,7 +67,6 @@ public class DatasetEditorTableGutterRenderer extends JPanel implements ListCell
         //lText.setFont(isSelected ? BOLD_FONT : REGULAR_FONT);
         textLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
-        DBNTable table = tableGutter.getTable();
         boolean isCaretRow = table.getCellSelectionEnabled() && table.getSelectedRow() == index && table.getSelectedRowCount() == 1;
         Color background = isSelected ?
                 BasicTableGutterCellRenderer.Colors.SELECTION_BACKGROUND_COLOR :
