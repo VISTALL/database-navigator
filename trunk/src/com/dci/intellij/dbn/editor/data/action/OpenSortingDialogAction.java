@@ -1,5 +1,6 @@
 package com.dci.intellij.dbn.editor.data.action;
 
+import com.dci.intellij.dbn.DatabaseNavigator;
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.data.sorting.SortDirection;
 import com.dci.intellij.dbn.editor.data.DatasetEditor;
@@ -42,6 +43,6 @@ public class OpenSortingDialogAction extends AbstractDataEditorAction {
                 datasetEditor.getEditorTable() != null &&
                 !datasetEditor.isInserting();
         presentation.setEnabled(enabled);
-
+        presentation.setVisible(DatabaseNavigator.getInstance().isDeveloperModeEnabled());
     }
 }
