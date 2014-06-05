@@ -34,9 +34,10 @@ public class DatasetEditorTableCellRenderer extends BasicTableCellRenderer {
             boolean isDeletedRow = row.isDeleted();
             boolean isInsertRow = row.isInsert();
             boolean isCaretRow = table.getCellSelectionEnabled() && table.getSelectedRow() == rowIndex && table.getSelectedRowCount() == 1;
+            boolean isModified = cell.isModified();
 
             DataGridTextAttributes attributes = getAttributes();
-            SimpleTextAttributes textAttributes = attributes.getPlainData(isCaretRow);
+            SimpleTextAttributes textAttributes = attributes.getPlainData(isModified, isCaretRow);
 
             DBColumn column = columnInfo.getColumn();
             if (isSelected) {
@@ -52,15 +53,13 @@ public class DatasetEditorTableCellRenderer extends BasicTableCellRenderer {
             } else if (isDeletedRow) {
                 textAttributes = attributes.getDeletedData();
             } else if ((isInserting && !isInsertRow)) {
-                textAttributes = attributes.getReadonlyData(isCaretRow);
+                textAttributes = attributes.getReadonlyData(isModified, isCaretRow);
             } else if (isPrimaryKey(column)) {
-                textAttributes = attributes.getPrimaryKey(cell.isModified(), isCaretRow);
+                textAttributes = attributes.getPrimaryKey(isModified, isCaretRow);
             } else if (isForeignKey(column)) {
-                textAttributes = attributes.getForeignKey(cell.isModified(), isCaretRow);
-            } else if (cell.isModified()) {
-                textAttributes = attributes.getModifiedData(isCaretRow);
+                textAttributes = attributes.getForeignKey(isModified, isCaretRow);
             } else if (cell.isLobValue()) {
-                textAttributes = attributes.getReadonlyData(isCaretRow);
+                textAttributes = attributes.getReadonlyData(isModified, isCaretRow);
             }
 
             Color background = CommonUtil.nvl(textAttributes.getBgColor(), table.getBackground());
