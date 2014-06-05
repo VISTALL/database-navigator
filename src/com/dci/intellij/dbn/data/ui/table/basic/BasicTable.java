@@ -99,7 +99,7 @@ public class BasicTable extends DBNTable implements EditorColorsListener, Dispos
 
     public void tableChanged(TableModelEvent e) {
         super.tableChanged(e);
-        if (e.getType() == TableModelEvent.INSERT || e.getType() == TableModelEvent.DELETE) {
+        if (e.getFirstRow() != e.getLastRow()) {
             accommodateColumnsSize();
         }
 

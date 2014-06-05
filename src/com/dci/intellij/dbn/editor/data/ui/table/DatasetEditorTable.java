@@ -223,6 +223,11 @@ public class DatasetEditorTable extends ResultSetTable {
     }
 
     @Override
+    public int getColumnWidthSpan() {
+        return 30;
+    }
+
+    @Override
     public String getToolTipText(@NotNull MouseEvent event) {
         DataModelCell cell = getCellAtLocation(event.getPoint());
         if (cell instanceof DatasetEditorModelCell) {
