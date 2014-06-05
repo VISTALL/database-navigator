@@ -10,7 +10,7 @@ import java.awt.event.MouseListener;
 public class DatasetEditorTableGutter extends BasicTableGutter {
     public DatasetEditorTableGutter(DatasetEditorTable table) {
         super(table);
-        setCellRenderer(DatasetEditorTableGutterRenderer.INSTANCE);
+        setCellRenderer(new DatasetEditorTableGutterRenderer());
         setFixedCellWidth(48);
         addMouseListener(mouseListener);
     }

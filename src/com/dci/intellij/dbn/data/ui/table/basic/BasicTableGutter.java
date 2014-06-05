@@ -1,6 +1,8 @@
 package com.dci.intellij.dbn.data.ui.table.basic;
 
 import com.dci.intellij.dbn.common.ui.table.DBNTable;
+import com.dci.intellij.dbn.data.model.basic.BasicDataModel;
+import com.intellij.openapi.Disposable;
 
 import javax.swing.JList;
 import javax.swing.ListSelectionModel;
@@ -9,14 +11,15 @@ import javax.swing.event.ListSelectionListener;
 import java.awt.Rectangle;
 import java.awt.event.FocusEvent;
 
-public class BasicTableGutter extends JList implements ListSelectionListener {
+public class BasicTableGutter extends JList implements Disposable {
     private BasicTable table;
 
     public BasicTableGutter(BasicTable table) {
         super(table.getModel());
         this.table = table;
-        setCellRenderer(BasicTableGutterCellRenderer.INSTANCE);
-        addListSelectionListener(this);
+        this.table.getSelectionModel().addListSelectionListener(tableSelectionListener);
+        setCellRenderer(new BasicTableGutterCellRenderer());
+        addListSelectionListener(gutterSelectionListener);
         int rowHeight = table.getRowHeight();
         if (rowHeight != 0) setFixedCellHeight(rowHeight);
         setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
@@ -27,6 +30,11 @@ public class BasicTableGutter extends JList implements ListSelectionListener {
 
     public DBNTable getTable() {
         return table;
+    }
+
+    @Override
+    public BasicDataModel getModel() {
+        return (BasicDataModel) super.getModel();
     }
 
     public void scrollRectToVisible(Rectangle rect) {
@@ -51,21 +59,36 @@ public class BasicTableGutter extends JList implements ListSelectionListener {
     /*********************************************************
      *                ListSelectionListener                  *
      *********************************************************/
-    public void valueChanged(ListSelectionEvent e) {
-        if (hasFocus()) {
-            int lastColumnIndex = table.getModel().getColumnCount() - 1;
-            if (justGainedFocus) {
-                justGainedFocus = false;
-                if (table.isEditing()) table.getCellEditor().cancelCellEditing();
-                table.clearSelection();
-                table.setColumnSelectionInterval(0, lastColumnIndex);
-            }
+    private ListSelectionListener gutterSelectionListener = new ListSelectionListener() {
+        @Override
+        public void valueChanged(ListSelectionEvent e) {
+            if (hasFocus()) {
+                int lastColumnIndex = table.getModel().getColumnCount() - 1;
+                if (justGainedFocus) {
+                    justGainedFocus = false;
+                    if (table.isEditing()) table.getCellEditor().cancelCellEditing();
+                    table.clearSelection();
+                    table.setColumnSelectionInterval(0, lastColumnIndex);
+                }
 
-            for (int i = e.getFirstIndex(); i <= e.getLastIndex(); i++) {
-                if (isSelectedIndex(i)) 
-                    table.getSelectionModel().addSelectionInterval(i, i); else
-                    table.getSelectionModel().removeSelectionInterval(i, i);
+                for (int i = e.getFirstIndex(); i <= e.getLastIndex(); i++) {
+                    if (isSelectedIndex(i))
+                        table.getSelectionModel().addSelectionInterval(i, i); else
+                        table.getSelectionModel().removeSelectionInterval(i, i);
+                }
             }
         }
+    };
+
+    private ListSelectionListener tableSelectionListener = new ListSelectionListener() {
+        @Override
+        public void valueChanged(ListSelectionEvent e) {
+            repaint();
+        }
+    };
+
+    @Override
+    public void dispose() {
+        table = null;
     }
 }
