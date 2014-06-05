@@ -21,7 +21,7 @@ public class DatasetEditorTableCellRenderer extends BasicTableCellRenderer {
     }
 
     protected void customizeCellRenderer(JTable table, Object value, boolean isSelected, boolean hasFocus, int rowIndex, int columnIndex) {
-
+        acquireState(table, isSelected, false, rowIndex, columnIndex);
         DatasetEditorModelCell cell = (DatasetEditorModelCell) value;
         DatasetEditorTable datasetEditorTable = (DatasetEditorTable) table;
 
@@ -42,9 +42,10 @@ public class DatasetEditorTableCellRenderer extends BasicTableCellRenderer {
             DBColumn column = columnInfo.getColumn();
             if (isSelected) {
                 if (datasetEditorTable.isCellEditable(rowIndex, columnIndex)) {
-                    if (!hasFocus || table.getSelectedRowCount() > 1 || table.getSelectedColumnCount() > 1) {
+                    /*if (!hasFocus || table.getSelectedRowCount() > 1 || table.getSelectedColumnCount() > 1) {
                         textAttributes = attributes.getSelection();
-                    }
+                    }*/
+                    textAttributes = attributes.getSelection();
                 } else {
                     textAttributes = attributes.getSelection();
                 }
