@@ -2,6 +2,7 @@ package com.dci.intellij.dbn.editor.data.state.visibility.action;
 
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.ui.list.CheckBoxList;
+import com.dci.intellij.dbn.editor.data.state.visibility.DatasetColumnVisibility;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 
@@ -14,6 +15,6 @@ public class RevertColumnOrderAction extends AnAction {
     }
 
     public void actionPerformed(AnActionEvent e) {
-        list.sortElements(null);
+        list.sortElements(DatasetColumnVisibility.POSITION_COMPARATOR);
     }
 }

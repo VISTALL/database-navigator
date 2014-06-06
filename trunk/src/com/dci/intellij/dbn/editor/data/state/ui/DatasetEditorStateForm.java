@@ -20,6 +20,8 @@ public class DatasetEditorStateForm extends DBNFormImpl{
     private JPanel sortingPanel;
     private JPanel visibilityPanel;
     private JPanel headerPanel;
+    private DatasetSortingForm datasetSortingForm;
+    private DatasetColumnVisibilityForm columnVisibilityForm;
 
     public DatasetEditorStateForm(DBDataset dataset, DatasetEditorState datasetEditorState) {
         Project project = dataset.getProject();
@@ -37,8 +39,9 @@ public class DatasetEditorStateForm extends DBNFormImpl{
         headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
 
 
-        DatasetSortingForm datasetSortingForm = new DatasetSortingForm(dataset, datasetEditorState.getDataSortingState());
-        DatasetColumnVisibilityForm columnVisibilityForm = new DatasetColumnVisibilityForm(dataset, datasetEditorState.getColumnVisibilityState());
+        datasetSortingForm = new DatasetSortingForm(dataset, datasetEditorState.getDataSortingState());
+        columnVisibilityForm = new DatasetColumnVisibilityForm(dataset, datasetEditorState.getColumnVisibilityState());
+
         sortingPanel.add(datasetSortingForm.getComponent(), BorderLayout.CENTER);
         visibilityPanel.add(columnVisibilityForm.getComponent(), BorderLayout.CENTER);
     }
@@ -46,5 +49,19 @@ public class DatasetEditorStateForm extends DBNFormImpl{
     @Override
     public JComponent getComponent() {
         return mainPanel;
+    }
+
+    public void applyChanges(){
+        datasetSortingForm.applyChanges();
+        columnVisibilityForm.applyChanges();
+    }
+
+    @Override
+    public void dispose() {
+        if (!isDisposed()) {
+            super.dispose();
+            datasetSortingForm.dispose();
+            columnVisibilityForm.dispose();
+        }
     }
 }

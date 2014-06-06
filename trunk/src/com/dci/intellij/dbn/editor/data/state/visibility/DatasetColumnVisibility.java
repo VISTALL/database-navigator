@@ -14,17 +14,31 @@ public class DatasetColumnVisibility  implements Selectable<DatasetColumnVisibil
             return o1.getName().compareTo(o2.getName());
         }
     };
+
+    public static final Comparator<DatasetColumnVisibility> POSITION_COMPARATOR = new Comparator<DatasetColumnVisibility>() {
+        @Override
+        public int compare(DatasetColumnVisibility o1, DatasetColumnVisibility o2) {
+            return o1.originalPosition - o2.originalPosition;
+        }
+    };
+
     private DBObjectRef<DBColumn> columnRef;
     private boolean visible = true;
     private int position;
+    private int originalPosition;
 
     public DatasetColumnVisibility(DBColumn column) {
         this.columnRef = column.getRef();
         this.position = column.getPosition() -1;
+        this.originalPosition = column.getPosition();
     }
 
     public DBColumn getColumn() {
-        return columnRef.get();
+        DBColumn column = columnRef.get();
+        if (column != null) {
+            this.originalPosition = column.getPosition();
+        }
+        return column;
     }
 
     public boolean isVisible() {
@@ -41,6 +55,14 @@ public class DatasetColumnVisibility  implements Selectable<DatasetColumnVisibil
 
     public void setPosition(int position) {
         this.position = position;
+    }
+
+    public int getOriginalPosition() {
+        return originalPosition;
+    }
+
+    public void setOriginalPosition(int originalPosition) {
+        this.originalPosition = originalPosition;
     }
 
     @Override

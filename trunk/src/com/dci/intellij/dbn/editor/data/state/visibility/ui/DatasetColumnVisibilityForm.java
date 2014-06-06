@@ -54,7 +54,7 @@ public class DatasetColumnVisibilityForm  extends DBNFormImpl {
         columnList.applyChanges();
         ListModel model = columnList.getModel();
         for(int i=0; i<model.getSize(); i++ ) {
-            DatasetColumnVisibility columnVisibility = (DatasetColumnVisibility) model.getElementAt(i);
+            DatasetColumnVisibility columnVisibility = (DatasetColumnVisibility) columnList.getElementAt(i);
             columnVisibility.setPosition(i);
         }
         Collections.sort(visibilityState.getColumns());
