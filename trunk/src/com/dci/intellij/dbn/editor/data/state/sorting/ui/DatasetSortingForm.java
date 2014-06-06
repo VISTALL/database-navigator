@@ -39,12 +39,24 @@ public class DatasetSortingForm extends DBNFormImpl{
             sortingInstructionsPanel.add(sortingInstructionForm.getComponent());
         }
 
+        adjustMetrics();
+
         ActionToolbar actionToolbar = ActionUtil.createActionToolbar(
                 "DBNavigator.DataEditor.Sorting.Add", true,
                 new AddSortingColumnAction(this));
         actionsPanel.add(actionToolbar.getComponent(), BorderLayout.WEST);
     }
 
+    protected void adjustMetrics() {
+        int[] metrics = new int[]{0};
+        for (DatasetSortingColumnForm columnForm : sortingInstructionForms) {
+            metrics = columnForm.getMetrics(metrics);
+        }
+
+        for (DatasetSortingColumnForm columnForm : sortingInstructionForms) {
+            columnForm.adjustMetrics(metrics);
+        }
+    }
 
 
     @Override
@@ -63,6 +75,7 @@ public class DatasetSortingForm extends DBNFormImpl{
             DatasetSortingColumnForm sortingInstructionForm = new DatasetSortingColumnForm(this, datasetSortingInstruction);
             sortingInstructionForms.add(sortingInstructionForm);
             sortingInstructionsPanel.add(sortingInstructionForm.getComponent());
+            adjustMetrics();
             sortingInstructionsPanel.updateUI();
         }
     }
@@ -70,9 +83,10 @@ public class DatasetSortingForm extends DBNFormImpl{
 
     public void removeSortingColumn(DatasetSortingColumnForm sortingInstructionForm) {
         sortingInstructionsPanel.remove(sortingInstructionForm.getComponent());
-        sortingInstructionsPanel.updateUI();
         sortingInstructionForms.remove(sortingInstructionForm);
         sortingInstructionForm.dispose();
+        adjustMetrics();
+        sortingInstructionsPanel.updateUI();
     }
 
     public void applyChanges() {
