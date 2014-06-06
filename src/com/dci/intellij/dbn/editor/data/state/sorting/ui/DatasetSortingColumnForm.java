@@ -15,6 +15,7 @@ import com.intellij.openapi.actionSystem.ActionToolbar;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -56,7 +57,16 @@ public class DatasetSortingColumnForm extends DBNFormImpl {
 
         @Override
         public void valueSelected(DBColumn column) {
+            parentForm.adjustMetrics();
         }
+    }
+
+    protected int[] getMetrics(int[] metrics) {
+        return new int[] {(int) Math.max(metrics[0], columnPanel.getPreferredSize().getWidth() + 20)};
+    }
+
+    protected void adjustMetrics(int[] metrics) {
+        columnPanel.setMinimumSize(new Dimension(metrics[0], columnPanel.getHeight()));
     }
 
     @Override

@@ -7,7 +7,10 @@ import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.ui.popup.ListPopup;
+import com.intellij.ui.Gray;
+import com.intellij.ui.JBColor;
 import com.intellij.ui.RoundedLineBorder;
+import com.intellij.util.ui.UIUtil;
 
 import javax.swing.Icon;
 import javax.swing.JLabel;
@@ -15,8 +18,8 @@ import javax.swing.JPanel;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -28,6 +31,7 @@ public abstract class ValueSelector<T extends Presentable> extends JPanel{
     private JLabel label;
     private Icon noSelectionIcon;
     private String noSelectionText;
+    private boolean focused;
 
     public ValueSelector(Icon noSelectionIcon, String noSelectionText, T preselectedValue) {
         super(new BorderLayout(0,0));
@@ -40,19 +44,24 @@ public abstract class ValueSelector<T extends Presentable> extends JPanel{
         selectValue(preselectedValue);
         label.addMouseListener(mouseListener);
         setBorder(new EmptyBorder(1,6,1,6));
+    }
 
+    public void paintComponent(Graphics g) {
+        super.paintComponent(g);
     }
 
     private MouseListener mouseListener = new MouseAdapter() {
         @Override
         public void mouseEntered(MouseEvent e) {
-            setBorder(new CompoundBorder(new RoundedLineBorder(Color.DARK_GRAY, 6), new EmptyBorder(0,5,0,5)));
+            setBorder(new CompoundBorder(new RoundedLineBorder(new JBColor(Gray._190, Gray._55), 5), new EmptyBorder(0, 5, 0, 5)));
+            setBackground(new JBColor(Gray._210, Gray._75));
             updateUI();
         }
 
         @Override
         public void mouseExited(MouseEvent e) {
-            setBorder(new EmptyBorder(1,6,1,6));
+            setBorder(new EmptyBorder(1, 6, 1, 6));
+            setBackground(UIUtil.getPanelBackground());
             updateUI();
         }
 
