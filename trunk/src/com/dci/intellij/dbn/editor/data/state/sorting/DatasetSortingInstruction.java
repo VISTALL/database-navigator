@@ -7,6 +7,6 @@ import com.dci.intellij.dbn.object.lookup.DBObjectRef;
 
 public class DatasetSortingInstruction extends SortingInstruction<DBObjectRef<DBColumn>> {
     public DatasetSortingInstruction(DBColumn column, SortDirection direction) {
-        super(column.getRef(), direction);
+        super(DBObjectRef.from(column), direction);
     }
 }
