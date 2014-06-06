@@ -15,6 +15,7 @@ import com.intellij.util.ui.UIUtil;
 import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import java.awt.BorderLayout;
@@ -29,21 +30,30 @@ import java.util.List;
 public abstract class ValueSelector<T extends Presentable> extends JPanel{
     private T selectedValue;
     private JLabel label;
-    private Icon noSelectionIcon;
-    private String noSelectionText;
-    private boolean focused;
+    private JPanel innerPanel;
+    private Icon icon;
+    private String text;
+    private boolean selectInternal;
 
-    public ValueSelector(Icon noSelectionIcon, String noSelectionText, T preselectedValue) {
+    public ValueSelector(Icon icon, String text, T preselectedValue, boolean selectInternal) {
         super(new BorderLayout(0,0));
-        this.noSelectionIcon = noSelectionIcon;
-        this.noSelectionText = noSelectionText;
-        label = new JLabel();
+        this.icon = icon;
+        this.text = text;
+        this.selectInternal = selectInternal;
+
+        setBorder(new EmptyBorder(2, 0, 2, 0));
+
+        label = new JLabel(text, icon, SwingConstants.LEFT);
         label.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         label.addMouseListener(labelMouseListener);
-        add(label, BorderLayout.WEST);
-        selectValue(preselectedValue);
         label.addMouseListener(mouseListener);
-        setBorder(new EmptyBorder(1,6,1,6));
+
+        innerPanel = new JPanel(new BorderLayout());
+        innerPanel.setBorder(new EmptyBorder(21 - icon.getIconHeight(), 6, 21 - icon.getIconHeight(), 6));
+        innerPanel.add(label, BorderLayout.WEST);
+        add(innerPanel, BorderLayout.CENTER);
+
+        if (selectInternal) selectValue(preselectedValue);
     }
 
     public void paintComponent(Graphics g) {
@@ -53,15 +63,15 @@ public abstract class ValueSelector<T extends Presentable> extends JPanel{
     private MouseListener mouseListener = new MouseAdapter() {
         @Override
         public void mouseEntered(MouseEvent e) {
-            setBorder(new CompoundBorder(new RoundedLineBorder(new JBColor(Gray._190, Gray._55), 5), new EmptyBorder(0, 5, 0, 5)));
-            setBackground(new JBColor(Gray._210, Gray._75));
+            innerPanel.setBorder(new CompoundBorder(new RoundedLineBorder(new JBColor(Gray._190, Gray._55), 3), new EmptyBorder(20 - icon.getIconHeight(), 5, 20 - icon.getIconHeight(), 5)));
+            innerPanel.setBackground(new JBColor(Gray._210, Gray._75));
             updateUI();
         }
 
         @Override
         public void mouseExited(MouseEvent e) {
-            setBorder(new EmptyBorder(1, 6, 1, 6));
-            setBackground(UIUtil.getPanelBackground());
+            innerPanel.setBorder(new EmptyBorder(21 - icon.getIconHeight(), 6, 21 - icon.getIconHeight(), 6));
+            innerPanel.setBackground(UIUtil.getPanelBackground());
             updateUI();
         }
 
@@ -93,7 +103,7 @@ public abstract class ValueSelector<T extends Presentable> extends JPanel{
         Point locationOnScreen = getLocationOnScreen();
         Point location = new Point(
                 (int) (locationOnScreen.getX()),
-                (int) locationOnScreen.getY() + getHeight());
+                (int) locationOnScreen.getY() + getHeight() + 1);
         popup.showInScreenCoordinates(this, location);
     }
 
@@ -105,15 +115,17 @@ public abstract class ValueSelector<T extends Presentable> extends JPanel{
     public abstract void valueSelected(T value);
 
     private void selectValue(T value) {
-        selectedValue = value;
-        if (selectedValue == null) {
-            label.setIcon(noSelectionIcon);
-            label.setText(noSelectionText);
-        } else {
-            label.setIcon(selectedValue.getIcon());
-            label.setText(selectedValue.getName());
+        if (selectInternal) {
+            selectedValue = value;
+            if (selectedValue == null) {
+                label.setIcon(icon);
+                label.setText(text);
+            } else {
+                label.setIcon(selectedValue.getIcon());
+                label.setText(selectedValue.getName());
+            }
         }
-        valueSelected(selectedValue);
+        valueSelected(value);
     }
 
     public class SelectValueAction extends DumbAwareAction {

@@ -44,7 +44,7 @@ public class DatasetSortingColumnForm extends DBNFormImpl {
 
     private class ColumnSelector extends ValueSelector<DBColumn>{
         public ColumnSelector(DBColumn selectedColumn) {
-            super(Icons.DBO_COLUMN_HIDDEN, "Select column...", selectedColumn);
+            super(Icons.DBO_COLUMN_HIDDEN, "Select column...", selectedColumn, true);
         }
 
         @Override
