@@ -168,7 +168,7 @@ public class CheckBoxList<T extends Selectable> extends JList {
         private T presentable;
 
         private Entry(T presentable) {
-            super(new BorderLayout());
+            super(new BorderLayout(4, 0));
             setBackground(UIUtil.getListBackground());
             this.presentable = presentable;
             checkBox = new JCheckBox("", presentable.isSelected());
@@ -180,7 +180,7 @@ public class CheckBoxList<T extends Selectable> extends JList {
             errorLabel.setForeground(Color.RED);
             add(checkBox, BorderLayout.WEST);
 
-            textPanel = new JPanel(new BorderLayout(2, 0));
+            textPanel = new JPanel(new BorderLayout(4, 0));
             textPanel.add(label, BorderLayout.WEST);
             textPanel.add(errorLabel, BorderLayout.CENTER);
             textPanel.setBackground(UIUtil.getListBackground());
