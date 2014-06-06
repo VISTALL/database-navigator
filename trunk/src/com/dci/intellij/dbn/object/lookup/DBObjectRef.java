@@ -1,5 +1,6 @@
 package com.dci.intellij.dbn.object.lookup;
 
+import com.dci.intellij.dbn.common.Reference;
 import com.dci.intellij.dbn.connection.ConnectionCache;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.ConnectionManager;
@@ -14,7 +15,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class DBObjectRef<T extends DBObject> implements Comparable {
+public class DBObjectRef<T extends DBObject> implements Comparable, Reference<T> {
     protected String connectionId;
     protected Node[] nodes;
     private WeakReference<T> reference;
