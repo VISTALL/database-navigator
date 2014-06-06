@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 
-public class TextContentType implements Selectable {
+public class TextContentType implements Selectable<TextContentType> {
     private String name;
     private FileType fileType;
     private boolean enabled = true;
@@ -53,6 +53,11 @@ public class TextContentType implements Selectable {
 
     public void setSelected(boolean selected) {
         this.enabled = selected;
+    }
+
+    @Override
+    public int compareTo(TextContentType remote) {
+        return name.compareTo(remote.name);
     }
 }
 

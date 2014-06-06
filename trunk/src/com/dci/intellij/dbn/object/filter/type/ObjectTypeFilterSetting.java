@@ -4,8 +4,8 @@ import com.dci.intellij.dbn.common.ui.list.Selectable;
 import com.dci.intellij.dbn.object.common.DBObjectType;
 import com.dci.intellij.dbn.object.filter.type.ui.ObjectTypeFilterSettingsForm;
 
-import javax.swing.*;
-public class ObjectTypeFilterSetting implements Selectable {
+import javax.swing.Icon;
+public class ObjectTypeFilterSetting implements Selectable<ObjectTypeFilterSetting> {
     private DBObjectType objectType;
     private boolean selected = true;
     private ObjectTypeFilterSettings parent;
@@ -79,5 +79,10 @@ public class ObjectTypeFilterSetting implements Selectable {
     @Override
     public int hashCode() {
         return objectType != null ? objectType.hashCode() : 0;
+    }
+
+    @Override
+    public int compareTo(ObjectTypeFilterSetting o) {
+        return 0;
     }
 }

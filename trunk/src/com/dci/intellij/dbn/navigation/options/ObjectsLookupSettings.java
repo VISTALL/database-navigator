@@ -145,7 +145,7 @@ public class ObjectsLookupSettings extends ProjectConfiguration<ObjectsLookupSet
         promptSchemaSelection.writeConfiguration(element);
     }
     
-    private class ObjectTypeEntry implements Selectable {
+    private class ObjectTypeEntry implements Selectable<ObjectTypeEntry> {
         private DBObjectType objectType;
         private boolean enabled = true;
 
@@ -185,5 +185,10 @@ public class ObjectsLookupSettings extends ProjectConfiguration<ObjectsLookupSet
         public void setSelected(boolean selected) {
             this.enabled = selected;
         }
-    }    
+
+        @Override
+        public int compareTo(ObjectTypeEntry remote) {
+            return objectType.compareTo(remote.objectType);
+        }
+    }
 }
