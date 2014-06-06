@@ -1,32 +1,20 @@
 package com.dci.intellij.dbn.data.sorting;
 
-import com.dci.intellij.dbn.object.DBColumn;
-import com.dci.intellij.dbn.object.lookup.DBObjectRef;
-
-public class SortingInstruction {
-    private DBObjectRef<DBColumn> columnRef;
+public class SortingInstruction<T> {
+    private T column;
     private SortDirection direction;
 
-    public SortingInstruction(DBColumn column, SortDirection direction) {
-        this.columnRef = column.getRef();
+    public SortingInstruction(T column, SortDirection direction) {
+        this.column = column;
         this.direction = direction;
     }
 
-    private SortingInstruction(DBObjectRef<DBColumn> columnRef, SortDirection direction) {
-        this.columnRef = columnRef;
-        this.direction = direction;
+    public T getColumn() {
+        return column;
     }
 
-    public DBColumn getColumn() {
-        return columnRef.get();
-    }
-
-    public void setColumn(DBColumn column) {
-        this.columnRef = column.getRef();
-    }
-
-    public void setColumnRef(DBObjectRef<DBColumn> columnRef) {
-        this.columnRef = columnRef;
+    public void setColumn(T column) {
+        this.column = column;
     }
 
     public SortDirection getDirection() {
@@ -46,6 +34,6 @@ public class SortingInstruction {
     }
 
     public SortingInstruction clone() {
-        return new SortingInstruction(columnRef, direction);
+        return new SortingInstruction(column, direction);
     }
 }

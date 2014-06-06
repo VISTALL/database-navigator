@@ -5,7 +5,7 @@ import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.Icon;
 
 public class TextContentType implements Selectable {
     private String name;
@@ -51,8 +51,8 @@ public class TextContentType implements Selectable {
         return true;
     }
 
-    public void setSelected(boolean enabled) {
-        this.enabled = enabled;
+    public void setSelected(boolean selected) {
+        this.enabled = selected;
     }
 }
 

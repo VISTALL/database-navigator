@@ -1,9 +1,10 @@
-package com.dci.intellij.dbn.editor.data.sorting.ui;
+package com.dci.intellij.dbn.editor.data.state.sorting.ui;
 
 import com.dci.intellij.dbn.common.ui.DBNFormImpl;
 import com.dci.intellij.dbn.common.ui.DBNHeaderForm;
 import com.dci.intellij.dbn.data.sorting.SortingInstruction;
-import com.dci.intellij.dbn.editor.data.sorting.DatasetSortingState;
+import com.dci.intellij.dbn.editor.data.state.sorting.DatasetSortingInstruction;
+import com.dci.intellij.dbn.editor.data.state.sorting.DatasetSortingState;
 import com.dci.intellij.dbn.object.DBDataset;
 import com.dci.intellij.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.project.Project;
@@ -46,7 +47,8 @@ public class DatasetSortingForm extends DBNFormImpl{
         sortingInstructionsPanel.setLayout(sortingInstructionsPanelLayout);
 
         for (SortingInstruction sortingInstruction : sortingState.getSortingInstructions()) {
-            DatasetSortingColumnForm sortingInstructionForm = new DatasetSortingColumnForm(this, sortingInstruction);
+            DatasetSortingInstruction datasetSortingInstruction = (DatasetSortingInstruction) sortingInstruction;
+            DatasetSortingColumnForm sortingInstructionForm = new DatasetSortingColumnForm(this, datasetSortingInstruction);
             sortingInstructionForms.add(sortingInstructionForm);
             sortingInstructionsPanel.add(sortingInstructionForm.getComponent());
         }

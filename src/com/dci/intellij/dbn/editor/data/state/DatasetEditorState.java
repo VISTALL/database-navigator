@@ -1,6 +1,8 @@
-package com.dci.intellij.dbn.editor.data;
+package com.dci.intellij.dbn.editor.data.state;
 
 import com.dci.intellij.dbn.data.model.sortable.SortableDataModelState;
+import com.dci.intellij.dbn.editor.data.state.sorting.DatasetSortingState;
+import com.dci.intellij.dbn.editor.data.state.visibility.DatasetColumnVisibilityState;
 import com.intellij.openapi.fileEditor.FileEditorState;
 import com.intellij.openapi.fileEditor.FileEditorStateLevel;
 import gnu.trove.THashMap;
@@ -8,8 +10,19 @@ import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
 public class DatasetEditorState extends SortableDataModelState implements FileEditorState {
+    private DatasetColumnVisibilityState columnVisibilityState = new DatasetColumnVisibilityState();
+    private DatasetSortingState dataSortingState = new DatasetSortingState();
+
     public boolean canBeMergedWith(FileEditorState fileEditorState, FileEditorStateLevel fileEditorStateLevel) {
         return false;
+    }
+
+    public DatasetColumnVisibilityState getColumnVisibilityState() {
+        return columnVisibilityState;
+    }
+
+    public DatasetSortingState getDataSortingState() {
+        return dataSortingState;
     }
 
     public void readState(@NotNull Element sourceElement) {

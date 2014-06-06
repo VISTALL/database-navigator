@@ -182,8 +182,8 @@ public class ObjectsLookupSettings extends ProjectConfiguration<ObjectsLookupSet
             return true;
         }
 
-        public void setSelected(boolean enabled) {
-            this.enabled = enabled;
+        public void setSelected(boolean selected) {
+            this.enabled = selected;
         }
     }    
 }
