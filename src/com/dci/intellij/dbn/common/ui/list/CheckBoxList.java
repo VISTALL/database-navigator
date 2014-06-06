@@ -1,6 +1,5 @@
 package com.dci.intellij.dbn.common.ui.list;
 
-import com.intellij.ui.DottedBorder;
 import com.intellij.util.ui.UIUtil;
 
 import javax.swing.DefaultListModel;
@@ -10,6 +9,7 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListModel;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.border.LineBorder;
 import java.awt.BorderLayout;
@@ -24,7 +24,16 @@ import java.awt.event.MouseEvent;
 import java.util.List;
 
 public class CheckBoxList<T extends Selectable> extends JList {
+    private boolean mutable;
     public CheckBoxList(List<T> elements) {
+        this(elements, false);
+    }
+    public CheckBoxList(List<T> elements, boolean mutable) {
+        this.mutable = mutable;
+        setSelectionMode(mutable ?
+                ListSelectionModel.MULTIPLE_INTERVAL_SELECTION :
+                ListSelectionModel.SINGLE_SELECTION);
+
         setCellRenderer(new CellRenderer());
         DefaultListModel model = new DefaultListModel();
         for (T element : elements) {
@@ -82,11 +91,20 @@ public class CheckBoxList<T extends Selectable> extends JList {
 
             //entry.errorLabel.setText(error != null && list.isEnabled() ? " - " + error : "");
 
-            Color background = list.isEnabled() ? UIUtil.getListBackground() : UIUtil.getComboBoxDisabledBackground();
-            //entry.setBackground(background);
-            entry.textPanel.setBackground(background);
-            entry.checkBox.setBackground(background);
-            entry.setBorder(isSelected ? new DottedBorder(Color.BLACK) : new LineBorder(background));
+            if (mutable) {
+                Color foreground = isSelected ? UIUtil.getListSelectionForeground() : UIUtil.getListForeground();
+                Color background = isSelected ? UIUtil.getListSelectionBackground() : UIUtil.getListBackground();
+                entry.textPanel.setBackground(background);
+                entry.checkBox.setBackground(background);
+                entry.label.setForeground(foreground);
+            } else {
+                Color background = list.isEnabled() ? UIUtil.getListBackground() : UIUtil.getComboBoxDisabledBackground();
+                //entry.setBackground(background);
+                entry.textPanel.setBackground(background);
+                entry.checkBox.setBackground(background);
+                entry.setBorder(new LineBorder(background));
+            }
+
             return entry;
         }
     }

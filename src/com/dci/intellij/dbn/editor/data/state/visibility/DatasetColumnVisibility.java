@@ -6,13 +6,14 @@ import com.dci.intellij.dbn.object.lookup.DBObjectRef;
 
 import javax.swing.Icon;
 
-public class DatasetColumnVisibility  implements Selectable {
+public class DatasetColumnVisibility  implements Selectable, Comparable<DatasetColumnVisibility> {
     private DBObjectRef<DBColumn> columnRef;
-    private boolean visible;
+    private boolean visible = true;
     private int position;
 
     public DatasetColumnVisibility(DBColumn column) {
         this.columnRef = column.getRef();
+        this.position = column.getPosition() -1;
     }
 
     public DBColumn getColumn() {
@@ -57,11 +58,16 @@ public class DatasetColumnVisibility  implements Selectable {
 
     @Override
     public boolean isMasterSelected() {
-        return false;
+        return true;
     }
 
     @Override
     public void setSelected(boolean selected) {
         visible = selected;
+    }
+
+    @Override
+    public int compareTo(DatasetColumnVisibility remote) {
+        return position-remote.position;
     }
 }
