@@ -65,7 +65,7 @@ public class DatasetSortingColumnForm extends DBNFormImpl {
     }
 
     public void remove() {
-        parentForm.removeChildPanel(this);
+        parentForm.removeSortingColumn(this);
     }
 
     private ListCellRenderer cellRenderer = new ColoredListCellRenderer() {
