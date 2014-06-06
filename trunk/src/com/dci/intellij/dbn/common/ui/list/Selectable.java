@@ -1,6 +1,6 @@
 package com.dci.intellij.dbn.common.ui.list;
 
-import javax.swing.*;
+import javax.swing.Icon;
 
 public interface Selectable {
     Icon getIcon();
@@ -8,5 +8,5 @@ public interface Selectable {
     String getError();
     boolean isSelected();
     boolean isMasterSelected();
-    void setSelected(boolean enabled);
+    void setSelected(boolean selected);
 }

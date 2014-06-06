@@ -20,6 +20,7 @@ import com.dci.intellij.dbn.editor.data.model.DatasetEditorModel;
 import com.dci.intellij.dbn.editor.data.model.DatasetEditorModelRow;
 import com.dci.intellij.dbn.editor.data.options.DataEditorSettings;
 import com.dci.intellij.dbn.editor.data.record.ui.DatasetRecordEditorDialog;
+import com.dci.intellij.dbn.editor.data.state.DatasetEditorState;
 import com.dci.intellij.dbn.editor.data.structure.DatasetEditorStructureViewModel;
 import com.dci.intellij.dbn.editor.data.ui.DatasetEditorForm;
 import com.dci.intellij.dbn.editor.data.ui.table.DatasetEditorTable;
@@ -111,6 +112,8 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
         DatasetEditorTable editorTable = getEditorTable();
         return editorTable == null ? null : editorTable.getModel();
     }
+
+
 
     public DatabaseEditableObjectFile getDatabaseFile() {
         return databaseFile;

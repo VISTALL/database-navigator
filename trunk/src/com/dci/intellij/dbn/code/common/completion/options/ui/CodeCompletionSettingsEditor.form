@@ -28,9 +28,7 @@
           </grid>
         </constraints>
         <properties/>
-        <border type="none">
-          <title-color color="-16777216"/>
-        </border>
+        <border type="none"/>
         <children/>
       </grid>
     </children>

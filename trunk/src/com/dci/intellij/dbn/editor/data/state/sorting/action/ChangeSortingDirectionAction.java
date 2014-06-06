@@ -1,9 +1,9 @@
-package com.dci.intellij.dbn.editor.data.sorting.action;
+package com.dci.intellij.dbn.editor.data.state.sorting.action;
 
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.data.sorting.SortDirection;
 import com.dci.intellij.dbn.data.sorting.SortingInstruction;
-import com.dci.intellij.dbn.editor.data.sorting.ui.DatasetSortingColumnForm;
+import com.dci.intellij.dbn.editor.data.state.sorting.ui.DatasetSortingColumnForm;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAwareAction;
 

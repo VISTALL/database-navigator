@@ -6,11 +6,11 @@ import com.dci.intellij.dbn.connection.ConnectionUtil;
 import com.dci.intellij.dbn.data.model.resultSet.ResultSetDataModel;
 import com.dci.intellij.dbn.editor.DBContentType;
 import com.dci.intellij.dbn.editor.data.DatasetEditorError;
-import com.dci.intellij.dbn.editor.data.DatasetEditorState;
 import com.dci.intellij.dbn.editor.data.filter.DatasetFilter;
 import com.dci.intellij.dbn.editor.data.filter.DatasetFilterInput;
 import com.dci.intellij.dbn.editor.data.filter.DatasetFilterManager;
 import com.dci.intellij.dbn.editor.data.options.DataEditorSettings;
+import com.dci.intellij.dbn.editor.data.state.DatasetEditorState;
 import com.dci.intellij.dbn.editor.data.ui.table.DatasetEditorTable;
 import com.dci.intellij.dbn.object.DBColumn;
 import com.dci.intellij.dbn.object.DBConstraint;
@@ -18,6 +18,7 @@ import com.dci.intellij.dbn.object.DBDataset;
 import com.dci.intellij.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.ListSelectionModel;
@@ -138,6 +139,12 @@ public class DatasetEditorModel extends ResultSetDataModel<DatasetEditorModelRow
             }
         }
         return null;
+    }
+
+    @NotNull
+    @Override
+    public DatasetEditorState getState() {
+        return (DatasetEditorState) super.getState();
     }
 
     @Override

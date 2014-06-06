@@ -1,12 +1,14 @@
-package com.dci.intellij.dbn.editor.data.sorting.ui;
+package com.dci.intellij.dbn.editor.data.state.sorting.ui;
 
 import com.dci.intellij.dbn.common.ui.DBNFormImpl;
 import com.dci.intellij.dbn.common.util.ActionUtil;
 import com.dci.intellij.dbn.data.sorting.SortingInstruction;
-import com.dci.intellij.dbn.editor.data.sorting.action.ChangeSortingDirectionAction;
-import com.dci.intellij.dbn.editor.data.sorting.action.DeleteSortingCriteriaAction;
+import com.dci.intellij.dbn.editor.data.state.sorting.DatasetSortingInstruction;
+import com.dci.intellij.dbn.editor.data.state.sorting.action.ChangeSortingDirectionAction;
+import com.dci.intellij.dbn.editor.data.state.sorting.action.DeleteSortingCriteriaAction;
 import com.dci.intellij.dbn.object.DBColumn;
 import com.dci.intellij.dbn.object.DBDataset;
+import com.dci.intellij.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.ui.ColoredListCellRenderer;
 import com.intellij.ui.SimpleTextAttributes;
@@ -29,11 +31,12 @@ public class DatasetSortingColumnForm extends DBNFormImpl {
     private DatasetSortingForm parentForm;
     private SortingInstruction sortingInstruction;
 
-    public DatasetSortingColumnForm(DatasetSortingForm parentForm, SortingInstruction sortingInstruction) {
+    public DatasetSortingColumnForm(DatasetSortingForm parentForm, DatasetSortingInstruction sortingInstruction) {
         this.parentForm = parentForm;
         this.sortingInstruction = sortingInstruction;
-        DBColumn sortingColumn = sortingInstruction.getColumn();
-        DBDataset dataset = sortingColumn.getDataset();
+        DBColumn sortColumn = DBObjectRef.get(sortingInstruction.getColumn());
+
+        DBDataset dataset = parentForm.getDataset();
         columnComboBox.setRenderer(cellRenderer);
         List<DBColumn> columns = new ArrayList<DBColumn>(dataset.getColumns());
         Collections.sort(columns);
@@ -48,7 +51,7 @@ public class DatasetSortingColumnForm extends DBNFormImpl {
                 new DeleteSortingCriteriaAction(this));
         actionsPanel.add(actionToolbar.getComponent(), BorderLayout.CENTER);
 
-        columnComboBox.setSelectedItem(sortingColumn);
+        columnComboBox.setSelectedItem(sortColumn);
 
     }
 

@@ -1,6 +1,7 @@
 package com.dci.intellij.dbn.editor.data;
 
 import com.dci.intellij.dbn.editor.DBContentType;
+import com.dci.intellij.dbn.editor.data.state.DatasetEditorState;
 import com.dci.intellij.dbn.object.DBDataset;
 import com.dci.intellij.dbn.vfs.DatabaseEditableObjectFile;
 import com.dci.intellij.dbn.vfs.DatasetFile;
