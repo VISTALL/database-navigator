@@ -1,27 +1,29 @@
 package com.dci.intellij.dbn.editor.data.state.sorting.ui;
 
 import com.dci.intellij.dbn.common.ui.DBNFormImpl;
-import com.dci.intellij.dbn.common.util.ActionUtil;
+import com.dci.intellij.dbn.common.ui.ValueSelector;
 import com.dci.intellij.dbn.data.sorting.SortDirection;
 import com.dci.intellij.dbn.data.sorting.SortingInstruction;
 import com.dci.intellij.dbn.editor.data.state.sorting.DatasetSortingInstruction;
 import com.dci.intellij.dbn.editor.data.state.sorting.DatasetSortingState;
-import com.dci.intellij.dbn.editor.data.state.sorting.action.AddSortingColumnAction;
+import com.dci.intellij.dbn.object.DBColumn;
 import com.dci.intellij.dbn.object.DBDataset;
 import com.dci.intellij.dbn.object.lookup.DBObjectRef;
-import com.intellij.openapi.actionSystem.ActionToolbar;
+import com.intellij.util.PlatformIcons;
 
 import javax.swing.BoxLayout;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class DatasetSortingForm extends DBNFormImpl{
     private JPanel mainPanel;
     private JPanel sortingInstructionsPanel;
     private JPanel actionsPanel;
+    private JPanel addColumnPanel;
 
     private DBObjectRef<DBDataset> datasetRef;
     private List<DatasetSortingColumnForm> sortingInstructionForms = new ArrayList<DatasetSortingColumnForm>();
@@ -40,11 +42,33 @@ public class DatasetSortingForm extends DBNFormImpl{
         }
 
         adjustMetrics();
+        actionsPanel.add(new ColumnSelector(), BorderLayout.CENTER);
 
+/*
         ActionToolbar actionToolbar = ActionUtil.createActionToolbar(
                 "DBNavigator.DataEditor.Sorting.Add", true,
                 new AddSortingColumnAction(this));
-        actionsPanel.add(actionToolbar.getComponent(), BorderLayout.WEST);
+        actionsPanel.add(actionToolbar.getComponent(), BorderLayout.EAST);
+*/
+    }
+
+    private class ColumnSelector extends ValueSelector<DBColumn> {
+        public ColumnSelector() {
+            super(PlatformIcons.ADD_ICON, "Add Sorting Column...", null, false);
+        }
+
+        @Override
+        public List<DBColumn> getAllValues() {
+            DBDataset dataset = getDataset();
+            List<DBColumn> columns = new ArrayList<DBColumn>(dataset.getColumns());
+            Collections.sort(columns);
+            return columns;
+        }
+
+        @Override
+        public void valueSelected(DBColumn column) {
+            addSortingColumn(column);
+        }
     }
 
     protected void adjustMetrics() {
@@ -68,10 +92,10 @@ public class DatasetSortingForm extends DBNFormImpl{
         return datasetRef.get();
     }
 
-    public void addSortingColumn() {
+    public void addSortingColumn(DBColumn column) {
         DBDataset dataset = datasetRef.get();
         if (dataset != null) {
-            DatasetSortingInstruction datasetSortingInstruction = new DatasetSortingInstruction(null, SortDirection.ASCENDING);
+            DatasetSortingInstruction datasetSortingInstruction = new DatasetSortingInstruction(column, SortDirection.ASCENDING);
             DatasetSortingColumnForm sortingInstructionForm = new DatasetSortingColumnForm(this, datasetSortingInstruction);
             sortingInstructionForms.add(sortingInstructionForm);
             sortingInstructionsPanel.add(sortingInstructionForm.getComponent());
