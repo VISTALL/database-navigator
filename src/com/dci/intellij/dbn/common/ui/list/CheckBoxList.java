@@ -21,6 +21,9 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class CheckBoxList<T extends Selectable> extends JList {
@@ -86,13 +89,12 @@ public class CheckBoxList<T extends Selectable> extends JList {
         public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
             Entry entry = (Entry) value;
             Selectable presentable = entry.presentable;
-            entry.label.setForeground(presentable.isMasterSelected() ? UIUtil.getListForeground() : Color.GRAY);
             entry.checkBox.setEnabled(presentable.isMasterSelected());
 
             //entry.errorLabel.setText(error != null && list.isEnabled() ? " - " + error : "");
 
             if (mutable) {
-                Color foreground = isSelected ? UIUtil.getListSelectionForeground() : UIUtil.getListForeground();
+                Color foreground = isSelected ? UIUtil.getListSelectionForeground() : entry.isSelected() ? UIUtil.getListForeground() : UIUtil.getMenuItemDisabledForeground();
                 Color background = isSelected ? UIUtil.getListSelectionBackground() : UIUtil.getListBackground();
                 entry.textPanel.setBackground(background);
                 entry.checkBox.setBackground(background);
@@ -103,10 +105,33 @@ public class CheckBoxList<T extends Selectable> extends JList {
                 entry.textPanel.setBackground(background);
                 entry.checkBox.setBackground(background);
                 entry.setBorder(new LineBorder(background));
+                entry.label.setForeground(presentable.isMasterSelected() ? UIUtil.getListForeground() : UIUtil.getMenuItemDisabledForeground());
             }
 
             return entry;
         }
+    }
+
+    public void sortElements(final Comparator<T> comparator) {
+        List<Entry<T>> entries = new ArrayList<Entry<T>>();
+        ListModel model = getModel();
+        for (int i=0; i<model.getSize(); i++) {
+            Entry<T> entry = (Entry<T>) model.getElementAt(i);
+            entries.add(entry);
+        }
+        if (comparator == null)
+            Collections.sort(entries); else
+            Collections.sort(entries, new Comparator<Entry<T>>() {
+                @Override
+                public int compare(Entry<T> o1, Entry<T> o2) {
+                    return comparator.compare(o1.presentable, o2.presentable);
+                }
+            });
+        DefaultListModel newModel = new DefaultListModel();
+        for (Entry<T> entry : entries) {
+            newModel.addElement(entry);
+        }
+        setModel(newModel);
     }
 
     public void applyChanges(){
@@ -135,7 +160,7 @@ public class CheckBoxList<T extends Selectable> extends JList {
     }
 
 
-    private class Entry<T extends Selectable> extends JPanel {
+    private class Entry<T extends Selectable> extends JPanel implements Comparable<Entry<T>> {
         private JPanel textPanel;
         private JCheckBox checkBox;
         private JLabel label;
@@ -182,6 +207,11 @@ public class CheckBoxList<T extends Selectable> extends JList {
                     actionListener.actionPerformed(new ActionEvent(checkBox, 0, "selectionChanged"));
                 }
             //}
+        }
+
+        @Override
+        public int compareTo(Entry<T> o) {
+            return presentable.compareTo(o.presentable);
         }
     }
 }

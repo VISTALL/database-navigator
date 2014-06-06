@@ -24,6 +24,7 @@ public class Icons {
 
     public static final Icon ACTION_COPY = load("/img/v1/action/Copy.png");
     public static final Icon ACTION_SORT_ALPHA = load("/img/v1/action/SortAlphabetically.png");
+    public static final Icon ACTION_SORT_NUMERIC = load("/img/v1/action/SortNumerically.png");
     public static final Icon ACTION_SORT_ASC = load("/img/v1/action/SortAscending.png");
     public static final Icon ACTION_SORT_DESC = load("/img/v1/action/SortDescending.png");
     public static final Icon ACTION_ADD = load("/img/v1/action/Add.png");

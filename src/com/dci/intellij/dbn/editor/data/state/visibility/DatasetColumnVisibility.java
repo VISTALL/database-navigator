@@ -5,8 +5,15 @@ import com.dci.intellij.dbn.object.DBColumn;
 import com.dci.intellij.dbn.object.lookup.DBObjectRef;
 
 import javax.swing.Icon;
+import java.util.Comparator;
 
-public class DatasetColumnVisibility  implements Selectable, Comparable<DatasetColumnVisibility> {
+public class DatasetColumnVisibility  implements Selectable<DatasetColumnVisibility>{
+    public static final Comparator<DatasetColumnVisibility> NAME_COMPARATOR = new Comparator<DatasetColumnVisibility>() {
+        @Override
+        public int compare(DatasetColumnVisibility o1, DatasetColumnVisibility o2) {
+            return o1.getName().compareTo(o2.getName());
+        }
+    };
     private DBObjectRef<DBColumn> columnRef;
     private boolean visible = true;
     private int position;
