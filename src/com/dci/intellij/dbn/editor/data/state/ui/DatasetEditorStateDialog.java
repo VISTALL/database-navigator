@@ -36,6 +36,7 @@ public class DatasetEditorStateDialog extends DBNDialog {
 
     @Override
     protected void doOKAction() {
+        stateForm.applyChanges();
         super.doOKAction();
     }
 

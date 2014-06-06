@@ -52,6 +52,10 @@ public class DatasetSortingForm extends DBNFormImpl{
         sortingInstructionForm.dispose();
     }
 
+    public void applyChanges() {
+
+    }
+
     @Override
     public void dispose() {
         super.dispose();

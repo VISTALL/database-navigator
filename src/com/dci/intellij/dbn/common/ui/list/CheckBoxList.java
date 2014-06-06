@@ -11,6 +11,7 @@ import javax.swing.ListCellRenderer;
 import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -105,7 +106,7 @@ public class CheckBoxList<T extends Selectable> extends JList {
                 entry.textPanel.setBackground(background);
                 entry.checkBox.setBackground(background);
                 entry.setBorder(new LineBorder(background));
-                entry.label.setForeground(presentable.isMasterSelected() ? UIUtil.getListForeground() : UIUtil.getMenuItemDisabledForeground());
+                entry.label.setForeground(presentable.isMasterSelected() && entry.isSelected() ? UIUtil.getListForeground() : UIUtil.getMenuItemDisabledForeground());
             }
 
             return entry;
@@ -159,6 +160,11 @@ public class CheckBoxList<T extends Selectable> extends JList {
         }
     }
 
+    public T getElementAt(int index) {
+        Entry<T> entry = (Entry<T>) getModel().getElementAt(index);
+        return entry.presentable;
+    }
+
 
     private class Entry<T extends Selectable> extends JPanel implements Comparable<Entry<T>> {
         private JPanel textPanel;
@@ -168,7 +174,7 @@ public class CheckBoxList<T extends Selectable> extends JList {
         private T presentable;
 
         private Entry(T presentable) {
-            super(new BorderLayout(4, 0));
+            super(new BorderLayout());
             setBackground(UIUtil.getListBackground());
             this.presentable = presentable;
             checkBox = new JCheckBox("", presentable.isSelected());
@@ -180,10 +186,11 @@ public class CheckBoxList<T extends Selectable> extends JList {
             errorLabel.setForeground(Color.RED);
             add(checkBox, BorderLayout.WEST);
 
-            textPanel = new JPanel(new BorderLayout(4, 0));
+            textPanel = new JPanel(new BorderLayout());
             textPanel.add(label, BorderLayout.WEST);
             textPanel.add(errorLabel, BorderLayout.CENTER);
             textPanel.setBackground(UIUtil.getListBackground());
+            textPanel.setBorder(new EmptyBorder(0, 8, 0, 0));
             add(textPanel, BorderLayout.CENTER);
         }
 
