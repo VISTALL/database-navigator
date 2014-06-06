@@ -22,6 +22,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -29,6 +30,8 @@ import java.util.List;
 
 public class CheckBoxList<T extends Selectable> extends JList {
     private boolean mutable;
+    private MouseAdapter mouseAdapter;
+
     public CheckBoxList(List<T> elements) {
         this(elements, false);
     }
@@ -37,28 +40,31 @@ public class CheckBoxList<T extends Selectable> extends JList {
         setSelectionMode(mutable ?
                 ListSelectionModel.MULTIPLE_INTERVAL_SELECTION :
                 ListSelectionModel.SINGLE_SELECTION);
-
         setCellRenderer(new CellRenderer());
-        DefaultListModel model = new DefaultListModel();
-        for (T element : elements) {
-            model.addElement(new Entry<T>(element));
-        }
-        setModel(model);
 
-        addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent e) {
+        mouseAdapter = new MouseAdapter() {
+            public void mousePressed(MouseEvent e) {
                 if (isEnabled() && e.getButton() == MouseEvent.BUTTON1) {
                     int index = locationToIndex(e.getPoint());
 
                     if (index != -1) {
                         Entry entry = (Entry) getModel().getElementAt(index);
-                        if ((e.getClickCount() == 1 && e.getX() < 20) || e.getClickCount() == 2) {
+                        if (!CheckBoxList.this.mutable || e.getX() < 20 ||e.getClickCount() == 2) {
                             entry.switchSelection();
                         }
                     }
                 }
             }
-        });
+        };
+
+        DefaultListModel model = new DefaultListModel();
+        for (T element : elements) {
+            Entry<T> entry = new Entry<T>(element);
+            model.addElement(entry);
+        }
+        setModel(model);
+
+        addMouseListener(mouseAdapter);
 
         addKeyListener(new KeyAdapter() {
             @Override
@@ -84,6 +90,14 @@ public class CheckBoxList<T extends Selectable> extends JList {
             }
         }
         return false;
+    }
+
+    public void selectAll() {
+        for (int i=0; i<getModel().getSize(); i++) {
+            Entry<T> entry = (Entry<T>) getModel().getElementAt(i);
+            entry.checkBox.setSelected(true);
+        }
+        updateUI();
     }
 
     private class CellRenderer implements ListCellRenderer {
@@ -172,6 +186,11 @@ public class CheckBoxList<T extends Selectable> extends JList {
         private JLabel label;
         private JLabel errorLabel;
         private T presentable;
+
+        @Override
+        public synchronized void addMouseListener(MouseListener l) {
+            label.addMouseListener(l);
+        }
 
         private Entry(T presentable) {
             super(new BorderLayout());

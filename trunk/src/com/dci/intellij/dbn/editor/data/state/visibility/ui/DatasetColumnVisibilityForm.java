@@ -9,6 +9,7 @@ import com.dci.intellij.dbn.editor.data.state.visibility.action.MoveDownAction;
 import com.dci.intellij.dbn.editor.data.state.visibility.action.MoveUpAction;
 import com.dci.intellij.dbn.editor.data.state.visibility.action.OrderAlphabeticallyAction;
 import com.dci.intellij.dbn.editor.data.state.visibility.action.RevertColumnOrderAction;
+import com.dci.intellij.dbn.editor.data.state.visibility.action.SelectAllColumnsAction;
 import com.dci.intellij.dbn.object.DBDataset;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.ui.components.JBScrollPane;
@@ -37,6 +38,8 @@ public class DatasetColumnVisibilityForm  extends DBNFormImpl {
         columnListScrollPane.setViewportView(columnList);
 
         ActionToolbar actionToolbar = ActionUtil.createActionToolbar("", true,
+                new SelectAllColumnsAction(columnList),
+                ActionUtil.SEPARATOR,
                 new MoveUpAction(columnList),
                 new MoveDownAction(columnList),
                 new OrderAlphabeticallyAction(columnList),
