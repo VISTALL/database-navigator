@@ -49,8 +49,12 @@ public abstract class ValueSelector<T extends Presentable> extends JPanel{
         label.addMouseListener(mouseListener);
 
         innerPanel = new JPanel(new BorderLayout());
-        innerPanel.setBorder(new EmptyBorder(21 - icon.getIconHeight(), 6, 21 - icon.getIconHeight(), 6));
+        innerPanel.setBorder(new CompoundBorder(new RoundedLineBorder(new JBColor(Gray._210, Gray._75), 3), new EmptyBorder(20 - icon.getIconHeight(), 5, 20 - icon.getIconHeight(), 5)));
+        //innerPanel.setBorder(new EmptyBorder(21 - icon.getIconHeight(), 6, 21 - icon.getIconHeight(), 6));
         innerPanel.add(label, BorderLayout.WEST);
+        //innerPanel.setBackground(UIUtil.getTextFieldBackground());
+        innerPanel.addMouseListener(mouseListener);
+        innerPanel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         add(innerPanel, BorderLayout.CENTER);
 
         if (selectInternal) selectValue(preselectedValue);
@@ -70,8 +74,10 @@ public abstract class ValueSelector<T extends Presentable> extends JPanel{
 
         @Override
         public void mouseExited(MouseEvent e) {
-            innerPanel.setBorder(new EmptyBorder(21 - icon.getIconHeight(), 6, 21 - icon.getIconHeight(), 6));
+            innerPanel.setBorder(new CompoundBorder(new RoundedLineBorder(new JBColor(Gray._210, Gray._75), 3), new EmptyBorder(20 - icon.getIconHeight(), 5, 20 - icon.getIconHeight(), 5)));
+            //innerPanel.setBorder(new EmptyBorder(21 - icon.getIconHeight(), 6, 21 - icon.getIconHeight(), 6));
             innerPanel.setBackground(UIUtil.getPanelBackground());
+            //innerPanel.setBackground(UIUtil.getTextFieldBackground());
             updateUI();
         }
 

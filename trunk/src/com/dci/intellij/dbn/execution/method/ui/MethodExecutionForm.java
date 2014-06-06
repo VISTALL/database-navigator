@@ -1,19 +1,19 @@
 package com.dci.intellij.dbn.execution.method.ui;
 
+import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.dispose.DisposeUtil;
 import com.dci.intellij.dbn.common.ui.AutoCommitLabel;
 import com.dci.intellij.dbn.common.ui.DBNForm;
 import com.dci.intellij.dbn.common.ui.DBNFormImpl;
 import com.dci.intellij.dbn.common.ui.DBNHeaderForm;
-import com.dci.intellij.dbn.common.util.ActionUtil;
+import com.dci.intellij.dbn.common.ui.ValueSelector;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.database.DatabaseCompatibilityInterface;
 import com.dci.intellij.dbn.database.DatabaseFeature;
 import com.dci.intellij.dbn.execution.method.MethodExecutionInput;
-import com.dci.intellij.dbn.execution.method.action.SetExecutionSchemaComboBoxAction;
 import com.dci.intellij.dbn.object.DBArgument;
 import com.dci.intellij.dbn.object.DBMethod;
-import com.intellij.openapi.actionSystem.ActionToolbar;
+import com.dci.intellij.dbn.object.DBSchema;
 import com.intellij.ui.DocumentAdapter;
 import com.intellij.util.ui.UIUtil;
 
@@ -67,8 +67,8 @@ public class MethodExecutionForm extends DBNFormImpl implements DBNForm {
         ConnectionHandler connectionHandler = executionInput.getConnectionHandler();
         DatabaseCompatibilityInterface compatibilityInterface = DatabaseCompatibilityInterface.getInstance(connectionHandler);
         if (compatibilityInterface.supportsFeature(DatabaseFeature.AUTHID_METHOD_EXECUTION)) {
-            ActionToolbar actionToolbar = ActionUtil.createActionToolbar("", true, new SetExecutionSchemaComboBoxAction(executionInput));
-            executionSchemaActionPanel.add(actionToolbar.getComponent(), BorderLayout.CENTER);
+            //ActionToolbar actionToolbar = ActionUtil.createActionToolbar("", true, new SetExecutionSchemaComboBoxAction(executionInput));
+            executionSchemaActionPanel.add(new SchemaSelector(), BorderLayout.CENTER);
         } else {
             executionSchemaActionPanel.setVisible(false);
             executionSchemaLabel.setVisible(false);
@@ -132,6 +132,22 @@ public class MethodExecutionForm extends DBNFormImpl implements DBNForm {
         commitCheckBox.addActionListener(actionListener);
         usePoolConnectionCheckBox.addActionListener(actionListener);
         usePoolConnectionCheckBox.setEnabled(!debug);
+    }
+
+    private class SchemaSelector extends ValueSelector<DBSchema> {
+        public SchemaSelector() {
+            super(Icons.DBO_SCHEMA, "Select schema...", executionInput.getExecutionSchema(), true);
+        }
+
+        @Override
+        public List<DBSchema> getAllValues() {
+            return executionInput.getConnectionHandler().getObjectBundle().getSchemas();
+        }
+
+        @Override
+        public void valueSelected(DBSchema schema) {
+            executionInput.setExecutionSchema(schema);
+        }
     }
 
     public void setExecutionInput(MethodExecutionInput executionInput) {
