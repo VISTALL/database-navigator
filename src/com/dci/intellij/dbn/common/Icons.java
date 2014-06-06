@@ -46,6 +46,7 @@ public class Icons {
     public static final Icon ACTION_RERUN = load("/img/v1/action/Rerun.png");
     public static final Icon ACTION_PIN = load("/img/v1/action/Pin.png");
     public static final Icon ACTION_REVERT_CHANGES = load("/img/v1/action/RevertChanges.png");
+    public static final Icon ACTION_SELECT_ALL = load("/img/v1/action/SelectAll.png");
 
 
     public static final Icon DATABASE_NAVIGATOR = load("/img/v1/project/DatabaseNavigator.png");
