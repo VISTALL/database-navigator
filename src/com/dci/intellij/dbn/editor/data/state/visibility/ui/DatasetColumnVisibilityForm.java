@@ -40,9 +40,9 @@ public class DatasetColumnVisibilityForm  extends DBNFormImpl {
         ActionToolbar actionToolbar = ActionUtil.createActionToolbar("", true,
                 new SelectAllColumnsAction(columnList),
                 ActionUtil.SEPARATOR,
+                new OrderAlphabeticallyAction(columnList),
                 new MoveUpAction(columnList),
                 new MoveDownAction(columnList),
-                new OrderAlphabeticallyAction(columnList),
                 new RevertColumnOrderAction(columnList));
         actionPanel.add(actionToolbar.getComponent(), BorderLayout.WEST);
 
