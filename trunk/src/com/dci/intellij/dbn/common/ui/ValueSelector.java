@@ -1,5 +1,6 @@
 package com.dci.intellij.dbn.common.ui;
 
+import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.util.NamingUtil;
 import com.intellij.ide.DataManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -16,6 +17,7 @@ import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
+import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import java.awt.BorderLayout;
@@ -33,52 +35,74 @@ public abstract class ValueSelector<T extends Presentable> extends JPanel{
     private JPanel innerPanel;
     private Icon icon;
     private String text;
-    private boolean selectInternal;
+    private boolean isComboBox;
+    private boolean isShowingPopup = false;
 
-    public ValueSelector(Icon icon, String text, T preselectedValue, boolean selectInternal) {
+    private Border focusBorder;
+    private Border defaultBorder;
+    private Border insideBorder;
+    private Border outsideBorder = new EmptyBorder(2, 0, 2, 0);
+
+
+    public ValueSelector(Icon icon, String text, T preselectedValue, boolean isComboBox) {
         super(new BorderLayout(0,0));
         this.icon = icon;
         this.text = text;
-        this.selectInternal = selectInternal;
+        this.isComboBox = isComboBox;
 
-        setBorder(new EmptyBorder(2, 0, 2, 0));
+
+        setBorder(outsideBorder);
+
+        insideBorder = isComboBox ?
+                new EmptyBorder(21 - icon.getIconHeight(), 5, 21 - icon.getIconHeight(), 5) :
+                new EmptyBorder(20 - icon.getIconHeight(), 6, 20 - icon.getIconHeight(), 6);
+
+        defaultBorder = isComboBox ? new CompoundBorder(new RoundedLineBorder(new JBColor(Gray._210, Gray._75), 3), insideBorder) : insideBorder;
+        focusBorder = new CompoundBorder(new RoundedLineBorder(new JBColor(Gray._190, Gray._55), 3), insideBorder);
 
         label = new JLabel(text, icon, SwingConstants.LEFT);
         label.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        label.addMouseListener(labelMouseListener);
         label.addMouseListener(mouseListener);
 
         innerPanel = new JPanel(new BorderLayout());
-        innerPanel.setBorder(new CompoundBorder(new RoundedLineBorder(new JBColor(Gray._210, Gray._75), 3), new EmptyBorder(20 - icon.getIconHeight(), 5, 20 - icon.getIconHeight(), 5)));
-        //innerPanel.setBorder(new EmptyBorder(21 - icon.getIconHeight(), 6, 21 - icon.getIconHeight(), 6));
+        innerPanel.setBorder(defaultBorder);
         innerPanel.add(label, BorderLayout.WEST);
-        //innerPanel.setBackground(UIUtil.getTextFieldBackground());
         innerPanel.addMouseListener(mouseListener);
         innerPanel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         add(innerPanel, BorderLayout.CENTER);
 
-        if (selectInternal) selectValue(preselectedValue);
+
+        if (isComboBox) {
+            selectValue(preselectedValue);
+            innerPanel.setBackground(UIUtil.getTextFieldBackground());
+            innerPanel.add(new JLabel(Icons.COMMON_ARROW_DOWN), BorderLayout.EAST);
+        }
     }
 
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
     }
-
     private MouseListener mouseListener = new MouseAdapter() {
         @Override
         public void mouseEntered(MouseEvent e) {
-            innerPanel.setBorder(new CompoundBorder(new RoundedLineBorder(new JBColor(Gray._190, Gray._55), 3), new EmptyBorder(20 - icon.getIconHeight(), 5, 20 - icon.getIconHeight(), 5)));
+            innerPanel.setBorder(focusBorder);
             innerPanel.setBackground(new JBColor(Gray._210, Gray._75));
             updateUI();
         }
 
         @Override
         public void mouseExited(MouseEvent e) {
-            innerPanel.setBorder(new CompoundBorder(new RoundedLineBorder(new JBColor(Gray._210, Gray._75), 3), new EmptyBorder(20 - icon.getIconHeight(), 5, 20 - icon.getIconHeight(), 5)));
-            //innerPanel.setBorder(new EmptyBorder(21 - icon.getIconHeight(), 6, 21 - icon.getIconHeight(), 6));
-            innerPanel.setBackground(UIUtil.getPanelBackground());
-            //innerPanel.setBackground(UIUtil.getTextFieldBackground());
-            updateUI();
+            if (!isShowingPopup) {
+                innerPanel.setBorder(defaultBorder);
+                //innerPanel.setBorder(new EmptyBorder(21 - icon.getIconHeight(), 6, 21 - icon.getIconHeight(), 6));
+                innerPanel.setBackground(isComboBox ? UIUtil.getTextFieldBackground() : UIUtil.getPanelBackground());
+                updateUI();
+            }
+        }
+
+        @Override
+        public void mousePressed(MouseEvent e) {
+            showPopup();
         }
 
         @Override
@@ -87,14 +111,9 @@ public abstract class ValueSelector<T extends Presentable> extends JPanel{
         }
     };
 
-    private MouseListener labelMouseListener = new MouseAdapter() {
-        @Override
-        public void mousePressed(MouseEvent e) {
-            showPopup();
-        }
-    };
 
     private void showPopup() {
+        isShowingPopup = true;
         DefaultActionGroup actionGroup = new DefaultActionGroup();
         for (T value : getAllValues()) {
             actionGroup.add(new SelectValueAction(value));
@@ -104,7 +123,15 @@ public abstract class ValueSelector<T extends Presentable> extends JPanel{
                 actionGroup,
                 DataManager.getInstance().getDataContext(this),
                 JBPopupFactory.ActionSelectionAid.SPEEDSEARCH,
-                true, null, 10);
+                true, new Runnable() {
+                    @Override
+                    public void run() {
+                        isShowingPopup = false;
+                        innerPanel.setBorder(defaultBorder);
+                        innerPanel.setBackground(isComboBox ? UIUtil.getTextFieldBackground() : UIUtil.getPanelBackground());
+                        updateUI();
+                    }
+                }, 10);
 
         Point locationOnScreen = getLocationOnScreen();
         Point location = new Point(
@@ -121,7 +148,7 @@ public abstract class ValueSelector<T extends Presentable> extends JPanel{
     public abstract void valueSelected(T value);
 
     private void selectValue(T value) {
-        if (selectInternal) {
+        if (isComboBox) {
             selectedValue = value;
             if (selectedValue == null) {
                 label.setIcon(icon);
