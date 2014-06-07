@@ -85,9 +85,11 @@ public abstract class ValueSelector<T extends Presentable> extends JPanel{
     private MouseListener mouseListener = new MouseAdapter() {
         @Override
         public void mouseEntered(MouseEvent e) {
-            innerPanel.setBorder(focusBorder);
-            innerPanel.setBackground(new JBColor(Gray._210, Gray._75));
-            updateUI();
+            if (!isShowingPopup) {
+                innerPanel.setBorder(focusBorder);
+                innerPanel.setBackground(new JBColor(Gray._210, Gray._75));
+                updateUI();
+            }
         }
 
         @Override
@@ -102,7 +104,9 @@ public abstract class ValueSelector<T extends Presentable> extends JPanel{
 
         @Override
         public void mousePressed(MouseEvent e) {
-            showPopup();
+            if (!isShowingPopup) {
+                showPopup();
+            }
         }
 
         @Override
@@ -114,6 +118,8 @@ public abstract class ValueSelector<T extends Presentable> extends JPanel{
 
     private void showPopup() {
         isShowingPopup = true;
+        innerPanel.setCursor(Cursor.getDefaultCursor());
+        label.setCursor(Cursor.getDefaultCursor());
         DefaultActionGroup actionGroup = new DefaultActionGroup();
         for (T value : getAllValues()) {
             actionGroup.add(new SelectValueAction(value));
@@ -129,6 +135,8 @@ public abstract class ValueSelector<T extends Presentable> extends JPanel{
                         isShowingPopup = false;
                         innerPanel.setBorder(defaultBorder);
                         innerPanel.setBackground(isComboBox ? UIUtil.getTextFieldBackground() : UIUtil.getPanelBackground());
+                        innerPanel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                        label.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                         updateUI();
                     }
                 }, 10);
