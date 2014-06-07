@@ -20,6 +20,7 @@ public class Icons {
     public static final Icon COMMON_WARNING = load("/img/v1/common/WarningTriangle.png");
     public static final Icon COMMON_RIGHT = load("/img/v1/common/SplitRight.png");
     public static final Icon COMMON_UP = load("/img/v1/common/SplitUp.png");
+    public static final Icon COMMON_ARROW_DOWN = load("/img/v1/ComboBoxArrow.png");
 
 
     public static final Icon ACTION_COPY = load("/img/v1/action/Copy.png");
