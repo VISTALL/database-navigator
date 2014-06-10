@@ -23,7 +23,7 @@ public class DatasetColumnVisibilityState {
         Collections.sort(columns);
     }
 
-    public void init(DBDataset dataset, Element element) {
+    public void readState(DBDataset dataset, Element element) {
         if (element != null) {
             List<Element> children = element.getChildren();
             for (Element child : children) {

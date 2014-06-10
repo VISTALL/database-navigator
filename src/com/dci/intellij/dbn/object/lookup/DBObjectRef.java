@@ -61,8 +61,8 @@ public class DBObjectRef<T extends DBObject> implements Comparable, Reference<T>
     public void readState(Element element) {
         if (element != null) {
             connectionId = element.getAttributeValue("connection-id");
-            StringTokenizer objectTypes = new StringTokenizer(element.getAttributeValue("object-types"), ".");
-            StringTokenizer objectNames = new StringTokenizer(element.getAttributeValue("object-names"), ".");
+            StringTokenizer objectTypes = new StringTokenizer(element.getAttributeValue("type"), ".");
+            StringTokenizer objectNames = new StringTokenizer(element.getAttributeValue("name"), ".");
             while (objectTypes.hasMoreTokens()) {
                 String objectTypeName = objectTypes.nextToken();
                 String objectName = objectNames.nextToken();
@@ -85,8 +85,8 @@ public class DBObjectRef<T extends DBObject> implements Comparable, Reference<T>
             objectNames.append(node.getName());
         }
 
-        element.setAttribute("object-types", objectTypes.toString());
-        element.setAttribute("object-names", objectNames.toString());
+        element.setAttribute("type", objectTypes.toString());
+        element.setAttribute("name", objectNames.toString());
     }
 
     public DBObjectRef append(DBObjectType objectType, String name) {

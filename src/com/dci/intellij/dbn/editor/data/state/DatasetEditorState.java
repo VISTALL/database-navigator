@@ -47,7 +47,8 @@ public class DatasetEditorState extends SortableDataModelState implements FileEd
             datasetRef = new DBObjectRef<DBDataset>(element.getChild("dataset"));
         }
 
-        columnVisibilityState.init(datasetRef.get(), element.getChild("columns"));
+        Element columnsElement = element.getChild("columns");
+        columnVisibilityState.readState(datasetRef.get(), columnsElement);
 
         Element contentTypesElement = element.getChild("content-types");
         if (contentTypesElement != null) {
@@ -71,6 +72,10 @@ public class DatasetEditorState extends SortableDataModelState implements FileEd
             targetElement.addContent(element);
             datasetRef.writeState(element);
         }
+
+        Element columnsElement = new Element("columns");
+        targetElement.addContent(columnsElement);
+        columnVisibilityState.writeState(datasetRef.get(), columnsElement);
 
         Element contentTypesElement = new Element("content-types");
         targetElement.addContent(contentTypesElement);
