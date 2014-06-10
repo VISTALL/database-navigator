@@ -149,7 +149,7 @@ public class DatasetEditorModel extends ResultSetDataModel<DatasetEditorModelRow
 
     @Override
     protected DatasetEditorState createState() {
-        return new DatasetEditorState();
+        return new DatasetEditorState(getDataset());
     }
 
     private boolean hasChanges() {

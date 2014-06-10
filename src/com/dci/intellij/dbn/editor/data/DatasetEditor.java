@@ -151,7 +151,7 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
     public FileEditorState getState(@NotNull FileEditorStateLevel level) {
         DatasetEditorModel model = getTableModel();
         if (model != null && model.getState() != null) {
-            DatasetEditorState datasetEditorState = (DatasetEditorState) model.getState();
+            DatasetEditorState datasetEditorState = model.getState();
             return datasetEditorState.clone();
         }
 

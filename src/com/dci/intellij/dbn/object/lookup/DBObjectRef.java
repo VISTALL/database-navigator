@@ -7,6 +7,7 @@ import com.dci.intellij.dbn.connection.ConnectionManager;
 import com.dci.intellij.dbn.object.common.DBObject;
 import com.dci.intellij.dbn.object.common.DBObjectType;
 import com.intellij.openapi.project.Project;
+import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -14,6 +15,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.StringTokenizer;
 
 public class DBObjectRef<T extends DBObject> implements Comparable, Reference<T> {
     protected String connectionId;
@@ -50,6 +52,41 @@ public class DBObjectRef<T extends DBObject> implements Comparable, Reference<T>
 
     public DBObjectRef() {
 
+    }
+
+    public DBObjectRef(Element element) {
+        readState(element);
+    }
+
+    public void readState(Element element) {
+        if (element != null) {
+            connectionId = element.getAttributeValue("connection-id");
+            StringTokenizer objectTypes = new StringTokenizer(element.getAttributeValue("object-types"), ".");
+            StringTokenizer objectNames = new StringTokenizer(element.getAttributeValue("object-names"), ".");
+            while (objectTypes.hasMoreTokens()) {
+                String objectTypeName = objectTypes.nextToken();
+                String objectName = objectNames.nextToken();
+                append(DBObjectType.getObjectType(objectTypeName), objectName);
+            }
+        }
+    }
+
+    public void writeState(Element element) {
+        element.setAttribute("connection-id", connectionId);
+        StringBuilder objectTypes = new StringBuilder();
+        StringBuilder objectNames = new StringBuilder();
+
+        for (Node node: nodes) {
+            if (objectTypes.length() > 0) {
+                objectTypes.append(".");
+                objectNames.append(".");
+            }
+            objectTypes.append(node.getType().getName());
+            objectNames.append(node.getName());
+        }
+
+        element.setAttribute("object-types", objectTypes.toString());
+        element.setAttribute("object-names", objectNames.toString());
     }
 
     public DBObjectRef append(DBObjectType objectType, String name) {
