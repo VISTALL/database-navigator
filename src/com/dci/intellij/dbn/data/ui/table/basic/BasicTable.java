@@ -15,7 +15,6 @@ import com.intellij.openapi.editor.colors.EditorColorsScheme;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.JBPopup;
 import com.intellij.util.ui.UIUtil;
-import sun.swing.SwingUtilities2;
 
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.TableModelEvent;
@@ -24,11 +23,9 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Font;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.font.LineMetrics;
 
 public class BasicTable extends DBNTable implements EditorColorsListener, Disposable {
     private BasicTableCellRenderer cellRenderer;
@@ -39,7 +36,6 @@ public class BasicTable extends DBNTable implements EditorColorsListener, Dispos
 
     public BasicTable(Project project, BasicDataModel dataModel) {
         super(project, dataModel, true);
-        Font font = getFont();
         cellRenderer = createCellRenderer(project);
         DataGridTextAttributes displayAttributes = cellRenderer.getAttributes();
         setSelectionForeground(displayAttributes.getSelection().getFgColor());
@@ -47,10 +43,6 @@ public class BasicTable extends DBNTable implements EditorColorsListener, Dispos
         EditorColorsManager.getInstance().addEditorColorsListener(this);
         Color bgColor = displayAttributes.getPlainData(false, false).getBgColor();
         setBackground(bgColor == null ? UIUtil.getTableBackground() : bgColor);
-
-        LineMetrics lineMetrics = font.getLineMetrics("", SwingUtilities2.getFontRenderContext(this));
-        int fontHeight = Math.round(lineMetrics.getHeight());
-        setRowHeight(fontHeight + 1);
     }
 
     protected BasicTableCellRenderer createCellRenderer(Project project) {

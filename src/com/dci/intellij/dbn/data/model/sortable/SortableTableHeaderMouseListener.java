@@ -35,4 +35,9 @@ public class SortableTableHeaderMouseListener extends MouseAdapter {
         table.requestFocus();
         //event.consume();
     }
+
+    @Override
+    public void mouseDragged(MouseEvent e) {
+        super.mouseDragged(e);
+    }
 }
