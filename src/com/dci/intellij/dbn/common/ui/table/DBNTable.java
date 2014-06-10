@@ -50,20 +50,24 @@ public class DBNTable extends JTable {
                 public void mouseDragged(MouseEvent e) {
                     JBScrollPane scrollPane = UIUtil.getParentOfType(JBScrollPane.class, DBNTable.this);
                     if (scrollPane != null) {
-                        double eventX = e.getLocationOnScreen().getX();
-                        double scrollPaneX = scrollPane.getLocationOnScreen().getX();
                         JViewport viewport = scrollPane.getViewport();
+                        double eventX = e.getLocationOnScreen().getX();
+                        double scrollPaneX = viewport.getLocationOnScreen().getX();
+
                         Point viewPosition = viewport.getViewPosition();
 
                         if (eventX < scrollPaneX) {
-                            if (viewPosition.x > 10) {
-                                viewport.setViewPosition(new Point(viewPosition.x - 10, viewPosition.y));
+                            int distance = (int) (scrollPaneX - eventX);
+                            if (viewPosition.x > distance) {
+                                viewport.setViewPosition(new Point(viewPosition.x - distance, viewPosition.y));
                                 scrollPane.setAutoscrolls(true);
                             }
-                        } else if (eventX > scrollPaneX + scrollPane.getViewportBorderBounds().getWidth()) {
+                        } else if (eventX > scrollPaneX + viewport.getWidth()) {
+                            int distance = (int) (eventX - scrollPaneX - viewport.getWidth());
+
                             Dimension extentSize = viewport.getExtentSize();
-                            if (extentSize.getWidth() > 10) {
-                                viewport.setViewPosition(new Point(viewPosition.x + 10, viewPosition.y));
+                            if (extentSize.getWidth() > distance) {
+                                viewport.setViewPosition(new Point(viewPosition.x + distance, viewPosition.y));
                             }
                         }
                     }
