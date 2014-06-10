@@ -1,5 +1,6 @@
 package com.dci.intellij.dbn.common.ui.table;
 
+import com.dci.intellij.dbn.common.thread.SimpleLaterInvocator;
 import com.dci.intellij.dbn.common.ui.DBNColor;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBScrollPane;
@@ -18,15 +19,21 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.MouseInfo;
 import java.awt.Point;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.font.LineMetrics;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class DBNTable extends JTable {
     private static final int MAX_COLUMN_WIDTH = 300;
     private static final int MIN_COLUMN_WIDTH = 10;
     public static final DBNColor GRID_COLOR = new DBNColor(new Color(0xE6E6E6), Color.DARK_GRAY);
     private Project project;
+    private double scrollDistance;
+    private JBScrollPane scrollPane;
+    private Timer scrollTimer;
 
 
     public DBNTable(Project project, TableModel tableModel, boolean showHeader) {
@@ -46,34 +53,53 @@ public class DBNTable extends JTable {
             tableHeader.setPreferredSize(new Dimension(-1, 0));
         } else {
             tableHeader.addMouseMotionListener(new MouseMotionAdapter() {
-                @Override
                 public void mouseDragged(MouseEvent e) {
-                    JBScrollPane scrollPane = UIUtil.getParentOfType(JBScrollPane.class, DBNTable.this);
+                    scrollPane = UIUtil.getParentOfType(JBScrollPane.class, DBNTable.this);
                     if (scrollPane != null) {
-                        JViewport viewport = scrollPane.getViewport();
-                        double eventX = e.getLocationOnScreen().getX();
-                        double scrollPaneX = viewport.getLocationOnScreen().getX();
-
-                        Point viewPosition = viewport.getViewPosition();
-
-                        if (eventX < scrollPaneX) {
-                            int distance = (int) (scrollPaneX - eventX);
-                            if (viewPosition.x > distance) {
-                                viewport.setViewPosition(new Point(viewPosition.x - distance, viewPosition.y));
-                                scrollPane.setAutoscrolls(true);
-                            }
-                        } else if (eventX > scrollPaneX + viewport.getWidth()) {
-                            int distance = (int) (eventX - scrollPaneX - viewport.getWidth());
-
-                            Dimension extentSize = viewport.getExtentSize();
-                            if (extentSize.getWidth() > distance) {
-                                viewport.setViewPosition(new Point(viewPosition.x + distance, viewPosition.y));
-                            }
+                        calculateScrollDistance();
+                        if (scrollDistance != 0 && scrollTimer == null) {
+                            scrollTimer = new Timer();
+                            scrollTimer.schedule(new ScrollTask(), 100, 100);
                         }
                     }
                 }
             });
+
+            tableHeader.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseReleased(MouseEvent e) {
+                    if (scrollTimer != null) {
+                        scrollTimer.cancel();
+                        scrollTimer.purge();
+                        scrollTimer = null;
+                    }
+                }
+            });
         }
+    }
+
+    private double calculateScrollDistance() {
+        JViewport viewport = scrollPane.getViewport();
+        double mouseLocation = MouseInfo.getPointerInfo().getLocation().getX();
+        double viewportLocation = viewport.getLocationOnScreen().getX();
+
+        Point viewPosition = viewport.getViewPosition();
+        double contentLocation = viewport.getView().getLocationOnScreen().getX();
+
+        if (contentLocation < viewportLocation && mouseLocation < viewportLocation + 20) {
+            scrollDistance = - Math.min(viewPosition.x, (viewportLocation - mouseLocation));
+        } else {
+            int viewportWidth = viewport.getWidth();
+            int contentWidth = viewport.getView().getWidth();
+
+            if (contentLocation + contentWidth > viewportLocation + viewportWidth && mouseLocation > viewportLocation + viewportWidth - 20) {
+                scrollDistance = (mouseLocation - viewportLocation - viewportWidth);
+            } else {
+                scrollDistance = 0;
+            }
+        }
+
+        return scrollDistance;
     }
 
 
@@ -175,5 +201,21 @@ public class DBNTable extends JTable {
         scrollRectToVisible(getCellRect(rowIndex, columnIndex, true));
         setRowSelectionInterval(rowIndex, rowIndex);
         setColumnSelectionInterval(columnIndex, columnIndex);
+    }
+
+    private class ScrollTask extends TimerTask {
+        public void run() {
+            if (scrollPane != null && scrollDistance != 0) {
+                new SimpleLaterInvocator() {
+                    @Override
+                    public void run() {
+                        JViewport viewport = scrollPane.getViewport();
+                        Point viewPosition = viewport.getViewPosition();
+                        viewport.setViewPosition(new Point((int) (viewPosition.x + scrollDistance), viewPosition.y));
+                        calculateScrollDistance();
+                    }
+                }.start();
+            }
+        }
     }
 }
