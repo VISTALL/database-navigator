@@ -2,6 +2,7 @@ package com.dci.intellij.dbn.editor.data.filter.action;
 
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.editor.data.filter.ui.DatasetBasicFilterForm;
+import com.dci.intellij.dbn.object.DBColumn;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAwareAction;
 
@@ -15,6 +16,6 @@ public class CreateBasicFilterConditionAction extends DumbAwareAction {
     }
 
     public void actionPerformed(AnActionEvent e) {
-        filterForm.addConditionPanel();
+        filterForm.addConditionPanel((DBColumn) null);
     }
 }

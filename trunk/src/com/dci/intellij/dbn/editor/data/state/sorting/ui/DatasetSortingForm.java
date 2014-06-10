@@ -23,7 +23,6 @@ public class DatasetSortingForm extends DBNFormImpl{
     private JPanel mainPanel;
     private JPanel sortingInstructionsPanel;
     private JPanel actionsPanel;
-    private JPanel addColumnPanel;
 
     private DBObjectRef<DBDataset> datasetRef;
     private List<DatasetSortingColumnForm> sortingInstructionForms = new ArrayList<DatasetSortingColumnForm>();

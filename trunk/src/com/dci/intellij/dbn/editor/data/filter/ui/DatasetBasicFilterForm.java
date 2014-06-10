@@ -4,17 +4,17 @@ import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.compatibility.CompatibilityUtil;
 import com.dci.intellij.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dci.intellij.dbn.common.thread.WriteActionRunner;
-import com.dci.intellij.dbn.common.util.ActionUtil;
+import com.dci.intellij.dbn.common.ui.ValueSelector;
 import com.dci.intellij.dbn.common.util.DocumentUtil;
+import com.dci.intellij.dbn.editor.data.filter.ConditionOperator;
 import com.dci.intellij.dbn.editor.data.filter.DatasetBasicFilter;
 import com.dci.intellij.dbn.editor.data.filter.DatasetBasicFilterCondition;
-import com.dci.intellij.dbn.editor.data.filter.action.CreateBasicFilterConditionAction;
 import com.dci.intellij.dbn.language.sql.SQLFile;
 import com.dci.intellij.dbn.language.sql.SQLLanguage;
+import com.dci.intellij.dbn.object.DBColumn;
 import com.dci.intellij.dbn.object.DBDataset;
 import com.dci.intellij.dbn.object.lookup.DBObjectRef;
 import com.intellij.ide.highlighter.HighlighterFactory;
-import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.EditorSettings;
@@ -24,6 +24,7 @@ import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.fileTypes.SyntaxHighlighter;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.psi.PsiFileFactory;
+import com.intellij.util.PlatformIcons;
 import com.intellij.util.ui.UIUtil;
 
 import javax.swing.BoxLayout;
@@ -41,6 +42,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasicFilter> {
@@ -66,10 +68,7 @@ public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasic
         this.dataset = dataset.getRef();
         nameTextField.setText(filter.getDisplayName());
 
-        ActionToolbar actionToolbar = ActionUtil.createActionToolbar(
-                "DBNavigator.DataEditor.SimpleFilter.Add", true,
-                new CreateBasicFilterConditionAction(this));
-        actionsPanel.add(actionToolbar.getComponent(), BorderLayout.WEST);
+        actionsPanel.add(new ColumnSelector(), BorderLayout.CENTER);
 
         for (DatasetBasicFilterCondition condition : filter.getConditions()) {
             addConditionPanel(condition);
@@ -90,6 +89,25 @@ public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasic
         }
         updateNameAndPreview();
         isCustomNamed = filter.isCustomNamed();
+    }
+
+    private class ColumnSelector extends ValueSelector<DBColumn> {
+        public ColumnSelector() {
+            super(PlatformIcons.ADD_ICON, "Add Condition Column...", null, false);
+        }
+
+        @Override
+        public List<DBColumn> loadValues() {
+            DBDataset dataset = getDataset();
+            List<DBColumn> columns = new ArrayList<DBColumn>(dataset.getColumns());
+            Collections.sort(columns);
+            return columns;
+        }
+
+        @Override
+        public void valueSelected(DBColumn column) {
+            addConditionPanel(column);
+        }
     }
 
     public void focus() {
@@ -225,9 +243,11 @@ public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasic
         conditionForm.focus();
     }
 
-    public void addConditionPanel() {
+    public void addConditionPanel(DBColumn column) {
         DatasetBasicFilter filter = getConfiguration();
         DatasetBasicFilterCondition condition = new DatasetBasicFilterCondition(filter);
+        condition.setColumnName(column == null ? null : column.getName());
+        condition.setOperator(ConditionOperator.EQUAL.getName());
         addConditionPanel(condition);
         updateNameAndPreview();
     }

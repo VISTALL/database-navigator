@@ -253,13 +253,15 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
     }
 
     public synchronized T getElement(String name) {
-        if (indexed && index != null) {
-            return index.get(name.toUpperCase());
-        } else {
-            List<T> elements = getElements();
-            for (T element : elements) {
-                if (element.getName().equalsIgnoreCase(name)) {
-                    return element;
+        if (name != null) {
+            if (indexed && index != null) {
+                return index.get(name.toUpperCase());
+            } else {
+                List<T> elements = getElements();
+                for (T element : elements) {
+                    if (element.getName().equalsIgnoreCase(name)) {
+                        return element;
+                    }
                 }
             }
         }
