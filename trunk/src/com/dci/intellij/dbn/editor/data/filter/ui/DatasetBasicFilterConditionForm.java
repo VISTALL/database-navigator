@@ -142,6 +142,11 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
         }
 
         @Override
+        protected List<ConditionOperator> getAllPossibleValues() {
+            return Arrays.asList(ConditionOperator.getConditionOperators(null));
+        }
+
+        @Override
         public void valueSelected(ConditionOperator operator) {
             if (basicFilterForm != null) {
                 basicFilterForm.updateNameAndPreview();

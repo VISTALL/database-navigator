@@ -24,6 +24,7 @@ import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 import javax.swing.plaf.InsetsUIResource;
 import javax.swing.plaf.UIResource;
 import java.awt.BorderLayout;
@@ -151,7 +152,7 @@ public abstract class ValueSelector<T extends Presentable> extends JPanel{
         int minWidth = 0;
         FontMetrics fontMetrics = label.getFontMetrics(label.getFont());
         int height = fontMetrics.getHeight();
-        for (T presentable : getValues()) {
+        for (T presentable : getAllPossibleValues()) {
             int width = fontMetrics.stringWidth(presentable.getName());
             if (presentable.getIcon() != null) {
                 width = width + 16;
@@ -243,8 +244,11 @@ public abstract class ValueSelector<T extends Presentable> extends JPanel{
                 }, 10, new Condition<AnAction>() {
                     @Override
                     public boolean value(AnAction anAction) {
-                        SelectValueAction action = (SelectValueAction) anAction;
-                        return action.value.equals(selectedValue);
+                        if (anAction instanceof ValueSelector.SelectValueAction) {
+                            SelectValueAction action = (SelectValueAction) anAction;
+                            return action.value.equals(selectedValue);
+                        }
+                        return false;
                     }
                 });
 
@@ -282,6 +286,10 @@ public abstract class ValueSelector<T extends Presentable> extends JPanel{
     }
 
     protected abstract List<T> loadValues();
+
+    protected List<T> getAllPossibleValues() {
+        return getValues();
+    }
 
     public void resetValues() {
         values = null;
@@ -326,9 +334,9 @@ public abstract class ValueSelector<T extends Presentable> extends JPanel{
     }
 
     public class ValueSelectorBorder implements Border, UIResource {
-        ValueSelector valueSelector;
+        ValueSelector<T> valueSelector;
 
-        public ValueSelectorBorder(ValueSelector valueSelector) {
+        public ValueSelectorBorder(ValueSelector<T> valueSelector) {
             this.valueSelector = valueSelector;
         }
 
@@ -348,15 +356,32 @@ public abstract class ValueSelector<T extends Presentable> extends JPanel{
             final GraphicsConfig config = new GraphicsConfig(g);
             g.translate(x, y);
 
-            if (valueSelector.isActive) {
-                DarculaUIUtil.paintFocusRing(g, 2, 2, width - 4, height - 4);
+            if (UIUtil.isUnderDarcula() || UIUtil.isUnderIntelliJLaF()) {
+                if (valueSelector.isActive) {
+                    DarculaUIUtil.paintFocusRing(g, 2, 2, width - 4, height - 4);
+                } else {
+                    boolean editable = valueSelector.isEnabled;
+                    g.setColor(getBorderColor(c.isEnabled() && editable));
+                    g.drawRect(1, 1, width-3, height-3);
+                    g.setColor(UIUtil.getPanelBackground());
+                    g.drawRect(0, 0, width-1, height-1);
+
+                }
             } else {
-                boolean editable = valueSelector.isEnabled;
-                g.setColor(getBorderColor(c.isEnabled() && editable));
+                Border textFieldBorder = UIUtil.getTextFieldBorder();
+                if (textFieldBorder instanceof LineBorder) {
+                    LineBorder lineBorder = (LineBorder) textFieldBorder;
+                    g.setColor(lineBorder.getLineColor());
+                } else {
+                    g.setColor(UIUtil.getBorderColor());
+                }
+                g.drawRect(1, 1, width - 3, height - 3);
+                g.setColor(UIUtil.getPanelBackground());
                 g.drawRect(0, 0, width-1, height-1);
             }
             g.translate(-x, -y);
             config.restore();
+
         }
 
         private Color getBorderColor(boolean enabled) {

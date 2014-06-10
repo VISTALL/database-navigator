@@ -14,7 +14,6 @@ import javax.swing.text.Document;
 import java.awt.BorderLayout;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
@@ -41,10 +40,9 @@ public class TextFieldWithPopup extends JPanel implements DataEditorComponent {
     public TextFieldWithPopup(Project project) {
         super(new BorderLayout(2, 0));
         this.project = project;
-        setBounds(0, 0, 0, 0);
 
         textField = new JTextField();
-        textField.setMargin(new Insets(1, 3, 1, 1));
+        //textField.setMargin(new Insets(1, 3, 1, 1));
         add(textField, BorderLayout.CENTER);
 
         button = new JLabel(Icons.DATA_EDITOR_BROWSE);
