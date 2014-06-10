@@ -160,6 +160,11 @@ public abstract class ValueSelector<T extends Presentable> extends JPanel{
             }
             minWidth = Math.max(minWidth, width);
         }
+        int width = fontMetrics.stringWidth(text);
+        if (icon != null) {
+            width = width + 16;
+        }
+        minWidth = Math.max(minWidth, width);
         label.setPreferredSize(new Dimension(minWidth + 6, height));
     }
 
