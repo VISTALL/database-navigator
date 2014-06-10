@@ -42,7 +42,6 @@ public class DatasetSortingForm extends DBNFormImpl{
         }
 
         actionsPanel.add(new ColumnSelector(), BorderLayout.CENTER);
-        adjustMetrics();
 
 /*
         ActionToolbar actionToolbar = ActionUtil.createActionToolbar(
@@ -58,7 +57,7 @@ public class DatasetSortingForm extends DBNFormImpl{
         }
 
         @Override
-        public List<DBColumn> getAllValues() {
+        public List<DBColumn> loadValues() {
             DBDataset dataset = getDataset();
             List<DBColumn> columns = new ArrayList<DBColumn>(dataset.getColumns());
             Collections.sort(columns);
@@ -70,19 +69,6 @@ public class DatasetSortingForm extends DBNFormImpl{
             addSortingColumn(column);
         }
     }
-
-    protected void adjustMetrics() {
-        int[] metrics = new int[]{0};
-        for (DatasetSortingColumnForm columnForm : sortingInstructionForms) {
-            metrics = columnForm.getMetrics(metrics);
-        }
-
-        for (DatasetSortingColumnForm columnForm : sortingInstructionForms) {
-            columnForm.adjustMetrics(metrics);
-        }
-        sortingInstructionsPanel.updateUI();
-    }
-
 
     @Override
     public JComponent getComponent() {
@@ -100,7 +86,7 @@ public class DatasetSortingForm extends DBNFormImpl{
             DatasetSortingColumnForm sortingInstructionForm = new DatasetSortingColumnForm(this, datasetSortingInstruction);
             sortingInstructionForms.add(sortingInstructionForm);
             sortingInstructionsPanel.add(sortingInstructionForm.getComponent());
-            adjustMetrics();
+            sortingInstructionsPanel.updateUI();
         }
     }
 
@@ -109,7 +95,7 @@ public class DatasetSortingForm extends DBNFormImpl{
         sortingInstructionsPanel.remove(sortingInstructionForm.getComponent());
         sortingInstructionForms.remove(sortingInstructionForm);
         sortingInstructionForm.dispose();
-        adjustMetrics();
+        sortingInstructionsPanel.updateUI();
     }
 
     public void applyChanges() {

@@ -1,8 +1,11 @@
 package com.dci.intellij.dbn.editor.data.filter;
 
+import com.dci.intellij.dbn.common.ui.Presentable;
+
+import javax.swing.Icon;
 import java.util.Date;
 
-public enum ConditionOperator {
+public enum ConditionOperator implements Presentable {
     EQUAL("=", false),
     NOT_EQUAL("!=", false),
     LESS("<", false),
@@ -121,5 +124,23 @@ public enum ConditionOperator {
 
     public String toString() {
         return text;
+    }
+
+    @Override
+    public String getName() {
+        return text;
+    }
+
+    @Override
+    public Icon getIcon() {
+        return null;
+    }
+
+    public static ConditionOperator get(String text) {
+        for (ConditionOperator operator : ConditionOperator.values()) {
+            if (operator.text.equals(text)) return operator;
+        }
+
+        return null;
     }
 }

@@ -140,7 +140,7 @@ public class MethodExecutionForm extends DBNFormImpl implements DBNForm {
         }
 
         @Override
-        public List<DBSchema> getAllValues() {
+        public List<DBSchema> loadValues() {
             return executionInput.getConnectionHandler().getObjectBundle().getSchemas();
         }
 
