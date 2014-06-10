@@ -2,9 +2,12 @@ package com.dci.intellij.dbn.common.ui.table;
 
 import com.dci.intellij.dbn.common.ui.DBNColor;
 import com.intellij.openapi.project.Project;
+import com.intellij.ui.components.JBScrollPane;
 import com.intellij.util.ui.UIUtil;
+import sun.swing.SwingUtilities2;
 
 import javax.swing.JTable;
+import javax.swing.JViewport;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
@@ -12,8 +15,12 @@ import javax.swing.table.TableModel;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.MouseInfo;
 import java.awt.Point;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
+import java.awt.font.LineMetrics;
 
 public class DBNTable extends JTable {
     private static final int MAX_COLUMN_WIDTH = 300;
@@ -26,14 +33,46 @@ public class DBNTable extends JTable {
         super(tableModel);
         this.project = project;
         setGridColor(GRID_COLOR);
-        setFont(UIUtil.getLabelFont());
+        Font font = getFont();//UIUtil.getListFont();
+        setFont(font);
+
+        LineMetrics lineMetrics = font.getLineMetrics("ABC", SwingUtilities2.getFontRenderContext(this));
+        int fontHeight = Math.round(lineMetrics.getHeight());
+        setRowHeight(fontHeight + 2);
+
+        final JTableHeader tableHeader = getTableHeader();
         if (!showHeader) {
-            JTableHeader tableHeader = getTableHeader();
             tableHeader.setVisible(false);
             tableHeader.setPreferredSize(new Dimension(-1, 0));
-            tableHeader.setFont(UIUtil.getLabelFont());
+        } else {
+            tableHeader.addMouseMotionListener(new MouseMotionAdapter() {
+                @Override
+                public void mouseDragged(MouseEvent e) {
+                    JBScrollPane scrollPane = UIUtil.getParentOfType(JBScrollPane.class, DBNTable.this);
+                    if (scrollPane != null) {
+                        double eventX = e.getLocationOnScreen().getX();
+                        double scrollPaneX = scrollPane.getLocationOnScreen().getX();
+                        JViewport viewport = scrollPane.getViewport();
+                        Point viewPosition = viewport.getViewPosition();
+
+                        if (eventX < scrollPaneX) {
+                            if (viewPosition.x > 10) {
+                                viewport.setViewPosition(new Point(viewPosition.x - 10, viewPosition.y));
+                                scrollPane.setAutoscrolls(true);
+                            }
+                        } else if (eventX > scrollPaneX + scrollPane.getViewportBorderBounds().getWidth()) {
+                            Dimension extentSize = viewport.getExtentSize();
+                            if (extentSize.getWidth() > 10) {
+                                viewport.setViewPosition(new Point(viewPosition.x + 10, viewPosition.y));
+                            }
+                        }
+                    }
+                }
+            });
         }
     }
+
+
 
     public Project getProject() {
         return project;

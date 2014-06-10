@@ -93,7 +93,7 @@ public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasic
 
     private class ColumnSelector extends ValueSelector<DBColumn> {
         public ColumnSelector() {
-            super(PlatformIcons.ADD_ICON, "Add Condition Column...", null, false);
+            super(PlatformIcons.ADD_ICON, "Add Condition", null, false);
         }
 
         @Override
