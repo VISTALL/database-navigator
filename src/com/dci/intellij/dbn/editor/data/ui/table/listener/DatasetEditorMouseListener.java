@@ -46,7 +46,7 @@ public class DatasetEditorMouseListener extends MouseAdapter {
             DatasetEditorModelCell cell = (DatasetEditorModelCell) table.getCellAtLocation(event.getPoint());
             DBColumn column = cell.getColumnInfo().getColumn();
 
-            if (column.isForeignKey() && cell.getUserValue() != null) {
+            if (column!= null && column.isForeignKey() && cell.getUserValue() != null) {
                 table.clearSelection();
                 DatasetFilterInput filterInput = table.getModel().resolveForeignKeyRecord(cell);
                 if (filterInput.getColumns().size() > 0) {
