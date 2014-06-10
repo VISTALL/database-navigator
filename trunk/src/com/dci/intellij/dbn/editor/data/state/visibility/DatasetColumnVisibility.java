@@ -1,8 +1,11 @@
 package com.dci.intellij.dbn.editor.data.state.visibility;
 
+import com.dci.intellij.dbn.common.options.setting.SettingsUtil;
 import com.dci.intellij.dbn.common.ui.list.Selectable;
 import com.dci.intellij.dbn.object.DBColumn;
+import com.dci.intellij.dbn.object.DBDataset;
 import com.dci.intellij.dbn.object.lookup.DBObjectRef;
+import org.jdom.Element;
 
 import javax.swing.Icon;
 import java.util.Comparator;
@@ -31,6 +34,14 @@ public class DatasetColumnVisibility  implements Selectable<DatasetColumnVisibil
         this.columnRef = column.getRef();
         this.position = column.getPosition() -1;
         this.originalPosition = column.getPosition();
+    }
+
+    public DatasetColumnVisibility(DBDataset dataset, Element element) {
+        String name = element.getAttributeValue("name");
+        DBColumn column = dataset.getColumn(name);
+        columnRef = DBObjectRef.from(column);
+        position = SettingsUtil.getIntegerAttribute(element, "position", -1);
+        originalPosition = SettingsUtil.getIntegerAttribute(element, "original-position", -1);
     }
 
     public DBColumn getColumn() {

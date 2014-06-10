@@ -3,6 +3,7 @@ package com.dci.intellij.dbn.editor.data;
 import com.dci.intellij.dbn.editor.DBContentType;
 import com.dci.intellij.dbn.editor.data.state.DatasetEditorState;
 import com.dci.intellij.dbn.object.DBDataset;
+import com.dci.intellij.dbn.object.common.DBSchemaObject;
 import com.dci.intellij.dbn.vfs.DatabaseEditableObjectFile;
 import com.dci.intellij.dbn.vfs.DatasetFile;
 import com.intellij.openapi.components.ApplicationComponent;
@@ -46,9 +47,18 @@ public class DatasetEditorProvider implements FileEditorProvider, ApplicationCom
 
     @NotNull
     public FileEditorState readState(@NotNull Element sourceElement, @NotNull Project project, @NotNull VirtualFile virtualFile) {
-        DatasetEditorState editorState = new DatasetEditorState();
-        editorState.readState(sourceElement);
-        return editorState;
+        if (virtualFile instanceof DatabaseEditableObjectFile) {
+            DatabaseEditableObjectFile editableObjectFile = (DatabaseEditableObjectFile) virtualFile;
+            DBSchemaObject object = editableObjectFile.getObject();
+            if (object instanceof DBDataset) {
+                DBDataset dataset = (DBDataset) object;
+                DatasetEditorState editorState = new DatasetEditorState(dataset);
+                editorState.readState(sourceElement);
+                return editorState;
+
+            }
+        }
+        return new DatasetEditorState(null);
     }
 
     public void writeState(@NotNull FileEditorState state, @NotNull Project project, @NotNull Element targetElement) {
