@@ -153,9 +153,12 @@ public abstract class ValueSelector<T extends Presentable> extends JPanel{
         int height = fontMetrics.getHeight();
         for (T presentable : getValues()) {
             int width = fontMetrics.stringWidth(presentable.getName());
+            if (presentable.getIcon() != null) {
+                width = width + 16;
+            }
             minWidth = Math.max(minWidth, width);
         }
-        label.setPreferredSize(new Dimension(minWidth + 30, height));
+        label.setPreferredSize(new Dimension(minWidth + 6, height));
     }
 
     private Icon cropIcon(Icon icon) {
