@@ -49,7 +49,7 @@ public class DatasetFilterGroup extends Configuration<DatasetFilterForm> impleme
     public DatasetBasicFilter createBasicFilter(boolean interactive) {
         String name = createFilterName("Filter");
         DatasetBasicFilter filter = new DatasetBasicFilter(this, name);
-        filter.addCondition(new DatasetBasicFilterCondition(filter));
+        filter.addCondition(new DatasetBasicFilterCondition(filter, null, null, ConditionOperator.EQUAL));
         initChange();
         addFilter(filter, interactive);
         return filter;

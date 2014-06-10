@@ -73,16 +73,18 @@ public enum ConditionOperator implements Presentable {
 
 
     public static ConditionOperator[] getConditionOperators (Class dataTypeClass) {
-        if (String.class.isAssignableFrom(dataTypeClass)) {
-            return STRING_CONDITION_OPERATORS;
-        }
+        if (dataTypeClass != null) {
+            if (String.class.isAssignableFrom(dataTypeClass)) {
+                return STRING_CONDITION_OPERATORS;
+            }
 
-        if (Number.class.isAssignableFrom(dataTypeClass)) {
-            return NUMBER_CONDITION_OPERATORS;
-        }
+            if (Number.class.isAssignableFrom(dataTypeClass)) {
+                return NUMBER_CONDITION_OPERATORS;
+            }
 
-        if (Date.class.isAssignableFrom(dataTypeClass)) {
-            return DATE_CONDITION_OPERATORS;
+            if (Date.class.isAssignableFrom(dataTypeClass)) {
+                return DATE_CONDITION_OPERATORS;
+            }
         }
 
         return ALL_CONDITION_OPERATORS;
