@@ -36,7 +36,7 @@ public class DatasetColumnState implements Selectable<DatasetColumnState>{
     }
 
     public void init(DBColumn column) {
-        columnRef = column.getRef();
+        columnRef = DBObjectRef.from(column);
         if (StringUtil.isEmpty(name)) {
             // not initialized yet
             name = columnRef.getName();

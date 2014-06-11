@@ -40,7 +40,7 @@ public class DatasetEditorStateForm extends DBNFormImpl{
 
 
         datasetSortingForm = new DatasetSortingForm(dataset, datasetEditorState.getDataSortingState());
-        columnVisibilityForm = new DatasetColumnVisibilityForm(dataset, datasetEditorState.getColumnsState());
+        columnVisibilityForm = new DatasetColumnVisibilityForm(dataset, datasetEditorState.getHeaderState());
 
         sortingPanel.add(datasetSortingForm.getComponent(), BorderLayout.CENTER);
         visibilityPanel.add(columnVisibilityForm.getComponent(), BorderLayout.CENTER);
