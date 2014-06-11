@@ -139,13 +139,18 @@ public class DatasetEditorTable extends ResultSetTable {
 
     @Override
     public void columnMoved(TableColumnModelEvent e) {
-        super.columnMoved(e);
-        if (e.getFromIndex() != e.getToIndex()) {
-            datasetEditor.getState().getHeaderState().moveColumn(e.getFromIndex(), e.getToIndex());
+        int fromIndex = e.getFromIndex();
+        int toIndex = e.getToIndex();
+        if (fromIndex != toIndex) {
+            datasetEditor.getState().getHeaderState().moveColumn(fromIndex, toIndex);
         }
+        super.columnMoved(e);
     }
 
-
+    @Override
+    public void moveColumn(int column, int targetColumn) {
+        super.moveColumn(column, targetColumn);
+    }
 
     public void editingStopped(ChangeEvent e) {
         TableCellEditor editor = getCellEditor();
