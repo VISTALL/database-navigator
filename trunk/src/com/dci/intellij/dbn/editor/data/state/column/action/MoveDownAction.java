@@ -1,4 +1,4 @@
-package com.dci.intellij.dbn.editor.data.state.visibility.action;
+package com.dci.intellij.dbn.editor.data.state.column.action;
 
 import com.dci.intellij.dbn.common.Icons;
 import com.intellij.openapi.actionSystem.AnAction;

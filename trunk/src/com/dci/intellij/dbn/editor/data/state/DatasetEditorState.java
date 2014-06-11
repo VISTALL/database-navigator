@@ -2,8 +2,8 @@ package com.dci.intellij.dbn.editor.data.state;
 
 import com.dci.intellij.dbn.common.options.setting.SettingsUtil;
 import com.dci.intellij.dbn.data.model.sortable.SortableDataModelState;
+import com.dci.intellij.dbn.editor.data.state.column.DatasetColumnsState;
 import com.dci.intellij.dbn.editor.data.state.sorting.DatasetSortingState;
-import com.dci.intellij.dbn.editor.data.state.visibility.DatasetColumnVisibilityState;
 import com.dci.intellij.dbn.object.DBDataset;
 import com.dci.intellij.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.fileEditor.FileEditorState;
@@ -13,22 +13,24 @@ import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
 public class DatasetEditorState extends SortableDataModelState implements FileEditorState {
-    private DatasetColumnVisibilityState columnVisibilityState = new DatasetColumnVisibilityState();
+    private DatasetColumnsState columnsState = new DatasetColumnsState();
     private DatasetSortingState dataSortingState = new DatasetSortingState();
     private DBObjectRef<DBDataset> datasetRef;
 
     public DatasetEditorState(DBDataset dataset) {
-        datasetRef = DBObjectRef.from(dataset);
+        datasetRef = dataset.getRef();
+        columnsState.init(dataset);
     }
 
-    private DatasetEditorState() {}
+    public DatasetEditorState() {
+    }
 
     public boolean canBeMergedWith(FileEditorState fileEditorState, FileEditorStateLevel fileEditorStateLevel) {
         return false;
     }
 
-    public DatasetColumnVisibilityState getColumnVisibilityState() {
-        return columnVisibilityState;
+    public DatasetColumnsState getColumnsState() {
+        return columnsState;
     }
 
     public DatasetSortingState getDataSortingState() {
@@ -43,12 +45,8 @@ public class DatasetEditorState extends SortableDataModelState implements FileEd
         getSortingState().setColumnName(element.getAttributeValue("sort-column-name"));
         getSortingState().setDirectionAsString(element.getAttributeValue("sort-direction"));
 
-        if (datasetRef == null) {
-            datasetRef = new DBObjectRef<DBDataset>(element.getChild("dataset"));
-        }
-
         Element columnsElement = element.getChild("columns");
-        columnVisibilityState.readState(datasetRef.get(), columnsElement);
+        columnsState.readState(columnsElement);
 
         Element contentTypesElement = element.getChild("content-types");
         if (contentTypesElement != null) {
@@ -67,15 +65,9 @@ public class DatasetEditorState extends SortableDataModelState implements FileEd
         targetElement.setAttribute("sort-column-name", getSortingState().getColumnName());
         targetElement.setAttribute("sort-direction", getSortingState().getDirectionAsString());
 
-        if (datasetRef != null) {
-            Element element = new Element("dataset");
-            targetElement.addContent(element);
-            datasetRef.writeState(element);
-        }
-
         Element columnsElement = new Element("columns");
         targetElement.addContent(columnsElement);
-        columnVisibilityState.writeState(datasetRef.get(), columnsElement);
+        columnsState.writeState(columnsElement);
 
         Element contentTypesElement = new Element("content-types");
         targetElement.addContent(contentTypesElement);
