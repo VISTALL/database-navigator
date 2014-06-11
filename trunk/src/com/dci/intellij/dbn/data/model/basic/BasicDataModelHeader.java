@@ -2,15 +2,16 @@ package com.dci.intellij.dbn.data.model.basic;
 
 
 import com.dci.intellij.dbn.common.dispose.DisposeUtil;
+import com.dci.intellij.dbn.common.filter.Filter;
+import com.dci.intellij.dbn.common.list.FiltrableList;
 import com.dci.intellij.dbn.data.model.ColumnInfo;
 import com.dci.intellij.dbn.data.model.DataModelHeader;
 import com.dci.intellij.dbn.data.type.DBDataType;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class BasicDataModelHeader implements DataModelHeader {
-    private List<ColumnInfo> columnInfos = new ArrayList<ColumnInfo>();
+    private FiltrableList<ColumnInfo> columnInfos = new FiltrableList<ColumnInfo>();
 
     public List<ColumnInfo> getColumnInfos() {
         return columnInfos;
@@ -44,5 +45,9 @@ public class BasicDataModelHeader implements DataModelHeader {
 
     public void dispose() {
         DisposeUtil.disposeCollection(columnInfos);
+    }
+
+    public void setColumnFilter(Filter<ColumnInfo> filter) {
+        columnInfos.setFilter(filter);
     }
 }

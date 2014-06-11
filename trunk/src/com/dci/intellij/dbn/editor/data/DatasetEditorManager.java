@@ -1,6 +1,7 @@
 package com.dci.intellij.dbn.editor.data;
 
 import com.dci.intellij.dbn.common.AbstractProjectComponent;
+import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.common.options.setting.SettingsUtil;
 import com.dci.intellij.dbn.common.util.MessageUtil;
 import com.dci.intellij.dbn.data.record.ColumnSortingType;
@@ -12,11 +13,15 @@ import com.dci.intellij.dbn.editor.data.filter.DatasetFilterInput;
 import com.dci.intellij.dbn.editor.data.filter.DatasetFilterManager;
 import com.dci.intellij.dbn.editor.data.options.DataEditorSettings;
 import com.dci.intellij.dbn.object.DBDataset;
+import com.dci.intellij.dbn.object.common.DBSchemaObject;
+import com.dci.intellij.dbn.vfs.DatabaseEditableObjectFile;
 import com.dci.intellij.dbn.vfs.DatabaseFileSystem;
 import com.intellij.ide.DataManager;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.fileEditor.FileEditorManagerAdapter;
+import com.intellij.openapi.fileEditor.FileEditorManagerListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.ui.popup.ListPopup;
@@ -136,6 +141,35 @@ public class DatasetEditorManager extends AbstractProjectComponent implements JD
     @NotNull
     public String getComponentName() {
         return "DBNavigator.Project.DataEditorManager";
+    }
+
+    FileEditorManagerAdapter fileEditorListener = new FileEditorManagerAdapter() {
+        @Override
+        public void fileOpened(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
+            if (file instanceof DatabaseEditableObjectFile) {
+                DatabaseEditableObjectFile editableObjectFile = (DatabaseEditableObjectFile) file;
+                DBSchemaObject object = editableObjectFile.getObject();
+                if (object instanceof DBDataset) {
+                    FileEditor[] fileEditors = source.getEditors(file);
+                    for (FileEditor fileEditor : fileEditors) {
+                        if (fileEditor instanceof DatasetEditor) {
+                            DatasetEditor datasetEditor = (DatasetEditor) fileEditor;
+                            datasetEditor.load(true, true, false);
+                        }
+                    }
+                }
+            }
+        }
+    };
+
+    @Override
+    public void initComponent() {
+        EventManager.subscribe(getProject(), FileEditorManagerListener.FILE_EDITOR_MANAGER, fileEditorListener);
+    }
+
+    @Override
+    public void disposeComponent() {
+        EventManager.unsubscribe(fileEditorListener);
     }
 
     /****************************************

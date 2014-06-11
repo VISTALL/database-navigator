@@ -64,7 +64,6 @@ public class DatasetEditorTable extends ResultSetTable {
                     datasetEditor.getDataset().getIcon()));
         this.datasetEditor = datasetEditor;
 
-        getModel().setEditorTable(this);
         getSelectionModel().addListSelectionListener(getModel());
         addKeyListener(new DatasetEditorKeyListener(this));
         addMouseListener(tableMouseListener);
@@ -88,7 +87,7 @@ public class DatasetEditorTable extends ResultSetTable {
 
 
     private static DatasetEditorModel createModel(DatasetEditor datasetEditor) throws SQLException {
-        return new DatasetEditorModel(datasetEditor.getDataset());
+        return new DatasetEditorModel(datasetEditor);
     }
 
     public boolean isEditingEnabled() {

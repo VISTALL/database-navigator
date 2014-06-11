@@ -34,6 +34,10 @@ public class FiltrableList<T> implements List<T> {
         this.filter = filter;
     }
 
+    public void setFilter(Filter<T> filter) {
+        this.filter = filter;
+    }
+
     public List<T> getFullList() {return list;}
 
 
