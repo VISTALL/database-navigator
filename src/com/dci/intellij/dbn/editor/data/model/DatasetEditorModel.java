@@ -5,6 +5,7 @@ import com.dci.intellij.dbn.common.util.MessageUtil;
 import com.dci.intellij.dbn.connection.ConnectionUtil;
 import com.dci.intellij.dbn.data.model.resultSet.ResultSetDataModel;
 import com.dci.intellij.dbn.editor.DBContentType;
+import com.dci.intellij.dbn.editor.data.DatasetEditor;
 import com.dci.intellij.dbn.editor.data.DatasetEditorError;
 import com.dci.intellij.dbn.editor.data.filter.DatasetFilter;
 import com.dci.intellij.dbn.editor.data.filter.DatasetFilterInput;
@@ -16,9 +17,9 @@ import com.dci.intellij.dbn.object.DBColumn;
 import com.dci.intellij.dbn.object.DBConstraint;
 import com.dci.intellij.dbn.object.DBDataset;
 import com.dci.intellij.dbn.object.lookup.DBObjectRef;
+import com.intellij.openapi.fileEditor.FileEditorStateLevel;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.ListSelectionModel;
@@ -33,17 +34,18 @@ import java.util.List;
 
 public class DatasetEditorModel extends ResultSetDataModel<DatasetEditorModelRow> implements ListSelectionListener {
     private boolean isInserting;
-    private DatasetEditorTable editorTable;
-    private DBObjectRef<DBDataset> dataset;
+    private DatasetEditor datasetEditor;
     private DataEditorSettings settings;
+    private DBObjectRef<DBDataset> dataset;
 
     private List<DatasetEditorModelRow> changedRows = new ArrayList<DatasetEditorModelRow>();
 
-    public DatasetEditorModel(DBDataset dataset) throws SQLException {
-        super(dataset.getConnectionHandler());
-        this.dataset = dataset.getRef();
+    public DatasetEditorModel(DatasetEditor datasetEditor) throws SQLException {
+        super(datasetEditor.getConnectionHandler());
+        this.datasetEditor = datasetEditor;
+        this.dataset = DBObjectRef.from(datasetEditor.getDataset());
         this.header = new DatasetEditorModelHeader(getDataset(), null);
-        this.settings =  DataEditorSettings.getInstance(dataset.getProject());
+        this.settings =  DataEditorSettings.getInstance(datasetEditor.getProject());
     }
 
     public synchronized void load(ProgressIndicator progressIndicator, boolean useCurrentFilter, boolean keepChanges) throws SQLException {
@@ -73,6 +75,7 @@ public class DatasetEditorModel extends ResultSetDataModel<DatasetEditorModelRow
 
         new ConditionalLaterInvocator() {
             public void run() {
+                DatasetEditorTable editorTable = getEditorTable();
                 if (editorTable != null) {
                     editorTable.cancelEditing();
                     editorTable.clearSelection();
@@ -141,15 +144,10 @@ public class DatasetEditorModel extends ResultSetDataModel<DatasetEditorModelRow
         return null;
     }
 
-    @NotNull
+    @Nullable
     @Override
     public DatasetEditorState getState() {
-        return (DatasetEditorState) super.getState();
-    }
-
-    @Override
-    protected DatasetEditorState createState() {
-        return new DatasetEditorState();
+        return datasetEditor == null ? null : (DatasetEditorState) datasetEditor.getState(FileEditorStateLevel.FULL);
     }
 
     private boolean hasChanges() {
@@ -183,12 +181,10 @@ public class DatasetEditorModel extends ResultSetDataModel<DatasetEditorModelRow
         return dataset.get();
     }
 
-    public void setEditorTable(DatasetEditorTable editorTable) {
-        this.editorTable = editorTable;
-    }
 
+    @Nullable
     public DatasetEditorTable getEditorTable() {
-        return editorTable;
+        return datasetEditor == null ? null : datasetEditor.getEditorTable();
     }
 
     public boolean isInserting() {
@@ -228,94 +224,109 @@ public class DatasetEditorModel extends ResultSetDataModel<DatasetEditorModelRow
      *                        Editor actions                        *
      ****************************************************************/
     public void deleteRecords(int[] rowIndexes) {
-        editorTable.fireEditingCancel();
-        for (int index : rowIndexes) {
-            DatasetEditorModelRow row = getRowAtIndex(index);
-            if (!row.isDeleted()) {
-                int rsRowIndex = row.getResultSetRowIndex();
-                row.delete();
-                if (row.isDeleted()) {
-                    shiftResultSetRowIndex(rsRowIndex, -1);
-                    notifyRowUpdated(index);
+        DatasetEditorTable editorTable = getEditorTable();
+        if (editorTable != null) {
+            editorTable.fireEditingCancel();
+            for (int index : rowIndexes) {
+                DatasetEditorModelRow row = getRowAtIndex(index);
+                if (!row.isDeleted()) {
+                    int rsRowIndex = row.getResultSetRowIndex();
+                    row.delete();
+                    if (row.isDeleted()) {
+                        shiftResultSetRowIndex(rsRowIndex, -1);
+                        notifyRowUpdated(index);
+                    }
                 }
             }
+            getConnectionHandler().notifyChanges(getDataset().getVirtualFile());
         }
-        getConnectionHandler().notifyChanges(getDataset().getVirtualFile());
     }
 
     public void insertRecord(int rowIndex) {
-        try {
-            editorTable.stopCellEditing();
-            resultSet.moveToInsertRow();
-            DatasetEditorModelRow newRow = createRow(getRowCount()+1);
-            newRow.setInsert(true);
-            addRowAtIndex(rowIndex, newRow);
-            notifyRowsInserted(rowIndex, rowIndex);
+        DatasetEditorTable editorTable = getEditorTable();
+        if (editorTable != null) {
+            try {
+                editorTable.stopCellEditing();
+                resultSet.moveToInsertRow();
+                DatasetEditorModelRow newRow = createRow(getRowCount()+1);
+                newRow.setInsert(true);
+                addRowAtIndex(rowIndex, newRow);
+                notifyRowsInserted(rowIndex, rowIndex);
 
-            editorTable.selectCell(rowIndex, editorTable.getSelectedColumn() == -1 ? 0 : editorTable.getSelectedColumn());
-            isInserting = true;
-            getConnectionHandler().notifyChanges(getDataset().getVirtualFile());
-        } catch (SQLException e) {
-            MessageUtil.showErrorDialog("Could not insert record for " + getDataset().getQualifiedNameWithType() + ".", e);
+                editorTable.selectCell(rowIndex, editorTable.getSelectedColumn() == -1 ? 0 : editorTable.getSelectedColumn());
+                isInserting = true;
+                getConnectionHandler().notifyChanges(getDataset().getVirtualFile());
+            } catch (SQLException e) {
+                MessageUtil.showErrorDialog("Could not insert record for " + getDataset().getQualifiedNameWithType() + ".", e);
+            }
         }
     }
 
     public void duplicateRecord(int rowIndex) {
-        try {
-            editorTable.stopCellEditing();
-            int insertIndex = rowIndex + 1;
-            resultSet.moveToInsertRow();
-            DatasetEditorModelRow oldRow = getRowAtIndex(rowIndex);
-            DatasetEditorModelRow newRow = createRow(getRowCount()+1);
-            newRow.setInsert(true);
-            newRow.updateDataFromRow(oldRow);
-            addRowAtIndex(insertIndex, newRow);
-            notifyRowsInserted(insertIndex, insertIndex);
+        DatasetEditorTable editorTable = getEditorTable();
+        if (editorTable != null) {
+            try {
+                editorTable.stopCellEditing();
+                int insertIndex = rowIndex + 1;
+                resultSet.moveToInsertRow();
+                DatasetEditorModelRow oldRow = getRowAtIndex(rowIndex);
+                DatasetEditorModelRow newRow = createRow(getRowCount() + 1);
+                newRow.setInsert(true);
+                newRow.updateDataFromRow(oldRow);
+                addRowAtIndex(insertIndex, newRow);
+                notifyRowsInserted(insertIndex, insertIndex);
 
-            editorTable.selectCell(insertIndex, editorTable.getSelectedColumn());
-            isInserting = true;
-            getConnectionHandler().notifyChanges(getDataset().getVirtualFile());
-        } catch (SQLException e) {
-            MessageUtil.showErrorDialog("Could not duplicate record in " + getDataset().getQualifiedNameWithType() + ".", e);
+                editorTable.selectCell(insertIndex, editorTable.getSelectedColumn());
+                isInserting = true;
+                getConnectionHandler().notifyChanges(getDataset().getVirtualFile());
+            } catch (SQLException e) {
+                MessageUtil.showErrorDialog("Could not duplicate record in " + getDataset().getQualifiedNameWithType() + ".", e);
+            }
         }
     }
 
     public void postInsertRecord(boolean propagateError, boolean rebuild) throws SQLException {
-        DatasetEditorModelRow row = getInsertRow();
-        try {
-            editorTable.stopCellEditing();
-            resultSet.insertRow();
-            resultSet.moveToCurrentRow();
-            row.setInsert(false);
-            row.setNew(true);
-            isInserting = false;
-            if (rebuild) load(true, true);
-        } catch (SQLException e) {
-            DatasetEditorError error = new DatasetEditorError(getConnectionHandler(), e);
-            row.notifyError(error, true, true);
-            if (error.isNotified()) {
-                try {
-                    resultSet.moveToInsertRow();
-                } catch (SQLException e1) {
-                    e1.printStackTrace();
+        DatasetEditorTable editorTable = getEditorTable();
+        if (editorTable != null) {
+            DatasetEditorModelRow row = getInsertRow();
+            try {
+                editorTable.stopCellEditing();
+                resultSet.insertRow();
+                resultSet.moveToCurrentRow();
+                row.setInsert(false);
+                row.setNew(true);
+                isInserting = false;
+                if (rebuild) load(true, true);
+            } catch (SQLException e) {
+                DatasetEditorError error = new DatasetEditorError(getConnectionHandler(), e);
+                row.notifyError(error, true, true);
+                if (error.isNotified()) {
+                    try {
+                        resultSet.moveToInsertRow();
+                    } catch (SQLException e1) {
+                        e1.printStackTrace();
+                    }
                 }
+
+                if (!error.isNotified() || propagateError) throw e;
             }
-            
-            if (!error.isNotified() || propagateError) throw e;
         }
     }
 
     public void cancelInsert(boolean notifyListeners) {
-        try {
-            editorTable.fireEditingCancel();
-            DatasetEditorModelRow insertRow = getInsertRow();
-            int rowIndex = insertRow.getIndex();
-            removeRowAtIndex(rowIndex);
-            resultSet.moveToCurrentRow();
-            isInserting = false;
-            if (notifyListeners) notifyRowsDeleted(rowIndex, rowIndex);
-        } catch (SQLException e) {
-            e.printStackTrace();
+        DatasetEditorTable editorTable = getEditorTable();
+        if (editorTable != null) {
+            try {
+                editorTable.fireEditingCancel();
+                DatasetEditorModelRow insertRow = getInsertRow();
+                int rowIndex = insertRow.getIndex();
+                removeRowAtIndex(rowIndex);
+                resultSet.moveToCurrentRow();
+                isInserting = false;
+                if (notifyListeners) notifyRowsDeleted(rowIndex, rowIndex);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -369,10 +380,13 @@ public class DatasetEditorModel extends ResultSetDataModel<DatasetEditorModelRow
     }
 
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        if (!isReadonly() && ! getState().isReadonly() && getConnectionHandler().isConnected()) {
-            if (!editorTable.isLoading() && editorTable.getSelectedColumnCount() <= 1 && editorTable.getSelectedRowCount() <= 1) {
-                DatasetEditorModelRow row = getRowAtIndex(rowIndex);
-                return row != null && !(isInserting && !row.isInsert()) && !row.isDeleted();
+        DatasetEditorTable editorTable = getEditorTable();
+        if (editorTable != null) {
+            if (!isReadonly() && !getState().isReadonly() && getConnectionHandler().isConnected()) {
+                if (!editorTable.isLoading() && editorTable.getSelectedColumnCount() <= 1 && editorTable.getSelectedRowCount() <= 1) {
+                    DatasetEditorModelRow row = getRowAtIndex(rowIndex);
+                    return row != null && !(isInserting && !row.isInsert()) && !row.isDeleted();
+                }
             }
         }
         return false;
@@ -404,7 +418,7 @@ public class DatasetEditorModel extends ResultSetDataModel<DatasetEditorModelRow
     public void dispose() {
         super.dispose();
         dataset = null;
-        editorTable = null;
+        datasetEditor = null;
         changedRows.clear();
         settings = null;
     }

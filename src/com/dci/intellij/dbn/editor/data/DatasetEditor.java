@@ -5,7 +5,6 @@ import com.dci.intellij.dbn.common.action.DBNDataKeys;
 import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.common.thread.BackgroundTask;
 import com.dci.intellij.dbn.common.thread.SimpleLaterInvocator;
-import com.dci.intellij.dbn.common.util.EditorUtil;
 import com.dci.intellij.dbn.common.util.MessageUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.ConnectionStatusListener;
@@ -64,9 +63,9 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
     private DataEditorSettings settings;
     private Project project;
 
-
     private Set<PropertyChangeListener> propertyChangeListeners = new HashSet<PropertyChangeListener>();
     private String dataLoadError;
+    private DatasetEditorState editorState;
 
     public DatasetEditor(DatabaseEditableObjectFile databaseFile, DBDataset dataset) {
         this.project = dataset.getProject();
@@ -78,9 +77,11 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
         editorForm = new DatasetEditorForm(this);
 
 
+/*
         if (!EditorUtil.hasEditingHistory(databaseFile, project)) {
             load(true, true, false);
         }
+*/
         EventManager.subscribe(project, TransactionListener.TOPIC, this);
         EventManager.subscribe(project, ConnectionStatusListener.TOPIC, this);
     }
@@ -147,29 +148,21 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
         return "Data";
     }
 
+    public DatasetEditorState getState() {
+        return (DatasetEditorState) getState(FileEditorStateLevel.FULL);
+    }
+
     @NotNull
     public FileEditorState getState(@NotNull FileEditorStateLevel level) {
-        DatasetEditorModel model = getTableModel();
-        if (model != null && model.getState() != null) {
-            DatasetEditorState datasetEditorState = model.getState();
-            return datasetEditorState.clone();
+        if (editorState == null) {
+            editorState = new DatasetEditorState(getDataset());
         }
-
-        return FileEditorState.INSTANCE;
+        return editorState;
     }
 
     public void setState(@NotNull FileEditorState fileEditorState) {
-        DatasetEditorModel model = getTableModel();
-        if (model != null) {
-            boolean isNew = model.getState().getRowCount() == 0;
-            if (fileEditorState instanceof DatasetEditorState) {
-                DatasetEditorState datasetEditorState = (DatasetEditorState) fileEditorState;
-                model.setState(datasetEditorState);
-            }
-
-            if (isNew) {
-                load(true, false, false);
-            }
+        if (fileEditorState instanceof DatasetEditorState) {
+            editorState = (DatasetEditorState) fileEditorState;
         }
     }
 
@@ -443,13 +436,11 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
     }
 
     public boolean isReadonly() {
-        DatasetEditorModel model = getTableModel();
-        return model == null || model.getState().isReadonly();
+        return getState().isReadonly();
     }
 
     public void setReadonly(boolean readonly) {
-        DatasetEditorModel model = getTableModel();
-        if (model != null) model.getState().setReadonly(readonly);
+        getState().setReadonly(readonly);
     }
 
     public int getRowCount() {

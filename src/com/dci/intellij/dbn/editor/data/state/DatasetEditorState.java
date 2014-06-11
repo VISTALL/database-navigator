@@ -13,6 +13,7 @@ import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
 public class DatasetEditorState extends SortableDataModelState implements FileEditorState {
+    public static final DatasetEditorState VOID = new DatasetEditorState();
     private DatasetColumnsState columnsState = new DatasetColumnsState();
     private DatasetSortingState dataSortingState = new DatasetSortingState();
     private DBObjectRef<DBDataset> datasetRef;
