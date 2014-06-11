@@ -3,8 +3,8 @@ package com.dci.intellij.dbn.editor.data.state.ui;
 import com.dci.intellij.dbn.common.ui.DBNFormImpl;
 import com.dci.intellij.dbn.common.ui.DBNHeaderForm;
 import com.dci.intellij.dbn.editor.data.state.DatasetEditorState;
+import com.dci.intellij.dbn.editor.data.state.column.ui.DatasetColumnVisibilityForm;
 import com.dci.intellij.dbn.editor.data.state.sorting.ui.DatasetSortingForm;
-import com.dci.intellij.dbn.editor.data.state.visibility.ui.DatasetColumnVisibilityForm;
 import com.dci.intellij.dbn.object.DBDataset;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.UIUtil;
@@ -40,7 +40,7 @@ public class DatasetEditorStateForm extends DBNFormImpl{
 
 
         datasetSortingForm = new DatasetSortingForm(dataset, datasetEditorState.getDataSortingState());
-        columnVisibilityForm = new DatasetColumnVisibilityForm(dataset, datasetEditorState.getColumnVisibilityState());
+        columnVisibilityForm = new DatasetColumnVisibilityForm(dataset, datasetEditorState.getColumnsState());
 
         sortingPanel.add(datasetSortingForm.getComponent(), BorderLayout.CENTER);
         visibilityPanel.add(columnVisibilityForm.getComponent(), BorderLayout.CENTER);
