@@ -40,9 +40,12 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.JPopupMenu;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.TableColumnModelEvent;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Point;
@@ -115,15 +118,34 @@ public class DatasetEditorTable extends ResultSetTable {
         return (DatasetEditorModel) super.getModel();
     }
 
-
     public boolean isInserting() {
         return getModel().isInserting();
+    }
+
+    public void hideColumn(int columnIndex) {
+        TableColumnModel columnModel = getColumnModel();
+        int viewColumnIndex = convertColumnIndexToView(columnIndex);
+        TableColumn column = columnModel.getColumn(viewColumnIndex);
+        columnModel.removeColumn(column);
+
+        ColumnInfo columnInfo = getModel().getColumnInfo(columnIndex);
+        datasetEditor.getState().getHeaderState().getColumnState(columnInfo.getName()).setVisible(false);
     }
 
     @Override
     public TableCellRenderer getCellRenderer(int row, int column) {
         return getCellRenderer();
     }
+
+    @Override
+    public void columnMoved(TableColumnModelEvent e) {
+        super.columnMoved(e);
+        if (e.getFromIndex() != e.getToIndex()) {
+            datasetEditor.getState().getHeaderState().moveColumn(e.getFromIndex(), e.getToIndex());
+        }
+    }
+
+
 
     public void editingStopped(ChangeEvent e) {
         TableCellEditor editor = getCellEditor();

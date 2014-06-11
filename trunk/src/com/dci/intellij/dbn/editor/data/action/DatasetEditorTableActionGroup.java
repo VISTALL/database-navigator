@@ -44,6 +44,8 @@ public class DatasetEditorTableActionGroup extends DefaultActionGroup {
         isHeaderAction = cell == null;
         columnValue = cell == null ? null : cell.getUserValue();
 
+        HideColumnAction hideColumnAction = new HideColumnAction();
+        add(hideColumnAction);
         if (cell != null && cell.isModified() && !cell.isLobValue()) {
             RevertChangesAction revertChangesAction = new RevertChangesAction(cell);
             add(revertChangesAction);
@@ -136,6 +138,20 @@ public class DatasetEditorTableActionGroup extends DefaultActionGroup {
             e.printStackTrace();
         }
         return null;
+    }
+
+    private class HideColumnAction extends DumbAwareAction {
+        private HideColumnAction() {
+            super("Hide column");
+        }
+
+        public void actionPerformed(AnActionEvent e) {
+            DatasetEditorTable editorTable = datasetEditor.getEditorTable();
+            if (editorTable != null) {
+                int columnIndex = columnInfo.getColumnIndex();
+                editorTable.hideColumn(columnIndex);
+            }
+        }
     }
 
     private class SortAscendingAction extends DumbAwareAction {

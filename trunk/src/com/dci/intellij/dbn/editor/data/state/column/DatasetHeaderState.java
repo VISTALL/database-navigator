@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class DatasetColumnsState {
+public class DatasetHeaderState {
     private List<DatasetColumnState> columnStates;
 
     public List<DatasetColumnState> getColumnStates() {
@@ -32,7 +32,7 @@ public class DatasetColumnsState {
         Collections.sort(columnStates);
     }
 
-    private DatasetColumnState getColumnState(String columnName) {
+    public DatasetColumnState getColumnState(String columnName) {
         if (columnStates != null) {
             for (DatasetColumnState columnsState : columnStates) {
                 if (columnName.equals(columnsState.getName())) {
@@ -53,8 +53,11 @@ public class DatasetColumnsState {
                 if (columnState == null) {
                     columnState = new DatasetColumnState(childElement);
                     columnStates.add(columnState);
+                } else {
+                    columnState.readState(childElement);
                 }
             }
+            Collections.sort(columnStates);
         }
     }
 
@@ -68,4 +71,16 @@ public class DatasetColumnsState {
         }
     }
 
+    public void moveColumn(int fromIndex, int toIndex) {
+        DatasetColumnState columnState = columnStates.remove(fromIndex);
+        columnStates.add(toIndex, columnState);
+        for (int i=0; i<columnStates.size(); i++) {
+            columnStates.get(i).setPosition(i);
+        }
+    }
+
+    public boolean isVisible(String name) {
+        DatasetColumnState columnState = getColumnState(name);
+        return columnState == null || columnState.isVisible();
+    }
 }

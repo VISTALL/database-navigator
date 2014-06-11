@@ -4,7 +4,7 @@ import com.dci.intellij.dbn.common.ui.DBNFormImpl;
 import com.dci.intellij.dbn.common.ui.list.CheckBoxList;
 import com.dci.intellij.dbn.common.util.ActionUtil;
 import com.dci.intellij.dbn.editor.data.state.column.DatasetColumnState;
-import com.dci.intellij.dbn.editor.data.state.column.DatasetColumnsState;
+import com.dci.intellij.dbn.editor.data.state.column.DatasetHeaderState;
 import com.dci.intellij.dbn.editor.data.state.column.action.MoveDownAction;
 import com.dci.intellij.dbn.editor.data.state.column.action.MoveUpAction;
 import com.dci.intellij.dbn.editor.data.state.column.action.OrderAlphabeticallyAction;
@@ -26,11 +26,11 @@ public class DatasetColumnVisibilityForm  extends DBNFormImpl {
     private JPanel actionPanel;
     private JBScrollPane columnListScrollPane;
     private CheckBoxList columnList;
-    private DatasetColumnsState columnsState;
+    private DatasetHeaderState headerState;
 
-    public DatasetColumnVisibilityForm(DBDataset dataset, DatasetColumnsState columnsState) {
-        this.columnsState = columnsState;
-        List<DatasetColumnState> columnStates = columnsState.getColumnStates();
+    public DatasetColumnVisibilityForm(DBDataset dataset, DatasetHeaderState headerState) {
+        this.headerState = headerState;
+        List<DatasetColumnState> columnStates = headerState.getColumnStates();
         columnList = new CheckBoxList(columnStates, true);
         columnListScrollPane.setViewportView(columnList);
 
@@ -57,6 +57,6 @@ public class DatasetColumnVisibilityForm  extends DBNFormImpl {
             DatasetColumnState columnState = (DatasetColumnState) columnList.getElementAt(i);
             columnState.setPosition(i);
         }
-        Collections.sort(columnsState.getColumnStates());
+        Collections.sort(headerState.getColumnStates());
     }
 }

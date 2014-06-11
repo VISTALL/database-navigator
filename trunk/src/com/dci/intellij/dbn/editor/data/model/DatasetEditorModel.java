@@ -144,7 +144,6 @@ public class DatasetEditorModel extends ResultSetDataModel<DatasetEditorModelRow
         return null;
     }
 
-    @Nullable
     @Override
     public DatasetEditorState getState() {
         return datasetEditor == null ? null : (DatasetEditorState) datasetEditor.getState(FileEditorStateLevel.FULL);
