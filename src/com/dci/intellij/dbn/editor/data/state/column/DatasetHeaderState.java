@@ -72,8 +72,21 @@ public class DatasetHeaderState {
     }
 
     public void moveColumn(int fromIndex, int toIndex) {
-        DatasetColumnState columnState = columnStates.remove(fromIndex);
-        columnStates.add(toIndex, columnState);
+        int visibleFromIndex = fromIndex;
+        int visibleToIndex = toIndex;
+
+        int visibleIndex = -1;
+        for (int i=0; i<columnStates.size(); i++) {
+            DatasetColumnState columnState = columnStates.get(i);
+            if (columnState.isVisible()) {
+                visibleIndex++;
+                if (visibleIndex == fromIndex) visibleFromIndex = i;
+                if (visibleIndex == toIndex) visibleToIndex = i;
+            }
+        }
+
+        DatasetColumnState columnState = columnStates.remove(visibleFromIndex);
+        columnStates.add(visibleToIndex, columnState);
         for (int i=0; i<columnStates.size(); i++) {
             columnStates.get(i).setPosition(i);
         }
