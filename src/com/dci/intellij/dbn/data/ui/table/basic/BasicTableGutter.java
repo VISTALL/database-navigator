@@ -68,7 +68,7 @@ public class BasicTableGutter extends JList implements Disposable {
         @Override
         public void valueChanged(ListSelectionEvent e) {
             if (hasFocus()) {
-                int lastColumnIndex = table.getModel().getColumnCount() - 1;
+                int lastColumnIndex = table.getColumnCount() - 1;
                 if (justGainedFocus) {
                     justGainedFocus = false;
                     if (table.isEditing()) table.getCellEditor().cancelCellEditing();
