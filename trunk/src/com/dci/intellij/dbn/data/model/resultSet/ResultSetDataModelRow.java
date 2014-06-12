@@ -11,7 +11,7 @@ public class ResultSetDataModelRow<T extends ResultSetDataModelCell> extends Sor
     public ResultSetDataModelRow(ResultSetDataModel model, ResultSet resultSet) throws SQLException {
         super(model);
         for (int i = 0; i < model.getColumnCount(); i++) {
-            ColumnInfo columnInfo = getModel().getColumnInfo(i);
+            ResultSetColumnInfo columnInfo = (ResultSetColumnInfo) getModel().getColumnInfo(i);
             T cell = createCell(resultSet, columnInfo);
             getCells().add(cell);
         }
@@ -22,7 +22,7 @@ public class ResultSetDataModelRow<T extends ResultSetDataModelCell> extends Sor
         return (ResultSetDataModel) super.getModel();
     }
 
-    protected T createCell(ResultSet resultSet, ColumnInfo columnInfo) throws SQLException {
-        return (T) new ResultSetDataModelCell(this, resultSet, columnInfo);
+    protected  T createCell(ResultSet resultSet, ColumnInfo columnInfo) throws SQLException {
+        return (T) new ResultSetDataModelCell(this, resultSet, (ResultSetColumnInfo) columnInfo);
     }
 }

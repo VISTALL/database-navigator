@@ -44,7 +44,7 @@ public class DatasetEditorModel extends ResultSetDataModel<DatasetEditorModelRow
         super(datasetEditor.getConnectionHandler());
         this.datasetEditor = datasetEditor;
         this.dataset = DBObjectRef.from(datasetEditor.getDataset());
-        this.header = new DatasetEditorModelHeader(getDataset(), null);
+        this.header = new DatasetEditorModelHeader(datasetEditor, null);
         this.settings =  DataEditorSettings.getInstance(datasetEditor.getProject());
     }
 

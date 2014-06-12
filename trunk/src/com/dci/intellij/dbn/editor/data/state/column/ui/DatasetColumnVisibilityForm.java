@@ -50,13 +50,15 @@ public class DatasetColumnVisibilityForm  extends DBNFormImpl {
         return mainPanel;
     }
 
-    public void applyChanges(){
-        columnList.applyChanges();
+    public boolean applyChanges(){
+        boolean changed = columnList.applyChanges();
         ListModel model = columnList.getModel();
         for(int i=0; i<model.getSize(); i++ ) {
             DatasetColumnState columnState = (DatasetColumnState) columnList.getElementAt(i);
+            changed = changed || columnState.getPosition() != i;
             columnState.setPosition(i);
         }
         Collections.sort(headerState.getColumnStates());
+        return changed;
     }
 }

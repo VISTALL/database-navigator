@@ -86,6 +86,11 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
         EventManager.subscribe(project, ConnectionStatusListener.TOPIC, this);
     }
 
+    public void rebuild() {
+        editorForm.rebuild();
+        load(true, true, true);
+    }
+
     @Nullable
     public DBDataset getDataset() {
         return dataset.get(project);

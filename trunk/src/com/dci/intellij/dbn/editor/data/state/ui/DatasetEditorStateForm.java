@@ -51,9 +51,11 @@ public class DatasetEditorStateForm extends DBNFormImpl{
         return mainPanel;
     }
 
-    public void applyChanges(){
+    public boolean applyChanges(){
+        boolean changed = false;
         datasetSortingForm.applyChanges();
-        columnVisibilityForm.applyChanges();
+        changed = columnVisibilityForm.applyChanges();
+        return changed;
     }
 
     @Override

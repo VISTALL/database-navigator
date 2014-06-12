@@ -12,8 +12,7 @@ import java.sql.SQLException;
 public class ResultSetColumnInfo extends BasicColumnInfo {
     int resultSetColumnIndex;
     public ResultSetColumnInfo(DBObjectBundle objectBundle, ResultSet resultSet, int columnIndex) throws SQLException {
-        super(null, null, columnIndex);
-        resultSetColumnIndex = columnIndex + 1;
+        this(columnIndex);
         ResultSetMetaData metaData = resultSet.getMetaData();
         name = metaData.getColumnName(resultSetColumnIndex);
 
@@ -23,6 +22,17 @@ public class ResultSetColumnInfo extends BasicColumnInfo {
         DBNativeDataType nativeDataType = objectBundle.getNativeDataType(dataTypeName);
         dataType = new DBDataType(nativeDataType, precision, scale);
     }
+
+    public ResultSetColumnInfo(int columnIndex) {
+        super(null, null, columnIndex);
+        resultSetColumnIndex = columnIndex + 1;
+    }
+
+    public ResultSetColumnInfo(int columnIndex, int resultSetColumnIndex ) {
+        super(null, null, columnIndex);
+        this.resultSetColumnIndex = resultSetColumnIndex;
+    }
+
 
     // lenient approach for oracle bug returning the size of LOBs instead of the precision.
     private int getPrecision(ResultSetMetaData metaData) throws SQLException {
