@@ -58,9 +58,12 @@ public class DatasetEditorModel extends ResultSetDataModel<DatasetEditorModelRow
     private void load(boolean useCurrentFilter, boolean keepChanges) throws SQLException {
         int originalRowCount = getRowCount();
         int stateRowCount = getState().getRowCount();
+        int fetchRowCount = Math.max(stateRowCount, originalRowCount);
 
-        int minRowCount = settings.getGeneralSettings().getFetchBlockSize().value();
-        int rowCount = Math.max(stateRowCount, Math.max(originalRowCount, minRowCount));
+        int fetchBlockSize = settings.getGeneralSettings().getFetchBlockSize().value();
+        fetchRowCount = (fetchRowCount/fetchBlockSize + 1) * fetchBlockSize;
+
+        int rowCount = Math.max(fetchRowCount, fetchBlockSize);
 
 
         Connection connection = connectionHandler.getStandaloneConnection();
