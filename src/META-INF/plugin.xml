@@ -28,6 +28,7 @@
         <ul>
             <li><b>3.0.2843</b>
              <ul>
+                - Dataset Editor - hide / move columns (persistent state)<br>
                 - Improved object lookup functionality (Ctrl-Shift-D)<br>
                 - Copy / Paste feature for connection settings<br>
                 - Metadata layer performance improvements (use prepared statements)<br>
