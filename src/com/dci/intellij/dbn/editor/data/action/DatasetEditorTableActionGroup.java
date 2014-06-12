@@ -46,6 +46,7 @@ public class DatasetEditorTableActionGroup extends DefaultActionGroup {
 
         HideColumnAction hideColumnAction = new HideColumnAction();
         add(hideColumnAction);
+        addSeparator();
         if (cell != null && cell.isModified() && !cell.isLobValue()) {
             RevertChangesAction revertChangesAction = new RevertChangesAction(cell);
             add(revertChangesAction);
