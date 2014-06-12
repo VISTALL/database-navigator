@@ -467,7 +467,9 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
     @Override
     public void statusChanged(String connectionId) {
         DatasetEditorTable editorTable = getEditorTable();
-        if (editorTable != null && getConnectionHandler().getId().equals(connectionId)) {
+        ConnectionHandler connectionHandler = getConnectionHandler();
+        if (editorTable != null && connectionHandler.getId().equals(connectionId)) {
+            editorTable.updateBackground(!connectionHandler.isConnected());
             editorTable.repaint();
         }
     }
