@@ -53,7 +53,7 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
 
     public DatasetBasicFilterConditionForm(DBDataset dataset, DatasetBasicFilterCondition condition) {
         super(condition);
-        datasetRef = dataset.getRef();
+        datasetRef = DBObjectRef.from(dataset);
         ActionToolbar actionToolbar = ActionUtil.createActionToolbar(
                 "DBNavigator.DataEditor.SimpleFilter.Condition", true,
                 new EnableDisableBasicFilterConditionAction(this),
@@ -61,10 +61,11 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
         actionsPanel.add(actionToolbar.getComponent(), BorderLayout.CENTER);
 
         DBColumn column = dataset.getColumn(condition.getColumnName());
-        GenericDataType dataType = null;
-        if (column != null) {
-            dataType = column.getDataType().getNativeDataType().getBasicDataType();
+        if (column == null) {
+            column = dataset.getColumns().get(0);
         }
+        GenericDataType dataType = column.getDataType().getNativeDataType().getBasicDataType();
+
 
         columnSelector = new ColumnSelector(column);
         columnPanel.add(columnSelector, BorderLayout.CENTER);

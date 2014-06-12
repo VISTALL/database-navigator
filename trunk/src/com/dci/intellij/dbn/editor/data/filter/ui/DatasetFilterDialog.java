@@ -8,6 +8,7 @@ import com.dci.intellij.dbn.editor.data.filter.DatasetFilterGroup;
 import com.dci.intellij.dbn.editor.data.filter.DatasetFilterManager;
 import com.dci.intellij.dbn.editor.data.filter.DatasetFilterType;
 import com.dci.intellij.dbn.object.DBDataset;
+import com.dci.intellij.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
@@ -20,7 +21,7 @@ import java.awt.event.ActionEvent;
 
 public class DatasetFilterDialog extends DBNDialog {
     private boolean isAutomaticPrompt;
-    private DBDataset dataset;
+    private DBObjectRef<DBDataset> datasetRef;
     private DatasetFilterForm mainForm;
     private DatasetFilterGroup filterGroup;
 
@@ -37,6 +38,10 @@ public class DatasetFilterDialog extends DBNDialog {
         init();
     }
 
+    private DBDataset getDataset() {
+        return DBObjectRef.get(datasetRef);
+    }
+
     protected String getDimensionServiceKey() {
         return "DBNavigator.DatasetFilter";
     }
@@ -49,7 +54,7 @@ public class DatasetFilterDialog extends DBNDialog {
     }
 
     private void construct(DBDataset dataset, boolean isAutomaticPrompt) {
-        this.dataset = dataset;
+        this.datasetRef = DBObjectRef.from(dataset);
         this.isAutomaticPrompt = isAutomaticPrompt;
         setModal(true);
         setResizable(true);
@@ -97,7 +102,8 @@ public class DatasetFilterDialog extends DBNDialog {
     }
 
     public void doOKAction() {
-        Project project = dataset.getProject();
+        Project project = getProject();
+        DBDataset dataset = getDataset();
         try {
             mainForm.applyChanges();
             DatasetFilterManager filterManager = DatasetFilterManager.getInstance(project);
@@ -122,7 +128,8 @@ public class DatasetFilterDialog extends DBNDialog {
     public void doNoFilterAction() {
         mainForm.resetChanges();
         mainForm.dispose();
-        Project project = dataset.getProject();
+        DBDataset dataset = getDataset();
+        Project project = getProject();
         DatasetFilterManager filterManager = DatasetFilterManager.getInstance(project);
         DatasetFilter activeFilter = filterManager.getActiveFilter(dataset);
         if (activeFilter == null) {

@@ -55,7 +55,7 @@ public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasic
     private JLabel errorLabel;
     private JPanel previewPanel;
 
-    private DBObjectRef<DBDataset> dataset;
+    private DBObjectRef<DBDataset> datasetRef;
     private List<DatasetBasicFilterConditionForm> conditionForms = new ArrayList<DatasetBasicFilterConditionForm>();
     private Document previewDocument;
     private boolean isCustomNamed;
@@ -65,7 +65,7 @@ public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasic
     public DatasetBasicFilterForm(DBDataset dataset, DatasetBasicFilter filter) {
         super(filter);
         conditionsPanel.setLayout(new BoxLayout(conditionsPanel, BoxLayout.Y_AXIS));
-        this.dataset = dataset.getRef();
+        datasetRef = DBObjectRef.from(dataset);
         nameTextField.setText(filter.getDisplayName());
 
         actionsPanel.add(new ColumnSelector(), BorderLayout.CENTER);
@@ -212,6 +212,7 @@ public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasic
                 settings.setDndEnabled(false);
                 settings.setAdditionalLinesCount(2);
                 settings.setRightMarginShown(false);
+                viewer.getComponent().setFocusable(false);
                 previewPanel.add(viewer.getComponent(), BorderLayout.CENTER);
 
             } else {
@@ -230,7 +231,7 @@ public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasic
     }
 
     public DBDataset getDataset() {
-        return dataset.get();
+        return datasetRef.get();
     }
 
     public void addConditionPanel(DatasetBasicFilterCondition condition) {
