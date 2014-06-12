@@ -277,14 +277,16 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
                 initProgressIndicator(progressIndicator, true);
                 DatasetEditorTable oldEditorTable = null;
                 try {
-                    DatasetEditorModel tableModel = getTableModel();
-                    if (!isDisposed() && tableModel != null) {
+                    if (!isDisposed()) {
                         editorForm.showLoadingHint();
                         editorForm.getEditorTable().cancelEditing();
                         setLoading(true);
                         oldEditorTable = rebuild ? editorForm.beforeRebuild() : null;
                         try {
-                            tableModel.load(progressIndicator, useCurrentFilter, keepChanges);
+                            DatasetEditorModel tableModel = getTableModel();
+                            if (tableModel != null) {
+                                tableModel.load(progressIndicator, useCurrentFilter, keepChanges);
+                            }
                         } finally {
                             editorForm.afterRebuild(oldEditorTable);
                         }
