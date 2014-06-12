@@ -57,7 +57,7 @@ public class DatasetEditorManager extends AbstractProjectComponent implements JD
         for (FileEditor fileEditor : fileEditors) {
             if (fileEditor instanceof DatasetEditor) {
                 DatasetEditor datasetEditor = (DatasetEditor) fileEditor;
-                datasetEditor.load(true, true, true);
+                datasetEditor.loadData(true, true, true, false);
                 break;
             }
         }
@@ -154,7 +154,7 @@ public class DatasetEditorManager extends AbstractProjectComponent implements JD
                     for (FileEditor fileEditor : fileEditors) {
                         if (fileEditor instanceof DatasetEditor) {
                             DatasetEditor datasetEditor = (DatasetEditor) fileEditor;
-                            datasetEditor.rebuild();
+                            datasetEditor.loadData(true, true, true, true);
                         }
                     }
                 }

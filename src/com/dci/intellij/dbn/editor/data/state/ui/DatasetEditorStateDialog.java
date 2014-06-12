@@ -40,7 +40,7 @@ public class DatasetEditorStateDialog extends DBNDialog {
         boolean changed = stateForm.applyChanges();
         super.doOKAction();
         if (changed) {
-            datasetEditor.rebuild();
+            datasetEditor.loadData(true, true, true, true);
         }
     }
 

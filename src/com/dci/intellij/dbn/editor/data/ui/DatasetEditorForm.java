@@ -79,6 +79,38 @@ public class DatasetEditorForm extends DBNFormImpl implements DBNForm, Searchabl
         }
     }
 
+    public DatasetEditorTable beforeRebuild() throws SQLException {
+        DatasetEditorTable oldEditorTable = datasetEditorTable;
+        datasetEditorTable = new DatasetEditorTable(datasetEditor);
+
+        List<TableColumn> hiddenColumns = new ArrayList<TableColumn>();
+        for (DatasetColumnState columnState : datasetEditor.getState().getHeaderState().getColumnStates()) {
+            if (!columnState.isVisible()) {
+                int columnIndex = columnState.getPosition();
+                TableColumn tableColumn = datasetEditorTable.getColumnModel().getColumn(columnIndex);
+                hiddenColumns.add(tableColumn);
+            }
+        }
+        for (TableColumn hiddenColumn : hiddenColumns) {
+            datasetEditorTable.removeColumn(hiddenColumn);
+        }
+        return oldEditorTable;
+    }
+
+    public void afterRebuild(final DatasetEditorTable oldEditorTable) {
+        if (oldEditorTable != null) {
+            new ConditionalLaterInvocator(){
+                @Override
+                public void run() {
+                    datasetTableScrollPane.setViewportView(datasetEditorTable);
+                    datasetTableScrollPane.setRowHeaderView(datasetEditorTable.getTableGutter());
+                    oldEditorTable.dispose();
+                }
+            }.start();
+        }
+    }
+
+
     public void rebuild() {
         try {
             DatasetEditorTable oldDatasetEditorTable = datasetEditorTable;
