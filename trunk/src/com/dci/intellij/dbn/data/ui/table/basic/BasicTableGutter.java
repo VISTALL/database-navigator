@@ -3,6 +3,7 @@ package com.dci.intellij.dbn.data.ui.table.basic;
 import com.dci.intellij.dbn.common.ui.table.DBNTable;
 import com.dci.intellij.dbn.data.model.basic.BasicDataModel;
 import com.intellij.openapi.Disposable;
+import com.intellij.util.ui.UIUtil;
 
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
@@ -27,6 +28,7 @@ public class BasicTableGutter extends JList implements Disposable {
         if (getModel().getSize() == 0) {
             setFixedCellWidth(10);
         }
+        setBackground(UIUtil.getPanelBackground());
     }
 
     protected ListCellRenderer createCellRenderer() {
