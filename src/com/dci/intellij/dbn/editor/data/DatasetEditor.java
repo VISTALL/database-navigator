@@ -277,13 +277,14 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
                 initProgressIndicator(progressIndicator, true);
                 DatasetEditorTable oldEditorTable = null;
                 try {
-                    if (!isDisposed()) {
+                    DatasetEditorModel tableModel = getTableModel();
+                    if (!isDisposed() && tableModel != null) {
                         editorForm.showLoadingHint();
                         editorForm.getEditorTable().cancelEditing();
                         setLoading(true);
                         oldEditorTable = rebuild ? editorForm.beforeRebuild() : null;
                         try {
-                            getTableModel().load(progressIndicator, useCurrentFilter, keepChanges);
+                            tableModel.load(progressIndicator, useCurrentFilter, keepChanges);
                         } finally {
                             editorForm.afterRebuild(oldEditorTable);
                         }
@@ -293,18 +294,19 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
                     dataLoadError = e.getMessage();
                     new SimpleLaterInvocator() {
                         public void run() {
-                            if (!isDisposed()) {
+                            DBDataset dataset = getDataset();
+                            if (!isDisposed() && dataset != null) {
                                 focusEditor();
-                                DBDataset dataset = getDataset();
                                 DatabaseMessageParserInterface messageParserInterface = getConnectionHandler().getInterfaceProvider().getMessageParserInterface();
                                 DatasetFilterManager filterManager = DatasetFilterManager.getInstance(getProject());
 
                                 DatasetFilter filter = filterManager.getActiveFilter(dataset);
+                                String datasetName = dataset.getQualifiedNameWithType();
                                 if (getConnectionHandler().isValid()) {
                                     if (filter == null || filter == DatasetFilterManager.EMPTY_FILTER || filter.getError() != null) {
                                         if (isDeliberateAction) {
                                             String message =
-                                                    "Error loading data for " + dataset.getQualifiedNameWithType() + ".\n" + (
+                                                    "Error loading data for " + datasetName + ".\n" + (
                                                             messageParserInterface.isTimeoutException(e) ?
                                                                     "The operation was timed out. Please check your timeout configuration in Data Editor settings." :
                                                                     "Database error message: " + e.getMessage());
@@ -313,7 +315,7 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
                                         }
                                     } else {
                                         String message =
-                                                "Error loading data for " + dataset.getQualifiedNameWithType() + ".\n" + (
+                                                "Error loading data for " + datasetName + ".\n" + (
                                                         messageParserInterface.isTimeoutException(e) ?
                                                                 "The operation was timed out. Please check your timeout configuration in Data Editor settings." :
                                                                 "Filter \"" + filter.getName() + "\" may be invalid.\n" +
@@ -334,7 +336,7 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
                                     }
                                 } else {
                                     String message =
-                                            "Error loading data for " + dataset.getQualifiedNameWithType() + ". Could not connect to database.\n" +
+                                            "Error loading data for " + datasetName + ". Could not connect to database.\n" +
                                                     "Database error message: " + e.getMessage();
                                     MessageUtil.showErrorDialog(message);
                                 }
