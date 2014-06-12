@@ -1,6 +1,6 @@
 package com.dci.intellij.dbn.editor.data.model;
 
-import com.dci.intellij.dbn.data.model.ColumnInfo;
+import com.dci.intellij.dbn.data.model.resultSet.ResultSetColumnInfo;
 import com.dci.intellij.dbn.data.type.DBDataType;
 import com.dci.intellij.dbn.data.type.GenericDataType;
 import com.dci.intellij.dbn.editor.data.DatasetEditorUtils;
@@ -12,13 +12,14 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DatasetEditorColumnInfo implements ColumnInfo {
+public class DatasetEditorColumnInfo extends ResultSetColumnInfo {
     private static final List<String> EMPTY_LIST = new ArrayList<String>(0);
     private List<String> possibleValues;
     private DBObjectRef<DBColumn> column;
     private int columnIndex;
 
-    public DatasetEditorColumnInfo(DBColumn column, int columnIndex) {
+    public DatasetEditorColumnInfo(DBColumn column, int columnIndex, int resultSetColumnIndex) {
+        super(columnIndex, resultSetColumnIndex);
         this.column = column.getRef();
         this.columnIndex = columnIndex;
     }

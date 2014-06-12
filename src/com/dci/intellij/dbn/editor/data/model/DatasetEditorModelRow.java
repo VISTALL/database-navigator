@@ -38,6 +38,7 @@ public class DatasetEditorModelRow extends ResultSetDataModelRow<DatasetEditorMo
         return getCellAtIndex(columnIndex);
     }
 
+    @Override
     protected DatasetEditorModelCell createCell(ResultSet resultSet, ColumnInfo columnInfo) throws SQLException {
         return new DatasetEditorModelCell(this, resultSet, (DatasetEditorColumnInfo) columnInfo);
     }

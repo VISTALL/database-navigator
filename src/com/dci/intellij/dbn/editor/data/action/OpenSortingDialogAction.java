@@ -4,7 +4,6 @@ import com.dci.intellij.dbn.DatabaseNavigator;
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.data.sorting.SortDirection;
 import com.dci.intellij.dbn.editor.data.DatasetEditor;
-import com.dci.intellij.dbn.editor.data.model.DatasetEditorModel;
 import com.dci.intellij.dbn.editor.data.state.DatasetEditorStateManager;
 import com.dci.intellij.dbn.editor.data.state.sorting.DatasetSortingState;
 import com.dci.intellij.dbn.object.DBColumn;
@@ -24,7 +23,7 @@ public class OpenSortingDialogAction extends AbstractDataEditorAction {
         if (datasetEditor != null) {
             DBDataset dataset = datasetEditor.getDataset();
             if (dataset != null) {
-                DatasetEditorStateManager sortingManager = DatasetEditorStateManager.getInstance(datasetEditor.getProject());
+                DatasetEditorStateManager stateManager = DatasetEditorStateManager.getInstance(datasetEditor.getProject());
 
                 DatasetSortingState sortingState = new DatasetSortingState();
 
@@ -33,10 +32,7 @@ public class OpenSortingDialogAction extends AbstractDataEditorAction {
                     if (sortingState.getSortingInstructions().size() > 3) break;
                 }
 
-                DatasetEditorModel editorModel = datasetEditor.getTableModel();
-                if (editorModel != null) {
-                    sortingManager.openStateDialog(dataset, editorModel.getState());
-                }
+                stateManager.openStateDialog(datasetEditor);
             }
         }
     }

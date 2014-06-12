@@ -149,13 +149,14 @@ public class CheckBoxList<T extends Selectable> extends JList {
         setModel(newModel);
     }
 
-    public void applyChanges(){
+    public boolean applyChanges(){
+        boolean changed = false;
         ListModel model = getModel();
         for (int i=0; i<model.getSize(); i++) {
             Entry entry = (Entry) model.getElementAt(i);
-            entry.updatePresentable();
+            changed = entry.updatePresentable() || changed;
         }
-
+        return changed;
     }
 
     public void addActionListener(ActionListener actionListener) {
@@ -213,8 +214,10 @@ public class CheckBoxList<T extends Selectable> extends JList {
             add(textPanel, BorderLayout.CENTER);
         }
 
-        private void updatePresentable() {
+        private boolean updatePresentable() {
+            boolean changed = presentable.isSelected() != checkBox.isSelected();
             presentable.setSelected(checkBox.isSelected());
+            return changed;
         }
 
         public T getPresentable() {

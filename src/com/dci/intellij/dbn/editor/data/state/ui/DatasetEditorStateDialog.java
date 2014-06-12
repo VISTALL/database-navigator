@@ -1,8 +1,7 @@
 package com.dci.intellij.dbn.editor.data.state.ui;
 
 import com.dci.intellij.dbn.common.ui.dialog.DBNDialog;
-import com.dci.intellij.dbn.editor.data.state.DatasetEditorState;
-import com.dci.intellij.dbn.object.DBDataset;
+import com.dci.intellij.dbn.editor.data.DatasetEditor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -11,12 +10,14 @@ import javax.swing.JComponent;
 
 public class DatasetEditorStateDialog extends DBNDialog {
     private DatasetEditorStateForm stateForm;
+    private DatasetEditor datasetEditor;
 
-    public DatasetEditorStateDialog(DBDataset dataset, DatasetEditorState editorState) {
-        super(dataset.getProject(), "Sorting", true);
+    public DatasetEditorStateDialog(DatasetEditor datasetEditor) {
+        super(datasetEditor.getProject(), "Sorting", true);
+        this.datasetEditor = datasetEditor;
         setModal(true);
         setResizable(true);
-        stateForm = new DatasetEditorStateForm(dataset, editorState);
+        stateForm = new DatasetEditorStateForm(datasetEditor.getDataset(), datasetEditor.getState());
         getCancelAction().putValue(Action.NAME, "Close");
         init();
     }
@@ -36,8 +37,11 @@ public class DatasetEditorStateDialog extends DBNDialog {
 
     @Override
     protected void doOKAction() {
-        stateForm.applyChanges();
+        boolean changed = stateForm.applyChanges();
         super.doOKAction();
+        if (changed) {
+            datasetEditor.rebuild();
+        }
     }
 
     @Nullable

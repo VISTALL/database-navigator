@@ -12,10 +12,11 @@ import com.dci.intellij.dbn.data.find.SearchableDataComponent;
 import com.dci.intellij.dbn.data.ui.table.basic.BasicTable;
 import com.dci.intellij.dbn.editor.DBContentType;
 import com.dci.intellij.dbn.editor.data.DatasetEditor;
+import com.dci.intellij.dbn.editor.data.state.column.DatasetColumnState;
 import com.dci.intellij.dbn.editor.data.ui.table.DatasetEditorTable;
 import com.dci.intellij.dbn.editor.data.ui.table.cell.DatasetTableCellEditor;
+import com.dci.intellij.dbn.object.DBDataset;
 import com.intellij.openapi.actionSystem.ActionToolbar;
-import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.AsyncProcessIcon;
 import com.intellij.util.ui.UIUtil;
 
@@ -24,8 +25,11 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableColumn;
 import java.awt.BorderLayout;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DatasetEditorForm extends DBNFormImpl implements DBNForm, SearchableDataComponent {
     private JPanel actionsPanel;
@@ -38,8 +42,11 @@ public class DatasetEditorForm extends DBNFormImpl implements DBNForm, Searchabl
     private DatasetEditorTable datasetEditorTable;
     private DataSearchComponent dataSearchComponent;
 
+    private DatasetEditor datasetEditor;
+
     public DatasetEditorForm(DatasetEditor datasetEditor) {
-        Project project = datasetEditor.getProject();
+        this.datasetEditor = datasetEditor;
+        DBDataset dataset = getDataset();
         try {
             datasetEditorTable = new DatasetEditorTable(datasetEditor);
             datasetTableScrollPane.setViewportView(datasetEditorTable);
@@ -60,14 +67,48 @@ public class DatasetEditorForm extends DBNFormImpl implements DBNForm, Searchabl
 
             ActionUtil.registerDataProvider(actionsPanel, datasetEditor.getDataProvider(), true);
         } catch (SQLException e) {
-            MessageDialog.showErrorDialog(project,
-                    "Error opening data editor for " + datasetEditor.getDataset().getQualifiedNameWithType(), e.getMessage(), false);
+
+            MessageDialog.showErrorDialog(
+                    datasetEditor.getProject(),
+                    "Error opening data editor for " + dataset.getQualifiedNameWithType(), e.getMessage(), false);
         }
 
-        if (datasetEditor.getDataset().isEditable(DBContentType.DATA)) {
+        if (dataset.isEditable(DBContentType.DATA)) {
             ConnectionHandler connectionHandler = getConnectionHandler();
             autoCommitLabel.setConnectionHandler(connectionHandler);
         }
+    }
+
+    public void rebuild() {
+        try {
+            DatasetEditorTable oldDatasetEditorTable = datasetEditorTable;
+            datasetEditorTable = new DatasetEditorTable(datasetEditor);
+
+            List<TableColumn> hiddenColumns = new ArrayList<TableColumn>();
+            for (DatasetColumnState columnState : datasetEditor.getState().getHeaderState().getColumnStates()) {
+                if (!columnState.isVisible()) {
+                    int columnIndex = columnState.getPosition();
+                    TableColumn tableColumn = datasetEditorTable.getColumnModel().getColumn(columnIndex);
+                    hiddenColumns.add(tableColumn);
+                }
+            }
+            for (TableColumn hiddenColumn : hiddenColumns) {
+                datasetEditorTable.removeColumn(hiddenColumn);
+            }
+
+            datasetTableScrollPane.setViewportView(datasetEditorTable);
+            datasetTableScrollPane.setRowHeaderView(datasetEditorTable.getTableGutter());
+            oldDatasetEditorTable.dispose();
+
+        } catch (SQLException e) {
+            MessageDialog.showErrorDialog(datasetEditor.getProject(),
+                    "Error opening creating editor for " + getDataset().getQualifiedNameWithType(), e.getMessage(), false);
+        }
+
+    }
+
+    private DBDataset getDataset() {
+        return datasetEditor.getDataset();
     }
 
     public JPanel getComponent() {
@@ -98,14 +139,17 @@ public class DatasetEditorForm extends DBNFormImpl implements DBNForm, Searchabl
     }
 
     public void dispose() {
-        autoCommitLabel.dispose();
-        super.dispose();
-        if (dataSearchComponent != null) {
-            dataSearchComponent.dispose();
-            dataSearchComponent = null;
+        if (!isDisposed()) {
+            super.dispose();
+            autoCommitLabel.dispose();
+            if (dataSearchComponent != null) {
+                dataSearchComponent.dispose();
+                dataSearchComponent = null;
+            }
+            datasetEditorTable.dispose();
+            datasetEditorTable = null;
+            datasetEditor = null;
         }
-        datasetEditorTable.dispose();
-        datasetEditorTable = null;
     }
 
     private ConnectionHandler getConnectionHandler() {

@@ -3,31 +3,28 @@ package com.dci.intellij.dbn.editor.data.model;
 import com.dci.intellij.dbn.data.model.ColumnInfo;
 import com.dci.intellij.dbn.data.model.DataModelHeader;
 import com.dci.intellij.dbn.data.model.basic.BasicDataModelHeader;
+import com.dci.intellij.dbn.editor.data.DatasetEditor;
+import com.dci.intellij.dbn.editor.data.state.column.DatasetColumnState;
 import com.dci.intellij.dbn.object.DBColumn;
 import com.dci.intellij.dbn.object.DBDataset;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
 public class DatasetEditorModelHeader extends BasicDataModelHeader implements DataModelHeader {
-    public DatasetEditorModelHeader(DBDataset dataset, ResultSet resultSet) throws SQLException {
-        super();
-        List<ColumnInfo> columnInfos = getColumnInfos();
+    public DatasetEditorModelHeader(DatasetEditor datasetEditor, ResultSet resultSet) throws SQLException {
+        DBDataset dataset = datasetEditor.getDataset();
         if (resultSet == null) {
-            List<DBColumn> columns = new ArrayList<DBColumn>(dataset.getColumns());
-            Collections.sort(columns, COLUMN_POSITION_COMPARATOR);
+            List<DatasetColumnState> columnStates = datasetEditor.getState().getHeaderState().getColumnStates();
             int index = 0;
-            for (DBColumn column : columns) {
-                if (!column.isHidden()) {
-                    ColumnInfo columnInfo = new DatasetEditorColumnInfo(column, index);
-                    columnInfos.add(columnInfo);
-                    index++;
-                }
+            for (DatasetColumnState columnState : columnStates) {
+                DBColumn column = columnState.getColumn();
+                ColumnInfo columnInfo = new DatasetEditorColumnInfo(column, index, column.getPosition());
+                columnInfos.add(columnInfo);
+                index++;
             }
         } else {
             ResultSetMetaData metaData = resultSet.getMetaData();
@@ -35,7 +32,7 @@ public class DatasetEditorModelHeader extends BasicDataModelHeader implements Da
             for (int i = 0; i < columnCount; i++) {
                 String name = metaData.getColumnName(i+1);
                 DBColumn column = dataset.getColumn(name);
-                ColumnInfo columnInfo = new DatasetEditorColumnInfo(column, i);
+                ColumnInfo columnInfo = new DatasetEditorColumnInfo(column, i, i+1);
                 columnInfos.add(columnInfo);
             }
         }

@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BasicDataModelHeader implements DataModelHeader {
-    private List<ColumnInfo> columnInfos = new ArrayList<ColumnInfo>();
+    protected List<ColumnInfo> columnInfos = new ArrayList<ColumnInfo>();
 
     public List<ColumnInfo> getColumnInfos() {
         return columnInfos;
