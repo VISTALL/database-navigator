@@ -139,8 +139,13 @@ public abstract class TextFieldPopupProviderForm extends KeyAdapter implements D
 
     protected void disposePopup() {
         if (isShowingPopup()) {
-            popup.cancel();
-            popup = null;
+            new ConditionalLaterInvocator() {
+                @Override
+                public void run() {
+                    popup.cancel();
+                    popup = null;
+                }
+            }.start();
         }
     }
 

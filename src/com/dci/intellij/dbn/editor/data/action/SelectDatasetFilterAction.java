@@ -34,7 +34,7 @@ public class SelectDatasetFilterAction extends DumbAwareAction {
         Presentation presentation = e.getPresentation();
         presentation.setIcon(filter.getIcon());
         presentation.setText(NamingUtil.enhanceNameForDisplay(filter.getName()));
-        presentation.setEnabled(dataset.getConnectionHandler().isConnected());
+        //presentation.setEnabled(dataset.getConnectionHandler().isConnected());
         //e.getPresentation().setText(filter.getName());
     }
 }

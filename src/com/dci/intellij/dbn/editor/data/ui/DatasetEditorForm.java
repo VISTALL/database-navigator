@@ -104,6 +104,7 @@ public class DatasetEditorForm extends DBNFormImpl implements DBNForm, Searchabl
                 public void run() {
                     datasetTableScrollPane.setViewportView(datasetEditorTable);
                     datasetTableScrollPane.setRowHeaderView(datasetEditorTable.getTableGutter());
+                    datasetTableScrollPane.getViewport().setBackground(datasetEditorTable.getBackground());
                     oldEditorTable.dispose();
                 }
             }.start();

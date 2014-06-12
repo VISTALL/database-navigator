@@ -1,6 +1,7 @@
 package com.dci.intellij.dbn.data.ui.table.basic;
 
 import com.dci.intellij.dbn.common.locale.options.RegionalSettings;
+import com.dci.intellij.dbn.common.thread.ConditionalLaterInvocator;
 import com.dci.intellij.dbn.common.ui.table.DBNTable;
 import com.dci.intellij.dbn.data.editor.color.DataGridTextAttributes;
 import com.dci.intellij.dbn.data.model.DataModelCell;
@@ -14,6 +15,7 @@ import com.intellij.openapi.editor.colors.EditorColorsManager;
 import com.intellij.openapi.editor.colors.EditorColorsScheme;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.JBPopup;
+import com.intellij.ui.components.JBViewport;
 import com.intellij.util.ui.UIUtil;
 
 import javax.swing.event.ListSelectionEvent;
@@ -56,6 +58,22 @@ public class BasicTable extends DBNTable implements EditorColorsListener, Dispos
 
     public void setLoading(boolean loading) {
         isLoading = loading;
+        updateBackground(loading);
+    }
+
+    public void updateBackground(final boolean readonly) {
+        final JBViewport viewport = UIUtil.getParentOfType(JBViewport.class, this);
+        if (viewport != null) {
+            new ConditionalLaterInvocator() {
+                @Override
+                public void run() {
+                    DataGridTextAttributes attributes = cellRenderer.getAttributes();
+                    viewport.setBackground(readonly ?
+                            attributes.getLoadingData(false).getBgColor() :
+                            UIUtil.getTableBackground());
+                }
+            }.start();
+        }
     }
 
     public boolean isLoading() {

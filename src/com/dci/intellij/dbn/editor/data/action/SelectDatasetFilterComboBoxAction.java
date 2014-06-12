@@ -65,7 +65,6 @@ public class SelectDatasetFilterComboBoxAction extends DBNComboBoxAction {
         Presentation presentation = e.getPresentation();
         boolean enabled =
                 datasetEditor != null &&
-                datasetEditor.getActiveConnection().isConnected() &&
                 !datasetEditor.isInserting() &&
                 !datasetEditor.isLoading();
         if (datasetEditor != null) {
