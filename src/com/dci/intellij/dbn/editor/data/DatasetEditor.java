@@ -470,7 +470,11 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
         ConnectionHandler connectionHandler = getConnectionHandler();
         if (editorTable != null && connectionHandler.getId().equals(connectionId)) {
             editorTable.updateBackground(!connectionHandler.isConnected());
-            editorTable.repaint();
+            if (connectionHandler.isConnected()) {
+                loadData(true, false, false, false);
+            } else {
+                editorTable.repaint();
+            }
         }
     }
 
