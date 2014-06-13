@@ -1,4 +1,4 @@
-package com.dci.intellij.dbn.editor.data.state.ui;
+package com.dci.intellij.dbn.editor.data.state.sorting.ui;
 
 import com.dci.intellij.dbn.common.ui.dialog.DBNDialog;
 import com.dci.intellij.dbn.editor.data.DatasetEditor;
@@ -8,22 +8,22 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.Action;
 import javax.swing.JComponent;
 
-public class DatasetEditorStateDialog extends DBNDialog {
-    private DatasetEditorStateForm stateForm;
+public class DatasetEditorSortingDialog extends DBNDialog {
+    private DatasetEditorSortingForm stateForm;
     private DatasetEditor datasetEditor;
 
-    public DatasetEditorStateDialog(DatasetEditor datasetEditor) {
+    public DatasetEditorSortingDialog(DatasetEditor datasetEditor) {
         super(datasetEditor.getProject(), "Sorting", true);
         this.datasetEditor = datasetEditor;
         setModal(true);
         setResizable(true);
-        stateForm = new DatasetEditorStateForm(datasetEditor);
+        stateForm = new DatasetEditorSortingForm(datasetEditor);
         getCancelAction().putValue(Action.NAME, "Close");
         init();
     }
 
     protected String getDimensionServiceKey() {
-        return "DBNavigator.DatasetSorting";
+        return "DBNavigator.DatasetColumnSorting";
     }
 
     @NotNull
@@ -37,11 +37,8 @@ public class DatasetEditorStateDialog extends DBNDialog {
 
     @Override
     protected void doOKAction() {
-        boolean changed = stateForm.applyChanges();
+        stateForm.applyChanges();
         super.doOKAction();
-        if (changed) {
-            datasetEditor.loadData(true, true, true, true);
-        }
     }
 
     @Nullable

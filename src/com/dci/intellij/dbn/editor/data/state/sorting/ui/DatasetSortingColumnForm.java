@@ -24,10 +24,10 @@ public class DatasetSortingColumnForm extends DBNFormImpl {
     private JPanel mainPanel;
     private JPanel columnPanel;
 
-    private DatasetSortingForm parentForm;
+    private DatasetEditorSortingForm parentForm;
     private SortingInstruction sortingInstruction;
 
-    public DatasetSortingColumnForm(final DatasetSortingForm parentForm, DatasetSortingInstruction sortingInstruction) {
+    public DatasetSortingColumnForm(final DatasetEditorSortingForm parentForm, DatasetSortingInstruction sortingInstruction) {
         this.parentForm = parentForm;
         this.sortingInstruction = sortingInstruction;
 

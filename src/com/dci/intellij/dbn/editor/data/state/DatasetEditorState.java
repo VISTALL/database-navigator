@@ -2,7 +2,7 @@ package com.dci.intellij.dbn.editor.data.state;
 
 import com.dci.intellij.dbn.common.options.setting.SettingsUtil;
 import com.dci.intellij.dbn.data.model.sortable.SortableDataModelState;
-import com.dci.intellij.dbn.editor.data.state.column.DatasetHeaderState;
+import com.dci.intellij.dbn.editor.data.state.column.DatasetColumnSetup;
 import com.dci.intellij.dbn.editor.data.state.sorting.DatasetSortingState;
 import com.dci.intellij.dbn.object.DBDataset;
 import com.dci.intellij.dbn.object.lookup.DBObjectRef;
@@ -14,13 +14,13 @@ import org.jetbrains.annotations.NotNull;
 
 public class DatasetEditorState extends SortableDataModelState implements FileEditorState {
     public static final DatasetEditorState VOID = new DatasetEditorState();
-    private DatasetHeaderState headerState = new DatasetHeaderState();
+    private DatasetColumnSetup columnSetup = new DatasetColumnSetup();
     private DatasetSortingState dataSortingState = new DatasetSortingState();
     private DBObjectRef<DBDataset> datasetRef;
 
     public DatasetEditorState(DBDataset dataset) {
         datasetRef = DBObjectRef.from(dataset);
-        headerState.init(dataset);
+        columnSetup.init(dataset);
     }
 
     public DatasetEditorState() {
@@ -30,8 +30,8 @@ public class DatasetEditorState extends SortableDataModelState implements FileEd
         return false;
     }
 
-    public DatasetHeaderState getHeaderState() {
-        return headerState;
+    public DatasetColumnSetup getColumnSetup() {
+        return columnSetup;
     }
 
     public DatasetSortingState getDataSortingState() {
@@ -47,7 +47,7 @@ public class DatasetEditorState extends SortableDataModelState implements FileEd
         getSortingState().setDirectionAsString(element.getAttributeValue("sort-direction"));
 
         Element columnsElement = element.getChild("columns");
-        headerState.readState(columnsElement);
+        columnSetup.readState(columnsElement);
 
         Element contentTypesElement = element.getChild("content-types");
         if (contentTypesElement != null) {
@@ -68,7 +68,7 @@ public class DatasetEditorState extends SortableDataModelState implements FileEd
 
         Element columnsElement = new Element("columns");
         targetElement.addContent(columnsElement);
-        headerState.writeState(columnsElement);
+        columnSetup.writeState(columnsElement);
 
         Element contentTypesElement = new Element("content-types");
         targetElement.addContent(contentTypesElement);

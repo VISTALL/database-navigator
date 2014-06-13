@@ -84,7 +84,7 @@ public class DatasetEditorForm extends DBNFormImpl implements DBNForm, Searchabl
         datasetEditorTable = new DatasetEditorTable(datasetEditor);
 
         List<TableColumn> hiddenColumns = new ArrayList<TableColumn>();
-        for (DatasetColumnState columnState : datasetEditor.getState().getHeaderState().getColumnStates()) {
+        for (DatasetColumnState columnState : datasetEditor.getState().getColumnSetup().getColumns()) {
             if (!columnState.isVisible()) {
                 int columnIndex = columnState.getPosition();
                 TableColumn tableColumn = datasetEditorTable.getColumnModel().getColumn(columnIndex);

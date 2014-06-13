@@ -4,6 +4,7 @@ import com.dci.intellij.dbn.common.ui.DBNFormImpl;
 import com.dci.intellij.dbn.common.ui.ValueSelector;
 import com.dci.intellij.dbn.data.sorting.SortDirection;
 import com.dci.intellij.dbn.data.sorting.SortingInstruction;
+import com.dci.intellij.dbn.editor.data.DatasetEditor;
 import com.dci.intellij.dbn.editor.data.state.sorting.DatasetSortingInstruction;
 import com.dci.intellij.dbn.editor.data.state.sorting.DatasetSortingState;
 import com.dci.intellij.dbn.object.DBColumn;
@@ -19,7 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class DatasetSortingForm extends DBNFormImpl{
+public class DatasetEditorSortingForm extends DBNFormImpl{
     private JPanel mainPanel;
     private JPanel sortingInstructionsPanel;
     private JPanel actionsPanel;
@@ -27,8 +28,10 @@ public class DatasetSortingForm extends DBNFormImpl{
     private DBObjectRef<DBDataset> datasetRef;
     private List<DatasetSortingColumnForm> sortingInstructionForms = new ArrayList<DatasetSortingColumnForm>();
 
-    public DatasetSortingForm(DBDataset dataset, DatasetSortingState sortingState) {
-        this.datasetRef = dataset.getRef();
+    public DatasetEditorSortingForm(DatasetEditor datasetEditor) {
+        DBDataset dataset = datasetEditor.getDataset();
+        DatasetSortingState sortingState = datasetEditor.getState().getDataSortingState();
+        this.datasetRef = DBObjectRef.from(dataset);
 
         BoxLayout sortingInstructionsPanelLayout = new BoxLayout(sortingInstructionsPanel, BoxLayout.Y_AXIS);
         sortingInstructionsPanel.setLayout(sortingInstructionsPanelLayout);

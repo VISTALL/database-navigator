@@ -8,10 +8,10 @@ import com.dci.intellij.dbn.object.DBDataset;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 
-public class OpenSortingDialogAction extends AbstractDataEditorAction {
+public class OpenColumnSetupDialogAction extends AbstractDataEditorAction {
 
-    public OpenSortingDialogAction() {
-        super("Sorting...", Icons.DATA_SORTING);
+    public OpenColumnSetupDialogAction() {
+        super("Column Setup...", Icons.DATA_COLUMNS);
     }
 
     public void actionPerformed(AnActionEvent e) {
@@ -21,7 +21,7 @@ public class OpenSortingDialogAction extends AbstractDataEditorAction {
             DBDataset dataset = datasetEditor.getDataset();
             if (dataset != null) {
                 DatasetEditorStateManager stateManager = DatasetEditorStateManager.getInstance(datasetEditor.getProject());
-                stateManager.openSortingDialog(datasetEditor);
+                stateManager.openColumnSetupDialog(datasetEditor);
             }
         }
     }
@@ -30,7 +30,7 @@ public class OpenSortingDialogAction extends AbstractDataEditorAction {
         DatasetEditor datasetEditor = getDatasetEditor(e);
 
         Presentation presentation = e.getPresentation();
-        presentation.setText("Sorting...");
+        presentation.setText("Column Setup...");
 
         boolean enabled =
                 datasetEditor != null &&

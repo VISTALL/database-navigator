@@ -8,33 +8,33 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class DatasetHeaderState {
-    private List<DatasetColumnState> columnStates;
+public class DatasetColumnSetup {
+    private List<DatasetColumnState> columns;
 
-    public List<DatasetColumnState> getColumnStates() {
-        return columnStates;
+    public List<DatasetColumnState> getColumns() {
+        return columns;
     }
 
     public synchronized void init(DBDataset dataset) {
-        if (columnStates == null) columnStates = new ArrayList<DatasetColumnState>();
+        if (columns == null) columns = new ArrayList<DatasetColumnState>();
 
         for (DBColumn column : dataset.getColumns()) {
             DatasetColumnState columnsState = getColumnState(column.getName());
             if (columnsState == null) {
                 if (!column.isHidden()) {
                     columnsState = new DatasetColumnState(column);
-                    columnStates.add(columnsState);
+                    columns.add(columnsState);
                 }
             } else {
                 columnsState.init(column);
             }
         }
-        Collections.sort(columnStates);
+        Collections.sort(columns);
     }
 
     public DatasetColumnState getColumnState(String columnName) {
-        if (columnStates != null) {
-            for (DatasetColumnState columnsState : columnStates) {
+        if (columns != null) {
+            for (DatasetColumnState columnsState : columns) {
                 if (columnName.equals(columnsState.getName())) {
                     return columnsState;
                 }
@@ -47,23 +47,23 @@ public class DatasetHeaderState {
         if (element != null) {
             List<Element> childElements = element.getChildren();
             for (Element childElement : childElements) {
-                if (columnStates == null) columnStates = new ArrayList<DatasetColumnState>();
+                if (columns == null) columns = new ArrayList<DatasetColumnState>();
                 String columnName = childElement.getAttributeValue("name");
                 DatasetColumnState columnState = getColumnState(columnName);
                 if (columnState == null) {
                     columnState = new DatasetColumnState(childElement);
-                    columnStates.add(columnState);
+                    columns.add(columnState);
                 } else {
                     columnState.readState(childElement);
                 }
             }
-            Collections.sort(columnStates);
+            Collections.sort(columns);
         }
     }
 
     public void writeState(Element element) {
-        if (columnStates != null) {
-            for (DatasetColumnState columnState : columnStates) {
+        if (columns != null) {
+            for (DatasetColumnState columnState : columns) {
                 Element childElement = new Element("column");
                 element.addContent(childElement);
                 columnState.writeState(childElement);
@@ -76,8 +76,8 @@ public class DatasetHeaderState {
         int visibleToIndex = toIndex;
 
         int visibleIndex = -1;
-        for (int i=0; i<columnStates.size(); i++) {
-            DatasetColumnState columnState = columnStates.get(i);
+        for (int i=0; i< columns.size(); i++) {
+            DatasetColumnState columnState = columns.get(i);
             if (columnState.isVisible()) {
                 visibleIndex++;
                 if (visibleIndex == fromIndex) visibleFromIndex = i;
@@ -85,10 +85,10 @@ public class DatasetHeaderState {
             }
         }
 
-        DatasetColumnState columnState = columnStates.remove(visibleFromIndex);
-        columnStates.add(visibleToIndex, columnState);
-        for (int i=0; i<columnStates.size(); i++) {
-            columnStates.get(i).setPosition(i);
+        DatasetColumnState columnState = columns.remove(visibleFromIndex);
+        columns.add(visibleToIndex, columnState);
+        for (int i=0; i< columns.size(); i++) {
+            columns.get(i).setPosition(i);
         }
     }
 

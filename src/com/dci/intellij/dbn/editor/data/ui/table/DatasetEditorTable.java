@@ -129,7 +129,7 @@ public class DatasetEditorTable extends ResultSetTable {
         columnModel.removeColumn(column);
 
         ColumnInfo columnInfo = getModel().getColumnInfo(columnIndex);
-        datasetEditor.getState().getHeaderState().getColumnState(columnInfo.getName()).setVisible(false);
+        datasetEditor.getState().getColumnSetup().getColumnState(columnInfo.getName()).setVisible(false);
     }
 
     @Override
@@ -142,7 +142,7 @@ public class DatasetEditorTable extends ResultSetTable {
         int fromIndex = e.getFromIndex();
         int toIndex = e.getToIndex();
         if (fromIndex != toIndex) {
-            datasetEditor.getState().getHeaderState().moveColumn(fromIndex, toIndex);
+            datasetEditor.getState().getColumnSetup().moveColumn(fromIndex, toIndex);
         }
         super.columnMoved(e);
     }
