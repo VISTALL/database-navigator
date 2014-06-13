@@ -88,7 +88,14 @@ public class DatasetEditorSortingForm extends DBNFormImpl{
             DatasetSortingColumnForm sortingInstructionForm = new DatasetSortingColumnForm(this, datasetSortingInstruction);
             sortingInstructionForms.add(sortingInstructionForm);
             sortingInstructionsPanel.add(sortingInstructionForm.getComponent());
+            updateIndexes();
             sortingInstructionsPanel.updateUI();
+        }
+    }
+
+    private void updateIndexes() {
+        for (int i=0; i<sortingInstructionForms.size(); i++) {
+            sortingInstructionForms.get(i).setIndex(i + 1);
         }
     }
 
@@ -96,6 +103,7 @@ public class DatasetEditorSortingForm extends DBNFormImpl{
     public void removeSortingColumn(DatasetSortingColumnForm sortingInstructionForm) {
         sortingInstructionsPanel.remove(sortingInstructionForm.getComponent());
         sortingInstructionForms.remove(sortingInstructionForm);
+        updateIndexes();
         sortingInstructionForm.dispose();
         sortingInstructionsPanel.updateUI();
     }

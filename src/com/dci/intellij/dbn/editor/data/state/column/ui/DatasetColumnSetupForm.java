@@ -34,12 +34,13 @@ public class DatasetColumnSetupForm extends DBNFormImpl {
         columnList = new CheckBoxList(columnStates, true);
         columnListScrollPane.setViewportView(columnList);
 
-        ActionToolbar actionToolbar = ActionUtil.createActionToolbar("", true,
+        ActionToolbar actionToolbar = ActionUtil.createActionToolbar("", false,
                 new SelectAllColumnsAction(columnList),
                 ActionUtil.SEPARATOR,
-                new OrderAlphabeticallyAction(columnList),
                 new MoveUpAction(columnList),
                 new MoveDownAction(columnList),
+                ActionUtil.SEPARATOR,
+                new OrderAlphabeticallyAction(columnList),
                 new RevertColumnOrderAction(columnList));
         actionPanel.add(actionToolbar.getComponent(), BorderLayout.WEST);
 

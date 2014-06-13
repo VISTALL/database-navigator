@@ -18,7 +18,7 @@ public class DatasetEditorSortingDialog extends DBNDialog {
         setModal(true);
         setResizable(true);
         stateForm = new DatasetEditorSortingForm(datasetEditor);
-        getCancelAction().putValue(Action.NAME, "Close");
+        getCancelAction().putValue(Action.NAME, "Cancel");
         init();
     }
 

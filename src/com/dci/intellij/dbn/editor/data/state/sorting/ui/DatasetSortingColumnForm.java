@@ -13,6 +13,7 @@ import com.dci.intellij.dbn.object.DBDataset;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ public class DatasetSortingColumnForm extends DBNFormImpl {
     private JPanel actionsPanel;
     private JPanel mainPanel;
     private JPanel columnPanel;
+    private JLabel indexLabel;
 
     private DatasetEditorSortingForm parentForm;
     private SortingInstruction sortingInstruction;
@@ -57,6 +59,10 @@ public class DatasetSortingColumnForm extends DBNFormImpl {
         @Override
         public void valueSelected(DBColumn column) {
         }
+    }
+
+    public void setIndex(int index) {
+        indexLabel.setText(Integer.toString(index));
     }
 
     @Override
