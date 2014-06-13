@@ -38,7 +38,7 @@ public class DatasetSortingColumnForm extends DBNFormImpl {
         DBColumn column = sortingInstruction.getColumn();
         ColumnSelector columnSelector = new ColumnSelector(column);
         columnPanel.add(columnSelector, BorderLayout.CENTER);
-        dataTypeLabel.setText(column.getDataType().getName().toLowerCase());
+        dataTypeLabel.setText(column.getDataType().getQualifiedName());
         dataTypeLabel.setForeground(UIUtil.getInactiveTextColor());
 
         ActionToolbar actionToolbar = ActionUtil.createActionToolbar(
@@ -63,7 +63,7 @@ public class DatasetSortingColumnForm extends DBNFormImpl {
 
         @Override
         public void valueSelected(DBColumn column) {
-            dataTypeLabel.setText(column.getDataType().getName().toLowerCase());
+            dataTypeLabel.setText(column.getDataType().getQualifiedName());
         }
     }
 

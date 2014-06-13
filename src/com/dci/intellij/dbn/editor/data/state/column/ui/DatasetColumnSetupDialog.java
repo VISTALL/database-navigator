@@ -23,7 +23,7 @@ public class DatasetColumnSetupDialog extends DBNDialog {
     }
 
     protected String getDimensionServiceKey() {
-        return null;//"DBNavigator.DatasetColumnSetup";
+        return "DBNavigator.DatasetColumnSetup";
     }
 
     @NotNull
