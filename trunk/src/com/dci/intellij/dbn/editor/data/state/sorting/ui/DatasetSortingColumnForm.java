@@ -11,6 +11,7 @@ import com.dci.intellij.dbn.editor.data.state.sorting.action.DeleteSortingCriter
 import com.dci.intellij.dbn.object.DBColumn;
 import com.dci.intellij.dbn.object.DBDataset;
 import com.intellij.openapi.actionSystem.ActionToolbar;
+import com.intellij.util.ui.UIUtil;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -25,6 +26,7 @@ public class DatasetSortingColumnForm extends DBNFormImpl {
     private JPanel mainPanel;
     private JPanel columnPanel;
     private JLabel indexLabel;
+    private JLabel dataTypeLabel;
 
     private DatasetEditorSortingForm parentForm;
     private SortingInstruction sortingInstruction;
@@ -33,8 +35,11 @@ public class DatasetSortingColumnForm extends DBNFormImpl {
         this.parentForm = parentForm;
         this.sortingInstruction = sortingInstruction;
 
-        ColumnSelector columnSelector = new ColumnSelector(sortingInstruction.getColumn());
+        DBColumn column = sortingInstruction.getColumn();
+        ColumnSelector columnSelector = new ColumnSelector(column);
         columnPanel.add(columnSelector, BorderLayout.CENTER);
+        dataTypeLabel.setText(column.getDataType().getName().toLowerCase());
+        dataTypeLabel.setForeground(UIUtil.getInactiveTextColor());
 
         ActionToolbar actionToolbar = ActionUtil.createActionToolbar(
                 "DBNavigator.DataEditor.Sorting.Instruction", true,
@@ -58,6 +63,7 @@ public class DatasetSortingColumnForm extends DBNFormImpl {
 
         @Override
         public void valueSelected(DBColumn column) {
+            dataTypeLabel.setText(column.getDataType().getName().toLowerCase());
         }
     }
 
