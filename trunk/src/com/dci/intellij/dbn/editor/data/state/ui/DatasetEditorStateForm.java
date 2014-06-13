@@ -2,9 +2,9 @@ package com.dci.intellij.dbn.editor.data.state.ui;
 
 import com.dci.intellij.dbn.common.ui.DBNFormImpl;
 import com.dci.intellij.dbn.common.ui.DBNHeaderForm;
-import com.dci.intellij.dbn.editor.data.state.DatasetEditorState;
-import com.dci.intellij.dbn.editor.data.state.column.ui.DatasetColumnVisibilityForm;
-import com.dci.intellij.dbn.editor.data.state.sorting.ui.DatasetSortingForm;
+import com.dci.intellij.dbn.editor.data.DatasetEditor;
+import com.dci.intellij.dbn.editor.data.state.column.ui.DatasetColumnSetupForm;
+import com.dci.intellij.dbn.editor.data.state.sorting.ui.DatasetEditorSortingForm;
 import com.dci.intellij.dbn.object.DBDataset;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.UIUtil;
@@ -20,11 +20,12 @@ public class DatasetEditorStateForm extends DBNFormImpl{
     private JPanel sortingPanel;
     private JPanel visibilityPanel;
     private JPanel headerPanel;
-    private DatasetSortingForm datasetSortingForm;
-    private DatasetColumnVisibilityForm columnVisibilityForm;
+    private DatasetEditorSortingForm datasetEditorSortingForm;
+    private DatasetColumnSetupForm columnVisibilityForm;
 
-    public DatasetEditorStateForm(DBDataset dataset, DatasetEditorState datasetEditorState) {
-        Project project = dataset.getProject();
+    public DatasetEditorStateForm(DatasetEditor datasetEditor) {
+        DBDataset dataset = datasetEditor.getDataset();
+        Project project = datasetEditor.getProject();
 
         String headerTitle = dataset.getQualifiedName();
         Icon headerIcon = dataset.getIcon();
@@ -39,10 +40,10 @@ public class DatasetEditorStateForm extends DBNFormImpl{
         headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
 
 
-        datasetSortingForm = new DatasetSortingForm(dataset, datasetEditorState.getDataSortingState());
-        columnVisibilityForm = new DatasetColumnVisibilityForm(dataset, datasetEditorState.getHeaderState());
+        datasetEditorSortingForm = new DatasetEditorSortingForm(datasetEditor);
+        columnVisibilityForm = new DatasetColumnSetupForm(datasetEditor);
 
-        sortingPanel.add(datasetSortingForm.getComponent(), BorderLayout.CENTER);
+        sortingPanel.add(datasetEditorSortingForm.getComponent(), BorderLayout.CENTER);
         visibilityPanel.add(columnVisibilityForm.getComponent(), BorderLayout.CENTER);
     }
 
@@ -53,7 +54,7 @@ public class DatasetEditorStateForm extends DBNFormImpl{
 
     public boolean applyChanges(){
         boolean changed = false;
-        datasetSortingForm.applyChanges();
+        datasetEditorSortingForm.applyChanges();
         changed = columnVisibilityForm.applyChanges();
         return changed;
     }
@@ -62,7 +63,7 @@ public class DatasetEditorStateForm extends DBNFormImpl{
     public void dispose() {
         if (!isDisposed()) {
             super.dispose();
-            datasetSortingForm.dispose();
+            datasetEditorSortingForm.dispose();
             columnVisibilityForm.dispose();
         }
     }

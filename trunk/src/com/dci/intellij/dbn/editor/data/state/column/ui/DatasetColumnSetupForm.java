@@ -3,14 +3,14 @@ package com.dci.intellij.dbn.editor.data.state.column.ui;
 import com.dci.intellij.dbn.common.ui.DBNFormImpl;
 import com.dci.intellij.dbn.common.ui.list.CheckBoxList;
 import com.dci.intellij.dbn.common.util.ActionUtil;
+import com.dci.intellij.dbn.editor.data.DatasetEditor;
+import com.dci.intellij.dbn.editor.data.state.column.DatasetColumnSetup;
 import com.dci.intellij.dbn.editor.data.state.column.DatasetColumnState;
-import com.dci.intellij.dbn.editor.data.state.column.DatasetHeaderState;
 import com.dci.intellij.dbn.editor.data.state.column.action.MoveDownAction;
 import com.dci.intellij.dbn.editor.data.state.column.action.MoveUpAction;
 import com.dci.intellij.dbn.editor.data.state.column.action.OrderAlphabeticallyAction;
 import com.dci.intellij.dbn.editor.data.state.column.action.RevertColumnOrderAction;
 import com.dci.intellij.dbn.editor.data.state.column.action.SelectAllColumnsAction;
-import com.dci.intellij.dbn.object.DBDataset;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.ui.components.JBScrollPane;
 
@@ -21,16 +21,16 @@ import java.awt.BorderLayout;
 import java.util.Collections;
 import java.util.List;
 
-public class DatasetColumnVisibilityForm  extends DBNFormImpl {
+public class DatasetColumnSetupForm extends DBNFormImpl {
     private JPanel mainPanel;
     private JPanel actionPanel;
     private JBScrollPane columnListScrollPane;
     private CheckBoxList columnList;
-    private DatasetHeaderState headerState;
+    private DatasetColumnSetup columnSetup;
 
-    public DatasetColumnVisibilityForm(DBDataset dataset, DatasetHeaderState headerState) {
-        this.headerState = headerState;
-        List<DatasetColumnState> columnStates = headerState.getColumnStates();
+    public DatasetColumnSetupForm(DatasetEditor datasetEditor) {
+        this.columnSetup = datasetEditor.getState().getColumnSetup();
+        List<DatasetColumnState> columnStates = columnSetup.getColumns();
         columnList = new CheckBoxList(columnStates, true);
         columnListScrollPane.setViewportView(columnList);
 
@@ -58,7 +58,7 @@ public class DatasetColumnVisibilityForm  extends DBNFormImpl {
             changed = changed || columnState.getPosition() != i;
             columnState.setPosition(i);
         }
-        Collections.sort(headerState.getColumnStates());
+        Collections.sort(columnSetup.getColumns());
         return changed;
     }
 }

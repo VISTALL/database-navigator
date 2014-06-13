@@ -2,7 +2,8 @@ package com.dci.intellij.dbn.editor.data.state;
 
 import com.dci.intellij.dbn.common.AbstractProjectComponent;
 import com.dci.intellij.dbn.editor.data.DatasetEditor;
-import com.dci.intellij.dbn.editor.data.state.ui.DatasetEditorStateDialog;
+import com.dci.intellij.dbn.editor.data.state.column.ui.DatasetColumnSetupDialog;
+import com.dci.intellij.dbn.editor.data.state.sorting.ui.DatasetEditorSortingDialog;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.InvalidDataException;
 import com.intellij.openapi.util.JDOMExternalizable;
@@ -21,8 +22,13 @@ public class DatasetEditorStateManager extends AbstractProjectComponent implemen
         return project.getComponent(DatasetEditorStateManager.class);
     }
 
-    public void openStateDialog(DatasetEditor datasetEditor) {
-        DatasetEditorStateDialog dialog = new DatasetEditorStateDialog(datasetEditor);
+    public void openSortingDialog(DatasetEditor datasetEditor) {
+        DatasetEditorSortingDialog dialog = new DatasetEditorSortingDialog(datasetEditor);
+        dialog.show();
+    }
+
+    public void openColumnSetupDialog(DatasetEditor datasetEditor) {
+        DatasetColumnSetupDialog dialog = new DatasetColumnSetupDialog(datasetEditor);
         dialog.show();
     }
 

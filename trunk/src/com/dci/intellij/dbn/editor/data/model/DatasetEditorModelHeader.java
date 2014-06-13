@@ -18,7 +18,7 @@ public class DatasetEditorModelHeader extends BasicDataModelHeader implements Da
     public DatasetEditorModelHeader(DatasetEditor datasetEditor, ResultSet resultSet) throws SQLException {
         DBDataset dataset = datasetEditor.getDataset();
         if (resultSet == null) {
-            List<DatasetColumnState> columnStates = datasetEditor.getState().getHeaderState().getColumnStates();
+            List<DatasetColumnState> columnStates = datasetEditor.getState().getColumnSetup().getColumns();
             int index = 0;
             for (DatasetColumnState columnState : columnStates) {
                 DBColumn column = columnState.getColumn();

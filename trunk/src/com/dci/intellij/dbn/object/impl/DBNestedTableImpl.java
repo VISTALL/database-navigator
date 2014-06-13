@@ -83,6 +83,6 @@ public class DBNestedTableImpl extends DBObjectImpl implements DBNestedTable {
     @NotNull
     public List<BrowserTreeNode> buildAllPossibleTreeChildren() {
         return BrowserTreeNode.EMPTY_LIST;
-        //return getColumnStates();
+        //return getColumns();
     }
 }

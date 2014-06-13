@@ -139,6 +139,7 @@ public class Icons {
     public static final Icon DATA_SORTING =    load("/img/v1/action/DataSorting.png");
     public static final Icon DATA_SORTING_ASC =    load("/img/v1/action/DataSortingAsc.png");
     public static final Icon DATA_SORTING_DESC =    load("/img/v1/action/DataSortingDesc.png");
+    public static final Icon DATA_COLUMNS =    load("/img/v1/action/ColumnSetup.png");
 
     public static final Icon DATASET_FILTER =    load("/img/v1/filter/DatasetFilter.png");
     public static final Icon DATASET_FILTER_NEW =    load("/img/v1/filter/DatasetFilterNew.png");
