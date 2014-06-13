@@ -134,6 +134,11 @@ public class DBProgramRunConfiguration extends RunConfigurationBase implements L
     }
 
     @Override
+    public boolean excludeCompileBeforeLaunchOption() {
+        return true;
+    }
+
+    @Override
     public void readExternal(Element element) throws InvalidDataException {
         super.readExternal(element);
         compileDependencies = SettingsUtil.getBoolean(element, "compile-dependencies", true);
