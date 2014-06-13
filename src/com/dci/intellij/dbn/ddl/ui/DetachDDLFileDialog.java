@@ -24,6 +24,7 @@ public class DetachDDLFileDialog extends DBNDialog {
             "Following DDL files are currently attached the selected " + object.getTypeName() + ".\n" +
             "Select files to detach from this object.";
         fileForm = new SelectDDLFileForm(object, virtualFiles, hint, false);
+        getOKAction().putValue(Action.NAME, "Detach selected");
         init();
     }
 
