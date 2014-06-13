@@ -47,7 +47,7 @@ public class MethodExecutionInput implements Disposable, PersistentConfiguration
 
     public MethodExecutionInput(DBMethod method) {
         this.method = new DBMethodRef<DBMethod>(method);
-        this.executionSchema = new DBObjectRef<DBSchema>(method.getSchema());
+        this.executionSchema = method.getSchema().getRef();
     }
 
     public void initExecutionResult(boolean debug) {
@@ -85,7 +85,7 @@ public class MethodExecutionInput implements Disposable, PersistentConfiguration
     }
 
     public void setExecutionSchema(DBSchema schema) {
-        executionSchema = new DBObjectRef<DBSchema>(schema);
+        executionSchema = schema.getRef();
     }
 
     public void setInputValue(DBArgument argument, DBTypeAttribute typeAttribute, String value) {

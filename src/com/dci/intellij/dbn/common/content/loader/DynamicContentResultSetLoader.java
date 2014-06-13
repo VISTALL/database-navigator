@@ -92,11 +92,16 @@ public abstract class DynamicContentResultSetLoader<T extends DynamicContentElem
             dynamicContent.setElements(list);
             postLoadContent(dynamicContent, debugInfo);
         } catch (Exception e) {
+            if (e instanceof InterruptedException) {
+                throw (InterruptedException) e;
+            }
+
             String message = StringUtil.trim(e.getMessage()).replace("\n", " ");
             LOGGER.warn("Error loading database content (" + dynamicContent.getContentDescription() + "): " + message);
 
             boolean modelException = false;
             if (e instanceof SQLException) {
+                if (e == DynamicContentLoader.DBN_INTERRUPTED_EXCEPTION) throw new InterruptedException();
                 SQLException sqlException = (SQLException) e;
                 DatabaseInterfaceProvider interfaceProvider = dynamicContent.getConnectionHandler().getInterfaceProvider();
                 modelException = interfaceProvider.getMessageParserInterface().isModelException(sqlException);
