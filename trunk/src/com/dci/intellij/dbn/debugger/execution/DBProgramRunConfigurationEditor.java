@@ -42,7 +42,6 @@ public class DBProgramRunConfigurationEditor extends SettingsEditor<DBProgramRun
     protected void disposeEditor() {
         configurationEditorForm.dispose();
         configurationEditorForm = null;
-        configuration = null;
     }
 
     public void setExecutionInput(MethodExecutionInput executionInput) {

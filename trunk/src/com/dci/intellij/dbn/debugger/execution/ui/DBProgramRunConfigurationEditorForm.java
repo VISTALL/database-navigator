@@ -69,8 +69,8 @@ public class DBProgramRunConfigurationEditorForm extends DBNFormImpl implements 
 
         public void actionPerformed(AnActionEvent e) {
             DefaultActionGroup actionGroup = new DefaultActionGroup();
-            OpenMethodHistoryAction historyAction = new OpenMethodHistoryAction(configuration);
-            OpenMethodBrowserAction browserAction = new OpenMethodBrowserAction(configuration);
+            OpenMethodHistoryAction historyAction = new OpenMethodHistoryAction();
+            OpenMethodBrowserAction browserAction = new OpenMethodBrowserAction();
             actionGroup.add(historyAction);
             actionGroup.add(browserAction);
             if (configuration.getMethodSelectionHistory().size() > 0) {
@@ -98,7 +98,7 @@ public class DBProgramRunConfigurationEditorForm extends DBNFormImpl implements 
     }
 
     public class OpenMethodBrowserAction extends AnAction {
-        public OpenMethodBrowserAction(DBProgramRunConfiguration configuration) {
+        public OpenMethodBrowserAction() {
             super("Method Browser");
         }
 
@@ -142,7 +142,7 @@ public class DBProgramRunConfigurationEditorForm extends DBNFormImpl implements 
         }
     }
     public class OpenMethodHistoryAction extends AnAction {
-        public OpenMethodHistoryAction(DBProgramRunConfiguration configuration) {
+        public OpenMethodHistoryAction() {
             super("Execution History", null, Icons.METHOD_EXECUTION_HISTORY);
         }
 

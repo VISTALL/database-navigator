@@ -12,6 +12,7 @@ import com.dci.intellij.dbn.code.common.lookup.LookupItemFactory;
 import com.dci.intellij.dbn.code.sql.color.SQLTextAttributesKeys;
 import com.dci.intellij.dbn.common.content.DynamicContent;
 import com.dci.intellij.dbn.common.content.DynamicContentType;
+import com.dci.intellij.dbn.common.content.loader.DynamicContentLoader;
 import com.dci.intellij.dbn.common.dispose.DisposeUtil;
 import com.dci.intellij.dbn.common.environment.EnvironmentType;
 import com.dci.intellij.dbn.common.event.EventManager;
@@ -66,6 +67,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBObject, ToolTipProvider {
     private DBContentType contentType = DBContentType.NONE;
@@ -114,6 +116,7 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
     }
 
     private void init(ResultSet resultSet) throws SQLException {
+        checkConnection();
         initDisplayName(resultSet);
         initObject(resultSet);
         initStatus(resultSet);
@@ -166,8 +169,14 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
         return objectRef;
     }
 
-    protected DBObjectRef createRef() {
+    protected DBObjectRef createRef() throws SQLException {
+        checkConnection();
         return new DBObjectRef(this);
+    }
+
+    protected void checkConnection() throws SQLException {
+        ConnectionHandler connectionHandler = getConnectionHandler();
+        if (connectionHandler == null) throw DynamicContentLoader.DBN_INTERRUPTED_EXCEPTION;
     }
 
     public DBObjectProperties getProperties() {
@@ -590,6 +599,7 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
                     }
                 }
             }
+            newTreeChildren = new CopyOnWriteArrayList<BrowserTreeNode>(newTreeChildren);
 
             for (BrowserTreeNode treeNode : newTreeChildren) {
                 DBObjectList objectList = (DBObjectList) treeNode;
