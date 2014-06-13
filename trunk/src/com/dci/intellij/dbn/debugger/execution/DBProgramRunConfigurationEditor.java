@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.JComponent;
 
 public class DBProgramRunConfigurationEditor extends SettingsEditor<DBProgramRunConfiguration> {
-    private DBProgramRunConfigurationEditorForm configurationEditorForm;
+    private DBProgramRunConfigurationEditorForm configurationEditorComponent;
     private DBProgramRunConfiguration configuration;
 
     public DBProgramRunConfigurationEditor(DBProgramRunConfiguration configuration) {
@@ -18,36 +18,30 @@ public class DBProgramRunConfigurationEditor extends SettingsEditor<DBProgramRun
 
     @Override
     protected void resetEditorFrom(DBProgramRunConfiguration configuration) {
-        if (configurationEditorForm == null) {
-            configurationEditorForm = new DBProgramRunConfigurationEditorForm(configuration);
-        }
-        configurationEditorForm.readConfiguration(configuration);
+        configurationEditorComponent.readConfiguration(configuration);
     }
 
     @Override
     protected void applyEditorTo(DBProgramRunConfiguration configuration) throws ConfigurationException {
-        if (configurationEditorForm != null) {
-            configurationEditorForm.writeConfiguration(configuration);
-        }
+        configurationEditorComponent.writeConfiguration(configuration);
     }
 
     @NotNull
     @Override
     protected JComponent createEditor() {
-        configurationEditorForm = new DBProgramRunConfigurationEditorForm(configuration);
-        return configurationEditorForm.getComponent();
+        configurationEditorComponent = new DBProgramRunConfigurationEditorForm(configuration);
+        return configurationEditorComponent.getComponent();
     }
 
     @Override
     protected void disposeEditor() {
-        configurationEditorForm.dispose();
-        configurationEditorForm = null;
+        configurationEditorComponent.dispose();
+        configuration = null;
     }
 
     public void setExecutionInput(MethodExecutionInput executionInput) {
-        if (configurationEditorForm != null) {
-            configurationEditorForm.setExecutionInput(executionInput, true);
+        if (configurationEditorComponent != null) {
+            configurationEditorComponent.setExecutionInput(executionInput, true);
         }
-
     }
 }
