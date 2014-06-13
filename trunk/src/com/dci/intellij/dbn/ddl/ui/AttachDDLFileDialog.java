@@ -27,6 +27,7 @@ public class AttachDDLFileDialog extends DBNDialog {
             "Select files to attach to this object.\n\n" +
             "NOTE: \nBound DDL files will become readonly and their content will change automatically when the database object is edited.";
         fileForm = new SelectDDLFileForm(object, virtualFiles, hint, showLookupOption);
+        getOKAction().putValue(Action.NAME, "Attach selected");
         init();
     }
 
