@@ -18,12 +18,12 @@ public class DatasetColumnSetupDialog extends DBNDialog {
         setModal(true);
         setResizable(true);
         columnSetupForm = new DatasetColumnSetupForm(datasetEditor);
-        getCancelAction().putValue(Action.NAME, "Close");
+        getCancelAction().putValue(Action.NAME, "Cancel");
         init();
     }
 
     protected String getDimensionServiceKey() {
-        return "DBNavigator.DatasetColumnSetup";
+        return null;//"DBNavigator.DatasetColumnSetup";
     }
 
     @NotNull
