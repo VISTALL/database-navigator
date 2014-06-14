@@ -3,10 +3,10 @@ package com.dci.intellij.dbn.editor.data.state.column;
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.options.setting.SettingsUtil;
 import com.dci.intellij.dbn.common.ui.list.Selectable;
+import com.dci.intellij.dbn.common.util.StringUtil;
 import com.dci.intellij.dbn.object.DBColumn;
 import com.dci.intellij.dbn.object.lookup.DBObjectRef;
 import org.jdom.Element;
-import org.jetbrains.generate.tostring.util.StringUtil;
 
 import javax.swing.Icon;
 import java.util.Comparator;
