@@ -50,7 +50,7 @@ IDENTIFIER = [:jletter:] ([:jletterdigit:]|"#")*
 QUOTED_IDENTIFIER = "\""[^\"]*"\""?
 
 string_simple_quoted      = "'"([^\']|"''"|{WHITE_SPACE})*"'"?
-string_alternative_quoted = "q'"[^'][^]*[^']"'"?
+string_alternative_quoted = "q'["[^\[\]]*"]'"?|"q'("[^\(\)]*")'"?|"q'{"[^\{\}]*"}'"?|"q'!"[^\!]*"!'"?|"q'<"[^\<\>]*">'"?
 STRING = "n"?({string_simple_quoted}|{string_alternative_quoted})
 
 sign = "+"|"-"

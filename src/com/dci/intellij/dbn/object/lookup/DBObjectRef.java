@@ -24,7 +24,8 @@ public class DBObjectRef<T extends DBObject> implements Comparable, Reference<T>
 
     public DBObjectRef(T object) {
         reference = new WeakReference<T>(object);
-        connectionId = object.getConnectionHandler().getId();
+        ConnectionHandler connectionHandler = object.getConnectionHandler();
+        connectionId = connectionHandler == null ? null : connectionHandler.getId();
 
         List<DBObject> chain = new ArrayList<DBObject>();
         chain.add(object);
