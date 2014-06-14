@@ -1,6 +1,5 @@
 package com.dci.intellij.dbn.editor.data.action;
 
-import com.dci.intellij.dbn.DatabaseNavigator;
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.editor.data.DatasetEditor;
 import com.dci.intellij.dbn.editor.data.state.DatasetEditorStateManager;
@@ -38,6 +37,5 @@ public class OpenColumnSetupDialogAction extends AbstractDataEditorAction {
                 !datasetEditor.isInserting() &&
                 !datasetEditor.isLoading();
         presentation.setEnabled(enabled);
-        presentation.setVisible(DatabaseNavigator.getInstance().isDeveloperModeEnabled());
     }
 }
