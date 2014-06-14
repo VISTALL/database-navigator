@@ -43,8 +43,7 @@ IDENTIFIER = [:jletter:] ([:jletterdigit:]|"#")*
 QUOTED_IDENTIFIER = "\""[^\"]*"\""?
 
 string_simple_quoted      = "'"([^\']|"''"|{WHITE_SPACE})*"'"?
-string_alternative_quoted = "q'"[^'][^]*[^']"'"?
-STRING = "n"?({string_simple_quoted}|{string_alternative_quoted})
+STRING = "n"?{string_simple_quoted}
 
 sign = "+"|"-"
 digit = [0-9]
