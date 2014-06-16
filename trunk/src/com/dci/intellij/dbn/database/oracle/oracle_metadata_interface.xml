@@ -1258,16 +1258,6 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="trigger-source-code" is-query="true" is-prepared-statement="true">
-        <statement prefixes="DBA, ALL">
-            select TRIGGER_BODY
-            from [PREFIX]_TRIGGERS
-            where
-                OWNER = {0} and
-                TRIGGER_NAME = {1}
-        </statement>
-    </statement-execution-processor>
-
     <statement-execution-processor id="object-source-code" is-query="true" is-prepared-statement="true">
         <statement prefixes="DBA, ALL">
             select TEXT
