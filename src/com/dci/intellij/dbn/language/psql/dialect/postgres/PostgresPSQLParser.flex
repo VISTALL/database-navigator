@@ -65,6 +65,7 @@ NUMBER = {INTEGER}?"."{digit}+(("e"{sign}?{digit}+)|(("f"|"d"){ws}))?
 "||" {return tt.getOperatorTokenType(0);}
 ":=" {return tt.getOperatorTokenType(1);}
 ".." {return tt.getOperatorTokenType(2);}
+"::" {return tt.getOperatorTokenType(3);}
 
 "@" {return tt.getCharacterTokenType(0);}
 ":" {return tt.getCharacterTokenType(1);}
