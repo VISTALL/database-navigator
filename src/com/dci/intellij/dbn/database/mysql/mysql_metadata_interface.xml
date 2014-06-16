@@ -585,8 +585,8 @@
             select ACTION_STATEMENT
             from INFORMATION_SCHEMA.TRIGGERS
             where
-                TRIGGER_SCHEMA = {0} and
-                TRIGGER_NAME = {1}
+                TRIGGER_SCHEMA = {2} and
+                TRIGGER_NAME = {3}
         </statement>
     </statement-execution-processor>
 

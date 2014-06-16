@@ -39,7 +39,7 @@ public class DatabaseInterfaceImpl implements DatabaseInterface{
     }
 
     protected ResultSet executeQuery(Connection connection, String loaderId, @Nullable Object... arguments) throws SQLException {
-        return executeQuery(connection, false, loaderId, arguments);
+        return executeQuery(connection, true, loaderId, arguments);
     }
 
     protected ResultSet executeQuery(Connection connection, boolean forceExecution, String loaderId, @Nullable Object... arguments) throws SQLException {

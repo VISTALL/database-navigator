@@ -316,12 +316,12 @@
 
     <statement-execution-processor id="triggers" is-query="true" is-prepared-statement="true">
         <statement>
-            select
+            select distinct
                 EVENT_OBJECT_TABLE as DATASET_NAME,
-                TRIGGER_NAME||'_'||EVENT_MANIPULATION as TRIGGER_NAME,
+                TRIGGER_NAME as TRIGGER_NAME,
                 TRIGGER_NAME as DISPLAY_NAME,
                 ACTION_TIMING as TRIGGER_TYPE,
-                EVENT_MANIPULATION as TRIGGERING_EVENT,
+                string_agg(EVENT_MANIPULATION, ' or') as TRIGGERING_EVENT,
                 'Y' as IS_ENABLED,
                 'Y' as IS_VALID,
                 'N' as IS_DEBUG,
@@ -330,24 +330,32 @@
             where
                 EVENT_OBJECT_SCHEMA = {0} and
                 EVENT_OBJECT_TABLE = {1}
+            group by
+                EVENT_OBJECT_TABLE,
+                TRIGGER_NAME,
+                ACTION_TIMING
             order by TRIGGER_NAME asc
         </statement>
     </statement-execution-processor>
 
     <statement-execution-processor id="all-triggers" is-query="true" is-prepared-statement="true">
         <statement>
-            select
+            select distinct
                 EVENT_OBJECT_TABLE as DATASET_NAME,
-                TRIGGER_NAME||'_'||EVENT_MANIPULATION as TRIGGER_NAME
+                TRIGGER_NAME as TRIGGER_NAME,
                 TRIGGER_NAME as DISPLAY_NAME,
                 ACTION_TIMING as TRIGGER_TYPE,
-                EVENT_MANIPULATION as TRIGGERING_EVENT,
+                string_agg(EVENT_MANIPULATION, ' or ') as TRIGGERING_EVENT,
                 'Y' as IS_ENABLED,
                 'Y' as IS_VALID,
                 'N' as IS_DEBUG,
                 'Y' as IS_FOR_EACH_ROW
             from INFORMATION_SCHEMA.TRIGGERS
             where EVENT_OBJECT_SCHEMA = {0}
+            group by
+                EVENT_OBJECT_TABLE,
+                TRIGGER_NAME,
+                ACTION_TIMING
             order by
                 EVENT_OBJECT_TABLE,
                 TRIGGER_NAME asc
@@ -462,11 +470,13 @@
 
     <statement-execution-processor id="trigger-source-code" is-query="true" is-prepared-statement="true">
         <statement>
-            select ACTION_STATEMENT
+            select distinct ACTION_STATEMENT
             from INFORMATION_SCHEMA.TRIGGERS
             where
-                TRIGGER_SCHEMA = {0} and
-                TRIGGER_NAME = {1}
+                EVENT_OBJECT_SCHEMA = {0} and
+                EVENT_OBJECT_TABLE = {1} and
+                TRIGGER_SCHEMA = {2} and
+                TRIGGER_NAME = {3}
         </statement>
     </statement-execution-processor>
 

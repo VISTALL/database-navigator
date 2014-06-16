@@ -566,7 +566,7 @@ public interface DatabaseMetadataInterface extends DatabaseInterface{
 
     ResultSet loadMaterializedViewSourceCode(String ownerName, String viewName, Connection connection) throws SQLException;
 
-    ResultSet loadTriggerSourceCode(String ownerName, String triggerName, Connection connection) throws SQLException;
+    ResultSet loadTriggerSourceCode(String tableOwner, String tableName, String ownerName, String triggerName, Connection connection) throws SQLException;
 
     /**
      * Loads the source code (select statement) for the given view;

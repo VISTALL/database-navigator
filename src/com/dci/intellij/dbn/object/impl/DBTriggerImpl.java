@@ -210,7 +210,8 @@ public class DBTriggerImpl extends DBSchemaObjectImpl implements DBTrigger {
 
         public ResultSet loadSourceCode(Connection connection) throws SQLException {
             DatabaseMetadataInterface metadataInterface = getConnectionHandler().getInterfaceProvider().getMetadataInterface();
-            return metadataInterface.loadTriggerSourceCode(getSchema().getName(), getName(), connection);
+            DBDataset dataset = getDataset();
+            return metadataInterface.loadTriggerSourceCode(dataset.getSchema().getName(), dataset.getName(), getSchema().getName(), getName(), connection);
         }
     }
 

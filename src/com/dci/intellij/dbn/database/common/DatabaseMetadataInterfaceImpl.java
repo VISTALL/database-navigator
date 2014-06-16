@@ -289,8 +289,8 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceImp
         return executeQuery(connection, "materialized-view-source-code", ownerName, viewName);
    }
 
-    public ResultSet loadTriggerSourceCode(String ownerName, String triggerName, Connection connection) throws SQLException {
-        return executeQuery(connection, "trigger-source-code", ownerName, triggerName);
+    public ResultSet loadTriggerSourceCode(String tableOwner, String tableName, String ownerName, String triggerName, Connection connection) throws SQLException {
+        return executeQuery(connection, "trigger-source-code", tableOwner, tableName, ownerName, triggerName);
     }
 
     public ResultSet loadObjectSourceCode(String ownerName, String objectName, String objectType, Connection connection) throws SQLException {
