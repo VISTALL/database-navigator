@@ -75,8 +75,8 @@ public class PostgresDDLInterface extends DatabaseDDLInterfaceImpl {
     }
 
     public void updateTrigger(String tableOwner, String tableName, String triggerName, String oldCode, String newCode, Connection connection) throws SQLException {
+        executeUpdate(connection, "drop-trigger", tableOwner, tableName, triggerName);
         try {
-            executeUpdate(connection, "drop-trigger-if-exists", tableOwner, tableName, triggerName);
             createObject(newCode, connection);
         } catch (SQLException e) {
             createObject(oldCode, connection);

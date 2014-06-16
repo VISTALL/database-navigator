@@ -31,8 +31,8 @@
         <statement>drop {0} {1}</statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="drop-trigger-if-exists">
-        <statement>drop trigger if exists {2} on {0}.{1}</statement>
+    <statement-execution-processor id="drop-trigger">
+        <statement>drop trigger {2} on {0}.{1}</statement>
     </statement-execution-processor>
 
     <statement-execution-processor id="get-session-sql-mode" is-query="true">

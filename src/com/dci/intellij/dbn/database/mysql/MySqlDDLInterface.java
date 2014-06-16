@@ -69,9 +69,9 @@ public class MySqlDDLInterface extends DatabaseDDLInterfaceImpl {
      *********************************************************/
     public void updateView(String viewName, String oldCode, String newCode, Connection connection) throws SQLException {
         String sqlMode = getSessionSqlMode(connection);
+        setSessionSqlMode("TRADITIONAL", connection);
+        dropObjectIfExists("view", viewName, connection);
         try {
-            setSessionSqlMode("TRADITIONAL", connection);
-            dropObjectIfExists("view", viewName, connection);
             createView(viewName, newCode, connection);
         } catch (SQLException e) {
             createView(viewName, oldCode, connection);
@@ -88,9 +88,9 @@ public class MySqlDDLInterface extends DatabaseDDLInterfaceImpl {
 
     public void updateObject(String objectName, String objectType, String oldCode, String newCode, Connection connection) throws SQLException {
         String sqlMode = getSessionSqlMode(connection);
+        setSessionSqlMode("TRADITIONAL", connection);
+        dropObjectIfExists(objectType, objectName, connection);
         try {
-            setSessionSqlMode("TRADITIONAL", connection);
-            dropObjectIfExists(objectType, objectName, connection);
             createObject(newCode, connection);
         } catch (SQLException e) {
             createObject(oldCode, connection);
