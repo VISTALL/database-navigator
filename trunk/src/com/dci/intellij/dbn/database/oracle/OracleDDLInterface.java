@@ -36,7 +36,7 @@ public class OracleDDLInterface extends DatabaseDDLInterfaceImpl {
      *                   CHANGE statements                   *
      *********************************************************/
     public void updateView(String viewName, String oldCode, String newCode, Connection connection) throws SQLException {
-        executeStatement(connection, "change-view", viewName, newCode);
+        executeUpdate(connection, "change-view", viewName, newCode);
     }
 
     @Override
@@ -46,7 +46,7 @@ public class OracleDDLInterface extends DatabaseDDLInterfaceImpl {
 
     public void updateObject(String objectName, String objectType, String oldCode, String newCode, Connection connection) throws SQLException {
         // code contains object type and name
-        executeStatement(connection, "change-object", newCode);
+        executeUpdate(connection, "change-object", newCode);
     }
 
     /*********************************************************
