@@ -27,6 +27,8 @@ public interface DatabaseDDLInterface extends DatabaseInterface{
      *********************************************************/
     void updateView(String viewName, String oldCode, String newCode, Connection connection) throws SQLException;
 
+    void updateTrigger(String tableOwner, String tableName, String triggerName, String oldCode, String newCode, Connection connection) throws SQLException;
+
     void updateObject(String objectName, String objectType, String oldCode, String newCode, Connection connection) throws SQLException;
 
    /*********************************************************

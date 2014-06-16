@@ -74,6 +74,16 @@ public class PostgresDDLInterface extends DatabaseDDLInterfaceImpl {
         executeUpdate(connection, "change-view", viewName, newCode);
     }
 
+    public void updateTrigger(String tableOwner, String tableName, String triggerName, String oldCode, String newCode, Connection connection) throws SQLException {
+        try {
+            executeUpdate(connection, "drop-trigger-if-exists", tableOwner, tableName, triggerName);
+            createObject(newCode, connection);
+        } catch (SQLException e) {
+            createObject(oldCode, connection);
+            throw e;
+        }
+    }
+
     public void updateObject(String objectName, String objectType, String oldCode, String newCode, Connection connection) throws SQLException {
         executeUpdate(connection, "change-object", newCode);
     }
@@ -81,8 +91,8 @@ public class PostgresDDLInterface extends DatabaseDDLInterfaceImpl {
     /*********************************************************
      *                     DROP statements                   *
      *********************************************************/
-    private void dropObjectIfExists(String objectType, String objectName, Connection connection) throws SQLException {
-        executeQuery(connection, true, "drop-object-if-exists", objectType, objectName);
+    private void dropTriggerIfExists(String objectName, Connection connection) throws SQLException {
+
     }
 
     /*********************************************************
