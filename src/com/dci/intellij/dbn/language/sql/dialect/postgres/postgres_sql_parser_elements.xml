@@ -3,4 +3,175 @@
 <element-defs language="POSTGRES-SQL" version="9.3">
     <element-def attributes="ROOT, STRUCTURE" description="SQL block" icon="FILE_BLOCK_SQL" id="sql_block">
     </element-def>
+
+    <!-- ========= EXPRESSION ========= -->
+    <element-def description="Expression" id="expression">
+        <iteration id="000003449" separator="OPR_CONCATENATION, CHR_STAR, CHR_SLASH, CHR_PLUS, CHR_MINUS">
+            <wrapper id="000003450" template="PARENTHESES" wrapping-optional="true">
+                <sequence id="000003451">
+                    <one-of id="000003452" optional="true">
+                        <token id="000003453" type-id="CHR_PLUS" />
+                        <token id="000003454" type-id="CHR_MINUS" />
+                        <token id="000003455" type-id="KW_PRIOR" />
+                        <token id="000003456" type-id="KW_NOT" />
+                    </one-of>
+                    <one-of id="000003457">
+                        <element ref-id="expression" />
+                        <element ref-id="expr" />
+                        <element ref-id="subquery" />
+                    </one-of>
+                </sequence>
+            </wrapper>
+        </iteration>
+    </element-def>
+    <element-def description="Expr" id="expr">
+        <one-of id="000003458">
+            <element ref-id="case_expression" />
+            <element ref-id="cast_expression" />
+            <element ref-id="function_expression" />
+            <element ref-id="simple_expression" />
+            <exec-variable id="000003459" />
+        </one-of>
+    </element-def>
+    <element-def description="Simple expression" id="simple_expression">
+        <one-of id="000003460" sortable="true">
+            <qualified-identifier id="000003461" separator="CHR_DOT">
+                <variant>
+                    <alias-ref id="000003468" original-name="query_name" type="DATASET" />
+                    <object-ref id="000003469" type="COLUMN" />
+                </variant>
+                <variant>
+                    <object-ref id="000003471" local="true" optional="true" type="SCHEMA" />
+                    <object-ref id="000003472" local="true" optional="true" type="DATASET" />
+                    <object-ref id="000003473" type="COLUMN" />
+                </variant>
+                <variant>
+                    <object-ref id="000003478" local="true" optional="true" type="SCHEMA" />
+                    <object-ref id="000003479" local="true" optional="true" type="DATASET" />
+                    <token id="000003480" type-id="CHR_STAR" />
+                </variant>
+                <variant>
+                    <alias-ref id="000003481" optional="true" type="DATASET" />
+                    <alias-ref id="000003482" type="COLUMN" />
+                </variant>
+                <variant>
+                    <object-ref id="000003485" optional="true" type="SCHEMA" />
+                    <object-ref id="000003486" type="FUNCTION" />
+                </variant>
+                <variant>
+                    <alias-ref id="000003493" type="DATASET" />
+                    <token id="000003494" type-id="CHR_STAR" />
+                </variant>
+            </qualified-identifier>
+            <token id="000003495" type-id="CHR_STAR" />
+            <token id="000003498" original-name="text" type-id="STRING" />
+            <element ref-id="number" />
+            <token id="000003499" type-id="KW_NULL" />
+        </one-of>
+        <sequence id="000003500" optional="true">
+            <token id="000003501" type-id="CHR_LEFT_PARENTHESIS" />
+            <token id="000003502" type-id="CHR_RIGHT_PARENTHESIS" />
+        </sequence>
+        <iteration id="" optional="true">
+            <sequence id="">
+                <token id="" type-id="CHR_LEFT_BRACKET"/>
+                <token id="000004600" type-id="INTEGER" />
+                <token id="" type-id="CHR_RIGHT_BRACKET"/>
+            </sequence>
+        </iteration>
+        <one-of optional="true" id="">
+            <sequence id="" optional="true">
+                <token id="" type-id="CHR_COLON"/>
+                <token id="" type-id="CHR_COLON"/>
+                <one-of id="">
+                    <element ref-id="data_type"/>
+                </one-of>
+            </sequence>
+        </one-of>
+        <token id="000003503" optional="true" type-id="CT_OUTER_JOIN" />
+    </element-def>
+    <element-def description="Cast expression" id="cast_expression">
+        <one-of id="">
+            <sequence id="">
+                <token id="" type-id="KW_CAST"/>
+                <wrapper id="" template="PARENTHESES">
+                    <sequence id="">
+                        <element ref-id="expression"/>
+                        <token id="" type-id="KW_AS"/>
+                        <element ref-id="data_type"/>
+                    </sequence>
+                </wrapper>
+            </sequence>
+            <sequence id="">
+                <element ref-id="data_type"/>
+                <wrapper id="" template="PARENTHESES">
+                    <element ref-id="expression"/>
+                </wrapper>
+            </sequence>
+        </one-of>
+    </element-def>
+
+    <!-- ========= DATA_TYPES ========= -->
+    <element-def description="Data type" id="data_type">
+        <one-of id="000004473">
+            <token id="" type-id="DT_ARRAY"/>
+            <token id="" type-id="DT_BIGINT"/>
+            <token id="" type-id="DT_BIGSERIAL"/>
+            <token id="" type-id="DT_BIT"/>
+            <token id="" type-id="DT_BOOL"/>
+            <token id="" type-id="DT_BOOLEAN"/>
+            <token id="" type-id="DT_BOX"/>
+            <token id="" type-id="DT_BYTEA"/>
+            <token id="" type-id="DT_CHAR"/>
+            <token id="" type-id="DT_CHARACTER"/>
+            <token id="" type-id="DT_CHARACTER"/>
+            <token id="" type-id="DT_CID"/>
+            <token id="" type-id="DT_CIDR"/>
+            <token id="" type-id="DT_CIRCLE"/>
+            <token id="" type-id="DT_DATE"/>
+            <token id="" type-id="DT_DECIMAL"/>
+            <token id="" type-id="DT_DOUBLE_PRECISION"/>
+            <token id="" type-id="DT_INET"/>
+            <token id="" type-id="DT_INT"/>
+            <token id="" type-id="DT_INT2"/>
+            <token id="" type-id="DT_INT2VECTOR"/>
+            <token id="" type-id="DT_INT4"/>
+            <token id="" type-id="DT_INT8"/>
+            <token id="" type-id="DT_INTEGER"/>
+            <token id="" type-id="DT_INTERVAL"/>
+            <token id="" type-id="DT_JSON"/>
+            <token id="" type-id="DT_LINE"/>
+            <token id="" type-id="DT_LSEG"/>
+            <token id="" type-id="DT_MACADDR"/>
+            <token id="" type-id="DT_MONEY"/>
+            <token id="" type-id="DT_NAME"/>
+            <token id="" type-id="DT_NUMERIC"/>
+            <token id="" type-id="DT_OID"/>
+            <token id="" type-id="DT_PATH"/>
+            <token id="" type-id="DT_POINT"/>
+            <token id="" type-id="DT_POLYGON"/>
+            <token id="" type-id="DT_REAL"/>
+            <token id="" type-id="DT_SERIAL"/>
+            <token id="" type-id="DT_SERIAL8"/>
+            <token id="" type-id="DT_SMALLINT"/>
+            <token id="" type-id="DT_SMALLSERIAL"/>
+            <token id="" type-id="DT_TEXT"/>
+            <token id="" type-id="DT_TID"/>
+            <token id="" type-id="DT_TIME"/>
+            <token id="" type-id="DT_TIMESTAMP"/>
+            <token id="" type-id="DT_TSQUERY"/>
+            <token id="" type-id="DT_TSVECTOR"/>
+            <token id="" type-id="DT_UUID"/>
+            <token id="" type-id="DT_VARBIT"/>
+            <token id="" type-id="DT_VARCHAR"/>
+            <token id="" type-id="DT_XID"/>
+            <token id="" type-id="DT_XML"/>
+        </one-of>
+    </element-def>
+
+
+    <!-- CUSTOM -->
+    <element-def description="Unknown identifier" id="custom_undefined">
+        <token id="000004615" type-id="IDENTIFIER" />
+    </element-def>
 </element-defs>
