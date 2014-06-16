@@ -321,7 +321,7 @@
                 TRIGGER_NAME as TRIGGER_NAME,
                 TRIGGER_NAME as DISPLAY_NAME,
                 ACTION_TIMING as TRIGGER_TYPE,
-                string_agg(EVENT_MANIPULATION, ' or') as TRIGGERING_EVENT,
+                string_agg(EVENT_MANIPULATION, ' or ') as TRIGGERING_EVENT,
                 'Y' as IS_ENABLED,
                 'Y' as IS_VALID,
                 'N' as IS_DEBUG,
@@ -470,13 +470,27 @@
 
     <statement-execution-processor id="trigger-source-code" is-query="true" is-prepared-statement="true">
         <statement>
-            select distinct ACTION_STATEMENT
+            select concat(
+                'trigger ',
+                TRIGGER_NAME,
+                E'\n\r', lower(ACTION_TIMING), ' ',
+                string_agg(lower(EVENT_MANIPULATION), ' or '),
+                E'\n\r    on ',
+                EVENT_OBJECT_SCHEMA, '.', EVENT_OBJECT_TABLE,
+                E'\n\r for each row ',
+                E'\n\r', ACTION_STATEMENT)
             from INFORMATION_SCHEMA.TRIGGERS
             where
                 EVENT_OBJECT_SCHEMA = {0} and
                 EVENT_OBJECT_TABLE = {1} and
                 TRIGGER_SCHEMA = {2} and
                 TRIGGER_NAME = {3}
+            group by
+                TRIGGER_NAME,
+                ACTION_TIMING,
+                ACTION_STATEMENT,
+                EVENT_OBJECT_SCHEMA,
+                EVENT_OBJECT_TABLE
         </statement>
     </statement-execution-processor>
 

@@ -3,7 +3,6 @@ package com.dci.intellij.dbn.database.generic;
 import com.dci.intellij.dbn.database.DatabaseInterfaceProvider;
 import com.dci.intellij.dbn.database.DatabaseObjectTypeId;
 import com.dci.intellij.dbn.database.common.DatabaseDDLInterfaceImpl;
-import com.dci.intellij.dbn.object.DBTrigger;
 import com.dci.intellij.dbn.object.factory.MethodFactoryInput;
 
 import java.sql.Connection;
@@ -16,10 +15,6 @@ public class GenericDDLInterface extends DatabaseDDLInterfaceImpl {
 
     public int getEditorHeaderEndOffset(DatabaseObjectTypeId objectTypeId, String objectName, String content) {
         return 0;
-    }
-
-    public String createTriggerEditorHeader(DBTrigger trigger) {
-        throw new UnsupportedOperationException("Not implemented");
     }
 
     public String getSessionSqlMode(Connection connection) throws SQLException {

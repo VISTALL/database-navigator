@@ -582,7 +582,15 @@
 
     <statement-execution-processor id="trigger-source-code" is-query="true" is-prepared-statement="true">
         <statement>
-            select ACTION_STATEMENT
+            select concat(
+                'trigger ',
+                TRIGGER_NAME,
+                '\n', lower(ACTION_TIMING), ' ',
+                lower(EVENT_MANIPULATION),
+                '\n on ',
+                EVENT_OBJECT_SCHEMA, '.', EVENT_OBJECT_TABLE,
+                '\n for each row ',
+                '\n', ACTION_STATEMENT)
             from INFORMATION_SCHEMA.TRIGGERS
             where
                 TRIGGER_SCHEMA = {2} and

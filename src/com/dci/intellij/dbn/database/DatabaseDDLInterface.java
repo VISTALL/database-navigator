@@ -1,6 +1,5 @@
 package com.dci.intellij.dbn.database;
 
-import com.dci.intellij.dbn.object.DBTrigger;
 import com.dci.intellij.dbn.object.factory.MethodFactoryInput;
 
 import java.sql.Connection;
@@ -10,8 +9,6 @@ public interface DatabaseDDLInterface extends DatabaseInterface{
     int getEditorHeaderEndOffset(DatabaseObjectTypeId objectTypeId, String objectName, String sourceContent);
 
     boolean includesTypeAndNameInSourceContent(DatabaseObjectTypeId objectTypeId);
-
-    String createTriggerEditorHeader(DBTrigger trigger);
 
     /*********************************************************
      *                   CREATE statements                   *
