@@ -6,7 +6,6 @@ import com.dci.intellij.dbn.code.psql.style.options.PSQLCodeStyleSettings;
 import com.dci.intellij.dbn.database.DatabaseInterfaceProvider;
 import com.dci.intellij.dbn.database.DatabaseObjectTypeId;
 import com.dci.intellij.dbn.database.common.DatabaseDDLInterfaceImpl;
-import com.dci.intellij.dbn.object.DBTrigger;
 import com.dci.intellij.dbn.object.factory.ArgumentFactoryInput;
 import com.dci.intellij.dbn.object.factory.MethodFactoryInput;
 import com.intellij.openapi.util.text.StringUtil;
@@ -27,31 +26,6 @@ public class MySqlDDLInterface extends DatabaseDDLInterfaceImpl {
             }
         }
         return 0;
-    }
-
-    public String createTriggerEditorHeader(DBTrigger trigger) {
-        CodeStyleCaseSettings styleCaseSettings = PSQLCodeStyleSettings.getInstance(trigger.getProject()).getCaseSettings();
-        CodeStyleCaseOption keywordCaseOption = styleCaseSettings.getKeywordCaseOption();
-
-        StringBuilder buffer = new StringBuilder();
-        buffer.append(keywordCaseOption.changeCase("trigger "));
-        buffer.append(trigger.getName());
-        buffer.append("\n ");
-        buffer.append(keywordCaseOption.changeCase(trigger.getTriggerType().getName()));
-        buffer.append(" ");
-        for (DBTrigger.TriggeringEvent triggeringEvent : trigger.getTriggeringEvents()) {
-            if (triggeringEvent != trigger.getTriggeringEvents()[0]) {
-                buffer.append(keywordCaseOption.changeCase(" or "));
-            }
-            buffer.append(keywordCaseOption.changeCase(triggeringEvent.getName()));
-        }
-        buffer.append(keywordCaseOption.changeCase(" on "));
-        buffer.append(trigger.getDataset().getName());
-
-        if (trigger.isForEachRow()) {
-            buffer.append(keywordCaseOption.changeCase(" for each row\n"));
-        }
-        return buffer.toString();
     }
 
     public String getSessionSqlMode(Connection connection) throws SQLException {

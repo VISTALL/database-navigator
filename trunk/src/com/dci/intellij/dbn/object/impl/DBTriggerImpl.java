@@ -233,10 +233,8 @@ public class DBTriggerImpl extends DBSchemaObjectImpl implements DBTrigger {
      ********************************************************/
 
     public String loadCodeFromDatabase(DBContentType contentType) throws SQLException {
-        DatabaseDDLInterface ddlInterface = getConnectionHandler().getInterfaceProvider().getDDLInterface();
-        String header = ddlInterface.createTriggerEditorHeader(this);
-        String body = new SourceCodeLoader(this).load();
-        return header + body;
+        SourceCodeLoader sourceCodeLoader = new SourceCodeLoader(this);
+        return sourceCodeLoader.load();
     }
 
     public String getCodeParseRootId(DBContentType contentType) {
