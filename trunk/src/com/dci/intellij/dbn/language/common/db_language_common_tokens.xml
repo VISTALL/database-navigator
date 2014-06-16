@@ -32,6 +32,7 @@
         <token index="0" id="OPR_CONCATENATION" value="||" type="operator" formatting-spacing-before="ONE_SPACE" formatting-spacing-after="ONE_SPACE"/>
         <token index="1" id="OPR_ASSIGNMENT" value=":=" type="operator" formatting-spacing-before="ONE_SPACE" formatting-spacing-after="ONE_SPACE"/>
         <token index="2" id="OPR_RANGE_DOTS" value=".." type="operator" formatting-spacing-before="ONE_SPACE" formatting-spacing-after="ONE_SPACE"/>
+        <token index="3" id="OPR_CAST_PREFIX" value=".." type="operator" formatting-spacing-before="NO_SPACE" formatting-spacing-after="NO_SPACE"/>
 
 
         <token id="LINE_COMMENT"/>

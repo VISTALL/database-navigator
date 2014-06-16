@@ -67,6 +67,10 @@ VARIABLE = ":"{wso}({IDENTIFIER}|{INTEGER})
 {NUMBER}      { return tt.getSharedTokenTypes().getNumber(); }
 {STRING}      { return tt.getSharedTokenTypes().getString(); }
 
+"||" {return tt.getOperatorTokenType(0);}
+":=" {return tt.getOperatorTokenType(1);}
+"::" {return tt.getOperatorTokenType(3);}
+
 "("{wso}"+"{wso}")"  {return tt.getTokenType("CT_OUTER_JOIN");}
 
 "@" {return tt.getCharacterTokenType(0);}
