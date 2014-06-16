@@ -44,7 +44,7 @@ public class DBObjectRef<T extends DBObject> implements Comparable, Reference<T>
     }
 
     public DBObjectRef(ConnectionHandler connectionHandler) {
-        this.connectionId = connectionHandler.getId();
+        this.connectionId = connectionHandler == null ? null : connectionHandler.getId();
     }
 
     public DBObjectRef(String connectionId) {
