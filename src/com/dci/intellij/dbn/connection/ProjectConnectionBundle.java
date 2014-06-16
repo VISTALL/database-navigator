@@ -28,6 +28,12 @@ public class ProjectConnectionBundle extends ConnectionBundle implements Project
                 project));
 
         virtualConnections.add(new VirtualConnectionHandler(
+                "virtual-postgres-connection",
+                "Virtual - PostgreSQL 9.3.4",
+                DatabaseType.POSTGRES,
+                project));
+
+        virtualConnections.add(new VirtualConnectionHandler(
                 "virtual-iso92-sql-connection",
                 "Virtual - ISO-92 SQL",
                 DatabaseType.UNKNOWN,
