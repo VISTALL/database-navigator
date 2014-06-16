@@ -183,7 +183,7 @@ public class SourceCodeEditorManager extends AbstractProjectComponent implements
             }
 
             String typeNameGap = text.substring(typeEndIndex, nameIndex);
-            typeNameGap = StringUtil.replaceIgnoreCase(typeNameGap, object.getSchema().getName(), "").replace(".", " ");
+            typeNameGap = StringUtil.replaceIgnoreCase(typeNameGap, object.getSchema().getName(), "").replace(".", " ").replace(quotes, ' ');
             if (!StringUtil.isEmptyOrSpaces(typeNameGap)) return false;
             if (!Character.isWhitespace(text.charAt(nameEndIndex)) && text.charAt(nameEndIndex) != '(') return false;
         }
