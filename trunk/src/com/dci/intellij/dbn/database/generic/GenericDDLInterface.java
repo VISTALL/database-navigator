@@ -75,6 +75,11 @@ public class GenericDDLInterface extends DatabaseDDLInterfaceImpl {
         }
     }
 
+    @Override
+    public void updateTrigger(String tableOwner, String tableName, String triggerName, String oldCode, String newCode, Connection connection) throws SQLException {
+        updateObject(triggerName, "trigger", oldCode, newCode, connection);
+    }
+
     public void updateObject(String objectName, String objectType, String oldCode, String newCode, Connection connection) throws SQLException {
         String sqlMode = getSessionSqlMode(connection);
         try {

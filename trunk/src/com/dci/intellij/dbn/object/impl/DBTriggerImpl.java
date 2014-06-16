@@ -3,6 +3,7 @@ package com.dci.intellij.dbn.object.impl;
 import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
 import com.dci.intellij.dbn.browser.ui.HtmlToolTipBuilder;
 import com.dci.intellij.dbn.common.Icons;
+import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.database.DatabaseDDLInterface;
 import com.dci.intellij.dbn.database.DatabaseMetadataInterface;
 import com.dci.intellij.dbn.ddl.DDLFileManager;
@@ -210,13 +211,23 @@ public class DBTriggerImpl extends DBSchemaObjectImpl implements DBTrigger {
 
         public ResultSet loadSourceCode(Connection connection) throws SQLException {
             DatabaseMetadataInterface metadataInterface = getConnectionHandler().getInterfaceProvider().getMetadataInterface();
-            DBDataset dataset = getDataset();
-            return metadataInterface.loadTriggerSourceCode(dataset.getSchema().getName(), dataset.getName(), getSchema().getName(), getName(), connection);
+            return metadataInterface.loadTriggerSourceCode(getDataset().getSchema().getName(), getDataset().getName(), getSchema().getName(), getName(), connection);
         }
     }
 
     private static DBObjectTimestampLoader TIMESTAMP_LOADER = new DBObjectTimestampLoader("TRIGGER");
 
+    @Override
+    public void executeUpdateDDL(DBContentType contentType, String oldCode, String newCode) throws SQLException {
+        ConnectionHandler connectionHandler = getConnectionHandler();
+        Connection connection = connectionHandler.getPoolConnection(getSchema());
+        try {
+            DatabaseDDLInterface ddlInterface = connectionHandler.getInterfaceProvider().getDDLInterface();
+            ddlInterface.updateTrigger(getDataset().getSchema().getName(), getDataset().getName(), getName(), oldCode, newCode, connection);
+        } finally {
+            connectionHandler.freePoolConnection(connection);
+        }
+    }
     /*********************************************************
      *                   DBEditableObject                    *
      ********************************************************/

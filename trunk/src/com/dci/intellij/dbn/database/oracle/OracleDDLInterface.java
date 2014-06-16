@@ -44,6 +44,11 @@ public class OracleDDLInterface extends DatabaseDDLInterfaceImpl {
         executeStatement(connection, "change-view", viewName, newCode);
     }
 
+    @Override
+    public void updateTrigger(String tableOwner, String tableName, String triggerName, String oldCode, String newCode, Connection connection) throws SQLException {
+        updateObject(triggerName, "trigger", oldCode, newCode, connection);
+    }
+
     public void updateObject(String objectName, String objectType, String oldCode, String newCode, Connection connection) throws SQLException {
         // code contains object type and name
         executeStatement(connection, "change-object", newCode);
