@@ -64,8 +64,7 @@ public class DBVirtualObject extends DBObjectImpl implements PsiReference {
                 this.name = relevantPsiElement.getText();
             }
         }
-        ConnectionHandler activeConnection = psiElement.getActiveConnection();
-        objectRef = DBObjectRef.from(this);
+        objectRef = new DBObjectRef(this);
     }
 
     @Override
