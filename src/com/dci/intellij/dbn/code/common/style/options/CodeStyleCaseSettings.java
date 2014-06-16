@@ -12,7 +12,7 @@ import java.util.List;
 
 public abstract class CodeStyleCaseSettings extends Configuration<CodeStyleCaseSettingsForm> {
     private List<CodeStyleCaseOption> options = new ArrayList<CodeStyleCaseOption>();
-    private boolean enabled = true;
+    private boolean enabled = false;
 
     public CodeStyleCaseSettings() {
         options.add(new CodeStyleCaseOption("KEYWORD_CASE", CodeStyleCase.LOWER));

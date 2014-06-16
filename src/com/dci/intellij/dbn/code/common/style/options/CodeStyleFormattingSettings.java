@@ -12,7 +12,7 @@ import java.util.List;
 
 public abstract class CodeStyleFormattingSettings extends Configuration<CodeStyleFormattingSettingsForm> {
     private List<CodeStyleFormattingOption> options = new ArrayList<CodeStyleFormattingOption>();
-    private boolean enabled = true;
+    private boolean enabled = false;
 
     public String getDisplayName() {
         return "Formatting Options";

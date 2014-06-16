@@ -2,7 +2,6 @@ package com.dci.intellij.dbn.options.ui;
 
 import com.dci.intellij.dbn.browser.options.DatabaseBrowserSettings;
 import com.dci.intellij.dbn.code.common.completion.options.CodeCompletionSettings;
-import com.dci.intellij.dbn.code.common.style.options.ProjectCodeStyleSettings;
 import com.dci.intellij.dbn.common.options.Configuration;
 import com.dci.intellij.dbn.common.options.ui.CompositeConfigurationEditorForm;
 import com.dci.intellij.dbn.common.ui.tab.TabbedPane;
@@ -38,7 +37,7 @@ public class GlobalProjectSettingsEditorForm extends CompositeConfigurationEdito
         DatabaseBrowserSettings browserSettings = globalSettings.getBrowserSettings();
         NavigationSettings navigationSettings = globalSettings.getNavigationSettings();
         CodeCompletionSettings codeCompletionSettings = globalSettings.getCodeCompletionSettings();
-        ProjectCodeStyleSettings codeStyleSettings = globalSettings.getCodeStyleSettings();
+        //ProjectCodeStyleSettings codeStyleSettings = globalSettings.getCodeStyleSettings();
         DataEditorSettings dataEditorSettings = globalSettings.getDataEditorSettings();
         ExecutionEngineSettings executionEngineSettings = globalSettings.getExecutionEngineSettings();
         DDLFileSettings ddlFileSettings = globalSettings.getDdlFileSettings();
@@ -48,7 +47,7 @@ public class GlobalProjectSettingsEditorForm extends CompositeConfigurationEdito
         addSettingsPanel(browserSettings);
         addSettingsPanel(navigationSettings);
         addSettingsPanel(codeCompletionSettings);
-        addSettingsPanel(codeStyleSettings);
+        //addSettingsPanel(codeStyleSettings);
         addSettingsPanel(dataEditorSettings);
         addSettingsPanel(executionEngineSettings);
         addSettingsPanel(ddlFileSettings);
