@@ -223,7 +223,7 @@
                         <alias-ref id="000000105" type="DATASET" />
                     </variant>
                     <variant>
-                        <object-ref id="000000106" local="true" optional="true" type="SCHEMA" />
+                        <object-ref id="000000106" optional="true" type="SCHEMA" />
                         <object-ref id="000000107" type="DATASET" />
                     </variant>
                 </qualified-identifier>
@@ -361,7 +361,7 @@
             <element ref-id="data_type" />
             <qualified-identifier id="000000167" separator="CHR_DOT">
                 <variant>
-                    <object-ref id="000000168" local="true" optional="true" type="SCHEMA" />
+                    <object-ref id="000000168" optional="true" type="SCHEMA" />
                     <object-ref id="000000169" local="true" type="TYPE" />
                 </variant>
             </qualified-identifier>
@@ -503,7 +503,7 @@
             <sequence id="000000243">
                 <qualified-identifier id="000000244" separator="CHR_DOT">
                     <variant>
-                        <object-ref id="000000245" local="true" optional="true" type="SCHEMA" />
+                        <object-ref id="000000245" optional="true" type="SCHEMA" />
                         <object-ref id="000000246" type="FUNCTION" />
                     </variant>
                 </qualified-identifier>
