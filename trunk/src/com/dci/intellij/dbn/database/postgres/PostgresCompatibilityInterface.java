@@ -21,6 +21,7 @@ public class PostgresCompatibilityInterface extends DatabaseCompatibilityInterfa
             objectTypeId == DatabaseObjectTypeId.PROCEDURE ||
             objectTypeId == DatabaseObjectTypeId.ARGUMENT ||
             objectTypeId == DatabaseObjectTypeId.PRIVILEGE ||
+            objectTypeId == DatabaseObjectTypeId.SEQUENCE ||
             objectTypeId == DatabaseObjectTypeId.GRANTED_PRIVILEGE;
     }
 
