@@ -15,7 +15,7 @@ public class SimpleTokenType extends IElementType implements TokenType {
     private String value;
     private String description;
     private boolean isSuppressibleReservedWord;
-    private TokenTypeIdentifier tokenTypeIdentifier;
+    private TokenTypeCategory category;
     private int idx;
     private int hashCode;
     private FormattingDefinition formatting;
@@ -30,7 +30,7 @@ public class SimpleTokenType extends IElementType implements TokenType {
         this.value = source.getValue();
         this.description = source.getDescription();
         isSuppressibleReservedWord = source.isSuppressibleReservedWord();
-        this.tokenTypeIdentifier = source.getTokenTypeIdentifier();
+        this.category = source.getCategory();
         this.idx = source.getIdx();
 
         formatting = FormattingDefinitionFactory.cloneDefinition(source.getFormatting());
@@ -48,7 +48,7 @@ public class SimpleTokenType extends IElementType implements TokenType {
         }
 
         String type = element.getAttributeValue("type");
-        tokenTypeIdentifier = TokenTypeIdentifier.getIdentifier(type);
+        category = TokenTypeCategory.getCategory(type);
         isSuppressibleReservedWord = isReservedWord() && !Boolean.parseBoolean(element.getAttributeValue("reserved"));
         hashCode = (language.getDisplayName() + id).hashCode();
 
@@ -77,7 +77,7 @@ public class SimpleTokenType extends IElementType implements TokenType {
     }
 
     public String getTypeName() {
-        return tokenTypeIdentifier.getName();
+        return category.getName();
     }
 
     public int compareTo(Object o) {
@@ -102,31 +102,31 @@ public class SimpleTokenType extends IElementType implements TokenType {
     }
 
     public boolean isKeyword() {
-        return tokenTypeIdentifier == TokenTypeIdentifier.KEYWORD;
+        return category == TokenTypeCategory.KEYWORD;
     }
 
     public boolean isFunction() {
-        return tokenTypeIdentifier == TokenTypeIdentifier.FUNCTION;
+        return category == TokenTypeCategory.FUNCTION;
     }
 
     public boolean isParameter() {
-        return tokenTypeIdentifier == TokenTypeIdentifier.PARAMETER;
+        return category == TokenTypeCategory.PARAMETER;
     }
 
     public boolean isDataType() {
-        return tokenTypeIdentifier == TokenTypeIdentifier.DATATYPE;
+        return category == TokenTypeCategory.DATATYPE;
     }
 
     public boolean isCharacter() {
-        return tokenTypeIdentifier == TokenTypeIdentifier.CHARACTER;
+        return category == TokenTypeCategory.CHARACTER;
     }
 
     public boolean isOperator() {
-        return tokenTypeIdentifier == TokenTypeIdentifier.OPERATOR;
+        return category == TokenTypeCategory.OPERATOR;
     }
 
     public boolean isChameleon() {
-        return tokenTypeIdentifier == TokenTypeIdentifier.CHAMELEON;
+        return category == TokenTypeCategory.CHAMELEON;
     }
 
     public boolean isReservedWord() {
@@ -138,8 +138,8 @@ public class SimpleTokenType extends IElementType implements TokenType {
         //return isCharacter() || isOperator() || !isSuppressibleReservedWord();
     }
 
-    public TokenTypeIdentifier getTokenTypeIdentifier() {
-        return tokenTypeIdentifier;
+    public TokenTypeCategory getCategory() {
+        return category;
     }
 
     @Override

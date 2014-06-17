@@ -39,7 +39,7 @@ public interface TokenType {
 
     boolean isParserLandmark();
 
-    TokenTypeIdentifier getTokenTypeIdentifier();
+    TokenTypeCategory getCategory();
 
     FormattingDefinition getFormatting();
 

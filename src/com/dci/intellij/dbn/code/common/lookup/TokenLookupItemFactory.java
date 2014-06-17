@@ -9,6 +9,7 @@ import com.dci.intellij.dbn.code.common.style.options.CodeStyleCaseOption;
 import com.dci.intellij.dbn.code.common.style.options.CodeStyleCaseSettings;
 import com.dci.intellij.dbn.language.common.DBLanguage;
 import com.dci.intellij.dbn.language.common.TokenType;
+import com.dci.intellij.dbn.language.common.TokenTypeCategory;
 import com.dci.intellij.dbn.language.common.element.TokenElementType;
 import com.intellij.codeInsight.completion.CompletionResultSet;
 import com.intellij.codeInsight.lookup.LookupItem;
@@ -68,12 +69,15 @@ public class TokenLookupItemFactory extends LookupItemFactory {
     }
 
     public String getTextHint() {
+        return getTokenTypeCategory().getName();
+/*
         TokenType tokenType = tokenElementType.getTokenType();
         return
                 tokenType.isKeyword() ? "keyword" :
                 tokenType.isFunction() ? "function" :
                 tokenType.isParameter() ? "parameter" :
                 tokenType.isDataType() ? "datatype" :null;
+*/
     }
 
     @Override
@@ -92,6 +96,9 @@ public class TokenLookupItemFactory extends LookupItemFactory {
 
     public TokenType getTokenType() {
         return tokenElementType.getTokenType();
+    }
+    public TokenTypeCategory getTokenTypeCategory() {
+        return tokenElementType.getTokenTypeCategory();
     }
 
     @Override

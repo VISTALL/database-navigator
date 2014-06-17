@@ -70,7 +70,7 @@ public abstract class DBLanguageTokenTypeBundle {
             SimpleTokenType tokenType = new SimpleTokenType((Element) o, language);
             log.debug("Creating token type '" + tokenType.getId() + "'");
             tokenTypes.put(tokenType.getId(), tokenType);
-            switch(tokenType.getTokenTypeIdentifier()) {
+            switch(tokenType.getCategory()) {
                 case KEYWORD: keywordList.add(tokenType); break;
                 case FUNCTION: functionList.add(tokenType); break;
                 case PARAMETER: parameterList.add(tokenType); break;

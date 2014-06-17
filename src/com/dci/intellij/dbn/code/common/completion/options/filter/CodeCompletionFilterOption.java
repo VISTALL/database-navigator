@@ -3,7 +3,7 @@ package com.dci.intellij.dbn.code.common.completion.options.filter;
 import com.dci.intellij.dbn.code.common.completion.options.filter.ui.CheckedTreeNodeProvider;
 import com.dci.intellij.dbn.code.common.completion.options.filter.ui.CodeCompletionFilterTreeNode;
 import com.dci.intellij.dbn.common.options.setting.SettingsUtil;
-import com.dci.intellij.dbn.language.common.TokenTypeIdentifier;
+import com.dci.intellij.dbn.language.common.TokenTypeCategory;
 import com.dci.intellij.dbn.object.common.DBObjectType;
 import com.intellij.ui.CheckedTreeNode;
 import org.jdom.Element;
@@ -13,7 +13,7 @@ import javax.swing.Icon;
 public class CodeCompletionFilterOption implements CheckedTreeNodeProvider {
     private CodeCompletionFilterSettings filterSettings;
     private DBObjectType objectType;
-    private TokenTypeIdentifier tokenTypeIdentifier = TokenTypeIdentifier.UNKNOWN;
+    private TokenTypeCategory tokenTypeCategory = TokenTypeCategory.UNKNOWN;
     private boolean selected;
 
     public CodeCompletionFilterOption(CodeCompletionFilterSettings filterSettings) {
@@ -28,13 +28,13 @@ public class CodeCompletionFilterOption implements CheckedTreeNodeProvider {
         return objectType;
     }
 
-    public TokenTypeIdentifier getTokenTypeIdentifier() {
-        return tokenTypeIdentifier;
+    public TokenTypeCategory getTokenTypeCategory() {
+        return tokenTypeCategory;
     }
 
     public String getName() {
         return objectType == null ?
-                tokenTypeIdentifier.getName() :
+                tokenTypeCategory.getName() :
                 objectType.getName().toUpperCase();
     }
 
@@ -58,7 +58,7 @@ public class CodeCompletionFilterOption implements CheckedTreeNodeProvider {
                 objectType = DBObjectType.getObjectType(objectTypeName);
             } else {
                 String tokenTypeName = element.getAttributeValue("id");
-                tokenTypeIdentifier = TokenTypeIdentifier.getIdentifier(tokenTypeName);
+                tokenTypeCategory = TokenTypeCategory.getCategory(tokenTypeName);
             }
             selected = SettingsUtil.getBooleanAttribute(element, "selected", selected);
         }
@@ -72,7 +72,7 @@ public class CodeCompletionFilterOption implements CheckedTreeNodeProvider {
 
         } else {
             element.setAttribute("type", "RESERVED_WORD");
-            element.setAttribute("id", tokenTypeIdentifier.getName());
+            element.setAttribute("id", tokenTypeCategory.getName());
         }
 
         SettingsUtil.setBooleanAttribute(element, "selected", selected);
@@ -86,6 +86,6 @@ public class CodeCompletionFilterOption implements CheckedTreeNodeProvider {
         CodeCompletionFilterOption option = (CodeCompletionFilterOption) o;
         return
             option.objectType == objectType &&
-            option.tokenTypeIdentifier == tokenTypeIdentifier;
+            option.tokenTypeCategory == tokenTypeCategory;
     }
 }
