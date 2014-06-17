@@ -9,6 +9,8 @@ public interface TokenElementType extends LeafElementType {
 
     boolean isCharacter();
 
+    TokenTypeCategory getFlavor();
+
     TokenTypeCategory getTokenTypeCategory();
 
     LookupItemFactory getLookupItemFactory(DBLanguage language);

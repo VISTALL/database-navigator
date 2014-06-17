@@ -7,6 +7,7 @@ import com.dci.intellij.dbn.editor.DBContentType;
 import com.dci.intellij.dbn.editor.code.SourceCodeEditorManager;
 import com.dci.intellij.dbn.execution.statement.StatementGutterRenderer;
 import com.dci.intellij.dbn.execution.statement.processor.StatementExecutionProcessor;
+import com.dci.intellij.dbn.language.common.TokenTypeCategory;
 import com.dci.intellij.dbn.language.common.element.ElementType;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dci.intellij.dbn.language.common.navigation.NavigateToDefinitionAction;
@@ -19,6 +20,7 @@ import com.dci.intellij.dbn.language.common.psi.ChameleonPsiElement;
 import com.dci.intellij.dbn.language.common.psi.ExecutablePsiElement;
 import com.dci.intellij.dbn.language.common.psi.IdentifierPsiElement;
 import com.dci.intellij.dbn.language.common.psi.NamedPsiElement;
+import com.dci.intellij.dbn.language.common.psi.TokenPsiElement;
 import com.dci.intellij.dbn.object.common.DBObjectType;
 import com.dci.intellij.dbn.object.common.DBSchemaObject;
 import com.intellij.lang.annotation.Annotation;
@@ -41,6 +43,7 @@ public class PSQLLanguageAnnotator implements Annotator {
 
         }
 
+        if (psiElement instanceof TokenPsiElement) annotateToken((TokenPsiElement) psiElement, holder);  else
         if (psiElement instanceof IdentifierPsiElement) {
             IdentifierPsiElement identifierPsiElement = (IdentifierPsiElement) psiElement;
             ConnectionHandler connectionHandler = identifierPsiElement.getActiveConnection();
@@ -62,6 +65,19 @@ public class PSQLLanguageAnnotator implements Annotator {
         }
 
         if (psiElement instanceof ExecutablePsiElement)  annotateExecutable(psiElement, holder);
+    }
+
+    private void annotateToken(TokenPsiElement tokenPsiElement, AnnotationHolder holder) {
+        TokenTypeCategory flavor = tokenPsiElement.getElementType().getFlavor();
+        if (flavor != null) {
+            Annotation annotation = holder.createInfoAnnotation(tokenPsiElement, null);
+            switch (flavor) {
+                case DATATYPE: annotation.setTextAttributes(SQLTextAttributesKeys.DATA_TYPE); break;
+                case FUNCTION: annotation.setTextAttributes(SQLTextAttributesKeys.FUNCTION); break;
+                case KEYWORD: annotation.setTextAttributes(SQLTextAttributesKeys.KEYWORD); break;
+                case IDENTIFIER: annotation.setTextAttributes(SQLTextAttributesKeys.IDENTIFIER); break;
+            }
+        }
     }
 
      private void annotateIdentifier(final PsiElement psiElement, final AnnotationHolder holder) {

@@ -235,9 +235,9 @@
     </element-def>
     <element-def description="Array expression" id="array_expression">
         <one-of id="000000100">
-            <token id="000000101" type-id="KW_ANY" />
-            <token id="000000102" type-id="KW_SOME" />
-            <token id="000000103" type-id="KW_ALL" />
+            <token id="000000101" type-id="KW_ANY" flavor="function"/>
+            <token id="000000102" type-id="KW_SOME" flavor="function" />
+            <token id="000000103" type-id="KW_ALL"  flavor="function"/>
         </one-of>
         <wrapper id="000000104" template="PARENTHESES">
             <one-of id="000000105">
@@ -273,7 +273,7 @@
                 <variant>
                     <object-ref id="000000120" local="true" optional="true" type="SCHEMA" />
                     <object-ref id="000000121" local="true" optional="true" type="DATASET" />
-                    <token id="000000122" type-id="DT_OID" flavor="keyword"/>
+                    <token id="000000122" type-id="DT_OID" flavor="identifier"/>
                 </variant>
                 <variant>
                     <alias-ref id="000000123" optional="true" type="DATASET" />
@@ -289,7 +289,7 @@
                 </variant>
                 <variant>
                     <alias-ref id="000000129" type="DATASET" />
-                    <token id="000000130" type-id="DT_OID" flavor="keyword" />
+                    <token id="000000130" type-id="DT_OID" flavor="identifier" />
                 </variant>
             </qualified-identifier>
             <token id="000000131" original-name="text" type-id="STRING" />
@@ -514,7 +514,7 @@
             <token id="000000233" type-id="DT_ARRAY" />
             <token id="000000234" type-id="DT_BIGINT" />
             <token id="000000235" type-id="DT_BIGSERIAL" />
-            <token id="000000236" type-id="FN_BIT" />
+            <token id="000000236" type-id="FN_BIT" flavor="datatype"/>
             <token id="000000237" type-id="DT_BOOL" />
             <token id="000000238" type-id="DT_BOOLEAN" />
             <token id="000000239" type-id="DT_BOX" />
