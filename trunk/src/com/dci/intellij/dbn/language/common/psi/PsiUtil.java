@@ -48,7 +48,7 @@ public class PsiUtil {
         PsiElement psiElement = aliasElement.isReference() ? aliasElement.resolve() : aliasElement; 
         if (psiElement instanceof BasePsiElement) {
             BasePsiElement basePsiElement = (BasePsiElement) psiElement;
-            BasePsiElement scope = basePsiElement.getEnclosingScopePsiElement();
+            BasePsiElement scope = basePsiElement.lookupEnclosingNamedPsiElement();
 
             DBObjectType objectType = aliasElement.getObjectType();
             ObjectLookupAdapter lookupInput = new ObjectLookupAdapter(aliasElement, objectType);
