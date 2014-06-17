@@ -314,6 +314,15 @@
         </statement>
     </statement-execution-processor>
 
+    <statement-execution-processor id="sequences" is-query="true" is-prepared-statement="true">
+        <statement>
+            select SEQUENCE_NAME
+            from INFORMATION_SCHEMA.SEQUENCES
+            where SEQUENCE_SCHEMA = {0}
+            order by SEQUENCE_NAME asc
+        </statement>
+    </statement-execution-processor>
+
     <statement-execution-processor id="triggers" is-query="true" is-prepared-statement="true">
         <statement>
             select distinct
