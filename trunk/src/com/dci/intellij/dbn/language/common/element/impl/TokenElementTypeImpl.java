@@ -140,6 +140,7 @@ public class TokenElementTypeImpl extends LeafElementTypeImpl implements LookupV
         return lookupItemFactory;
     }
 
+    @Override
     public TokenTypeCategory getFlavor() {
         return flavor;
     }

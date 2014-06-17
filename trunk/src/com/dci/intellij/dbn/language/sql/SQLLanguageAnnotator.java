@@ -4,10 +4,12 @@ import com.dci.intellij.dbn.code.sql.color.SQLTextAttributesKeys;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.execution.statement.StatementGutterRenderer;
 import com.dci.intellij.dbn.execution.statement.processor.StatementExecutionProcessor;
+import com.dci.intellij.dbn.language.common.TokenTypeCategory;
 import com.dci.intellij.dbn.language.common.psi.ChameleonPsiElement;
 import com.dci.intellij.dbn.language.common.psi.ExecutablePsiElement;
 import com.dci.intellij.dbn.language.common.psi.IdentifierPsiElement;
 import com.dci.intellij.dbn.language.common.psi.NamedPsiElement;
+import com.dci.intellij.dbn.language.common.psi.TokenPsiElement;
 import com.intellij.lang.annotation.Annotation;
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.Annotator;
@@ -18,15 +20,17 @@ public class SQLLanguageAnnotator implements Annotator {
     public static final SQLLanguageAnnotator INSTANCE = new SQLLanguageAnnotator();
 
     public void annotate(@NotNull final PsiElement psiElement, @NotNull final AnnotationHolder holder) {
-        if (psiElement instanceof ExecutablePsiElement)  annotateExecutable(psiElement, holder); else
+        if (psiElement instanceof ExecutablePsiElement)  annotateExecutable((ExecutablePsiElement) psiElement, holder); else
         if (psiElement instanceof ChameleonPsiElement)  annotateChameleon(psiElement, holder); else
+        if (psiElement instanceof TokenPsiElement) annotateToken((TokenPsiElement) psiElement, holder);  else
         if (psiElement instanceof IdentifierPsiElement) {
             IdentifierPsiElement identifierPsiElement = (IdentifierPsiElement) psiElement;
             ConnectionHandler connectionHandler = identifierPsiElement.getActiveConnection();
             if (connectionHandler != null && !connectionHandler.isVirtual()) {
-                annotateIdentifier(psiElement, holder);
+                annotateIdentifier(identifierPsiElement, holder);
             }
         }
+
 
         if (psiElement instanceof NamedPsiElement) {
             NamedPsiElement namedPsiElement = (NamedPsiElement) psiElement;
@@ -36,8 +40,20 @@ public class SQLLanguageAnnotator implements Annotator {
         }
     }
 
-    private void annotateIdentifier(final PsiElement psiElement, final AnnotationHolder holder) {
-        IdentifierPsiElement identifierPsiElement = (IdentifierPsiElement) psiElement;
+    private void annotateToken(TokenPsiElement tokenPsiElement, AnnotationHolder holder) {
+        TokenTypeCategory flavor = tokenPsiElement.getElementType().getFlavor();
+        if (flavor != null) {
+            Annotation annotation = holder.createInfoAnnotation(tokenPsiElement, null);
+            switch (flavor) {
+                case DATATYPE: annotation.setTextAttributes(SQLTextAttributesKeys.DATA_TYPE); break;
+                case FUNCTION: annotation.setTextAttributes(SQLTextAttributesKeys.FUNCTION); break;
+                case KEYWORD: annotation.setTextAttributes(SQLTextAttributesKeys.KEYWORD); break;
+                case IDENTIFIER: annotation.setTextAttributes(SQLTextAttributesKeys.IDENTIFIER); break;
+            }
+        }
+    }
+
+    private void annotateIdentifier(IdentifierPsiElement identifierPsiElement, final AnnotationHolder holder) {
         if (identifierPsiElement.getLanguageDialect().isReservedWord(identifierPsiElement.getText())) {
             Annotation annotation = holder.createInfoAnnotation(identifierPsiElement, null);
             annotation.setTextAttributes(SQLTextAttributesKeys.IDENTIFIER);
@@ -86,12 +102,11 @@ public class SQLLanguageAnnotator implements Annotator {
         }
     }
 
-    private void annotateExecutable(PsiElement psiElement, AnnotationHolder holder) {
-        ExecutablePsiElement executable = (ExecutablePsiElement) psiElement;
-        if (!executable.isNestedExecutable()) {
-            StatementExecutionProcessor executionProcessor = executable.getExecutionProcessor();
+    private void annotateExecutable(ExecutablePsiElement executablePsiElement, AnnotationHolder holder) {
+        if (!executablePsiElement.isNestedExecutable()) {
+            StatementExecutionProcessor executionProcessor = executablePsiElement.getExecutionProcessor();
             if (executionProcessor != null) {
-                Annotation annotation = holder.createInfoAnnotation(psiElement, null);
+                Annotation annotation = holder.createInfoAnnotation(executablePsiElement, null);
                 annotation.setGutterIconRenderer(new StatementGutterRenderer(executionProcessor));
             }
         }

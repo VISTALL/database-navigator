@@ -6041,7 +6041,7 @@
         </wrapper>
     </element-def>
     <element-def description="GROUPING SETS clause" id="grouping_sets_clause">
-        <token id="000003321" type-id="FN_GROUPING" />
+        <token id="000003321" type-id="FN_GROUPING" flavor="keyword"/>
         <token id="000003322" type-id="KW_SETS" />
         <wrapper id="000003323" template="PARENTHESES">
             <iteration id="000003324" separator="CHR_COMMA">
@@ -6488,8 +6488,8 @@
                 <token id="000003523" type-id="KW_ZONE" />
                 <one-of id="000003524">
                     <token id="000003525" original-name="text" type-id="STRING" />
-                    <token id="000003526" type-id="FN_DBTIMEZONE" />
-                    <token id="000003527" type-id="FN_SESSIONTIMEZONE" />
+                    <token id="000003526" type-id="FN_DBTIMEZONE" flavor="keyword"/>
+                    <token id="000003527" type-id="FN_SESSIONTIMEZONE"  flavor="keyword"/>
                     <element ref-id="expression" />
                 </one-of>
             </sequence>
@@ -6973,11 +6973,11 @@
             <sequence id="000003762">
                 <one-of id="000003763">
                     <token id="000003764" type-id="FN_BITAND" />
-                    <token id="000003765" type-id="KW_LOG" />
+                    <token id="000003765" type-id="KW_LOG" flavor="function"/>
                     <token id="000003766" type-id="FN_MOD" />
                     <token id="000003767" type-id="FN_NANVL" />
-                    <token id="000003768" type-id="KW_POWER" />
-                    <token id="000003769" type-id="KW_REMAINDER" />
+                    <token id="000003768" type-id="KW_POWER" flavor="function" />
+                    <token id="000003769" type-id="KW_REMAINDER" flavor="function" />
                 </one-of>
                 <wrapper id="000003770" template="PARENTHESES">
                     <iteration elements-count="2" id="000003771" separator="CHR_COMMA">
@@ -7049,7 +7049,7 @@
             <sequence id="000003808">
                 <one-of id="000003809">
                     <token id="000003810" type-id="FN_LPAD" />
-                    <token id="000003811" type-id="KW_REPLACE" />
+                    <token id="000003811" type-id="KW_REPLACE" flavor="function" />
                     <token id="000003812" type-id="FN_RPAD" />
                     <token id="000003813" type-id="FN_SUBSTR" />
                     <token id="000003814" type-id="FN_SUBSTRB" />
@@ -7396,8 +7396,8 @@
     </element-def>
     <element-def description="Miscellaneous single row function" id="miscellaneous_single_row_function">
         <one-of id="000004015">
-            <token id="000004016" type-id="KW_UID" />
-            <token id="000004017" type-id="KW_USER" />
+            <token id="000004016" type-id="KW_UID" flavor="function"/>
+            <token id="000004017" type-id="KW_USER" flavor="function"/>
             <sequence id="000004018">
                 <token id="000004019" type-id="FN_CV" />
                 <wrapper id="000004020" optional="true" template="PARENTHESES">
@@ -7487,7 +7487,7 @@
             </sequence>
             <sequence id="000004072">
                 <one-of id="000004073">
-                    <token id="000004074" type-id="KW_COALESCE" />
+                    <token id="000004074" type-id="KW_COALESCE" flavor="function"/>
                     <token id="000004075" type-id="FN_DECODE" />
                     <token id="000004076" type-id="FN_GREATEST" />
                     <token id="000004077" type-id="FN_LEAST" />
@@ -7501,7 +7501,7 @@
                 </wrapper>
             </sequence>
             <sequence id="000004082">
-                <token id="000004083" type-id="KW_DUMP" />
+                <token id="000004083" type-id="KW_DUMP" flavor="function"/>
                 <wrapper id="000004084" template="PARENTHESES">
                     <iteration elements-count="1-4" id="000004085" separator="CHR_COMMA">
                         <element ref-id="expression" />
@@ -7607,7 +7607,7 @@
             <sequence id="000004135">
                 <one-of id="000004136">
                     <token id="000004137" type-id="FN_CUME_DIST" />
-                    <token id="000004138" type-id="KW_DENSE_RANK" />
+                    <token id="000004138" type-id="KW_DENSE_RANK" flavor="function"/>
                     <token id="000004139" type-id="FN_RANK" />
                     <token id="000004140" type-id="FN_PERCENT_RANK" />
                 </one-of>
@@ -7998,7 +7998,7 @@
             </sequence>
         </one-of>
         <sequence id="000004372" optional="true" original-name="FIRST, LAST function">
-            <token id="000004373" type-id="KW_KEEP" />
+            <token id="000004373" type-id="KW_KEEP" flavor="function"/>
             <wrapper id="000004374" template="PARENTHESES">
                 <sequence id="000004375">
                     <token id="000004376" type-id="KW_DENSE_RANK" />
@@ -8117,9 +8117,9 @@
             <sequence id="000004437">
                 <one-of id="000004438">
                     <token id="000004439" type-id="FN_DEREF" />
-                    <token id="000004440" type-id="KW_REF" />
+                    <token id="000004440" type-id="KW_REF" flavor="function"/>
                     <token id="000004441" type-id="FN_REFTOHEX" />
-                    <token id="000004442" type-id="KW_VALUE" />
+                    <token id="000004442" type-id="KW_VALUE" flavor="function"/>
                 </one-of>
                 <wrapper id="000004443" template="PARENTHESES">
                     <element ref-id="expression" />
