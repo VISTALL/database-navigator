@@ -14,6 +14,7 @@ import java.util.Set;
 
 public enum DBObjectType implements DynamicContentType {
     
+    ATTRIBUTE(DatabaseObjectTypeId.ATTRIBUTE, "attribute", "attribute", Icons.DBO_ATTRIBUTE, Icons.DBO_ATTRIBUTES, false),
     ARGUMENT(DatabaseObjectTypeId.ARGUMENT, "argument", "arguments", Icons.DBO_ARGUMENT, Icons.DBO_ARGUMENTS, false),
     CATEGORY(DatabaseObjectTypeId.CATEGORY, "category", "categories", null, null, false),
     CHARSET(DatabaseObjectTypeId.CHARSET, "charset", "charsets", null, null, false),
@@ -75,6 +76,7 @@ public enum DBObjectType implements DynamicContentType {
     EXCEPTION(DatabaseObjectTypeId.EXCEPTION, "exception", "exceptions", null, null, false),
     SAVEPOINT(DatabaseObjectTypeId.SAVEPOINT, "savepoint", "savepoints", null, null, false),
     LABEL(DatabaseObjectTypeId.LABEL, "label", "labels", null, null, false),
+    WINDOW(DatabaseObjectTypeId.WINDOW, "window", "windows", null, null, false),
 
     UNKNOWN(DatabaseObjectTypeId.UNKNOWN, "unknown", null, null, null, true),
     NONE(DatabaseObjectTypeId.NONE, "none", null, null, null, true),
