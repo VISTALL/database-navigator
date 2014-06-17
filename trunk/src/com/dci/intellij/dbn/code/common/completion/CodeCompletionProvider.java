@@ -10,7 +10,6 @@ import com.dci.intellij.dbn.common.util.NamingUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.language.common.DBLanguage;
 import com.dci.intellij.dbn.language.common.DBLanguageFile;
-import com.dci.intellij.dbn.language.common.TokenType;
 import com.dci.intellij.dbn.language.common.element.ElementType;
 import com.dci.intellij.dbn.language.common.element.ElementTypeBundle;
 import com.dci.intellij.dbn.language.common.element.IdentifierElementType;
@@ -83,8 +82,7 @@ public class CodeCompletionProvider extends CompletionProvider<CompletionParamet
                 for (LeafElementType firstPossibleLeaf : firstPossibleLeafs) {
                     if (firstPossibleLeaf instanceof TokenElementType) {
                         TokenElementType tokenElementType = (TokenElementType) firstPossibleLeaf;
-                        TokenType tokenType = tokenElementType.getTokenType();
-                        if (context.getCodeCompletionFilterSettings().acceptReservedWord(tokenType.getTokenTypeIdentifier())) {
+                        if (context.getCodeCompletionFilterSettings().acceptReservedWord(tokenElementType.getTokenTypeCategory())) {
                             LookupItemFactory lookupItemFactory = tokenElementType.getLookupItemFactory(language);
                             lookupItemFactory.createLookupItem(tokenElementType, consumer);
                         }
@@ -166,9 +164,8 @@ public class CodeCompletionProvider extends CompletionProvider<CompletionParamet
 
             if (nextPossibleLeaf instanceof TokenElementType) {
                 TokenElementType tokenElementType = (TokenElementType) nextPossibleLeaf;
-                TokenType tokenType = tokenElementType.getTokenType();
                 //consumer.setAddParenthesis(addParenthesis && tokenType.isFunction());
-                if (filterSettings.acceptReservedWord(tokenType.getTokenTypeIdentifier())) {
+                if (filterSettings.acceptReservedWord(tokenElementType.getTokenTypeCategory())) {
                     consumer.consume(tokenElementType);
                 }
             }

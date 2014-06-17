@@ -4,7 +4,7 @@ import com.dci.intellij.dbn.code.common.completion.options.filter.ui.CheckedTree
 import com.dci.intellij.dbn.code.common.completion.options.filter.ui.CodeCompletionFilterSettingsForm;
 import com.dci.intellij.dbn.code.common.completion.options.filter.ui.CodeCompletionFilterTreeNode;
 import com.dci.intellij.dbn.common.options.Configuration;
-import com.dci.intellij.dbn.language.common.TokenTypeIdentifier;
+import com.dci.intellij.dbn.language.common.TokenTypeCategory;
 import com.dci.intellij.dbn.object.DBSchema;
 import com.dci.intellij.dbn.object.common.DBObjectType;
 import com.dci.intellij.dbn.object.common.ObjectTypeFilter;
@@ -52,10 +52,10 @@ public class CodeCompletionFilterSettings extends Configuration<CodeCompletionFi
         return anySchemaOptions;
     }
 
-    public boolean acceptReservedWord(TokenTypeIdentifier tokenTypeIdentifier) {
-        if (tokenTypeIdentifier != TokenTypeIdentifier.UNKNOWN) {
+    public boolean acceptReservedWord(TokenTypeCategory tokenTypeCategory) {
+        if (tokenTypeCategory != TokenTypeCategory.UNKNOWN) {
             for(CodeCompletionFilterOption option : rootFilterOptions.getOptions()) {
-                if (option.getObjectType() == null && option.getTokenTypeIdentifier() == tokenTypeIdentifier) {
+                if (option.getObjectType() == null && option.getTokenTypeCategory() == tokenTypeCategory) {
                     return option.isSelected();
                 }
             }

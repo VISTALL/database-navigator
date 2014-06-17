@@ -4,7 +4,7 @@ import com.dci.intellij.dbn.code.common.style.formatting.FormattingDefinition;
 import com.dci.intellij.dbn.language.common.DBLanguage;
 import com.dci.intellij.dbn.language.common.DBLanguageDialect;
 import com.dci.intellij.dbn.language.common.TokenType;
-import com.dci.intellij.dbn.language.common.TokenTypeIdentifier;
+import com.dci.intellij.dbn.language.common.TokenTypeCategory;
 import com.dci.intellij.dbn.language.common.element.lookup.ElementTypeLookupCache;
 import com.dci.intellij.dbn.language.common.element.parser.ElementTypeParser;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeAttribute;
@@ -177,7 +177,7 @@ public class ChameleonElementType extends ILazyParseableElementType implements E
         return false;
     }
 
-    public TokenTypeIdentifier getTokenTypeIdentifier() {
+    public TokenTypeCategory getCategory() {
         return null;
     }
 }

@@ -3,7 +3,7 @@ package com.dci.intellij.dbn.code.common.completion.options.filter;
 import com.dci.intellij.dbn.code.common.completion.options.filter.ui.CodeCompletionFiltersSettingsForm;
 import com.dci.intellij.dbn.common.options.CompositeConfiguration;
 import com.dci.intellij.dbn.common.options.Configuration;
-import com.dci.intellij.dbn.language.common.TokenTypeIdentifier;
+import com.dci.intellij.dbn.language.common.TokenTypeCategory;
 import com.dci.intellij.dbn.object.common.DBObjectType;
 
 public class CodeCompletionFiltersSettings extends CompositeConfiguration<CodeCompletionFiltersSettingsForm> {
@@ -39,8 +39,8 @@ public class CodeCompletionFiltersSettings extends CompositeConfiguration<CodeCo
         return getFilterSettings(extended).acceptsRootObject(objectType);
     }
 
-    boolean showReservedWords(boolean extended, TokenTypeIdentifier tokenTypeIdentifier) {
-        return getFilterSettings(extended).acceptReservedWord(tokenTypeIdentifier);
+    boolean showReservedWords(boolean extended, TokenTypeCategory tokenTypeCategory) {
+        return getFilterSettings(extended).acceptReservedWord(tokenTypeCategory);
     }
 
     boolean showUserSchemaObjects(boolean extended, DBObjectType objectType) {

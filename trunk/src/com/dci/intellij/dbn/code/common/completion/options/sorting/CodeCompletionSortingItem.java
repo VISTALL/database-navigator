@@ -2,36 +2,36 @@ package com.dci.intellij.dbn.code.common.completion.options.sorting;
 
 import com.dci.intellij.dbn.common.options.Configuration;
 import com.dci.intellij.dbn.common.options.ui.ConfigurationEditorForm;
-import com.dci.intellij.dbn.language.common.TokenTypeIdentifier;
+import com.dci.intellij.dbn.language.common.TokenTypeCategory;
 import com.dci.intellij.dbn.object.common.DBObjectType;
 import org.jdom.Element;
 import org.jetbrains.annotations.Nls;
 
 public class CodeCompletionSortingItem extends Configuration {
     private DBObjectType objectType;
-    private TokenTypeIdentifier tokenTypeIdentifier = TokenTypeIdentifier.UNKNOWN;
+    private TokenTypeCategory tokenTypeCategory = TokenTypeCategory.UNKNOWN;
 
     public DBObjectType getObjectType() {
         return objectType;
     }
 
-    public TokenTypeIdentifier getTokenTypeIdentifier() {
-        return tokenTypeIdentifier;
+    public TokenTypeCategory getTokenTypeCategory() {
+        return tokenTypeCategory;
     }
 
     public String getTokenTypeName() {
-        return tokenTypeIdentifier.getName();
+        return tokenTypeCategory.getName();
     }
 
     public boolean equals(Object obj) {
         CodeCompletionSortingItem remote = (CodeCompletionSortingItem) obj;
         return
             remote.objectType == objectType &&
-            remote.tokenTypeIdentifier == tokenTypeIdentifier;
+            remote.tokenTypeCategory == tokenTypeCategory;
     }
 
     public String toString() {
-        return objectType == null ? tokenTypeIdentifier.getName() : objectType.getName();
+        return objectType == null ? tokenTypeCategory.getName() : objectType.getName();
     }
 
     @Nls
@@ -58,7 +58,7 @@ public class CodeCompletionSortingItem extends Configuration {
             objectType = DBObjectType.getObjectType(objectTypeName);
         } else {
             String tokenTypeName = element.getAttributeValue("id");
-            tokenTypeIdentifier = TokenTypeIdentifier.getIdentifier(tokenTypeName);
+            tokenTypeCategory = TokenTypeCategory.getCategory(tokenTypeName);
         }
     }
 
@@ -68,7 +68,7 @@ public class CodeCompletionSortingItem extends Configuration {
             element.setAttribute("id", objectType.getName());
         } else {
             element.setAttribute("type", "RESERVED_WORD");
-            element.setAttribute("id", tokenTypeIdentifier.getName());
+            element.setAttribute("id", tokenTypeCategory.getName());
         }
     }
 }

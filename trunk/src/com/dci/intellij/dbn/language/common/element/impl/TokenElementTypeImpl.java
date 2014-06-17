@@ -3,8 +3,10 @@ package com.dci.intellij.dbn.language.common.element.impl;
 import com.dci.intellij.dbn.code.common.completion.options.filter.CodeCompletionFilterSettings;
 import com.dci.intellij.dbn.code.common.lookup.LookupValueProvider;
 import com.dci.intellij.dbn.code.common.lookup.TokenLookupItemFactory;
+import com.dci.intellij.dbn.common.util.StringUtil;
 import com.dci.intellij.dbn.language.common.DBLanguage;
 import com.dci.intellij.dbn.language.common.TokenType;
+import com.dci.intellij.dbn.language.common.TokenTypeCategory;
 import com.dci.intellij.dbn.language.common.element.ElementType;
 import com.dci.intellij.dbn.language.common.element.ElementTypeBundle;
 import com.dci.intellij.dbn.language.common.element.IterationElementType;
@@ -25,22 +27,28 @@ import java.util.Set;
 
 public class TokenElementTypeImpl extends LeafElementTypeImpl implements LookupValueProvider, TokenElementType {
     private TokenLookupItemFactory lookupItemFactory;
+    private TokenTypeCategory flavor;
 
     public TokenElementTypeImpl(ElementTypeBundle bundle, ElementType parent, String id, Element def) throws ElementTypeDefinitionException {
         super(bundle, parent, id, def);
         String typeId = def.getAttributeValue("type-id");
         TokenType tokenType = bundle.getTokenTypeBundle().getTokenType(typeId);
         setTokenType(tokenType);
-        setDescription(tokenType.getValue() + " " + tokenType.getTokenTypeIdentifier());
-
         setDefaultFormatting(tokenType.getFormatting());
+
+        String flavorName = def.getAttributeValue("flavor");
+        if (StringUtil.isNotEmpty(flavorName)) {
+            flavor = TokenTypeCategory.getCategory(flavorName);
+        }
+
+        setDescription(tokenType.getValue() + " " + getTokenTypeCategory());
     }
 
     public TokenElementTypeImpl(ElementTypeBundle bundle, ElementType parent, String typeId, String id) throws ElementTypeDefinitionException {
         super(bundle, parent, id, (String)null);
         TokenType tokenType = bundle.getTokenTypeBundle().getTokenType(typeId);
         setTokenType(tokenType);
-        setDescription(tokenType.getValue() + " " + tokenType.getTokenTypeIdentifier());
+        setDescription(tokenType.getValue() + " " + getTokenTypeCategory());
 
         setDefaultFormatting(tokenType.getFormatting());
     }
@@ -130,5 +138,14 @@ public class TokenElementTypeImpl extends LeafElementTypeImpl implements LookupV
             lookupItemFactory = new TokenLookupItemFactory(this);
         }
         return lookupItemFactory;
+    }
+
+    public TokenTypeCategory getFlavor() {
+        return flavor;
+    }
+
+    @Override
+    public TokenTypeCategory getTokenTypeCategory() {
+        return flavor == null ? getTokenType().getCategory() : flavor;
     }
 }

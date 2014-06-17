@@ -1,6 +1,6 @@
 package com.dci.intellij.dbn.language.common;
 
-public enum TokenTypeIdentifier {
+public enum TokenTypeCategory {
     UNKNOWN("unknown"),
     KEYWORD("keyword"),
     FUNCTION("function"),
@@ -13,7 +13,7 @@ public enum TokenTypeIdentifier {
     CHAMELEON("chameleon");
 
     private String name;
-    TokenTypeIdentifier(String name) {
+    TokenTypeCategory(String name) {
         this.name = name;
     }
 
@@ -21,9 +21,9 @@ public enum TokenTypeIdentifier {
         return name;
     }
 
-    public static TokenTypeIdentifier getIdentifier(String typeName) {
-        for (TokenTypeIdentifier identifier : TokenTypeIdentifier.values()) {
-            if (identifier.getName().equals(typeName)) return identifier;
+    public static TokenTypeCategory getCategory(String categoryName) {
+        for (TokenTypeCategory identifier : TokenTypeCategory.values()) {
+            if (identifier.getName().equals(categoryName)) return identifier;
         }
         return UNKNOWN;
     }

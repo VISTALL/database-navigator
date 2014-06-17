@@ -7,7 +7,7 @@ import com.dci.intellij.dbn.code.common.lookup.LookupItemFactory;
 import com.dci.intellij.dbn.code.common.lookup.TokenLookupItemFactory;
 import com.dci.intellij.dbn.common.options.Configuration;
 import com.dci.intellij.dbn.common.options.setting.SettingsUtil;
-import com.dci.intellij.dbn.language.common.TokenType;
+import com.dci.intellij.dbn.language.common.TokenTypeCategory;
 import com.dci.intellij.dbn.object.common.DBObjectType;
 import com.intellij.openapi.util.InvalidDataException;
 import com.intellij.openapi.util.WriteExternalException;
@@ -32,8 +32,8 @@ public class CodeCompletionSortingSettings extends Configuration<CodeCompletionS
 
         if (lookupItemFactory instanceof TokenLookupItemFactory) {
             TokenLookupItemFactory tokenLookupItemFactory = (TokenLookupItemFactory) lookupItemFactory;
-            TokenType tokenType = tokenLookupItemFactory.getTokenType();
-            return getSortingIndexFor(tokenType);
+            TokenTypeCategory tokenTypeCategory = tokenLookupItemFactory.getTokenTypeCategory();
+            return getSortingIndexFor(tokenTypeCategory);
         }
         return 0;
     }
@@ -47,9 +47,9 @@ public class CodeCompletionSortingSettings extends Configuration<CodeCompletionS
         return 0;
     }
 
-    public int getSortingIndexFor(TokenType tokenType) {
+    public int getSortingIndexFor(TokenTypeCategory tokenTypeCategory) {
         for (int i=0; i<sortingItems.size(); i++) {
-            if (sortingItems.get(i).getTokenTypeIdentifier() == tokenType.getTokenTypeIdentifier()) {
+            if (sortingItems.get(i).getTokenTypeCategory() == tokenTypeCategory) {
                 return sortingItems.size() - i;
             }
         }
