@@ -60,12 +60,14 @@ public abstract class AbstractElementTypeParser<T extends DBNElementType> implem
     protected ParseResult stepOut(PsiBuilder.Marker marker, int depth, ParseResultType resultType, int matchedTokens, PathNode node, ParserContext context) {
         if (node != null) node.detach();
         if (resultType == ParseResultType.PARTIAL_MATCH) {
-            ParseBuilderErrorHandler.updateBuilderError(getElementType().getLookupCache().getNextPossibleTokens(), context);
+            ParseBuilderErrorHandler.updateBuilderError(elementType.getLookupCache().getNextPossibleTokens(), context);
         }
         if (resultType == ParseResultType.NO_MATCH) {
+            context.getNesting().rollback(elementType);
             if (marker != null) marker.rollbackTo();
         } else {
-            if (marker != null) marker.done((IElementType) getElementType());
+            if (marker != null) marker.done((IElementType) elementType);
+            context.getNesting().check();
         }
 
         logEnd(resultType, depth);

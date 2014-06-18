@@ -3,6 +3,7 @@ package com.dci.intellij.dbn.language.common.element;
 import com.dci.intellij.dbn.code.common.style.formatting.FormattingDefinition;
 import com.dci.intellij.dbn.language.common.DBLanguage;
 import com.dci.intellij.dbn.language.common.DBLanguageDialect;
+import com.dci.intellij.dbn.language.common.element.impl.WrappingDefinition;
 import com.dci.intellij.dbn.language.common.element.lookup.ElementTypeLookupCache;
 import com.dci.intellij.dbn.language.common.element.parser.ElementTypeParser;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeAttribute;
@@ -54,4 +55,6 @@ public interface DBNElementType {
     void setDefaultFormatting(FormattingDefinition defaults);
 
     ElementTypeAttributesBundle getAttributes();
+
+    WrappingDefinition getWrapping();
 }

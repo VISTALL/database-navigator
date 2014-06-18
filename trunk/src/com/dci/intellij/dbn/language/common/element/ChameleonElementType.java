@@ -5,6 +5,7 @@ import com.dci.intellij.dbn.language.common.DBLanguage;
 import com.dci.intellij.dbn.language.common.DBLanguageDialect;
 import com.dci.intellij.dbn.language.common.TokenType;
 import com.dci.intellij.dbn.language.common.TokenTypeCategory;
+import com.dci.intellij.dbn.language.common.element.impl.WrappingDefinition;
 import com.dci.intellij.dbn.language.common.element.lookup.ElementTypeLookupCache;
 import com.dci.intellij.dbn.language.common.element.parser.ElementTypeParser;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeAttribute;
@@ -74,6 +75,11 @@ public class ChameleonElementType extends ILazyParseableElementType implements D
 
     @Override
     public ElementTypeAttributesBundle getAttributes() {
+        return null;
+    }
+
+    @Override
+    public WrappingDefinition getWrapping() {
         return null;
     }
 

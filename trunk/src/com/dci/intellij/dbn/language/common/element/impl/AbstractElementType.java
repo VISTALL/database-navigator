@@ -12,6 +12,8 @@ import com.dci.intellij.dbn.language.common.DBLanguageDialect;
 import com.dci.intellij.dbn.language.common.element.DBNElementType;
 import com.dci.intellij.dbn.language.common.element.ElementTypeBundle;
 import com.dci.intellij.dbn.language.common.element.SequenceElementType;
+import com.dci.intellij.dbn.language.common.element.TokenElementType;
+import com.dci.intellij.dbn.language.common.element.WrapperElementTypeTemplate;
 import com.dci.intellij.dbn.language.common.element.lookup.ElementTypeLookupCache;
 import com.dci.intellij.dbn.language.common.element.parser.ElementTypeParser;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeAttribute;
@@ -39,10 +41,11 @@ public abstract class AbstractElementType extends IElementType implements DBNEle
     private ElementTypeBundle bundle;
     private DBNElementType parent;
 
-
     private DBObjectType virtualObjectType;
     private boolean isVirtualObjectInsideLookup;
     private ElementTypeAttributesBundle attributes = ElementTypeAttributesBundle.EMPTY;
+
+    protected WrappingDefinition wrapping;
 
     public AbstractElementType(ElementTypeBundle bundle, DBNElementType parent, String id, @Nullable String description) {
         super(id, bundle.getLanguageDialect(), false);
@@ -72,6 +75,10 @@ public abstract class AbstractElementType extends IElementType implements DBNEle
         loadDefinition(def);
     }
 
+    public WrappingDefinition getWrapping() {
+        return wrapping;
+    }
+
     protected abstract ElementTypeLookupCache createLookupCache();
 
     protected abstract ElementTypeParser createParser();
@@ -98,6 +105,39 @@ public abstract class AbstractElementType extends IElementType implements DBNEle
 
         String iconKey = def.getAttributeValue("icon");
         if (iconKey != null)  icon = Icons.getIcon(iconKey);
+
+        loadWrappingAttributes(def);
+    }
+
+    private void loadWrappingAttributes(Element def) throws ElementTypeDefinitionException {
+        String templateId = def.getAttributeValue("wrapping-template");
+        TokenElementType beginTokenElement = null;
+        TokenElementType endTokenElement = null;
+        if (StringUtil.isEmpty(templateId)) {
+            String beginTokenId = def.getAttributeValue("wrapping-begin-token");
+            String endTokenId = def.getAttributeValue("wrapping-end-token");
+
+            if (StringUtil.isNotEmpty(beginTokenId) && StringUtil.isNotEmpty(endTokenId)) {
+                beginTokenElement = new TokenElementTypeImpl(bundle, this, beginTokenId, "WRAPPING_" + beginTokenId);
+                endTokenElement = new TokenElementTypeImpl(bundle, this, endTokenId, "WRAPPING_" + endTokenId);
+            }
+        } else {
+            WrapperElementTypeTemplate template = WrapperElementTypeTemplate.valueOf(templateId);
+            String beginTokenId = template.getBeginToken();
+            String endTokenId = template.getEndToken();
+            beginTokenElement = new TokenElementTypeImpl(bundle, this, beginTokenId, "WRAPPING_" + beginTokenId);
+            endTokenElement = new TokenElementTypeImpl(bundle, this, endTokenId, "WRAPPING_" + endTokenId);
+
+            if (template.isBlock()) {
+                beginTokenElement.setDefaultFormatting(FormattingDefinition.LINE_BREAK_AFTER);
+                endTokenElement.setDefaultFormatting(FormattingDefinition.LINE_BREAK_BEFORE);
+                setDefaultFormatting(FormattingDefinition.LINE_BREAK_BEFORE);
+            }
+        }
+
+        if (beginTokenElement != null && endTokenElement != null) {
+            wrapping = new WrappingDefinition(beginTokenElement, endTokenElement);
+        }
     }
 
     public String getId() {
