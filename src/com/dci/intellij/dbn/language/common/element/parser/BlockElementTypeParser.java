@@ -4,7 +4,6 @@ import com.dci.intellij.dbn.language.common.ParseException;
 import com.dci.intellij.dbn.language.common.element.BlockElementType;
 import com.dci.intellij.dbn.language.common.element.path.ParsePathNode;
 import com.intellij.lang.PsiBuilder;
-import com.intellij.psi.tree.IElementType;
 
 public class BlockElementTypeParser extends SequenceElementTypeParser<BlockElementType>{
     public BlockElementTypeParser(BlockElementType elementType) {
@@ -17,7 +16,7 @@ public class BlockElementTypeParser extends SequenceElementTypeParser<BlockEleme
         if (result.getType() == ParseResultType.NO_MATCH) {
             marker.drop();
         } else {
-            marker.done((IElementType) getElementType());
+            markerDone(marker, getElementType());
         }
         return result.getType() == ParseResultType.NO_MATCH ?
                 ParseResult.createNoMatchResult() :

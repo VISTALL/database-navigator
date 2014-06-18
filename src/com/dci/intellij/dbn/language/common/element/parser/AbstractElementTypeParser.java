@@ -62,11 +62,10 @@ public abstract class AbstractElementTypeParser<T extends ElementType> implement
         if (resultType == ParseResultType.PARTIAL_MATCH) {
             ParseBuilderErrorHandler.updateBuilderError(elementType.getLookupCache().getNextPossibleTokens(), context);
         }
-        if (resultType == ParseResultType.NO_MATCH) {
-            if (marker != null) marker.rollbackTo();
-        } else {
-            if (marker != null) marker.done((IElementType) elementType);
-        }
+        if (resultType == ParseResultType.NO_MATCH)
+            markerRollbackTo(marker); else
+            markerDone(marker, elementType);
+
 
         logEnd(resultType, depth);
         return resultType ==
@@ -119,4 +118,23 @@ public abstract class AbstractElementTypeParser<T extends ElementType> implement
     public ElementTypeBundle getElementBundle() {
         return elementType.getElementBundle();
     }
+
+    protected void markerDone(PsiBuilder.Marker marker, ElementType elementType) {
+        if (marker != null) {
+            marker.done((IElementType) elementType);
+        }
+    }
+
+    protected void markerDrop(PsiBuilder.Marker marker) {
+        if (marker != null) {
+            marker.drop();
+        }
+    }
+
+    protected void markerRollbackTo(PsiBuilder.Marker marker) {
+        if (marker != null) {
+            marker.rollbackTo();
+        }
+    }
+
 }

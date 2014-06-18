@@ -85,7 +85,7 @@ public class QualifiedIdentifierElementTypeParser extends AbstractElementTypePar
                     if (isLastElement) {
                         QualifiedIdentifierVariant variant = new QualifiedIdentifierVariant(elementTypes, matchedTokens);
                         if ((isFullMatch && !isSeparator) || variant.containsNonIdentifierTokens()) {
-                            marker.rollbackTo();
+                            markerRollbackTo(marker);
                             return variant;
                         }
 
@@ -107,7 +107,7 @@ public class QualifiedIdentifierElementTypeParser extends AbstractElementTypePar
                     if (matchedTokens > 0)  {
                         QualifiedIdentifierVariant variant = new QualifiedIdentifierVariant(elementTypes, matchedTokens);
                         if (variant.containsNonIdentifierTokens()) {
-                            marker.rollbackTo();
+                            markerRollbackTo(marker);
                             return variant;
                         }
                         if (mostProbableVariant == null || mostProbableVariant.getMatchedTokens() < variant.getMatchedTokens()) {
@@ -117,7 +117,7 @@ public class QualifiedIdentifierElementTypeParser extends AbstractElementTypePar
                     break;
                 }
             }
-            marker.rollbackTo();
+            markerRollbackTo(marker);
 
         }
         return mostProbableVariant;

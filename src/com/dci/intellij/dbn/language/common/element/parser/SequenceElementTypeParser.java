@@ -12,7 +12,6 @@ import com.dci.intellij.dbn.language.common.element.path.PathNode;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dci.intellij.dbn.language.common.element.util.ParseBuilderErrorHandler;
 import com.intellij.lang.PsiBuilder;
-import com.intellij.psi.tree.IElementType;
 
 public class SequenceElementTypeParser<ET extends SequenceElementType> extends AbstractElementTypeParser<ET> {
     public SequenceElementTypeParser(ET elementType) {
@@ -119,14 +118,11 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends A
     protected ParseResult stepOut(PsiBuilder.Marker marker, int depth, ParseResultType resultType, int matchedTokens, PathNode node, ParserContext context) {
         if (marker != null) {
             if (resultType == ParseResultType.NO_MATCH) {
-                marker.rollbackTo();
+                markerRollbackTo(marker);
             } else {
-                /*if (this instanceof NamedElementType)
-                    marker.done(this); else
-                    marker.drop();*/
                 if (getElementType() instanceof BlockElementType)
-                    marker.drop(); else
-                    marker.done((IElementType) getElementType());
+                    markerDrop(marker); else
+                    markerDone(marker, getElementType());
             }
         }
         return super.stepOut(null, depth, resultType, matchedTokens, node, context);
@@ -155,12 +151,12 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends A
                 if (newIndex == 0) {
                     builder.advanceLexer();
                 } else {
-                    marker.done((IElementType) getElementBundle().getUnknownElementType()); // should close unknown element type
+                    markerDone(marker, getElementBundle().getUnknownElementType());
                     return newIndex;
                 }
             }
         }
-        marker.done((IElementType) getElementBundle().getUnknownElementType()); // should close unknown element type
+        markerDone(marker, getElementBundle().getUnknownElementType());
         return 0;
     }
 
