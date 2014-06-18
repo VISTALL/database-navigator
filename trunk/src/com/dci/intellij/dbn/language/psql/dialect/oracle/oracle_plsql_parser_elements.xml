@@ -1650,7 +1650,7 @@
                     <variable-ref id="000000785" type="ANY" />
                 </sequence>
             </sequence>
-            <sequence exit="true" id="000000786">
+            <sequence id="000000786">
                 <token id="000000787" type-id="CHR_COLON" />
                 <variable-ref id="000000788" type="ANY" />
                 <sequence id="000000789" optional="true">
@@ -2182,7 +2182,7 @@
         </one-of>
         <alias-def id="000001063" optional="true" type="DATASET" />
         <wrapper id="000001064" optional="true" template="PARENTHESES">
-            <iteration exit="true" id="000001065" separator="CHR_COMMA">
+            <iteration id="000001065" separator="CHR_COMMA">
                 <qualified-identifier id="000001066" original-name="column" separator="CHR_DOT">
                     <variant>
                         <object-ref id="000001067" optional="true" type="DATASET" />

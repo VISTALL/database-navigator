@@ -59,7 +59,7 @@ public class IterationElementTypeImpl extends AbstractElementType implements Ite
 
         List children = def.getChildren();
         if (children.size() != 1) {
-            throw new ElementTypeDefinitionException("Invalid iteration definition. Element should contain exactly one child.");
+            throw new ElementTypeDefinitionException("[" + getLanguageDialect().getID() + "] Invalid iteration definition (id=" + getId() + "). Element should contain exactly one child.");
         }
         Element child = (Element) children.get(0);
         String type = child.getName();
