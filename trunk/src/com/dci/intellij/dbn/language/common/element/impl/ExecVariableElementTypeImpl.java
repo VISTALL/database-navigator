@@ -1,6 +1,6 @@
 package com.dci.intellij.dbn.language.common.element.impl;
 
-import com.dci.intellij.dbn.language.common.element.ElementType;
+import com.dci.intellij.dbn.language.common.element.DBNElementType;
 import com.dci.intellij.dbn.language.common.element.ElementTypeBundle;
 import com.dci.intellij.dbn.language.common.element.ExecVariableElementType;
 import com.dci.intellij.dbn.language.common.element.LeafElementType;
@@ -15,7 +15,7 @@ import org.jdom.Element;
 
 public class ExecVariableElementTypeImpl extends LeafElementTypeImpl implements ExecVariableElementType {
 
-    public ExecVariableElementTypeImpl(ElementTypeBundle bundle, ElementType parent, String id, Element def) throws ElementTypeDefinitionException {
+    public ExecVariableElementTypeImpl(ElementTypeBundle bundle, DBNElementType parent, String id, Element def) throws ElementTypeDefinitionException {
         super(bundle, parent, id, def);
         setTokenType(bundle.getTokenTypeBundle().getVariable());
     }

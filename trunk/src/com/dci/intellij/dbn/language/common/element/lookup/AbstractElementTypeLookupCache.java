@@ -2,7 +2,7 @@ package com.dci.intellij.dbn.language.common.element.lookup;
 
 import com.dci.intellij.dbn.language.common.SharedTokenTypeBundle;
 import com.dci.intellij.dbn.language.common.TokenType;
-import com.dci.intellij.dbn.language.common.element.ElementType;
+import com.dci.intellij.dbn.language.common.element.DBNElementType;
 import com.dci.intellij.dbn.language.common.element.ElementTypeBundle;
 import com.dci.intellij.dbn.language.common.element.IdentifierElementType;
 import com.dci.intellij.dbn.language.common.element.IterationElementType;
@@ -19,7 +19,7 @@ import gnu.trove.THashSet;
 import java.util.Map;
 import java.util.Set;
 
-public abstract class AbstractElementTypeLookupCache<T extends ElementType> implements ElementTypeLookupCache<T> {
+public abstract class AbstractElementTypeLookupCache<T extends DBNElementType> implements ElementTypeLookupCache<T> {
     private T elementType;
 
     //protected Set<IdentifierCacheElement> identifierTypes;
@@ -154,7 +154,7 @@ public abstract class AbstractElementTypeLookupCache<T extends ElementType> impl
         return firstRequiredTokens.contains(tokenType);
     }
 
-    public void registerLeaf(LeafElementType leaf, ElementType pathChild) {
+    public void registerLeaf(LeafElementType leaf, DBNElementType pathChild) {
         boolean initAllElements = !containsLeaf(leaf);
         boolean isFirstPossibleElements = isFirstPossibleLeaf(leaf, pathChild);
         boolean isFirstRequiredLeaf = isFirstRequiredLeaf(leaf, pathChild);
@@ -206,7 +206,7 @@ public abstract class AbstractElementTypeLookupCache<T extends ElementType> impl
     }
 
     protected void registerLeafInParent(LeafElementType leaf) {
-        ElementType parent = getElementType().getParent();
+        DBNElementType parent = getElementType().getParent();
         if (parent != null) {
             parent.getLookupCache().registerLeaf(leaf, getElementType());
         }
@@ -217,7 +217,7 @@ public abstract class AbstractElementTypeLookupCache<T extends ElementType> impl
             virtualObjects = new THashSet<DBObjectType>();
         }
         virtualObjects.add(objectType);
-        ElementType parent = getElementType().getParent();
+        DBNElementType parent = getElementType().getParent();
         if (parent != null) {
             parent.getLookupCache().registerVirtualObject(objectType);
         }
@@ -257,8 +257,8 @@ public abstract class AbstractElementTypeLookupCache<T extends ElementType> impl
     public Set<TokenType> getNextPossibleTokens() {
         if (nextPossibleTokens == null) {
             nextPossibleTokens = new THashSet<TokenType>();
-            ElementType elementType = getElementType();
-            ElementType parentElementType = elementType.getParent();
+            DBNElementType elementType = getElementType();
+            DBNElementType parentElementType = elementType.getParent();
             while (parentElementType != null) {
                 if (parentElementType instanceof SequenceElementType) {
                     SequenceElementType sequenceElementType = (SequenceElementType) parentElementType;
@@ -266,7 +266,7 @@ public abstract class AbstractElementTypeLookupCache<T extends ElementType> impl
                     int index = sequenceElementType.indexOf(elementType, 0);
 
                     for (int i = index + 1; i < elementsCount; i++) {
-                        ElementType next = sequenceElementType.getElementTypes()[i];
+                        DBNElementType next = sequenceElementType.getElementTypes()[i];
                         nextPossibleTokens.addAll(next.getLookupCache().getFirstPossibleTokens());
                         if (!sequenceElementType.isOptional(i)) {
                             parentElementType = null;
@@ -301,8 +301,8 @@ public abstract class AbstractElementTypeLookupCache<T extends ElementType> impl
     public Set<TokenType> getNextRequiredTokens() {
         if (nextRequiredTokens == null) {
             nextRequiredTokens = new THashSet<TokenType>();
-            ElementType elementType = getElementType();
-            ElementType parentElementType = elementType.getParent();
+            DBNElementType elementType = getElementType();
+            DBNElementType parentElementType = elementType.getParent();
             while (parentElementType != null) {
                 if (parentElementType instanceof SequenceElementType) {
                     SequenceElementType sequence = (SequenceElementType) parentElementType;
@@ -311,7 +311,7 @@ public abstract class AbstractElementTypeLookupCache<T extends ElementType> impl
 
                     for (int i = index + 1; i < elementsCount; i++) {
                         if (!sequence.isOptional(i)) {
-                            ElementType next = sequence.getElementTypes()[i];
+                            DBNElementType next = sequence.getElementTypes()[i];
                             nextRequiredTokens.addAll(next.getLookupCache().getFirstPossibleTokens());
                             parentElementType = null;
                             break;

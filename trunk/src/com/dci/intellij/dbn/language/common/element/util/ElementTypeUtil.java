@@ -1,14 +1,14 @@
 package com.dci.intellij.dbn.language.common.element.util;
 
-import com.dci.intellij.dbn.language.common.element.ElementType;
+import com.dci.intellij.dbn.language.common.element.DBNElementType;
 import com.dci.intellij.dbn.language.common.element.NamedElementType;
 import com.dci.intellij.dbn.language.common.element.path.PathNode;
 
 public class ElementTypeUtil {
-    public static ElementType getEnclosingElementType(PathNode pathNode, ElementTypeAttribute elementTypeAttribute) {
+    public static DBNElementType getEnclosingElementType(PathNode pathNode, ElementTypeAttribute elementTypeAttribute) {
         PathNode parentNode = pathNode.getParent();
         while (parentNode != null) {
-            ElementType elementType = parentNode.getElementType();
+            DBNElementType elementType = parentNode.getElementType();
             if (elementType.is(elementTypeAttribute)) return elementType;
             parentNode = parentNode.getParent();
         }
@@ -18,7 +18,7 @@ public class ElementTypeUtil {
     public static NamedElementType getEnclosingNamedElementType(PathNode pathNode) {
         PathNode parentNode = pathNode.getParent();
         while (parentNode != null) {
-            ElementType elementType = parentNode.getElementType();
+            DBNElementType elementType = parentNode.getElementType();
             if (elementType instanceof NamedElementType) return (NamedElementType) elementType;
             parentNode = parentNode.getParent();
         }

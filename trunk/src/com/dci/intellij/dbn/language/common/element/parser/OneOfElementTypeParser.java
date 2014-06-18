@@ -2,7 +2,7 @@ package com.dci.intellij.dbn.language.common.element.parser;
 
 import com.dci.intellij.dbn.language.common.ParseException;
 import com.dci.intellij.dbn.language.common.TokenType;
-import com.dci.intellij.dbn.language.common.element.ElementType;
+import com.dci.intellij.dbn.language.common.element.DBNElementType;
 import com.dci.intellij.dbn.language.common.element.OneOfElementType;
 import com.dci.intellij.dbn.language.common.element.path.ParsePathNode;
 import com.intellij.lang.PsiBuilder;
@@ -23,7 +23,7 @@ public class OneOfElementTypeParser extends AbstractElementTypeParser<OneOfEleme
         if (tokenType!= null && !tokenType.isChameleon()) {
             String tokenText = builder.getTokenText();
             // TODO !!!! if elementType is an identifier: then BUILD VARIANTS!!!
-            for (ElementType elementType : getElementType().getPossibleElementTypes()) {
+            for (DBNElementType elementType : getElementType().getPossibleElementTypes()) {
                 if (isDummyToken(tokenText) || elementType.getLookupCache().canStartWithToken(tokenType) || isSuppressibleReservedWord(tokenType, node)) {
                     ParseResult result = elementType.getParser().parse(node, builder, true, depth + 1, timestamp);
                     if (result.isMatch()) {

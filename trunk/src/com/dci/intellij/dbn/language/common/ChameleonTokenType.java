@@ -1,6 +1,6 @@
 package com.dci.intellij.dbn.language.common;
 
-import com.dci.intellij.dbn.language.common.element.ElementType;
+import com.dci.intellij.dbn.language.common.element.DBNElementType;
 import com.dci.intellij.dbn.language.common.element.ElementTypeBundle;
 import com.dci.intellij.dbn.language.common.element.lookup.ElementTypeLookupCache;
 import com.dci.intellij.dbn.language.common.element.parser.ElementTypeParser;
@@ -15,7 +15,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 
-public class ChameleonTokenType extends SimpleTokenType implements ElementType {
+public class ChameleonTokenType extends SimpleTokenType implements DBNElementType {
     private DBLanguageDialect injectedLanguage;
     public ChameleonTokenType(@Nullable DBLanguageDialect hostLanguage, DBLanguageDialect injectedLanguage) {
         super(injectedLanguage.getID() + " block", hostLanguage);
@@ -45,7 +45,7 @@ public class ChameleonTokenType extends SimpleTokenType implements ElementType {
         return null;
     }
 
-    public ElementType getParent() {
+    public DBNElementType getParent() {
         return null;
     }
 

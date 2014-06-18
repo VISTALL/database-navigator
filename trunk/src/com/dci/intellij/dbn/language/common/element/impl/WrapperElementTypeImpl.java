@@ -2,7 +2,7 @@ package com.dci.intellij.dbn.language.common.element.impl;
 
 import com.dci.intellij.dbn.code.common.style.formatting.FormattingDefinition;
 import com.dci.intellij.dbn.common.util.StringUtil;
-import com.dci.intellij.dbn.language.common.element.ElementType;
+import com.dci.intellij.dbn.language.common.element.DBNElementType;
 import com.dci.intellij.dbn.language.common.element.ElementTypeBundle;
 import com.dci.intellij.dbn.language.common.element.TokenElementType;
 import com.dci.intellij.dbn.language.common.element.WrapperElementType;
@@ -20,10 +20,10 @@ import java.util.List;
 public class WrapperElementTypeImpl extends AbstractElementType implements WrapperElementType {
     private TokenElementType beginTokenElement;
     private TokenElementType endTokenElement;
-    private ElementType wrappedElement;
+    private DBNElementType wrappedElement;
     private boolean isWrappingOptional;
 
-    public WrapperElementTypeImpl(ElementTypeBundle bundle, ElementType parent, String id, Element def) throws ElementTypeDefinitionException {
+    public WrapperElementTypeImpl(ElementTypeBundle bundle, DBNElementType parent, String id, Element def) throws ElementTypeDefinitionException {
         super(bundle, parent, id, def);
     }
 
@@ -88,7 +88,7 @@ public class WrapperElementTypeImpl extends AbstractElementType implements Wrapp
         return endTokenElement;
     }
 
-    public ElementType getWrappedElement() {
+    public DBNElementType getWrappedElement() {
         return wrappedElement;
     }
 

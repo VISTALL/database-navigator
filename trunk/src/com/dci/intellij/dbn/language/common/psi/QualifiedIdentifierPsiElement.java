@@ -1,6 +1,6 @@
 package com.dci.intellij.dbn.language.common.psi;
 
-import com.dci.intellij.dbn.language.common.element.ElementType;
+import com.dci.intellij.dbn.language.common.element.DBNElementType;
 import com.dci.intellij.dbn.language.common.element.IdentifierElementType;
 import com.dci.intellij.dbn.language.common.element.LeafElementType;
 import com.dci.intellij.dbn.language.common.element.QualifiedIdentifierElementType;
@@ -18,7 +18,7 @@ import java.util.List;
 public class QualifiedIdentifierPsiElement extends SequencePsiElement {
     List<QualifiedIdentifierVariant> parseVariants;
 
-    public QualifiedIdentifierPsiElement(ASTNode astNode, ElementType elementType) {
+    public QualifiedIdentifierPsiElement(ASTNode astNode, DBNElementType elementType) {
         super(astNode, elementType);
     }
 

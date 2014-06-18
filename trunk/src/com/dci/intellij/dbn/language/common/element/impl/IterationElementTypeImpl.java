@@ -2,7 +2,7 @@ package com.dci.intellij.dbn.language.common.element.impl;
 
 import com.dci.intellij.dbn.code.common.style.formatting.FormattingDefinition;
 import com.dci.intellij.dbn.language.common.TokenType;
-import com.dci.intellij.dbn.language.common.element.ElementType;
+import com.dci.intellij.dbn.language.common.element.DBNElementType;
 import com.dci.intellij.dbn.language.common.element.ElementTypeBundle;
 import com.dci.intellij.dbn.language.common.element.IterationElementType;
 import com.dci.intellij.dbn.language.common.element.TokenElementType;
@@ -20,11 +20,11 @@ import java.util.StringTokenizer;
 
 public class IterationElementTypeImpl extends AbstractElementType implements IterationElementType {
 
-    protected ElementType iteratedElementType;
+    protected DBNElementType iteratedElementType;
     protected TokenElementType[] separatorTokens;
     private int[] elementsCountVariants;
 
-    public IterationElementTypeImpl(ElementTypeBundle bundle, ElementType parent, String id, Element def) throws ElementTypeDefinitionException {
+    public IterationElementTypeImpl(ElementTypeBundle bundle, DBNElementType parent, String id, Element def) throws ElementTypeDefinitionException {
         super(bundle, parent, id, def);
     }
 
@@ -102,7 +102,7 @@ public class IterationElementTypeImpl extends AbstractElementType implements Ite
         return new SequencePsiElement(astNode, this);
     }
 
-    public ElementType getIteratedElementType() {
+    public DBNElementType getIteratedElementType() {
         return iteratedElementType;
     }
 

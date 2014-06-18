@@ -1,13 +1,13 @@
 package com.dci.intellij.dbn.language.common.element.path;
 
-import com.dci.intellij.dbn.language.common.element.ElementType;
+import com.dci.intellij.dbn.language.common.element.DBNElementType;
 
 public class BasicPathNode implements PathNode {
     private int currentSiblingPosition;
     private PathNode parent;
-    private ElementType elementType;
+    private DBNElementType elementType;
 
-    public BasicPathNode(ElementType elementType, PathNode parent, int currentSiblingPosition) {
+    public BasicPathNode(DBNElementType elementType, PathNode parent, int currentSiblingPosition) {
         this.elementType = elementType;
         this.parent = parent;
         this.currentSiblingPosition = currentSiblingPosition;
@@ -29,7 +29,7 @@ public class BasicPathNode implements PathNode {
         this.currentSiblingPosition = currentSiblingPosition;
     }
 
-    public ElementType getElementType() {
+    public DBNElementType getElementType() {
         return elementType;
     }
 
@@ -45,7 +45,7 @@ public class BasicPathNode implements PathNode {
         return this;
     }
 
-    public void setElementType(ElementType elementType) {
+    public void setElementType(DBNElementType elementType) {
         this.elementType = elementType;
     }
 
@@ -60,7 +60,7 @@ public class BasicPathNode implements PathNode {
         return false;
     }
 
-    public boolean isRecursive(ElementType elementType) {
+    public boolean isRecursive(DBNElementType elementType) {
         if (getElementType() == elementType) {
             return true;
         }

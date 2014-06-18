@@ -1,7 +1,7 @@
 package com.dci.intellij.dbn.language.common.element.parser;
 
 import com.dci.intellij.dbn.language.common.ParseException;
-import com.dci.intellij.dbn.language.common.element.ElementType;
+import com.dci.intellij.dbn.language.common.element.DBNElementType;
 import com.dci.intellij.dbn.language.common.element.WrapperElementType;
 import com.dci.intellij.dbn.language.common.element.path.ParsePathNode;
 import com.intellij.lang.PsiBuilder;
@@ -17,9 +17,9 @@ public class WrapperElementTypeParser extends AbstractElementTypeParser<WrapperE
         PsiBuilder.Marker marker = builder.mark();
 
         boolean isWrappingOptional = getElementType().isWrappingOptional();
-        ElementType wrappedElement = getElementType().getWrappedElement();
-        ElementType beginTokenElement = getElementType().getBeginTokenElement();
-        ElementType endTokenElement = getElementType().getEndTokenElement();
+        DBNElementType wrappedElement = getElementType().getWrappedElement();
+        DBNElementType beginTokenElement = getElementType().getBeginTokenElement();
+        DBNElementType endTokenElement = getElementType().getEndTokenElement();
 
         int matchedTokens = 0;
         boolean isWrapped = false;

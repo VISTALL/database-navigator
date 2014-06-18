@@ -3,7 +3,7 @@ package com.dci.intellij.dbn.language.common.psi;
 import com.dci.intellij.dbn.code.common.style.formatting.FormattingAttributes;
 import com.dci.intellij.dbn.common.util.StringUtil;
 import com.dci.intellij.dbn.language.common.element.BlockElementType;
-import com.dci.intellij.dbn.language.common.element.ElementType;
+import com.dci.intellij.dbn.language.common.element.DBNElementType;
 import com.dci.intellij.dbn.language.common.element.IterationElementType;
 import com.dci.intellij.dbn.language.common.element.NamedElementType;
 import com.dci.intellij.dbn.language.common.element.OneOfElementType;
@@ -21,7 +21,7 @@ import gnu.trove.THashSet;
 import java.util.Set;
 
 public class SequencePsiElement extends BasePsiElement {
-    public SequencePsiElement(ASTNode astNode, ElementType elementType) {
+    public SequencePsiElement(ASTNode astNode, DBNElementType elementType) {
         super(astNode, elementType);
     }
 
@@ -270,7 +270,7 @@ public class SequencePsiElement extends BasePsiElement {
         if (getElementType() instanceof SequenceElementType) {
             int offset = 0;
             SequenceElementType sequenceElementType = (SequenceElementType) getElementType();
-            ElementType[] elementTypes = sequenceElementType.getElementTypes();
+            DBNElementType[] elementTypes = sequenceElementType.getElementTypes();
 
 
             for (int i=0; i<elementTypes.length; i++) {
