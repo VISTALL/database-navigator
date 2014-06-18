@@ -63,11 +63,9 @@ public abstract class AbstractElementTypeParser<T extends DBNElementType> implem
             ParseBuilderErrorHandler.updateBuilderError(elementType.getLookupCache().getNextPossibleTokens(), context);
         }
         if (resultType == ParseResultType.NO_MATCH) {
-            context.getNesting().rollback(elementType);
             if (marker != null) marker.rollbackTo();
         } else {
             if (marker != null) marker.done((IElementType) elementType);
-            context.getNesting().check();
         }
 
         logEnd(resultType, depth);
