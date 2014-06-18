@@ -3,7 +3,7 @@ package com.dci.intellij.dbn.language.common.element.parser;
 import com.dci.intellij.dbn.language.common.ParseException;
 import com.dci.intellij.dbn.language.common.TokenType;
 import com.dci.intellij.dbn.language.common.element.BlockElementType;
-import com.dci.intellij.dbn.language.common.element.DBNElementType;
+import com.dci.intellij.dbn.language.common.element.ElementType;
 import com.dci.intellij.dbn.language.common.element.IdentifierElementType;
 import com.dci.intellij.dbn.language.common.element.IterationElementType;
 import com.dci.intellij.dbn.language.common.element.SequenceElementType;
@@ -25,7 +25,7 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends A
         SequenceElementType elementType = getElementType();
 
         ParsePathNode node = createParseNode(parentNode, builder.getCurrentOffset());
-        DBNElementType[] elementTypes = elementType.getElementTypes();
+        ElementType[] elementTypes = elementType.getElementTypes();
 
         PsiBuilder.Marker marker = builder.mark();
         int matches = 0;
@@ -108,7 +108,7 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends A
     }
 
     private boolean ignoreFirstMatch() {
-        DBNElementType firstElementType = getElementType().getElementTypes()[0];
+        ElementType firstElementType = getElementType().getElementTypes()[0];
         if (firstElementType instanceof IdentifierElementType) {
             IdentifierElementType identifierElementType = (IdentifierElementType) firstElementType;
             return !identifierElementType.isDefinition();

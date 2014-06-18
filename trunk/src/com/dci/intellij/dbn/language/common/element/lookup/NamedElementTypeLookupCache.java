@@ -1,7 +1,7 @@
 package com.dci.intellij.dbn.language.common.element.lookup;
 
 import com.dci.intellij.dbn.language.common.TokenType;
-import com.dci.intellij.dbn.language.common.element.DBNElementType;
+import com.dci.intellij.dbn.language.common.element.ElementType;
 import com.dci.intellij.dbn.language.common.element.LeafElementType;
 import com.dci.intellij.dbn.language.common.element.NamedElementType;
 import com.dci.intellij.dbn.language.common.element.path.BasicPathNode;
@@ -18,9 +18,9 @@ public class NamedElementTypeLookupCache extends SequenceElementTypeLookupCache<
     protected void registerLeafInParent(LeafElementType leaf) {
         // walk the tree up for all potential parents
         NamedElementType elementType = getElementType();
-        Set<DBNElementType> parents = elementType.getParents();
+        Set<ElementType> parents = elementType.getParents();
         if (parents != null) {
-            for (DBNElementType parentElementType: parents) {
+            for (ElementType parentElementType: parents) {
                 parentElementType.getLookupCache().registerLeaf(leaf, elementType);
             }
         }

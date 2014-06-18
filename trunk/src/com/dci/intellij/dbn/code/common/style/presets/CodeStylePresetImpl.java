@@ -1,6 +1,6 @@
 package com.dci.intellij.dbn.code.common.style.presets;
 
-import com.dci.intellij.dbn.language.common.element.DBNElementType;
+import com.dci.intellij.dbn.language.common.element.ElementType;
 import com.dci.intellij.dbn.language.common.psi.BasePsiElement;
 import com.intellij.psi.PsiElement;
 
@@ -34,7 +34,7 @@ public abstract class CodeStylePresetImpl implements CodeStylePreset {
         return null;
     }
 
-    protected static DBNElementType getParentElementType(PsiElement psiElement) {
+    protected static ElementType getParentElementType(PsiElement psiElement) {
         BasePsiElement parentPsiElement = getParentPsiElement(psiElement);
         if (parentPsiElement != null) {
             return parentPsiElement.getElementType();

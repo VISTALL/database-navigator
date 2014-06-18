@@ -8,7 +8,7 @@ import com.dci.intellij.dbn.editor.code.SourceCodeEditorManager;
 import com.dci.intellij.dbn.execution.statement.StatementGutterRenderer;
 import com.dci.intellij.dbn.execution.statement.processor.StatementExecutionProcessor;
 import com.dci.intellij.dbn.language.common.TokenTypeCategory;
-import com.dci.intellij.dbn.language.common.element.DBNElementType;
+import com.dci.intellij.dbn.language.common.element.ElementType;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dci.intellij.dbn.language.common.navigation.NavigateToDefinitionAction;
 import com.dci.intellij.dbn.language.common.navigation.NavigateToObjectAction;
@@ -36,7 +36,7 @@ public class PSQLLanguageAnnotator implements Annotator {
     public void annotate(@NotNull final PsiElement psiElement, @NotNull final AnnotationHolder holder) {
         if (psiElement instanceof BasePsiElement) {
             BasePsiElement basePsiElement = (BasePsiElement) psiElement;
-            DBNElementType elementType = basePsiElement.getElementType();
+            ElementType elementType = basePsiElement.getElementType();
             if (elementType.is(ElementTypeAttribute.OBJECT_SPECIFICATION) || elementType.is(ElementTypeAttribute.OBJECT_DECLARATION)) {
                 annotateSpecDeclarationNavigable(basePsiElement, holder);
             }
@@ -129,7 +129,7 @@ public class PSQLLanguageAnnotator implements Annotator {
         if (subjectPsiElement instanceof IdentifierPsiElement) {
             IdentifierPsiElement identifierPsiElement = (IdentifierPsiElement) subjectPsiElement;
             DBObjectType objectType = identifierPsiElement.getObjectType();
-            DBNElementType elementType = basePsiElement.getElementType();
+            ElementType elementType = basePsiElement.getElementType();
 
             if (identifierPsiElement.isObject() && objectType.getGenericType() == DBObjectType.METHOD) {
 

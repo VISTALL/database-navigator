@@ -1,6 +1,6 @@
 package com.dci.intellij.dbn.language.common.element.path;
 
-import com.dci.intellij.dbn.language.common.element.DBNElementType;
+import com.dci.intellij.dbn.language.common.element.ElementType;
 import com.dci.intellij.dbn.language.common.element.SequenceElementType;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiWhiteSpace;
@@ -37,13 +37,13 @@ public class ASTPathNode implements PathNode{
                     child = child.getTreeNext();
                 }
             }
-            return sequenceElementType.indexOf((DBNElementType) astNode.getElementType(), index);
+            return sequenceElementType.indexOf((ElementType) astNode.getElementType(), index);
         }
         return 0;
     }
 
-    public DBNElementType getElementType() {
-        return (DBNElementType) astNode.getElementType();
+    public ElementType getElementType() {
+        return (ElementType) astNode.getElementType();
     }
 
     public PathNode getRootPathNode() {
@@ -54,7 +54,7 @@ public class ASTPathNode implements PathNode{
         return false; 
     }
 
-    public boolean isRecursive(DBNElementType elementType) {
+    public boolean isRecursive(ElementType elementType) {
         return false;
     }
 

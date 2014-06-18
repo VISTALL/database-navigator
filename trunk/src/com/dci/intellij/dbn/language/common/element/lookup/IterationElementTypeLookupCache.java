@@ -1,7 +1,7 @@
 package com.dci.intellij.dbn.language.common.element.lookup;
 
 import com.dci.intellij.dbn.language.common.TokenType;
-import com.dci.intellij.dbn.language.common.element.DBNElementType;
+import com.dci.intellij.dbn.language.common.element.ElementType;
 import com.dci.intellij.dbn.language.common.element.IterationElementType;
 import com.dci.intellij.dbn.language.common.element.LeafElementType;
 import com.dci.intellij.dbn.language.common.element.TokenElementType;
@@ -12,15 +12,15 @@ public class IterationElementTypeLookupCache extends AbstractElementTypeLookupCa
         super(iterationElementType);
     }
 
-    public boolean isFirstPossibleLeaf(LeafElementType leaf, DBNElementType pathChild) {
-        DBNElementType iteratedElementType = getElementType().getIteratedElementType();
+    public boolean isFirstPossibleLeaf(LeafElementType leaf, ElementType pathChild) {
+        ElementType iteratedElementType = getElementType().getIteratedElementType();
         return pathChild == iteratedElementType &&
                 !canStartWithLeaf(leaf) &&
                 iteratedElementType.getLookupCache().canStartWithLeaf(leaf);
     }
 
-    public boolean isFirstRequiredLeaf(LeafElementType leaf, DBNElementType pathChild) {
-        DBNElementType iteratedElementType = getElementType().getIteratedElementType();
+    public boolean isFirstRequiredLeaf(LeafElementType leaf, ElementType pathChild) {
+        ElementType iteratedElementType = getElementType().getIteratedElementType();
         return pathChild == iteratedElementType &&
                 !shouldStartWithLeaf(leaf) &&
                 iteratedElementType.getLookupCache().shouldStartWithLeaf(leaf);

@@ -1,6 +1,6 @@
 package com.dci.intellij.dbn.code.common.style.presets.iteration;
 
-import com.dci.intellij.dbn.language.common.element.DBNElementType;
+import com.dci.intellij.dbn.language.common.element.ElementType;
 import com.dci.intellij.dbn.language.common.element.IterationElementType;
 import com.dci.intellij.dbn.language.common.psi.BasePsiElement;
 import com.intellij.formatting.Spacing;
@@ -15,7 +15,7 @@ public class IterationChopDownIfLongPreset extends IterationAbstractPreset {
     public Wrap getWrap(BasePsiElement psiElement, CodeStyleSettings settings) {
         BasePsiElement parentPsiElement = getParentPsiElement(psiElement);
         IterationElementType iterationElementType = (IterationElementType) parentPsiElement.getElementType();
-        DBNElementType elementType = psiElement.getElementType();
+        ElementType elementType = psiElement.getElementType();
 
         boolean shouldWrap = parentPsiElement.approximateLength() > settings.RIGHT_MARGIN;
         return getWrap(elementType, iterationElementType, shouldWrap);
@@ -24,7 +24,7 @@ public class IterationChopDownIfLongPreset extends IterationAbstractPreset {
     public Spacing getSpacing(BasePsiElement psiElement, CodeStyleSettings settings) {
         BasePsiElement parentPsiElement = getParentPsiElement(psiElement);
         IterationElementType iterationElementType = (IterationElementType) parentPsiElement.getElementType();
-        DBNElementType elementType = psiElement.getElementType();
+        ElementType elementType = psiElement.getElementType();
 
         boolean shouldWrap = parentPsiElement.approximateLength() > settings.RIGHT_MARGIN;
         return getSpacing(iterationElementType, elementType, shouldWrap);

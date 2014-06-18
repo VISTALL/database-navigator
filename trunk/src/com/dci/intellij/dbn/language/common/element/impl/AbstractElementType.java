@@ -9,7 +9,7 @@ import com.dci.intellij.dbn.common.LoggerFactory;
 import com.dci.intellij.dbn.common.util.StringUtil;
 import com.dci.intellij.dbn.language.common.DBLanguage;
 import com.dci.intellij.dbn.language.common.DBLanguageDialect;
-import com.dci.intellij.dbn.language.common.element.DBNElementType;
+import com.dci.intellij.dbn.language.common.element.ElementType;
 import com.dci.intellij.dbn.language.common.element.ElementTypeBundle;
 import com.dci.intellij.dbn.language.common.element.SequenceElementType;
 import com.dci.intellij.dbn.language.common.element.TokenElementType;
@@ -28,7 +28,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 
-public abstract class AbstractElementType extends IElementType implements DBNElementType {
+public abstract class AbstractElementType extends IElementType implements ElementType {
     private static final Logger LOGGER = LoggerFactory.createLogger();
     private static final FormattingDefinition STATEMENT_FORMATTING = new FormattingDefinition(null, IndentDefinition.NORMAL, SpacingDefinition.MIN_LINE_BREAK, null);
 
@@ -39,7 +39,7 @@ public abstract class AbstractElementType extends IElementType implements DBNEle
     private ElementTypeLookupCache lookupCache;
     private ElementTypeParser parser;
     private ElementTypeBundle bundle;
-    private DBNElementType parent;
+    private ElementType parent;
 
     private DBObjectType virtualObjectType;
     private boolean isVirtualObjectInsideLookup;
@@ -47,7 +47,7 @@ public abstract class AbstractElementType extends IElementType implements DBNEle
 
     protected WrappingDefinition wrapping;
 
-    public AbstractElementType(ElementTypeBundle bundle, DBNElementType parent, String id, @Nullable String description) {
+    public AbstractElementType(ElementTypeBundle bundle, ElementType parent, String id, @Nullable String description) {
         super(id, bundle.getLanguageDialect(), false);
         this.id = id;
         this.description = description;
@@ -57,7 +57,7 @@ public abstract class AbstractElementType extends IElementType implements DBNEle
         this.parser = createParser();
     }
 
-    public AbstractElementType(ElementTypeBundle bundle, DBNElementType parent, String id, Element def) throws ElementTypeDefinitionException {
+    public AbstractElementType(ElementTypeBundle bundle, ElementType parent, String id, Element def) throws ElementTypeDefinitionException {
         super(id, bundle.getLanguageDialect(), false);
         this.id = def.getAttributeValue("id");
         if (!id.equals(this.id)) {
@@ -156,7 +156,7 @@ public abstract class AbstractElementType extends IElementType implements DBNEle
         return icon;
     }
 
-    public DBNElementType getParent() {
+    public ElementType getParent() {
         return parent;
     }
 

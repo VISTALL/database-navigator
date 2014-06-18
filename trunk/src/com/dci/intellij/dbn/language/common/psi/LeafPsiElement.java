@@ -1,7 +1,7 @@
 package com.dci.intellij.dbn.language.common.psi;
 
 import com.dci.intellij.dbn.connection.ConnectionHandler;
-import com.dci.intellij.dbn.language.common.element.DBNElementType;
+import com.dci.intellij.dbn.language.common.element.ElementType;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dci.intellij.dbn.language.common.psi.lookup.ObjectDefinitionLookupAdapter;
 import com.dci.intellij.dbn.language.common.psi.lookup.PsiLookupAdapter;
@@ -23,7 +23,7 @@ import java.util.Set;
 
 public abstract class LeafPsiElement extends BasePsiElement implements PsiReference {
 
-    public LeafPsiElement(ASTNode astNode, DBNElementType elementType) {
+    public LeafPsiElement(ASTNode astNode, ElementType elementType) {
         super(astNode, elementType);
     }
 

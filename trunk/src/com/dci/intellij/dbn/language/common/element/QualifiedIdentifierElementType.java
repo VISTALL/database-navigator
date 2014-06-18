@@ -4,7 +4,7 @@ import com.dci.intellij.dbn.object.common.DBObjectType;
 
 import java.util.List;
 
-public interface QualifiedIdentifierElementType extends DBNElementType {
+public interface QualifiedIdentifierElementType extends ElementType {
     List<LeafElementType[]> getVariants();
 
     TokenElementType getSeparatorToken();

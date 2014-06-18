@@ -1,12 +1,12 @@
 package com.dci.intellij.dbn.language.common.element;
 
-public interface WrapperElementType extends DBNElementType {
+public interface WrapperElementType extends ElementType {
 
     TokenElementType getBeginTokenElement();
 
     TokenElementType getEndTokenElement();
 
-    DBNElementType getWrappedElement();
+    ElementType getWrappedElement();
 
     boolean isWrappingOptional();
 }

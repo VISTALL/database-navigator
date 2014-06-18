@@ -2,7 +2,7 @@ package com.dci.intellij.dbn.language.common.element.impl;
 
 import com.dci.intellij.dbn.code.common.completion.options.filter.CodeCompletionFilterSettings;
 import com.dci.intellij.dbn.language.common.TokenType;
-import com.dci.intellij.dbn.language.common.element.DBNElementType;
+import com.dci.intellij.dbn.language.common.element.ElementType;
 import com.dci.intellij.dbn.language.common.element.ElementTypeBundle;
 import com.dci.intellij.dbn.language.common.element.IterationElementType;
 import com.dci.intellij.dbn.language.common.element.LeafElementType;
@@ -25,11 +25,11 @@ public abstract class LeafElementTypeImpl extends AbstractElementType implements
 
     private boolean optional;
 
-    public LeafElementTypeImpl(ElementTypeBundle bundle, DBNElementType parent, String id, Element def) throws ElementTypeDefinitionException {
+    public LeafElementTypeImpl(ElementTypeBundle bundle, ElementType parent, String id, Element def) throws ElementTypeDefinitionException {
         super(bundle, parent, id, def);
     }
 
-    public LeafElementTypeImpl(ElementTypeBundle bundle, DBNElementType parent, String id, String description) throws ElementTypeDefinitionException {
+    public LeafElementTypeImpl(ElementTypeBundle bundle, ElementType parent, String id, String description) throws ElementTypeDefinitionException {
         super(bundle, parent, id, description);
     }
 
@@ -61,10 +61,10 @@ public abstract class LeafElementTypeImpl extends AbstractElementType implements
         return true;
     }
 
-    public DBNElementType getPreviousElement(PathNode pathNode) {
+    public ElementType getPreviousElement(PathNode pathNode) {
         int position = 0;
         while (pathNode != null) {
-            DBNElementType elementType = pathNode.getElementType();
+            ElementType elementType = pathNode.getElementType();
             if (elementType instanceof SequenceElementType) {
                 SequenceElementType sequenceElementType = (SequenceElementType) elementType;
                 if (position > 0 ) {
@@ -78,7 +78,7 @@ public abstract class LeafElementTypeImpl extends AbstractElementType implements
     }
 
     public Set<LeafElementType> getAlternativeLeafs(PathNode pathNode) {
-        DBNElementType previousElementType = getPreviousElement(pathNode);
+        ElementType previousElementType = getPreviousElement(pathNode);
         // FIXME ----------- implement this
         return previousElementType.getLookupCache().getFirstPossibleLeafs();
     }
@@ -87,7 +87,7 @@ public abstract class LeafElementTypeImpl extends AbstractElementType implements
         Set<LeafElementType> possibleLeafs = new THashSet<LeafElementType>();
         int position = 0;
         while (pathNode != null) {
-            DBNElementType elementType = pathNode.getElementType();
+            ElementType elementType = pathNode.getElementType();
 
             if (elementType instanceof SequenceElementType) {
                 SequenceElementType sequenceElementType = (SequenceElementType) elementType;
@@ -95,7 +95,7 @@ public abstract class LeafElementTypeImpl extends AbstractElementType implements
                 int elementsCount = sequenceElementType.getElementTypes().length;
 
                 for (int i=position+1; i<elementsCount; i++) {
-                    DBNElementType next = sequenceElementType.getElementTypes()[i];
+                    ElementType next = sequenceElementType.getElementTypes()[i];
                     possibleLeafs.addAll(next.getLookupCache().getFirstPossibleLeafs());
                     if (!sequenceElementType.isOptional(i)) {
                         pathNode = null;
@@ -128,7 +128,7 @@ public abstract class LeafElementTypeImpl extends AbstractElementType implements
         Set<LeafElementType> requiredLeafs = new THashSet<LeafElementType>();
         int index = 0;
         while (pathNode != null) {
-            DBNElementType elementType = pathNode.getElementType();
+            ElementType elementType = pathNode.getElementType();
 
             if (elementType instanceof SequenceElementType) {
                 SequenceElementType sequenceElementType = (SequenceElementType) elementType;
@@ -136,7 +136,7 @@ public abstract class LeafElementTypeImpl extends AbstractElementType implements
 
                 for (int i=index+1; i<elementsCount; i++) {
                     if (!sequenceElementType.isOptional(i)) {
-                        DBNElementType next = sequenceElementType.getElementTypes()[i];
+                        ElementType next = sequenceElementType.getElementTypes()[i];
                         requiredLeafs.addAll(next.getLookupCache().getFirstRequiredLeafs());
                         pathNode = null;
                         break;
@@ -177,7 +177,7 @@ public abstract class LeafElementTypeImpl extends AbstractElementType implements
                     child = child.getTreeNext();
                 }
             }
-            return sequenceElementType.indexOf((DBNElementType) astNode.getElementType(), index);
+            return sequenceElementType.indexOf((ElementType) astNode.getElementType(), index);
         }
         return 0;
     }

@@ -1,7 +1,7 @@
 package com.dci.intellij.dbn.code.common.style.presets.iteration;
 
 import com.dci.intellij.dbn.code.common.style.presets.CodeStylePresetImpl;
-import com.dci.intellij.dbn.language.common.element.DBNElementType;
+import com.dci.intellij.dbn.language.common.element.ElementType;
 import com.dci.intellij.dbn.language.common.element.IterationElementType;
 import com.dci.intellij.dbn.language.common.element.TokenElementType;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeAttribute;
@@ -19,7 +19,7 @@ public abstract class IterationAbstractPreset extends CodeStylePresetImpl {
                 getParentElementType(psiElement) instanceof IterationElementType;
     }
 
-    protected Wrap getWrap(DBNElementType elementType, IterationElementType iterationElementType, boolean shouldWrap) {
+    protected Wrap getWrap(ElementType elementType, IterationElementType iterationElementType, boolean shouldWrap) {
         if (shouldWrap) {
             if (elementType instanceof TokenElementType) {
                 TokenElementType tokenElementType = (TokenElementType) elementType;
@@ -33,7 +33,7 @@ public abstract class IterationAbstractPreset extends CodeStylePresetImpl {
         }
     }
 
-    protected Spacing getSpacing(IterationElementType iterationElementType, DBNElementType elementType, boolean shouldWrap) {
+    protected Spacing getSpacing(IterationElementType iterationElementType, ElementType elementType, boolean shouldWrap) {
         if (elementType instanceof TokenElementType) {
             TokenElementType tokenElementType = (TokenElementType) elementType;
             if (iterationElementType.isSeparator(tokenElementType)) {

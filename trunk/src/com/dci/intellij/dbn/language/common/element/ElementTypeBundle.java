@@ -37,12 +37,12 @@ public class ElementTypeBundle {
     private UnknownElementType unknownElementType;
     private NamedElementType rootElementType;
 
-    private Set<DBNElementType> complexElementTypes = new THashSet<DBNElementType>();
+    private Set<ElementType> complexElementTypes = new THashSet<ElementType>();
     private Set<LeafElementType> leafElementTypes = new THashSet<LeafElementType>();
     private Set<WrapperElementType> wrapperElementTypes = new THashSet<WrapperElementType>();
     private Set<OneOfElementType> oneOfElementTypes = new THashSet<OneOfElementType>();
     private final Map<String, NamedElementType> namedElementTypes = new THashMap<String, NamedElementType>();
-    private final Set<DBNElementType> virtualObjectElementTypes = new THashSet<DBNElementType>();
+    private final Set<ElementType> virtualObjectElementTypes = new THashSet<ElementType>();
     private final DBLanguageDialect languageDialect;
     private boolean rewriteIndexes;
 
@@ -81,7 +81,7 @@ public class ElementTypeBundle {
                 wrapperElementType.getEndTokenElement().registerLeaf();
             }
 
-            for (DBNElementType virtualObjectElementType : virtualObjectElementTypes) {
+            for (ElementType virtualObjectElementType : virtualObjectElementTypes) {
                 virtualObjectElementType.registerVirtualObject(virtualObjectElementType.getVirtualObjectType());
             }
 
@@ -103,7 +103,7 @@ public class ElementTypeBundle {
         }
     }
 
-    public Set<DBNElementType> getComplexElementTypes() {
+    public Set<ElementType> getComplexElementTypes() {
         return complexElementTypes;
     }
 
@@ -149,8 +149,8 @@ public class ElementTypeBundle {
         return value;
     }
 
-    public DBNElementType resolveElementDefinition(Element def, String type, DBNElementType parent) throws ElementTypeDefinitionException {
-        DBNElementType result;
+    public ElementType resolveElementDefinition(Element def, String type, ElementType parent) throws ElementTypeDefinitionException {
+        ElementType result;
         if (ElementTypeDefinition.SEQUENCE.is(type)){
             result = new SequenceElementTypeImpl(this, parent, createId(), def);
             log.debug("Created sequence element definition");
@@ -219,7 +219,7 @@ public class ElementTypeBundle {
         return elementType;
     }*/
 
-    protected synchronized NamedElementType getNamedElementType(String id, DBNElementType parent) {
+    protected synchronized NamedElementType getNamedElementType(String id, ElementType parent) {
         NamedElementType elementType = namedElementTypes.get(id);
         if (elementType == null) {
             elementType = new NamedElementTypeImpl(this, id);

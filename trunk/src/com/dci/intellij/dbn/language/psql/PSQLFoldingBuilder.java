@@ -1,6 +1,6 @@
 package com.dci.intellij.dbn.language.psql;
 
-import com.dci.intellij.dbn.language.common.element.DBNElementType;
+import com.dci.intellij.dbn.language.common.element.ElementType;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dci.intellij.dbn.language.common.psi.BasePsiElement;
 import com.dci.intellij.dbn.language.common.psi.ChameleonPsiElement;
@@ -41,7 +41,7 @@ public class PSQLFoldingBuilder implements FoldingBuilder {
             }
             if (child instanceof BasePsiElement) {
                 BasePsiElement basePsiElement = (BasePsiElement) child;
-                DBNElementType elementType = basePsiElement.getElementType();
+                ElementType elementType = basePsiElement.getElementType();
                 int blockEndOffset = basePsiElement.getTextOffset() + basePsiElement.getTextLength();
 
                 boolean folded = false;

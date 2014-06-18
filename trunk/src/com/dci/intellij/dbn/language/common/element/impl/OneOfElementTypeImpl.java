@@ -1,7 +1,7 @@
 package com.dci.intellij.dbn.language.common.element.impl;
 
 import com.dci.intellij.dbn.language.common.TokenType;
-import com.dci.intellij.dbn.language.common.element.DBNElementType;
+import com.dci.intellij.dbn.language.common.element.ElementType;
 import com.dci.intellij.dbn.language.common.element.ElementTypeBundle;
 import com.dci.intellij.dbn.language.common.element.OneOfElementType;
 import com.dci.intellij.dbn.language.common.element.lookup.OneOfElementTypeLookupCache;
@@ -19,14 +19,14 @@ import java.util.List;
 import java.util.Set;
 
 public class OneOfElementTypeImpl extends AbstractElementType implements OneOfElementType {
-    protected final DBNElementType[] elementTypes;
+    protected final ElementType[] elementTypes;
     private boolean sortable;
 
-    public OneOfElementTypeImpl(ElementTypeBundle bundle, DBNElementType parent, String id, Element def) throws ElementTypeDefinitionException {
+    public OneOfElementTypeImpl(ElementTypeBundle bundle, ElementType parent, String id, Element def) throws ElementTypeDefinitionException {
         super(bundle, parent, id, def);
         List children = def.getChildren();
 
-        elementTypes = new DBNElementType[children.size()];
+        elementTypes = new ElementType[children.size()];
 
         for (int i=0; i<children.size(); i++) {
             Element child = (Element) children.get(i);
@@ -48,8 +48,8 @@ public class OneOfElementTypeImpl extends AbstractElementType implements OneOfEl
 
     public void warnAmbiguousBranches() {
         Set<TokenType> ambiguousTokenTypes = new THashSet<TokenType>();
-        Set<DBNElementType> ambiguousElementTypes = new THashSet<DBNElementType>();
-        for (DBNElementType elementType : elementTypes) {
+        Set<ElementType> ambiguousElementTypes = new THashSet<ElementType>();
+        for (ElementType elementType : elementTypes) {
             Set<TokenType> possibleTokens = elementType.getLookupCache().getFirstPossibleTokens();
             for (TokenType possibleToken : possibleTokens) {
                 if (ambiguousTokenTypes.contains(possibleToken)) {
@@ -60,7 +60,7 @@ public class OneOfElementTypeImpl extends AbstractElementType implements OneOfEl
         }
         if (ambiguousElementTypes.size() > 0) {
             StringBuilder message = new StringBuilder("WARNING - ambiguous one-of elements [").append(getId()).append("] " );
-            for (DBNElementType elementType : ambiguousElementTypes) {
+            for (ElementType elementType : ambiguousElementTypes) {
                 message.append(elementType.getId()).append(" ");
             }
             System.out.println(message.toString());
@@ -89,8 +89,8 @@ public class OneOfElementTypeImpl extends AbstractElementType implements OneOfEl
 
     private static final Comparator ONE_OF_COMPARATOR = new Comparator() {
         public int compare(Object o1, Object o2) {
-            DBNElementType et1 = (DBNElementType) o1;
-            DBNElementType et2 = (DBNElementType) o2;
+            ElementType et1 = (ElementType) o1;
+            ElementType et2 = (ElementType) o2;
 
             int i1 = et1.getLookupCache().startsWithIdentifier() ? 1 : 2;
             int i2 = et2.getLookupCache().startsWithIdentifier() ? 1 : 2;
@@ -98,7 +98,7 @@ public class OneOfElementTypeImpl extends AbstractElementType implements OneOfEl
         }
     };
 
-    public DBNElementType[] getPossibleElementTypes() {
+    public ElementType[] getPossibleElementTypes() {
         return elementTypes;
     }
 }
