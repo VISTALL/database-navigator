@@ -1,4 +1,4 @@
-package com.dci.intellij.dbn.language.common.element.parser;
+package com.dci.intellij.dbn.language.common.element.parser.impl;
 
 import com.dci.intellij.dbn.language.common.ParseException;
 import com.dci.intellij.dbn.language.common.TokenType;
@@ -7,6 +7,11 @@ import com.dci.intellij.dbn.language.common.element.ElementType;
 import com.dci.intellij.dbn.language.common.element.IdentifierElementType;
 import com.dci.intellij.dbn.language.common.element.IterationElementType;
 import com.dci.intellij.dbn.language.common.element.SequenceElementType;
+import com.dci.intellij.dbn.language.common.element.parser.AbstractElementTypeParser;
+import com.dci.intellij.dbn.language.common.element.parser.ParseResult;
+import com.dci.intellij.dbn.language.common.element.parser.ParseResultType;
+import com.dci.intellij.dbn.language.common.element.parser.ParserBuilder;
+import com.dci.intellij.dbn.language.common.element.parser.ParserContext;
 import com.dci.intellij.dbn.language.common.element.path.ParsePathNode;
 import com.dci.intellij.dbn.language.common.element.path.PathNode;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeAttribute;
@@ -138,7 +143,7 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends A
             TokenType tokenType = builder.getTokenType();
             int newIndex = getLandmarkIndex(tokenType, index, parentNode);
             if (newIndex == index) {
-                builder.advanceLexer();
+                builder.advanceLexer(parentNode);
             }
         }
 
@@ -149,7 +154,7 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends A
 
                 // no landmark hit -> spool the builder
                 if (newIndex == 0) {
-                    builder.advanceLexer();
+                    builder.advanceLexer(parentNode);
                 } else {
                     markerDone(marker, getElementBundle().getUnknownElementType());
                     return newIndex;

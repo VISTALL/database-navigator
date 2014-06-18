@@ -1,16 +1,22 @@
 package com.dci.intellij.dbn.language.common.element.parser;
 
+import com.dci.intellij.dbn.language.common.DBLanguageDialect;
 import com.dci.intellij.dbn.language.common.TokenType;
+import com.dci.intellij.dbn.language.common.element.path.ParsePathNode;
 import com.intellij.lang.PsiBuilder;
 
 public class ParserBuilder {
     private PsiBuilder builder;
+    private NestedRangeMonitor monitor;
 
-    public ParserBuilder(PsiBuilder builder) {
+
+    public ParserBuilder(PsiBuilder builder, DBLanguageDialect languageDialect) {
         this.builder = builder;
+        this.monitor = new NestedRangeMonitor(builder, languageDialect);
     }
 
-    public void advanceLexer() {
+    public void advanceLexer(ParsePathNode node) {
+        monitor.compute(node);
         builder.advanceLexer();
     }
 

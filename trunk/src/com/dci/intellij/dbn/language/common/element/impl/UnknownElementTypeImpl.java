@@ -3,7 +3,7 @@ package com.dci.intellij.dbn.language.common.element.impl;
 import com.dci.intellij.dbn.language.common.element.ElementTypeBundle;
 import com.dci.intellij.dbn.language.common.element.UnknownElementType;
 import com.dci.intellij.dbn.language.common.element.lookup.UnknownElementTypeLookupCache;
-import com.dci.intellij.dbn.language.common.element.parser.UnknownElementTypeParser;
+import com.dci.intellij.dbn.language.common.element.parser.impl.UnknownElementTypeParser;
 import com.dci.intellij.dbn.language.common.psi.UnknownPsiElement;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;

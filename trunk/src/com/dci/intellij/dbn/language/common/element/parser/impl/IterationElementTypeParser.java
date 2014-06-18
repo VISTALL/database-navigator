@@ -1,4 +1,4 @@
-package com.dci.intellij.dbn.language.common.element.parser;
+package com.dci.intellij.dbn.language.common.element.parser.impl;
 
 import com.dci.intellij.dbn.language.common.ParseException;
 import com.dci.intellij.dbn.language.common.TokenType;
@@ -7,6 +7,11 @@ import com.dci.intellij.dbn.language.common.element.IterationElementType;
 import com.dci.intellij.dbn.language.common.element.SequenceElementType;
 import com.dci.intellij.dbn.language.common.element.TokenElementType;
 import com.dci.intellij.dbn.language.common.element.UnknownElementType;
+import com.dci.intellij.dbn.language.common.element.parser.AbstractElementTypeParser;
+import com.dci.intellij.dbn.language.common.element.parser.ParseResult;
+import com.dci.intellij.dbn.language.common.element.parser.ParseResultType;
+import com.dci.intellij.dbn.language.common.element.parser.ParserBuilder;
+import com.dci.intellij.dbn.language.common.element.parser.ParserContext;
 import com.dci.intellij.dbn.language.common.element.path.IterationParsePathNode;
 import com.dci.intellij.dbn.language.common.element.path.ParsePathNode;
 import com.intellij.lang.PsiBuilder;
@@ -132,7 +137,7 @@ public class IterationElementTypeParser extends AbstractElementTypeParser<Iterat
                     parseNode = parseNode.getParent();
                 }
             }
-            builder.advanceLexer();
+            builder.advanceLexer(parentParseNode);
             advanced = true;
         }
         if (advanced || !lenient)

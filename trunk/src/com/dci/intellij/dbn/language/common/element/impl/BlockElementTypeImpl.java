@@ -4,7 +4,7 @@ import com.dci.intellij.dbn.language.common.element.BlockElementType;
 import com.dci.intellij.dbn.language.common.element.ElementType;
 import com.dci.intellij.dbn.language.common.element.ElementTypeBundle;
 import com.dci.intellij.dbn.language.common.element.lookup.BlockElementTypeLookupCache;
-import com.dci.intellij.dbn.language.common.element.parser.BlockElementTypeParser;
+import com.dci.intellij.dbn.language.common.element.parser.impl.BlockElementTypeParser;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeDefinitionException;
 import com.dci.intellij.dbn.language.common.psi.BlockPsiElement;
 import com.intellij.lang.ASTNode;

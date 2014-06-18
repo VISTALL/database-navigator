@@ -4,7 +4,7 @@ import com.dci.intellij.dbn.language.common.element.ElementType;
 import com.dci.intellij.dbn.language.common.element.ElementTypeBundle;
 import com.dci.intellij.dbn.language.common.element.NamedElementType;
 import com.dci.intellij.dbn.language.common.element.lookup.NamedElementTypeLookupCache;
-import com.dci.intellij.dbn.language.common.element.parser.NamedElementTypeParser;
+import com.dci.intellij.dbn.language.common.element.parser.impl.NamedElementTypeParser;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeDefinitionException;
 import com.dci.intellij.dbn.language.common.psi.ExecutablePsiElement;
