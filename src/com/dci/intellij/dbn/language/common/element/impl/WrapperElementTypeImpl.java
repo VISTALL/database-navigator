@@ -18,8 +18,7 @@ import org.jdom.Element;
 import java.util.List;
 
 public class WrapperElementTypeImpl extends AbstractElementType implements WrapperElementType {
-    private TokenElementType beginTokenElement;
-    private TokenElementType endTokenElement;
+    private WrappingDefinition wrappingDefinition;
     private DBNElementType wrappedElement;
     private boolean isWrappingOptional;
 
@@ -32,6 +31,9 @@ public class WrapperElementTypeImpl extends AbstractElementType implements Wrapp
         super.loadDefinition(def);
         ElementTypeBundle bundle = getElementBundle();
         String templateId = def.getAttributeValue("template");
+
+        TokenElementType beginTokenElement;
+        TokenElementType endTokenElement;
         if (StringUtil.isEmpty(templateId)) {
             String startTokenId = def.getAttributeValue("begin-token");
             String endTokenId = def.getAttributeValue("end-token");
@@ -48,8 +50,10 @@ public class WrapperElementTypeImpl extends AbstractElementType implements Wrapp
                 endTokenElement.setDefaultFormatting(FormattingDefinition.LINE_BREAK_BEFORE);
                 setDefaultFormatting(FormattingDefinition.LINE_BREAK_BEFORE);
             }
-
         }
+
+        wrappingDefinition = new WrappingDefinition(beginTokenElement, endTokenElement);
+
 
         List children = def.getChildren();
         if (children.size() != 1) {
@@ -81,11 +85,11 @@ public class WrapperElementTypeImpl extends AbstractElementType implements Wrapp
     }
 
     public TokenElementType getBeginTokenElement() {
-        return beginTokenElement;
+        return wrappingDefinition.getBeginElementType();
     }
 
     public TokenElementType getEndTokenElement() {
-        return endTokenElement;
+        return wrappingDefinition.getEndElementType();
     }
 
     public DBNElementType getWrappedElement() {

@@ -18,6 +18,7 @@ public class BlockElementTypeParser extends SequenceElementTypeParser<BlockEleme
             marker.drop();
         } else {
             marker.done((IElementType) getElementType());
+            context.getNesting().check();
         }
         return result.getType() == ParseResultType.NO_MATCH ?
                 ParseResult.createNoMatchResult() :

@@ -1,13 +1,15 @@
 package com.dci.intellij.dbn.language.common.element.parser;
 
+import com.dci.intellij.dbn.language.common.DBLanguageDialect;
 import com.intellij.lang.PsiBuilder;
 
 public class ParserContext {
     private long timestamp = System.currentTimeMillis();
     private PsiBuilder builder;
-    private NestedRangeMonitor rangeMonitor = new NestedRangeMonitor();
+    private NestedRangeMonitor nesting;
 
-    public ParserContext(PsiBuilder builder) {
+    public ParserContext(DBLanguageDialect languageDialect, PsiBuilder builder) {
+        this.nesting = new NestedRangeMonitor(languageDialect, builder);
         this.builder = builder;
     }
 
@@ -19,7 +21,7 @@ public class ParserContext {
         return builder;
     }
 
-    public NestedRangeMonitor getRangeMonitor() {
-        return rangeMonitor;
+    public NestedRangeMonitor getNesting() {
+        return nesting;
     }
 }

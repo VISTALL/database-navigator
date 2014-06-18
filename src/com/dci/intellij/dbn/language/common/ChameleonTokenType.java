@@ -2,6 +2,7 @@ package com.dci.intellij.dbn.language.common;
 
 import com.dci.intellij.dbn.language.common.element.DBNElementType;
 import com.dci.intellij.dbn.language.common.element.ElementTypeBundle;
+import com.dci.intellij.dbn.language.common.element.impl.WrappingDefinition;
 import com.dci.intellij.dbn.language.common.element.lookup.ElementTypeLookupCache;
 import com.dci.intellij.dbn.language.common.element.parser.ElementTypeParser;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeAttribute;
@@ -95,6 +96,11 @@ public class ChameleonTokenType extends SimpleTokenType implements DBNElementTyp
 
     @Override
     public ElementTypeAttributesBundle getAttributes() {
+        return null;
+    }
+
+    @Override
+    public WrappingDefinition getWrapping() {
         return null;
     }
 }

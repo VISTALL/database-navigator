@@ -6,6 +6,7 @@ import com.dci.intellij.dbn.language.common.element.DBNElementType;
 import com.dci.intellij.dbn.language.common.element.IterationElementType;
 import com.dci.intellij.dbn.language.common.element.SequenceElementType;
 import com.dci.intellij.dbn.language.common.element.TokenElementType;
+import com.dci.intellij.dbn.language.common.element.UnknownElementType;
 import com.dci.intellij.dbn.language.common.element.path.IterationParsePathNode;
 import com.dci.intellij.dbn.language.common.element.path.ParsePathNode;
 import com.intellij.lang.PsiBuilder;
@@ -99,6 +100,7 @@ public class IterationElementTypeParser extends AbstractElementTypeParser<Iterat
             getErrorHandler().updateBuilderError(iteratedElementType.getLookupCache().getFirstPossibleTokens(), context);
         }
         boolean advanced = false;
+        UnknownElementType unknownElementType = getElementBundle().getUnknownElementType();
         while (!builder.eof()) {
             TokenType tokenType = (TokenType) builder.getTokenType();
             if (tokenType == null || tokenType.isChameleon())  break;
@@ -107,7 +109,7 @@ public class IterationElementTypeParser extends AbstractElementTypeParser<Iterat
                 if (separatorTokens != null) {
                     for (TokenElementType separatorToken : separatorTokens) {
                         if (separatorToken.getLookupCache().containsLandmarkToken(tokenType)) {
-                            markerDone(marker, getElementBundle().getUnknownElementType());
+                            markerDone(marker, unknownElementType);
                             return false;
                         }
                     }
@@ -119,7 +121,7 @@ public class IterationElementTypeParser extends AbstractElementTypeParser<Iterat
                         SequenceElementType sequenceElementType = (SequenceElementType) parseNode.getElementType();
                         int index = parseNode.getCurrentSiblingPosition();
                         if ( sequenceElementType.containsLandmarkTokenFromIndex(tokenType, index + 1)) {
-                            if (advanced || !lenient) markerDone(marker, getElementBundle().getUnknownElementType());
+                            if (advanced || !lenient) markerDone(marker, unknownElementType);
                             else  marker.rollbackTo();
                             return true;
                         }
@@ -128,11 +130,21 @@ public class IterationElementTypeParser extends AbstractElementTypeParser<Iterat
                     parseNode = parseNode.getParent();
                 }
             }
+
             builder.advanceLexer();
+            NestedRangeMonitor.RangeMarker rangeMarker = context.getNesting().check();
+            if (rangeMarker != null) {
+                markerDone(marker, unknownElementType);
+                context.getNesting().close(rangeMarker);
+                return true;
+            }
             advanced = true;
         }
-        if (advanced || !lenient) markerDone(marker, getElementBundle().getUnknownElementType());
-        else marker.rollbackTo();
+        if (advanced || !lenient) {
+            markerDone(marker, unknownElementType);
+        } else {
+            marker.rollbackTo();
+        }
         return true;
     }
 
