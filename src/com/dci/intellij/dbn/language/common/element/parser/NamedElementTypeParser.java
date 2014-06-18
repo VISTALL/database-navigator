@@ -11,11 +11,12 @@ public class NamedElementTypeParser extends SequenceElementTypeParser<NamedEleme
         super(elementType);
     }
 
-    public ParseResult parse(ParsePathNode parentNode, PsiBuilder builder, boolean optional, int depth, long timestamp) throws ParseException {
+    public ParseResult parse(ParsePathNode parentNode, boolean optional, int depth, ParserContext context) throws ParseException {
+        PsiBuilder builder = context.getBuilder();
         if (isRecursive(parentNode, builder.getCurrentOffset(), 2)) {
             return ParseResult.createNoMatchResult();
         }
-        return super.parse(parentNode, builder, optional, depth, timestamp);
+        return super.parse(parentNode, optional, depth, context);
     }
 
     protected boolean isRecursive(ParsePathNode parseNode, int builderOffset, int iterations){

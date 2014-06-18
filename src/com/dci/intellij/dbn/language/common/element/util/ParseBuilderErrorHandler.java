@@ -3,6 +3,7 @@ package com.dci.intellij.dbn.language.common.element.util;
 import com.dci.intellij.dbn.common.util.StringUtil;
 import com.dci.intellij.dbn.language.common.TokenType;
 import com.dci.intellij.dbn.language.common.element.DBNElementType;
+import com.dci.intellij.dbn.language.common.element.parser.ParserContext;
 import com.intellij.lang.PsiBuilder;
 import gnu.trove.THashSet;
 
@@ -49,9 +50,10 @@ public class ParseBuilderErrorHandler {
     }
 
 
-    public static void updateBuilderError(PsiBuilder builder, Set<TokenType> expectedTokens, long timestamp) {
+    public static void updateBuilderError(Set<TokenType> expectedTokens, ParserContext context) {
+        PsiBuilder builder = context.getBuilder();
         int offset = builder.getCurrentOffset();
-        if (ParseBuilderErrorWatcher.show(offset, timestamp)) {
+        if (ParseBuilderErrorWatcher.show(offset, context.getTimestamp())) {
 
             Set<String> tokenDescriptions = new THashSet<String>(expectedTokens.size());
             for (TokenType tokenType : expectedTokens) {

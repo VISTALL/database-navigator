@@ -12,7 +12,8 @@ public class OneOfElementTypeParser extends AbstractElementTypeParser<OneOfEleme
         super(elementType);
     }
 
-    public ParseResult parse(ParsePathNode parentNode, PsiBuilder builder, boolean optional, int depth, long timestamp) throws ParseException {
+    public ParseResult parse(ParsePathNode parentNode, boolean optional, int depth, ParserContext context) throws ParseException {
+        PsiBuilder builder = context.getBuilder();
         logBegin(builder, optional, depth);
         ParsePathNode node = createParseNode(parentNode, builder.getCurrentOffset());
         PsiBuilder.Marker marker = builder.mark();
@@ -25,9 +26,9 @@ public class OneOfElementTypeParser extends AbstractElementTypeParser<OneOfEleme
             // TODO !!!! if elementType is an identifier: then BUILD VARIANTS!!!
             for (DBNElementType elementType : getElementType().getPossibleElementTypes()) {
                 if (isDummyToken(tokenText) || elementType.getLookupCache().canStartWithToken(tokenType) || isSuppressibleReservedWord(tokenType, node)) {
-                    ParseResult result = elementType.getParser().parse(node, builder, true, depth + 1, timestamp);
+                    ParseResult result = elementType.getParser().parse(node, true, depth + 1, context);
                     if (result.isMatch()) {
-                        return stepOut(builder, marker, depth, result.getType(), result.getMatchedTokens(), node);
+                        return stepOut(marker, depth, result.getType(), result.getMatchedTokens(), node, context);
                     }
                 }
             }
@@ -36,6 +37,6 @@ public class OneOfElementTypeParser extends AbstractElementTypeParser<OneOfEleme
             }
 
         }
-        return stepOut(builder, marker, depth, ParseResultType.NO_MATCH, 0, node);
+        return stepOut(marker, depth, ParseResultType.NO_MATCH, 0, node, context);
     }
 }

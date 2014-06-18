@@ -11,9 +11,9 @@ public class BlockElementTypeParser extends SequenceElementTypeParser<BlockEleme
         super(elementType);
     }
 
-    public ParseResult parse(ParsePathNode parentNode, PsiBuilder builder, boolean optional, int depth, long timestamp) throws ParseException {
-        PsiBuilder.Marker marker = builder.mark();
-        ParseResult result = super.parse(parentNode, builder, optional, depth, timestamp);
+    public ParseResult parse(ParsePathNode parentNode, boolean optional, int depth, ParserContext context) throws ParseException {
+        PsiBuilder.Marker marker = context.getBuilder().mark();
+        ParseResult result = super.parse(parentNode, optional, depth, context);
         if (result.getType() == ParseResultType.NO_MATCH) {
             marker.drop();
         } else {
