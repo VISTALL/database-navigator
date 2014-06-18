@@ -20,7 +20,8 @@ public class QualifiedIdentifierElementTypeParser extends AbstractElementTypePar
         super(elementType);
     }
 
-    public ParseResult parse(ParsePathNode parentNode, PsiBuilder builder, boolean optional, int depth, long timestamp) throws ParseException {
+    public ParseResult parse(ParsePathNode parentNode, boolean optional, int depth, ParserContext context) throws ParseException {
+        PsiBuilder builder = context.getBuilder();
         logBegin(builder, optional, depth);
         ParsePathNode node = createParseNode(parentNode, builder.getCurrentOffset());
 
@@ -36,11 +37,11 @@ public class QualifiedIdentifierElementTypeParser extends AbstractElementTypePar
             int currentSiblingPosition = 0;
             for (LeafElementType elementType : elementTypes) {
                 node.setCurrentSiblingPosition(currentSiblingPosition);
-                ParseResult result = elementType.getParser().parse(node, builder, true, depth + 1, timestamp);
+                ParseResult result = elementType.getParser().parse(node, true, depth + 1, context);
                 if (result.isNoMatch()) break;  else matchedTokens = matchedTokens + result.getMatchedTokens();
 
                 if (elementType != elementTypes[elementTypes.length -1])  {
-                    result = separatorToken.getParser().parse(node, builder, true, depth + 1, timestamp);
+                    result = separatorToken.getParser().parse(node, true, depth + 1, context);
                     if (result.isNoMatch()) break; else matchedTokens = matchedTokens + result.getMatchedTokens();
                 }
                 currentSiblingPosition++;
@@ -49,15 +50,15 @@ public class QualifiedIdentifierElementTypeParser extends AbstractElementTypePar
             if (variant.isIncomplete()) {
                 Set<TokenType> expected = new THashSet<TokenType>();
                 expected.add(separatorToken.getTokenType());
-                ParseBuilderErrorHandler.updateBuilderError(builder, expected, timestamp);
-                return stepOut(builder, marker, depth, ParseResultType.PARTIAL_MATCH, matchedTokens, node);
+                ParseBuilderErrorHandler.updateBuilderError(expected, context);
+                return stepOut(marker, depth, ParseResultType.PARTIAL_MATCH, matchedTokens, node, context);
             } else {
-                return stepOut(builder, marker, depth, ParseResultType.FULL_MATCH, matchedTokens, node);
+                return stepOut(marker, depth, ParseResultType.FULL_MATCH, matchedTokens, node, context);
             }
 
 
         } else {
-            return stepOut(builder, marker, depth, ParseResultType.NO_MATCH, matchedTokens, node);
+            return stepOut(marker, depth, ParseResultType.NO_MATCH, matchedTokens, node, context);
         }
     }
 
