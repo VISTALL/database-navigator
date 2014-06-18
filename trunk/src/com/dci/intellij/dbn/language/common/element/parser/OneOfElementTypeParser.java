@@ -13,13 +13,13 @@ public class OneOfElementTypeParser extends AbstractElementTypeParser<OneOfEleme
     }
 
     public ParseResult parse(ParsePathNode parentNode, boolean optional, int depth, ParserContext context) throws ParseException {
-        PsiBuilder builder = context.getBuilder();
+        ParserBuilder builder = context.getBuilder();
         logBegin(builder, optional, depth);
         ParsePathNode node = createParseNode(parentNode, builder.getCurrentOffset());
         PsiBuilder.Marker marker = builder.mark();
 
         getElementType().sort();
-        TokenType tokenType = (TokenType) builder.getTokenType();
+        TokenType tokenType = builder.getTokenType();
 
         if (tokenType!= null && !tokenType.isChameleon()) {
             String tokenText = builder.getTokenText();

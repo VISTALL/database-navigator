@@ -19,7 +19,7 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends A
     }
 
     public ParseResult parse(ParsePathNode parentNode, boolean optional, int depth, ParserContext context) throws ParseException {
-        PsiBuilder builder = context.getBuilder();
+        ParserBuilder builder = context.getBuilder();
         logBegin(builder, optional, depth);
         SequenceElementType elementType = getElementType();
 
@@ -30,7 +30,7 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends A
         int matches = 0;
         int matchedTokens = 0;
 
-        TokenType tokenType = (TokenType) builder.getTokenType();
+        TokenType tokenType = builder.getTokenType();
         boolean isDummyToken = isDummyToken(builder.getTokenText());
         boolean isSuppressibleReservedWord =
                 tokenType instanceof TokenType &&
@@ -59,7 +59,7 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends A
 
                     if (result.isMatch()) {
                         matchedTokens = matchedTokens + result.getMatchedTokens();
-                        tokenType = (TokenType) builder.getTokenType();
+                        tokenType = builder.getTokenType();
                         isDummyToken = isDummyToken(builder.getTokenText());
                         matches++;
                     }
@@ -85,7 +85,7 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends A
                     }
 
 
-                    tokenType = (TokenType) builder.getTokenType();
+                    tokenType = builder.getTokenType();
                     isDummyToken = isDummyToken(builder.getTokenText());
                     // local landmarks found
                     if (offset > 0) {
@@ -129,13 +129,13 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends A
     }    
 
     private int advanceLexerToNextLandmark(int index, ParsePathNode parentNode, ParserContext context) {
-        PsiBuilder builder = context.getBuilder();
+        ParserBuilder builder = context.getBuilder();
         PsiBuilder.Marker marker = builder.mark();
         SequenceElementType elementType = getElementType();
         ParseBuilderErrorHandler.updateBuilderError(elementType.getFirstPossibleTokensFromIndex(index), context);
 
         if (!builder.eof()) {
-            TokenType tokenType = (TokenType) builder.getTokenType();
+            TokenType tokenType = builder.getTokenType();
             int newIndex = getLandmarkIndex(tokenType, index, parentNode);
             if (newIndex == index) {
                 builder.advanceLexer();
@@ -143,7 +143,7 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends A
         }
 
         while (!builder.eof()) {
-            TokenType tokenType = (TokenType) builder.getTokenType();
+            TokenType tokenType = builder.getTokenType();
             if (tokenType != null) {
                 int newIndex = getLandmarkIndex(tokenType, index, parentNode);
 

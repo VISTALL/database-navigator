@@ -12,9 +12,9 @@ public class IdentifierElementTypeParser extends AbstractElementTypeParser<Ident
     }
 
     public ParseResult parse(ParsePathNode parentNode, boolean optional, int depth, ParserContext context) throws ParseException {
-        PsiBuilder builder = context.getBuilder();
+        ParserBuilder builder = context.getBuilder();
         logBegin(builder, optional, depth);
-        TokenType tokenType = (TokenType) builder.getTokenType();
+        TokenType tokenType = builder.getTokenType();
         if (tokenType != null && !tokenType.isChameleon()){
             if (tokenType.isIdentifier()) {
                 PsiBuilder.Marker marker = builder.mark();
@@ -22,9 +22,9 @@ public class IdentifierElementTypeParser extends AbstractElementTypeParser<Ident
                 return stepOut(marker, depth, ParseResultType.FULL_MATCH, 1, null, context);
             }
             else if (getElementType().isDefinition() || isSuppressibleReservedWord(tokenType, parentNode)) {
-                    PsiBuilder.Marker marker = builder.mark();
-                    builder.advanceLexer();
-                    return stepOut(marker, depth, ParseResultType.FULL_MATCH, 1, null, context);
+                PsiBuilder.Marker marker = builder.mark();
+                advanceLexer(parentNode, context);
+                return stepOut(marker, depth, ParseResultType.FULL_MATCH, 1, null, context);
             }
         }
         return stepOut(null, depth, ParseResultType.NO_MATCH, 0, null, context);
