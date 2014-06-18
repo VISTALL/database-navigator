@@ -7,7 +7,7 @@ import com.dci.intellij.dbn.language.common.element.ElementTypeBundle;
 import com.dci.intellij.dbn.language.common.element.IterationElementType;
 import com.dci.intellij.dbn.language.common.element.TokenElementType;
 import com.dci.intellij.dbn.language.common.element.lookup.IterationElementTypeLookupCache;
-import com.dci.intellij.dbn.language.common.element.parser.IterationElementTypeParser;
+import com.dci.intellij.dbn.language.common.element.parser.impl.IterationElementTypeParser;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeDefinitionException;
 import com.dci.intellij.dbn.language.common.psi.SequencePsiElement;
 import com.intellij.lang.ASTNode;

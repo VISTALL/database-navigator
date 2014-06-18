@@ -8,7 +8,7 @@ import com.dci.intellij.dbn.language.common.element.TokenElementType;
 import com.dci.intellij.dbn.language.common.element.WrapperElementType;
 import com.dci.intellij.dbn.language.common.element.WrapperElementTypeTemplate;
 import com.dci.intellij.dbn.language.common.element.lookup.WrapperElementTypeLookupCache;
-import com.dci.intellij.dbn.language.common.element.parser.WrapperElementTypeParser;
+import com.dci.intellij.dbn.language.common.element.parser.impl.WrapperElementTypeParser;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeDefinitionException;
 import com.dci.intellij.dbn.language.common.psi.SequencePsiElement;
 import com.intellij.lang.ASTNode;

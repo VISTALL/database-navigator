@@ -136,9 +136,4 @@ public abstract class AbstractElementTypeParser<T extends ElementType> implement
             marker.rollbackTo();
         }
     }
-
-    protected void advanceLexer(ParsePathNode parentNode, ParserContext context) {
-        context.computeTokenPairs(parentNode);
-        context.getBuilder().advanceLexer();
-    }
 }

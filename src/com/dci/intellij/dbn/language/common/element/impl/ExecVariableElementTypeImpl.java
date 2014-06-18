@@ -5,7 +5,7 @@ import com.dci.intellij.dbn.language.common.element.ElementTypeBundle;
 import com.dci.intellij.dbn.language.common.element.ExecVariableElementType;
 import com.dci.intellij.dbn.language.common.element.LeafElementType;
 import com.dci.intellij.dbn.language.common.element.lookup.ExecVariableElementTypeLookupCache;
-import com.dci.intellij.dbn.language.common.element.parser.ExecVariableElementTypeParser;
+import com.dci.intellij.dbn.language.common.element.parser.impl.ExecVariableElementTypeParser;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeDefinitionException;
 import com.dci.intellij.dbn.language.common.psi.ExecVariablePsiElement;
 import com.intellij.lang.ASTNode;

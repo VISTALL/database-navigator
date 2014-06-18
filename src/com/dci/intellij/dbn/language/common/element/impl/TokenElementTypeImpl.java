@@ -15,7 +15,7 @@ import com.dci.intellij.dbn.language.common.element.QualifiedIdentifierElementTy
 import com.dci.intellij.dbn.language.common.element.TokenElementType;
 import com.dci.intellij.dbn.language.common.element.WrapperElementType;
 import com.dci.intellij.dbn.language.common.element.lookup.TokenElementTypeLookupCache;
-import com.dci.intellij.dbn.language.common.element.parser.TokenElementTypeParser;
+import com.dci.intellij.dbn.language.common.element.parser.impl.TokenElementTypeParser;
 import com.dci.intellij.dbn.language.common.element.path.PathNode;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeDefinitionException;
 import com.dci.intellij.dbn.language.common.psi.TokenPsiElement;

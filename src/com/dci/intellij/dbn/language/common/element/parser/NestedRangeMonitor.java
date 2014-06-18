@@ -1,4 +1,4 @@
-package com.dci.intellij.dbn.language.common.element.nesting;
+package com.dci.intellij.dbn.language.common.element.parser;
 
 import com.dci.intellij.dbn.language.common.DBLanguageDialect;
 import com.dci.intellij.dbn.language.common.SharedTokenTypeBundle;
@@ -10,15 +10,15 @@ import com.intellij.lang.PsiBuilder;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MatchingPairsMonitor {
-    private List<MatchingPairElement> markers = new ArrayList<MatchingPairElement>();
+public class NestedRangeMonitor {
+    private List<NestedRangeStartMarker> markers = new ArrayList<NestedRangeStartMarker>();
     private PsiBuilder builder;
 
     private SimpleTokenType leftParenthesis;
     private SimpleTokenType rightParenthesis;
 
 
-    public MatchingPairsMonitor(DBLanguageDialect languageDialect, PsiBuilder builder) {
+    public NestedRangeMonitor(PsiBuilder builder, DBLanguageDialect languageDialect) {
         this.builder = builder;
 
         SharedTokenTypeBundle sharedTokenTypes = languageDialect.getParserTokenTypes().getSharedTokenTypes();
@@ -29,10 +29,10 @@ public class MatchingPairsMonitor {
     public void compute(ParsePathNode node) {
         TokenType tokenType = (TokenType) builder.getTokenType();
         if (tokenType == leftParenthesis) {
-            markers.add(new MatchingPairElement(builder.mark(), leftParenthesis, rightParenthesis));
+            markers.add(new NestedRangeStartMarker(builder.mark(), leftParenthesis, rightParenthesis));
         } else if (tokenType == rightParenthesis) {
             if (markers.size() > 0) {
-                MatchingPairElement marker = markers.remove(markers.size() - 1);
+                NestedRangeStartMarker marker = markers.remove(markers.size() - 1);
                 marker.getBuilderMarker().drop();
             }
         }

@@ -7,7 +7,7 @@ import com.dci.intellij.dbn.language.common.element.ElementTypeBundle;
 import com.dci.intellij.dbn.language.common.element.IdentifierElementType;
 import com.dci.intellij.dbn.language.common.element.LeafElementType;
 import com.dci.intellij.dbn.language.common.element.lookup.IdentifierElementTypeLookupCache;
-import com.dci.intellij.dbn.language.common.element.parser.IdentifierElementTypeParser;
+import com.dci.intellij.dbn.language.common.element.parser.impl.IdentifierElementTypeParser;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeDefinition;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeDefinitionException;
 import com.dci.intellij.dbn.language.common.element.util.IdentifierRole;

@@ -50,7 +50,7 @@ public abstract class DBLanguageParser implements PsiParser {
         try {
             while (!builder.eof()) {
                 int currentOffset =  builder.getCurrentOffset();
-                root.getParser().parse(null, true, 0, new ParserContext(languageDialect, builder));
+                root.getParser().parse(null, true, 0, new ParserContext(builder, languageDialect));
                 if (currentOffset == builder.getCurrentOffset()) {
                     TokenType tokenType = (TokenType) builder.getTokenType();
                     /*if (tokenType.isChameleon()) {
