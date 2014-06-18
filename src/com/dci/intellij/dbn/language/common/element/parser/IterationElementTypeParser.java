@@ -17,7 +17,7 @@ public class IterationElementTypeParser extends AbstractElementTypeParser<Iterat
     }
 
     public ParseResult parse(ParsePathNode parentNode, boolean optional, int depth, ParserContext context) throws ParseException {
-        PsiBuilder builder = context.getBuilder();
+        ParserBuilder builder = context.getBuilder();
         IterationParsePathNode node = createParseNode(parentNode, builder.getCurrentOffset());
         logBegin(builder, optional, depth);
         PsiBuilder.Marker marker = builder.mark();
@@ -90,7 +90,7 @@ public class IterationElementTypeParser extends AbstractElementTypeParser<Iterat
     }
 
     private boolean advanceLexerToNextLandmark(ParsePathNode parentParseNode, boolean lenient, ParserContext context) {
-        PsiBuilder builder = context.getBuilder();
+        ParserBuilder builder = context.getBuilder();
         PsiBuilder.Marker marker = builder.mark();
         ElementType iteratedElementType = getElementType().getIteratedElementType();
         TokenElementType[] separatorTokens = getElementType().getSeparatorTokens();
@@ -101,7 +101,7 @@ public class IterationElementTypeParser extends AbstractElementTypeParser<Iterat
         boolean advanced = false;
         UnknownElementType unknownElementType = getElementBundle().getUnknownElementType();
         while (!builder.eof()) {
-            TokenType tokenType = (TokenType) builder.getTokenType();
+            TokenType tokenType = builder.getTokenType();
             if (tokenType == null || tokenType.isChameleon())  break;
 
             if (tokenType.isParserLandmark()) {

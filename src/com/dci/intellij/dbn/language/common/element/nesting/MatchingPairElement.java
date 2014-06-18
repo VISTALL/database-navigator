@@ -3,12 +3,12 @@ package com.dci.intellij.dbn.language.common.element.nesting;
 import com.dci.intellij.dbn.language.common.TokenType;
 import com.intellij.lang.PsiBuilder;
 
-public class NestedRangeMarker {
+public class MatchingPairElement {
     private PsiBuilder.Marker builderMarker;
     private TokenType beginTokenType;
     private TokenType endTokenType;
 
-    public NestedRangeMarker(PsiBuilder.Marker builderMarker, TokenType beginTokenType, TokenType endTokenType) {
+    public MatchingPairElement(PsiBuilder.Marker builderMarker, TokenType beginTokenType, TokenType endTokenType) {
         this.builderMarker = builderMarker;
         this.beginTokenType = beginTokenType;
         this.endTokenType = endTokenType;

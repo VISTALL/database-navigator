@@ -10,7 +10,7 @@ import com.dci.intellij.dbn.language.common.element.QualifiedIdentifierElementTy
 import com.dci.intellij.dbn.language.common.element.SequenceElementType;
 import com.dci.intellij.dbn.language.common.element.TokenElementType;
 import com.dci.intellij.dbn.language.common.element.parser.ParseResultType;
-import com.intellij.lang.PsiBuilder;
+import com.dci.intellij.dbn.language.common.element.parser.ParserBuilder;
 
 public class ElementTypeLogger {
     private ElementType elementType;
@@ -19,7 +19,7 @@ public class ElementTypeLogger {
         this.elementType = elementType;
     }
 
-    public void logBegin(PsiBuilder builder, boolean optional, int depth) {
+    public void logBegin(ParserBuilder builder, boolean optional, int depth) {
         // GTK enable disable debug
         if (SettingsUtil.isDebugEnabled) {
             StringBuilder buffer = new StringBuilder();
@@ -67,7 +67,7 @@ public class ElementTypeLogger {
         return null;
     }
 
-    public void logErr(PsiBuilder builder, boolean optional, int depth) {
+    public void logErr(ParserBuilder builder, boolean optional, int depth) {
         logBegin(builder, optional, depth);
         logEnd(ParseResultType.NO_MATCH, depth);
     }

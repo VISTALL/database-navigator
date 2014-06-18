@@ -42,7 +42,7 @@ public abstract class AbstractElementTypeParser<T extends ElementType> implement
         return logger;
     }
 
-    public void logBegin(PsiBuilder builder, boolean optional, int depth) {
+    public void logBegin(ParserBuilder builder, boolean optional, int depth) {
         if (SettingsUtil.isDebugEnabled) {
             getLogger().logBegin(builder, optional, depth);
         }
@@ -137,4 +137,8 @@ public abstract class AbstractElementTypeParser<T extends ElementType> implement
         }
     }
 
+    protected void advanceLexer(ParsePathNode parentNode, ParserContext context) {
+        context.computeTokenPairs(parentNode);
+        context.getBuilder().advanceLexer();
+    }
 }

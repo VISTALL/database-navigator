@@ -4,7 +4,6 @@ import com.dci.intellij.dbn.language.common.ParseException;
 import com.dci.intellij.dbn.language.common.element.NamedElementType;
 import com.dci.intellij.dbn.language.common.element.path.ParsePathNode;
 import com.dci.intellij.dbn.language.common.element.path.PathNode;
-import com.intellij.lang.PsiBuilder;
 
 public class NamedElementTypeParser extends SequenceElementTypeParser<NamedElementType>{
     public NamedElementTypeParser(NamedElementType elementType) {
@@ -12,7 +11,7 @@ public class NamedElementTypeParser extends SequenceElementTypeParser<NamedEleme
     }
 
     public ParseResult parse(ParsePathNode parentNode, boolean optional, int depth, ParserContext context) throws ParseException {
-        PsiBuilder builder = context.getBuilder();
+        ParserBuilder builder = context.getBuilder();
         if (isRecursive(parentNode, builder.getCurrentOffset(), 2)) {
             return ParseResult.createNoMatchResult();
         }

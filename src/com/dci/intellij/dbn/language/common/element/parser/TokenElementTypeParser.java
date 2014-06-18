@@ -12,13 +12,13 @@ public class TokenElementTypeParser extends AbstractElementTypeParser<TokenEleme
     }
 
     public ParseResult parse(ParsePathNode parentNode, boolean optional, int depth, ParserContext context) throws ParseException {
-        PsiBuilder builder = context.getBuilder();
+        ParserBuilder builder = context.getBuilder();
         logBegin(builder, optional, depth);
 
-        TokenType tokenType = (TokenType) builder.getTokenType();
+        TokenType tokenType = builder.getTokenType();
         if (tokenType == getElementType().getTokenType() || isDummyToken(builder.getTokenText())) {
             PsiBuilder.Marker marker = builder.mark();
-            builder.advanceLexer();
+            advanceLexer(parentNode, context);
             return stepOut(marker, depth, ParseResultType.FULL_MATCH, 1, null, context);
         }
         return stepOut(null, depth, ParseResultType.NO_MATCH, 0, null, context);
