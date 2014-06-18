@@ -7,7 +7,7 @@ import com.dci.intellij.dbn.common.util.StringUtil;
 import com.dci.intellij.dbn.language.common.DBLanguage;
 import com.dci.intellij.dbn.language.common.TokenType;
 import com.dci.intellij.dbn.language.common.TokenTypeCategory;
-import com.dci.intellij.dbn.language.common.element.ElementType;
+import com.dci.intellij.dbn.language.common.element.DBNElementType;
 import com.dci.intellij.dbn.language.common.element.ElementTypeBundle;
 import com.dci.intellij.dbn.language.common.element.IterationElementType;
 import com.dci.intellij.dbn.language.common.element.LeafElementType;
@@ -29,7 +29,7 @@ public class TokenElementTypeImpl extends LeafElementTypeImpl implements LookupV
     private TokenLookupItemFactory lookupItemFactory;
     private TokenTypeCategory flavor;
 
-    public TokenElementTypeImpl(ElementTypeBundle bundle, ElementType parent, String id, Element def) throws ElementTypeDefinitionException {
+    public TokenElementTypeImpl(ElementTypeBundle bundle, DBNElementType parent, String id, Element def) throws ElementTypeDefinitionException {
         super(bundle, parent, id, def);
         String typeId = def.getAttributeValue("type-id");
         TokenType tokenType = bundle.getTokenTypeBundle().getTokenType(typeId);
@@ -44,7 +44,7 @@ public class TokenElementTypeImpl extends LeafElementTypeImpl implements LookupV
         setDescription(tokenType.getValue() + " " + getTokenTypeCategory());
     }
 
-    public TokenElementTypeImpl(ElementTypeBundle bundle, ElementType parent, String typeId, String id) throws ElementTypeDefinitionException {
+    public TokenElementTypeImpl(ElementTypeBundle bundle, DBNElementType parent, String typeId, String id) throws ElementTypeDefinitionException {
         super(bundle, parent, id, (String)null);
         TokenType tokenType = bundle.getTokenTypeBundle().getTokenType(typeId);
         setTokenType(tokenType);
@@ -66,7 +66,7 @@ public class TokenElementTypeImpl extends LeafElementTypeImpl implements LookupV
     }
 
     public Set<LeafElementType> getNextPossibleLeafs(PathNode pathNode, CodeCompletionFilterSettings filterSettings) {
-        ElementType parent = getParent();
+        DBNElementType parent = getParent();
         if (isIterationSeparator()) {
             if (parent instanceof IterationElementType) {
                 IterationElementType iterationElementType = (IterationElementType) parent;

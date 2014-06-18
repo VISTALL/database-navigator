@@ -1,7 +1,7 @@
 package com.dci.intellij.dbn.language.common.element.lookup;
 
 import com.dci.intellij.dbn.language.common.TokenType;
-import com.dci.intellij.dbn.language.common.element.ElementType;
+import com.dci.intellij.dbn.language.common.element.DBNElementType;
 import com.dci.intellij.dbn.language.common.element.LeafElementType;
 import com.dci.intellij.dbn.language.common.element.UnknownElementType;
 import com.dci.intellij.dbn.language.common.element.path.PathNode;
@@ -16,11 +16,11 @@ public class UnknownElementTypeLookupCache extends AbstractElementTypeLookupCach
         return false;
     }
 
-    public boolean isFirstPossibleLeaf(LeafElementType leaf, ElementType pathChild) {
+    public boolean isFirstPossibleLeaf(LeafElementType leaf, DBNElementType pathChild) {
         return false;
     }
 
-    public boolean isFirstRequiredLeaf(LeafElementType leaf, ElementType pathChild) {
+    public boolean isFirstRequiredLeaf(LeafElementType leaf, DBNElementType pathChild) {
         return false;
     }
 

@@ -1,7 +1,7 @@
 package com.dci.intellij.dbn.language.common.element.impl;
 
 import com.dci.intellij.dbn.language.common.TokenType;
-import com.dci.intellij.dbn.language.common.element.ElementType;
+import com.dci.intellij.dbn.language.common.element.DBNElementType;
 import com.dci.intellij.dbn.language.common.element.ElementTypeBundle;
 import com.dci.intellij.dbn.language.common.element.SequenceElementType;
 import com.dci.intellij.dbn.language.common.element.lookup.SequenceElementTypeLookupCache;
@@ -17,20 +17,20 @@ import java.util.List;
 import java.util.Set;
 
 public class SequenceElementTypeImpl extends AbstractElementType implements SequenceElementType {
-    protected ElementType[] elementTypes;
+    protected DBNElementType[] elementTypes;
     protected boolean[] optional;
     private int containsKeywords = -1;
     private int exitIndex;
 
-    public ElementType[] getElementTypes() {
+    public DBNElementType[] getElementTypes() {
         return elementTypes;
     }
 
-    public SequenceElementTypeImpl(ElementTypeBundle bundle, ElementType parent, String id) {
+    public SequenceElementTypeImpl(ElementTypeBundle bundle, DBNElementType parent, String id) {
         super(bundle, parent, id, (String) null);
     }
 
-    public SequenceElementTypeImpl(ElementTypeBundle bundle, ElementType parent, String id, Element def) throws ElementTypeDefinitionException {
+    public SequenceElementTypeImpl(ElementTypeBundle bundle, DBNElementType parent, String id, Element def) throws ElementTypeDefinitionException {
         super(bundle, parent, id, def);
     }
 
@@ -47,7 +47,7 @@ public class SequenceElementTypeImpl extends AbstractElementType implements Sequ
     protected void loadDefinition(Element def) throws ElementTypeDefinitionException {
         super.loadDefinition(def);
         List children = def.getChildren();
-        elementTypes = new ElementType[children.size()];
+        elementTypes = new DBNElementType[children.size()];
         optional = new boolean[children.size()];
 
         for (int i = 0; i < children.size(); i++) {
@@ -90,7 +90,7 @@ public class SequenceElementTypeImpl extends AbstractElementType implements Sequ
         return optional[index];
     }
 
-    public boolean isOptional(ElementType elementType) {
+    public boolean isOptional(DBNElementType elementType) {
         for (int i = 0; i<elementTypes.length; i++) {
             if (elementTypes[i] == elementType) {
                 return optional[i];
@@ -99,7 +99,7 @@ public class SequenceElementTypeImpl extends AbstractElementType implements Sequ
         return true;
     }
 
-    public boolean canStartWithElement(ElementType elementType) {
+    public boolean canStartWithElement(DBNElementType elementType) {
         for (int i = 0; i<optional.length; i++) {
             if (optional[i]) {
                 if (elementType == elementTypes[i]) return true;
@@ -110,7 +110,7 @@ public class SequenceElementTypeImpl extends AbstractElementType implements Sequ
         return false;
     }
 
-    public boolean shouldStartWithElement(ElementType elementType) {
+    public boolean shouldStartWithElement(DBNElementType elementType) {
         for (int i = 0; i<optional.length; i++) {
             if (!optional[i]) {
                 return elementType == elementTypes[i];
@@ -169,14 +169,14 @@ public class SequenceElementTypeImpl extends AbstractElementType implements Sequ
         return false;
     }
 
-    public int indexOf(ElementType elementType, int fromIndex) {
+    public int indexOf(DBNElementType elementType, int fromIndex) {
         for (int i=fromIndex; i<elementTypes.length; i++) {
             if (elementTypes[i] == elementType) return i;
         }
         return -1;
     }
 
-    public int indexOf(ElementType elementType) {
+    public int indexOf(DBNElementType elementType) {
         return indexOf(elementType, 0);
     }
 }

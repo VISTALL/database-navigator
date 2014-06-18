@@ -6,7 +6,7 @@ import com.dci.intellij.dbn.language.common.element.path.PathNode;
 
 import java.util.Set;
 
-public interface LeafElementType extends ElementType {
+public interface LeafElementType extends DBNElementType {
     void setTokenType(TokenType tokenType);
 
     TokenType getTokenType();

@@ -1,6 +1,6 @@
 package com.dci.intellij.dbn.language.common.element.impl;
 
-import com.dci.intellij.dbn.language.common.element.ElementType;
+import com.dci.intellij.dbn.language.common.element.DBNElementType;
 import com.dci.intellij.dbn.language.common.element.ElementTypeBundle;
 import com.dci.intellij.dbn.language.common.element.IdentifierElementType;
 import com.dci.intellij.dbn.language.common.element.LeafElementType;
@@ -26,7 +26,7 @@ public class QualifiedIdentifierElementTypeImpl extends AbstractElementType impl
     private Set<DBObjectType> objectTypeCache = new THashSet<DBObjectType>();
     public int maxLength;
 
-    public QualifiedIdentifierElementTypeImpl(ElementTypeBundle bundle, ElementType parent, String id, Element def) throws ElementTypeDefinitionException {
+    public QualifiedIdentifierElementTypeImpl(ElementTypeBundle bundle, DBNElementType parent, String id, Element def) throws ElementTypeDefinitionException {
         super(bundle, parent, id, def);
         List children = def.getChildren();
         for (Object o : children) {

@@ -13,7 +13,7 @@ import com.dci.intellij.dbn.editor.ddl.DDLFileEditor;
 import com.dci.intellij.dbn.language.common.DBLanguage;
 import com.dci.intellij.dbn.language.common.DBLanguageDialect;
 import com.dci.intellij.dbn.language.common.DBLanguageFile;
-import com.dci.intellij.dbn.language.common.element.ElementType;
+import com.dci.intellij.dbn.language.common.element.DBNElementType;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeAttributesBundle;
 import com.dci.intellij.dbn.language.common.element.util.IdentifierRole;
@@ -51,13 +51,13 @@ import javax.swing.Icon;
 import java.util.Set;
 
 public abstract class BasePsiElement extends ASTWrapperPsiElement implements ItemPresentation, FormattingProviderPsiElement {
-    private ElementType elementType;
+    private DBNElementType elementType;
     private DBVirtualObject underlyingObject;
     private boolean isScopeIsolation;
     private boolean isScopeDemarcation;
     private FormattingAttributes formattingAttributes;
 
-    public BasePsiElement(ASTNode astNode, ElementType elementType) {
+    public BasePsiElement(ASTNode astNode, DBNElementType elementType) {
         super(astNode);
         this.elementType = elementType;
         isScopeIsolation = elementType.is(ElementTypeAttribute.SCOPE_ISOLATION);
@@ -97,7 +97,7 @@ public abstract class BasePsiElement extends ASTWrapperPsiElement implements Ite
         return false;
     }
 
-    public void setElementType(ElementType elementType) {
+    public void setElementType(DBNElementType elementType) {
         this.elementType = elementType;
     }
 
@@ -155,7 +155,7 @@ public abstract class BasePsiElement extends ASTWrapperPsiElement implements Ite
 
     public abstract int approximateLength();
 
-    public ElementType getElementType() {
+    public DBNElementType getElementType() {
         return elementType;
     }
 

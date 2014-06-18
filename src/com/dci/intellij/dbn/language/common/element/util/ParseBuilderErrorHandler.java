@@ -2,7 +2,7 @@ package com.dci.intellij.dbn.language.common.element.util;
 
 import com.dci.intellij.dbn.common.util.StringUtil;
 import com.dci.intellij.dbn.language.common.TokenType;
-import com.dci.intellij.dbn.language.common.element.ElementType;
+import com.dci.intellij.dbn.language.common.element.DBNElementType;
 import com.intellij.lang.PsiBuilder;
 import gnu.trove.THashSet;
 
@@ -10,10 +10,10 @@ import java.util.Arrays;
 import java.util.Set;
 
 public class ParseBuilderErrorHandler {
-    private ElementType elementType;
+    private DBNElementType elementType;
     private String errDescription;
 
-    public ParseBuilderErrorHandler(ElementType elementType) {
+    public ParseBuilderErrorHandler(DBNElementType elementType) {
         this.elementType = elementType;
     }
 

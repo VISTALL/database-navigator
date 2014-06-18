@@ -3,7 +3,7 @@ package com.dci.intellij.dbn.language.common.element.parser;
 import com.dci.intellij.dbn.code.common.completion.CodeCompletionContributor;
 import com.dci.intellij.dbn.common.options.setting.SettingsUtil;
 import com.dci.intellij.dbn.language.common.TokenType;
-import com.dci.intellij.dbn.language.common.element.ElementType;
+import com.dci.intellij.dbn.language.common.element.DBNElementType;
 import com.dci.intellij.dbn.language.common.element.ElementTypeBundle;
 import com.dci.intellij.dbn.language.common.element.QualifiedIdentifierElementType;
 import com.dci.intellij.dbn.language.common.element.SequenceElementType;
@@ -15,7 +15,7 @@ import com.dci.intellij.dbn.language.common.element.util.ParseBuilderErrorHandle
 import com.intellij.lang.PsiBuilder;
 import com.intellij.psi.tree.IElementType;
 
-public abstract class AbstractElementTypeParser<T extends ElementType> implements ElementTypeParser<T>{
+public abstract class AbstractElementTypeParser<T extends DBNElementType> implements ElementTypeParser<T>{
     private T elementType;
     private ParseBuilderErrorHandler errorHandler;
     private ElementTypeLogger logger;
@@ -81,12 +81,12 @@ public abstract class AbstractElementTypeParser<T extends ElementType> implement
     protected boolean isSuppressibleReservedWord(TokenType tokenType, PathNode node) {
         if (tokenType != null) {
             if (tokenType.isSuppressibleReservedWord()) {
-                ElementType elementType = node.getElementType();
+                DBNElementType elementType = node.getElementType();
                 if (elementType instanceof QualifiedIdentifierElementType) {
                     if (node.getCurrentSiblingPosition() > 0) return true;
                 }
 
-                ElementType namedElementType = ElementTypeUtil.getEnclosingNamedElementType(node);
+                DBNElementType namedElementType = ElementTypeUtil.getEnclosingNamedElementType(node);
                 if (namedElementType != null && namedElementType.getLookupCache().containsToken(tokenType)) {
                     return false;
                 }

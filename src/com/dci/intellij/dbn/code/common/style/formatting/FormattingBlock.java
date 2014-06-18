@@ -7,7 +7,7 @@ import com.dci.intellij.dbn.code.common.style.presets.CodeStylePreset;
 import com.dci.intellij.dbn.language.common.DBLanguage;
 import com.dci.intellij.dbn.language.common.DBLanguageFile;
 import com.dci.intellij.dbn.language.common.SharedTokenTypeBundle;
-import com.dci.intellij.dbn.language.common.element.ElementType;
+import com.dci.intellij.dbn.language.common.element.DBNElementType;
 import com.dci.intellij.dbn.language.common.element.WrapperElementType;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dci.intellij.dbn.language.common.psi.BasePsiElement;
@@ -257,7 +257,7 @@ public class FormattingBlock implements Block {
     }
 
 
-    private ElementType getParentElementType(PsiElement psiElement) {
+    private DBNElementType getParentElementType(PsiElement psiElement) {
         BasePsiElement parentPsiElement = getParentPsiElement(psiElement);
         if (parentPsiElement != null) {
             return parentPsiElement.getElementType();

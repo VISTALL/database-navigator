@@ -1,6 +1,6 @@
 package com.dci.intellij.dbn.language.common.element.impl;
 
-import com.dci.intellij.dbn.language.common.element.ElementType;
+import com.dci.intellij.dbn.language.common.element.DBNElementType;
 import com.dci.intellij.dbn.language.common.element.ElementTypeBundle;
 import com.dci.intellij.dbn.language.common.element.NamedElementType;
 import com.dci.intellij.dbn.language.common.element.lookup.NamedElementTypeLookupCache;
@@ -19,12 +19,12 @@ import java.util.Set;
 
 public class NamedElementTypeImpl extends SequenceElementTypeImpl implements NamedElementType {
     private boolean definitionLoaded;
-    private Set<ElementType> parents;
+    private Set<DBNElementType> parents;
     private boolean truncateOnExecution;
 
     public NamedElementTypeImpl(ElementTypeBundle bundle, String id) {
         super(bundle, null, id);
-        parents = new THashSet<ElementType>();
+        parents = new THashSet<DBNElementType>();
     }
 
     public NamedElementTypeLookupCache createLookupCache() {
@@ -66,11 +66,11 @@ public class NamedElementTypeImpl extends SequenceElementTypeImpl implements Nam
         return getId().toUpperCase();
     }
 
-    public void addParent(ElementType parent) {
+    public void addParent(DBNElementType parent) {
         parents.add(parent);
     }
 
-    public Set<ElementType> getParents() {
+    public Set<DBNElementType> getParents() {
         return parents;
     }
 

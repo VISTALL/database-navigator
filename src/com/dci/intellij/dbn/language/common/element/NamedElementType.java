@@ -10,11 +10,11 @@ public interface NamedElementType extends SequenceElementType {
 
     void update(NamedElementType unknown);
 
-    void addParent(ElementType parent);
+    void addParent(DBNElementType parent);
 
     void loadDefinition(Element def) throws ElementTypeDefinitionException;
 
-    Set<ElementType> getParents();
+    Set<DBNElementType> getParents();
 
     boolean truncateOnExecution();
 }

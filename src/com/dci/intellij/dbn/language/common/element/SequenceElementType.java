@@ -4,8 +4,8 @@ import com.dci.intellij.dbn.language.common.TokenType;
 
 import java.util.Set;
 
-public interface SequenceElementType extends ElementType {
-    ElementType[] getElementTypes();
+public interface SequenceElementType extends DBNElementType {
+    DBNElementType[] getElementTypes();
 
     int elementsCount();
 
@@ -17,11 +17,11 @@ public interface SequenceElementType extends ElementType {
 
     boolean isOptional(int index);
 
-    boolean isOptional(ElementType elementType);
+    boolean isOptional(DBNElementType elementType);
 
-    boolean canStartWithElement(ElementType elementType);
+    boolean canStartWithElement(DBNElementType elementType);
 
-    boolean shouldStartWithElement(ElementType elementType);
+    boolean shouldStartWithElement(DBNElementType elementType);
 
     boolean isExitIndex(int index);
 
@@ -31,9 +31,9 @@ public interface SequenceElementType extends ElementType {
 
     boolean isPossibleTokenFromIndex(TokenType tokenType, int index);
 
-    int indexOf(ElementType elementType, int fromIndex);
+    int indexOf(DBNElementType elementType, int fromIndex);
 
-    int indexOf(ElementType elementType);
+    int indexOf(DBNElementType elementType);
 
     boolean[] getOptionalElementsMap();
 }

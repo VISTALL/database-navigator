@@ -2,7 +2,7 @@ package com.dci.intellij.dbn.language.common.element.parser;
 
 import com.dci.intellij.dbn.language.common.ParseException;
 import com.dci.intellij.dbn.language.common.TokenType;
-import com.dci.intellij.dbn.language.common.element.ElementType;
+import com.dci.intellij.dbn.language.common.element.DBNElementType;
 import com.dci.intellij.dbn.language.common.element.IterationElementType;
 import com.dci.intellij.dbn.language.common.element.SequenceElementType;
 import com.dci.intellij.dbn.language.common.element.TokenElementType;
@@ -20,7 +20,7 @@ public class IterationElementTypeParser extends AbstractElementTypeParser<Iterat
         IterationParsePathNode node = createParseNode(parentNode, builder.getCurrentOffset());
         logBegin(builder, optional, depth);
         PsiBuilder.Marker marker = builder.mark();
-        ElementType iteratedElementType = getElementType().getIteratedElementType();
+        DBNElementType iteratedElementType = getElementType().getIteratedElementType();
         TokenElementType[] separatorTokens = getElementType().getSeparatorTokens();
 
         int elementCounter = 0;
@@ -90,7 +90,7 @@ public class IterationElementTypeParser extends AbstractElementTypeParser<Iterat
 
     private boolean advanceLexerToNextLandmark(PsiBuilder builder, ParsePathNode parentParseNode, boolean lenient, long timestamp) {
         PsiBuilder.Marker marker = builder.mark();
-        ElementType iteratedElementType = getElementType().getIteratedElementType();
+        DBNElementType iteratedElementType = getElementType().getIteratedElementType();
         TokenElementType[] separatorTokens = getElementType().getSeparatorTokens();
 
         if (!lenient) {
@@ -138,7 +138,7 @@ public class IterationElementTypeParser extends AbstractElementTypeParser<Iterat
         return new IterationParsePathNode(getElementType(), parentParseNode, builderOffset, 0);
     }
 
-    private void markerDone(PsiBuilder.Marker marker, ElementType elementType) {
+    private void markerDone(PsiBuilder.Marker marker, DBNElementType elementType) {
         marker.done((IElementType) elementType);
     }
 

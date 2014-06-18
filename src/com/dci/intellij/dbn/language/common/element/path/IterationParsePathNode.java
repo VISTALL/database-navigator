@@ -1,10 +1,10 @@
 package com.dci.intellij.dbn.language.common.element.path;
 
-import com.dci.intellij.dbn.language.common.element.ElementType;
+import com.dci.intellij.dbn.language.common.element.DBNElementType;
 
 public class IterationParsePathNode extends ParsePathNode{
     private int currentOffset;
-    public IterationParsePathNode(ElementType elementType, ParsePathNode parent, int startOffset, int position) {
+    public IterationParsePathNode(DBNElementType elementType, ParsePathNode parent, int startOffset, int position) {
         super(elementType, parent, startOffset, position);
         currentOffset = startOffset;
     }

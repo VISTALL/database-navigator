@@ -1,7 +1,7 @@
 package com.dci.intellij.dbn.language.common.element.util;
 
 import com.dci.intellij.dbn.common.options.setting.SettingsUtil;
-import com.dci.intellij.dbn.language.common.element.ElementType;
+import com.dci.intellij.dbn.language.common.element.DBNElementType;
 import com.dci.intellij.dbn.language.common.element.IdentifierElementType;
 import com.dci.intellij.dbn.language.common.element.IterationElementType;
 import com.dci.intellij.dbn.language.common.element.NamedElementType;
@@ -13,9 +13,9 @@ import com.dci.intellij.dbn.language.common.element.parser.ParseResultType;
 import com.intellij.lang.PsiBuilder;
 
 public class ElementTypeLogger {
-    private ElementType elementType;
+    private DBNElementType elementType;
 
-    public ElementTypeLogger(ElementType elementType) {
+    public ElementTypeLogger(DBNElementType elementType) {
         this.elementType = elementType;
     }
 

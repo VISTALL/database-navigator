@@ -1,11 +1,11 @@
 package com.dci.intellij.dbn.language.common.element.path;
 
-import com.dci.intellij.dbn.language.common.element.ElementType;
+import com.dci.intellij.dbn.language.common.element.DBNElementType;
 
 public class ParsePathNode extends BasicPathNode {
     private int startOffset;
 
-    public ParsePathNode(ElementType elementType, ParsePathNode parent, int startOffset, int position) {
+    public ParsePathNode(DBNElementType elementType, ParsePathNode parent, int startOffset, int position) {
         super(elementType, parent, position);
         this.startOffset = startOffset;
     }
