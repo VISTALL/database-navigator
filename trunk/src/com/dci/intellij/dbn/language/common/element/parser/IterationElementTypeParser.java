@@ -10,7 +10,6 @@ import com.dci.intellij.dbn.language.common.element.UnknownElementType;
 import com.dci.intellij.dbn.language.common.element.path.IterationParsePathNode;
 import com.dci.intellij.dbn.language.common.element.path.ParsePathNode;
 import com.intellij.lang.PsiBuilder;
-import com.intellij.psi.tree.IElementType;
 
 public class IterationElementTypeParser extends AbstractElementTypeParser<IterationElementType> {
     public IterationElementTypeParser(IterationElementType elementType) {
@@ -121,8 +120,11 @@ public class IterationElementTypeParser extends AbstractElementTypeParser<Iterat
                         SequenceElementType sequenceElementType = (SequenceElementType) parseNode.getElementType();
                         int index = parseNode.getCurrentSiblingPosition();
                         if ( sequenceElementType.containsLandmarkTokenFromIndex(tokenType, index + 1)) {
-                            if (advanced || !lenient) markerDone(marker, unknownElementType);
-                            else  marker.rollbackTo();
+                            if (advanced || !lenient) {
+                                markerDone(marker, unknownElementType);
+                            } else {
+                                markerRollbackTo(marker);
+                            }
                             return true;
                         }
 
@@ -133,21 +135,14 @@ public class IterationElementTypeParser extends AbstractElementTypeParser<Iterat
             builder.advanceLexer();
             advanced = true;
         }
-        if (advanced || !lenient) {
-            markerDone(marker, unknownElementType);
-        }
-        else {
-            marker.rollbackTo();
-        }
+        if (advanced || !lenient)
+            markerDone(marker, unknownElementType); else
+            markerRollbackTo(marker);
         return true;
     }
 
     public IterationParsePathNode createParseNode(ParsePathNode parentParseNode, int builderOffset) {
         return new IterationParsePathNode(getElementType(), parentParseNode, builderOffset, 0);
-    }
-
-    private void markerDone(PsiBuilder.Marker marker, ElementType elementType) {
-        marker.done((IElementType) elementType);
     }
 
 
