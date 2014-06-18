@@ -5,17 +5,20 @@ import com.dci.intellij.dbn.code.common.style.formatting.FormattingDefinitionFac
 import com.dci.intellij.dbn.code.common.style.formatting.IndentDefinition;
 import com.dci.intellij.dbn.code.common.style.formatting.SpacingDefinition;
 import com.dci.intellij.dbn.common.Icons;
+import com.dci.intellij.dbn.common.LoggerFactory;
 import com.dci.intellij.dbn.common.util.StringUtil;
 import com.dci.intellij.dbn.language.common.DBLanguage;
 import com.dci.intellij.dbn.language.common.DBLanguageDialect;
 import com.dci.intellij.dbn.language.common.element.ElementType;
 import com.dci.intellij.dbn.language.common.element.ElementTypeBundle;
+import com.dci.intellij.dbn.language.common.element.SequenceElementType;
 import com.dci.intellij.dbn.language.common.element.lookup.ElementTypeLookupCache;
 import com.dci.intellij.dbn.language.common.element.parser.ElementTypeParser;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeAttributesBundle;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeDefinitionException;
 import com.dci.intellij.dbn.object.common.DBObjectType;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.psi.tree.IElementType;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
@@ -24,6 +27,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.Icon;
 
 public abstract class AbstractElementType extends IElementType implements ElementType {
+    private static final Logger LOGGER = LoggerFactory.createLogger();
     private static final FormattingDefinition STATEMENT_FORMATTING = new FormattingDefinition(null, IndentDefinition.NORMAL, SpacingDefinition.MIN_LINE_BREAK, null);
 
     private String id;
@@ -62,6 +66,9 @@ public abstract class AbstractElementType extends IElementType implements Elemen
         this.parent = parent;
         this.lookupCache = createLookupCache();
         this.parser = createParser();
+        if (StringUtil.isNotEmpty(def.getAttributeValue("exit")) && !(parent instanceof SequenceElementType)) {
+            LOGGER.warn("[" + getLanguageDialect().getID() + "] Invalid element attribute 'exit'. (id=" + getId() + "). Attribute is only allowed for direct child of sequence element");
+        }
         loadDefinition(def);
     }
 
