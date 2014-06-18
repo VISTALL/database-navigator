@@ -1,7 +1,7 @@
 package com.dci.intellij.dbn.language.common.element.lookup;
 
 import com.dci.intellij.dbn.language.common.TokenType;
-import com.dci.intellij.dbn.language.common.element.DBNElementType;
+import com.dci.intellij.dbn.language.common.element.ElementType;
 import com.dci.intellij.dbn.language.common.element.LeafElementType;
 import com.dci.intellij.dbn.language.common.element.path.PathNode;
 import com.dci.intellij.dbn.language.common.element.util.IdentifierRole;
@@ -10,8 +10,8 @@ import com.dci.intellij.dbn.object.common.DBObjectType;
 
 import java.util.Set;
 
-public interface ElementTypeLookupCache<T extends DBNElementType> {
-    void registerLeaf(LeafElementType leaf, DBNElementType pathChild);
+public interface ElementTypeLookupCache<T extends ElementType> {
+    void registerLeaf(LeafElementType leaf, ElementType pathChild);
 
     void registerVirtualObject(DBObjectType objectType);
 
@@ -58,7 +58,7 @@ public interface ElementTypeLookupCache<T extends DBNElementType> {
 
     void init();
 
-    boolean isFirstPossibleLeaf(LeafElementType leaf, DBNElementType pathChild);
+    boolean isFirstPossibleLeaf(LeafElementType leaf, ElementType pathChild);
 
-    boolean isFirstRequiredLeaf(LeafElementType leaf, DBNElementType pathChild);
+    boolean isFirstRequiredLeaf(LeafElementType leaf, ElementType pathChild);
 }

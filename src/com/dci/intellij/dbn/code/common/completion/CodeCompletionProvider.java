@@ -10,7 +10,7 @@ import com.dci.intellij.dbn.common.util.NamingUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.language.common.DBLanguage;
 import com.dci.intellij.dbn.language.common.DBLanguageFile;
-import com.dci.intellij.dbn.language.common.element.DBNElementType;
+import com.dci.intellij.dbn.language.common.element.ElementType;
 import com.dci.intellij.dbn.language.common.element.ElementTypeBundle;
 import com.dci.intellij.dbn.language.common.element.IdentifierElementType;
 import com.dci.intellij.dbn.language.common.element.LeafElementType;
@@ -120,7 +120,7 @@ public class CodeCompletionProvider extends CompletionProvider<CompletionParamet
         DBObject parentObject = null;
         if (element.getParent() instanceof QualifiedIdentifierPsiElement) {
             QualifiedIdentifierPsiElement qualifiedIdentifier = (QualifiedIdentifierPsiElement) element.getParent();
-            DBNElementType separator = qualifiedIdentifier.getElementType().getSeparatorToken();
+            ElementType separator = qualifiedIdentifier.getElementType().getSeparatorToken();
 
             if (element.getElementType() == separator){
                 BasePsiElement parentPsiElement = element.getPrevElement();

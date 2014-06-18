@@ -1,19 +1,19 @@
 package com.dci.intellij.dbn.language.common.element.path;
 
-import com.dci.intellij.dbn.language.common.element.DBNElementType;
+import com.dci.intellij.dbn.language.common.element.ElementType;
 
 public interface PathNode {
     PathNode getParent();
 
     int getCurrentSiblingPosition();
 
-    DBNElementType getElementType();
+    ElementType getElementType();
 
     PathNode getRootPathNode();
 
     boolean isRecursive();
 
-    boolean isRecursive(DBNElementType elementType);
+    boolean isRecursive(ElementType elementType);
 
     void detach();
 }

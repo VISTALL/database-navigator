@@ -1,9 +1,9 @@
 package com.dci.intellij.dbn.language.common.element;
 
-public interface OneOfElementType extends DBNElementType {
+public interface OneOfElementType extends ElementType {
     void sort();
 
-    DBNElementType[] getPossibleElementTypes();
+    ElementType[] getPossibleElementTypes();
 
     void warnAmbiguousBranches();
 }

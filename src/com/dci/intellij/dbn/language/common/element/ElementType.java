@@ -14,7 +14,7 @@ import com.intellij.psi.PsiElement;
 
 import javax.swing.Icon;
 
-public interface DBNElementType {
+public interface ElementType {
 
     String getId();
 
@@ -24,7 +24,7 @@ public interface DBNElementType {
 
     Icon getIcon();
 
-    DBNElementType getParent();
+    ElementType getParent();
 
     DBLanguage getLanguage();
 

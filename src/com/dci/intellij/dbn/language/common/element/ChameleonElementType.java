@@ -19,7 +19,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Icon;
 
-public class ChameleonElementType extends ILazyParseableElementType implements DBNElementType, TokenType {
+public class ChameleonElementType extends ILazyParseableElementType implements ElementType, TokenType {
     public ChameleonElementType(DBLanguageDialect language) {
         super("chameleon (" + language.getDisplayName() + ")", language);
     }
@@ -52,7 +52,7 @@ public class ChameleonElementType extends ILazyParseableElementType implements D
         return null;
     }
 
-    public DBNElementType getParent() {
+    public ElementType getParent() {
         return null;
     }
 

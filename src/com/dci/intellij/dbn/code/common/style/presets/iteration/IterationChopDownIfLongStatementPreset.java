@@ -1,6 +1,6 @@
 package com.dci.intellij.dbn.code.common.style.presets.iteration;
 
-import com.dci.intellij.dbn.language.common.element.DBNElementType;
+import com.dci.intellij.dbn.language.common.element.ElementType;
 import com.dci.intellij.dbn.language.common.element.IterationElementType;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dci.intellij.dbn.language.common.psi.BasePsiElement;
@@ -17,7 +17,7 @@ public class IterationChopDownIfLongStatementPreset extends IterationAbstractPre
     public Wrap getWrap(BasePsiElement psiElement, CodeStyleSettings settings) {
         BasePsiElement parentPsiElement = getParentPsiElement(psiElement);
         IterationElementType iterationElementType = (IterationElementType) parentPsiElement.getElementType();
-        DBNElementType elementType = psiElement.getElementType();
+        ElementType elementType = psiElement.getElementType();
 
         NamedPsiElement namedPsiElement = (NamedPsiElement) parentPsiElement.lookupEnclosingPsiElement(ElementTypeAttribute.EXECUTABLE);
         boolean shouldWrap = namedPsiElement.approximateLength() > settings.RIGHT_MARGIN;
@@ -27,7 +27,7 @@ public class IterationChopDownIfLongStatementPreset extends IterationAbstractPre
     public Spacing getSpacing(BasePsiElement psiElement, CodeStyleSettings settings) {
         BasePsiElement parentPsiElement = getParentPsiElement(psiElement);
         IterationElementType iterationElementType = (IterationElementType) parentPsiElement.getElementType();
-        DBNElementType elementType = psiElement.getElementType();
+        ElementType elementType = psiElement.getElementType();
 
         NamedPsiElement namedPsiElement = (NamedPsiElement) parentPsiElement.lookupEnclosingPsiElement(ElementTypeAttribute.EXECUTABLE);
         boolean shouldWrap = namedPsiElement.approximateLength() > settings.RIGHT_MARGIN;
