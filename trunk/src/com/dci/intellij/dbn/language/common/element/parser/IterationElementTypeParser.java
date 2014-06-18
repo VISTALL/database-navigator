@@ -130,19 +130,13 @@ public class IterationElementTypeParser extends AbstractElementTypeParser<Iterat
                     parseNode = parseNode.getParent();
                 }
             }
-
             builder.advanceLexer();
-            NestedRangeMonitor.RangeMarker rangeMarker = context.getNesting().check();
-            if (rangeMarker != null) {
-                markerDone(marker, unknownElementType);
-                context.getNesting().close(rangeMarker);
-                return true;
-            }
             advanced = true;
         }
         if (advanced || !lenient) {
             markerDone(marker, unknownElementType);
-        } else {
+        }
+        else {
             marker.rollbackTo();
         }
         return true;

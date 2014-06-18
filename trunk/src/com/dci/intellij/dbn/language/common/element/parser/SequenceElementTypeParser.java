@@ -23,7 +23,6 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends A
         PsiBuilder builder = context.getBuilder();
         logBegin(builder, optional, depth);
         SequenceElementType elementType = getElementType();
-        context.getNesting().start(elementType);
 
         ParsePathNode node = createParseNode(parentNode, builder.getCurrentOffset());
         DBNElementType[] elementTypes = elementType.getElementTypes();
@@ -139,18 +138,15 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends A
         SequenceElementType elementType = getElementType();
         ParseBuilderErrorHandler.updateBuilderError(elementType.getFirstPossibleTokensFromIndex(index), context);
 
-        NestedRangeMonitor.RangeMarker rangeMarker = null;
-        NestedRangeMonitor nesting = context.getNesting();
         if (!builder.eof()) {
             TokenType tokenType = (TokenType) builder.getTokenType();
             int newIndex = getLandmarkIndex(tokenType, index, parentNode);
             if (newIndex == index) {
                 builder.advanceLexer();
-                rangeMarker = nesting.check();
             }
         }
 
-        while (!builder.eof() && rangeMarker == null) {
+        while (!builder.eof()) {
             TokenType tokenType = (TokenType) builder.getTokenType();
             if (tokenType != null) {
                 int newIndex = getLandmarkIndex(tokenType, index, parentNode);
@@ -158,7 +154,6 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends A
                 // no landmark hit -> spool the builder
                 if (newIndex == 0) {
                     builder.advanceLexer();
-                    rangeMarker = nesting.check();
                 } else {
                     marker.done((IElementType) getElementBundle().getUnknownElementType()); // should close unknown element type
                     return newIndex;
@@ -166,7 +161,6 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends A
             }
         }
         marker.done((IElementType) getElementBundle().getUnknownElementType()); // should close unknown element type
-        nesting.close(rangeMarker);
         return 0;
     }
 

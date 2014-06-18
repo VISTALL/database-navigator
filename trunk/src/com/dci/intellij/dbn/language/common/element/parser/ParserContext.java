@@ -1,6 +1,7 @@
 package com.dci.intellij.dbn.language.common.element.parser;
 
 import com.dci.intellij.dbn.language.common.DBLanguageDialect;
+import com.dci.intellij.dbn.language.common.element.nesting.NestedRangeMonitor;
 import com.intellij.lang.PsiBuilder;
 
 public class ParserContext {
