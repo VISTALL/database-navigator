@@ -4,6 +4,7 @@ import com.dci.intellij.dbn.common.options.setting.SettingsUtil;
 import com.dci.intellij.dbn.common.util.CommonUtil;
 import com.dci.intellij.dbn.language.common.element.ElementTypeBundle;
 import com.dci.intellij.dbn.language.common.element.NamedElementType;
+import com.dci.intellij.dbn.language.common.element.parser.ParserBuilder;
 import com.dci.intellij.dbn.language.common.element.parser.ParserContext;
 import com.intellij.lang.ASTNode;
 import com.intellij.lang.PsiBuilder;
@@ -36,7 +37,9 @@ public abstract class DBLanguageParser implements PsiParser {
     }
 
     @NotNull
-    public ASTNode parse(IElementType rootElementType, PsiBuilder builder, String parseRootId) {
+    public ASTNode parse(IElementType rootElementType, PsiBuilder psiBuilder, String parseRootId) {
+        ParserContext context = new ParserContext(psiBuilder, languageDialect);
+        ParserBuilder builder = context.getBuilder();
         if (parseRootId == null ) parseRootId = defaultParseRootId;
         builder.setDebugMode(SettingsUtil.isDebugEnabled);
         PsiBuilder.Marker marker = builder.mark();
@@ -50,7 +53,7 @@ public abstract class DBLanguageParser implements PsiParser {
         try {
             while (!builder.eof()) {
                 int currentOffset =  builder.getCurrentOffset();
-                root.getParser().parse(null, true, 0, new ParserContext(builder, languageDialect));
+                root.getParser().parse(null, true, 0, context);
                 if (currentOffset == builder.getCurrentOffset()) {
                     TokenType tokenType = (TokenType) builder.getTokenType();
                     /*if (tokenType.isChameleon()) {
