@@ -20,9 +20,14 @@ public class ParserBuilder {
         advanceLexer(null);
     }
     public void advanceLexer(ParsePathNode parentNode) {
-        monitor.compute(parentNode);
+        advanceLexer(parentNode, false);
+    }
+
+    public void advanceLexer(ParsePathNode parentNode, boolean mark) {
+        monitor.compute(parentNode, mark);
         builder.advanceLexer();
     }
+
 
     public PsiBuilder.Marker mark() {
         return builder.mark();
