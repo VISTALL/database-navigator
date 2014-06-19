@@ -2,7 +2,7 @@ package com.dci.intellij.dbn.language.common.element.parser;
 
 import com.dci.intellij.dbn.language.common.DBLanguageDialect;
 import com.dci.intellij.dbn.language.common.TokenType;
-import com.dci.intellij.dbn.language.common.element.path.ParsePathNode;
+import com.intellij.lang.ASTNode;
 import com.intellij.lang.PsiBuilder;
 
 public class ParserBuilder {
@@ -15,8 +15,8 @@ public class ParserBuilder {
         this.monitor = new NestedRangeMonitor(builder, languageDialect);
     }
 
-    public void advanceLexer(ParsePathNode node) {
-        monitor.compute(node);
+    public void advanceLexer() {
+        monitor.compute();
         builder.advanceLexer();
     }
 
@@ -46,5 +46,13 @@ public class ParserBuilder {
 
     public void error(String messageText) {
         builder.error(messageText);
+    }
+
+    public ASTNode getTreeBuilt() {
+        return builder.getTreeBuilt();
+    }
+
+    public void setDebugMode(boolean debugMode) {
+        builder.setDebugMode(debugMode);
     }
 }

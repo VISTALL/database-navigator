@@ -4,14 +4,11 @@ import com.dci.intellij.dbn.language.common.DBLanguageDialect;
 import com.dci.intellij.dbn.language.common.SharedTokenTypeBundle;
 import com.dci.intellij.dbn.language.common.SimpleTokenType;
 import com.dci.intellij.dbn.language.common.TokenType;
-import com.dci.intellij.dbn.language.common.element.path.ParsePathNode;
 import com.intellij.lang.PsiBuilder;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.intellij.util.containers.Stack;
 
 public class NestedRangeMonitor {
-    private List<NestedRangeStartMarker> markers = new ArrayList<NestedRangeStartMarker>();
+    private Stack<NestedRangeStartMarker> markers = new Stack<NestedRangeStartMarker>();
     private PsiBuilder builder;
 
     private SimpleTokenType leftParenthesis;
@@ -26,14 +23,29 @@ public class NestedRangeMonitor {
         rightParenthesis = sharedTokenTypes.getRightParenthesis();
     }
 
-    public void compute(ParsePathNode node) {
+    public void compute() {
         TokenType tokenType = (TokenType) builder.getTokenType();
         if (tokenType == leftParenthesis) {
-            markers.add(new NestedRangeStartMarker(builder.mark(), leftParenthesis, rightParenthesis));
+            NestedRangeStartMarker last = null;
+            int builderOffset = builder.getCurrentOffset();
+            while (!markers.empty()) {
+                last = markers.peek();
+                if (last.getOffset() > builderOffset) {
+                    markers.pop();
+                } else  {
+                    break;
+                }
+            }
+
+            if (last == null || last.getOffset() < builderOffset) {
+                NestedRangeStartMarker marker = new NestedRangeStartMarker(builderOffset, leftParenthesis, rightParenthesis);
+                markers.push(marker);
+            }
+
         } else if (tokenType == rightParenthesis) {
             if (markers.size() > 0) {
-                NestedRangeStartMarker marker = markers.remove(markers.size() - 1);
-                marker.getBuilderMarker().drop();
+                NestedRangeStartMarker marker = markers.pop();
+                //marker.getBuilderMarker().drop();
             }
         }
 

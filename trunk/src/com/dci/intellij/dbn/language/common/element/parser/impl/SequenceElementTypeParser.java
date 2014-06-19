@@ -143,7 +143,7 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends A
             TokenType tokenType = builder.getTokenType();
             int newIndex = getLandmarkIndex(tokenType, index, parentNode);
             if (newIndex == index) {
-                builder.advanceLexer(parentNode);
+                builder.advanceLexer();
             }
         }
 
@@ -154,7 +154,7 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends A
 
                 // no landmark hit -> spool the builder
                 if (newIndex == 0) {
-                    builder.advanceLexer(parentNode);
+                    builder.advanceLexer();
                 } else {
                     markerDone(marker, getElementBundle().getUnknownElementType());
                     return newIndex;

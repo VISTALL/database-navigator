@@ -137,7 +137,7 @@ public class IterationElementTypeParser extends AbstractElementTypeParser<Iterat
                     parseNode = parseNode.getParent();
                 }
             }
-            builder.advanceLexer(parentParseNode);
+            builder.advanceLexer();
             advanced = true;
         }
         if (advanced || !lenient)
