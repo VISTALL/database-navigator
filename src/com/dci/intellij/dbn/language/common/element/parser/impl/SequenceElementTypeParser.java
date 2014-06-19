@@ -127,17 +127,17 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends A
     }
 
     protected ParseResult stepOut(PsiBuilder.Marker marker, int depth, ParseResultType resultType, int matchedTokens, ParsePathNode node, ParserContext context) {
+        ParserBuilder builder = context.getBuilder();
         if (resultType == ParseResultType.NO_MATCH) {
-            markerRollbackTo(marker);
+            builder.markerRollbackTo(marker);
         } else {
             if (getElementType() instanceof BlockElementType)
-                markerDrop(marker); else
-                markerDone(marker, getElementType());
+                builder.markerDrop(marker); else
+                builder.markerDone(marker, getElementType());
         }
 
         WrappingDefinition wrapping = getElementType().getWrapping();
         if (wrapping != null) {
-            ParserBuilder builder = context.getBuilder();
             while(builder.getTokenType() == wrapping.getEndElementType().getTokenType()) {
                 builder.advanceLexer(node, true);
             }
@@ -170,12 +170,12 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends A
                 if (newIndex == 0) {
                     builder.advanceLexer(node);
                 } else {
-                    markerDone(marker, getElementBundle().getUnknownElementType());
+                    builder.markerDone(marker, getElementBundle().getUnknownElementType());
                     return newIndex;
                 }
             }
         }
-        markerDone(marker, getElementBundle().getUnknownElementType());
+        builder.markerDone(marker, getElementBundle().getUnknownElementType());
         return 0;
     }
 

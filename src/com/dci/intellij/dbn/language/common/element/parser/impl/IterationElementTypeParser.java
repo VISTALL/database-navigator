@@ -113,7 +113,7 @@ public class IterationElementTypeParser extends AbstractElementTypeParser<Iterat
                 if (separatorTokens != null) {
                     for (TokenElementType separatorToken : separatorTokens) {
                         if (separatorToken.getLookupCache().containsLandmarkToken(tokenType)) {
-                            markerDone(marker, unknownElementType);
+                            builder.markerDone(marker, unknownElementType);
                             return false;
                         }
                     }
@@ -126,9 +126,9 @@ public class IterationElementTypeParser extends AbstractElementTypeParser<Iterat
                         int index = parseNode.getCurrentSiblingPosition();
                         if ( sequenceElementType.containsLandmarkTokenFromIndex(tokenType, index + 1)) {
                             if (advanced || !lenient) {
-                                markerDone(marker, unknownElementType);
+                                builder.markerDone(marker, unknownElementType);
                             } else {
-                                markerRollbackTo(marker);
+                                builder.markerRollbackTo(marker);
                             }
                             return true;
                         }
@@ -141,8 +141,8 @@ public class IterationElementTypeParser extends AbstractElementTypeParser<Iterat
             advanced = true;
         }
         if (advanced || !lenient)
-            markerDone(marker, unknownElementType); else
-            markerRollbackTo(marker);
+            builder.markerDone(marker, unknownElementType); else
+            builder.markerRollbackTo(marker);
         return true;
     }
 

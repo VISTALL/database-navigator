@@ -2,9 +2,11 @@ package com.dci.intellij.dbn.language.common.element.parser;
 
 import com.dci.intellij.dbn.language.common.DBLanguageDialect;
 import com.dci.intellij.dbn.language.common.TokenType;
+import com.dci.intellij.dbn.language.common.element.ElementType;
 import com.dci.intellij.dbn.language.common.element.path.ParsePathNode;
 import com.intellij.lang.ASTNode;
 import com.intellij.lang.PsiBuilder;
+import com.intellij.psi.tree.IElementType;
 
 public class ParserBuilder {
     private PsiBuilder builder;
@@ -63,5 +65,23 @@ public class ParserBuilder {
 
     public void setDebugMode(boolean debugMode) {
         builder.setDebugMode(debugMode);
+    }
+
+    public void markerRollbackTo(PsiBuilder.Marker marker) {
+        if (marker != null) {
+            marker.rollbackTo();
+        }
+    }
+
+    public void markerDone(PsiBuilder.Marker marker, ElementType elementType) {
+        if (marker != null) {
+            marker.done((IElementType) elementType);
+        }
+    }
+
+    public void markerDrop(PsiBuilder.Marker marker) {
+        if (marker != null) {
+            marker.drop();
+        }
     }
 }
