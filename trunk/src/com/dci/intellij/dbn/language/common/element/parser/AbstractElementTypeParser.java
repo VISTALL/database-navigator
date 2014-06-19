@@ -13,7 +13,6 @@ import com.dci.intellij.dbn.language.common.element.util.ElementTypeLogger;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeUtil;
 import com.dci.intellij.dbn.language.common.element.util.ParseBuilderErrorHandler;
 import com.intellij.lang.PsiBuilder;
-import com.intellij.psi.tree.IElementType;
 
 public abstract class AbstractElementTypeParser<T extends ElementType> implements ElementTypeParser<T>{
     private T elementType;
@@ -62,9 +61,11 @@ public abstract class AbstractElementTypeParser<T extends ElementType> implement
         if (resultType == ParseResultType.PARTIAL_MATCH) {
             ParseBuilderErrorHandler.updateBuilderError(elementType.getLookupCache().getNextPossibleTokens(), context);
         }
-        if (resultType == ParseResultType.NO_MATCH)
-            markerRollbackTo(marker); else
-            markerDone(marker, elementType);
+        ParserBuilder builder = context.getBuilder();
+        if (resultType == ParseResultType.NO_MATCH) {
+            builder.markerRollbackTo(marker);
+        } else
+            builder.markerDone(marker, elementType);
 
 
         logEnd(resultType, depth);
@@ -117,23 +118,5 @@ public abstract class AbstractElementTypeParser<T extends ElementType> implement
 
     public ElementTypeBundle getElementBundle() {
         return elementType.getElementBundle();
-    }
-
-    protected void markerDone(PsiBuilder.Marker marker, ElementType elementType) {
-        if (marker != null) {
-            marker.done((IElementType) elementType);
-        }
-    }
-
-    protected void markerDrop(PsiBuilder.Marker marker) {
-        if (marker != null) {
-            marker.drop();
-        }
-    }
-
-    protected void markerRollbackTo(PsiBuilder.Marker marker) {
-        if (marker != null) {
-            marker.rollbackTo();
-        }
     }
 }

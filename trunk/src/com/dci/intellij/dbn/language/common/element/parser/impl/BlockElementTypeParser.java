@@ -4,6 +4,7 @@ import com.dci.intellij.dbn.language.common.ParseException;
 import com.dci.intellij.dbn.language.common.element.BlockElementType;
 import com.dci.intellij.dbn.language.common.element.parser.ParseResult;
 import com.dci.intellij.dbn.language.common.element.parser.ParseResultType;
+import com.dci.intellij.dbn.language.common.element.parser.ParserBuilder;
 import com.dci.intellij.dbn.language.common.element.parser.ParserContext;
 import com.dci.intellij.dbn.language.common.element.path.ParsePathNode;
 import com.intellij.lang.PsiBuilder;
@@ -14,12 +15,13 @@ public class BlockElementTypeParser extends SequenceElementTypeParser<BlockEleme
     }
 
     public ParseResult parse(ParsePathNode parentNode, boolean optional, int depth, ParserContext context) throws ParseException {
-        PsiBuilder.Marker marker = context.getBuilder().mark();
+        ParserBuilder builder = context.getBuilder();
+        PsiBuilder.Marker marker = builder.mark();
         ParseResult result = super.parse(parentNode, optional, depth, context);
         if (result.getType() == ParseResultType.NO_MATCH) {
-            marker.drop();
+            builder.markerDrop(marker);
         } else {
-            markerDone(marker, getElementType());
+            builder.markerDone(marker, getElementType());
         }
         return result.getType() == ParseResultType.NO_MATCH ?
                 ParseResult.createNoMatchResult() :

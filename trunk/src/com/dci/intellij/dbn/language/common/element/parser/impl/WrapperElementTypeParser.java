@@ -37,7 +37,7 @@ public class WrapperElementTypeParser extends AbstractElementTypeParser<WrapperE
                 matchedTokens = matchedTokens + wrappedResult.getMatchedTokens();
                 return stepOut(marker, depth, wrappedResult.getType(), matchedTokens, node, context);
             } else {
-                markerRollbackTo(marker);
+                builder.markerRollbackTo(marker);
                 marker = builder.mark();
             }
         }
