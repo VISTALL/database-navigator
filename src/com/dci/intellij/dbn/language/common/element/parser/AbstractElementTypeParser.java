@@ -56,7 +56,7 @@ public abstract class AbstractElementTypeParser<T extends ElementType> implement
         return errorHandler;
     }
 
-    protected ParseResult stepOut(PsiBuilder.Marker marker, int depth, ParseResultType resultType, int matchedTokens, PathNode node, ParserContext context) {
+    protected ParseResult stepOut(PsiBuilder.Marker marker, int depth, ParseResultType resultType, int matchedTokens, ParsePathNode node, ParserContext context) {
         if (node != null) node.detach();
         if (resultType == ParseResultType.PARTIAL_MATCH) {
             ParseBuilderErrorHandler.updateBuilderError(elementType.getLookupCache().getNextPossibleTokens(), context);
@@ -83,7 +83,7 @@ public abstract class AbstractElementTypeParser<T extends ElementType> implement
             if (tokenType.isSuppressibleReservedWord()) {
                 ElementType elementType = node.getElementType();
                 if (elementType instanceof QualifiedIdentifierElementType) {
-                    if (node.getCurrentSiblingPosition() > 0) return true;
+                    if (node.getCurrentSiblingIndex() > 0) return true;
                 }
 
                 ElementType namedElementType = ElementTypeUtil.getEnclosingNamedElementType(node);
@@ -103,7 +103,7 @@ public abstract class AbstractElementTypeParser<T extends ElementType> implement
         while (parent != null) {
             if (parent.getElementType() instanceof SequenceElementType) {
                 SequenceElementType sequenceElementType = (SequenceElementType) parent.getElementType();
-                if (sequenceElementType.isPossibleTokenFromIndex(tokenType, parent.getCurrentSiblingPosition() + 1)) {
+                if (sequenceElementType.isPossibleTokenFromIndex(tokenType, parent.getCurrentSiblingIndex() + 1)) {
                     return true;
                 }
             }

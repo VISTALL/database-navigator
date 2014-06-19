@@ -71,7 +71,7 @@ public abstract class LeafElementTypeImpl extends AbstractElementType implements
                     return sequenceElementType.getElementTypes()[position-1];
                 }
             }
-            position = pathNode.getCurrentSiblingPosition();
+            position = pathNode.getCurrentSiblingIndex();
             pathNode = pathNode.getParent();
         }
         return null;
@@ -117,7 +117,7 @@ public abstract class LeafElementTypeImpl extends AbstractElementType implements
                 }
             }
             if (pathNode != null) {
-                position = pathNode.getCurrentSiblingPosition();
+                position = pathNode.getCurrentSiblingIndex();
                 pathNode = pathNode.getParent();
             }
         }
@@ -148,7 +148,7 @@ public abstract class LeafElementTypeImpl extends AbstractElementType implements
                 Collections.addAll(requiredLeafs, separatorTokens);
             }
             if (pathNode != null) {
-                index = pathNode.getCurrentSiblingPosition();
+                index = pathNode.getCurrentSiblingIndex();
                 pathNode = pathNode.getParent();
             }
         }
