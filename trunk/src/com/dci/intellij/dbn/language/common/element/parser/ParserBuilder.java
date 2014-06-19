@@ -2,6 +2,7 @@ package com.dci.intellij.dbn.language.common.element.parser;
 
 import com.dci.intellij.dbn.language.common.DBLanguageDialect;
 import com.dci.intellij.dbn.language.common.TokenType;
+import com.dci.intellij.dbn.language.common.element.path.ParsePathNode;
 import com.intellij.lang.ASTNode;
 import com.intellij.lang.PsiBuilder;
 
@@ -16,7 +17,10 @@ public class ParserBuilder {
     }
 
     public void advanceLexer() {
-        monitor.compute();
+        advanceLexer(null);
+    }
+    public void advanceLexer(ParsePathNode parentNode) {
+        monitor.compute(parentNode);
         builder.advanceLexer();
     }
 

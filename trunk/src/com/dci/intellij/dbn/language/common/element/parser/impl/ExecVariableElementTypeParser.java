@@ -23,7 +23,7 @@ public class ExecVariableElementTypeParser extends AbstractElementTypeParser<Exe
         if (tokenType != null && !tokenType.isChameleon()){
             if (tokenType.isVariable()) {
                 PsiBuilder.Marker marker = builder.mark();
-                builder.advanceLexer();
+                builder.advanceLexer(parentNode);
                 return stepOut(marker, depth, ParseResultType.FULL_MATCH, 1, null, context);
             }
         }

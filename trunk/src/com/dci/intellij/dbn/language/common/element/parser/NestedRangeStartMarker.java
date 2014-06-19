@@ -1,28 +1,26 @@
 package com.dci.intellij.dbn.language.common.element.parser;
 
-import com.dci.intellij.dbn.language.common.TokenType;
+import com.dci.intellij.dbn.language.common.element.path.ParsePathNode;
 
 public class NestedRangeStartMarker {
+    private ParsePathNode parentNode;
     private int offset;
-    private TokenType beginTokenType;
-    private TokenType endTokenType;
 
-    public NestedRangeStartMarker(int offset, TokenType beginTokenType, TokenType endTokenType) {
+    public NestedRangeStartMarker(ParsePathNode parentNode, int offset) {
+        this.parentNode = parentNode;
         this.offset = offset;
-        this.beginTokenType = beginTokenType;
-        this.endTokenType = endTokenType;
+    }
+
+    public NestedRangeStartMarker(int offset) {
+        this.offset = offset;
+    }
+
+    public ParsePathNode getParentNode() {
+        return parentNode;
     }
 
     public int getOffset() {
         return offset;
-    }
-
-    public TokenType getBeginTokenType() {
-        return beginTokenType;
-    }
-
-    public TokenType getEndTokenType() {
-        return endTokenType;
     }
 
     @Override

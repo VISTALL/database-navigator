@@ -79,7 +79,7 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends A
                         return stepOut(marker, depth, ParseResultType.NO_MATCH, matchedTokens, node, context);
                     }
 
-                    int offset = advanceLexerToNextLandmark(i, parentNode, context);
+                    int offset = advanceLexerToNextLandmark(node, context);
 
                     // no landmarks found or landmark in parent found
                     if (offset == 0 || offset < 0) {
@@ -133,7 +133,8 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends A
         return super.stepOut(null, depth, resultType, matchedTokens, node, context);
     }    
 
-    private int advanceLexerToNextLandmark(int index, ParsePathNode parentNode, ParserContext context) {
+    private int advanceLexerToNextLandmark(ParsePathNode node, ParserContext context) {
+        int index = node.getCurrentSiblingPosition();
         ParserBuilder builder = context.getBuilder();
         PsiBuilder.Marker marker = builder.mark();
         SequenceElementType elementType = getElementType();
@@ -141,20 +142,20 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends A
 
         if (!builder.eof()) {
             TokenType tokenType = builder.getTokenType();
-            int newIndex = getLandmarkIndex(tokenType, index, parentNode);
+            int newIndex = getLandmarkIndex(tokenType, index, node);
             if (newIndex == index) {
-                builder.advanceLexer();
+                builder.advanceLexer(node);
             }
         }
 
         while (!builder.eof()) {
             TokenType tokenType = builder.getTokenType();
             if (tokenType != null) {
-                int newIndex = getLandmarkIndex(tokenType, index, parentNode);
+                int newIndex = getLandmarkIndex(tokenType, index, node);
 
                 // no landmark hit -> spool the builder
                 if (newIndex == 0) {
-                    builder.advanceLexer();
+                    builder.advanceLexer(node);
                 } else {
                     markerDone(marker, getElementBundle().getUnknownElementType());
                     return newIndex;

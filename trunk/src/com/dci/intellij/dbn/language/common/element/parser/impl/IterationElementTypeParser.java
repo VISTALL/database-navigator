@@ -94,7 +94,7 @@ public class IterationElementTypeParser extends AbstractElementTypeParser<Iterat
         return stepOut(marker, depth, ParseResultType.NO_MATCH, matchedTokens, node, context);
     }
 
-    private boolean advanceLexerToNextLandmark(ParsePathNode parentParseNode, boolean lenient, ParserContext context) {
+    private boolean advanceLexerToNextLandmark(ParsePathNode parentNode, boolean lenient, ParserContext context) {
         ParserBuilder builder = context.getBuilder();
         PsiBuilder.Marker marker = builder.mark();
         ElementType iteratedElementType = getElementType().getIteratedElementType();
@@ -119,7 +119,7 @@ public class IterationElementTypeParser extends AbstractElementTypeParser<Iterat
                     }
                 }
 
-                ParsePathNode parseNode = parentParseNode;
+                ParsePathNode parseNode = parentNode;
                 while (parseNode != null) {
                     if (parseNode.getElementType() instanceof SequenceElementType) {
                         SequenceElementType sequenceElementType = (SequenceElementType) parseNode.getElementType();
@@ -137,7 +137,7 @@ public class IterationElementTypeParser extends AbstractElementTypeParser<Iterat
                     parseNode = parseNode.getParent();
                 }
             }
-            builder.advanceLexer();
+            builder.advanceLexer(parentNode);
             advanced = true;
         }
         if (advanced || !lenient)
