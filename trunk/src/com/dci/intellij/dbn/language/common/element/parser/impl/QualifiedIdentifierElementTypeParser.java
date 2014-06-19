@@ -41,7 +41,6 @@ public class QualifiedIdentifierElementTypeParser extends AbstractElementTypePar
 
             int currentSiblingPosition = 0;
             for (LeafElementType elementType : elementTypes) {
-                node.setCurrentSiblingPosition(currentSiblingPosition);
                 ParseResult result = elementType.getParser().parse(node, true, depth + 1, context);
                 if (result.isNoMatch()) break;  else matchedTokens = matchedTokens + result.getMatchedTokens();
 
@@ -49,7 +48,7 @@ public class QualifiedIdentifierElementTypeParser extends AbstractElementTypePar
                     result = separatorToken.getParser().parse(node, true, depth + 1, context);
                     if (result.isNoMatch()) break; else matchedTokens = matchedTokens + result.getMatchedTokens();
                 }
-                currentSiblingPosition++;
+                node.incrementIndex(builder.getCurrentOffset());
             }
 
             if (variant.isIncomplete()) {

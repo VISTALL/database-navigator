@@ -5,7 +5,7 @@ import com.dci.intellij.dbn.language.common.element.ElementType;
 public interface PathNode {
     PathNode getParent();
 
-    int getCurrentSiblingPosition();
+    int getCurrentSiblingIndex();
 
     ElementType getElementType();
 

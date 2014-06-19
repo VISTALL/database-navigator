@@ -3,14 +3,14 @@ package com.dci.intellij.dbn.language.common.element.path;
 import com.dci.intellij.dbn.language.common.element.ElementType;
 
 public class BasicPathNode implements PathNode {
-    private int currentSiblingPosition;
+    private int currentSiblingIndex;
     private PathNode parent;
     private ElementType elementType;
 
-    public BasicPathNode(ElementType elementType, PathNode parent, int currentSiblingPosition) {
+    public BasicPathNode(ElementType elementType, PathNode parent, int currentSiblingIndex) {
         this.elementType = elementType;
         this.parent = parent;
-        this.currentSiblingPosition = currentSiblingPosition;
+        this.currentSiblingIndex = currentSiblingIndex;
     }
 
     public PathNode getParent() {
@@ -21,12 +21,12 @@ public class BasicPathNode implements PathNode {
         this.parent = parent;
     }
 
-    public int getCurrentSiblingPosition() {
-        return currentSiblingPosition;
+    public int getCurrentSiblingIndex() {
+        return currentSiblingIndex;
     }
 
-    public void setCurrentSiblingPosition(int currentSiblingPosition) {
-        this.currentSiblingPosition = currentSiblingPosition;
+    public void setCurrentSiblingIndex(int currentSiblingIndex) {
+        this.currentSiblingIndex = currentSiblingIndex;
     }
 
     public ElementType getElementType() {

@@ -12,7 +12,6 @@ import com.dci.intellij.dbn.language.common.element.parser.ParseResult;
 import com.dci.intellij.dbn.language.common.element.parser.ParseResultType;
 import com.dci.intellij.dbn.language.common.element.parser.ParserBuilder;
 import com.dci.intellij.dbn.language.common.element.parser.ParserContext;
-import com.dci.intellij.dbn.language.common.element.path.IterationParsePathNode;
 import com.dci.intellij.dbn.language.common.element.path.ParsePathNode;
 import com.intellij.lang.PsiBuilder;
 
@@ -23,7 +22,7 @@ public class IterationElementTypeParser extends AbstractElementTypeParser<Iterat
 
     public ParseResult parse(ParsePathNode parentNode, boolean optional, int depth, ParserContext context) throws ParseException {
         ParserBuilder builder = context.getBuilder();
-        IterationParsePathNode node = createParseNode(parentNode, builder.getCurrentOffset());
+        ParsePathNode node = createParseNode(parentNode, builder.getCurrentOffset());
         logBegin(builder, optional, depth);
         PsiBuilder.Marker marker = builder.mark();
         ElementType iteratedElementType = getElementType().getIteratedElementType();
@@ -123,7 +122,7 @@ public class IterationElementTypeParser extends AbstractElementTypeParser<Iterat
                 while (parseNode != null) {
                     if (parseNode.getElementType() instanceof SequenceElementType) {
                         SequenceElementType sequenceElementType = (SequenceElementType) parseNode.getElementType();
-                        int index = parseNode.getCurrentSiblingPosition();
+                        int index = parseNode.getCurrentSiblingIndex();
                         if ( sequenceElementType.containsLandmarkTokenFromIndex(tokenType, index + 1)) {
                             if (advanced || !lenient) {
                                 builder.markerDone(marker, unknownElementType);
@@ -145,11 +144,6 @@ public class IterationElementTypeParser extends AbstractElementTypeParser<Iterat
             builder.markerRollbackTo(marker);
         return true;
     }
-
-    public IterationParsePathNode createParseNode(ParsePathNode parentParseNode, int builderOffset) {
-        return new IterationParsePathNode(getElementType(), parentParseNode, builderOffset, 0);
-    }
-
 
     private boolean matchesElementsCount(int elementsCount) {
         int[]elementsCountVariants = getElementType().getElementsCountVariants();

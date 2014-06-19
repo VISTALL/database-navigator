@@ -21,7 +21,7 @@ public class ASTPathNode implements PathNode{
         return null;
     }
 
-    public int getCurrentSiblingPosition() {
+    public int getCurrentSiblingIndex() {
         ASTNode parentAstNode = astNode.getTreeParent();
         if (parentAstNode.getElementType() instanceof SequenceElementType) {
             SequenceElementType sequenceElementType = (SequenceElementType) parentAstNode.getElementType();
