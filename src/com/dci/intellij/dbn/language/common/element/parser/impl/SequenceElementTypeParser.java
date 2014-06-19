@@ -7,13 +7,13 @@ import com.dci.intellij.dbn.language.common.element.ElementType;
 import com.dci.intellij.dbn.language.common.element.IdentifierElementType;
 import com.dci.intellij.dbn.language.common.element.IterationElementType;
 import com.dci.intellij.dbn.language.common.element.SequenceElementType;
+import com.dci.intellij.dbn.language.common.element.impl.WrappingDefinition;
 import com.dci.intellij.dbn.language.common.element.parser.AbstractElementTypeParser;
 import com.dci.intellij.dbn.language.common.element.parser.ParseResult;
 import com.dci.intellij.dbn.language.common.element.parser.ParseResultType;
 import com.dci.intellij.dbn.language.common.element.parser.ParserBuilder;
 import com.dci.intellij.dbn.language.common.element.parser.ParserContext;
 import com.dci.intellij.dbn.language.common.element.path.ParsePathNode;
-import com.dci.intellij.dbn.language.common.element.path.PathNode;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dci.intellij.dbn.language.common.element.util.ParseBuilderErrorHandler;
 import com.intellij.lang.PsiBuilder;
@@ -27,9 +27,14 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends A
         ParserBuilder builder = context.getBuilder();
         logBegin(builder, optional, depth);
         SequenceElementType elementType = getElementType();
-
         ParsePathNode node = createParseNode(parentNode, builder.getCurrentOffset());
-        ElementType[] elementTypes = elementType.getElementTypes();
+
+        WrappingDefinition wrapping = elementType.getWrapping();
+        if (wrapping != null) {
+            while(builder.getTokenType() == wrapping.getBeginElementType().getTokenType()) {
+                builder.advanceLexer(node, true);
+            }
+        }
 
         PsiBuilder.Marker marker = builder.mark();
         int matches = 0;
@@ -44,6 +49,7 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends A
 
 
         if (tokenType != null && !tokenType.isChameleon() && (isDummyToken || isSuppressibleReservedWord || elementType.getLookupCache().canStartWithToken(tokenType))) {
+            ElementType[] elementTypes = elementType.getElementTypes();
             for (int i = 0; i < elementTypes.length; i++) {
                 // is end of document
                 if (tokenType == null || tokenType.isChameleon()) {
@@ -120,16 +126,23 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends A
         return false;
     }
 
-    protected ParseResult stepOut(PsiBuilder.Marker marker, int depth, ParseResultType resultType, int matchedTokens, PathNode node, ParserContext context) {
-        if (marker != null) {
-            if (resultType == ParseResultType.NO_MATCH) {
-                markerRollbackTo(marker);
-            } else {
-                if (getElementType() instanceof BlockElementType)
-                    markerDrop(marker); else
-                    markerDone(marker, getElementType());
+    protected ParseResult stepOut(PsiBuilder.Marker marker, int depth, ParseResultType resultType, int matchedTokens, ParsePathNode node, ParserContext context) {
+        if (resultType == ParseResultType.NO_MATCH) {
+            markerRollbackTo(marker);
+        } else {
+            if (getElementType() instanceof BlockElementType)
+                markerDrop(marker); else
+                markerDone(marker, getElementType());
+        }
+
+        WrappingDefinition wrapping = getElementType().getWrapping();
+        if (wrapping != null) {
+            ParserBuilder builder = context.getBuilder();
+            while(builder.getTokenType() == wrapping.getEndElementType().getTokenType()) {
+                builder.advanceLexer(node, true);
             }
         }
+
         return super.stepOut(null, depth, resultType, matchedTokens, node, context);
     }    
 
@@ -168,9 +181,10 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends A
 
     protected int getLandmarkIndex(TokenType tokenType, int index, ParsePathNode parentParseNode) {
         if (tokenType.isParserLandmark()) {
-            for (int i=index; i<getElementType().getElementTypes().length; i++) {
+            ElementType[] elementTypes = getElementType().getElementTypes();
+            for (int i=index; i< elementTypes.length; i++) {
                 // check children landmarks
-                if (getElementType().getElementTypes()[i].getLookupCache().canStartWithToken(tokenType)) {
+                if (elementTypes[i].getLookupCache().canStartWithToken(tokenType)) {
                     return i;
                 }
             }

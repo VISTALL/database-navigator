@@ -134,7 +134,8 @@ public class SimpleTokenType extends IElementType implements TokenType {
     }
 
     public boolean isParserLandmark() {
-        return isKeyword() || isFunction() || isParameter() || isCharacter() || isOperator();
+        return !isIdentifier();
+        //return isKeyword() || isFunction() || isParameter() || isCharacter() || isOperator();
         //return isCharacter() || isOperator() || !isSuppressibleReservedWord();
     }
 

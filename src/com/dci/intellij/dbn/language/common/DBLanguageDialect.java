@@ -1,7 +1,9 @@
 package com.dci.intellij.dbn.language.common;
 
 import com.dci.intellij.dbn.language.common.element.ChameleonElementType;
+import com.dci.intellij.dbn.language.common.element.impl.NestedRangeElementType;
 import com.intellij.lang.LanguageDialect;
+import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.IFileElementType;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -19,6 +21,7 @@ public abstract class DBLanguageDialect extends LanguageDialect implements DBFil
     private Set<ChameleonTokenType> chameleonTokens;
     private ChameleonElementType chameleonElementType;
     private static Map<DBLanguageDialectIdentifier, DBLanguageDialect> register = new HashMap<DBLanguageDialectIdentifier, DBLanguageDialect>();
+    private IElementType nestedRangeElementType;
 
     public DBLanguageDialect(@NonNls @NotNull DBLanguageDialectIdentifier identifier, @NotNull DBLanguage baseLanguage) {
         super(identifier.getValue(), baseLanguage);
@@ -103,5 +106,12 @@ public abstract class DBLanguageDialect extends LanguageDialect implements DBFil
             chameleonElementType = new ChameleonElementType(this);
         }
         return chameleonElementType;
+    }
+
+    public IElementType getNestedRangeElementType() {
+        if (nestedRangeElementType == null) {
+            nestedRangeElementType = new NestedRangeElementType(this);
+        }
+        return nestedRangeElementType;
     }
 }
