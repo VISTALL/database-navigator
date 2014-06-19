@@ -4,6 +4,7 @@ import com.dci.intellij.dbn.language.common.DBLanguageDialect;
 import com.dci.intellij.dbn.language.common.SharedTokenTypeBundle;
 import com.dci.intellij.dbn.language.common.SimpleTokenType;
 import com.dci.intellij.dbn.language.common.TokenType;
+import com.dci.intellij.dbn.language.common.element.path.ParsePathNode;
 import com.intellij.lang.PsiBuilder;
 import com.intellij.util.containers.Stack;
 
@@ -23,7 +24,7 @@ public class NestedRangeMonitor {
         rightParenthesis = sharedTokenTypes.getRightParenthesis();
     }
 
-    public void compute() {
+    public void compute(ParsePathNode parentNode) {
         TokenType tokenType = (TokenType) builder.getTokenType();
         if (tokenType == leftParenthesis) {
             NestedRangeStartMarker last = null;
@@ -38,7 +39,7 @@ public class NestedRangeMonitor {
             }
 
             if (last == null || last.getOffset() < builderOffset) {
-                NestedRangeStartMarker marker = new NestedRangeStartMarker(builderOffset, leftParenthesis, rightParenthesis);
+                NestedRangeStartMarker marker = new NestedRangeStartMarker(parentNode, builderOffset);
                 markers.push(marker);
             }
 
