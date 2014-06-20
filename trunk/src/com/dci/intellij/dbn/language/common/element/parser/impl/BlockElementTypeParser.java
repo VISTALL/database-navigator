@@ -17,7 +17,7 @@ public class BlockElementTypeParser extends SequenceElementTypeParser<BlockEleme
 
     public ParseResult parse(@NotNull ParsePathNode parentNode, boolean optional, int depth, ParserContext context) throws ParseException {
         ParserBuilder builder = context.getBuilder();
-        PsiBuilder.Marker marker = builder.mark();
+        PsiBuilder.Marker marker = builder.mark(null);
         ParseResult result = super.parse(parentNode, optional, depth, context);
         if (result.getType() == ParseResultType.NO_MATCH) {
             builder.markerDrop(marker);

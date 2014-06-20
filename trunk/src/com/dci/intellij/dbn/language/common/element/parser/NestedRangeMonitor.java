@@ -4,6 +4,7 @@ import com.dci.intellij.dbn.language.common.DBLanguageDialect;
 import com.dci.intellij.dbn.language.common.SharedTokenTypeBundle;
 import com.dci.intellij.dbn.language.common.SimpleTokenType;
 import com.dci.intellij.dbn.language.common.TokenType;
+import com.dci.intellij.dbn.language.common.element.impl.NestedRangeElementType;
 import com.dci.intellij.dbn.language.common.element.path.ParsePathNode;
 import com.intellij.lang.PsiBuilder;
 import com.intellij.util.containers.Stack;
@@ -89,9 +90,39 @@ public class NestedRangeMonitor {
             NestedRangeStartMarker marker = markers.pop();
             PsiBuilder.Marker builderMarker = marker.getBuilderMarker();
             if (builderMarker != null) {
-                builderMarker.done(languageDialect.getNestedRangeElementType());
+                builderMarker.done(getNestedRangeElementType());
+                marker.setBuilderMarker(null);
             }
         }
     }
 
+    private NestedRangeElementType getNestedRangeElementType() {
+        return languageDialect.getParserDefinition().getParser().getElementTypes().getNestedRangeElementType();
+    }
+
+    public void completeMarkers(ParsePathNode node) {
+        if (node != null && markers.size() > 0) {
+            for (NestedRangeStartMarker marker : markers) {
+                PsiBuilder.Marker builderMarker = marker.getBuilderMarker();
+                if (marker.getParentNode() == node && builderMarker != null) {
+                    builderMarker.done(getNestedRangeElementType());
+                    marker.setBuilderMarker(null);
+                }
+            }
+        }
+    }
+
+    public void rollbackMarkers(ParsePathNode node) {
+        if (node != null && markers.size() > 0) {
+            for (int i=markers.size()-1; i>-1; i--) {
+                NestedRangeStartMarker marker = markers.get(i);
+                PsiBuilder.Marker builderMarker = marker.getBuilderMarker();
+                if (marker.getParentNode() == node && builderMarker != null) {
+                    builderMarker.rollbackTo();
+                    marker.setBuilderMarker(null);
+                }
+            }
+        }
+
+    }
 }

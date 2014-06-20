@@ -1,13 +1,13 @@
 package com.dci.intellij.dbn.language.common.element.lookup;
 
 import com.dci.intellij.dbn.language.common.TokenType;
+import com.dci.intellij.dbn.language.common.element.BasicElementType;
 import com.dci.intellij.dbn.language.common.element.ElementType;
 import com.dci.intellij.dbn.language.common.element.LeafElementType;
-import com.dci.intellij.dbn.language.common.element.UnknownElementType;
 import com.dci.intellij.dbn.language.common.element.path.PathNode;
 
-public class UnknownElementTypeLookupCache extends AbstractElementTypeLookupCache<UnknownElementType> {
-    public UnknownElementTypeLookupCache(UnknownElementType elementType) {
+public class BasicElementTypeLookupCache extends AbstractElementTypeLookupCache<BasicElementType> {
+    public BasicElementTypeLookupCache(BasicElementType elementType) {
         super(elementType);
     }
 

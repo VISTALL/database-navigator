@@ -33,7 +33,7 @@ public class QualifiedIdentifierElementTypeParser extends AbstractElementTypePar
 
         TokenElementType separatorToken = getElementType().getSeparatorToken();
 
-        PsiBuilder.Marker marker = builder.mark();
+        PsiBuilder.Marker marker = builder.mark(node);
         int matchedTokens = 0;
 
         QualifiedIdentifierVariant variant = getMostProbableParseVariant(builder, node);

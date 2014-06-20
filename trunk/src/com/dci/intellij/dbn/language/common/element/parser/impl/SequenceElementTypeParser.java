@@ -7,7 +7,6 @@ import com.dci.intellij.dbn.language.common.element.ElementType;
 import com.dci.intellij.dbn.language.common.element.IdentifierElementType;
 import com.dci.intellij.dbn.language.common.element.IterationElementType;
 import com.dci.intellij.dbn.language.common.element.SequenceElementType;
-import com.dci.intellij.dbn.language.common.element.impl.WrappingDefinition;
 import com.dci.intellij.dbn.language.common.element.parser.AbstractElementTypeParser;
 import com.dci.intellij.dbn.language.common.element.parser.ParseResult;
 import com.dci.intellij.dbn.language.common.element.parser.ParseResultType;
@@ -28,23 +27,15 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends A
         ParserBuilder builder = context.getBuilder();
         logBegin(builder, optional, depth);
         SequenceElementType elementType = getElementType();
+
         ParsePathNode node = createParseNode(parentNode, builder.getCurrentOffset());
-
-        WrappingDefinition wrapping = elementType.getWrapping();
-        if (wrapping != null) {
-            while(builder.getTokenType() == wrapping.getBeginElementType().getTokenType()) {
-                builder.advanceLexer(node, true);
-            }
-        }
-
-        PsiBuilder.Marker marker = builder.mark();
+        PsiBuilder.Marker marker = builder.mark(node);
         int matches = 0;
         int matchedTokens = 0;
 
         TokenType tokenType = builder.getTokenType();
         boolean isDummyToken = isDummyToken(builder.getTokenText());
         boolean isSuppressibleReservedWord =
-                tokenType instanceof TokenType &&
                 !elementType.is(ElementTypeAttribute.STATEMENT) &&
                 isSuppressibleReservedWord(tokenType, node);
 
@@ -54,7 +45,7 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends A
             while (node.getCurrentSiblingIndex() < elementTypes.length) {
                 int index = node.getCurrentSiblingIndex();
                 // is end of document
-                if (tokenType == null || tokenType.isChameleon()) {
+                if (tokenType == null || tokenType.isChameleon() || node.isExitParsing()) {
                     ParseResultType resultType =
                             elementType.isOptional(index) && (elementType.isLast(index) || elementType.isOptionalFromIndex(index)) ? ParseResultType.FULL_MATCH :
                             !elementType.isFirst(index) && !elementType.isOptionalFromIndex(index) && !elementType.isExitIndex(index) ? ParseResultType.PARTIAL_MATCH : ParseResultType.NO_MATCH;
@@ -81,14 +72,14 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends A
                 if (result.isNoMatch() && !elementType.isOptional(index)) {
                     boolean isWeakMatch = matches < 2 && matchedTokens < 3 && index > 1 && ignoreFirstMatch();
                     
-                    if (elementType.isFirst(index) || elementType.isExitIndex(index) || isWeakMatch || matches == 0) {
+                    if (node.isExitParsing() || elementType.isFirst(index) || elementType.isExitIndex(index) || isWeakMatch || matches == 0) {
                         //if (isFirst(i) || isExitIndex(i)) {
                         return stepOut(marker, depth, ParseResultType.NO_MATCH, matchedTokens, node, context);
                     }
 
                     index = advanceLexerToNextLandmark(node, context);
 
-                    if (index <= 0) {
+                    if (index <= 0 || node.isExitParsing()) {
                         // no landmarks found or landmark in parent found
                         return stepOut(marker, depth, ParseResultType.PARTIAL_MATCH, matchedTokens, node, context);
                     } else {
@@ -103,7 +94,7 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends A
                 }
 
                 // if is last element
-                if (elementType.isLast(index)) {
+                if (elementType.isLast(index) || node.isExitParsing()) {
                     //matches == 0 reaches this stage only if all sequence elements are optional
                     ParseResultType resultType = matches == 0 ? ParseResultType.NO_MATCH : ParseResultType.FULL_MATCH;
                     return stepOut(marker, depth, resultType, matchedTokens, node, context);
@@ -128,27 +119,20 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends A
     protected ParseResult stepOut(PsiBuilder.Marker marker, int depth, ParseResultType resultType, int matchedTokens, ParsePathNode node, ParserContext context) {
         ParserBuilder builder = context.getBuilder();
         if (resultType == ParseResultType.NO_MATCH) {
-            builder.markerRollbackTo(marker);
+            builder.markerRollbackTo(marker, node);
         } else {
             if (getElementType() instanceof BlockElementType)
                 builder.markerDrop(marker); else
-                builder.markerDone(marker, getElementType());
-        }
-
-        WrappingDefinition wrapping = getElementType().getWrapping();
-        if (wrapping != null) {
-            while(builder.getTokenType() == wrapping.getEndElementType().getTokenType()) {
-                builder.advanceLexer(node, true);
-            }
+                builder.markerDone(marker, getElementType(), node);
         }
 
         return super.stepOut(null, depth, resultType, matchedTokens, node, context);
     }    
 
-    private int advanceLexerToNextLandmark(ParsePathNode node, ParserContext context) {
+    private int advanceLexerToNextLandmark(ParsePathNode node, ParserContext context) throws ParseException {
         int siblingPosition = node.getCurrentSiblingIndex();
         ParserBuilder builder = context.getBuilder();
-        PsiBuilder.Marker marker = builder.mark();
+        PsiBuilder.Marker marker = builder.mark(null);
         SequenceElementType elementType = getElementType();
         ParseBuilderErrorHandler.updateBuilderError(elementType.getFirstPossibleTokensFromIndex(siblingPosition), context);
 
