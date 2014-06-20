@@ -151,7 +151,7 @@ CT_SIZE_CLAUSE = {INTEGER}{wso}("k"|"m"|"g"|"t"|"p"|"e"){ws}
 
 
 
-"a"{ws}"set" {return tt.getKeywordTokenType(0);}
+"a set" {return tt.getKeywordTokenType(0);}
 "abort" {return tt.getKeywordTokenType(1);}
 "access" {return tt.getKeywordTokenType(2);}
 "activate" {return tt.getKeywordTokenType(3);}
