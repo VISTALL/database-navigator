@@ -70,64 +70,69 @@ public class QualifiedIdentifierElementTypeParser extends AbstractElementTypePar
         TokenElementType separatorToken = getElementType().getSeparatorToken();
 
         QualifiedIdentifierVariant mostProbableVariant = null;
-        for (LeafElementType[] elementTypes : getElementType().getVariants()) {
-            int offset = 0;
-            //PsiBuilder.Marker marker = builder.mark();
-            int matchedTokens = 0;
-            for (int i=0; i< elementTypes.length; i++) {
-                TokenType tokenType = builder.lookAhead(offset);
-                // if no mach -> consider as partial if not first element
+        int initialSiblingIndex = node.getCurrentSiblingIndex();
 
-                if (match(elementTypes[i], tokenType, node.createVariant(builder.getCurrentOffset(), i), true)) {
-                    matchedTokens++;
-                    offset++;
-                    //builder.advanceLexer();
+        try {
+            for (LeafElementType[] elementTypes : getElementType().getVariants()) {
+                int offset = 0;
+                //PsiBuilder.Marker marker = builder.mark();
+                int matchedTokens = 0;
+                for (int i=0; i< elementTypes.length; i++) {
+                    TokenType tokenType = builder.lookAhead(offset);
+                    // if no mach -> consider as partial if not first element
+
+                    node.setCurrentSiblingIndex(i);
+                    if (match(elementTypes[i], tokenType, node, true)) {
+                        matchedTokens++;
+                        offset++;
 
 
-                    tokenType = builder.lookAhead(offset);
-                    boolean isSeparator = tokenType == separatorToken.getTokenType();
-                    boolean isFullMatch = matchedTokens == elementTypes.length;
-                    boolean isLastElement = i == elementTypes.length - 1;
+                        tokenType = builder.lookAhead(offset);
+                        boolean isSeparator = tokenType == separatorToken.getTokenType();
+                        boolean isFullMatch = matchedTokens == elementTypes.length;
+                        boolean isLastElement = i == elementTypes.length - 1;
 
-                    if (isLastElement) {
-                        QualifiedIdentifierVariant variant = new QualifiedIdentifierVariant(elementTypes, matchedTokens);
-                        if ((isFullMatch && !isSeparator) || variant.containsNonIdentifierTokens()) {
-                            //markerRollbackTo(marker);
-                            return variant;
-                        }
-
-                        if (mostProbableVariant == null || matchedTokens > mostProbableVariant.getMatchedTokens()) {
-                            mostProbableVariant = variant;
-                        }
-                        break;
-                    } else {
-                        if (!isSeparator) {  // is not separator token
+                        if (isLastElement) {
                             QualifiedIdentifierVariant variant = new QualifiedIdentifierVariant(elementTypes, matchedTokens);
-                            if (mostProbableVariant == null || mostProbableVariant.getMatchedTokens() < variant.getMatchedTokens()) {
+                            if ((isFullMatch && !isSeparator) || variant.containsNonIdentifierTokens()) {
+                                //markerRollbackTo(marker);
+                                return variant;
+                            }
+
+                            if (mostProbableVariant == null || matchedTokens > mostProbableVariant.getMatchedTokens()) {
                                 mostProbableVariant = variant;
                             }
                             break;
+                        } else {
+                            if (!isSeparator) {  // is not separator token
+                                QualifiedIdentifierVariant variant = new QualifiedIdentifierVariant(elementTypes, matchedTokens);
+                                if (mostProbableVariant == null || mostProbableVariant.getMatchedTokens() < variant.getMatchedTokens()) {
+                                    mostProbableVariant = variant;
+                                }
+                                break;
+                            }
                         }
+                        offset++;
+                    } else {
+                        if (matchedTokens > 0)  {
+                            QualifiedIdentifierVariant variant = new QualifiedIdentifierVariant(elementTypes, matchedTokens);
+                            if (variant.containsNonIdentifierTokens()) {
+                                //markerRollbackTo(marker);
+                                return variant;
+                            }
+                            if (mostProbableVariant == null || mostProbableVariant.getMatchedTokens() < variant.getMatchedTokens()) {
+                                mostProbableVariant = variant;
+                            }
+                        }
+                        break;
                     }
-                    offset++;
-                    //builder.advanceLexer();
-                } else {
-                    if (matchedTokens > 0)  {
-                        QualifiedIdentifierVariant variant = new QualifiedIdentifierVariant(elementTypes, matchedTokens);
-                        if (variant.containsNonIdentifierTokens()) {
-                            //markerRollbackTo(marker);
-                            return variant;
-                        }
-                        if (mostProbableVariant == null || mostProbableVariant.getMatchedTokens() < variant.getMatchedTokens()) {
-                            mostProbableVariant = variant;
-                        }
-                    }
-                    break;
                 }
             }
-            //markerRollbackTo(marker);
-
         }
+        finally {
+            node.setCurrentSiblingIndex(initialSiblingIndex);
+        }
+
         return mostProbableVariant;
     }
 
