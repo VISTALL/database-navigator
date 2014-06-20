@@ -10,6 +10,7 @@ import com.dci.intellij.dbn.language.common.element.LeafElementType;
 import com.dci.intellij.dbn.language.common.element.QualifiedIdentifierElementType;
 import com.dci.intellij.dbn.language.common.element.SequenceElementType;
 import com.dci.intellij.dbn.language.common.element.TokenElementType;
+import com.dci.intellij.dbn.language.common.element.impl.WrappingDefinition;
 import com.dci.intellij.dbn.language.common.element.util.IdentifierRole;
 import com.dci.intellij.dbn.language.common.element.util.IdentifierType;
 import com.dci.intellij.dbn.object.common.DBObjectType;
@@ -42,6 +43,14 @@ public abstract class AbstractElementTypeLookupCache<T extends ElementType> impl
         this.elementType = elementType;
         if (!elementType.isLeaf()) {
             landmarkTokens = new THashMap<TokenType, Boolean>();
+        }
+        WrappingDefinition wrapping = getElementType().getWrapping();
+        if (wrapping != null) {
+            TokenType wrappingBeginTokenType = wrapping.getBeginElementType().getTokenType();
+            TokenType wrappingEndTokenType = wrapping.getEndElementType().getTokenType();
+            allPossibleTokens.add(wrappingBeginTokenType);
+            allPossibleTokens.add(wrappingEndTokenType);
+            firstPossibleTokens.add(wrappingBeginTokenType);
         }
     }
 

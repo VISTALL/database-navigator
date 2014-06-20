@@ -33,7 +33,7 @@ public class OneOfElementTypeParser extends AbstractElementTypeParser<OneOfEleme
             for (ElementType elementType : getElementType().getPossibleElementTypes()) {
                 if (isDummyToken(tokenText) || elementType.getLookupCache().canStartWithToken(tokenType) || isSuppressibleReservedWord(tokenType, node)) {
                     ParseResult result = elementType.getParser().parse(node, true, depth + 1, context);
-                    if (result.isMatch() || node.isExitParsing()) {
+                    if (result.isMatch()) {
                         return stepOut(marker, depth, result.getType(), result.getMatchedTokens(), node, context);
                     }
                 }

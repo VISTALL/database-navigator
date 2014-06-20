@@ -186,4 +186,13 @@ public class ChameleonElementType extends ILazyParseableElementType implements E
     public TokenTypeCategory getCategory() {
         return null;
     }
+
+    @Override
+    public boolean isOneOf(TokenType... tokenTypes) {
+        for (TokenType tokenType : tokenTypes) {
+            if (this == tokenType) return true;
+        }
+        return false;
+    }
+
 }

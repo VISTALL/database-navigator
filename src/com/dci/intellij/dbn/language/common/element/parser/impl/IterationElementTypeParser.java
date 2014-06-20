@@ -42,7 +42,7 @@ public class IterationElementTypeParser extends AbstractElementTypeParser<Iterat
 
             // check first iteration element
             if (result.isMatch()) {
-                if (node.isExitParsing() || node.isRecursive(node.getStartOffset())) {
+                if (node.isRecursive(node.getStartOffset())) {
                     return stepOut(marker, depth, ParseResultType.FULL_MATCH, matchedTokens, node, context);
                 }
                 while (true) {
@@ -56,7 +56,7 @@ public class IterationElementTypeParser extends AbstractElementTypeParser<Iterat
                             if (result.isMatch()) break;
                         }
 
-                        if (node.isExitParsing() || result.isNoMatch()) {
+                        if (result.isNoMatch()) {
                             // if NO_MATCH, no additional separator found, hence then iteration should exit with MATCH
                             ParseResultType resultType = matchesElementsCount(elementCounter) ?
                                     ParseResultType.FULL_MATCH :
@@ -74,14 +74,14 @@ public class IterationElementTypeParser extends AbstractElementTypeParser<Iterat
 
                     if (result.isNoMatch()) {
                         // missing separators permit ending the iteration as valid at any time
-                        if (separatorTokens == null || node.isExitParsing()) {
+                        if (separatorTokens == null) {
                             ParseResultType resultType = matchesElementsCount(elementCounter) ?
                                     ParseResultType.FULL_MATCH :
                                     ParseResultType.PARTIAL_MATCH;
                             return stepOut(marker, depth, resultType, matchedTokens, node, context);
                         } else {
                             boolean exit = advanceLexerToNextLandmark(parentNode, false, context);
-                            if (exit || node.isExitParsing()){
+                            if (exit){
                                 return stepOut(marker, depth, ParseResultType.PARTIAL_MATCH, matchedTokens, node, context);
                             }
                         }
