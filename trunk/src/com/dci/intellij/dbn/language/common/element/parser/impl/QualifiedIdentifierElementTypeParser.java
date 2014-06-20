@@ -66,7 +66,7 @@ public class QualifiedIdentifierElementTypeParser extends AbstractElementTypePar
         }
     }
 
-    private QualifiedIdentifierVariant getMostProbableParseVariant(ParserBuilder builder, PathNode node) {
+    private QualifiedIdentifierVariant getMostProbableParseVariant(ParserBuilder builder, ParsePathNode node) {
         TokenElementType separatorToken = getElementType().getSeparatorToken();
 
         QualifiedIdentifierVariant mostProbableVariant = null;
@@ -78,7 +78,7 @@ public class QualifiedIdentifierElementTypeParser extends AbstractElementTypePar
                 TokenType tokenType = builder.lookAhead(offset);
                 // if no mach -> consider as partial if not first element
 
-                if (match(elementTypes[i], tokenType, node, true)) {
+                if (match(elementTypes[i], tokenType, node.createVariant(builder.getCurrentOffset(), i), true)) {
                     matchedTokens++;
                     offset++;
                     //builder.advanceLexer();
