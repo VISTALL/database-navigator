@@ -45,4 +45,5 @@ public interface TokenType {
 
     void setDefaultFormatting(FormattingDefinition defaults);
 
+    boolean isOneOf(TokenType ... tokenTypes);
 }

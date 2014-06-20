@@ -178,4 +178,11 @@ public class SimpleTokenType extends IElementType implements TokenType {
         return hashCode;
     }
 
+    @Override
+    public boolean isOneOf(TokenType... tokenTypes) {
+        for (TokenType tokenType : tokenTypes) {
+            if (this == tokenType) return true;
+        }
+        return false;
+    }
 }

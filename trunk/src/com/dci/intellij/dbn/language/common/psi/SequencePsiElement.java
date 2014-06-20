@@ -263,9 +263,12 @@ public class SequencePsiElement extends BasePsiElement {
         for (PsiElement psiElement: psiElements) {
             if (psiElement instanceof BasePsiElement) {
                 BasePsiElement basePsiElement = (BasePsiElement) psiElement;
-                if (basePsiElement.hasErrors()) return true;
+                if (basePsiElement.hasErrors()) {
+                    return true;
+                }
             }
         }
+         if (true) return false;
 
         if (getElementType() instanceof SequenceElementType) {
             int offset = 0;

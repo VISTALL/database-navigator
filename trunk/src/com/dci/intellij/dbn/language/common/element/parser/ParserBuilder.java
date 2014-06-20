@@ -66,25 +66,25 @@ public class ParserBuilder {
     }
 
     public PsiBuilder.Marker mark(@Nullable ParsePathNode node){
+        PsiBuilder.Marker marker = builder.mark();
         if (node != null) {
             WrappingDefinition wrapping = node.getElementType().getWrapping();
             if (wrapping != null) {
                 TokenElementType beginElementType = wrapping.getBeginElementType();
-                while(builder.getTokenType() == beginElementType.getTokenType()) {
+                TokenType beginTokenType = beginElementType.getTokenType();
+                while(builder.getTokenType() == beginTokenType) {
                     PsiBuilder.Marker beginTokenMarker = builder.mark();
                     advanceLexer(node.getParent(), true);
                     beginTokenMarker.done((IElementType) beginElementType);
                 }
             }
         }
-
-        return builder.mark();
+        return marker;
     }
 
     public void markerRollbackTo(PsiBuilder.Marker marker, @Nullable ParsePathNode node) {
         if (marker != null) {
             marker.rollbackTo();
-            nestingMonitor.rollbackMarkers(node);
             nestingMonitor.reset();
         }
     }
@@ -95,21 +95,19 @@ public class ParserBuilder {
 
     public void markerDone(PsiBuilder.Marker marker, ElementType elementType, @Nullable ParsePathNode node) {
         if (marker != null) {
-            nestingMonitor.completeMarkers(node);
-            marker.done((IElementType) elementType);
-
             if (node != null) {
                 WrappingDefinition wrapping = node.getElementType().getWrapping();
                 if (wrapping != null) {
                     TokenElementType endElementType = wrapping.getEndElementType();
-                    while (builder.getTokenType() == endElementType.getTokenType()) {
+                    TokenType endTokenType = endElementType.getTokenType();
+                    while (builder.getTokenType() == endTokenType) {
                         PsiBuilder.Marker endTokenMarker = builder.mark();
-                        advanceLexer(node.getParent(), true);
+                        advanceLexer(node, true);
                         endTokenMarker.done((IElementType) endElementType);
                     }
                 }
             }
-
+            marker.done((IElementType) elementType);
         }
     }
 
@@ -117,9 +115,5 @@ public class ParserBuilder {
         if (marker != null) {
             marker.drop();
         }
-    }
-
-    public void settleNesting() {
-        nestingMonitor.settle();
     }
 }

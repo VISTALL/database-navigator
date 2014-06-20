@@ -45,7 +45,7 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends A
             while (node.getCurrentSiblingIndex() < elementTypes.length) {
                 int index = node.getCurrentSiblingIndex();
                 // is end of document
-                if (tokenType == null || tokenType.isChameleon() || node.isExitParsing()) {
+                if (tokenType == null || tokenType.isChameleon()) {
                     ParseResultType resultType =
                             elementType.isOptional(index) && (elementType.isLast(index) || elementType.isOptionalFromIndex(index)) ? ParseResultType.FULL_MATCH :
                             !elementType.isFirst(index) && !elementType.isOptionalFromIndex(index) && !elementType.isExitIndex(index) ? ParseResultType.PARTIAL_MATCH : ParseResultType.NO_MATCH;
@@ -72,14 +72,14 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends A
                 if (result.isNoMatch() && !elementType.isOptional(index)) {
                     boolean isWeakMatch = matches < 2 && matchedTokens < 3 && index > 1 && ignoreFirstMatch();
                     
-                    if (node.isExitParsing() || elementType.isFirst(index) || elementType.isExitIndex(index) || isWeakMatch || matches == 0) {
+                    if (elementType.isFirst(index) || elementType.isExitIndex(index) || isWeakMatch || matches == 0) {
                         //if (isFirst(i) || isExitIndex(i)) {
                         return stepOut(marker, depth, ParseResultType.NO_MATCH, matchedTokens, node, context);
                     }
 
                     index = advanceLexerToNextLandmark(node, context);
 
-                    if (index <= 0 || node.isExitParsing()) {
+                    if (index <= 0) {
                         // no landmarks found or landmark in parent found
                         return stepOut(marker, depth, ParseResultType.PARTIAL_MATCH, matchedTokens, node, context);
                     } else {
@@ -94,7 +94,7 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends A
                 }
 
                 // if is last element
-                if (elementType.isLast(index) || node.isExitParsing()) {
+                if (elementType.isLast(index)) {
                     //matches == 0 reaches this stage only if all sequence elements are optional
                     ParseResultType resultType = matches == 0 ? ParseResultType.NO_MATCH : ParseResultType.FULL_MATCH;
                     return stepOut(marker, depth, resultType, matchedTokens, node, context);
@@ -152,7 +152,7 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends A
             }
         }
         //builder.markerDone(marker, getElementBundle().getUnknownElementType());
-        marker.error("Unrecognized statement");
+        marker.error("Unrecognized statement 1");
         return 0;
     }
 

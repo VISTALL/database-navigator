@@ -118,15 +118,15 @@ public abstract class AbstractElementType extends IElementType implements Elemen
             String endTokenId = def.getAttributeValue("wrapping-end-token");
 
             if (StringUtil.isNotEmpty(beginTokenId) && StringUtil.isNotEmpty(endTokenId)) {
-                beginTokenElement = new TokenElementTypeImpl(bundle, this, beginTokenId, "WRAPPING_" + beginTokenId);
-                endTokenElement = new TokenElementTypeImpl(bundle, this, endTokenId, "WRAPPING_" + endTokenId);
+                beginTokenElement = new TokenElementTypeImpl(bundle, this, beginTokenId, getId());
+                endTokenElement = new TokenElementTypeImpl(bundle, this, endTokenId, getId());
             }
         } else {
             WrapperElementTypeTemplate template = WrapperElementTypeTemplate.valueOf(templateId);
             String beginTokenId = template.getBeginToken();
             String endTokenId = template.getEndToken();
-            beginTokenElement = new TokenElementTypeImpl(bundle, this, beginTokenId, "WRAPPING_" + beginTokenId);
-            endTokenElement = new TokenElementTypeImpl(bundle, this, endTokenId, "WRAPPING_" + endTokenId);
+            beginTokenElement = new TokenElementTypeImpl(bundle, this, beginTokenId, getId());
+            endTokenElement = new TokenElementTypeImpl(bundle, this, endTokenId, getId());
 
             if (template.isBlock()) {
                 beginTokenElement.setDefaultFormatting(FormattingDefinition.LINE_BREAK_AFTER);

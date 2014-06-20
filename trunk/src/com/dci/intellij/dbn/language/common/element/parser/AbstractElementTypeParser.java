@@ -75,9 +75,6 @@ public abstract class AbstractElementTypeParser<T extends ElementType> implement
                     ParseResult.createFullMatchResult(matchedTokens);
         } finally {
             if (node != null) {
-                if (node.isSettleNesting()) {
-                    context.getBuilder().settleNesting();
-                }
                 node.detach();
             }
 

@@ -34,7 +34,7 @@ public class WrapperElementTypeParser extends AbstractElementTypeParser<WrapperE
         // first try to parse the wrapped element directly, for supporting wrapped elements nesting
         if (isWrappingOptional) {
             ParseResult wrappedResult = wrappedElement.getParser().parse(node, optional, depth + 1, context);
-            if (wrappedResult.isMatch() || node.isExitParsing()) {
+            if (wrappedResult.isMatch()) {
                 matchedTokens = matchedTokens + wrappedResult.getMatchedTokens();
                 return stepOut(marker, depth, wrappedResult.getType(), matchedTokens, node, context);
             } else {

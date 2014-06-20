@@ -37,12 +37,7 @@ public class NestedRangeMonitor {
         while (markers.size() > 0) {
             NestedRangeStartMarker lastMarker = markers.peek();
             if (lastMarker.getOffset() >= builderOffset) {
-                lastMarker = markers.pop();
-                PsiBuilder.Marker builderMarker = lastMarker.getBuilderMarker();
-                if (builderMarker != null) {
-                    builderMarker.drop();
-                }
-
+                markers.pop();
                 if (depth > 0) depth--;
             } else {
                 break;
@@ -55,9 +50,7 @@ public class NestedRangeMonitor {
         if (tokenType == leftParenthesis) {
             depth++;
             int builderOffset =  builder.getCurrentOffset();
-            NestedRangeStartMarker marker = mark ?
-                    new NestedRangeStartMarker(node, builderOffset, builder.mark()) :
-                    new NestedRangeStartMarker(node, builderOffset);
+            NestedRangeStartMarker marker = new NestedRangeStartMarker(node, builderOffset);
             markers.push(marker);
         } else if (tokenType == rightParenthesis) {
             if (depth > 0) depth--;
@@ -72,7 +65,6 @@ public class NestedRangeMonitor {
                     // parent nesting is closing (prematurely) in child element
                     // => parent is settling the nesting after it is processed
                     // => parsing in ALL child elements must be interrupted
-                    markerNode.setSettleNesting(true);
                     while (node != markerNode) {
                         node.setExitParsing(true);
                         node = node.getParent();
@@ -87,42 +79,11 @@ public class NestedRangeMonitor {
      */
     public void settle() {
         while(markers.size() > depth) {
-            NestedRangeStartMarker marker = markers.pop();
-            PsiBuilder.Marker builderMarker = marker.getBuilderMarker();
-            if (builderMarker != null) {
-                builderMarker.done(getNestedRangeElementType());
-                marker.setBuilderMarker(null);
-            }
+            markers.pop();
         }
     }
 
     private NestedRangeElementType getNestedRangeElementType() {
         return languageDialect.getParserDefinition().getParser().getElementTypes().getNestedRangeElementType();
-    }
-
-    public void completeMarkers(ParsePathNode node) {
-        if (node != null && markers.size() > 0) {
-            for (NestedRangeStartMarker marker : markers) {
-                PsiBuilder.Marker builderMarker = marker.getBuilderMarker();
-                if (marker.getParentNode() == node && builderMarker != null) {
-                    builderMarker.done(getNestedRangeElementType());
-                    marker.setBuilderMarker(null);
-                }
-            }
-        }
-    }
-
-    public void rollbackMarkers(ParsePathNode node) {
-        if (node != null && markers.size() > 0) {
-            for (int i=markers.size()-1; i>-1; i--) {
-                NestedRangeStartMarker marker = markers.get(i);
-                PsiBuilder.Marker builderMarker = marker.getBuilderMarker();
-                if (marker.getParentNode() == node && builderMarker != null) {
-                    builderMarker.rollbackTo();
-                    marker.setBuilderMarker(null);
-                }
-            }
-        }
-
     }
 }
