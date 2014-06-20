@@ -57,22 +57,31 @@ public abstract class AbstractElementTypeParser<T extends ElementType> implement
     }
 
     protected ParseResult stepOut(PsiBuilder.Marker marker, int depth, ParseResultType resultType, int matchedTokens, ParsePathNode node, ParserContext context) {
-        if (node != null) node.detach();
-        if (resultType == ParseResultType.PARTIAL_MATCH) {
-            ParseBuilderErrorHandler.updateBuilderError(elementType.getLookupCache().getNextPossibleTokens(), context);
+        try {
+            if (resultType == ParseResultType.PARTIAL_MATCH) {
+                ParseBuilderErrorHandler.updateBuilderError(elementType.getLookupCache().getNextPossibleTokens(), context);
+            }
+            ParserBuilder builder = context.getBuilder();
+            if (resultType == ParseResultType.NO_MATCH) {
+                builder.markerRollbackTo(marker);
+            } else
+                builder.markerDone(marker, elementType);
+
+
+            logEnd(resultType, depth);
+            return resultType ==
+                    ParseResultType.NO_MATCH ?
+                    ParseResult.createNoMatchResult() :
+                    ParseResult.createFullMatchResult(matchedTokens);
+        } finally {
+            if (node != null) {
+                if (node.isSettleNesting()) {
+                    context.getBuilder().settleNesting();
+                }
+                node.detach();
+            }
+
         }
-        ParserBuilder builder = context.getBuilder();
-        if (resultType == ParseResultType.NO_MATCH) {
-            builder.markerRollbackTo(marker);
-        } else
-            builder.markerDone(marker, elementType);
-
-
-        logEnd(resultType, depth);
-        return resultType ==
-                ParseResultType.NO_MATCH ?
-                ParseResult.createNoMatchResult() :
-                ParseResult.createFullMatchResult(matchedTokens);
     }
 
     /**

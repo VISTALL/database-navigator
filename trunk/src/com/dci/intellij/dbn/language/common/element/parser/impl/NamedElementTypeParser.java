@@ -7,13 +7,14 @@ import com.dci.intellij.dbn.language.common.element.parser.ParserBuilder;
 import com.dci.intellij.dbn.language.common.element.parser.ParserContext;
 import com.dci.intellij.dbn.language.common.element.path.ParsePathNode;
 import com.dci.intellij.dbn.language.common.element.path.PathNode;
+import org.jetbrains.annotations.NotNull;
 
 public class NamedElementTypeParser extends SequenceElementTypeParser<NamedElementType>{
     public NamedElementTypeParser(NamedElementType elementType) {
         super(elementType);
     }
 
-    public ParseResult parse(ParsePathNode parentNode, boolean optional, int depth, ParserContext context) throws ParseException {
+    public ParseResult parse(@NotNull ParsePathNode parentNode, boolean optional, int depth, ParserContext context) throws ParseException {
         ParserBuilder builder = context.getBuilder();
         if (isRecursive(parentNode, builder.getCurrentOffset(), 2)) {
             return ParseResult.createNoMatchResult();

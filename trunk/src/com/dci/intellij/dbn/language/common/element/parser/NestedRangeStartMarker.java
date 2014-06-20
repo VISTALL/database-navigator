@@ -13,6 +13,12 @@ public class NestedRangeStartMarker {
         this.offset = offset;
     }
 
+    public NestedRangeStartMarker(ParsePathNode parentNode, int offset, PsiBuilder.Marker builderMarker) {
+        this.builderMarker = builderMarker;
+        this.parentNode = parentNode;
+        this.offset = offset;
+    }
+
     public void setBuilderMarker(PsiBuilder.Marker builderMarker) {
         this.builderMarker = builderMarker;
     }
