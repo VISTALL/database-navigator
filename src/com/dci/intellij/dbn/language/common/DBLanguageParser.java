@@ -6,6 +6,7 @@ import com.dci.intellij.dbn.language.common.element.ElementTypeBundle;
 import com.dci.intellij.dbn.language.common.element.NamedElementType;
 import com.dci.intellij.dbn.language.common.element.parser.ParserBuilder;
 import com.dci.intellij.dbn.language.common.element.parser.ParserContext;
+import com.dci.intellij.dbn.language.common.element.path.ParsePathNode;
 import com.intellij.lang.ASTNode;
 import com.intellij.lang.PsiBuilder;
 import com.intellij.lang.PsiParser;
@@ -49,11 +50,12 @@ public abstract class DBLanguageParser implements PsiParser {
         }
 
         boolean advancedLexer = false;
+        ParsePathNode rootParseNode = new ParsePathNode(root, null, 0, 0);
 
         try {
             while (!builder.eof()) {
                 int currentOffset =  builder.getCurrentOffset();
-                root.getParser().parse(null, true, 0, context);
+                root.getParser().parse(rootParseNode, true, 0, context);
                 if (currentOffset == builder.getCurrentOffset()) {
                     TokenType tokenType = (TokenType) builder.getTokenType();
                     /*if (tokenType.isChameleon()) {
@@ -63,30 +65,30 @@ public abstract class DBLanguageParser implements PsiParser {
                     }
                     else*/ if (tokenType instanceof ChameleonTokenType) {
                         PsiBuilder.Marker injectedLanguageMarker = builder.mark();
-                        builder.advanceLexer();
+                        builder.advanceLexer(rootParseNode);
                         injectedLanguageMarker.done((IElementType) tokenType);
                     } else {
-                        builder.advanceLexer();
+                        builder.advanceLexer(rootParseNode);
                     }
                     advancedLexer = true;
                 }
             }
         } catch (ParseException e) {
             while (!builder.eof()) {
-                builder.advanceLexer();
+                builder.advanceLexer(rootParseNode);
                 advancedLexer = true;
             }
         } catch (StackOverflowError e) {
             marker.rollbackTo();
             marker = builder.mark();
             while (!builder.eof()) {
-                builder.advanceLexer();
+                builder.advanceLexer(rootParseNode);
                 advancedLexer = true;
             }
 
         }
 
-        if (!advancedLexer) builder.advanceLexer();
+        if (!advancedLexer) builder.advanceLexer(rootParseNode);
         marker.done(rootElementType);
         return builder.getTreeBuilt();
     }

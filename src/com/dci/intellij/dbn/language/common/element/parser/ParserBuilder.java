@@ -7,26 +7,25 @@ import com.dci.intellij.dbn.language.common.element.path.ParsePathNode;
 import com.intellij.lang.ASTNode;
 import com.intellij.lang.PsiBuilder;
 import com.intellij.psi.tree.IElementType;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class ParserBuilder {
     private PsiBuilder builder;
-    private NestedRangeMonitor monitor;
+    private NestedRangeMonitor nestingMonitor;
 
 
     public ParserBuilder(PsiBuilder builder, DBLanguageDialect languageDialect) {
         this.builder = builder;
-        this.monitor = new NestedRangeMonitor(builder, languageDialect);
+        this.nestingMonitor = new NestedRangeMonitor(builder, languageDialect);
     }
 
-    public void advanceLexer() {
-        advanceLexer(null);
-    }
-    public void advanceLexer(ParsePathNode parentNode) {
-        advanceLexer(parentNode, false);
+    public void advanceLexer(@NotNull ParsePathNode node) {
+        advanceLexer(node, false);
     }
 
-    public void advanceLexer(ParsePathNode parentNode, boolean mark) {
-        monitor.compute(parentNode, mark);
+    public void advanceLexer(@NotNull ParsePathNode node, boolean mark) {
+        nestingMonitor.compute(node, mark);
         builder.advanceLexer();
     }
 
@@ -70,10 +69,15 @@ public class ParserBuilder {
     public void markerRollbackTo(PsiBuilder.Marker marker) {
         if (marker != null) {
             marker.rollbackTo();
+            nestingMonitor.reset();
         }
     }
 
     public void markerDone(PsiBuilder.Marker marker, ElementType elementType) {
+        markerDone(marker, elementType, null);
+    }
+
+    public void markerDone(PsiBuilder.Marker marker, ElementType elementType, @Nullable ParsePathNode node) {
         if (marker != null) {
             marker.done((IElementType) elementType);
         }
@@ -83,5 +87,9 @@ public class ParserBuilder {
         if (marker != null) {
             marker.drop();
         }
+    }
+
+    public void settleNesting() {
+        nestingMonitor.settle();
     }
 }

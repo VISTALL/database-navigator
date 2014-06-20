@@ -8,13 +8,14 @@ import com.dci.intellij.dbn.language.common.element.parser.ParserBuilder;
 import com.dci.intellij.dbn.language.common.element.parser.ParserContext;
 import com.dci.intellij.dbn.language.common.element.path.ParsePathNode;
 import com.intellij.lang.PsiBuilder;
+import org.jetbrains.annotations.NotNull;
 
 public class BlockElementTypeParser extends SequenceElementTypeParser<BlockElementType>{
     public BlockElementTypeParser(BlockElementType elementType) {
         super(elementType);
     }
 
-    public ParseResult parse(ParsePathNode parentNode, boolean optional, int depth, ParserContext context) throws ParseException {
+    public ParseResult parse(@NotNull ParsePathNode parentNode, boolean optional, int depth, ParserContext context) throws ParseException {
         ParserBuilder builder = context.getBuilder();
         PsiBuilder.Marker marker = builder.mark();
         ParseResult result = super.parse(parentNode, optional, depth, context);

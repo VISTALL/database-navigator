@@ -88,4 +88,15 @@ public class BasicPathNode implements PathNode {
     public void detach() {
         parent = null;
     }
+
+    public boolean isSiblingOf(ParsePathNode parentNode) {
+        PathNode parent = getParent();
+        while (parent != null) {
+            if (parent == parentNode) {
+                return true;
+            }
+            parent = parent.getParent();
+        }
+        return false;
+    }
 }

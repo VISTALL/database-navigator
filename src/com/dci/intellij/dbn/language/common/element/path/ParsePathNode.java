@@ -5,6 +5,8 @@ import com.dci.intellij.dbn.language.common.element.ElementType;
 public class ParsePathNode extends BasicPathNode {
     private int startOffset;
     private int currentOffset;
+    private boolean settleNesting = false;
+    private boolean exitParsing;
 
     public ParsePathNode(ElementType elementType, ParsePathNode parent, int startOffset, int position) {
         super(elementType, parent, position);
@@ -66,5 +68,20 @@ public class ParsePathNode extends BasicPathNode {
         return index;
     }
 
+    public void setSettleNesting(boolean settleNesting) {
+        this.settleNesting = settleNesting;
+    }
+
+    public boolean isSettleNesting() {
+        return settleNesting;
+    }
+
+    public void setExitParsing(boolean exitParsing) {
+        this.exitParsing = exitParsing;
+    }
+
+    public boolean isExitParsing() {
+        return exitParsing;
+    }
 }
 

@@ -14,13 +14,14 @@ import com.dci.intellij.dbn.language.common.element.parser.ParserBuilder;
 import com.dci.intellij.dbn.language.common.element.parser.ParserContext;
 import com.dci.intellij.dbn.language.common.element.path.ParsePathNode;
 import com.intellij.lang.PsiBuilder;
+import org.jetbrains.annotations.NotNull;
 
 public class IterationElementTypeParser extends AbstractElementTypeParser<IterationElementType> {
     public IterationElementTypeParser(IterationElementType elementType) {
         super(elementType);
     }
 
-    public ParseResult parse(ParsePathNode parentNode, boolean optional, int depth, ParserContext context) throws ParseException {
+    public ParseResult parse(@NotNull ParsePathNode parentNode, boolean optional, int depth, ParserContext context) throws ParseException {
         ParserBuilder builder = context.getBuilder();
         ParsePathNode node = createParseNode(parentNode, builder.getCurrentOffset());
         logBegin(builder, optional, depth);
