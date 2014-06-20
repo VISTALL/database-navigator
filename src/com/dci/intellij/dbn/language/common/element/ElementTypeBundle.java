@@ -2,16 +2,17 @@ package com.dci.intellij.dbn.language.common.element;
 
 import com.dci.intellij.dbn.language.common.DBLanguageDialect;
 import com.dci.intellij.dbn.language.common.TokenTypeBundle;
+import com.dci.intellij.dbn.language.common.element.impl.BasicElementTypeImpl;
 import com.dci.intellij.dbn.language.common.element.impl.BlockElementTypeImpl;
 import com.dci.intellij.dbn.language.common.element.impl.ExecVariableElementTypeImpl;
 import com.dci.intellij.dbn.language.common.element.impl.IdentifierElementTypeImpl;
 import com.dci.intellij.dbn.language.common.element.impl.IterationElementTypeImpl;
 import com.dci.intellij.dbn.language.common.element.impl.NamedElementTypeImpl;
+import com.dci.intellij.dbn.language.common.element.impl.NestedRangeElementType;
 import com.dci.intellij.dbn.language.common.element.impl.OneOfElementTypeImpl;
 import com.dci.intellij.dbn.language.common.element.impl.QualifiedIdentifierElementTypeImpl;
 import com.dci.intellij.dbn.language.common.element.impl.SequenceElementTypeImpl;
 import com.dci.intellij.dbn.language.common.element.impl.TokenElementTypeImpl;
-import com.dci.intellij.dbn.language.common.element.impl.UnknownElementTypeImpl;
 import com.dci.intellij.dbn.language.common.element.impl.WrapperElementTypeImpl;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeDefinition;
@@ -34,7 +35,8 @@ import java.util.Set;
 public class ElementTypeBundle {
     private final Logger log = Logger.getInstance(getClass().getName());
     private TokenTypeBundle tokenTypeBundle;
-    private UnknownElementType unknownElementType;
+    private NestedRangeElementType nestedRangeElementType;
+    private BasicElementType unknownElementType;
     private NamedElementType rootElementType;
 
     private Set<ElementType> complexElementTypes = new THashSet<ElementType>();
@@ -242,11 +244,18 @@ public class ElementTypeBundle {
         return namedElementTypes.get(id);
     }
 
-    public UnknownElementType getUnknownElementType() {
+    public BasicElementType getUnknownElementType() {
         if (unknownElementType == null) {
-            unknownElementType = new UnknownElementTypeImpl(this);
+            unknownElementType = new BasicElementTypeImpl(this);
         }
         return unknownElementType;
+    }
+
+    public NestedRangeElementType getNestedRangeElementType() {
+        if (nestedRangeElementType == null) {
+            nestedRangeElementType = new NestedRangeElementType(this);
+        }
+        return nestedRangeElementType;
     }
 
     public String createId() {

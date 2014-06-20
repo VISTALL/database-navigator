@@ -23,12 +23,12 @@ public class IdentifierElementTypeParser extends AbstractElementTypeParser<Ident
         TokenType tokenType = builder.getTokenType();
         if (tokenType != null && !tokenType.isChameleon()){
             if (tokenType.isIdentifier()) {
-                PsiBuilder.Marker marker = builder.mark();
+                PsiBuilder.Marker marker = builder.mark(null);
                 builder.advanceLexer(parentNode);
                 return stepOut(marker, depth, ParseResultType.FULL_MATCH, 1, null, context);
             }
             else if (getElementType().isDefinition() || isSuppressibleReservedWord(tokenType, parentNode)) {
-                PsiBuilder.Marker marker = builder.mark();
+                PsiBuilder.Marker marker = builder.mark(null);
                 builder.advanceLexer(parentNode);
                 return stepOut(marker, depth, ParseResultType.FULL_MATCH, 1, null, context);
             }

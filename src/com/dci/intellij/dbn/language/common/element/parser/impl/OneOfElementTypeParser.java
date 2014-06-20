@@ -22,7 +22,7 @@ public class OneOfElementTypeParser extends AbstractElementTypeParser<OneOfEleme
         ParserBuilder builder = context.getBuilder();
         logBegin(builder, optional, depth);
         ParsePathNode node = createParseNode(parentNode, builder.getCurrentOffset());
-        PsiBuilder.Marker marker = builder.mark();
+        PsiBuilder.Marker marker = builder.mark(node);
 
         getElementType().sort();
         TokenType tokenType = builder.getTokenType();
@@ -33,7 +33,7 @@ public class OneOfElementTypeParser extends AbstractElementTypeParser<OneOfEleme
             for (ElementType elementType : getElementType().getPossibleElementTypes()) {
                 if (isDummyToken(tokenText) || elementType.getLookupCache().canStartWithToken(tokenType) || isSuppressibleReservedWord(tokenType, node)) {
                     ParseResult result = elementType.getParser().parse(node, true, depth + 1, context);
-                    if (result.isMatch()) {
+                    if (result.isMatch() || node.isExitParsing()) {
                         return stepOut(marker, depth, result.getType(), result.getMatchedTokens(), node, context);
                     }
                 }

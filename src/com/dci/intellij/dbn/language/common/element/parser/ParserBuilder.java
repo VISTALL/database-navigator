@@ -3,6 +3,8 @@ package com.dci.intellij.dbn.language.common.element.parser;
 import com.dci.intellij.dbn.language.common.DBLanguageDialect;
 import com.dci.intellij.dbn.language.common.TokenType;
 import com.dci.intellij.dbn.language.common.element.ElementType;
+import com.dci.intellij.dbn.language.common.element.TokenElementType;
+import com.dci.intellij.dbn.language.common.element.impl.WrappingDefinition;
 import com.dci.intellij.dbn.language.common.element.path.ParsePathNode;
 import com.intellij.lang.ASTNode;
 import com.intellij.lang.PsiBuilder;
@@ -17,6 +19,7 @@ public class ParserBuilder {
 
     public ParserBuilder(PsiBuilder builder, DBLanguageDialect languageDialect) {
         this.builder = builder;
+        builder.setDebugMode(true);
         this.nestingMonitor = new NestedRangeMonitor(builder, languageDialect);
     }
 
@@ -29,10 +32,6 @@ public class ParserBuilder {
         builder.advanceLexer();
     }
 
-
-    public PsiBuilder.Marker mark() {
-        return builder.mark();
-    }
 
     public String getTokenText() {
         return builder.getTokenText();
@@ -66,9 +65,26 @@ public class ParserBuilder {
         builder.setDebugMode(debugMode);
     }
 
-    public void markerRollbackTo(PsiBuilder.Marker marker) {
+    public PsiBuilder.Marker mark(@Nullable ParsePathNode node){
+        if (node != null) {
+            WrappingDefinition wrapping = node.getElementType().getWrapping();
+            if (wrapping != null) {
+                TokenElementType beginElementType = wrapping.getBeginElementType();
+                while(builder.getTokenType() == beginElementType.getTokenType()) {
+                    PsiBuilder.Marker beginTokenMarker = builder.mark();
+                    advanceLexer(node.getParent(), true);
+                    beginTokenMarker.done((IElementType) beginElementType);
+                }
+            }
+        }
+
+        return builder.mark();
+    }
+
+    public void markerRollbackTo(PsiBuilder.Marker marker, @Nullable ParsePathNode node) {
         if (marker != null) {
             marker.rollbackTo();
+            nestingMonitor.rollbackMarkers(node);
             nestingMonitor.reset();
         }
     }
@@ -79,7 +95,21 @@ public class ParserBuilder {
 
     public void markerDone(PsiBuilder.Marker marker, ElementType elementType, @Nullable ParsePathNode node) {
         if (marker != null) {
+            nestingMonitor.completeMarkers(node);
             marker.done((IElementType) elementType);
+
+            if (node != null) {
+                WrappingDefinition wrapping = node.getElementType().getWrapping();
+                if (wrapping != null) {
+                    TokenElementType endElementType = wrapping.getEndElementType();
+                    while (builder.getTokenType() == endElementType.getTokenType()) {
+                        PsiBuilder.Marker endTokenMarker = builder.mark();
+                        advanceLexer(node.getParent(), true);
+                        endTokenMarker.done((IElementType) endElementType);
+                    }
+                }
+            }
+
         }
     }
 

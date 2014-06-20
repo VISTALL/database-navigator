@@ -21,7 +21,7 @@ public class WrapperElementTypeParser extends AbstractElementTypeParser<WrapperE
         ParserBuilder builder = context.getBuilder();
         logBegin(builder, optional, depth);
         ParsePathNode node = createParseNode(parentNode, builder.getCurrentOffset());
-        PsiBuilder.Marker marker = builder.mark();
+        PsiBuilder.Marker marker = builder.mark(null);
 
         boolean isWrappingOptional = getElementType().isWrappingOptional();
         ElementType wrappedElement = getElementType().getWrappedElement();
@@ -34,12 +34,12 @@ public class WrapperElementTypeParser extends AbstractElementTypeParser<WrapperE
         // first try to parse the wrapped element directly, for supporting wrapped elements nesting
         if (isWrappingOptional) {
             ParseResult wrappedResult = wrappedElement.getParser().parse(node, optional, depth + 1, context);
-            if (wrappedResult.isMatch()) {
+            if (wrappedResult.isMatch() || node.isExitParsing()) {
                 matchedTokens = matchedTokens + wrappedResult.getMatchedTokens();
                 return stepOut(marker, depth, wrappedResult.getType(), matchedTokens, node, context);
             } else {
-                builder.markerRollbackTo(marker);
-                marker = builder.mark();
+                builder.markerRollbackTo(marker, null);
+                marker = builder.mark(null);
             }
         }
 

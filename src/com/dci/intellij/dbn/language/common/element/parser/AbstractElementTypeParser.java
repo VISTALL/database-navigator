@@ -63,9 +63,9 @@ public abstract class AbstractElementTypeParser<T extends ElementType> implement
             }
             ParserBuilder builder = context.getBuilder();
             if (resultType == ParseResultType.NO_MATCH) {
-                builder.markerRollbackTo(marker);
+                builder.markerRollbackTo(marker, node);
             } else
-                builder.markerDone(marker, elementType);
+                builder.markerDone(marker, elementType, node);
 
 
             logEnd(resultType, depth);
