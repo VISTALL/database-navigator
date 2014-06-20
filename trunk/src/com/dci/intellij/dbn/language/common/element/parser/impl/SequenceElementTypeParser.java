@@ -151,31 +151,23 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends A
         SequenceElementType elementType = getElementType();
         ParseBuilderErrorHandler.updateBuilderError(elementType.getFirstPossibleTokensFromIndex(siblingPosition), context);
 
-        if (!builder.eof()) {
-            TokenType tokenType = builder.getTokenType();
+        TokenType tokenType = builder.getTokenType();
+        siblingPosition++;
+        while (tokenType != null) {
             int newIndex = getLandmarkIndex(tokenType, siblingPosition, node);
-            if (newIndex == siblingPosition) {
+
+            // no landmark hit -> spool the builder
+            if (newIndex == 0) {
                 builder.advanceLexer(node);
-            }
-        }
-
-        while (!builder.eof()) {
-            TokenType tokenType = builder.getTokenType();
-            if (tokenType != null) {
-                int newIndex = getLandmarkIndex(tokenType, siblingPosition, node);
-
-                // no landmark hit -> spool the builder
-                if (newIndex == 0) {
-                    builder.advanceLexer(node);
-                } else {
-                    //builder.markerDone(marker, getElementBundle().getUnknownElementType());
-                    marker.error("Unrecognized construct");
-                    return newIndex;
-                }
+                tokenType = builder.getTokenType();
+            } else {
+                //builder.markerDone(marker, getElementBundle().getUnknownElementType());
+                marker.error("Unrecognized statement");
+                return newIndex;
             }
         }
         //builder.markerDone(marker, getElementBundle().getUnknownElementType());
-        marker.error("Unrecognized construct");
+        marker.error("Unrecognized statement");
         return 0;
     }
 
@@ -191,14 +183,14 @@ public class SequenceElementTypeParser<ET extends SequenceElementType> extends A
 
             ParsePathNode parseNode = node;
             while (parseNode != null) {
-                if (parseNode.getElementType() instanceof SequenceElementType) {
-                    SequenceElementType sequenceElementType = (SequenceElementType) parseNode.getElementType();
+                ElementType elementType = parseNode.getElementType();
+                if (elementType instanceof SequenceElementType) {
+                    SequenceElementType sequenceElementType = (SequenceElementType) elementType;
                     if ( sequenceElementType.containsLandmarkTokenFromIndex(tokenType, parseNode.getCurrentSiblingIndex() + 1)) {
                         return -1;
                     }
-                }
-                if (parseNode.getElementType() instanceof IterationElementType) {
-                    IterationElementType iterationElementType = (IterationElementType) parseNode.getElementType();
+                } else  if (elementType instanceof IterationElementType) {
+                    IterationElementType iterationElementType = (IterationElementType) elementType;
                     if (iterationElementType.isSeparator(tokenType)) {
                         return -1;
                     }

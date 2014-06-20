@@ -147,7 +147,7 @@ NUMBER = {INTEGER}?"."{digit}+(("e"{sign}?{digit}+)|(("f"|"d"){ws}))?
 
 
 
-"a"{ws}"set" {return tt.getKeywordTokenType(0);}
+"a set" {return tt.getKeywordTokenType(0);}
 "all" {return tt.getKeywordTokenType(1);}
 "alter" {return tt.getKeywordTokenType(2);}
 "and" {return tt.getKeywordTokenType(3);}
