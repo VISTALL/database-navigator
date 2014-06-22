@@ -11,16 +11,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class DBPackageFunctionImpl extends DBFunctionImpl implements DBPackageFunction {
-    private int overload;
+
 
     public DBPackageFunctionImpl(DBPackage packagee, ResultSet resultSet) throws SQLException {
         super(packagee, resultSet);
-    }
-
-    @Override
-    protected void initObject(ResultSet resultSet) throws SQLException {
-        name = resultSet.getString("FUNCTION_NAME");
-        overload = resultSet.getInt("OVERLOAD");
     }
 
     @Override
@@ -46,11 +40,6 @@ public class DBPackageFunctionImpl extends DBFunctionImpl implements DBPackageFu
 
     public boolean isProgramMethod() {
         return true;
-    }
-
-    @Override
-    public String getPresentableTextDetails() {
-        return getOverload() > 0 ? " - " + getOverload() : "";
     }
 
     @Override

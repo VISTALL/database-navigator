@@ -18,7 +18,6 @@ public class PostgresCompatibilityInterface extends DatabaseCompatibilityInterfa
             objectTypeId == DatabaseObjectTypeId.INDEX ||
             objectTypeId == DatabaseObjectTypeId.TRIGGER ||
             objectTypeId == DatabaseObjectTypeId.FUNCTION ||
-            objectTypeId == DatabaseObjectTypeId.PROCEDURE ||
             objectTypeId == DatabaseObjectTypeId.ARGUMENT ||
             objectTypeId == DatabaseObjectTypeId.PRIVILEGE ||
             objectTypeId == DatabaseObjectTypeId.SEQUENCE ||
@@ -35,7 +34,6 @@ public class PostgresCompatibilityInterface extends DatabaseCompatibilityInterfa
             case OBJECT_CHANGE_TRACING: return false;
             case AUTHID_METHOD_EXECUTION: return false;
             case FUNCTION_OUT_ARGUMENTS: return false;
-            case INTERNAL_OBJECT_NAMES: return true;
             case DEBUGGING: return false;
             default: return false;
         }

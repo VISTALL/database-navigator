@@ -256,10 +256,10 @@ public class SourceCodeFile extends DatabaseContentFile implements DatabaseFile,
     public int getGuardedBlockEndOffset() {
         DBSchemaObject object = getObject();
         if (object != null) {
-            String displayName = object.getDisplayName();
-            int index = StringUtil.indexOfIgnoreCase(content, displayName, 0);
+            String name = object.getName();
+            int index = StringUtil.indexOfIgnoreCase(content, name, 0);
             if (index > -1) {
-                return index + displayName.length();
+                return index + name.length();
             }
         }
         return 0;

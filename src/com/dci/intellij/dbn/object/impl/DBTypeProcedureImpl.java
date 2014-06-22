@@ -11,16 +11,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class DBTypeProcedureImpl extends DBProcedureImpl implements DBTypeProcedure {
-    private int overload;
-
     public DBTypeProcedureImpl(DBType type, ResultSet resultSet) throws SQLException {
         super(type, resultSet);
-    }
-
-    @Override
-    protected void initObject(ResultSet resultSet) throws SQLException {
-        name = resultSet.getString("PROCEDURE_NAME");
-        overload = resultSet.getInt("OVERLOAD");
     }
 
     @Override
@@ -40,17 +32,8 @@ public class DBTypeProcedureImpl extends DBProcedureImpl implements DBTypeProced
         return getType();
     }    
 
-    public int getOverload() {
-        return overload;
-    }
-
     public boolean isProgramMethod() {
         return true;
-    }
-
-    @Override
-    public String getPresentableTextDetails() {
-        return getOverload() > 0 ? " - " + getOverload() : "";
     }
 
     @Override

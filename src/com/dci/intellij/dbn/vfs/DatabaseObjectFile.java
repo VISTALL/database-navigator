@@ -81,7 +81,7 @@ public class DatabaseObjectFile<T extends DBObject> extends VirtualFile implemen
         if (object == null) {
             return objectRef.getName();
         } else {
-            return object.getDisplayName();
+            return object.getName();
         }
     }
 

@@ -24,7 +24,6 @@ import com.dci.intellij.dbn.common.util.CollectionUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.ConnectionUtil;
 import com.dci.intellij.dbn.database.DatabaseCompatibilityInterface;
-import com.dci.intellij.dbn.database.DatabaseFeature;
 import com.dci.intellij.dbn.editor.DBContentType;
 import com.dci.intellij.dbn.language.common.DBLanguage;
 import com.dci.intellij.dbn.language.common.DBLanguageDialect;
@@ -62,7 +61,6 @@ import javax.swing.Icon;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
@@ -77,7 +75,6 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
     private boolean isDisposed = false;
 
     protected String name;
-    protected String displayName;
     protected DBObjectRef objectRef;
     private DBObjectProperties properties;
     private DBObjectListContainer childObjects;
@@ -117,26 +114,11 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
 
     private void init(ResultSet resultSet) throws SQLException {
         checkConnection();
-        initDisplayName(resultSet);
         initObject(resultSet);
         initStatus(resultSet);
         initProperties();
         initLists();
         objectRef = createRef();
-    }
-
-    protected void initDisplayName(ResultSet resultSet) throws SQLException {
-        DatabaseCompatibilityInterface compatibilityInterface = getConnectionHandler().getInterfaceProvider().getCompatibilityInterface();
-        if (compatibilityInterface.supportsFeature(DatabaseFeature.INTERNAL_OBJECT_NAMES)) {
-            ResultSetMetaData metaData = resultSet.getMetaData();
-            for (int i=1; i<metaData.getColumnCount() + 1; i++) {
-                String columnName = metaData.getColumnName(i);
-                if (columnName.equalsIgnoreCase("DISPLAY_NAME")) {
-                    displayName = resultSet.getString(i);
-                    break;
-                }
-            }
-        }
     }
 
     protected abstract void initObject(ResultSet resultSet) throws SQLException;
@@ -221,11 +203,6 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
     @NotNull
     public String getName() {
         return name;
-    }
-
-    @Override
-    public String getDisplayName() {
-        return displayName == null ? name : displayName;
     }
 
     @Override
@@ -530,7 +507,7 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
     }
 
     public String getPresentableText() {
-        return getDisplayName();
+        return getName();
     }
 
     public String getPresentableTextDetails() {

@@ -11,16 +11,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class DBTypeFunctionImpl extends DBFunctionImpl implements DBTypeFunction {
-    private int overload;
-
     public DBTypeFunctionImpl(DBType type, ResultSet resultSet) throws SQLException {
         super(type, resultSet);
-    }
-
-    @Override
-    protected void initObject(ResultSet resultSet) throws SQLException {
-        name = resultSet.getString("FUNCTION_NAME");
-        overload = resultSet.getInt("OVERLOAD");
     }
 
     @Override
@@ -46,11 +38,6 @@ public class DBTypeFunctionImpl extends DBFunctionImpl implements DBTypeFunction
 
     public boolean isProgramMethod() {
         return true;
-    }
-
-    @Override
-    public String getPresentableTextDetails() {
-        return getOverload() > 0 ? " - " + getOverload() : "";
     }
 
     @Override

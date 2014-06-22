@@ -27,7 +27,7 @@ public class SelectDDLFileForm extends DBNFormImpl implements DBNForm {
 
     public SelectDDLFileForm(DBSchemaObject object, List<VirtualFile> virtualFiles, String hint, boolean isFileOpenEvent) {
         Project project = object.getProject();
-        String headerTitle = object.getSchema().getName() + "." + object.getDisplayName();
+        String headerTitle = object.getSchema().getName() + "." + object.getName();
         Icon headerIcon = object.getOriginalIcon();
         Color headerBackground = UIUtil.getPanelBackground();
         if (getEnvironmentSettings(project).getVisibilitySettings().getDialogHeaders().value()) {
