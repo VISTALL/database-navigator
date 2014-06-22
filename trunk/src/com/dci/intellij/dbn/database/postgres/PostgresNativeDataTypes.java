@@ -56,7 +56,7 @@ public class PostgresNativeDataTypes extends DatabaseNativeDataTypes {
         createDateTimeDefinition("TIME", Time.class, Types.TIME);
         createDateTimeDefinition("TIME WITH TIME ZONE", Time.class, Types.TIME);
         createDateTimeDefinition("TIME WITHOUT TIME ZONE", Time.class, Types.TIME);
-        createDateTimeDefinition("INTERVAL", Time.class, Types.TIME);
+        createLiteralDefinition("INTERVAL", String.class, Types.VARCHAR);
 
         createBasicDefinition("BOOLEAN", Boolean.class, Types.BOOLEAN, GenericDataType.BOOLEAN);
         createBasicDefinition("BOOL", Boolean.class, Types.BOOLEAN, GenericDataType.BOOLEAN);

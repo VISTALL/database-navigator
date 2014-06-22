@@ -95,6 +95,7 @@ VARIABLE = ":"{wso}({IDENTIFIER}|{INTEGER})
 "/" {return tt.getCharacterTokenType(19);}
 "*" {return tt.getCharacterTokenType(20);}
 "|" {return tt.getCharacterTokenType(21);}
+"&" {return tt.getCharacterTokenType(22);}
 
 
 
