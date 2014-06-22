@@ -53,8 +53,6 @@ public abstract class AbstractElementType extends IElementType implements Elemen
         this.description = description;
         this.bundle = bundle;
         this.parent = parent;
-        this.lookupCache = createLookupCache();
-        this.parser = createParser();
     }
 
     public AbstractElementType(ElementTypeBundle bundle, ElementType parent, String id, Element def) throws ElementTypeDefinitionException {
@@ -67,8 +65,6 @@ public abstract class AbstractElementType extends IElementType implements Elemen
         }
         this.bundle = bundle;
         this.parent = parent;
-        this.lookupCache = createLookupCache();
-        this.parser = createParser();
         if (StringUtil.isNotEmpty(def.getAttributeValue("exit")) && !(parent instanceof SequenceElementType)) {
             LOGGER.warn("[" + getLanguageDialect().getID() + "] Invalid element attribute 'exit'. (id=" + getId() + "). Attribute is only allowed for direct child of sequence element");
         }
@@ -160,11 +156,18 @@ public abstract class AbstractElementType extends IElementType implements Elemen
         return parent;
     }
 
-    public ElementTypeLookupCache getLookupCache() {
+    public synchronized ElementTypeLookupCache getLookupCache() {
+        if (lookupCache == null) {
+            lookupCache = createLookupCache();
+        }
         return lookupCache;
     }
 
-    public @NotNull ElementTypeParser getParser() {
+    public synchronized  @NotNull ElementTypeParser getParser() {
+        if (parser == null) {
+            parser = createParser();
+        }
+
         return parser;
     }
 
