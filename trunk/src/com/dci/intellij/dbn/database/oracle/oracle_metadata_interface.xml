@@ -651,6 +651,7 @@
         <statement>
             select
                 OBJECT_NAME as FUNCTION_NAME,
+                0 as OVERLOAD,
                 decode(STATUS, 'VALID', 'Y', 'N') as IS_VALID,
                 decode(DEBUGINFO, 'T', 'Y', 'N') as IS_DEBUG,
                 'Y' as IS_DETERMINISTIC
@@ -663,6 +664,7 @@
         <statement prefixes="DBA, ALL">
             select
                 OBJECT_NAME as FUNCTION_NAME,
+                0 as OVERLOAD,
                 decode(STATUS, 'VALID', 'Y', 'N') as IS_VALID,
                 'N' as IS_DEBUG,
                 'Y' as IS_DETERMINISTIC
@@ -678,6 +680,7 @@
         <statement>
             select
                 OBJECT_NAME as PROCEDURE_NAME,
+                0 as OVERLOAD,
                 decode(STATUS, 'VALID', 'Y', 'N') as IS_VALID,
                 decode(DEBUGINFO, 'T', 'Y', 'N') as IS_DEBUG,
                 'Y' as IS_DETERMINISTIC
@@ -690,6 +693,7 @@
         <statement prefixes="DBA, ALL">
             select
                 OBJECT_NAME as PROCEDURE_NAME,
+                0 as OVERLOAD,
                 decode(STATUS, 'VALID', 'Y', 'N') as IS_VALID,
                 'N' as IS_DEBUG,
                 'Y' as IS_DETERMINISTIC
@@ -747,7 +751,8 @@
         <statement>
             select
                 OBJECT_NAME as FUNCTION_NAME,
-                OVERLOAD
+                OVERLOAD,
+                'N' as IS_DETERMINISTIC
             from ALL_ARGUMENTS
             where
                 OWNER = {0} and
@@ -764,7 +769,8 @@
             select
                 PACKAGE_NAME,
                 OBJECT_NAME as FUNCTION_NAME,
-                OVERLOAD
+                OVERLOAD,
+                'N' as IS_DETERMINISTIC
             from ALL_ARGUMENTS
             where
                 OWNER = {0} and
@@ -784,7 +790,8 @@
         <statement>
             select
                 OBJECT_NAME as PROCEDURE_NAME,
-                OVERLOAD
+                OVERLOAD,
+                'N' as IS_DETERMINISTIC
             from ALL_ARGUMENTS
             where
                 OWNER = {0} and
@@ -802,7 +809,8 @@
             select
                 PACKAGE_NAME,
                 OBJECT_NAME as PROCEDURE_NAME,
-                OVERLOAD
+                OVERLOAD,
+                'N' as IS_DETERMINISTIC
             from ALL_ARGUMENTS
             where
                 OWNER = {0} and
@@ -1009,7 +1017,8 @@
         <statement>
             select
                 OBJECT_NAME as FUNCTION_NAME,
-                OVERLOAD
+                OVERLOAD,
+                'N' as IS_DETERMINISTIC
             from ALL_ARGUMENTS
             where
                 OWNER = {0} and
@@ -1026,7 +1035,8 @@
             select
                 PACKAGE_NAME as TYPE_NAME,
                 OBJECT_NAME as FUNCTION_NAME,
-                OVERLOAD
+                OVERLOAD,
+                'N' as IS_DETERMINISTIC
             from ALL_ARGUMENTS
             where
                 OWNER = {0} and
@@ -1046,7 +1056,8 @@
         <statement>
             select
                 OBJECT_NAME as PROCEDURE_NAME,
-                OVERLOAD
+                OVERLOAD,
+                'N' as IS_DETERMINISTIC
             from
                 ALL_ARGUMENTS
             where
@@ -1065,7 +1076,8 @@
             select
                 PACKAGE_NAME as TYPE_NAME,
                 OBJECT_NAME as PROCEDURE_NAME,
-                OVERLOAD
+                OVERLOAD,
+                'N' as IS_DETERMINISTIC
             from ALL_ARGUMENTS
             where
                 OWNER = {0} and

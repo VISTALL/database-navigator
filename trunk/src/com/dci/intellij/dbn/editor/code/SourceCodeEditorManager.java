@@ -171,7 +171,7 @@ public class SourceCodeEditorManager extends AbstractProjectComponent implements
             char quotes = DatabaseCompatibilityInterface.getInstance(connectionHandler).getIdentifierQuotes();
 
 
-            String objectName = object.getDisplayName();
+            String objectName = object.getName();
             int nameIndex = StringUtil.indexOfIgnoreCase(text, objectName, typeEndIndex);
             if (nameIndex == -1) return false;
             int nameEndIndex = nameIndex + objectName.length();

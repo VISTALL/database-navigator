@@ -18,15 +18,17 @@ public class DatasetColumnSetup {
     public synchronized void init(DBDataset dataset) {
         if (columns == null) columns = new ArrayList<DatasetColumnState>();
 
-        for (DBColumn column : dataset.getColumns()) {
-            DatasetColumnState columnsState = getColumnState(column.getName());
-            if (columnsState == null) {
-                if (!column.isHidden()) {
-                    columnsState = new DatasetColumnState(column);
-                    columns.add(columnsState);
+        if (dataset != null) {
+            for (DBColumn column : dataset.getColumns()) {
+                DatasetColumnState columnsState = getColumnState(column.getName());
+                if (columnsState == null) {
+                    if (!column.isHidden()) {
+                        columnsState = new DatasetColumnState(column);
+                        columns.add(columnsState);
+                    }
+                } else {
+                    columnsState.init(column);
                 }
-            } else {
-                columnsState.init(column);
             }
         }
         Collections.sort(columns);

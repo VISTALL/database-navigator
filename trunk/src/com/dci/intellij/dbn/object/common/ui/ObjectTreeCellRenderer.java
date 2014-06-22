@@ -14,7 +14,7 @@ public class ObjectTreeCellRenderer extends ColoredTreeCellRenderer {
         Object userObject = treeNode.getUserObject();
         if (userObject instanceof DBObject) {
             DBObject object = (DBObject) userObject;
-            append(object.getDisplayName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
+            append(object.getName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
             setIcon(object.getOriginalIcon());
         } else {
             append(userObject.toString(), SimpleTextAttributes.REGULAR_ATTRIBUTES);

@@ -31,7 +31,8 @@ import java.util.List;
 
 public abstract class DBMethodImpl extends DBSchemaObjectImpl implements DBMethod {
     protected DBObjectList<DBArgument> arguments;
-    boolean isDeterministic;
+    protected int overload;
+    protected boolean isDeterministic;
 
     public DBMethodImpl(DBSchemaObject parent, DBContentType contentType, ResultSet resultSet) throws SQLException {
         super(parent, contentType, resultSet);
@@ -44,6 +45,7 @@ public abstract class DBMethodImpl extends DBSchemaObjectImpl implements DBMetho
     @Override
     protected void initObject(ResultSet resultSet) throws SQLException {
         isDeterministic = resultSet.getString("IS_DETERMINISTIC").equals("Y");
+        overload = resultSet.getInt("OVERLOAD");
     }
 
     @Override
@@ -99,7 +101,12 @@ public abstract class DBMethodImpl extends DBSchemaObjectImpl implements DBMetho
     }
 
     public int getOverload() {
-        return 0;
+        return overload;
+    }
+
+    @Override
+    public String getPresentableTextDetails() {
+        return getOverload() > 0 ? " - " + getOverload() : "";
     }
 
     public boolean isProgramMethod() {

@@ -65,9 +65,6 @@ public abstract class DBObjectRelationImpl<S extends DBObject, T extends DBObjec
     public String getName() {
         return null;
     }
-    public String getDisplayName() {
-        return null;
-    }
 
     public String getDescription() {
         return null;

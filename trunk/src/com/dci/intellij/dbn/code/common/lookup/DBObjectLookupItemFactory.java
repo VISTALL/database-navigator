@@ -80,7 +80,7 @@ public class DBObjectLookupItemFactory extends LookupItemFactory {
         Project project = context.getFile().getProject();
         CodeStyleCaseSettings styleCaseSettings = DBLCodeStyleManager.getInstance(project).getCodeStyleCaseSettings(language);
         CodeStyleCaseOption caseOption = styleCaseSettings.getObjectCaseOption();
-        String text = caseOption.changeCase(object.getDisplayName());
+        String text = caseOption.changeCase(object.getName());
 
         if (object instanceof DBVirtualObject && text.contains(CodeCompletionContributor.DUMMY_TOKEN)) {
             return null;
