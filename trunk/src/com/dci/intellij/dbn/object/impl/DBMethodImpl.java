@@ -106,7 +106,7 @@ public abstract class DBMethodImpl extends DBSchemaObjectImpl implements DBMetho
 
     @Override
     public String getPresentableTextDetails() {
-        return getOverload() > 0 ? " - " + getOverload() : "";
+        return getOverload() > 0 ? " #" + getOverload() : "";
     }
 
     public boolean isProgramMethod() {

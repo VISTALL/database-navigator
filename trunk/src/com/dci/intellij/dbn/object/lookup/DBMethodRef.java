@@ -37,6 +37,16 @@ public class DBMethodRef<T extends DBMethod> extends DBObjectRef<DBMethod> imple
         return (T) super.get(project);
     }
 
+    @Override
+    public String getFileName() {
+        if (overload == 0) {
+            return super.getFileName();
+        } else {
+            return super.getFileName() + "#" + overload;
+        }
+
+    }
+
     @Nullable
     protected T lookup(@NotNull ConnectionHandler connectionHandler) {
         DBSchema schema = connectionHandler.getObjectBundle().getSchema(nodes[0].getName());

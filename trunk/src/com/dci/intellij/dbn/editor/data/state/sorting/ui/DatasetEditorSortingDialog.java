@@ -47,8 +47,10 @@ public class DatasetEditorSortingDialog extends DBNDialog {
     }
 
     @Override
-    protected void dispose() {
-        super.dispose();
-        stateForm.dispose();
+    public void dispose() {
+        if (!isDisposed()) {
+            super.dispose();
+            stateForm.dispose();
+        }
     }
 }

@@ -79,8 +79,10 @@ public class TextEditorDialog extends DBNDialog implements DocumentListener {
     }
 
     @Override
-    protected void dispose() {
-        super.dispose();
-        mainForm.dispose();
+    public void dispose() {
+        if (!isDisposed()) {
+            super.dispose();
+            mainForm.dispose();
+        }
     }
 }

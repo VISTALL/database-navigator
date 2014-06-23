@@ -119,8 +119,10 @@ public class IdleConnectionDialog extends DialogWithTimeout {
     }
 
     @Override
-    protected void dispose() {
-        super.dispose();
-        connectionHandler = null;
+    public void dispose() {
+        if (!isDisposed()) {
+            super.dispose();
+            connectionHandler = null;
+        }
     }
 }
