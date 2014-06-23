@@ -268,6 +268,20 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
         return null;
     }
 
+    @Override
+    public List<T> getElements(String name) {
+        List<T> elements = null;
+        for (T element : getElements()) {
+            if (element.getName().equalsIgnoreCase(name)) {
+                if (elements == null) {
+                    elements = new ArrayList<T>();
+                }
+                elements.add(element);
+            }
+        }
+        return elements;
+    }
+
     public synchronized int size() {
         return getElements().size();
     }

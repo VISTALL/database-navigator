@@ -23,7 +23,7 @@ public class MySqlMetadataInterface extends DatabaseMetadataInterfaceImpl {
     }
 
     @Override
-    public ResultSet loadMethodArguments(String ownerName, String methodName, String methodType, String overload, Connection connection) throws SQLException {
+    public ResultSet loadMethodArguments(String ownerName, String methodName, String methodType, int overload, Connection connection) throws SQLException {
         try {
             return super.loadMethodArguments(ownerName, methodName, methodType, overload, connection);
         } catch (SQLException e) {

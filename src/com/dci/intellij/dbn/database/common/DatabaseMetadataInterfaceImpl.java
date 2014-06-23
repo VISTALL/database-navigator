@@ -228,11 +228,11 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceImp
         return executeQuery(connection, "all-type-procedures", ownerName);
     }
 
-    public ResultSet loadProgramMethodArguments(String ownerName, String programName, String methodName, String overload, Connection connection) throws SQLException {
+    public ResultSet loadProgramMethodArguments(String ownerName, String programName, String methodName, int overload, Connection connection) throws SQLException {
         return executeQuery(connection, "program-method-arguments", ownerName, programName, methodName, overload);
     }
 
-    public ResultSet loadMethodArguments(String ownerName, String methodName, String methodType, String overload, Connection connection) throws SQLException {
+    public ResultSet loadMethodArguments(String ownerName, String methodName, String methodType, int overload, Connection connection) throws SQLException {
         return executeQuery(connection, "method-arguments", ownerName, methodName, methodType, overload);
     }
 
