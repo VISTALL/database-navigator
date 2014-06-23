@@ -27,6 +27,7 @@ public class DatasetEditorTableHeaderRenderer extends JPanel implements TableCel
         add(centerPanel, BorderLayout.CENTER);
         centerPanel.add(nameLabel, BorderLayout.WEST);
         centerPanel.add(sortingLabel, BorderLayout.CENTER);
+        setOpaque(false);
     }
 
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {

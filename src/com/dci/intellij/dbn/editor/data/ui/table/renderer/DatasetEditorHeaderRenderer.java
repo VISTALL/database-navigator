@@ -16,6 +16,10 @@ public class DatasetEditorHeaderRenderer implements TableCellRenderer {
     private JLabel nameLabel;
     private JLabel sortingLabel;
 
+    public DatasetEditorHeaderRenderer() {
+        mainPanel.setOpaque(false);
+    }
+
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int rowIndex, int columnIndex) {
         DatasetEditorModel model = (DatasetEditorModel) table.getModel();
