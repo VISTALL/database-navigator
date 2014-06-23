@@ -345,11 +345,27 @@ public class DBSchemaImpl extends DBObjectImpl implements DBSchema {
         return (DBPackage) getObjectFallbackOnSynonym(packages, name);
     }
 
-    public DBProcedure getProcedure(String name) {
+    public DBProcedure getProcedure(String name, int overload) {
+        if (overload > 0) {
+            List<DBProcedure> procedures = this.procedures.getObjects(name);
+            if (procedures != null) {
+                for (DBProcedure procedure : procedures) {
+                    if (procedure.getOverload() == overload) return procedure;
+                }
+            }
+        }
         return (DBProcedure) getObjectFallbackOnSynonym(procedures, name);
     }
 
-    public DBFunction getFunction(String name) {
+    public DBFunction getFunction(String name, int overload) {
+        if (overload > 0) {
+            List<DBFunction> functions = this.functions.getObjects(name);
+            if (functions != null) {
+                for (DBFunction function : functions) {
+                    if (function.getOverload() == overload) return function;
+                }
+            }
+        }
         return (DBFunction) getObjectFallbackOnSynonym(functions, name);
     }
 
@@ -359,21 +375,21 @@ public class DBSchemaImpl extends DBObjectImpl implements DBSchema {
         return program;
     }
 
-    public DBMethod getMethod(String name, String type) {
+    public DBMethod getMethod(String name, String type, int overload) {
         if (type == null) {
-            DBMethod method = getProcedure(name);
-            if (method == null) method = getFunction(name);
+            DBMethod method = getProcedure(name, overload);
+            if (method == null) method = getFunction(name, overload);
             return method;
         } else if (type.equalsIgnoreCase("PROCEDURE")) {
-            return getProcedure(name);
+            return getProcedure(name, overload);
         } else if (type.equalsIgnoreCase("FUNCTION")) {
-            return getFunction(name);
+            return getFunction(name, overload);
         }
         return null;
     }
 
-    public DBMethod getMethod(String name) {
-        return getMethod(name, null);
+    public DBMethod getMethod(String name, int overload) {
+        return getMethod(name, null, overload);
     }
 
     public synchronized void refreshObjectsStatus() {
@@ -996,7 +1012,7 @@ public class DBSchemaImpl extends DBObjectImpl implements DBSchema {
 
             if (method == null || method.getProgram() != program || method.getOverload() != overload) {
                 if (programName == null) {
-                    method = schema.getMethod(methodName, methodType);
+                    method = schema.getMethod(methodName, methodType, overload);
                 } else {
                     method = program == null ? null : program.getMethod(methodName, overload);
                 }

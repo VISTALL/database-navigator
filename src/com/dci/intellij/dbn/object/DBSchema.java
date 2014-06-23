@@ -33,10 +33,10 @@ public interface DBSchema extends DBObject {
     DBType getType(String name);
     DBPackage getPackage(String name);
     DBProgram getProgram(String name);
-    DBMethod getMethod(String name, String type);
-    DBMethod getMethod(String name);
-    DBProcedure getProcedure(String name);
-    DBFunction getFunction(String name);
+    DBMethod getMethod(String name, String type, int overload);
+    DBMethod getMethod(String name, int overload);
+    DBProcedure getProcedure(String name, int overload);
+    DBFunction getFunction(String name, int overload);
     DBCluster getCluster(String name);
     DBDatabaseLink getDatabaseLink(String name);
 

@@ -100,6 +100,7 @@ public class DBFunctionImpl extends DBMethodImpl implements DBFunction {
                    getSchema().getName(),
                    getName(),
                    "FUNCTION",
+                   getOverload(),
                    connection);
         }
     }

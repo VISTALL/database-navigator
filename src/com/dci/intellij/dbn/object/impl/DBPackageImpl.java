@@ -197,7 +197,7 @@ public class DBPackageImpl extends DBProgramImpl implements DBPackage {
 
         public ResultSet loadSourceCode(Connection connection) throws SQLException {
             DatabaseMetadataInterface metadataInterface = getConnectionHandler().getInterfaceProvider().getMetadataInterface();
-            return metadataInterface.loadObjectSourceCode(getSchema().getName(), getName(), "PACKAGE BODY", connection);
+            return metadataInterface.loadObjectSourceCode(getSchema().getName(), getName(), "PACKAGE BODY",connection);
         }
     }
 

@@ -89,7 +89,7 @@ public class DBProcedureImpl extends DBMethodImpl implements DBProcedure {
 
         public ResultSet loadSourceCode(Connection connection) throws SQLException {
             return getConnectionHandler().getInterfaceProvider().getMetadataInterface().loadObjectSourceCode(
-                   getSchema().getName(), getName(), "PROCEDURE", connection);
+                   getSchema().getName(), getName(), "PROCEDURE", getOverload(), connection);
         }
     }
     private static DBObjectTimestampLoader TIMESTAMP_LOADER = new DBObjectTimestampLoader("PROCEDURE") {};

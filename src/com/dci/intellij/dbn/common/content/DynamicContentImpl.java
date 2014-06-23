@@ -13,6 +13,7 @@ import com.dci.intellij.dbn.connection.GenericDatabaseElement;
 import com.intellij.openapi.progress.ProgressIndicator;
 import gnu.trove.THashMap;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -269,6 +270,7 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
     }
 
     @Override
+    @Nullable
     public List<T> getElements(String name) {
         List<T> elements = null;
         for (T element : getElements()) {

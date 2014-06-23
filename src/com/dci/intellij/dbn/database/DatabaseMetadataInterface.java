@@ -574,6 +574,7 @@ public interface DatabaseMetadataInterface extends DatabaseInterface{
      * View source-code may be split on more than one line.
      */
     ResultSet loadObjectSourceCode(String ownerName, String objectName, String objectType, Connection connection) throws SQLException;
+    ResultSet loadObjectSourceCode(String ownerName, String objectName, String objectType, int overload, Connection connection) throws SQLException;
 
     /**
      * Loads a list of invalid object names for the given owner.

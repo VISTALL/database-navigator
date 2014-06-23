@@ -32,7 +32,7 @@ public class DBArgumentRef extends DBObjectRef<DBArgument> {
 
             method = program.getMethod(methodNode.getName(), overload);
         } else {
-            method = schema.getMethod(methodNode.getName(), methodObjectType.getName());
+            method = schema.getMethod(methodNode.getName(), methodObjectType.getName(), overload);
         }
 
         if (method == null) return null;
