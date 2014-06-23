@@ -499,7 +499,7 @@ public interface DatabaseMetadataInterface extends DatabaseInterface{
      *  <li> SEQUENCE (number)
      *  <li> IN_OUT ('IN', 'OUT', 'IN/OUT')
      */
-    ResultSet loadMethodArguments(String ownerName, String methodName, String methodType, String overload, Connection connection) throws SQLException;
+    ResultSet loadMethodArguments(String ownerName, String methodName, String methodType, int overload, Connection connection) throws SQLException;
 
     /**
      * Loads all arguments for a given program method (function or procedure of a package or type).<br>
@@ -509,7 +509,7 @@ public interface DatabaseMetadataInterface extends DatabaseInterface{
      *  <li> SEQUENCE (number)
      *  <li> IN_OUT ('IN', 'OUT', 'IN/OUT')
      */
-    ResultSet loadProgramMethodArguments(String ownerName, String programName, String methodName, String overload, Connection connection) throws SQLException;
+    ResultSet loadProgramMethodArguments(String ownerName, String programName, String methodName, int overload, Connection connection) throws SQLException;
 
     /**
      * Loads all method (function/procedure) arguments for a given owner.<br>

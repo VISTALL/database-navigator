@@ -130,6 +130,7 @@ public abstract class DBMethodImpl extends DBSchemaObjectImpl implements DBMetho
 
     @Override
     public boolean equals(Object obj) {
+        if (this == obj) return true;
         if (super.equals(obj)) {
             DBMethod method = (DBMethod) obj;
             return method.getOverload() == getOverload();
@@ -154,7 +155,7 @@ public abstract class DBMethodImpl extends DBSchemaObjectImpl implements DBMetho
             DatabaseMetadataInterface metadataInterface = dynamicContent.getConnectionHandler().getInterfaceProvider().getMetadataInterface();
             DBMethod method = (DBMethod) dynamicContent.getParent();
             String ownerName = method.getSchema().getName();
-            String overload = Integer.toString(method.getOverload());
+            int overload = method.getOverload();
             DBProgram program = method.getProgram();
             if (program == null) {
                 return metadataInterface.loadMethodArguments(

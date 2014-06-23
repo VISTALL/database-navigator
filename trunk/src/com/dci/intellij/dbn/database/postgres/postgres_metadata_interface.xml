@@ -371,7 +371,7 @@
 
     <statement-execution-processor id="functions" is-query="true" is-prepared-statement="true">
         <statement>
-            select distinct
+            select
                 r1.ROUTINE_NAME as FUNCTION_NAME,
                 CASE WHEN r5.count > 1 THEN
                     (select r3.overload
@@ -412,10 +412,10 @@
             select
                 case when p.PARAMETER_NAME is null then 'param'||p.ORDINAL_POSITION else p.PARAMETER_NAME end as ARGUMENT_NAME,
                 null as PROGRAM_NAME,
-                r.SPECIFIC_NAME as METHOD_NAME,
+                r.ROUTINE_NAME as METHOD_NAME,
                 'FUNCTION' as METHOD_TYPE,
                 p.DATA_TYPE as DATA_TYPE_NAME,
-                0 as OVERLOAD,
+                r.OVERLOAD,
                 p.ORDINAL_POSITION as POSITION,
                 p.ORDINAL_POSITION as SEQUENCE,
                 p.PARAMETER_MODE as IN_OUT,
@@ -426,12 +426,32 @@
                 0 as DATA_PRECISION,
                 0 as DATA_SCALE
             from
-                INFORMATION_SCHEMA.ROUTINES r,
+                (select
+                    r1.SPECIFIC_SCHEMA,
+                    r1.SPECIFIC_NAME,
+                    r1.ROUTINE_NAME,
+                    r1.ROUTINE_TYPE,
+                    CASE WHEN r5.count > 1 THEN
+                        (select r3.overload
+                         from (select ROW_NUMBER() over (order by r2.SPECIFIC_NAME) as overload, r2.SPECIFIC_SCHEMA, r2.SPECIFIC_NAME
+                                from INFORMATION_SCHEMA.ROUTINES r2
+                                where r2.SPECIFIC_SCHEMA = r1.SPECIFIC_SCHEMA and r2.ROUTINE_NAME = r1.ROUTINE_NAME) as r3
+                         where r3.SPECIFIC_SCHEMA = r1.SPECIFIC_SCHEMA and r3.SPECIFIC_NAME = r1.SPECIFIC_NAME)
+                    ELSE 0 END as OVERLOAD,
+                    'Y' as IS_VALID,
+                    'N' as IS_DEBUG,
+                    left(IS_DETERMINISTIC, 1) as IS_DETERMINISTIC
+                from
+                    INFORMATION_SCHEMA.ROUTINES r1,
+                    (select distinct r4.SPECIFIC_SCHEMA, r4.ROUTINE_NAME, count(*) over(partition by r4.ROUTINE_NAME) from INFORMATION_SCHEMA.ROUTINES r4) r5
+                where
+                    r5.SPECIFIC_SCHEMA = r1.SPECIFIC_SCHEMA and
+                    r5.ROUTINE_NAME = r1.ROUTINE_NAME) r,
                 INFORMATION_SCHEMA.PARAMETERS p
             where
-                r.ROUTINE_SCHEMA = {0} and
-                r.SPECIFIC_NAME = {1} and
-                r.ROUTINE_TYPE = {2} and
+                r.SPECIFIC_SCHEMA = {0} and
+                r.ROUTINE_NAME = {1} and
+                r.OVERLOAD = {3} and
                 p.SPECIFIC_SCHEMA = r.SPECIFIC_SCHEMA and
                 p.SPECIFIC_NAME = r.SPECIFIC_NAME
             order by
@@ -445,10 +465,10 @@
             select
                 case when p.PARAMETER_NAME is null then 'param'||p.ORDINAL_POSITION else p.PARAMETER_NAME end as ARGUMENT_NAME,
                 null as PROGRAM_NAME,
-                r.SPECIFIC_NAME as METHOD_NAME,
+                r.ROUTINE_NAME as METHOD_NAME,
                 'FUNCTION' as METHOD_TYPE,
                 p.DATA_TYPE as DATA_TYPE_NAME,
-                0 as OVERLOAD,
+                r.OVERLOAD,
                 p.ORDINAL_POSITION as POSITION,
                 p.ORDINAL_POSITION as SEQUENCE,
                 p.PARAMETER_MODE as IN_OUT,
@@ -459,14 +479,35 @@
                 0 as DATA_PRECISION,
                 0 as DATA_SCALE
             from
-                INFORMATION_SCHEMA.ROUTINES r,
+                (select
+                    r1.SPECIFIC_SCHEMA,
+                    r1.SPECIFIC_NAME,
+                    r1.ROUTINE_NAME,
+                    r1.ROUTINE_TYPE,
+                    CASE WHEN r5.count > 1 THEN
+                        (select r3.overload
+                         from (select ROW_NUMBER() over (order by r2.SPECIFIC_NAME) as overload, r2.SPECIFIC_SCHEMA, r2.SPECIFIC_NAME
+                                from INFORMATION_SCHEMA.ROUTINES r2
+                                where r2.SPECIFIC_SCHEMA = r1.SPECIFIC_SCHEMA and r2.ROUTINE_NAME = r1.ROUTINE_NAME) as r3
+                         where r3.SPECIFIC_SCHEMA = r1.SPECIFIC_SCHEMA and r3.SPECIFIC_NAME = r1.SPECIFIC_NAME)
+                    ELSE 0 END as OVERLOAD,
+                    'Y' as IS_VALID,
+                    'N' as IS_DEBUG,
+                    left(IS_DETERMINISTIC, 1) as IS_DETERMINISTIC
+                from
+                    INFORMATION_SCHEMA.ROUTINES r1,
+                    (select distinct r4.SPECIFIC_SCHEMA, r4.ROUTINE_NAME, count(*) over(partition by r4.ROUTINE_NAME) from INFORMATION_SCHEMA.ROUTINES r4) r5
+                where
+                    r5.SPECIFIC_SCHEMA = r1.SPECIFIC_SCHEMA and
+                    r5.ROUTINE_NAME = r1.ROUTINE_NAME) r,
                 INFORMATION_SCHEMA.PARAMETERS p
             where
-                r.ROUTINE_SCHEMA = {0} and
+                r.SPECIFIC_SCHEMA = {0} and
                 p.SPECIFIC_SCHEMA = r.SPECIFIC_SCHEMA and
                 p.SPECIFIC_NAME = r.SPECIFIC_NAME
             order by
-                p.SPECIFIC_NAME,
+                r.SPECIFIC_SCHEMA,
+                r.SPECIFIC_NAME,
                 p.ORDINAL_POSITION
         </statement>
     </statement-execution-processor>
