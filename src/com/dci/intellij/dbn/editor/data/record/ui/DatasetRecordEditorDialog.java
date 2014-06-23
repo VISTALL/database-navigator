@@ -48,8 +48,10 @@ public class DatasetRecordEditorDialog extends DBNDialog {
     }
 
     @Override
-    protected void dispose() {
-        super.dispose();
-        editorForm.dispose();
+    public void dispose() {
+        if (!isDisposed()) {
+            super.dispose();
+            editorForm.dispose();
+        }
     }
 }

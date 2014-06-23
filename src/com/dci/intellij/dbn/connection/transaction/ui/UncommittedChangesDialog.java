@@ -86,10 +86,12 @@ public class UncommittedChangesDialog extends DBNDialog {
     }
 
     @Override
-    protected void dispose() {
-        super.dispose();
-        mainComponent.dispose();
-        mainComponent = null;
-        connectionHandler = null;
+    public void dispose() {
+        if (!isDisposed()) {
+            super.dispose();
+            mainComponent.dispose();
+            mainComponent = null;
+            connectionHandler = null;
+        }
     }
 }

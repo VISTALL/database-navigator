@@ -75,9 +75,11 @@ public class StatementExecutionVariablesDialog extends DBNDialog {
     }
 
     @Override
-    protected void dispose() {
-        super.dispose();
-        variablesForm.dispose();
+    public void dispose() {
+        if (!isDisposed()) {
+            super.dispose();
+            variablesForm.dispose();
+        }
     }
 
 

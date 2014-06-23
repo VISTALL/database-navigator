@@ -139,8 +139,10 @@ public class MethodExecutionHistoryDialog extends DBNDialog implements Disposabl
     }
 
     public void setSaveButtonEnabled(boolean enabled){
-        saveAction.setEnabled(enabled);
-        closeAction.putValue(Action.NAME, enabled ? "Cancel" : "Close");
+        if (!isDisposed()) {
+            if (saveAction != null) saveAction.setEnabled(enabled);
+            closeAction.putValue(Action.NAME, enabled ? "Cancel" : "Close");
+        }
     }
 
     public void showMethodExecutionPanel(MethodExecutionInput executionInput){

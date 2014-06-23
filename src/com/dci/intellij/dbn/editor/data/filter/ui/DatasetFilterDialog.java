@@ -140,8 +140,10 @@ public class DatasetFilterDialog extends DBNDialog {
     }
 
     @Override
-    protected void dispose() {
-        super.dispose();
-        mainForm.dispose();
+    public void dispose() {
+        if (!isDisposed()) {
+            super.dispose();
+            mainForm.dispose();
+        }
     }
 }

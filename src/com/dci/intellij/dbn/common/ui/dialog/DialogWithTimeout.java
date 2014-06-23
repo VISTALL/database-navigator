@@ -57,12 +57,14 @@ public abstract class DialogWithTimeout extends DBNDialog{
     public abstract void doDefaultAction();
 
     @Override
-    protected void dispose() {
-        super.dispose();
-        timeoutTimer.cancel();
-        timeoutTimer.purge();
-        form.dispose();
-        form = null;
+    public void dispose() {
+        if (!isDisposed()) {
+            super.dispose();
+            timeoutTimer.cancel();
+            timeoutTimer.purge();
+            form.dispose();
+            form = null;
+        }
     }
 
 }

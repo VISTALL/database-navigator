@@ -118,10 +118,12 @@ public class UncommittedChangesOverviewDialog extends DBNDialog implements Trans
     }
 
     @Override
-    protected void dispose() {
-        EventManager.unsubscribe(this);
-        super.dispose();
-        mainComponent.dispose();
-        mainComponent = null;
+    public void dispose() {
+        if (!isDisposed()) {
+            EventManager.unsubscribe(this);
+            super.dispose();
+            mainComponent.dispose();
+            mainComponent = null;
+        }
     }
 }

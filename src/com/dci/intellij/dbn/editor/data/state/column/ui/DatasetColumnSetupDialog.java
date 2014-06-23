@@ -50,8 +50,10 @@ public class DatasetColumnSetupDialog extends DBNDialog {
     }
 
     @Override
-    protected void dispose() {
-        super.dispose();
-        columnSetupForm.dispose();
+    public void dispose() {
+        if (!isDisposed()) {
+            super.dispose();
+            columnSetupForm.dispose();
+        }
     }
 }

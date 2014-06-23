@@ -120,7 +120,7 @@ public class DatabaseFileSystem extends VirtualFileSystem implements Application
     }
 
     public static String createPath(DBObject object, DBContentType contentType) {
-        StringBuilder buffer = new StringBuilder(object.getName());
+        StringBuilder buffer = new StringBuilder(object.getRef().getFileName());
         DBObject parent = object.getParentObject();
         while (parent != null) {
             buffer.insert(0, ".");
@@ -145,7 +145,7 @@ public class DatabaseFileSystem extends VirtualFileSystem implements Application
     }
 
     public static String createPath(DBObject object) {
-        StringBuilder buffer = new StringBuilder(object.getName());
+        StringBuilder buffer = new StringBuilder(object.getRef().getFileName());
         DBObject parent = object.getParentObject();
         while (parent != null) {
             buffer.insert(0, ".");
@@ -162,7 +162,7 @@ public class DatabaseFileSystem extends VirtualFileSystem implements Application
     }
 
     public static String createUrl(DBObject object) {
-        StringBuilder buffer = new StringBuilder(object.getName());
+        StringBuilder buffer = new StringBuilder(object.getRef().getFileName());
         buffer.append(".");
         buffer.append(getDefaultExtension(object));
 

@@ -72,17 +72,7 @@ public class DatabaseObjectFile<T extends DBObject> extends VirtualFile implemen
     @NotNull
     @NonNls
     public String getName() {
-        return objectRef.getName();
-    }
-
-    @Override
-    public String getPresentableName() {
-        T object = objectRef.get();
-        if (object == null) {
-            return objectRef.getName();
-        } else {
-            return object.getName();
-        }
+        return objectRef.getFileName();
     }
 
     @NotNull

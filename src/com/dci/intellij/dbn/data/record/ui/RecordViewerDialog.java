@@ -68,9 +68,11 @@ public class RecordViewerDialog extends DBNDialog {
     }
 
     @Override
-    protected void dispose() {
-        super.dispose();
-        editorForm.dispose();
-        editorForm = null;
+    public void dispose() {
+        if (!isDisposed()) {
+            super.dispose();
+            editorForm.dispose();
+            editorForm = null;
+        }
     }
 }

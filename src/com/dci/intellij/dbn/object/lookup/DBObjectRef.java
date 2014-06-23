@@ -247,6 +247,10 @@ public class DBObjectRef<T extends DBObject> implements Comparable, Reference<T>
         return nodes[nodes.length-1].getName();
     }
 
+    public String getFileName() {
+        return getName();
+    }
+
     public DBObjectType getObjectType() {
         return nodes[nodes.length-1].getType();
     }
