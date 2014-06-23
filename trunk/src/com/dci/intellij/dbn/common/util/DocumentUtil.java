@@ -97,7 +97,7 @@ public class DocumentUtil {
     public static void createGuardedBlock(Document document, int startOffset, int endOffset, String reason) {
         RangeMarker rangeMarker = document.createGuardedBlock(startOffset, endOffset);
         rangeMarker.setGreedyToLeft(true);
-        rangeMarker.setGreedyToRight(true);
+        rangeMarker.setGreedyToRight(false);
         document.putUserData(OverrideReadonlyFragmentModificationHandler.GUARDED_BLOCK_REASON, reason);
     }
 

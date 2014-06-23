@@ -314,6 +314,10 @@ public class Icons {
     public static final Icon DBO_VIEWS                  = load("/img/v1/object/Views.png");
     public static final Icon DBO_VARIABLE               = load("/img/v1/object/Variable.png");
 
+    public static final Icon DBO_LABEL_PK_FK            = load("/img/v1/object/PrimaryKeyForeignKey.png");
+    public static final Icon DBO_LABEL_PK               = load("/img/v1/object/PrimaryKey.png");
+    public static final Icon DBO_LABEL_FK               = load("/img/v1/object/ForeignKey.png");
+
 
     public static final Icon DEBUG_INVALID_BREAKPOINT  = load("/img/v1/InvalidBreakpoint.png");
 

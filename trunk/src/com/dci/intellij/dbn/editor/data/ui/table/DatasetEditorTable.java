@@ -25,6 +25,7 @@ import com.dci.intellij.dbn.editor.data.ui.table.cell.DatasetTableCellEditorFact
 import com.dci.intellij.dbn.editor.data.ui.table.listener.DatasetEditorHeaderMouseListener;
 import com.dci.intellij.dbn.editor.data.ui.table.listener.DatasetEditorKeyListener;
 import com.dci.intellij.dbn.editor.data.ui.table.listener.DatasetEditorMouseListener;
+import com.dci.intellij.dbn.editor.data.ui.table.renderer.DatasetEditorHeaderRenderer;
 import com.dci.intellij.dbn.editor.data.ui.table.renderer.DatasetEditorTableCellRenderer;
 import com.dci.intellij.dbn.object.DBColumn;
 import com.dci.intellij.dbn.object.DBDataset;
@@ -65,6 +66,7 @@ public class DatasetEditorTable extends ResultSetTable {
                 new RecordViewInfo(
                     datasetEditor.getDataset().getQualifiedName(),
                     datasetEditor.getDataset().getIcon()));
+        getTableHeader().setDefaultRenderer(new DatasetEditorHeaderRenderer());
         this.datasetEditor = datasetEditor;
 
         getSelectionModel().addListSelectionListener(getModel());
