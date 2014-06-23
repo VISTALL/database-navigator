@@ -375,19 +375,30 @@
                 r1.ROUTINE_NAME as FUNCTION_NAME,
                 CASE WHEN r5.count > 1 THEN
                     (select r3.overload
-                     from (select ROW_NUMBER() over (order by r2.SPECIFIC_NAME) as overload, r2.ROUTINE_SCHEMA, r2.SPECIFIC_NAME
+                     from (select
+                                ROW_NUMBER() over (order by r2.SPECIFIC_NAME) as overload,
+                                r2.ROUTINE_SCHEMA,
+                                r2.SPECIFIC_NAME
                             from INFORMATION_SCHEMA.ROUTINES r2
-                            where r2.ROUTINE_SCHEMA = r1.ROUTINE_SCHEMA and r2.ROUTINE_NAME = r1.ROUTINE_NAME) as r3
-                     where r3.ROUTINE_SCHEMA = r1.ROUTINE_SCHEMA and r3.SPECIFIC_NAME = r1.SPECIFIC_NAME)
+                            where
+                                r2.ROUTINE_SCHEMA = {0} and
+                                r2.ROUTINE_NAME = r1.ROUTINE_NAME) as r3
+                     where
+                        r3.ROUTINE_SCHEMA = {0} and
+                        r3.SPECIFIC_NAME = r1.SPECIFIC_NAME)
                 ELSE 0 END as OVERLOAD,
                 'Y' as IS_VALID,
                 'N' as IS_DEBUG,
                 left(IS_DETERMINISTIC, 1) as IS_DETERMINISTIC
             from
                 INFORMATION_SCHEMA.ROUTINES r1,
-                (select distinct r4.ROUTINE_SCHEMA, r4.ROUTINE_NAME, count(*) over(partition by r4.ROUTINE_NAME) from INFORMATION_SCHEMA.ROUTINES r4) r5
+                (select distinct
+                    r4.ROUTINE_SCHEMA,
+                    r4.ROUTINE_NAME,
+                    count(*) over(partition by r4.ROUTINE_NAME)
+                from INFORMATION_SCHEMA.ROUTINES r4
+                where r4.ROUTINE_SCHEMA = {0}) r5
             where
-                r5.ROUTINE_SCHEMA = r1.ROUTINE_SCHEMA and
                 r5.ROUTINE_NAME = r1.ROUTINE_NAME and
                 r1.ROUTINE_SCHEMA = {0}
             order by r1.ROUTINE_NAME, OVERLOAD asc
@@ -433,20 +444,33 @@
                     r1.ROUTINE_TYPE,
                     CASE WHEN r5.count > 1 THEN
                         (select r3.overload
-                         from (select ROW_NUMBER() over (order by r2.SPECIFIC_NAME) as overload, r2.SPECIFIC_SCHEMA, r2.SPECIFIC_NAME
-                                from INFORMATION_SCHEMA.ROUTINES r2
-                                where r2.SPECIFIC_SCHEMA = r1.SPECIFIC_SCHEMA and r2.ROUTINE_NAME = r1.ROUTINE_NAME) as r3
-                         where r3.SPECIFIC_SCHEMA = r1.SPECIFIC_SCHEMA and r3.SPECIFIC_NAME = r1.SPECIFIC_NAME)
+                         from (select
+                                   ROW_NUMBER() over (order by r2.SPECIFIC_NAME) as overload,
+                                   r2.SPECIFIC_SCHEMA,
+                                   r2.SPECIFIC_NAME
+                               from INFORMATION_SCHEMA.ROUTINES r2
+                               where
+                                   r2.SPECIFIC_SCHEMA = {0} and
+                                   r2.ROUTINE_NAME = {1}) as r3
+                         where
+                            r3.SPECIFIC_NAME = r1.SPECIFIC_NAME)
                     ELSE 0 END as OVERLOAD,
                     'Y' as IS_VALID,
                     'N' as IS_DEBUG,
                     left(IS_DETERMINISTIC, 1) as IS_DETERMINISTIC
                 from
                     INFORMATION_SCHEMA.ROUTINES r1,
-                    (select distinct r4.SPECIFIC_SCHEMA, r4.ROUTINE_NAME, count(*) over(partition by r4.ROUTINE_NAME) from INFORMATION_SCHEMA.ROUTINES r4) r5
+                    (select distinct
+                        r4.SPECIFIC_SCHEMA,
+                        r4.ROUTINE_NAME,
+                        count(*) over(partition by r4.ROUTINE_NAME)
+                     from INFORMATION_SCHEMA.ROUTINES r4
+                     where
+                        r4.SPECIFIC_SCHEMA = {0} and
+                        r4.ROUTINE_NAME = {1}) r5
                 where
-                    r5.SPECIFIC_SCHEMA = r1.SPECIFIC_SCHEMA and
-                    r5.ROUTINE_NAME = r1.ROUTINE_NAME) r,
+                    r1.SPECIFIC_SCHEMA = {0} and
+                    r1.ROUTINE_NAME = {1}) r,
                 INFORMATION_SCHEMA.PARAMETERS p
             where
                 r.SPECIFIC_SCHEMA = {0} and
@@ -488,17 +512,21 @@
                         (select r3.overload
                          from (select ROW_NUMBER() over (order by r2.SPECIFIC_NAME) as overload, r2.SPECIFIC_SCHEMA, r2.SPECIFIC_NAME
                                 from INFORMATION_SCHEMA.ROUTINES r2
-                                where r2.SPECIFIC_SCHEMA = r1.SPECIFIC_SCHEMA and r2.ROUTINE_NAME = r1.ROUTINE_NAME) as r3
-                         where r3.SPECIFIC_SCHEMA = r1.SPECIFIC_SCHEMA and r3.SPECIFIC_NAME = r1.SPECIFIC_NAME)
+                                where r2.SPECIFIC_SCHEMA = {0} and r2.ROUTINE_NAME = r1.ROUTINE_NAME) as r3
+                         where r3.SPECIFIC_SCHEMA = {0} and r3.SPECIFIC_NAME = r1.SPECIFIC_NAME)
                     ELSE 0 END as OVERLOAD,
                     'Y' as IS_VALID,
                     'N' as IS_DEBUG,
                     left(IS_DETERMINISTIC, 1) as IS_DETERMINISTIC
                 from
                     INFORMATION_SCHEMA.ROUTINES r1,
-                    (select distinct r4.SPECIFIC_SCHEMA, r4.ROUTINE_NAME, count(*) over(partition by r4.ROUTINE_NAME) from INFORMATION_SCHEMA.ROUTINES r4) r5
+                    (select distinct
+                        r4.SPECIFIC_SCHEMA,
+                        r4.ROUTINE_NAME,
+                        count(*) over(partition by r4.ROUTINE_NAME)
+                    from INFORMATION_SCHEMA.ROUTINES r4
+                    where r4.SPECIFIC_SCHEMA = {0}) r5
                 where
-                    r5.SPECIFIC_SCHEMA = r1.SPECIFIC_SCHEMA and
                     r5.ROUTINE_NAME = r1.ROUTINE_NAME) r,
                 INFORMATION_SCHEMA.PARAMETERS p
             where
@@ -585,13 +613,49 @@
                                     order by p.ORDINAL_POSITION), ', ' )),
                     ') owner to ', (select session_user), ';')
             from
-                INFORMATION_SCHEMA.ROUTINES r,
+                (select
+                    r1.SPECIFIC_SCHEMA,
+                    r1.SPECIFIC_NAME,
+                    r1.ROUTINE_SCHEMA,
+                    r1.ROUTINE_NAME,
+                    r1.ROUTINE_TYPE,
+                    r1.ROUTINE_DEFINITION,
+                    r1.EXTERNAL_LANGUAGE,
+                    r1.DATA_TYPE,
+                    r1.TYPE_UDT_NAME,
+                    CASE WHEN r5.count > 1 THEN
+                        (select r3.overload
+                         from (select
+                                   ROW_NUMBER() over (order by r2.SPECIFIC_NAME) as overload,
+                                   r2.SPECIFIC_SCHEMA,
+                                   r2.SPECIFIC_NAME
+                               from INFORMATION_SCHEMA.ROUTINES r2
+                               where
+                                   r2.SPECIFIC_SCHEMA = {0} and
+                                   r2.ROUTINE_NAME = {1}) as r3
+                         where
+                            r3.SPECIFIC_NAME = r1.SPECIFIC_NAME)
+                    ELSE 0 END as OVERLOAD
+                from
+                    INFORMATION_SCHEMA.ROUTINES r1,
+                    (select distinct
+                        r4.SPECIFIC_SCHEMA,
+                        r4.ROUTINE_NAME,
+                        count(*) over(partition by r4.ROUTINE_NAME)
+                     from INFORMATION_SCHEMA.ROUTINES r4
+                     where
+                        r4.SPECIFIC_SCHEMA = {0} and
+                        r4.ROUTINE_NAME = {1}) r5
+                where
+                    r1.SPECIFIC_SCHEMA = {0} and
+                    r1.ROUTINE_NAME = {1}) r,
                 pg_catalog.pg_proc prc,
                 pg_catalog.pg_namespace schm
             where
-                r.ROUTINE_SCHEMA = {0} and
-                r.SPECIFIC_NAME = {1} and
+                r.SPECIFIC_SCHEMA = {0} and
+                r.ROUTINE_NAME = {1} and
                 r.ROUTINE_TYPE = {2} and
+                r.OVERLOAD = {3} and
                 r.ROUTINE_SCHEMA = schm.NSPNAME and
                 prc.PRONAME||'_'||prc.OID = r.SPECIFIC_NAME and
                 prc.PRONAMESPACE = schm.OID

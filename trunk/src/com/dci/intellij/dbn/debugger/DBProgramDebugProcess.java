@@ -401,7 +401,7 @@ public class DBProgramDebugProcess extends XDebugProcess {
     public DBSchemaObject getDatabaseObject(DebuggerRuntimeInfo runtimeInfo) {
         DBSchema schema = connectionHandler.getObjectBundle().getSchema(runtimeInfo.getOwnerName());
         DBSchemaObject schemaObject = schema.getProgram(runtimeInfo.getProgramName());
-        if (schemaObject == null) schemaObject = schema.getMethod(runtimeInfo.getProgramName());
+        if (schemaObject == null) schemaObject = schema.getMethod(runtimeInfo.getProgramName(), 0); // overload 0 is assuming debug is only supported in oracle (no schema method overloading)
         return schemaObject;
     }
 

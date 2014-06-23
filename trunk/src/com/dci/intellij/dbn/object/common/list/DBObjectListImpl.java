@@ -57,6 +57,11 @@ public class DBObjectListImpl<T extends DBObject> extends DynamicContentImpl<T> 
         return getElements();
     }
 
+    @Override
+    public List<T> getObjects(String name) {
+        return getElements(name);
+    }
+
     public void addObject(T object) {
         if (elements == DynamicContentImpl.EMPTY_LIST) {
             elements = new ArrayList<T>();

@@ -294,7 +294,10 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceImp
     }
 
     public ResultSet loadObjectSourceCode(String ownerName, String objectName, String objectType, Connection connection) throws SQLException {
-        return executeQuery(connection, "object-source-code", ownerName, objectName, objectType);
+        return loadObjectSourceCode(ownerName, objectName, objectType, 0, connection);
+    }
+    public ResultSet loadObjectSourceCode(String ownerName, String objectName, String objectType, int overload, Connection connection) throws SQLException {
+        return executeQuery(connection, "object-source-code", ownerName, objectName, objectType, overload);
     }
 
    /*********************************************************

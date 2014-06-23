@@ -52,7 +52,7 @@ public class DBMethodRef<T extends DBMethod> extends DBObjectRef<DBMethod> imple
 
             method = program.getMethod(methodNode.getName(), overload);
         } else {
-            method = schema.getMethod(methodNode.getName(), methodObjectType.getName());
+            method = schema.getMethod(methodNode.getName(), methodObjectType.getName(), overload);
         }
 
         return method != null && method.getObjectType() == methodObjectType ? (T) method : null;
