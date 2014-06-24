@@ -135,12 +135,13 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
             isLoadingInBackground = true;
             new BackgroundTask(getProject(), "Loading data dictionary", true) {
                 public void execute(@NotNull ProgressIndicator progressIndicator) {
-                    Thread thread = Thread.currentThread();
-                    String name = thread.getName();
-                    thread.setName("BACKGROUND_OBJECT_LOAD_THREAD");
-                    load(force);
-                    thread.setName(name);
-                    isLoadingInBackground = false;
+                    try {
+                        DatabaseLoadMonitor.startBackgroundLoad();
+                        load(force);
+                    } finally {
+                        DatabaseLoadMonitor.endBackgroundLoad();
+                        isLoadingInBackground = false;
+                    }
                 }
             }.start();
         }
@@ -232,7 +233,11 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
 
     @NotNull
     public synchronized List<T> getElements() {
-        load(false);
+        if (DatabaseLoadMonitor.isEnsureDataLoaded() || DatabaseLoadMonitor.isLoadingInBackground()) {
+            load(false);
+        } else{
+            loadInBackground(false);
+        }
         return elements;
     }
 

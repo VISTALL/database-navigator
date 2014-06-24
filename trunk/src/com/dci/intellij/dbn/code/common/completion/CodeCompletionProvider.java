@@ -4,6 +4,7 @@ import com.dci.intellij.dbn.code.common.completion.options.filter.CodeCompletion
 import com.dci.intellij.dbn.code.common.lookup.AliasLookupItemFactory;
 import com.dci.intellij.dbn.code.common.lookup.LookupItemFactory;
 import com.dci.intellij.dbn.code.common.lookup.VariableLookupItemFactory;
+import com.dci.intellij.dbn.common.content.DatabaseLoadMonitor;
 import com.dci.intellij.dbn.common.lookup.ConsumerStoppedException;
 import com.dci.intellij.dbn.common.lookup.LookupConsumer;
 import com.dci.intellij.dbn.common.util.NamingUtil;
@@ -91,9 +92,12 @@ public class CodeCompletionProvider extends CompletionProvider<CompletionParamet
             } else {
                 leafBeforeCaret = (LeafPsiElement) leafBeforeCaret.getOriginalElement();
                 try {
+                    DatabaseLoadMonitor.setEnsureDataLoaded(false);
                     buildElementRelativeVariants(leafBeforeCaret, consumer);
                 } catch (ConsumerStoppedException e) {
 
+                } finally {
+                    DatabaseLoadMonitor.setEnsureDataLoaded(true);
                 }
             }
         }

@@ -2,6 +2,7 @@ package com.dci.intellij.dbn.connection.action;
 
 import com.dci.intellij.dbn.DatabaseNavigator;
 import com.dci.intellij.dbn.common.Icons;
+import com.dci.intellij.dbn.common.content.DatabaseLoadMonitor;
 import com.dci.intellij.dbn.common.thread.BackgroundTask;
 import com.dci.intellij.dbn.common.util.ActionUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
@@ -26,13 +27,11 @@ public class LoadAllObjectsAction extends DumbAwareAction {
         new BackgroundTask(project, "Loading data dictionary", true) {
             @Override
             protected void execute(@NotNull ProgressIndicator progressIndicator) throws InterruptedException {
-                Thread thread = Thread.currentThread();
-                String name = thread.getName();
-                thread.setName("BACKGROUND_OBJECT_LOAD_THREAD");
                 try {
+                    DatabaseLoadMonitor.startBackgroundLoad();
                     connectionHandler.getObjectBundle().getObjectListContainer().visitLists(DBObjectRecursiveLoaderVisitor.INSTANCE, false);
                 } finally {
-                    thread.setName(name);
+                    DatabaseLoadMonitor.endBackgroundLoad();
                 }
 
             }

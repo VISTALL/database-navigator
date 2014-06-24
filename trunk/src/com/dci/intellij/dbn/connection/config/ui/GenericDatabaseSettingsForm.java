@@ -186,11 +186,13 @@ public class GenericDatabaseSettingsForm extends ConfigurationEditorForm<Generic
             Object selected = driverComboBox.getSelectedItem();
             driverComboBox.removeAllItems();
             //driverComboBox.addItem("");
-            for (Driver driver : drivers) {
-                driverComboBox.addItem(driver.getClass().getName());
-            }
-            if (selected == null && drivers.size() > 0) {
-                selected = drivers.get(0).getClass().getName();
+            if (drivers != null) {
+                for (Driver driver : drivers) {
+                    driverComboBox.addItem(driver.getClass().getName());
+                }
+                if (selected == null && drivers.size() > 0) {
+                    selected = drivers.get(0).getClass().getName();
+                }
             }
             driverComboBox.setSelectedItem(selected);
         } else {
