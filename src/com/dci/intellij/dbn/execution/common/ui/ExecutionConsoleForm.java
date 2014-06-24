@@ -17,6 +17,7 @@ import com.dci.intellij.dbn.execution.common.result.ui.ExecutionResultForm;
 import com.dci.intellij.dbn.execution.compiler.CompilerMessage;
 import com.dci.intellij.dbn.execution.compiler.CompilerResult;
 import com.dci.intellij.dbn.execution.method.result.MethodExecutionResult;
+import com.dci.intellij.dbn.execution.statement.StatementExecutionInput;
 import com.dci.intellij.dbn.execution.statement.StatementExecutionMessage;
 import com.dci.intellij.dbn.execution.statement.result.StatementExecutionCursorResult;
 import com.dci.intellij.dbn.execution.statement.result.StatementExecutionResult;
@@ -293,8 +294,11 @@ public class ExecutionConsoleForm extends DBNFormImpl implements DBNForm, Enviro
                 resultTabs.removeTab(tabInfo);
                 if (executionResult instanceof StatementExecutionResult) {
                     StatementExecutionResult statementExecutionResult = (StatementExecutionResult) executionResult;
-                    DBLanguageFile file = statementExecutionResult.getExecutionInput().getExecutablePsiElement().getFile();
-                    DocumentUtil.refreshEditorAnnotations(file);
+                    StatementExecutionInput executionInput = statementExecutionResult.getExecutionInput();
+                    if (executionInput != null) {
+                        DBLanguageFile file = executionInput.getExecutablePsiElement().getFile();
+                        DocumentUtil.refreshEditorAnnotations(file);
+                    }
                 }
                 resultComponent.dispose();
             }

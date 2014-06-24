@@ -1,5 +1,7 @@
 package com.dci.intellij.dbn.language.sql.structure;
 
+import com.dci.intellij.dbn.common.editor.structure.EmptyStructureViewModel;
+import com.dci.intellij.dbn.common.util.DocumentUtil;
 import com.intellij.ide.structureView.StructureViewBuilder;
 import com.intellij.ide.structureView.StructureViewModel;
 import com.intellij.ide.structureView.TreeBasedStructureViewBuilder;
@@ -15,13 +17,14 @@ public class SQLStructureViewBuilderFactory implements PsiStructureViewFactory {
         return new TreeBasedStructureViewBuilder() {
             @NotNull
             public StructureViewModel createStructureViewModel() {
-                return new SQLStructureViewModel(psiFile);
+                return psiFile == null ? EmptyStructureViewModel.INSTANCE : new SQLStructureViewModel(psiFile);
             }
 
             @NotNull
             @Override
             public StructureViewModel createStructureViewModel(@Nullable Editor editor) {
-                return super.createStructureViewModel(editor);
+                PsiFile psiFile = DocumentUtil.getFile(editor);
+                return psiFile == null ? EmptyStructureViewModel.INSTANCE : new SQLStructureViewModel(psiFile);
             }
         };
     }

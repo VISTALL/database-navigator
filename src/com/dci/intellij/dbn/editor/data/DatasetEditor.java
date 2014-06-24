@@ -288,7 +288,9 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
                                 tableModel.load(progressIndicator, useCurrentFilter, keepChanges);
                             }
                         } finally {
-                            editorForm.afterRebuild(oldEditorTable);
+                            if (!isDisposed()) {
+                                editorForm.afterRebuild(oldEditorTable);
+                            }
                         }
                     }
                     dataLoadError = null;

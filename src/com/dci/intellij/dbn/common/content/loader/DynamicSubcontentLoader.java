@@ -1,5 +1,6 @@
 package com.dci.intellij.dbn.common.content.loader;
 
+import com.dci.intellij.dbn.common.content.DatabaseLoadMonitor;
 import com.dci.intellij.dbn.common.content.DynamicContent;
 import com.dci.intellij.dbn.common.content.DynamicContentElement;
 import com.dci.intellij.dbn.common.content.dependency.SubcontentDependencyAdapter;
@@ -28,7 +29,7 @@ public abstract class DynamicSubcontentLoader<T extends DynamicContentElement> i
         SubcontentDependencyAdapter dependencyAdapter = (SubcontentDependencyAdapter) dynamicContent.getDependencyAdapter();
 
         DynamicContent sourceContent = dependencyAdapter.getSourceContent();
-        boolean isBackgroundLoad = Thread.currentThread().getName().equals("BACKGROUND_OBJECT_LOAD_THREAD");
+        boolean isBackgroundLoad = DatabaseLoadMonitor.isLoadingInBackground();
         DynamicContentLoader<T> alternativeLoader = getAlternativeLoader();
         if ((sourceContent.isLoaded() && !force) || isBackgroundLoad || alternativeLoader == null) {
             //load from sub-content

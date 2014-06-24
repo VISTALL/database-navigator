@@ -533,7 +533,7 @@ public class DBObjectBundleImpl implements DBObjectBundle {
     }
 
     public Project getProject() {
-        return getConnectionHandler().getProject();
+        return connectionHandler == null ? null : connectionHandler.getProject();
     }
 
     public GenericDatabaseElement getUndisposedElement() {
