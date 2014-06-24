@@ -36,6 +36,7 @@ public enum DBObjectType implements DynamicContentType {
     INDEX(DatabaseObjectTypeId.INDEX, "index", "indexes", Icons.DBO_INDEX, Icons.DBO_INDEX_DISABLED, Icons.DBO_INDEXES, false),
     INDEXTYPE(DatabaseObjectTypeId.INDEXTYPE, "indextype", "indextypes", null, null, false),
     JAVA_OBJECT(DatabaseObjectTypeId.JAVA_OBJECT, "java object", "java objects", null, null, false),
+    JAVA_CLASS(DatabaseObjectTypeId.JAVA_CLASS, "java class", "java classes", null, null, false),
     LOB(DatabaseObjectTypeId.LOB, "lob", "lobs", null, null, false),
     MATERIALIZED_VIEW(DatabaseObjectTypeId.MATERIALIZED_VIEW, "materialized view", "materialized views", Icons.DBO_MATERIALIZED_VIEW, Icons.DBO_MATERIALIZED_VIEWS, false),
     METHOD(DatabaseObjectTypeId.METHOD, "method", "methods", null, null, true),
@@ -265,7 +266,12 @@ public enum DBObjectType implements DynamicContentType {
         return UNKNOWN;
     }
 
-   public static DBObjectType getObjectType(String typeName) {
+    public static DBObjectType getObjectType(String typeName, DBObjectType defaultObjectType) {
+        DBObjectType objectType = getObjectType(typeName);
+        return objectType == UNKNOWN ? defaultObjectType : objectType;
+    }
+
+    public static DBObjectType getObjectType(String typeName) {
        typeName = typeName.replace('_', ' ');
         for (DBObjectType objectType: values()) {
             if (objectType.getName().equalsIgnoreCase(typeName)) {

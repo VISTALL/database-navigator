@@ -1240,13 +1240,16 @@
     <statement-execution-processor id="synonyms" is-query="true" is-prepared-statement="true">
         <statement prefixes="DBA, ALL">
             select
-                SYNONYM_NAME,
-                TABLE_OWNER as OBJECT_OWNER,
-                TABLE_NAME as OBJECT_NAME,
+                NAME as SYNONYM_NAME,
+                REFERENCED_OWNER as OBJECT_OWNER,
+                REFERENCED_NAME as OBJECT_NAME,
+                REFERENCED_TYPE as OBJECT_TYPE,
                 'Y' as IS_VALID
-            from [PREFIX]_SYNONYMS
-            where OWNER = {0}
-            order by SYNONYM_NAME asc
+            from [PREFIX]_DEPENDENCIES d
+            where
+                TYPE = 'SYNONYM' and
+                OWNER = {0}
+            order by NAME asc
         </statement>
     </statement-execution-processor>
 
