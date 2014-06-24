@@ -44,6 +44,7 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
     private ConnectionStatus connectionStatus;
     private ConnectionPool connectionPool;
     private ConnectionInfo connectionInfo;
+    private ConnectionLoadMonitor loadMonitor;
     private DBObjectBundle objectBundle;
     private DatabaseInterfaceProvider interfaceProvider;
     private UncommittedChangeBundle changesBundle;
@@ -60,6 +61,7 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
         this.connectionSettings = connectionSettings;
         connectionStatus = new ConnectionStatus();
         connectionPool = new ConnectionPool(this);
+        loadMonitor = new ConnectionLoadMonitor(this);
     }
 
     public ConnectionBundle getConnectionBundle() {
@@ -244,6 +246,10 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
         return connectionInfo;
     }
 
+    public ConnectionLoadMonitor getLoadMonitor() {
+        return loadMonitor;
+    }
+
     public DBObjectBundle getObjectBundle() {
         if (objectBundle == null) {
             objectBundle = new DBObjectBundleImpl(this, connectionBundle);
@@ -371,6 +377,7 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
             DisposeUtil.dispose(connectionPool);
             DisposeUtil.dispose(sqlConsoleFile);
             DisposeUtil.dispose(psiCache);
+            DisposeUtil.dispose(loadMonitor);
             connectionPool = null;
             changesBundle = null;
         }

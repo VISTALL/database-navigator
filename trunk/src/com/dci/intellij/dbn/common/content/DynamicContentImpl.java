@@ -130,7 +130,7 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
     }
 
     @Override
-    public final void loadInBackground(final boolean force) {
+    public final synchronized void loadInBackground(final boolean force) {
         if (!isLoadingInBackground && shouldLoad(force)) {
             isLoadingInBackground = true;
             new BackgroundTask(getProject(), "Loading data dictionary", true) {
@@ -232,8 +232,8 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
     }
 
     @NotNull
-    public synchronized List<T> getElements() {
-        if (DatabaseLoadMonitor.isEnsureDataLoaded() || DatabaseLoadMonitor.isLoadingInBackground()) {
+    public List<T> getElements() {
+        if (isSubContent() || DatabaseLoadMonitor.isEnsureDataLoaded() || DatabaseLoadMonitor.isLoadingInBackground()) {
             load(false);
         } else{
             loadInBackground(false);

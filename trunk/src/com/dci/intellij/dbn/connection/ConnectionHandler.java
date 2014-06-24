@@ -34,6 +34,7 @@ public interface ConnectionHandler extends Disposable{
     ConnectionBundle getConnectionBundle();
     ConnectionInfo getConnectionInfo() throws SQLException;
     ConnectionPool getConnectionPool();
+    ConnectionLoadMonitor getLoadMonitor();
     DatabaseInterfaceProvider getInterfaceProvider();
     DBObjectBundle getObjectBundle();
     DBSchema getUserSchema();

@@ -69,6 +69,10 @@ public class DocumentUtil {
     }
 
 
+    public static void refreshEditorAnnotations(Editor editor) {
+        refreshEditorAnnotations(DocumentUtil.getFile(editor));
+    }
+
     public static void refreshEditorAnnotations(PsiFile psiFile) {
         DaemonCodeAnalyzer.getInstance(psiFile.getProject()).restart(psiFile);
     }

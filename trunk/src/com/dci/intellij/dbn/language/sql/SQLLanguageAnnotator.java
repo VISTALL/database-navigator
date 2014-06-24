@@ -92,7 +92,7 @@ public class SQLLanguageAnnotator implements Annotator {
         if (!objectReference.isResolving()) {
             PsiElement reference = objectReference.resolve();
             ConnectionHandler connectionHandler = objectReference.getActiveConnection();
-            if (reference == null && connectionHandler != null && connectionHandler.getConnectionStatus().isValid()) {
+            if (reference == null && connectionHandler != null && !connectionHandler.isVirtual() && connectionHandler.getConnectionStatus().isValid() && !connectionHandler.getLoadMonitor().isLoading()) {
                 if (!objectReference.isDefinition()) {
                     Annotation annotation = holder.createWarningAnnotation(objectReference.getNode(),
                             "Unknown identifier");
