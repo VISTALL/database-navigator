@@ -23,7 +23,9 @@ public class PSQLTemplateContextType extends TemplateContextType {
             // support PSQL in SQL language
             LeafPsiElement leafPsiElement = PsiUtil.lookupLeafBeforeOffset(file, offset);
             if (leafPsiElement != null) {
-                return leafPsiElement.getLanguage() instanceof PSQLLanguage;
+                if (leafPsiElement.getLanguage() instanceof PSQLLanguage) {
+                    return !leafPsiElement.getEnclosingScopePsiElement().getTextRange().contains(offset);
+                }
             } else {
                 return language instanceof PSQLLanguage;
             }

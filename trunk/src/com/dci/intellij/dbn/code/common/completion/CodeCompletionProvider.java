@@ -36,7 +36,6 @@ import com.dci.intellij.dbn.object.common.ObjectTypeFilter;
 import com.intellij.codeInsight.completion.CompletionParameters;
 import com.intellij.codeInsight.completion.CompletionProvider;
 import com.intellij.codeInsight.completion.CompletionResultSet;
-import com.intellij.codeInsight.completion.CompletionType;
 import com.intellij.psi.PsiComment;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
@@ -61,7 +60,7 @@ public class CodeCompletionProvider extends CompletionProvider<CompletionParamet
             ProcessingContext processingContext,
             @NotNull CompletionResultSet result) {
         try {
-            DatabaseLoadMonitor.setEnsureDataLoaded(parameters.getCompletionType() == CompletionType.BASIC);
+            DatabaseLoadMonitor.setEnsureDataLoaded(false);
             doAddCompletions(parameters, result);
         } finally {
             DatabaseLoadMonitor.setEnsureDataLoaded(true);

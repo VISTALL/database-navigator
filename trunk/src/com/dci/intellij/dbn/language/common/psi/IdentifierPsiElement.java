@@ -1,7 +1,6 @@
 package com.dci.intellij.dbn.language.common.psi;
 
 import com.dci.intellij.dbn.code.common.style.formatting.FormattingAttributes;
-import com.dci.intellij.dbn.common.content.DatabaseLoadMonitor;
 import com.dci.intellij.dbn.common.util.StringUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.language.common.element.IdentifierElementType;
@@ -478,7 +477,8 @@ public class IdentifierPsiElement extends LeafPsiElement implements PsiNamedElem
         if (ref.isDirty()) {
             //System.out.println("resolving " + getTextRange() + " " + getText());
             try {
-                DatabaseLoadMonitor.setEnsureDataLoaded(false);
+                //DatabaseLoadMonitor.setEnsureDataLoaded(false);
+
                 ref.preResolve(this);
                 if (getParent() instanceof QualifiedIdentifierPsiElement) {
                     QualifiedIdentifierPsiElement qualifiedIdentifier = (QualifiedIdentifierPsiElement) getParent();
@@ -488,7 +488,7 @@ public class IdentifierPsiElement extends LeafPsiElement implements PsiNamedElem
                 }
                 ref.postResolve();
             } finally {
-                DatabaseLoadMonitor.setEnsureDataLoaded(true);
+                //DatabaseLoadMonitor.setEnsureDataLoaded(false);
             }
         }
         return ref.getReferencedElement();

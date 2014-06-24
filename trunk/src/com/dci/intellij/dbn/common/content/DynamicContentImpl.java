@@ -258,7 +258,7 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
         }
     }
 
-    public synchronized T getElement(String name) {
+    public T getElement(String name) {
         if (name != null) {
             if (indexed && index != null) {
                 return index.get(name.toUpperCase());

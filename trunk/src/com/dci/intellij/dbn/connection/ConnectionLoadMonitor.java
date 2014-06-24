@@ -27,7 +27,7 @@ public class ConnectionLoadMonitor implements Disposable {
 
     public void decrementLoaderCount() {
         activeLoaderCount--;
-        if(connectionHandler != null && !connectionHandler.isDisposed() && !connectionHandler.isVirtual()) {
+        if(false && connectionHandler != null && !connectionHandler.isDisposed() && !connectionHandler.isVirtual()) {
             EventManager.notify(connectionHandler.getProject(), ConnectionLoadListener.TOPIC).contentsLoaded(connectionHandler);
         }
         if (activeLoaderCount == 0) {
