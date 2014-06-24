@@ -62,7 +62,7 @@ public class PsiResolveResult {
             return true;
         }
 
-        if (conectionChanged()) {
+        if (connectionChanged()) {
             return true;
         }
 
@@ -103,7 +103,7 @@ public class PsiResolveResult {
         return !element.textMatches(text);
     }
 
-    private boolean conectionChanged() {
+    private boolean connectionChanged() {
         return activeConnection != element.getActiveConnection();
     }
 

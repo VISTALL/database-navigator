@@ -62,6 +62,7 @@ public abstract class DynamicContentResultSetLoader<T extends DynamicContentElem
         ResultSet resultSet = null;
         int count = 0;
         try {
+            connectionHandler.getLoadMonitor().incrementLoaderCount();
             connection = connectionHandler.getPoolConnection();
             dynamicContent.check();
             resultSet = createResultSet(dynamicContent, connection);
@@ -110,6 +111,7 @@ public abstract class DynamicContentResultSetLoader<T extends DynamicContentElem
         } finally {
             ConnectionUtil.closeResultSet(resultSet);
             connectionHandler.freePoolConnection(connection);
+            connectionHandler.getLoadMonitor().decrementLoaderCount();
         }
     }
 

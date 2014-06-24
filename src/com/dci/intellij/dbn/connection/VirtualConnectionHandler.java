@@ -111,6 +111,12 @@ public class VirtualConnectionHandler implements ConnectionHandler {
     public ConnectionBundle getConnectionBundle() {return null;}
     public ConnectionInfo getConnectionInfo() throws SQLException {return null;}
     public ConnectionPool getConnectionPool() {return null;}
+
+    @Override
+    public ConnectionLoadMonitor getLoadMonitor() {
+        return null;
+    }
+
     public DBObjectBundle getObjectBundle() {return null;}
     public DBSchema getUserSchema() {return null;}
     public SQLConsoleFile getSQLConsoleFile() {return null;}

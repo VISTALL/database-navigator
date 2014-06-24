@@ -59,6 +59,16 @@ public class CodeCompletionProvider extends CompletionProvider<CompletionParamet
             @NotNull CompletionParameters parameters,
             ProcessingContext processingContext,
             @NotNull CompletionResultSet result) {
+        try {
+            DatabaseLoadMonitor.setEnsureDataLoaded(false);
+            doAddCompletions(parameters, result);
+        } finally {
+            DatabaseLoadMonitor.setEnsureDataLoaded(true);
+        }
+
+    }
+
+    private void doAddCompletions(CompletionParameters parameters, CompletionResultSet result) {
         PsiFile originalFile = parameters.getOriginalFile();
         if (originalFile instanceof DBLanguageFile) {
             DBLanguageFile file = (DBLanguageFile) originalFile;
@@ -92,12 +102,9 @@ public class CodeCompletionProvider extends CompletionProvider<CompletionParamet
             } else {
                 leafBeforeCaret = (LeafPsiElement) leafBeforeCaret.getOriginalElement();
                 try {
-                    DatabaseLoadMonitor.setEnsureDataLoaded(false);
                     buildElementRelativeVariants(leafBeforeCaret, consumer);
                 } catch (ConsumerStoppedException e) {
 
-                } finally {
-                    DatabaseLoadMonitor.setEnsureDataLoaded(true);
                 }
             }
         }
