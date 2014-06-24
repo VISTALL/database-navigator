@@ -14,6 +14,7 @@ import com.dci.intellij.dbn.object.common.list.DBObjectNavigationListImpl;
 import com.dci.intellij.dbn.object.common.property.DBObjectProperties;
 import com.dci.intellij.dbn.object.common.property.DBObjectProperty;
 import com.dci.intellij.dbn.object.common.status.DBObjectStatus;
+import com.dci.intellij.dbn.object.lookup.DBObjectRef;
 import com.dci.intellij.dbn.object.properties.DBObjectPresentableProperty;
 import com.dci.intellij.dbn.object.properties.PresentableProperty;
 import org.jetbrains.annotations.NotNull;
@@ -25,9 +26,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class DBSynonymImpl extends DBSchemaObjectImpl implements DBSynonym {
-    private String objectOwner;
-    private String objectName;
-    private DBObject underlyingObject;
+    private DBObjectRef<DBObject> underlyingObject;
 
     public DBSynonymImpl(DBSchema schema, ResultSet resultSet) throws SQLException {
         super(schema, DBContentType.NONE, resultSet);
@@ -36,8 +35,13 @@ public class DBSynonymImpl extends DBSchemaObjectImpl implements DBSynonym {
     @Override
     protected void initObject(ResultSet resultSet) throws SQLException {
         name = resultSet.getString("SYNONYM_NAME");
-        objectOwner = resultSet.getString("OBJECT_OWNER");
-        objectName = resultSet.getString("OBJECT_NAME");
+        underlyingObject = new DBObjectRef<DBObject>(getConnectionHandler());
+        String schemaName = resultSet.getString("OBJECT_OWNER");
+        String objectName = resultSet.getString("OBJECT_NAME");
+        DBObjectType objectType = DBObjectType.getObjectType(resultSet.getString("OBJECT_TYPE"), DBObjectType.ANY);
+
+        underlyingObject.append(DBObjectType.SCHEMA, schemaName);
+        underlyingObject.append(objectType, objectName);
     }
 
     public void initStatus(ResultSet resultSet) throws SQLException {
@@ -75,21 +79,7 @@ public class DBSynonymImpl extends DBSchemaObjectImpl implements DBSynonym {
 
     @Nullable
     public DBObject getUnderlyingObject() {
-        if (underlyingObject == null && objectOwner != null && objectName != null) {
-            DBSchema underlyingSchema = getConnectionHandler().getObjectBundle().getSchema(objectOwner);
-            underlyingObject = underlyingSchema == null ? null : underlyingSchema.getChildObject(objectName, true);
-            if (underlyingObject == null) {
-                underlyingObject = this;
-                getStatus().set(DBObjectStatus.VALID, false);
-            }
-            // decommission underlying object loader parameters
-            objectOwner = null;
-            objectName = null;
-        }
-        if (underlyingObject != null) {
-            underlyingObject = underlyingObject.getUndisposedElement();
-        }
-        return underlyingObject;
+        return underlyingObject.get();
     }
 
     public String getNavigationTooltipText() {

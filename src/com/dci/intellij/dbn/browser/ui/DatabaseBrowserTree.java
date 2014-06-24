@@ -6,6 +6,7 @@ import com.dci.intellij.dbn.browser.TreeNavigationHistory;
 import com.dci.intellij.dbn.browser.model.BrowserTreeModel;
 import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
 import com.dci.intellij.dbn.browser.model.TabbedBrowserTreeModel;
+import com.dci.intellij.dbn.common.content.DatabaseLoadMonitor;
 import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.common.filter.Filter;
 import com.dci.intellij.dbn.common.thread.BackgroundTask;
@@ -179,7 +180,13 @@ public class DatabaseBrowserTree extends DBNTree implements Disposable {
                     Object object = path.getLastPathComponent();
                     if (object instanceof ToolTipProvider) {
                         ToolTipProvider toolTipProvider = (ToolTipProvider) object;
-                        return toolTipProvider.getToolTip();
+                        boolean ensureDataLoaded = DatabaseLoadMonitor.isEnsureDataLoaded();
+                        try {
+                            DatabaseLoadMonitor.setEnsureDataLoaded(false);
+                            return toolTipProvider.getToolTip();
+                        } finally {
+                            DatabaseLoadMonitor.setEnsureDataLoaded(ensureDataLoaded);
+                        }
                     }
                 }
             }

@@ -48,14 +48,7 @@ public class DatabaseLoaderManager extends AbstractProjectComponent {
                                     }
 
                                     if (editor != null) {
-                                        final Editor finalEditor = editor;
-                                        new Thread(){
-                                            @Override
-                                            public void run() {
-                                                DocumentUtil.refreshEditorAnnotations(finalEditor);
-                                            }
-                                        }.start();
-
+                                        DocumentUtil.refreshEditorAnnotations(editor);
                                     }
 
                                 }
