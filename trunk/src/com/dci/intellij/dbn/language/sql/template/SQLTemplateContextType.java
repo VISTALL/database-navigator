@@ -20,7 +20,14 @@ public class SQLTemplateContextType extends TemplateContextType {
         Language language = file.getLanguage();
         if (language instanceof SQLLanguage) {
             LeafPsiElement leafPsiElement = PsiUtil.lookupLeafBeforeOffset(file, offset);
-            return leafPsiElement == null || leafPsiElement.getLanguage() instanceof SQLLanguage;
+            if (leafPsiElement != null) {
+                if (leafPsiElement.getLanguage() instanceof SQLLanguage) {
+                    return !leafPsiElement.getEnclosingScopePsiElement().getTextRange().contains(offset);
+                }
+
+            } else {
+                return true;
+            }
         }
         return false;
     }
