@@ -103,7 +103,11 @@ public class DBSynonymImpl extends DBSchemaObjectImpl implements DBSynonym {
     protected List<DBObjectNavigationList> createNavigationLists() {
         List<DBObjectNavigationList> objectNavigationLists = super.createNavigationLists();
 
-        objectNavigationLists.add(new DBObjectNavigationListImpl("Underlying " + getUnderlyingObject().getTypeName(), getUnderlyingObject()));
+        DBObject underlyingObject = getUnderlyingObject();
+        if (underlyingObject != null) {
+            DBObjectNavigationListImpl objectNavigationList = new DBObjectNavigationListImpl("Underlying " + underlyingObject.getTypeName(), underlyingObject);
+            objectNavigationLists.add(objectNavigationList);
+        }
 
         return objectNavigationLists;
     }

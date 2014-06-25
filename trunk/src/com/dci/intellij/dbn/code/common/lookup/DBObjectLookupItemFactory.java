@@ -59,7 +59,10 @@ public class DBObjectLookupItemFactory extends LookupItemFactory {
             String typePrefix = "";
             if (object instanceof DBSynonym) {
                 DBSynonym synonym = (DBSynonym) object;
-                typePrefix = synonym.getUnderlyingObject().getTypeName() + " ";
+                DBObject underlyingObject = synonym.getUnderlyingObject();
+                if (underlyingObject != null) {
+                    typePrefix = underlyingObject.getTypeName() + " ";
+                }
             }
 
             typeName = parentObject == null ?
