@@ -109,7 +109,10 @@ public class DBSynonymImpl extends DBSchemaObjectImpl implements DBSynonym {
     }
 
     public void buildToolTip(HtmlToolTipBuilder ttb) {
-        ttb.append(true, getUnderlyingObject().getObjectType().getName() + " ", true);
+        DBObject underlyingObject = getUnderlyingObject();
+        if (underlyingObject!= null) {
+            ttb.append(true, underlyingObject.getObjectType().getName() + " ", true);
+        }
         ttb.append(false, getObjectType().getName(), true);
         ttb.createEmptyRow();
         super.buildToolTip(ttb);
