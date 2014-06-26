@@ -4,6 +4,7 @@ import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.thread.BackgroundTask;
 import com.dci.intellij.dbn.common.util.ActionUtil;
 import com.dci.intellij.dbn.common.util.MessageUtil;
+import com.dci.intellij.dbn.editor.code.SourceCodeManager;
 import com.dci.intellij.dbn.object.common.DBSchemaObject;
 import com.dci.intellij.dbn.vfs.SourceCodeFile;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -20,7 +21,7 @@ public class CompareWithDatabaseAction extends AbstractDiffAction {
     }
 
     public void actionPerformed(final AnActionEvent e) {
-        Project project = ActionUtil.getProject(e);
+        final Project project = ActionUtil.getProject(e);
         if (project != null) {
             new BackgroundTask(project, "Loading database source code", false, true) {
                 @Override
@@ -33,7 +34,8 @@ public class CompareWithDatabaseAction extends AbstractDiffAction {
                         DBSchemaObject object = virtualFile.getObject();
                         if (object != null) {
                             try {
-                                String referenceText = object.loadCodeFromDatabase(virtualFile.getContentType());
+                                SourceCodeManager sourceCodeManager = SourceCodeManager.getInstance(project);
+                                String referenceText = sourceCodeManager.loadSourceCodeFromDatabase(object, virtualFile.getContentType());
                                 if (!progressIndicator.isCanceled()) {
                                     openDiffWindow(e, referenceText, "Database version", "Local version vs. database version");
                                 }

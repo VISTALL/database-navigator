@@ -19,7 +19,7 @@ import com.intellij.psi.PsiFile;
 
 public class SourceCodeEditor extends BasicTextEditorImpl<SourceCodeFile> implements ObjectFactoryListener{
     private DBObjectRef<DBSchemaObject> objectRef;
-    private int headerEndOffset;
+    private SourceCodeOffsets offsets;
 
     public SourceCodeEditor(Project project, SourceCodeFile sourceCodeFile, String name) {
         super(project, sourceCodeFile, name);
@@ -27,8 +27,8 @@ public class SourceCodeEditor extends BasicTextEditorImpl<SourceCodeFile> implem
         objectRef = DBObjectRef.from(sourceCodeFile.getObject());
         Document document = this.textEditor.getEditor().getDocument();
         if (document.getTextLength() > 0) {
-            headerEndOffset = sourceCodeFile.getEditorHeaderEndOffset();
-            int guardedBlockEndOffset = sourceCodeFile.getGuardedBlockEndOffset();
+            offsets = sourceCodeFile.getOffsets();
+            int guardedBlockEndOffset = offsets.getGuardedBlockEndOffset();
             if (guardedBlockEndOffset > 0) {
                 DocumentUtil.createGuardedBlock(document, 0, guardedBlockEndOffset, null
                         /*"You are not allowed to change the name of the " + object.getTypeName()*/);
@@ -42,7 +42,7 @@ public class SourceCodeEditor extends BasicTextEditorImpl<SourceCodeFile> implem
     }
 
     public int getHeaderEndOffset() {
-        return headerEndOffset;
+        return offsets.getHeaderEndOffset();
     }
 
     public void navigateTo(DBObject object) {

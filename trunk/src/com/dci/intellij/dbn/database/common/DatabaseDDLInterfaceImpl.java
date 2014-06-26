@@ -3,6 +3,8 @@ package com.dci.intellij.dbn.database.common;
 import com.dci.intellij.dbn.database.DatabaseDDLInterface;
 import com.dci.intellij.dbn.database.DatabaseInterfaceProvider;
 import com.dci.intellij.dbn.database.DatabaseObjectTypeId;
+import com.dci.intellij.dbn.editor.code.SourceCodeContent;
+import com.dci.intellij.dbn.editor.code.SourceCodeOffsets;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -10,7 +12,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public abstract class DatabaseDDLInterfaceImpl extends DatabaseInterfaceImpl implements DatabaseDDLInterface {
-
     public DatabaseDDLInterfaceImpl(String fileName, DatabaseInterfaceProvider provider) {
         super(fileName, provider);
     }
@@ -59,4 +60,16 @@ public abstract class DatabaseDDLInterfaceImpl extends DatabaseInterfaceImpl imp
        executeUpdate(connection, "drop-object", objectType, objectName);
    }
 
+    @Override
+    public void computeSourceCodeOffsets(SourceCodeContent content, DatabaseObjectTypeId objectTypeId, String objectName) {
+        String sourceCode = content.getSourceCode();
+        int gbEndOffset = sourceCode.indexOf(SourceCodeOffsets.GUARDED_BLOCK_END_OFFSET_MARKER);
+        if (gbEndOffset > -1) {
+            content.getOffsets().setGuardedBlockEndOffset(gbEndOffset);
+            sourceCode =
+                    sourceCode.substring(0, gbEndOffset) +
+                    sourceCode.substring(gbEndOffset + SourceCodeOffsets.GUARDED_BLOCK_END_OFFSET_MARKER.length());
+            content.setSourceCode(sourceCode);
+        }
+    }
 }

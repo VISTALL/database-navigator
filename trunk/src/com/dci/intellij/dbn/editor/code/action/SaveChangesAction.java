@@ -4,7 +4,7 @@ import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.thread.WriteActionRunner;
 import com.dci.intellij.dbn.common.util.ActionUtil;
 import com.dci.intellij.dbn.editor.DBContentType;
-import com.dci.intellij.dbn.editor.code.SourceCodeEditorManager;
+import com.dci.intellij.dbn.editor.code.SourceCodeManager;
 import com.dci.intellij.dbn.object.common.DBSchemaObject;
 import com.dci.intellij.dbn.object.common.status.DBObjectStatus;
 import com.dci.intellij.dbn.vfs.SourceCodeFile;
@@ -27,7 +27,7 @@ public class SaveChangesAction extends AbstractSourceCodeEditorAction {
         new WriteActionRunner() {
             public void run() {
                 FileDocumentManager.getInstance().saveAllDocuments();
-                SourceCodeEditorManager.getInstance(project).updateSourceToDatabase(editor, virtualFile);
+                SourceCodeManager.getInstance(project).updateSourceToDatabase(editor, virtualFile);
             }
         }.start();
     }

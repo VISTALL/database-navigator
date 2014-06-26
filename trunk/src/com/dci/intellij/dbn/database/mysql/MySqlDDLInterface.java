@@ -6,6 +6,7 @@ import com.dci.intellij.dbn.code.psql.style.options.PSQLCodeStyleSettings;
 import com.dci.intellij.dbn.database.DatabaseInterfaceProvider;
 import com.dci.intellij.dbn.database.DatabaseObjectTypeId;
 import com.dci.intellij.dbn.database.common.DatabaseDDLInterfaceImpl;
+import com.dci.intellij.dbn.editor.code.SourceCodeContent;
 import com.dci.intellij.dbn.object.factory.ArgumentFactoryInput;
 import com.dci.intellij.dbn.object.factory.MethodFactoryInput;
 import com.intellij.openapi.util.text.StringUtil;
@@ -18,14 +19,9 @@ public class MySqlDDLInterface extends DatabaseDDLInterfaceImpl {
         super("mysql_ddl_interface.xml", provider);
     }
 
-    public int getEditorHeaderEndOffset(DatabaseObjectTypeId objectTypeId, String objectName, String content) {
-        if (objectTypeId == DatabaseObjectTypeId.TRIGGER) {
-            if (content.length() > 0) {
-                int startIndex = StringUtil.indexOfIgnoreCase(content, objectName, 0) + objectName.length();
-                return StringUtil.indexOfIgnoreCase(content, "begin", startIndex);
-            }
-        }
-        return 0;
+    @Override
+    public void computeSourceCodeOffsets(SourceCodeContent content, DatabaseObjectTypeId objectTypeId, String objectName) {
+        super.computeSourceCodeOffsets(content, objectTypeId, objectName);
     }
 
     public String getSessionSqlMode(Connection connection) throws SQLException {

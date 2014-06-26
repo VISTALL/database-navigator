@@ -49,13 +49,13 @@ import org.jetbrains.annotations.NotNull;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 
-public class SourceCodeEditorManager extends AbstractProjectComponent implements JDOMExternalizable {
+public class SourceCodeManager extends AbstractProjectComponent implements JDOMExternalizable {
 
-    public static SourceCodeEditorManager getInstance(Project project) {
-        return project.getComponent(SourceCodeEditorManager.class);
+    public static SourceCodeManager getInstance(Project project) {
+        return project.getComponent(SourceCodeManager.class);
     }
 
-    private SourceCodeEditorManager(Project project) {
+    private SourceCodeManager(Project project) {
         super(project);
         EditorActionManager.getInstance().setReadonlyFragmentModificationHandler(OverrideReadonlyFragmentModificationHandler.INSTANCE);
         FileEditorManager editorManager = FileEditorManager.getInstance(project);
@@ -125,7 +125,7 @@ public class SourceCodeEditorManager extends AbstractProjectComponent implements
                                                 " has been changed by another user. \nYou will be prompted to merge the changes";
                                 MessageUtil.showErrorDialog(message, "Version conflict");
 
-                                String databaseContent = object.loadCodeFromDatabase(contentType);
+                                String databaseContent = loadSourceCodeFromDatabase(object, contentType);
                                 showSourceDiffDialog(databaseContent, virtualFile, editor);
                             } else {
                                 doUpdateSourceToDatabase(object, virtualFile, editor);
@@ -148,6 +148,18 @@ public class SourceCodeEditorManager extends AbstractProjectComponent implements
             }.start();
         }
 
+    }
+
+    public String loadSourceCodeFromDatabase(DBSchemaObject object, DBContentType contentType) throws SQLException {
+        return loadSourceFromDatabase(object, contentType).getSourceCode();
+    }
+
+    public SourceCodeContent loadSourceFromDatabase(DBSchemaObject object, DBContentType contentType) throws SQLException {
+        String sourceCode = object.loadCodeFromDatabase(contentType);
+        SourceCodeContent sourceCodeContent = new SourceCodeContent(sourceCode);
+        DatabaseDDLInterface ddlInterface = object.getConnectionHandler().getInterfaceProvider().getDDLInterface();
+        ddlInterface.computeSourceCodeOffsets(sourceCodeContent, object.getObjectType().getTypeId(), object.getName());
+        return sourceCodeContent;
     }
 
     private boolean isValidObjectTypeAndName(String text, DBSchemaObject object, DBContentType contentType) {

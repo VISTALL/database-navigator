@@ -555,7 +555,7 @@
             select concat(
                 'trigger ',
                 TRIGGER_NAME,
-                E'\n\r', lower(ACTION_TIMING), ' ',
+                E'$$DBN_GUARDED_BLOCK_END_OFFSET$$\n\r', lower(ACTION_TIMING), ' ',
                 string_agg(lower(EVENT_MANIPULATION), ' or '),
                 E'\n\r    on ',
                 EVENT_OBJECT_SCHEMA, '.', EVENT_OBJECT_TABLE,
@@ -582,7 +582,7 @@
                 concat(
                     lower(r.ROUTINE_TYPE), ' ',
                     r.ROUTINE_NAME,
-                    '(', (select array_to_string( array(
+                    '$$DBN_GUARDED_BLOCK_END_OFFSET$$(', (select array_to_string( array(
                                 select p.PARAMETER_MODE||' '||(case when p.PARAMETER_NAME is not null then p.PARAMETER_NAME||' ' else '' end)||p.DATA_TYPE from INFORMATION_SCHEMA.PARAMETERS p
                                 where
                                     p.SPECIFIC_SCHEMA = r.SPECIFIC_SCHEMA and

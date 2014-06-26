@@ -1,6 +1,6 @@
 package com.dci.intellij.dbn.language.common.navigation;
 
-import com.dci.intellij.dbn.editor.code.SourceCodeEditorManager;
+import com.dci.intellij.dbn.editor.code.SourceCodeManager;
 import com.dci.intellij.dbn.language.common.psi.BasePsiElement;
 import com.dci.intellij.dbn.object.common.DBObject;
 import com.dci.intellij.dbn.object.common.DBSchemaObject;
@@ -29,7 +29,7 @@ public abstract class NavigationAction extends AnAction {
 
     public void navigate() {
         if (parentObject != null) {
-            SourceCodeEditorManager codeEditorManager = SourceCodeEditorManager.getInstance(parentObject.getProject());
+            SourceCodeManager codeEditorManager = SourceCodeManager.getInstance(parentObject.getProject());
             codeEditorManager.navigateToObject((DBSchemaObject) parentObject, navigationElement);
         } else {
             navigationElement.navigate(true);

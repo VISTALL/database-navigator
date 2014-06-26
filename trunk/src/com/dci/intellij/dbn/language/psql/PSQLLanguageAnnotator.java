@@ -4,7 +4,7 @@ import com.dci.intellij.dbn.code.psql.color.PSQLTextAttributesKeys;
 import com.dci.intellij.dbn.code.sql.color.SQLTextAttributesKeys;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.editor.DBContentType;
-import com.dci.intellij.dbn.editor.code.SourceCodeEditorManager;
+import com.dci.intellij.dbn.editor.code.SourceCodeManager;
 import com.dci.intellij.dbn.execution.statement.StatementGutterRenderer;
 import com.dci.intellij.dbn.execution.statement.processor.StatementExecutionProcessor;
 import com.dci.intellij.dbn.language.common.TokenTypeCategory;
@@ -170,7 +170,7 @@ public class PSQLLanguageAnnotator implements Annotator {
 
                         }
                     } else if (object.getContentType() == DBContentType.CODE_SPEC_AND_BODY) {
-                        SourceCodeEditorManager codeEditorManager = SourceCodeEditorManager.getInstance(object.getProject());
+                        SourceCodeManager codeEditorManager = SourceCodeManager.getInstance(object.getProject());
 
 
                         BasePsiElement targetElement = codeEditorManager.getObjectNavigationElement(object, targetContentType, identifierPsiElement.getObjectType(), identifierPsiElement.getChars());
