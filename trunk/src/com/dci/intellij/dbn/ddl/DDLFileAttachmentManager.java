@@ -166,7 +166,7 @@ public class DDLFileAttachmentManager extends AbstractProjectComponent implement
     }
 
     public void bindDDLFile(DBSchemaObject object, VirtualFile virtualFile) {
-        cache.put(virtualFile, object.getRef());
+        cache.put(virtualFile, DBObjectRef.from(object));
         mappings.put(virtualFile.getPath(), object.getQualifiedNameWithConnectionId());
         EventManager.notify(getProject(), DDLMappingListener.TOPIC).ddlFileAttached(virtualFile);
     }
@@ -391,20 +391,20 @@ public class DDLFileAttachmentManager extends AbstractProjectComponent implement
      ************************************************/
 
     @Override
-    public void propertyChanged(VirtualFilePropertyEvent event) {
+    public void propertyChanged(@NotNull VirtualFilePropertyEvent event) {
         
     }
 
     @Override
-    public void contentsChanged(VirtualFileEvent event) {
+    public void contentsChanged(@NotNull VirtualFileEvent event) {
     }
 
     @Override
-    public void fileCreated(VirtualFileEvent event) {
+    public void fileCreated(@NotNull VirtualFileEvent event) {
     }
 
     @Override
-    public void fileDeleted(VirtualFileEvent event) {
+    public void fileDeleted(@NotNull VirtualFileEvent event) {
         DBSchemaObject object = DBObjectRef.get(cache.get(event.getFile()));
         if (object != null) {
             detachDDLFile(event.getFile());
@@ -413,27 +413,27 @@ public class DDLFileAttachmentManager extends AbstractProjectComponent implement
     }
 
     @Override
-    public void fileMoved(VirtualFileMoveEvent event) {
+    public void fileMoved(@NotNull VirtualFileMoveEvent event) {
     }
 
     @Override
-    public void fileCopied(VirtualFileCopyEvent event) {
+    public void fileCopied(@NotNull VirtualFileCopyEvent event) {
     }
 
     @Override
-    public void beforePropertyChange(VirtualFilePropertyEvent event) {
+    public void beforePropertyChange(@NotNull VirtualFilePropertyEvent event) {
     }
 
     @Override
-    public void beforeContentsChange(VirtualFileEvent event) {
+    public void beforeContentsChange(@NotNull VirtualFileEvent event) {
     }
 
     @Override
-    public void beforeFileDeletion(VirtualFileEvent event) {
+    public void beforeFileDeletion(@NotNull VirtualFileEvent event) {
     }
 
     @Override
-    public void beforeFileMovement(VirtualFileMoveEvent event) {
+    public void beforeFileMovement(@NotNull VirtualFileMoveEvent event) {
     }
 
     /************************************************

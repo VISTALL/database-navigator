@@ -45,16 +45,21 @@ public class SourceCodeFile extends DatabaseContentFile implements DatabaseFile,
     public SourceCodeFile(final DatabaseEditableObjectFile databaseFile, DBContentType contentType) {
         super(databaseFile, contentType);
         DBSchemaObject object = getObject();
-        hashCode = (object.getQualifiedNameWithType() + contentType.getDescription()).hashCode();
-        updateChangeTimestamp();
-        setCharset(databaseFile.getConnectionHandler().getSettings().getDetailSettings().getCharset());
-        try {
-            this.content = object.loadCodeFromDatabase(contentType);
-            sourceLoadError = null;
-        } catch (SQLException e) {
-            content = "";
-            sourceLoadError = e.getMessage();
-            //MessageUtil.showErrorDialog("Could not load sourcecode for " + object.getQualifiedNameWithType() + " from database.", e);
+        if (object != null) {
+            hashCode = (object.getQualifiedNameWithConnectionId() + contentType.getDescription()).hashCode();
+            updateChangeTimestamp();
+            setCharset(databaseFile.getConnectionHandler().getSettings().getDetailSettings().getCharset());
+            try {
+                this.content = object.loadCodeFromDatabase(contentType);
+                sourceLoadError = null;
+            } catch (SQLException e) {
+                content = "";
+                sourceLoadError = e.getMessage();
+                //MessageUtil.showErrorDialog("Could not load sourcecode for " + object.getQualifiedNameWithType() + " from database.", e);
+            }
+        } else {
+            hashCode = super.hashCode();
+            sourceLoadError = "Could not find object in database";
         }
     }
 
