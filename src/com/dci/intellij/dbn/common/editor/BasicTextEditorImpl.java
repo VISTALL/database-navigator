@@ -24,12 +24,18 @@ public abstract class BasicTextEditorImpl<T extends VirtualFile> implements Basi
     private T virtualFile;
     private String name;
     private BasicTextEditorState editorState;
+    private Project project;
 
     public BasicTextEditorImpl(Project project, T virtualFile, String name) {
+        this.project = project;
         this.name = name;
         this.virtualFile = virtualFile;
         textEditor = (TextEditor) TextEditorProvider.getInstance().createEditor(project, virtualFile);
 
+    }
+
+    public Project getProject() {
+        return project;
     }
 
     public T getVirtualFile() {
