@@ -10,6 +10,7 @@ import com.dci.intellij.dbn.object.common.DBObject;
 import com.dci.intellij.dbn.object.common.DBSchemaObject;
 import com.dci.intellij.dbn.object.factory.DatabaseObjectFactory;
 import com.dci.intellij.dbn.object.factory.ObjectFactoryListener;
+import com.dci.intellij.dbn.object.lookup.DBObjectRef;
 import com.dci.intellij.dbn.vfs.SourceCodeFile;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileEditorManager;
@@ -17,13 +18,13 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
 
 public class SourceCodeEditor extends BasicTextEditorImpl<SourceCodeFile> implements ObjectFactoryListener{
-    private DBSchemaObject object;
+    private DBObjectRef<DBSchemaObject> objectRef;
     private int headerEndOffset;
 
     public SourceCodeEditor(Project project, SourceCodeFile sourceCodeFile, String name) {
         super(project, sourceCodeFile, name);
 
-        object = sourceCodeFile.getObject();
+        objectRef = DBObjectRef.from(sourceCodeFile.getObject());
         Document document = this.textEditor.getEditor().getDocument();
         if (document.getTextLength() > 0) {
             headerEndOffset = sourceCodeFile.getEditorHeaderEndOffset();
@@ -37,7 +38,7 @@ public class SourceCodeEditor extends BasicTextEditorImpl<SourceCodeFile> implem
     }
 
     public DBSchemaObject getObject() {
-        return object;
+        return DBObjectRef.get(objectRef);
     }
 
     public int getHeaderEndOffset() {
@@ -61,10 +62,10 @@ public class SourceCodeEditor extends BasicTextEditorImpl<SourceCodeFile> implem
     }
 
     public void objectDropped(DBSchemaObject object) {
-        if (this.object.equals(object)) {
+        if (objectRef.is(object)) {
             new ConditionalLaterInvocator() {
                 public void run() {
-                    FileEditorManager fileEditorManager = FileEditorManager.getInstance(SourceCodeEditor.this.object.getProject());
+                    FileEditorManager fileEditorManager = FileEditorManager.getInstance(getProject());
                     fileEditorManager.closeFile(getVirtualFile().getDatabaseFile());
                 }
             }.start();
