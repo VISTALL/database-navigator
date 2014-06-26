@@ -1,12 +1,13 @@
 package com.dci.intellij.dbn.database;
 
+import com.dci.intellij.dbn.editor.code.SourceCodeContent;
 import com.dci.intellij.dbn.object.factory.MethodFactoryInput;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 
 public interface DatabaseDDLInterface extends DatabaseInterface{
-    int getEditorHeaderEndOffset(DatabaseObjectTypeId objectTypeId, String objectName, String sourceContent);
+    void computeSourceCodeOffsets(SourceCodeContent content, DatabaseObjectTypeId objectTypeId, String objectName);
 
     boolean includesTypeAndNameInSourceContent(DatabaseObjectTypeId objectTypeId);
 

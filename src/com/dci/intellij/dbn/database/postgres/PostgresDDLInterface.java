@@ -4,7 +4,6 @@ import com.dci.intellij.dbn.code.common.style.options.CodeStyleCaseOption;
 import com.dci.intellij.dbn.code.common.style.options.CodeStyleCaseSettings;
 import com.dci.intellij.dbn.code.psql.style.options.PSQLCodeStyleSettings;
 import com.dci.intellij.dbn.database.DatabaseInterfaceProvider;
-import com.dci.intellij.dbn.database.DatabaseObjectTypeId;
 import com.dci.intellij.dbn.database.common.DatabaseDDLInterfaceImpl;
 import com.dci.intellij.dbn.object.factory.ArgumentFactoryInput;
 import com.dci.intellij.dbn.object.factory.MethodFactoryInput;
@@ -16,16 +15,6 @@ import java.sql.SQLException;
 public class PostgresDDLInterface extends DatabaseDDLInterfaceImpl {
     public PostgresDDLInterface(DatabaseInterfaceProvider provider) {
         super("postgres_ddl_interface.xml", provider);
-    }
-
-    public int getEditorHeaderEndOffset(DatabaseObjectTypeId objectTypeId, String objectName, String content) {
-        if (objectTypeId == DatabaseObjectTypeId.TRIGGER) {
-            if (content.length() > 0) {
-                int startIndex = StringUtil.indexOfIgnoreCase(content, objectName, 0) + objectName.length();
-                return StringUtil.indexOfIgnoreCase(content, "begin", startIndex);
-            }
-        }
-        return 0;
     }
 
     public String getSessionSqlMode(Connection connection) throws SQLException {

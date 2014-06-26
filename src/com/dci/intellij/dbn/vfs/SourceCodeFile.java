@@ -6,9 +6,11 @@ import com.dci.intellij.dbn.common.util.DocumentUtil;
 import com.dci.intellij.dbn.common.util.MessageUtil;
 import com.dci.intellij.dbn.common.util.StringUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
-import com.dci.intellij.dbn.database.DatabaseDDLInterface;
 import com.dci.intellij.dbn.editor.DBContentType;
+import com.dci.intellij.dbn.editor.code.SourceCodeContent;
 import com.dci.intellij.dbn.editor.code.SourceCodeLoadListener;
+import com.dci.intellij.dbn.editor.code.SourceCodeManager;
+import com.dci.intellij.dbn.editor.code.SourceCodeOffsets;
 import com.dci.intellij.dbn.language.common.DBLanguage;
 import com.dci.intellij.dbn.language.common.DBLanguageDialect;
 import com.dci.intellij.dbn.language.common.DBLanguageFile;
@@ -41,6 +43,7 @@ public class SourceCodeFile extends DatabaseContentFile implements DatabaseFile,
     private String sourceLoadError;
     public int documentHashCode;
     private int hashCode;
+    private SourceCodeOffsets offsets;
 
     public SourceCodeFile(final DatabaseEditableObjectFile databaseFile, DBContentType contentType) {
         super(databaseFile, contentType);
@@ -50,7 +53,10 @@ public class SourceCodeFile extends DatabaseContentFile implements DatabaseFile,
             updateChangeTimestamp();
             setCharset(databaseFile.getConnectionHandler().getSettings().getDetailSettings().getCharset());
             try {
-                this.content = object.loadCodeFromDatabase(contentType);
+                SourceCodeManager sourceCodeManager = SourceCodeManager.getInstance(getProject());
+                SourceCodeContent sourceCodeContent = sourceCodeManager.loadSourceFromDatabase(object, contentType);
+                content = sourceCodeContent.getSourceCode();
+                offsets = sourceCodeContent.getOffsets();
                 sourceLoadError = null;
             } catch (SQLException e) {
                 content = "";
@@ -61,6 +67,10 @@ public class SourceCodeFile extends DatabaseContentFile implements DatabaseFile,
             hashCode = super.hashCode();
             sourceLoadError = "Could not find object in database";
         }
+    }
+
+    public SourceCodeOffsets getOffsets() {
+        return offsets;
     }
 
     public PsiFile initializePsiFile(DatabaseFileViewProvider fileViewProvider, DBLanguage language) {
@@ -92,13 +102,6 @@ public class SourceCodeFile extends DatabaseContentFile implements DatabaseFile,
     public DBLanguageFile getPsiFile() {
         return (DBLanguageFile) PsiUtil.getPsiFile(getProject(), this);
     }
-
-    public int getEditorHeaderEndOffset() {
-        DBSchemaObject object = getObject();
-        DatabaseDDLInterface ddlInterface = object.getConnectionHandler().getInterfaceProvider().getDDLInterface();
-        return ddlInterface.getEditorHeaderEndOffset(object.getObjectType().getTypeId(), object.getName(), content);
-    }
-
 
     public void updateChangeTimestamp() {
         DBSchemaObject object = getObject();
@@ -144,7 +147,10 @@ public class SourceCodeFile extends DatabaseContentFile implements DatabaseFile,
 
             DBSchemaObject object = getObject();
             if (object != null) {
-                this.content = object.loadCodeFromDatabase(contentType);
+                SourceCodeManager sourceCodeManager = SourceCodeManager.getInstance(getProject());
+                SourceCodeContent sourceCodeContent = sourceCodeManager.loadSourceFromDatabase(object, contentType);
+                content = sourceCodeContent.getSourceCode();
+                offsets = sourceCodeContent.getOffsets();
 
                 getDatabaseFile().updateDDLFiles(getContentType());
                 setModified(false);

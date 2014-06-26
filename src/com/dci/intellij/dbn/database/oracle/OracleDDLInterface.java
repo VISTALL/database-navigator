@@ -6,6 +6,7 @@ import com.dci.intellij.dbn.code.psql.style.options.PSQLCodeStyleSettings;
 import com.dci.intellij.dbn.database.DatabaseInterfaceProvider;
 import com.dci.intellij.dbn.database.DatabaseObjectTypeId;
 import com.dci.intellij.dbn.database.common.DatabaseDDLInterfaceImpl;
+import com.dci.intellij.dbn.editor.code.SourceCodeContent;
 import com.dci.intellij.dbn.object.factory.ArgumentFactoryInput;
 import com.dci.intellij.dbn.object.factory.MethodFactoryInput;
 import com.intellij.openapi.util.text.StringUtil;
@@ -30,6 +31,32 @@ public class OracleDDLInterface extends DatabaseDDLInterfaceImpl {
             }
         }
         return 0;
+    }
+
+    @Override
+    public void computeSourceCodeOffsets(SourceCodeContent content, DatabaseObjectTypeId objectTypeId, String objectName) {
+        String sourceCode = content.getSourceCode();
+        if (objectTypeId == DatabaseObjectTypeId.TRIGGER) {
+            if (sourceCode.length() > 0) {
+                int startIndex = StringUtil.indexOfIgnoreCase(sourceCode, objectName, 0) + objectName.length();
+                int headerEndOffset = StringUtil.indexOfIgnoreCase(sourceCode, "declare", startIndex);
+                if (headerEndOffset == -1) headerEndOffset = StringUtil.indexOfIgnoreCase(sourceCode, "begin", startIndex);
+                if (headerEndOffset == -1) headerEndOffset = StringUtil.indexOfIgnoreCase(sourceCode, "call", startIndex);
+                if (headerEndOffset == -1) headerEndOffset = 0;
+                content.getOffsets().setHeaderEndOffset(headerEndOffset);
+            }
+        }
+
+        if (objectTypeId != DatabaseObjectTypeId.VIEW) {
+            int nameIndex = StringUtil.indexOfIgnoreCase(sourceCode, objectName, 0);
+            if (nameIndex > -1) {
+                int guardedBlockEndOffset = nameIndex + objectName.length();
+                if (sourceCode.charAt(guardedBlockEndOffset) == '"'){
+                    guardedBlockEndOffset++;
+                }
+                content.getOffsets().setGuardedBlockEndOffset(guardedBlockEndOffset);
+            }
+        }
     }
 
     /*********************************************************

@@ -587,7 +587,7 @@
             select concat(
                 'trigger ',
                 TRIGGER_NAME,
-                '\n', lower(ACTION_TIMING), ' ',
+                '$$DBN_GUARDED_BLOCK_END_OFFSET$$\n', lower(ACTION_TIMING), ' ',
                 lower(EVENT_MANIPULATION),
                 '\n on ',
                 EVENT_OBJECT_SCHEMA, '.', EVENT_OBJECT_TABLE,
@@ -604,7 +604,7 @@
         <statement>
             select concat(
                 lower(TYPE), ' ', NAME,
-                '(', PARAM_LIST, ')',
+                '$$DBN_GUARDED_BLOCK_END_OFFSET$$(', PARAM_LIST, ')',
                 if({2}='FUNCTION', '\nRETURNS ', ''), RETURNS,
                 '\nLANGUAGE ', LANGUAGE,
                 if(IS_DETERMINISTIC = 'YES', '\nDETERMINISTIC', ''),
