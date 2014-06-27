@@ -5,7 +5,6 @@ import com.intellij.openapi.Disposable;
 
 public class ConnectionLoadMonitor implements Disposable {
     private ConnectionHandler connectionHandler;
-    private boolean loading;
 
     public ConnectionLoadMonitor(ConnectionHandler connectionHandler) {
         this.connectionHandler = connectionHandler;
@@ -13,12 +12,8 @@ public class ConnectionLoadMonitor implements Disposable {
 
     private int activeLoaderCount = 0;
 
-    public void setLoading(boolean loading) {
-        this.loading = loading;
-    }
-
     public boolean isLoading() {
-        return loading || activeLoaderCount > 0;
+        return activeLoaderCount > 0;
     }
 
     public void incrementLoaderCount(){
@@ -27,11 +22,10 @@ public class ConnectionLoadMonitor implements Disposable {
 
     public void decrementLoaderCount() {
         activeLoaderCount--;
-        if(false && connectionHandler != null && !connectionHandler.isDisposed() && !connectionHandler.isVirtual()) {
-            EventManager.notify(connectionHandler.getProject(), ConnectionLoadListener.TOPIC).contentsLoaded(connectionHandler);
-        }
         if (activeLoaderCount == 0) {
-            loading = false;
+            if(connectionHandler != null && !connectionHandler.isDisposed() && !connectionHandler.isVirtual()) {
+                EventManager.notify(connectionHandler.getProject(), ConnectionLoadListener.TOPIC).contentsLoaded(connectionHandler);
+            }
         }
     }
 

@@ -58,7 +58,7 @@ public class DatasetEditorHeaderRenderer implements TableCellRenderer {
         }
 
         FontMetrics fontMetrics = nameLabel.getFontMetrics(nameLabel.getFont());
-        width += fontMetrics.stringWidth(columnName);
+        width += fontMetrics.stringWidth(columnName) + 24;
         mainPanel.setPreferredSize(new Dimension(width, (int) mainPanel.getPreferredSize().getHeight()));
 
         return mainPanel;
