@@ -118,7 +118,6 @@ public class IdentifierPsiElement extends LeafPsiElement implements PsiNamedElem
                         return null;
                     }
                 }
-                initLookup();
                 return lookupAdapter.matches(this) ? this : null;
             }
         }
@@ -130,7 +129,6 @@ public class IdentifierPsiElement extends LeafPsiElement implements PsiNamedElem
         if (lookupAdapter instanceof IdentifierLookupAdapter) {
             IdentifierLookupAdapter identifierLookupAdapter = (IdentifierLookupAdapter) lookupAdapter;
             if (identifierLookupAdapter.matchesName(this)) {
-                initLookup();
                 if (lookupAdapter.matches(this)) {
                     if (bucket == null) bucket = new THashSet<BasePsiElement>();
                     bucket.add(this);
@@ -148,23 +146,6 @@ public class IdentifierPsiElement extends LeafPsiElement implements PsiNamedElem
     }
 
     public void collectExecVariablePsiElements(Set<ExecVariablePsiElement> bucket) {
-    }
-
-    /**
-     * Identifiers may change their type after being resolved. (e.g.  OBJECT -> ALIAS or even underlying object type)
-     * Nevertheless, calling resolve upon lookup may cause stack overflows.
-     */
-    boolean lookupInitialized = false;
-
-    private void initLookup() {
-        if (!lookupInitialized) {
-            lookupInitialized = true;
-            ConnectionHandler activeConnection = getActiveConnection();
-            if (!isResolved() && !isPhysical() && activeConnection != null && !activeConnection.isVirtual()) {
-                resolve();
-            }
-        }
-
     }
 
     /**
@@ -223,7 +204,7 @@ public class IdentifierPsiElement extends LeafPsiElement implements PsiNamedElem
     @Nullable
     public synchronized DBObject resolveUnderlyingObject() {
         DBObject underlyingObject = null;
-        PsiElement psiElement = isResolving() ? ref.getReferencedElement() : resolve();
+        PsiElement psiElement = resolve();
         if (isObject()) {
             if (psiElement instanceof DBObject) {
                 DBObject object = (DBObject) psiElement;
@@ -283,11 +264,9 @@ public class IdentifierPsiElement extends LeafPsiElement implements PsiNamedElem
         return null;
     }
 
-    /**
-     * ******************************************************
-     * Variant builders                *
-     * *******************************************************
-     */
+    /********************************************************
+     *                      Variant builders                *
+     *******************************************************/
 
     private Object[] buildAliasRefVariants() {
         SequencePsiElement statement = (SequencePsiElement) lookupEnclosingPsiElement(ElementTypeAttribute.STATEMENT);
@@ -297,11 +276,9 @@ public class IdentifierPsiElement extends LeafPsiElement implements PsiNamedElem
         return aliasDefinitions == null ? new Object[0] : aliasDefinitions.toArray();
     }
 
-    /**
-     * ******************************************************
-     * Rersolvers                      *
-     * *******************************************************
-     */
+    /********************************************************
+     *                      Rersolvers                      *
+     ********************************************************/
 
     private void resolveWithinQualifiedIdentifierElement(QualifiedIdentifierPsiElement qualifiedIdentifier) {
         int index = qualifiedIdentifier.getIndexOf(this);
@@ -463,6 +440,9 @@ public class IdentifierPsiElement extends LeafPsiElement implements PsiNamedElem
 
     @Nullable
     public synchronized PsiElement resolve() {
+        if (isResolving()) {
+            return ref.getReferencedElement();
+        }
         if (isDefinition() && (isAlias() || isVariable())) {
             // alias definitions do not have references.
             // underlying object is determined on runtime
@@ -486,8 +466,8 @@ public class IdentifierPsiElement extends LeafPsiElement implements PsiNamedElem
                 } else {
                     resolveWithScopeParentLookup(getObjectType(), getElementType());
                 }
-                ref.postResolve();
             } finally {
+                ref.postResolve();
                 //DatabaseLoadMonitor.setEnsureDataLoaded(false);
             }
         }
@@ -588,5 +568,9 @@ public class IdentifierPsiElement extends LeafPsiElement implements PsiNamedElem
 
     public PsiElement setName(@NotNull @NonNls String name) throws IncorrectOperationException {
         return null;
+    }
+
+    public int getResolveTrialsCount() {
+        return ref == null ? 0 : ref.getOverallResolveTrials();
     }
 }

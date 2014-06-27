@@ -12,6 +12,7 @@ import com.dci.intellij.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dci.intellij.dbn.language.common.psi.lookup.PsiLookupAdapter;
 import com.dci.intellij.dbn.object.common.DBObjectType;
 import com.intellij.lang.ASTNode;
+import com.intellij.openapi.progress.ProgressIndicatorProvider;
 import com.intellij.psi.PsiComment;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiErrorElement;
@@ -53,6 +54,7 @@ public class SequencePsiElement extends BasePsiElement {
 
         PsiElement child = getFirstChild();
         while (child != null) {
+            ProgressIndicatorProvider.checkCanceled();
             if (child instanceof BasePsiElement) {
                 BasePsiElement basePsiElement = (BasePsiElement) child;
                 if (lookupAdapter.accepts(basePsiElement)) {

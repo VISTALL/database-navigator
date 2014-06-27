@@ -143,4 +143,8 @@ public class PsiResolveResult {
     public void setReferencedElement(PsiElement referencedElement) {
         this.referencedElement = referencedElement;
     }
+
+    public int getOverallResolveTrials() {
+        return overallResolveTrials;
+    }
 }
