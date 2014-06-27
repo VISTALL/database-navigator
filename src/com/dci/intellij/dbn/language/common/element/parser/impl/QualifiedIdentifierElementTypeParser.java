@@ -1,12 +1,14 @@
 package com.dci.intellij.dbn.language.common.element.parser.impl;
 
 import com.dci.intellij.dbn.language.common.ParseException;
+import com.dci.intellij.dbn.language.common.SharedTokenTypeBundle;
 import com.dci.intellij.dbn.language.common.TokenType;
 import com.dci.intellij.dbn.language.common.element.IdentifierElementType;
 import com.dci.intellij.dbn.language.common.element.LeafElementType;
 import com.dci.intellij.dbn.language.common.element.QualifiedIdentifierElementType;
 import com.dci.intellij.dbn.language.common.element.TokenElementType;
 import com.dci.intellij.dbn.language.common.element.impl.QualifiedIdentifierVariant;
+import com.dci.intellij.dbn.language.common.element.lookup.ElementTypeLookupCache;
 import com.dci.intellij.dbn.language.common.element.parser.AbstractElementTypeParser;
 import com.dci.intellij.dbn.language.common.element.parser.ParseResult;
 import com.dci.intellij.dbn.language.common.element.parser.ParseResultType;
@@ -19,6 +21,8 @@ import com.intellij.lang.PsiBuilder;
 import gnu.trove.THashSet;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 public class QualifiedIdentifierElementTypeParser extends AbstractElementTypeParser<QualifiedIdentifierElementType> {
@@ -65,6 +69,41 @@ public class QualifiedIdentifierElementTypeParser extends AbstractElementTypePar
         } else {
             return stepOut(marker, depth, ParseResultType.NO_MATCH, matchedTokens, node, context);
         }
+    }
+
+    private QualifiedIdentifierVariant getMostProbableParseVariant_(ParserBuilder builder, ParsePathNode node) {
+        QualifiedIdentifierElementType elementType = getElementType();
+        TokenType separatorToken = elementType.getSeparatorToken().getTokenType();
+        ElementTypeLookupCache lookupCache = elementType.getLookupCache();
+        SharedTokenTypeBundle sharedTokenTypes = getElementType().getLanguage().getSharedTokenTypes();
+        TokenType identifier = sharedTokenTypes.getIdentifier();
+
+
+        List<TokenType> chan = new ArrayList<TokenType>();
+        int offset = 0;
+        boolean wasSeparator = true;
+        TokenType tokenType = builder.lookAhead(offset);
+        while (tokenType != null) {
+            if (tokenType == separatorToken) {
+                if (wasSeparator) chan.add(identifier);
+                wasSeparator = true;
+            } else {
+                if (wasSeparator) {
+                    if (tokenType.isIdentifier() || lookupCache.containsToken(tokenType)) {
+                        chan.add(tokenType);
+                    } else {
+                        chan.add(identifier);
+                    }
+
+                } else {
+                   break;
+                }
+                wasSeparator = false;
+            }
+            offset++;
+            tokenType = builder.lookAhead(offset);
+        }
+        return null;
     }
 
     private QualifiedIdentifierVariant getMostProbableParseVariant(ParserBuilder builder, ParsePathNode node) {

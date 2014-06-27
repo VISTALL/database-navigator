@@ -57,7 +57,7 @@
             <token id="000000015" type-id="CHR_STAR" />
             <iteration id="000000016" separator="CHR_COMMA">
                 <sequence id="000000017">
-                    <element ref-id="condition"/>
+                    <element ref-id="condition" />
                     <sequence id="000000018" optional="true">
                         <token id="000000019" optional="true" type-id="KW_AS" />
                         <alias-def id="000000020" type="COLUMN" />
@@ -234,9 +234,9 @@
                         <object-ref id="000000110" type="FUNCTION" />
                     </variant>
                 </qualified-identifier>
-                <one-of optional="true" id="000000111">
+                <one-of id="000000111" optional="true">
                     <token id="000000112" optional="true" type-id="CHR_STAR" />
-                    <wrapper template="PARENTHESES" id="000000113">
+                    <wrapper id="000000113" template="PARENTHESES">
                         <element ref-id="expression_list" />
                     </wrapper>
                 </one-of>
@@ -379,7 +379,6 @@
             <element ref-id="case_expression" />
             <element ref-id="cast_expression" />
             <element ref-id="sequence_expression" />
-            <element ref-id="function_expression" />
             <element ref-id="simple_expression" />
             <exec-variable id="000000176" />
         </one-of>
@@ -421,57 +420,60 @@
     </element-def>
     <element-def description="Simple expression" id="simple_expression">
         <one-of id="000000193" sortable="true">
-            <qualified-identifier id="000000194" separator="CHR_DOT">
-                <variant>
-                    <alias-ref id="000000195" optional="true" type="DATASET" />
-                    <token id="000000196" type-id="DT_OID" />
-                </variant>
-                <variant>
-                    <alias-ref id="000000197" optional="true" type="DATASET" />
-                    <object-ref id="000000198" type="COLUMN" />
-                </variant>
-                <variant>
-                    <object-ref id="000000199" local="true" optional="true" type="SCHEMA" />
-                    <object-ref id="000000200" local="true" optional="true" type="DATASET" />
-                    <object-ref id="000000201" type="COLUMN" />
-                </variant>
-                <variant>
-                    <object-ref id="000000202" local="true" optional="true" type="SCHEMA" />
-                    <object-ref id="000000203" local="true" optional="true" type="DATASET" />
-                    <token id="000000204" type-id="CHR_STAR" />
-                </variant>
-                <variant>
-                    <object-ref id="000000205" local="true" optional="true" type="SCHEMA" />
-                    <object-ref id="000000206" local="true" optional="true" type="DATASET" />
-                    <token id="000000207" type-id="DT_OID" />
-                </variant>
-                <variant>
-                    <alias-ref id="000000208" optional="true" type="DATASET" />
-                    <alias-ref id="000000209" type="COLUMN" />
-                </variant>
-                <variant>
-                    <object-ref id="000000210" optional="true" type="SCHEMA" />
-                    <object-ref id="000000211" type="FUNCTION" />
-                </variant>
-                <variant>
-                    <alias-ref id="000000212" type="DATASET" />
-                    <token id="000000213" type-id="CHR_STAR" />
-                </variant>
-                <variant>
-                    <alias-ref id="000000214" type="DATASET" />
-                    <token flavor="identifier" id="000000215" type-id="DT_OID" />
-                </variant>
-            </qualified-identifier>
+            <sequence id="000000194">
+                <qualified-identifier id="000000195" separator="CHR_DOT">
+                    <variant>
+                        <alias-ref id="000000196" optional="true" type="DATASET" />
+                        <token id="000000197" type-id="DT_OID" />
+                    </variant>
+                    <variant>
+                        <alias-ref id="000000198" optional="true" type="DATASET" />
+                        <object-ref id="000000199" type="COLUMN" />
+                    </variant>
+                    <variant>
+                        <object-ref id="000000200" local="true" optional="true" type="SCHEMA" />
+                        <object-ref id="000000201" local="true" optional="true" type="DATASET" />
+                        <object-ref id="000000202" type="COLUMN" />
+                    </variant>
+                    <variant>
+                        <object-ref id="000000203" local="true" optional="true" type="SCHEMA" />
+                        <object-ref id="000000204" local="true" optional="true" type="DATASET" />
+                        <token id="000000205" type-id="CHR_STAR" />
+                    </variant>
+                    <variant>
+                        <object-ref id="000000206" local="true" optional="true" type="SCHEMA" />
+                        <object-ref id="000000207" local="true" optional="true" type="DATASET" />
+                        <token id="000000208" type-id="DT_OID" />
+                    </variant>
+                    <variant>
+                        <alias-ref id="000000209" optional="true" type="DATASET" />
+                        <alias-ref id="000000210" type="COLUMN" />
+                    </variant>
+                    <variant>
+                        <alias-ref id="000000211" type="DATASET" />
+                        <token id="000000212" type-id="CHR_STAR" />
+                    </variant>
+                    <variant>
+                        <alias-ref id="000000213" type="DATASET" />
+                        <token id="000000214" type-id="DT_OID" />
+                    </variant>
+                    <variant>
+                        <object-ref id="000000215" optional="true" type="SCHEMA" />
+                        <object-ref id="000000216" type="FUNCTION" />
+                    </variant>
+                </qualified-identifier>
+                <wrapper id="000000217" optional="true" template="PARENTHESES">
+                    <iteration id="000000218" optional="true" separator="CHR_COMMA">
+                        <element ref-id="expression" />
+                    </iteration>
+                </wrapper>
+            </sequence>
             <element ref-id="number" />
-            <token id="000000216" original-name="text" type-id="STRING" />
-            <token id="000000217" type-id="KW_NULL" />
-            <token id="000000218" type-id="KW_TRUE" />
-            <token id="000000219" type-id="KW_FALSE" />
+            <token id="000000219" original-name="text" type-id="STRING" />
+            <token id="000000220" type-id="KW_NULL" />
+            <token id="000000221" type-id="KW_TRUE" />
+            <token id="000000222" type-id="KW_FALSE" />
         </one-of>
-        <sequence id="000000220" optional="true">
-            <token id="000000221" type-id="CHR_LEFT_PARENTHESIS" />
-            <token id="000000222" type-id="CHR_RIGHT_PARENTHESIS" />
-        </sequence>
         <iteration id="000000223" optional="true">
             <sequence id="000000224">
                 <token id="000000225" type-id="CHR_LEFT_BRACKET" />

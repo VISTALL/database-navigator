@@ -10,7 +10,7 @@ import com.dci.intellij.dbn.language.common.element.lookup.IdentifierElementType
 import com.dci.intellij.dbn.language.common.element.parser.impl.IdentifierElementTypeParser;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeDefinition;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeDefinitionException;
-import com.dci.intellij.dbn.language.common.element.util.IdentifierRole;
+import com.dci.intellij.dbn.language.common.element.util.IdentifierCategory;
 import com.dci.intellij.dbn.language.common.element.util.IdentifierType;
 import com.dci.intellij.dbn.language.common.psi.IdentifierPsiElement;
 import com.dci.intellij.dbn.object.common.DBObjectType;
@@ -23,7 +23,7 @@ public class IdentifierElementTypeImpl extends LeafElementTypeImpl implements Id
     public static final FormattingDefinition FORMATTING = new FormattingDefinition(null, null, SpacingDefinition.ONE_SPACE, null);
 
     private IdentifierType identifierType;
-    private IdentifierRole identifierRole;
+    private IdentifierCategory identifierCategory;
     private DBObjectType objectType;
     private boolean referenceable; // is referenceable ()
     private boolean localReference; // is local reference
@@ -53,13 +53,13 @@ public class IdentifierElementTypeImpl extends LeafElementTypeImpl implements Id
             ElementTypeDefinition.ALIAS_DEF.is(type) || ElementTypeDefinition.ALIAS_REF.is(type) ? IdentifierType.ALIAS :
             ElementTypeDefinition.VARIABLE_DEF.is(type) || ElementTypeDefinition.VARIABLE_REF.is(type) ? IdentifierType.VARIABLE : IdentifierType.UNKNOWN;
 
-        identifierRole =
+        identifierCategory =
                     ElementTypeDefinition.OBJECT_REF.is(type) ||
                     ElementTypeDefinition.ALIAS_REF.is(type) ||
-                    ElementTypeDefinition.VARIABLE_REF.is(type) ? IdentifierRole.REFERENCE :
+                    ElementTypeDefinition.VARIABLE_REF.is(type) ? IdentifierCategory.REFERENCE :
                     ElementTypeDefinition.OBJECT_DEF.is(type) ||
                     ElementTypeDefinition.ALIAS_DEF.is(type) ||
-                    ElementTypeDefinition.VARIABLE_DEF.is(type) ? IdentifierRole.DEFINITION : IdentifierRole.UNKNOWN;
+                    ElementTypeDefinition.VARIABLE_DEF.is(type) ? IdentifierCategory.DEFINITION : IdentifierCategory.UNKNOWN;
 
         referenceable = Boolean.parseBoolean(def.getAttributeValue("referenceable"));
         localReference = Boolean.parseBoolean(def.getAttributeValue("local"));
@@ -113,12 +113,12 @@ public class IdentifierElementTypeImpl extends LeafElementTypeImpl implements Id
         return identifierType == IdentifierType.VARIABLE;
     }
 
-    public IdentifierRole getIdentifierRole() {
-        return identifierRole;
+    public IdentifierCategory getIdentifierCategory() {
+        return identifierCategory;
     }
 
     public boolean isReference() {
-        return identifierRole == IdentifierRole.REFERENCE;
+        return identifierCategory == IdentifierCategory.REFERENCE;
     }
 
     @Override
@@ -131,7 +131,7 @@ public class IdentifierElementTypeImpl extends LeafElementTypeImpl implements Id
     }
 
     public boolean isDefinition() {
-        return identifierRole == IdentifierRole.DEFINITION;
+        return identifierCategory == IdentifierCategory.DEFINITION;
     }
 
     public DBObjectType getObjectType() {
@@ -157,7 +157,7 @@ public class IdentifierElementTypeImpl extends LeafElementTypeImpl implements Id
             IdentifierElementType identifierElementType = (IdentifierElementType) elementType;
             return  identifierElementType.getObjectType() == objectType &&
                     identifierElementType.getIdentifierType() == identifierType &&
-                    identifierElementType.getIdentifierRole() == identifierRole;
+                    identifierElementType.getIdentifierCategory() == identifierCategory;
         }
         return false;
     }

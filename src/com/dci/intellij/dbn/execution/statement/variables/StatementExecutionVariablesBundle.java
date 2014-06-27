@@ -5,7 +5,7 @@ import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.data.type.DBDataType;
 import com.dci.intellij.dbn.data.type.GenericDataType;
 import com.dci.intellij.dbn.database.DatabaseMetadataInterface;
-import com.dci.intellij.dbn.language.common.element.util.IdentifierRole;
+import com.dci.intellij.dbn.language.common.element.util.IdentifierCategory;
 import com.dci.intellij.dbn.language.common.psi.BasePsiElement;
 import com.dci.intellij.dbn.language.common.psi.ExecVariablePsiElement;
 import com.dci.intellij.dbn.language.common.psi.ExecutablePsiElement;
@@ -85,7 +85,7 @@ public class StatementExecutionVariablesBundle {
         BasePsiElement parent = variablePsiElement.lookupEnclosingNamedPsiElement();
         Set<BasePsiElement> bucket = null;
         while (parent != null) {
-            bucket = parent.collectObjectPsiElements(bucket, DBObjectType.COLUMN.getFamilyTypes(), IdentifierRole.REFERENCE);
+            bucket = parent.collectObjectPsiElements(bucket, DBObjectType.COLUMN.getFamilyTypes(), IdentifierCategory.REFERENCE);
             if (bucket != null) {
                 if (bucket.size() > 1) {
                     return null;

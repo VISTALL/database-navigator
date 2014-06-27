@@ -2,7 +2,7 @@ package com.dci.intellij.dbn.language.common.psi.lookup;
 
 import com.dci.intellij.dbn.language.common.element.IdentifierElementType;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeAttribute;
-import com.dci.intellij.dbn.language.common.element.util.IdentifierRole;
+import com.dci.intellij.dbn.language.common.element.util.IdentifierCategory;
 import com.dci.intellij.dbn.language.common.element.util.IdentifierType;
 import com.dci.intellij.dbn.language.common.psi.BasePsiElement;
 import com.dci.intellij.dbn.language.common.psi.IdentifierPsiElement;
@@ -13,22 +13,22 @@ import org.jetbrains.annotations.Nullable;
 
 public class IdentifierLookupAdapter extends PsiLookupAdapter {
     private IdentifierType identifierType;
-    private IdentifierRole identifierRole;
+    private IdentifierCategory identifierCategory;
     private DBObjectType objectType;
     private CharSequence identifierName;
     private ElementTypeAttribute attribute;
     private LeafPsiElement lookupIssuer;
 
-    protected IdentifierLookupAdapter(LeafPsiElement lookupIssuer, IdentifierType identifierType, IdentifierRole identifierRole, DBObjectType objectType, CharSequence identifierName) {
-        this(lookupIssuer, identifierType, identifierRole, objectType, identifierName, null);
+    protected IdentifierLookupAdapter(LeafPsiElement lookupIssuer, IdentifierType identifierType, IdentifierCategory identifierCategory, DBObjectType objectType, CharSequence identifierName) {
+        this(lookupIssuer, identifierType, identifierCategory, objectType, identifierName, null);
     }
 
-    protected IdentifierLookupAdapter(LeafPsiElement lookupIssuer, @Nullable IdentifierType identifierType, @Nullable IdentifierRole identifierRole, @NotNull DBObjectType objectType, CharSequence identifierName, ElementTypeAttribute attribute) {
+    protected IdentifierLookupAdapter(LeafPsiElement lookupIssuer, @Nullable IdentifierType identifierType, @Nullable IdentifierCategory identifierCategory, @NotNull DBObjectType objectType, CharSequence identifierName, ElementTypeAttribute attribute) {
         this.lookupIssuer = lookupIssuer;
         this.identifierType = identifierType;
         this.objectType = objectType;
         this.identifierName = identifierName;
-        this.identifierRole = identifierRole;
+        this.identifierCategory = identifierCategory;
         this.attribute = attribute;
     }
 
@@ -60,11 +60,11 @@ public class IdentifierLookupAdapter extends PsiLookupAdapter {
 
     private boolean matchesRole(IdentifierPsiElement identifierPsiElement) {
         IdentifierElementType elementType = identifierPsiElement.getElementType();
-        IdentifierRole role = elementType.getIdentifierRole();
-        switch (identifierRole) {
+        IdentifierCategory role = elementType.getIdentifierCategory();
+        switch (identifierCategory) {
             case ALL: return true;
-            case DEFINITION: return role == IdentifierRole.DEFINITION || identifierPsiElement.isReferenceable();
-            case REFERENCE: return role == IdentifierRole.REFERENCE;
+            case DEFINITION: return role == IdentifierCategory.DEFINITION || identifierPsiElement.isReferenceable();
+            case REFERENCE: return role == IdentifierCategory.REFERENCE;
         }
         return false;
     }
@@ -82,8 +82,8 @@ public class IdentifierLookupAdapter extends PsiLookupAdapter {
         return identifierType;
     }
 
-    public IdentifierRole getIdentifierRole() {
-        return identifierRole;
+    public IdentifierCategory getIdentifierCategory() {
+        return identifierCategory;
     }
 
     public DBObjectType getObjectType() {
@@ -105,7 +105,7 @@ public class IdentifierLookupAdapter extends PsiLookupAdapter {
     public String toString() {
         return "IdentifierLookupAdapter{" +
                 "identifierType=" + identifierType +
-                ", identifierRole=" + identifierRole +
+                ", identifierRole=" + identifierCategory +
                 ", objectType=" + objectType +
                 ", identifierName='" + identifierName + '\'' +
                 ", attribute=" + attribute +
