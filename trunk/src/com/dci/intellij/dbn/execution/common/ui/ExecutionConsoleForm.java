@@ -295,7 +295,7 @@ public class ExecutionConsoleForm extends DBNFormImpl implements DBNForm, Enviro
                 if (executionResult instanceof StatementExecutionResult) {
                     StatementExecutionResult statementExecutionResult = (StatementExecutionResult) executionResult;
                     StatementExecutionInput executionInput = statementExecutionResult.getExecutionInput();
-                    if (executionInput != null) {
+                    if (executionInput != null && !executionInput.isDisposed()) {
                         DBLanguageFile file = executionInput.getExecutablePsiElement().getFile();
                         DocumentUtil.refreshEditorAnnotations(file);
                     }

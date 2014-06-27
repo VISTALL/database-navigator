@@ -20,6 +20,7 @@ public class StatementExecutionInput implements Disposable {
     private ExecutablePsiElement originalPsiElement;
     private String originalStatement;
     private String executeStatement;
+    private boolean isDisposed;
 
     public StatementExecutionInput(String originalStatement, String executeStatement, StatementExecutionProcessor executionProcessor) {
         this.executionProcessor = executionProcessor;
@@ -83,9 +84,15 @@ public class StatementExecutionInput implements Disposable {
     }
 
     public void dispose() {
-        executionProcessor.reset();
-        executionProcessor = null;
-        connectionHandler = null;
+        if (!isDisposed) {
+            isDisposed = true;
+            executionProcessor.reset();
+            executionProcessor = null;
+            connectionHandler = null;
+        }
+    }
 
+    public boolean isDisposed() {
+        return isDisposed;
     }
 }
