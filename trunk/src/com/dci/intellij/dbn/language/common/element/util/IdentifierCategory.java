@@ -3,7 +3,7 @@ package com.dci.intellij.dbn.language.common.element.util;
 import com.dci.intellij.dbn.common.util.EnumerationUtil;
 import com.dci.intellij.dbn.language.common.psi.IdentifierPsiElement;
 
-public enum IdentifierRole {
+public enum IdentifierCategory {
     DEFINITION,
     REFERENCE,
     UNKNOWN,
@@ -17,7 +17,7 @@ public enum IdentifierRole {
         }
     }
 
-    public boolean isOneOf(IdentifierRole ... roles) {
-        return EnumerationUtil.isOneOf(this, roles);
+    public boolean isOneOf(IdentifierCategory... categories) {
+        return EnumerationUtil.isOneOf(this, categories);
     }
 }

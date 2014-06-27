@@ -11,7 +11,7 @@ import com.dci.intellij.dbn.language.common.element.QualifiedIdentifierElementTy
 import com.dci.intellij.dbn.language.common.element.SequenceElementType;
 import com.dci.intellij.dbn.language.common.element.TokenElementType;
 import com.dci.intellij.dbn.language.common.element.impl.WrappingDefinition;
-import com.dci.intellij.dbn.language.common.element.util.IdentifierRole;
+import com.dci.intellij.dbn.language.common.element.util.IdentifierCategory;
 import com.dci.intellij.dbn.language.common.element.util.IdentifierType;
 import com.dci.intellij.dbn.object.common.DBObjectType;
 import gnu.trove.THashMap;
@@ -24,7 +24,7 @@ public abstract class AbstractElementTypeLookupCache<T extends ElementType> impl
     private T elementType;
 
     //protected Set<IdentifierCacheElement> identifierTypes;
-    protected Map<DBObjectType, Map<IdentifierType, Set<IdentifierRole>>> identifierTypes;
+    protected Map<DBObjectType, Map<IdentifierType, Set<IdentifierCategory>>> identifierTypes;
     protected Set<DBObjectType> virtualObjects;
     protected Set<LeafElementType> allPossibleLeafs = new THashSet<LeafElementType>();
     protected Set<LeafElementType> firstPossibleLeafs = new THashSet<LeafElementType>();
@@ -77,49 +77,49 @@ public abstract class AbstractElementTypeLookupCache<T extends ElementType> impl
         return virtualObjects != null && virtualObjects.contains(objectType);
     }
 
-    public boolean containsIdentifier(DBObjectType objectType, IdentifierType identifierType, IdentifierRole identifierRole) {
+    public boolean containsIdentifier(DBObjectType objectType, IdentifierType identifierType, IdentifierCategory identifierCategory) {
         if (identifierTypes != null) {
-            Map<IdentifierType, Set<IdentifierRole>> identifierTypeMap = identifierTypes.get(objectType);
+            Map<IdentifierType, Set<IdentifierCategory>> identifierTypeMap = identifierTypes.get(objectType);
             if (identifierTypeMap != null) {
-                Set<IdentifierRole> identifierRoleSet = identifierTypeMap.get(identifierType);
-                if (identifierRoleSet != null) {
-                    return identifierRole == IdentifierRole.ALL || identifierRoleSet.contains(identifierRole);
+                Set<IdentifierCategory> identifierCategorySet = identifierTypeMap.get(identifierType);
+                if (identifierCategorySet != null) {
+                    return identifierCategory == IdentifierCategory.ALL || identifierCategorySet.contains(identifierCategory);
                 }
             }
         }
 
         DBObjectType genericType = objectType.getGenericType() != objectType ? objectType.getGenericType() : null;
         while (genericType != null) {
-            if (containsIdentifier(genericType, identifierType, identifierRole)) return true;
+            if (containsIdentifier(genericType, identifierType, identifierCategory)) return true;
             genericType = genericType.getGenericType() != genericType ? genericType.getGenericType() : null;
         }
         return false;
     }
 
     public boolean containsIdentifier(DBObjectType objectType, IdentifierType identifierType) {
-        return containsIdentifier(objectType, identifierType, IdentifierRole.ALL);
+        return containsIdentifier(objectType, identifierType, IdentifierCategory.ALL);
     }
 
-    private void addIdentifier(DBObjectType objectType, IdentifierType identifierType, IdentifierRole identifierRole){
+    private void addIdentifier(DBObjectType objectType, IdentifierType identifierType, IdentifierCategory identifierCategory){
         if (identifierTypes == null) {
-            identifierTypes = new THashMap<DBObjectType, Map<IdentifierType, Set<IdentifierRole>>>();
+            identifierTypes = new THashMap<DBObjectType, Map<IdentifierType, Set<IdentifierCategory>>>();
         }
 
-        Map<IdentifierType, Set<IdentifierRole>> identifierTypeMap = identifierTypes.get(objectType);
+        Map<IdentifierType, Set<IdentifierCategory>> identifierTypeMap = identifierTypes.get(objectType);
         if (identifierTypeMap == null) {
-            identifierTypeMap = new THashMap<IdentifierType, Set<IdentifierRole>>();
+            identifierTypeMap = new THashMap<IdentifierType, Set<IdentifierCategory>>();
             identifierTypes.put(objectType, identifierTypeMap);
         }
 
-        Set<IdentifierRole> identifierRoleSet = identifierTypeMap.get(identifierType);
-        if (identifierRoleSet == null) {
-            identifierRoleSet = new THashSet<IdentifierRole>();
-            identifierTypeMap.put(identifierType, identifierRoleSet);
+        Set<IdentifierCategory> identifierCategorySet = identifierTypeMap.get(identifierType);
+        if (identifierCategorySet == null) {
+            identifierCategorySet = new THashSet<IdentifierCategory>();
+            identifierTypeMap.put(identifierType, identifierCategorySet);
         }
-        identifierRoleSet.add(identifierRole);
+        identifierCategorySet.add(identifierCategory);
 
         for (DBObjectType inheritingObjectType : objectType.getInheritingTypes()) {
-            addIdentifier(inheritingObjectType, identifierType, identifierRole);
+            addIdentifier(inheritingObjectType, identifierType, identifierCategory);
         }
 
     }
@@ -128,7 +128,7 @@ public abstract class AbstractElementTypeLookupCache<T extends ElementType> impl
         return containsIdentifier(
                 identifierElementType.getObjectType(),
                 identifierElementType.getIdentifierType(),
-                identifierElementType.isReference() ? IdentifierRole.REFERENCE : IdentifierRole.DEFINITION);
+                identifierElementType.isReference() ? IdentifierCategory.REFERENCE : IdentifierCategory.DEFINITION);
     }
 
     public Set<LeafElementType> getFirstPossibleLeafs() {
@@ -201,7 +201,7 @@ public abstract class AbstractElementTypeLookupCache<T extends ElementType> impl
                     addIdentifier(
                             identifierElementType.getObjectType(),
                             identifierElementType.getIdentifierType(),
-                            identifierElementType.isReference() ? IdentifierRole.REFERENCE : IdentifierRole.DEFINITION);
+                            identifierElementType.isReference() ? IdentifierCategory.REFERENCE : IdentifierCategory.DEFINITION);
                 }
 
             }

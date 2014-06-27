@@ -1,6 +1,6 @@
 package com.dci.intellij.dbn.language.common.psi.lookup;
 
-import com.dci.intellij.dbn.language.common.element.util.IdentifierRole;
+import com.dci.intellij.dbn.language.common.element.util.IdentifierCategory;
 import com.dci.intellij.dbn.language.common.element.util.IdentifierType;
 import com.dci.intellij.dbn.language.common.psi.BasePsiElement;
 import com.dci.intellij.dbn.language.common.psi.LeafPsiElement;
@@ -10,7 +10,7 @@ public class VirtualObjectLookupAdapter extends IdentifierLookupAdapter {
     private DBObjectType parentObjectType;
 
     public VirtualObjectLookupAdapter(LeafPsiElement lookupIssuer, DBObjectType parentObjectType, DBObjectType objectType) {
-        super(lookupIssuer, IdentifierType.OBJECT, IdentifierRole.ALL, objectType, null);
+        super(lookupIssuer, IdentifierType.OBJECT, IdentifierCategory.ALL, objectType, null);
         this.parentObjectType = parentObjectType;
     }
 

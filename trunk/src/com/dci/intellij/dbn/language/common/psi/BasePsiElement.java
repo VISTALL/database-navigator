@@ -16,7 +16,7 @@ import com.dci.intellij.dbn.language.common.DBLanguageFile;
 import com.dci.intellij.dbn.language.common.element.ElementType;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeAttributesBundle;
-import com.dci.intellij.dbn.language.common.element.util.IdentifierRole;
+import com.dci.intellij.dbn.language.common.element.util.IdentifierCategory;
 import com.dci.intellij.dbn.language.common.psi.lookup.ObjectLookupAdapter;
 import com.dci.intellij.dbn.language.common.psi.lookup.PsiLookupAdapter;
 import com.dci.intellij.dbn.object.DBSchema;
@@ -306,9 +306,9 @@ public abstract class BasePsiElement extends ASTWrapperPsiElement implements Ite
     /*********************************************************
      *                   Lookup routines                     *
      *********************************************************/
-    public Set<BasePsiElement> collectObjectPsiElements(Set<BasePsiElement> bucket, Set<DBObjectType> objectTypes, IdentifierRole identifierRole) {
+    public Set<BasePsiElement> collectObjectPsiElements(Set<BasePsiElement> bucket, Set<DBObjectType> objectTypes, IdentifierCategory identifierCategory) {
         for (DBObjectType objectType : objectTypes) {
-            PsiLookupAdapter lookupAdapter = new ObjectLookupAdapter(null, identifierRole, objectType, null);
+            PsiLookupAdapter lookupAdapter = new ObjectLookupAdapter(null, identifierCategory, objectType, null);
             bucket = lookupAdapter.collectInElement(this, bucket);
         }
         return bucket;
