@@ -94,6 +94,7 @@ public class DBProgramDebugProcess extends XDebugProcess {
         return connectionHandler;
     }
 
+    @NotNull
     @Override
     public XBreakpointHandler<?>[] getBreakpointHandlers() {
         return breakpointHandlers;
@@ -213,23 +214,25 @@ public class DBProgramDebugProcess extends XDebugProcess {
         PSQLFile psqlFile = (PSQLFile) sourceCodeFile.getPsiFile();
         if (psqlFile != null) {
             DBMethod method = executionInput.getMethod();
-            BasePsiElement basePsiElement = psqlFile.lookupObjectDeclaration(method.getObjectType().getGenericType(), method.getName());
-            if (basePsiElement != null) {
-                BasePsiElement subject = basePsiElement.lookupFirstPsiElement(ElementTypeAttribute.SUBJECT);
-                int offset = subject.getTextOffset();
-                Document document = DocumentUtil.getDocument(psqlFile);
-                int line = document.getLineNumber(offset);
+            if (method != null) {
+                BasePsiElement basePsiElement = psqlFile.lookupObjectDeclaration(method.getObjectType().getGenericType(), method.getName());
+                if (basePsiElement != null) {
+                    BasePsiElement subject = basePsiElement.lookupFirstPsiElement(ElementTypeAttribute.SUBJECT);
+                    int offset = subject.getTextOffset();
+                    Document document = DocumentUtil.getDocument(psqlFile);
+                    int line = document.getLineNumber(offset);
 
-                DBSchemaObject schemaObject = getMainDatabaseObject();
-                try {
-                    defaultBreakpointInfo = getDebuggerInterface().addBreakpoint(
-                            method.getSchema().getName(),
-                            schemaObject.getName(),
-                            schemaObject.getObjectType().getName().toUpperCase(),
-                            line,
-                            debugConnection);
-                } catch (SQLException e) {
-                     e.printStackTrace();
+                    DBSchemaObject schemaObject = getMainDatabaseObject();
+                    try {
+                        defaultBreakpointInfo = getDebuggerInterface().addBreakpoint(
+                                method.getSchema().getName(),
+                                schemaObject.getName(),
+                                schemaObject.getObjectType().getName().toUpperCase(),
+                                line,
+                                debugConnection);
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }
@@ -278,12 +281,14 @@ public class DBProgramDebugProcess extends XDebugProcess {
                     rollOutDebugger();
                     getStatus().CAN_SET_BREAKPOINTS = false;
 
-                    DatabaseDebuggerInterface debuggerInterface = getDebuggerInterface();
-                    runtimeInfo = debuggerInterface.stopExecution(debugConnection);
-                    debuggerInterface.detachSession(debugConnection);
+                    if (debugConnection != null) {
+                        DatabaseDebuggerInterface debuggerInterface = getDebuggerInterface();
+                        runtimeInfo = debuggerInterface.stopExecution(debugConnection);
+                        debuggerInterface.detachSession(debugConnection);
 
-                    connectionHandler.freePoolConnection(debugConnection);
-                    debugConnection = null;
+                        connectionHandler.freePoolConnection(debugConnection);
+                        debugConnection = null;
+                    }
                     getStatus().PROCESS_IS_TERMINATED = true;
                 } catch (final SQLException e) {
                     showErrorDialog(e);
