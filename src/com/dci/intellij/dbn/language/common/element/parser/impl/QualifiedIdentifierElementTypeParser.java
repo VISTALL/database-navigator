@@ -71,7 +71,7 @@ public class QualifiedIdentifierElementTypeParser extends AbstractElementTypePar
         }
     }
 
-    private QualifiedIdentifierVariant getMostProbableParseVariant_(ParserBuilder builder, ParsePathNode node) {
+    private QualifiedIdentifierVariant getMostProbableParseVariant(ParserBuilder builder, ParsePathNode node) {
         QualifiedIdentifierElementType elementType = getElementType();
         TokenType separatorToken = elementType.getSeparatorToken().getTokenType();
         ElementTypeLookupCache lookupCache = elementType.getLookupCache();
@@ -89,12 +89,9 @@ public class QualifiedIdentifierElementTypeParser extends AbstractElementTypePar
                 wasSeparator = true;
             } else {
                 if (wasSeparator) {
-                    if (tokenType.isIdentifier() || lookupCache.containsToken(tokenType)) {
-                        chan.add(tokenType);
-                    } else {
+                    if (tokenType.isIdentifier() || lookupCache.containsToken(tokenType))
+                        chan.add(tokenType); else
                         chan.add(identifier);
-                    }
-
                 } else {
                    break;
                 }
@@ -102,11 +99,33 @@ public class QualifiedIdentifierElementTypeParser extends AbstractElementTypePar
             }
             offset++;
             tokenType = builder.lookAhead(offset);
+            if (tokenType == null && wasSeparator) chan.add(identifier);
         }
-        return null;
+
+        QualifiedIdentifierVariant mostProbableVariant = null;
+
+        for (LeafElementType[] elementTypes : getElementType().getVariants()) {
+            if (elementTypes.length <= chan.size()) {
+                int matchedTokens = 0;
+                for (int i=0; i<elementTypes.length; i++) {
+                    if (elementTypes[i].getTokenType().matches(chan.get(i))) {
+                        matchedTokens++;
+                    }
+                }
+                if (mostProbableVariant == null || mostProbableVariant.getMatchedTokens() < matchedTokens) {
+                    mostProbableVariant = mostProbableVariant == null ?
+                            new QualifiedIdentifierVariant(elementTypes, matchedTokens) :
+                            mostProbableVariant.replace(elementTypes, matchedTokens);
+                }
+
+            }
+        }
+
+        return mostProbableVariant;
     }
 
-    private QualifiedIdentifierVariant getMostProbableParseVariant(ParserBuilder builder, ParsePathNode node) {
+    private QualifiedIdentifierVariant getMostProbableParseVariant_(ParserBuilder builder, ParsePathNode node) {
+
         TokenElementType separatorToken = getElementType().getSeparatorToken();
 
         QualifiedIdentifierVariant mostProbableVariant = null;
