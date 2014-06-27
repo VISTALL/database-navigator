@@ -128,9 +128,11 @@ public class DatabaseEditableObjectFile extends DatabaseObjectFile<DBSchemaObjec
     @Nullable
     public List<VirtualFile> getBoundDDLFiles() {
         DBSchemaObject object = getObject();
-        DDLFileAttachmentManager fileAttachmentManager = DDLFileAttachmentManager.getInstance(object.getProject());
-        if (object.getProperties().is(DBObjectProperty.EDITABLE)) {
-            return fileAttachmentManager.getBoundDDLFiles(object);
+        if (object != null) {
+            DDLFileAttachmentManager fileAttachmentManager = DDLFileAttachmentManager.getInstance(object.getProject());
+            if (object.getProperties().is(DBObjectProperty.EDITABLE)) {
+                return fileAttachmentManager.getBoundDDLFiles(object);
+            }
         }
         return null;
     }
