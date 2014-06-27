@@ -147,6 +147,7 @@ public class MethodExecutionForm extends DBNFormImpl implements DBNForm {
         @Override
         public void valueSelected(DBSchema schema) {
             executionInput.setExecutionSchema(schema);
+            notifyChangeListeners();
         }
     }
 
