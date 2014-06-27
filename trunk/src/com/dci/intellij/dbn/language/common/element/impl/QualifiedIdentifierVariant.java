@@ -25,6 +25,12 @@ public class QualifiedIdentifierVariant implements Comparable{
         this.incomplete = matchedTokens != leafs.length;
     }
 
+    public QualifiedIdentifierVariant replace(LeafElementType[] leafs, int matchedTokens) {
+        this.leafs = leafs;
+        this.matchedTokens = matchedTokens;
+        this.incomplete = matchedTokens != leafs.length;
+        return this;
+    }
 
     public LeafElementType[] getLeafs() {
         return leafs;

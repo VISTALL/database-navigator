@@ -195,4 +195,9 @@ public class ChameleonElementType extends ILazyParseableElementType implements E
         return false;
     }
 
+    @Override
+    public boolean matches(TokenType tokenType) {
+        return this.equals(tokenType);
+    }
+
 }

@@ -174,6 +174,13 @@ public class SimpleTokenType extends IElementType implements TokenType {
         return false;
     }
 
+    @Override
+    public boolean matches(TokenType tokenType) {
+        if (this.equals(tokenType)) return true;
+        if (this.isIdentifier() && tokenType.isIdentifier()) return true;
+        return false;
+    }
+
     public int hashCode() {
         return hashCode;
     }
