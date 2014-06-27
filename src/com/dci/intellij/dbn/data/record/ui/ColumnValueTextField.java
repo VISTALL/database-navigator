@@ -24,11 +24,11 @@ import java.awt.event.MouseListener;
 
 public class ColumnValueTextField extends JTextField {
     private DatasetRecord record;
-    private DBObjectRef<DBColumn> column;
+    private DBObjectRef<DBColumn> columnRef;
 
     public ColumnValueTextField(DatasetRecord record, DBColumn column) {
         this.record = record;
-        this.column = column.getRef();
+        this.columnRef = DBObjectRef.from(column);
         if (column.isPrimaryKey()) {
             SimpleTextAttributes textAttributes = TextAttributesUtil.getSimpleTextAttributes(DataGridTextAttributesKeys.PRIMARY_KEY);
             setForeground(textAttributes.getFgColor());
@@ -93,7 +93,7 @@ public class ColumnValueTextField extends JTextField {
     }
 
     private DBColumn getColumn() {
-        return this.column.get();
+        return DBObjectRef.get(columnRef);
     }
 
     private JDialog getEnclosingDialog() {
