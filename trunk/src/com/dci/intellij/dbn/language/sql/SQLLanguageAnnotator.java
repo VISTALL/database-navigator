@@ -68,7 +68,7 @@ public class SQLLanguageAnnotator implements Annotator {
     }
 
     private void annotateAliasRef(IdentifierPsiElement aliasReference, AnnotationHolder holder) {
-        if (aliasReference.resolve() == null) {
+        if (aliasReference.resolve() == null &&  aliasReference.getResolveTrialsCount() > 3) {
             Annotation annotation = holder.createWarningAnnotation(aliasReference, "Unknown identifier");
             annotation.setTextAttributes(SQLTextAttributesKeys.UNKNOWN_IDENTIFIER);
         } else {
@@ -89,17 +89,21 @@ public class SQLLanguageAnnotator implements Annotator {
     }
 
     private void annotateObject(IdentifierPsiElement objectReference, AnnotationHolder holder) {
-        if (!objectReference.isResolving()) {
+        if (!objectReference.isResolving() && !objectReference.isDefinition()) {
             PsiElement reference = objectReference.resolve();
-            ConnectionHandler connectionHandler = objectReference.getActiveConnection();
-            if (reference == null && connectionHandler != null && !connectionHandler.isVirtual() && connectionHandler.getConnectionStatus().isValid() && !connectionHandler.getLoadMonitor().isLoading()) {
-                if (!objectReference.isDefinition()) {
+            if (reference == null && checkConnection(objectReference)) {
+                if (objectReference.getResolveTrialsCount() > 3) {
                     Annotation annotation = holder.createWarningAnnotation(objectReference.getNode(),
                             "Unknown identifier");
                     annotation.setTextAttributes(SQLTextAttributesKeys.UNKNOWN_IDENTIFIER);
                 }
             }
         }
+    }
+
+    private boolean checkConnection(IdentifierPsiElement objectReference) {
+        ConnectionHandler connectionHandler = objectReference.getActiveConnection();
+        return connectionHandler != null && !connectionHandler.isVirtual() && connectionHandler.getConnectionStatus().isValid() && !connectionHandler.getLoadMonitor().isLoading();
     }
 
     private void annotateExecutable(ExecutablePsiElement executablePsiElement, AnnotationHolder holder) {
