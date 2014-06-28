@@ -68,23 +68,25 @@ public class DatasetEditorModel extends ResultSetDataModel<DatasetEditorModelRow
 
         Connection connection = connectionHandler.getStandaloneConnection();
         ResultSet newResultSet = loadResultSet(connection, useCurrentFilter);
-        ConnectionUtil.closeResultSet(resultSet);
-        resultSet = newResultSet;
-        resultSetExhausted = false;
+        if (newResultSet != null) {
+            ConnectionUtil.closeResultSet(resultSet);
+            resultSet = newResultSet;
+            resultSetExhausted = false;
 
-        if (keepChanges) snapshotChanges(); else clearChanges();
-        fetchNextRecords(rowCount, true);
-        restoreChanges();
+            if (keepChanges) snapshotChanges(); else clearChanges();
+            fetchNextRecords(rowCount, true);
+            restoreChanges();
 
-        new ConditionalLaterInvocator() {
-            public void run() {
-                DatasetEditorTable editorTable = getEditorTable();
-                if (editorTable != null) {
-                    editorTable.cancelEditing();
-                    editorTable.clearSelection();
+            new ConditionalLaterInvocator() {
+                public void run() {
+                    DatasetEditorTable editorTable = getEditorTable();
+                    if (editorTable != null) {
+                        editorTable.cancelEditing();
+                        editorTable.clearSelection();
+                    }
                 }
-            }
-        }.start();
+            }.start();
+        }
     }
 
     public DataEditorSettings getSettings() {
@@ -100,22 +102,25 @@ public class DatasetEditorModel extends ResultSetDataModel<DatasetEditorModelRow
 
     private ResultSet loadResultSet(Connection connection, boolean useCurrentFilter) throws SQLException {
         DBDataset dataset = getDataset();
-        Project project = dataset.getProject();
-        DatasetFilter filter = DatasetFilterManager.EMPTY_FILTER;
-        if (useCurrentFilter) {
-            DatasetFilterManager filterManager = DatasetFilterManager.getInstance(project);
-            filter = filterManager.getActiveFilter(dataset);
-            if (filter == null) filter = DatasetFilterManager.EMPTY_FILTER;
-        }
+        if (dataset != null) {
+            Project project = dataset.getProject();
+            DatasetFilter filter = DatasetFilterManager.EMPTY_FILTER;
+            if (useCurrentFilter) {
+                DatasetFilterManager filterManager = DatasetFilterManager.getInstance(project);
+                filter = filterManager.getActiveFilter(dataset);
+                if (filter == null) filter = DatasetFilterManager.EMPTY_FILTER;
+            }
 
-        String selectStatement = filter.createSelectStatement(dataset, getState().getSortingState());
-        Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+            String selectStatement = filter.createSelectStatement(dataset, getState().getSortingState());
+            Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
 
-        int timeout = settings.getGeneralSettings().getFetchTimeout().value();
-        if (timeout != -1) {
-            statement.setQueryTimeout(timeout);
+            int timeout = settings.getGeneralSettings().getFetchTimeout().value();
+            if (timeout != -1) {
+                statement.setQueryTimeout(timeout);
+            }
+            return statement.executeQuery(selectStatement);
         }
-        return statement.executeQuery(selectStatement);
+        return null;
     }
 
     private void snapshotChanges() {
@@ -179,6 +184,7 @@ public class DatasetEditorModel extends ResultSetDataModel<DatasetEditorModelRow
         return new DatasetEditorModelRow(this, resultSet, resultSetRowIndex);
     }
 
+    @Nullable
     public DBDataset getDataset() {
         return DBObjectRef.get(datasetRef);
     }
@@ -245,13 +251,17 @@ public class DatasetEditorModel extends ResultSetDataModel<DatasetEditorModelRow
                     }
                 }
             }
-            getConnectionHandler().notifyChanges(getDataset().getVirtualFile());
+            DBDataset dataset = getDataset();
+            if (dataset != null) {
+                getConnectionHandler().notifyChanges(dataset.getVirtualFile());
+            }
         }
     }
 
     public void insertRecord(int rowIndex) {
         DatasetEditorTable editorTable = getEditorTable();
         if (editorTable != null) {
+            DBDataset dataset = getDataset();
             try {
                 editorTable.stopCellEditing();
                 resultSet.moveToInsertRow();
@@ -262,9 +272,13 @@ public class DatasetEditorModel extends ResultSetDataModel<DatasetEditorModelRow
 
                 editorTable.selectCell(rowIndex, editorTable.getSelectedColumn() == -1 ? 0 : editorTable.getSelectedColumn());
                 isInserting = true;
-                getConnectionHandler().notifyChanges(getDataset().getVirtualFile());
+                if (dataset != null) {
+                    getConnectionHandler().notifyChanges(dataset.getVirtualFile());
+                }
             } catch (SQLException e) {
-                MessageUtil.showErrorDialog("Could not insert record for " + getDataset().getQualifiedNameWithType() + ".", e);
+                if (dataset != null) {
+                    MessageUtil.showErrorDialog("Could not insert record for " + dataset.getQualifiedNameWithType() + ".", e);
+                }
             }
         }
     }
@@ -272,6 +286,7 @@ public class DatasetEditorModel extends ResultSetDataModel<DatasetEditorModelRow
     public void duplicateRecord(int rowIndex) {
         DatasetEditorTable editorTable = getEditorTable();
         if (editorTable != null) {
+            DBDataset dataset = getDataset();
             try {
                 editorTable.stopCellEditing();
                 int insertIndex = rowIndex + 1;
@@ -285,9 +300,13 @@ public class DatasetEditorModel extends ResultSetDataModel<DatasetEditorModelRow
 
                 editorTable.selectCell(insertIndex, editorTable.getSelectedColumn());
                 isInserting = true;
-                getConnectionHandler().notifyChanges(getDataset().getVirtualFile());
+                if (dataset != null) {
+                    getConnectionHandler().notifyChanges(dataset.getVirtualFile());
+                }
             } catch (SQLException e) {
-                MessageUtil.showErrorDialog("Could not duplicate record in " + getDataset().getQualifiedNameWithType() + ".", e);
+                if (dataset != null) {
+                    MessageUtil.showErrorDialog("Could not duplicate record in " + dataset.getQualifiedNameWithType() + ".", e);
+                }
             }
         }
     }
