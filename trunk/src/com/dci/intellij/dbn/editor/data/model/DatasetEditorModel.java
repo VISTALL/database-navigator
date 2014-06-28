@@ -20,6 +20,7 @@ import com.dci.intellij.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.fileEditor.FileEditorStateLevel;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.ListSelectionModel;
@@ -152,9 +153,10 @@ public class DatasetEditorModel extends ResultSetDataModel<DatasetEditorModelRow
         return null;
     }
 
+    @NotNull
     @Override
     public DatasetEditorState getState() {
-        return datasetEditor == null ? null : (DatasetEditorState) datasetEditor.getState(FileEditorStateLevel.FULL);
+        return datasetEditor == null ? DatasetEditorState.VOID : (DatasetEditorState) datasetEditor.getState(FileEditorStateLevel.FULL);
     }
 
     private boolean hasChanges() {
