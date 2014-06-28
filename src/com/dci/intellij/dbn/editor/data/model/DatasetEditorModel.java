@@ -36,21 +36,21 @@ public class DatasetEditorModel extends ResultSetDataModel<DatasetEditorModelRow
     private boolean isInserting;
     private DatasetEditor datasetEditor;
     private DataEditorSettings settings;
-    private DBObjectRef<DBDataset> dataset;
+    private DBObjectRef<DBDataset> datasetRef;
 
     private List<DatasetEditorModelRow> changedRows = new ArrayList<DatasetEditorModelRow>();
 
     public DatasetEditorModel(DatasetEditor datasetEditor) throws SQLException {
         super(datasetEditor.getConnectionHandler());
         this.datasetEditor = datasetEditor;
-        this.dataset = DBObjectRef.from(datasetEditor.getDataset());
+        this.datasetRef = DBObjectRef.from(datasetEditor.getDataset());
         this.header = new DatasetEditorModelHeader(datasetEditor, null);
         this.settings =  DataEditorSettings.getInstance(datasetEditor.getProject());
     }
 
     public synchronized void load(ProgressIndicator progressIndicator, boolean useCurrentFilter, boolean keepChanges) throws SQLException {
         if (!isDisposed()) {
-            progressIndicator.setText("Loading data for " + dataset.getObjectType().getName() + " " + dataset.getPath());
+            progressIndicator.setText("Loading data for " + datasetRef.getObjectType().getName() + " " + datasetRef.getPath());
             load(useCurrentFilter, keepChanges);
         }
     }
@@ -165,7 +165,7 @@ public class DatasetEditorModel extends ResultSetDataModel<DatasetEditorModelRow
     }
 
     public boolean isEditable() {
-        DBDataset dataset = this.dataset.get();
+        DBDataset dataset = getDataset();
         return dataset != null && dataset.isEditable(DBContentType.DATA);
     }
 
@@ -180,7 +180,7 @@ public class DatasetEditorModel extends ResultSetDataModel<DatasetEditorModelRow
     }
 
     public DBDataset getDataset() {
-        return dataset.get();
+        return DBObjectRef.get(datasetRef);
     }
 
 
@@ -207,15 +207,20 @@ public class DatasetEditorModel extends ResultSetDataModel<DatasetEditorModelRow
             for (DBConstraint constraint : column.getConstraints()) {
                 constraint = (DBConstraint) constraint.getUndisposedElement();
                 if (constraint != null && constraint.isForeignKey()) {
-                    DBDataset foreignKeyDataset = constraint.getForeignKeyConstraint().getDataset();
-                    DatasetFilterInput filterInput = new DatasetFilterInput(foreignKeyDataset);
+                    DBConstraint foreignKeyConstraint = constraint.getForeignKeyConstraint();
+                    if (foreignKeyConstraint != null) {
+                        DBDataset foreignKeyDataset = foreignKeyConstraint.getDataset();
+                        DatasetFilterInput filterInput = new DatasetFilterInput(foreignKeyDataset);
 
-                    for (DBColumn constraintColumn : constraint.getColumns()) {
-                        DBColumn foreignKeyColumn = ((DBColumn) constraintColumn.getUndisposedElement()).getForeignKeyColumn();
-                        Object value = cell.getRow().getCellForColumn(constraintColumn).getUserValue();
-                        filterInput.setColumnValue(foreignKeyColumn, value);
+                        for (DBColumn constraintColumn : constraint.getColumns()) {
+                            DBColumn foreignKeyColumn = ((DBColumn) constraintColumn.getUndisposedElement()).getForeignKeyColumn();
+                            Object value = cell.getRow().getCellForColumn(constraintColumn).getUserValue();
+                            filterInput.setColumnValue(foreignKeyColumn, value);
+                        }
+                        return filterInput;
+
                     }
-                    return filterInput;
+
                 }
             }
         }
@@ -419,7 +424,7 @@ public class DatasetEditorModel extends ResultSetDataModel<DatasetEditorModelRow
     @Override
     public void dispose() {
         super.dispose();
-        dataset = null;
+        datasetRef = null;
         datasetEditor = null;
         changedRows.clear();
         settings = null;
