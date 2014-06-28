@@ -29,7 +29,7 @@
         <ul>
             <li><b>3.0.3015</b>
              <ul>
-                - PostgreSQL Support (work in progress)<br>
+                - PostgreSQL support (work in progress)<br>
                 - Dataset Editor - hide / move columns (persistent state)<br>
                 - Improved object lookup functionality (Ctrl-Shift-D)<br>
                 - Copy / Paste feature for connection settings<br>
