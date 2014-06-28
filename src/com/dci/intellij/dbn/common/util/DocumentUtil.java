@@ -82,7 +82,7 @@ public class DocumentUtil {
     }
 
     public static PsiFile getFile(Editor editor) {
-        Project project = editor.getProject();
+        Project project = editor == null ? null : editor.getProject();
         return project == null ? null : PsiUtil.getPsiFile(project, editor.getDocument());
     }
 
