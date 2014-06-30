@@ -165,7 +165,7 @@ public class DatasetEditorTableActionGroup extends DefaultActionGroup {
             int modelColumnIndex = columnInfo.getColumnIndex();
             if (editorTable != null) {
                 int tableColumnIndex = editorTable.convertColumnIndexToView(modelColumnIndex);
-                editorTable.sort(tableColumnIndex, SortDirection.ASCENDING);
+                editorTable.sort(tableColumnIndex, SortDirection.ASCENDING, false);
             }
         }
     }
@@ -180,7 +180,7 @@ public class DatasetEditorTableActionGroup extends DefaultActionGroup {
             int modelColumnIndex = columnInfo.getColumnIndex();
             if (editorTable != null) {
                 int tableColumnIndex = editorTable.convertColumnIndexToView(modelColumnIndex);
-                editorTable.sort(tableColumnIndex, SortDirection.DESCENDING);
+                editorTable.sort(tableColumnIndex, SortDirection.DESCENDING, false);
             }
         }
     }

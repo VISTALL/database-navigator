@@ -253,6 +253,11 @@ public class BasicDataModel<T extends DataModelRow> implements DataModel<T> {
         return searchResult != null && !searchResult.isEmpty();
     }
 
+    @Override
+    public int getColumnIndex(String columnName) {
+        return header.getColumnIndex(columnName);
+    }
+
     public boolean isDisposed() {
         return isDisposed;
     }

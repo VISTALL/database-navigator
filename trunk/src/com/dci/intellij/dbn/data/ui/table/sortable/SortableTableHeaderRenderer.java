@@ -3,6 +3,7 @@ package com.dci.intellij.dbn.data.ui.table.sortable;
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.data.model.sortable.SortableDataModel;
 import com.dci.intellij.dbn.data.sorting.SortDirection;
+import com.dci.intellij.dbn.data.sorting.SortingInstruction;
 
 import javax.swing.JLabel;
 import javax.swing.JTable;
@@ -30,8 +31,10 @@ public class SortableTableHeaderRenderer extends DefaultTableCellRenderer {
         setIcon(null);
         setHorizontalTextPosition(JLabel.LEADING);
         setHorizontalAlignment(JLabel.CENTER);
-        if (column == table.convertColumnIndexToView(model.getSortColumnIndex())) {
-            renderer.setIcon(model.getSortDirection() == SortDirection.ASCENDING ? Icons.ACTION_SORT_ASC : Icons.ACTION_SORT_DESC);
+        String columnName = value.toString();
+        SortingInstruction sortingInstruction = model.getSortingState().getSortingInstruction(columnName);
+        if (sortingInstruction != null) {
+            renderer.setIcon(sortingInstruction.getDirection() == SortDirection.ASCENDING ? Icons.ACTION_SORT_ASC : Icons.ACTION_SORT_DESC);
         }
         return renderer;
     }

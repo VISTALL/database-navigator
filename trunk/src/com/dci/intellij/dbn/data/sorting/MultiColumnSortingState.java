@@ -1,5 +1,7 @@
 package com.dci.intellij.dbn.data.sorting;
 
+import org.jdom.Element;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,7 +9,7 @@ public class MultiColumnSortingState implements SortingState{
     private int maxColumns = 3;     
     private List<SortingInstruction> sortingInstructions = new ArrayList<SortingInstruction>();
 
-    public void applySorting(String columnName, SortDirection direction, boolean isAddition) {
+    public boolean applySorting(String columnName, SortDirection direction, boolean keepExisting) {
         SortingInstruction instruction = getInstruction(columnName);
         boolean isNewColumn = instruction == null;
         if (isNewColumn) {
@@ -24,7 +26,7 @@ public class MultiColumnSortingState implements SortingState{
         }
 
 
-        if (isAddition) {
+        if (keepExisting) {
             if (isNewColumn) {
                 if (sortingInstructions.size()== maxColumns) {
                     sortingInstructions.remove(sortingInstructions.size()-1);
@@ -36,6 +38,7 @@ public class MultiColumnSortingState implements SortingState{
             sortingInstructions.clear();
             sortingInstructions.add(instruction);
         }
+        return true;
     }
 
     private SortingInstruction getInstruction(String columnName) {
@@ -55,6 +58,16 @@ public class MultiColumnSortingState implements SortingState{
         return sortingInstructions;
     }
 
+    @Override
+    public SortingInstruction getSortingInstruction(String columnName) {
+        for (SortingInstruction sortingInstruction :  sortingInstructions) {
+            if (sortingInstruction.getColumnName().equalsIgnoreCase(columnName)) {
+                return sortingInstruction;
+            }
+        }
+        return null;
+    }
+
     public int getMaxColumns() {
         return maxColumns;
     }
@@ -65,7 +78,12 @@ public class MultiColumnSortingState implements SortingState{
             sortingInstructions = new ArrayList<SortingInstruction>(sortingInstructions.subList(0, maxColumns));
         }
     }
-    
+
+    @Override
+    public boolean isValid() {
+        return true;
+    }
+
     public MultiColumnSortingState clone() {
         MultiColumnSortingState clone = new MultiColumnSortingState();
         for (SortingInstruction criterion : sortingInstructions) {
@@ -74,5 +92,27 @@ public class MultiColumnSortingState implements SortingState{
         return clone;
     }
 
+    public void writeState(Element element) {
+        for (SortingInstruction sortingInstruction : getSortingInstructions()) {
+            String columnName = sortingInstruction.getColumnName();
+            SortDirection sortDirection = sortingInstruction.getDirection();
+            if (columnName != null && !sortDirection.isIndefinite()) {
+                Element columnElement = new Element("column");
+                columnElement.setAttribute("name", columnName);
+                columnElement.setAttribute("direction", sortDirection.name());
+                element.addContent(columnElement);
+            }
+        }
+    }
 
+    public void readState(Element element) {
+        if (element != null) {
+            List<Element> columnElements = element.getChildren();
+            for (Element columnElement: columnElements) {
+                String columnName = columnElement.getAttributeValue("name");
+                String sortDirection = columnElement.getAttributeValue("direction");
+                addSortingInstruction(columnName, SortDirection.valueOf(sortDirection));
+            }
+        }
+    }
 }

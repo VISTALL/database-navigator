@@ -29,7 +29,8 @@ public class SortableTableHeaderMouseListener extends MouseAdapter {
                     table.accommodateColumnSize(columnIndex, table.getColumnWidthSpan());
                 }
             } else {
-                table.sort(columnIndex, SortDirection.INDEFINITE);
+                boolean keepExisting = event.isControlDown();
+                table.sort(columnIndex, SortDirection.INDEFINITE, keepExisting);
             }
         }
         table.requestFocus();

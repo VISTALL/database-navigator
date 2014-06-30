@@ -1,16 +1,17 @@
 package com.dci.intellij.dbn.data.model.sortable;
 
 import com.dci.intellij.dbn.data.model.DataModelState;
-import com.dci.intellij.dbn.data.sorting.SingleColumnSortingState;
+import com.dci.intellij.dbn.data.sorting.MultiColumnSortingState;
+import com.dci.intellij.dbn.data.sorting.SortingState;
 
 public class SortableDataModelState extends DataModelState {
-    private SingleColumnSortingState sortingState = new SingleColumnSortingState();
+    protected SortingState sortingState = new MultiColumnSortingState();
 
-    public SingleColumnSortingState getSortingState() {
+    public SortingState getSortingState() {
         return sortingState;
     }
 
-    public void setSortingState(SingleColumnSortingState sortingState) {
+    public void setSortingState(SortingState sortingState) {
         this.sortingState = sortingState;
     }
 

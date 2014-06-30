@@ -2,6 +2,7 @@ package com.dci.intellij.dbn.editor.data.ui.table.renderer;
 
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.data.sorting.SortDirection;
+import com.dci.intellij.dbn.data.sorting.SortingInstruction;
 import com.dci.intellij.dbn.editor.data.model.DatasetEditorModel;
 import com.dci.intellij.dbn.object.DBColumn;
 import com.dci.intellij.dbn.object.DBDataset;
@@ -29,8 +30,11 @@ public class DatasetEditorHeaderRenderer implements TableCellRenderer {
         DatasetEditorModel model = (DatasetEditorModel) table.getModel();
         sortingLabel.setText(null);
         int width = 0;
-        if (columnIndex == table.convertColumnIndexToView(model.getSortColumnIndex())) {
-            Icon icon = model.getSortDirection() == SortDirection.ASCENDING ?
+        String columnName = value.toString();
+        SortingInstruction sortingInstruction = model.getSortingState().getSortingInstruction(columnName);
+
+        if (sortingInstruction != null) {
+            Icon icon = sortingInstruction.getDirection() == SortDirection.ASCENDING ?
                     Icons.ACTION_SORT_ASC :
                     Icons.ACTION_SORT_DESC;
             sortingLabel.setIcon(icon);
@@ -38,7 +42,7 @@ public class DatasetEditorHeaderRenderer implements TableCellRenderer {
         } else {
             sortingLabel.setIcon(null);
         }
-        String columnName = value.toString();
+
         nameLabel.setText(columnName);
         DBDataset dataset = model.getDataset();
         if (dataset != null) {

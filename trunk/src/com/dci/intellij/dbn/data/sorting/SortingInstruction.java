@@ -1,6 +1,6 @@
 package com.dci.intellij.dbn.data.sorting;
 
-public final class SortingInstruction {
+public class SortingInstruction {
     private String columnName;
     private SortDirection direction;
 

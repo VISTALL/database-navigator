@@ -1,6 +1,9 @@
 package com.dci.intellij.dbn.data.model.sortable;
 
 import com.dci.intellij.dbn.data.model.basic.BasicDataModelRow;
+import com.dci.intellij.dbn.data.sorting.MultiColumnSortingState;
+import com.dci.intellij.dbn.data.sorting.SortingInstruction;
+import com.dci.intellij.dbn.data.sorting.SortingState;
 import org.jetbrains.annotations.NotNull;
 
 public class SortableDataModelRow<T extends SortableDataModelCell> extends BasicDataModelRow<T> implements Comparable {
@@ -20,7 +23,33 @@ public class SortableDataModelRow<T extends SortableDataModelCell> extends Basic
     }
 
     public int compareTo(@NotNull Object o) {
+        SortableDataModelRow row = (SortableDataModelRow) o;
         SortableDataModel model = getModel();
+        SortingState sortingState = model.getSortingState();
+
+        if (sortingState instanceof MultiColumnSortingState) {
+            MultiColumnSortingState multiColumnSortingState = (MultiColumnSortingState) sortingState;
+            for (SortingInstruction sortingInstruction : multiColumnSortingState.getSortingInstructions()) {
+                int columnIndex = model.getColumnIndex(sortingInstruction.getColumnName());
+
+                SortableDataModelCell local = getCellAtIndex(columnIndex);
+                SortableDataModelCell remote = row.getCellAtIndex(columnIndex);
+
+                int compareIndex = sortingInstruction.getDirection().getCompareAdj();
+
+                int result =
+                        remote == null && local == null ? 0 :
+                        local == null ? -compareIndex :
+                        remote == null ? columnIndex :
+                                compareIndex * local.compareTo(remote);
+
+                if (result != 0) return result;
+            }
+        }
+        return 0;
+
+
+/*
         int index = model.getSortColumnIndex();
 
         if (index == -1) return 0;
@@ -36,6 +65,7 @@ public class SortableDataModelRow<T extends SortableDataModelCell> extends Basic
         if (remote == null) return compareIndex;
 
         return compareIndex * local.compareTo(remote);
+*/
     }
 
 }

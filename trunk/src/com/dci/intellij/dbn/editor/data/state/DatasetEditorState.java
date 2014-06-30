@@ -3,7 +3,6 @@ package com.dci.intellij.dbn.editor.data.state;
 import com.dci.intellij.dbn.common.options.setting.SettingsUtil;
 import com.dci.intellij.dbn.data.model.sortable.SortableDataModelState;
 import com.dci.intellij.dbn.editor.data.state.column.DatasetColumnSetup;
-import com.dci.intellij.dbn.editor.data.state.sorting.DatasetSortingState;
 import com.dci.intellij.dbn.object.DBDataset;
 import com.dci.intellij.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.fileEditor.FileEditorState;
@@ -15,13 +14,11 @@ import org.jetbrains.annotations.NotNull;
 public class DatasetEditorState extends SortableDataModelState implements FileEditorState {
     public static final DatasetEditorState VOID = new DatasetEditorState();
     private DatasetColumnSetup columnSetup = new DatasetColumnSetup();
-    private DatasetSortingState dataSortingState;
     private DBObjectRef<DBDataset> datasetRef;
 
     public DatasetEditorState(DBDataset dataset) {
         datasetRef = DBObjectRef.from(dataset);
         columnSetup.init(dataset);
-        dataSortingState = new DatasetSortingState(dataset);
     }
 
     public DatasetEditorState() {
@@ -35,23 +32,20 @@ public class DatasetEditorState extends SortableDataModelState implements FileEd
         return columnSetup;
     }
 
-    public DatasetSortingState getDataSortingState() {
-        return dataSortingState;
-    }
-
     public void readState(@NotNull Element element) {
         setRowCount(SettingsUtil.getIntegerAttribute(element, "row-count", 100));
         setReadonly(SettingsUtil.getBooleanAttribute(element, "readonly", false));
 
-
+/*
         getSortingState().setColumnName(element.getAttributeValue("sort-column-name"));
         getSortingState().setDirectionAsString(element.getAttributeValue("sort-direction"));
+*/
 
         Element columnsElement = element.getChild("columns");
         columnSetup.readState(columnsElement);
 
         Element sortingElement = element.getChild("sorting");
-        dataSortingState.readState(sortingElement);
+        sortingState.readState(sortingElement);
 
 
         Element contentTypesElement = element.getChild("content-types");
@@ -68,8 +62,10 @@ public class DatasetEditorState extends SortableDataModelState implements FileEd
     public void writeState(Element targetElement) {
         targetElement.setAttribute("row-count", Integer.toString(getRowCount()));
         targetElement.setAttribute("readonly", Boolean.toString(isReadonly()));
+/*
         targetElement.setAttribute("sort-column-name", getSortingState().getColumnName());
         targetElement.setAttribute("sort-direction", getSortingState().getDirectionAsString());
+*/
 
         Element columnsElement = new Element("columns");
         targetElement.addContent(columnsElement);
@@ -77,7 +73,7 @@ public class DatasetEditorState extends SortableDataModelState implements FileEd
 
         Element sortingElement = new Element("sorting");
         targetElement.addContent(sortingElement);
-        dataSortingState.writeState(sortingElement);
+        sortingState.writeState(sortingElement);
 
         Element contentTypesElement = new Element("content-types");
         targetElement.addContent(contentTypesElement);

@@ -38,12 +38,12 @@ public abstract class SortableTable extends BasicTable {
         return (SortableDataModel) super.getModel();
     }
 
-    public boolean sort(int columnIndex, SortDirection sortDirection) {
+    public boolean sort(int columnIndex, SortDirection sortDirection, boolean keepExisting) {
         SortableDataModel model = getModel();
         int modelColumnIndex = convertColumnIndexToModel(columnIndex);
         ColumnInfo columnInfo = getModel().getColumnInfo(modelColumnIndex);
         if (columnInfo.isSortable()) {
-            boolean sorted = model.sort(modelColumnIndex, sortDirection);
+            boolean sorted = model.sort(modelColumnIndex, sortDirection, keepExisting);
             if (sorted) getTableHeader().repaint();
             return sorted;
         }

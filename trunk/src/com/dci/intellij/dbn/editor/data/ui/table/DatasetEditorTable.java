@@ -324,11 +324,11 @@ public class DatasetEditorTable extends ResultSetTable {
     }
 
     @Override
-    public boolean sort(int columnIndex, SortDirection sortDirection) {
+    public boolean sort(int columnIndex, SortDirection sortDirection, boolean keepExisting) {
         int modelColumnIndex = convertColumnIndexToModel(columnIndex);
         ColumnInfo columnInfo = getModel().getColumnInfo(modelColumnIndex);
         if (columnInfo.isSortable()) {
-            if (!isLoading() && super.sort(columnIndex, sortDirection)) {
+            if (!isLoading() && super.sort(columnIndex, sortDirection, keepExisting)) {
                 if (!getModel().isResultSetExhausted()) {
                     datasetEditor.loadData(true, true, true, false);
                 }

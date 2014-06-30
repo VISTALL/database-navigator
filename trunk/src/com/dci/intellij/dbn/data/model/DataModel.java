@@ -38,4 +38,6 @@ public interface DataModel<T extends DataModelRow> extends TableModel, ListModel
     void removeDataModelListener(DataModelListener listener);
 
     boolean hasSearchResult();
+
+    int getColumnIndex(String columnName);
 }
