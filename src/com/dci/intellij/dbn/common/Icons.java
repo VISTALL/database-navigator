@@ -129,6 +129,9 @@ public class Icons {
     public static final Icon DATA_EDITOR_FIRST_RECORD = load("/img/v1/FirstRecord.png");
     public static final Icon DATA_EDITOR_LAST_RECORD = load("/img/v1/LastRecord.png");
     public static final Icon DATA_EDITOR_LOCK_EDITING = load("/img/v1/LockEditing.png");
+    public static final Icon DATA_EDITOR_SORT_ASC = load("/img/v1/action/DataEditorSortAscending.png");
+    public static final Icon DATA_EDITOR_SORT_DESC = load("/img/v1/action/DataEditorSortDescending.png");
+
 
     public static final Icon DATA_EDITOR_RELOAD_DATA = load("/img/v1/action/Refresh.png");
     public static final Icon DATA_EDITOR_BROWSE =    load("/img/v1/Browse.png");

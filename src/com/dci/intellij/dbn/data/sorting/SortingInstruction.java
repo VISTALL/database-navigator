@@ -1,12 +1,21 @@
 package com.dci.intellij.dbn.data.sorting;
 
 public class SortingInstruction {
+    private int index;
     private String columnName;
     private SortDirection direction;
 
     public SortingInstruction(String columnName, SortDirection direction) {
         this.columnName = columnName;
         this.direction = direction;
+    }
+
+    public int getIndex() {
+        return index;
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
     }
 
     public String getColumnName() {

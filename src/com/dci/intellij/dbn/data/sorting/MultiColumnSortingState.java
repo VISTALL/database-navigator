@@ -1,5 +1,6 @@
 package com.dci.intellij.dbn.data.sorting;
 
+import com.dci.intellij.dbn.common.options.setting.SettingsUtil;
 import org.jdom.Element;
 
 import java.util.ArrayList;
@@ -38,7 +39,17 @@ public class MultiColumnSortingState implements SortingState{
             sortingInstructions.clear();
             sortingInstructions.add(instruction);
         }
+
+        updateIndexes();
         return true;
+    }
+
+    private void updateIndexes() {
+        int index = 1;
+        for (SortingInstruction sortingInstruction : sortingInstructions) {
+            sortingInstruction.setIndex(index);
+            index++;
+        }
     }
 
     private SortingInstruction getInstruction(String columnName) {
@@ -50,8 +61,10 @@ public class MultiColumnSortingState implements SortingState{
         return null;
     }
 
-    public void addSortingInstruction(String columnName, SortDirection direction) {
-        sortingInstructions.add(new SortingInstruction(columnName, direction));
+    public SortingInstruction addSortingInstruction(String columnName, SortDirection direction) {
+        SortingInstruction sortingInstruction = new SortingInstruction(columnName, direction);
+        sortingInstructions.add(sortingInstruction);
+        return sortingInstruction;
     }
 
     public List<SortingInstruction> getSortingInstructions() {
@@ -99,6 +112,7 @@ public class MultiColumnSortingState implements SortingState{
             if (columnName != null && !sortDirection.isIndefinite()) {
                 Element columnElement = new Element("column");
                 columnElement.setAttribute("name", columnName);
+                columnElement.setAttribute("index", Integer.toString(sortingInstruction.getIndex()));
                 columnElement.setAttribute("direction", sortDirection.name());
                 element.addContent(columnElement);
             }
@@ -111,8 +125,14 @@ public class MultiColumnSortingState implements SortingState{
             for (Element columnElement: columnElements) {
                 String columnName = columnElement.getAttributeValue("name");
                 String sortDirection = columnElement.getAttributeValue("direction");
-                addSortingInstruction(columnName, SortDirection.valueOf(sortDirection));
+                SortingInstruction sortingInstruction = addSortingInstruction(columnName, SortDirection.valueOf(sortDirection));
+                sortingInstruction.setIndex(SettingsUtil.getIntegerAttribute(element, "index", 1));
             }
+            updateIndexes();
         }
+    }
+
+    public int size() {
+        return sortingInstructions.size();
     }
 }

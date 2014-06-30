@@ -45,6 +45,7 @@ public class DatasetEditorSortingForm extends DBNFormImpl{
             sortingInstructionForms.add(sortingInstructionForm);
             sortingInstructionsPanel.add(sortingInstructionForm.getComponent());
         }
+        updateIndexes();
 
         actionsPanel.add(new ColumnSelector(), BorderLayout.CENTER);
         createHeaderForm(dataset);

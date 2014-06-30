@@ -1,5 +1,6 @@
 package com.dci.intellij.dbn.editor.data.ui.table;
 
+import com.dci.intellij.dbn.common.content.DatabaseLoadMonitor;
 import com.dci.intellij.dbn.common.thread.ConditionalLaterInvocator;
 import com.dci.intellij.dbn.common.thread.ModalTask;
 import com.dci.intellij.dbn.common.thread.SimpleLaterInvocator;
@@ -365,8 +366,18 @@ public class DatasetEditorTable extends ResultSetTable {
             setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
             DatasetEditorModelCell cell = (DatasetEditorModelCell) getCellAtMouseLocation();
             DBColumn column = cell.getColumnInfo().getColumn();
-            DBColumn foreignKeyColumn = column.getForeignKeyColumn();
-            setToolTipText("<html>Show referenced <b>" + foreignKeyColumn.getDataset().getQualifiedName() + "</b> record<html>");
+            if (column != null) {
+                boolean ensureDataLoaded = DatabaseLoadMonitor.isEnsureDataLoaded();
+                DatabaseLoadMonitor.setEnsureDataLoaded(false);
+                try {
+                    DBColumn foreignKeyColumn = column.getForeignKeyColumn();
+                    if (foreignKeyColumn != null) {
+                        setToolTipText("<html>Show referenced <b>" + foreignKeyColumn.getDataset().getQualifiedName() + "</b> record<html>");
+                    }
+                } finally {
+                    DatabaseLoadMonitor.setEnsureDataLoaded(ensureDataLoaded);
+                }
+            }
         } else {
             super.processMouseMotionEvent(e);
             setCursor(Cursor.getDefaultCursor());
