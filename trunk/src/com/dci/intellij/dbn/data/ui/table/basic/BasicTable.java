@@ -70,8 +70,9 @@ public class BasicTable extends DBNTable implements EditorColorsListener, Dispos
                     DataGridTextAttributes attributes = cellRenderer.getAttributes();
                     Color background = readonly ?
                             attributes.getLoadingData(false).getBgColor() :
-                            UIUtil.getTableBackground();
+                            attributes.getPlainData(false, false).getBgColor();
                     scrollPane.getViewport().setBackground(background);
+                    scrollPane.getViewport().updateUI();
                 }
             }.start();
         }

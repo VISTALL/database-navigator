@@ -2,7 +2,7 @@
 <list>
     <option name="DBNavigator.DefaultTextAttributes.DataEditor.PlainData">
         <value>
-
+            <option name="BACKGROUND" value="2B2B2B"/>
         </value>
     </option>
     <option name="DBNavigator.DefaultTextAttributes.DataEditor.ModifiedData">
@@ -14,7 +14,7 @@
     <option name="DBNavigator.DefaultTextAttributes.DataEditor.DeletedData">
         <value>
             <option name="FOREGROUND" value="6A6A6A"/>
-            <!--<option name="BACKGROUND" value="393939"/>-->
+            <option name="BACKGROUND" value="3D4042"/>
         </value>
     </option>
 
@@ -28,14 +28,14 @@
     <option name="DBNavigator.DefaultTextAttributes.DataEditor.ReadonlyData">
         <value>
             <option name="FOREGROUND" value="858585"/>
-            <!--<option name="BACKGROUND" value="393939"/>-->
+            <option name="BACKGROUND" value="3D4042"/>
         </value>
     </option>
 
     <option name="DBNavigator.DefaultTextAttributes.DataEditor.LoadingData">
         <value>
             <option name="FOREGROUND" value="858585"/>
-            <!--<option name="BACKGROUND" value="393939"/>-->
+            <option name="BACKGROUND" value="3D4042"/>
         </value>
     </option>
 
