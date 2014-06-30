@@ -26,9 +26,11 @@ import java.awt.Component;
 import java.awt.Cursor;
 
 public class DatasetEditorTableGutterRenderer extends JPanel implements ListCellRenderer {
+    public static final Color PANEL_BACKGROUND = UIUtil.getPanelBackground();
     private JLabel textLabel;
     private JLabel imageLabel;
     private JPanel textPanel;
+    private static final Cursor HAND_CURSOR = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR);
 
     private Border border = new CompoundBorder(new CustomLineBorder(UIUtil.getPanelBackground(), 0, 0, 1, 1), new EmptyBorder(0, 3, 0, 3));
 
@@ -46,6 +48,7 @@ public class DatasetEditorTableGutterRenderer extends JPanel implements ListCell
         add(textPanel, BorderLayout.CENTER);
         add(imageLabel, BorderLayout.EAST);
         textLabel.setHorizontalTextPosition(SwingConstants.RIGHT);
+        textLabel.setCursor(HAND_CURSOR);
     }
 
     public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
@@ -61,18 +64,19 @@ public class DatasetEditorTableGutterRenderer extends JPanel implements ListCell
                                             row.isModified() ? Icons.DATA_EDITOR_ROW_MODIFIED :
                                                     table.getModel().isModified() ? Icons.DATA_EDITOR_ROW_DEFAULT : null;
 
-            textLabel.setText("" + row.getIndex());
-            imageLabel.setIcon(icon);
+            textLabel.setText(Integer.toString(row.getIndex()));
+            if (imageLabel.getIcon() != icon) {
+                imageLabel.setIcon(icon);
+            }
         }
         //lText.setFont(isSelected ? BOLD_FONT : REGULAR_FONT);
-        textLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
         boolean isCaretRow = table.getCellSelectionEnabled() && table.getSelectedRow() == index && table.getSelectedRowCount() == 1;
         Color background = isSelected ?
                 BasicTableGutterCellRenderer.Colors.SELECTION_BACKGROUND_COLOR :
                 isCaretRow ?
                         BasicTableGutterCellRenderer.Colors.CARET_ROW_COLOR :
-                        UIUtil.getPanelBackground();
+                        PANEL_BACKGROUND;
         setBackground(background);
         textPanel.setBackground(background);
         textLabel.setForeground(isSelected ? BasicTableGutterCellRenderer.Colors.SELECTION_FOREGROUND_COLOR : BasicTableGutterCellRenderer.Colors.LINE_NUMBER_COLOR);

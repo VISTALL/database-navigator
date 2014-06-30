@@ -10,6 +10,7 @@ public class BasicDataModelRow<T extends DataModelCell> implements DataModelRow<
     protected BasicDataModel model;
     protected List<T> cells;
     private int index;
+    private boolean isDisposed;
 
     public BasicDataModelRow(BasicDataModel model) {
         cells = new ArrayList<T>(model.getColumnCount());
@@ -37,11 +38,14 @@ public class BasicDataModelRow<T extends DataModelCell> implements DataModelRow<
     }
 
     public void dispose() {
-        for (DataModelCell cell : cells) {
-            cell.dispose();
+        if (!isDisposed) {
+            isDisposed = true;
+            for (DataModelCell cell : cells) {
+                cell.dispose();
+            }
+            cells.clear();
+            cells = null;
+            model = null;
         }
-        cells.clear();
-        cells = null;
-        model = null;
     }
 }

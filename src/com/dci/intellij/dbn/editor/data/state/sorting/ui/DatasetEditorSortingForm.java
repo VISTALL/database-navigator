@@ -31,10 +31,12 @@ public class DatasetEditorSortingForm extends DBNFormImpl{
 
     private DBObjectRef<DBDataset> datasetRef;
     private List<DatasetSortingColumnForm> sortingInstructionForms = new ArrayList<DatasetSortingColumnForm>();
+    private MultiColumnSortingState sortingState;
+
 
     public DatasetEditorSortingForm(DatasetEditor datasetEditor) {
         DBDataset dataset = datasetEditor.getDataset();
-        MultiColumnSortingState sortingState = (MultiColumnSortingState) datasetEditor.getState().getSortingState();
+        sortingState = (MultiColumnSortingState) datasetEditor.getState().getSortingState();
         this.datasetRef = DBObjectRef.from(dataset);
 
         BoxLayout sortingInstructionsPanelLayout = new BoxLayout(sortingInstructionsPanel, BoxLayout.Y_AXIS);
@@ -128,7 +130,10 @@ public class DatasetEditorSortingForm extends DBNFormImpl{
     }
 
     public void applyChanges() {
-
+        sortingState.clear();
+        for (DatasetSortingColumnForm sortingColumnForm : sortingInstructionForms) {
+            sortingState.addSortingInstruction(sortingColumnForm.getSortingInstruction());
+        }
     }
 
     @Override

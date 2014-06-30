@@ -90,7 +90,7 @@ public class BasicTableGutter extends JList implements Disposable {
     private ListSelectionListener tableSelectionListener = new ListSelectionListener() {
         @Override
         public void valueChanged(ListSelectionEvent e) {
-            repaint();
+            updateUI();
         }
     };
 

@@ -66,23 +66,16 @@ public class DatasetEditorModel extends ResultSetDataModel<DatasetEditorModelRow
 
         int rowCount = Math.max(fetchRowCount, fetchBlockSize);
 
-
+        ConnectionUtil.closeResultSet(resultSet);
         Connection connection = connectionHandler.getStandaloneConnection();
         ResultSet newResultSet = loadResultSet(connection, useCurrentFilter);
         if (newResultSet != null) {
-            ResultSet oldResultSet = resultSet;
+            resultSet = newResultSet;
+            resultSetExhausted = false;
 
-            try {
-                resultSet = newResultSet;
-                resultSetExhausted = false;
-
-                if (keepChanges) snapshotChanges(); else clearChanges();
-                fetchNextRecords(rowCount, true);
-                restoreChanges();
-            } finally {
-                ConnectionUtil.closeResultSet(oldResultSet);
-            }
-
+            if (keepChanges) snapshotChanges(); else clearChanges();
+            fetchNextRecords(rowCount, true);
+            restoreChanges();
 
             new ConditionalLaterInvocator() {
                 public void run() {
