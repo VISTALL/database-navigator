@@ -1,9 +1,9 @@
 package com.dci.intellij.dbn.editor.data.ui.table.renderer;
 
 import com.dci.intellij.dbn.common.Icons;
-import com.dci.intellij.dbn.data.sorting.MultiColumnSortingState;
 import com.dci.intellij.dbn.data.sorting.SortDirection;
 import com.dci.intellij.dbn.data.sorting.SortingInstruction;
+import com.dci.intellij.dbn.data.sorting.SortingState;
 import com.dci.intellij.dbn.editor.data.model.DatasetEditorModel;
 import com.dci.intellij.dbn.object.DBColumn;
 import com.dci.intellij.dbn.object.DBDataset;
@@ -32,7 +32,7 @@ public class DatasetEditorTableHeaderRenderer implements TableCellRenderer {
         sortingLabel.setText(null);
         int width = 0;
         String columnName = value.toString();
-        MultiColumnSortingState sortingState = (MultiColumnSortingState) model.getSortingState();
+        SortingState sortingState = (SortingState) model.getSortingState();
         SortingInstruction sortingInstruction = sortingState.getSortingInstruction(columnName);
 
         if (sortingInstruction != null) {

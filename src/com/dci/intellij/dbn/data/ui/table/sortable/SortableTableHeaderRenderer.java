@@ -2,9 +2,9 @@ package com.dci.intellij.dbn.data.ui.table.sortable;
 
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.data.model.sortable.SortableDataModel;
-import com.dci.intellij.dbn.data.sorting.MultiColumnSortingState;
 import com.dci.intellij.dbn.data.sorting.SortDirection;
 import com.dci.intellij.dbn.data.sorting.SortingInstruction;
+import com.dci.intellij.dbn.data.sorting.SortingState;
 
 import javax.swing.Icon;
 import javax.swing.JLabel;
@@ -30,7 +30,7 @@ public class SortableTableHeaderRenderer implements TableCellRenderer {
         sortingLabel.setText(null);
         int width = 0;
         String columnName = value.toString();
-        MultiColumnSortingState sortingState = (MultiColumnSortingState) model.getSortingState();
+        SortingState sortingState = (SortingState) model.getSortingState();
         SortingInstruction sortingInstruction = sortingState.getSortingInstruction(columnName);
 
         if (sortingInstruction != null) {
