@@ -35,6 +35,7 @@ import java.util.List;
 
 public class DatasetEditorModel extends ResultSetDataModel<DatasetEditorModelRow> implements ListSelectionListener {
     private boolean isInserting;
+    private boolean isModified;
     private DatasetEditor datasetEditor;
     private DataEditorSettings settings;
     private DBObjectRef<DBDataset> datasetRef;
@@ -141,6 +142,7 @@ public class DatasetEditorModel extends ResultSetDataModel<DatasetEditorModelRow
                     row.updateStatusFromRow(changedRow);
                 }
             }
+            isModified = true;
         }
     }
 
@@ -202,12 +204,12 @@ public class DatasetEditorModel extends ResultSetDataModel<DatasetEditorModelRow
         return isInserting;
     }
 
+    public void setModified(boolean isModified) {
+        this.isModified = isModified;
+    }
+
     public boolean isModified() {
-        if (isInserting) return true;
-        for (DatasetEditorModelRow row : getRows()) {
-            if (row.isModified() || row.isNew() || row.isDeleted()) return true;
-        }
-        return changedRows.size() > 0;
+        return isInserting || isModified;
     }
 
     public DatasetFilterInput resolveForeignKeyRecord(DatasetEditorModelCell cell) {
@@ -253,6 +255,7 @@ public class DatasetEditorModel extends ResultSetDataModel<DatasetEditorModelRow
                         notifyRowUpdated(index);
                     }
                 }
+                isModified = true;
             }
             DBDataset dataset = getDataset();
             if (dataset != null) {
@@ -324,6 +327,7 @@ public class DatasetEditorModel extends ResultSetDataModel<DatasetEditorModelRow
                 resultSet.moveToCurrentRow();
                 row.setInsert(false);
                 row.setNew(true);
+                isModified = true;
                 isInserting = false;
                 if (rebuild) load(true, true);
             } catch (SQLException e) {

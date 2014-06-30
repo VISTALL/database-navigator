@@ -8,7 +8,7 @@ import java.sql.SQLException;
 
 public class ResultSetDataModelCell extends SortableDataModelCell {
     public ResultSetDataModelCell(ResultSetDataModelRow row, ResultSet resultSet, ResultSetColumnInfo columnInfo) throws SQLException {
-        super(row, null, columnInfo);
+        super(row, null, columnInfo.getColumnIndex());
         DBDataType dataType = columnInfo.getDataType();
         Object userValue = dataType.getValueFromResultSet(resultSet, columnInfo.getResultSetColumnIndex());
         setUserValue(userValue);

@@ -1,14 +1,13 @@
 package com.dci.intellij.dbn.data.model.sortable;
 
-import com.dci.intellij.dbn.data.model.ColumnInfo;
 import com.dci.intellij.dbn.data.model.DataModelCell;
 import com.dci.intellij.dbn.data.model.basic.BasicDataModelCell;
 import org.jetbrains.annotations.NotNull;
 
 public class SortableDataModelCell extends BasicDataModelCell implements Comparable {
 
-    public SortableDataModelCell(SortableDataModelRow row, Object userValue, ColumnInfo columnInfo) {
-        super(userValue, row, columnInfo);
+    public SortableDataModelCell(SortableDataModelRow row, Object userValue, int index) {
+        super(userValue, row, index);
     }
 
     public int compareTo(@NotNull Object o) {

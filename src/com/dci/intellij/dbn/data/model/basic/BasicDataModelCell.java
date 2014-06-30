@@ -13,17 +13,15 @@ import com.intellij.openapi.project.Project;
 
 public class BasicDataModelCell implements DataModelCell {
     protected BasicDataModelRow row;
-    protected ColumnInfo columnInfo;
     protected Object userValue;
     private String formattedUserValue;
     protected int index;
     private boolean isDisposed;
 
-    public BasicDataModelCell(Object userValue, BasicDataModelRow row, ColumnInfo columnInfo) {
+    public BasicDataModelCell(Object userValue, BasicDataModelRow row, int index) {
         this.userValue = userValue;
         this.row = row;
-        index = columnInfo.getColumnIndex();
-        this.columnInfo = columnInfo;
+        this.index = index;
     }
 
     public Project getProject() {
@@ -74,11 +72,11 @@ public class BasicDataModelCell implements DataModelCell {
     }
 
     public String getName() {
-        return columnInfo.getName();
+        return getColumnInfo().getName();
     }
 
     public ColumnInfo getColumnInfo() {
-        return columnInfo;
+        return getRow().getModel().getColumnInfo(index);
     }
 
     public int getIndex() {
@@ -116,7 +114,6 @@ public class BasicDataModelCell implements DataModelCell {
         if (!isDisposed) {
             isDisposed = true;
             row = null;
-            columnInfo = null;
             userValue = null;
             formattedUserValue = null;
         }

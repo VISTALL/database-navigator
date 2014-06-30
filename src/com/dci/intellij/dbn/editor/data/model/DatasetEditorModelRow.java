@@ -190,6 +190,7 @@ public class DatasetEditorModelRow extends ResultSetDataModelRow<DatasetEditorMo
 
     public void setModified(boolean modified) {
         this.isModified = modified;
+        if (modified) getModel().setModified(true);
     }
 
     public boolean isModified() {
