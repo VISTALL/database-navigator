@@ -70,13 +70,19 @@ public class DatasetEditorModel extends ResultSetDataModel<DatasetEditorModelRow
         Connection connection = connectionHandler.getStandaloneConnection();
         ResultSet newResultSet = loadResultSet(connection, useCurrentFilter);
         if (newResultSet != null) {
-            ConnectionUtil.closeResultSet(resultSet);
-            resultSet = newResultSet;
-            resultSetExhausted = false;
+            ResultSet oldResultSet = resultSet;
 
-            if (keepChanges) snapshotChanges(); else clearChanges();
-            fetchNextRecords(rowCount, true);
-            restoreChanges();
+            try {
+                resultSet = newResultSet;
+                resultSetExhausted = false;
+
+                if (keepChanges) snapshotChanges(); else clearChanges();
+                fetchNextRecords(rowCount, true);
+                restoreChanges();
+            } finally {
+                ConnectionUtil.closeResultSet(oldResultSet);
+            }
+
 
             new ConditionalLaterInvocator() {
                 public void run() {
@@ -113,7 +119,9 @@ public class DatasetEditorModel extends ResultSetDataModel<DatasetEditorModelRow
             }
 
             String selectStatement = filter.createSelectStatement(dataset, getState().getSortingState());
-            Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+            Statement statement = isReadonly() ?
+                    connection.createStatement() :
+                    connection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
 
             int timeout = settings.getGeneralSettings().getFetchTimeout().value();
             if (timeout != -1) {
