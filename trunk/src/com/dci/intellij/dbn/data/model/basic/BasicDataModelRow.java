@@ -37,6 +37,10 @@ public class BasicDataModelRow<T extends DataModelCell> implements DataModelRow<
         this.index = index;
     }
 
+    public int indexOf(T cell) {
+        return cells.indexOf(cell);
+    }
+
     public void dispose() {
         if (!isDisposed) {
             isDisposed = true;
