@@ -50,7 +50,7 @@ public class BasicTableGutterCellRenderer extends JPanel implements ListCellRend
         BasicTableGutter tableGutter = (BasicTableGutter) list;
         BasicDataModel model = tableGutter.getModel();
         DataModelRow row = model.getRowAtIndex(index);
-        textLabel.setText(row == null ? "" : "" + row.getIndex());
+        textLabel.setText(row == null ? "" : Integer.toString(row.getIndex() + 1));
         DBNTable table = tableGutter.getTable();
         boolean isCaretRow = table.getCellSelectionEnabled() && table.getSelectedRow() == index && table.getSelectedRowCount() == 1;
 

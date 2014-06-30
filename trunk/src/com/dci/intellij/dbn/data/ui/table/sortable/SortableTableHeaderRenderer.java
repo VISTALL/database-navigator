@@ -2,40 +2,58 @@ package com.dci.intellij.dbn.data.ui.table.sortable;
 
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.data.model.sortable.SortableDataModel;
+import com.dci.intellij.dbn.data.sorting.MultiColumnSortingState;
 import com.dci.intellij.dbn.data.sorting.SortDirection;
 import com.dci.intellij.dbn.data.sorting.SortingInstruction;
 
+import javax.swing.Icon;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JTable;
-import javax.swing.UIManager;
-import javax.swing.border.Border;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.FontMetrics;
 
-public class SortableTableHeaderRenderer extends DefaultTableCellRenderer {
-    private static final Border BORDER = UIManager.getBorder("TableHeader.cellBorder");
-    public static final TableCellRenderer INSTANCE = new SortableTableHeaderRenderer();
+public class SortableTableHeaderRenderer implements TableCellRenderer {
+    private JPanel mainPanel;
+    private JLabel nameLabel;
+    private JLabel sortingLabel;
 
-    private SortableTableHeaderRenderer() {}
-
-    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-        DefaultTableCellRenderer renderer = (DefaultTableCellRenderer) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-        SortableDataModel model = (SortableDataModel) table.getModel();
-        JTableHeader header = table.getTableHeader();
-
-        setBackground(header.getBackground());
-        setFont(header.getFont());
-        setBorder(BORDER);
-        setIcon(null);
-        setHorizontalTextPosition(JLabel.LEADING);
-        setHorizontalAlignment(JLabel.CENTER);
-        String columnName = value.toString();
-        SortingInstruction sortingInstruction = model.getSortingState().getSortingInstruction(columnName);
-        if (sortingInstruction != null) {
-            renderer.setIcon(sortingInstruction.getDirection() == SortDirection.ASCENDING ? Icons.ACTION_SORT_ASC : Icons.ACTION_SORT_DESC);
-        }
-        return renderer;
+    public SortableTableHeaderRenderer() {
+        mainPanel.setOpaque(false);
     }
+
+    @Override
+    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int rowIndex, int columnIndex) {
+        SortableDataModel model = (SortableDataModel) table.getModel();
+        sortingLabel.setText(null);
+        int width = 0;
+        String columnName = value.toString();
+        MultiColumnSortingState sortingState = (MultiColumnSortingState) model.getSortingState();
+        SortingInstruction sortingInstruction = sortingState.getSortingInstruction(columnName);
+
+        if (sortingInstruction != null) {
+            Icon icon = sortingInstruction.getDirection() == SortDirection.ASCENDING ?
+                    Icons.DATA_EDITOR_SORT_ASC :
+                    Icons.DATA_EDITOR_SORT_DESC;
+            sortingLabel.setIcon(icon);
+            width += icon.getIconWidth();
+            if (sortingState.size() > 1) {
+                sortingLabel.setText(Integer.toString(sortingInstruction.getIndex()));
+            }
+        } else {
+            sortingLabel.setIcon(null);
+        }
+
+        nameLabel.setText(columnName);
+
+        FontMetrics fontMetrics = nameLabel.getFontMetrics(nameLabel.getFont());
+        width += fontMetrics.stringWidth(columnName) + 24;
+        mainPanel.setPreferredSize(new Dimension(width, (int) mainPanel.getPreferredSize().getHeight()));
+
+        return mainPanel;
+    }
+
+
 }
