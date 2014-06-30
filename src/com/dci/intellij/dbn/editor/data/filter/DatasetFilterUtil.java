@@ -43,14 +43,16 @@ public class DatasetFilterUtil {
             List<SortingInstruction> sortingInstructions = multiColumnSortingState.getSortingInstructions();
             if (sortingInstructions.size() > 0) {
                 buffer.append(" order by ");
+                boolean instructionAdded = false;
                 for (SortingInstruction sortingInstruction : sortingInstructions) {
                     SortDirection sortDirection = sortingInstruction.getDirection();
                     DBColumn column = dataset.getColumn(sortingInstruction.getColumnName());
                     if (column != null && !sortDirection.isIndefinite()) {
+                        buffer.append(instructionAdded ? ", " : "");
                         buffer.append(column.getName());
                         buffer.append(" ");
                         buffer.append(sortDirection.getSqlToken());
-                        buffer.append(" ");
+                        instructionAdded = true;
                     }
                 }
             }

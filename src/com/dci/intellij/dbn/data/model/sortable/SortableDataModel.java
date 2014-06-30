@@ -3,8 +3,10 @@ package com.dci.intellij.dbn.data.model.sortable;
 import com.dci.intellij.dbn.data.model.DataModelRow;
 import com.dci.intellij.dbn.data.model.DataModelState;
 import com.dci.intellij.dbn.data.model.basic.BasicDataModel;
+import com.dci.intellij.dbn.data.sorting.MultiColumnSortingState;
 import com.dci.intellij.dbn.data.sorting.SingleColumnSortingState;
 import com.dci.intellij.dbn.data.sorting.SortDirection;
+import com.dci.intellij.dbn.data.sorting.SortingState;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
@@ -18,8 +20,8 @@ public class SortableDataModel<T extends SortableDataModelRow> extends BasicData
         super(project);
     }
 
-    public boolean sort(int columnIndex, SortDirection direction) {
-        boolean sort = updateSortingState(columnIndex, direction);
+    public boolean sort(int columnIndex, SortDirection direction, boolean keepExisting) {
+        boolean sort = updateSortingState(columnIndex, direction, keepExisting);
         if (sort) {
             sort();
             notifyRowsUpdated(0, getRows().size());
@@ -38,25 +40,35 @@ public class SortableDataModel<T extends SortableDataModelRow> extends BasicData
         return new SortableDataModelState();
     }
 
-    protected boolean updateSortingState(int columnIndex, SortDirection direction) {
-        SingleColumnSortingState sortingState = getState().getSortingState();
-        String columnName = getColumnName(columnIndex);
-        if (direction == SortDirection.INDEFINITE) {
-            if (columnName.equals(sortingState.getColumnName())) {
-                sortingState.swichDirection();
-            } else {
-                sortingState.setDirection(SortDirection.ASCENDING);
-                sortingState.setColumnName(columnName);
-            }
-            return true;
-        } else {
-            if (!sortingState.isColumnName(columnName) || !sortingState.isDirection(direction)) {
-                sortingState.setColumnName(columnName);
-                sortingState.setDirection(direction);
+    protected boolean updateSortingState(int columnIndex, SortDirection direction, boolean keepExisting) {
+        SortingState sortingState = getSortingState();
+        if (sortingState instanceof SingleColumnSortingState) {
+            SingleColumnSortingState singleColumnSortingState = (SingleColumnSortingState) sortingState;
+            String columnName = getColumnName(columnIndex);
+            if (direction == SortDirection.INDEFINITE) {
+                if (columnName.equals(singleColumnSortingState.getColumnName())) {
+                    singleColumnSortingState.swichDirection();
+                } else {
+                    singleColumnSortingState.setDirection(SortDirection.ASCENDING);
+                    singleColumnSortingState.setColumnName(columnName);
+                }
                 return true;
+            } else {
+                if (!singleColumnSortingState.isColumnName(columnName) || !singleColumnSortingState.isDirection(direction)) {
+                    singleColumnSortingState.setColumnName(columnName);
+                    singleColumnSortingState.setDirection(direction);
+                    return true;
+                }
+                return false;
             }
-            return false;
+        } else {
+            if (sortingState instanceof MultiColumnSortingState) {
+                MultiColumnSortingState multiColumnSortingState = (MultiColumnSortingState) sortingState;
+                String columnName = getColumnName(columnIndex);
+                return multiColumnSortingState.applySorting(columnName, direction, keepExisting);
+            }
         }
+        return false;
     }
 
     protected void sortByIndex() {
@@ -69,7 +81,7 @@ public class SortableDataModel<T extends SortableDataModelRow> extends BasicData
     }
 
     protected void sort(List<T> rows) {
-        if (getState().getSortingState().isValid()) {
+        if (getSortingState().isValid()) {
             Collections.sort(rows);
         }
         updateRowIndexes(rows, 0);
@@ -82,14 +94,22 @@ public class SortableDataModel<T extends SortableDataModelRow> extends BasicData
     };
 
 
+/*
     public SortDirection getSortDirection() {
-        return getState().getSortingState().getDirection();
+        return getSortingState().getDirection();
+    }
+*/
+
+    public SortingState getSortingState() {
+        return getState().getSortingState();
     }
 
+/*
     public int getSortColumnIndex() {
         // fixme - cache sort column index somehow
         SortableDataModelState modelState = getState();
         return isDisposed() || modelState == null ? -1 :
                 getHeader().getColumnIndex(modelState.getSortingState().getColumnName());
     }
+*/
 }

@@ -5,16 +5,16 @@ public enum SortDirection {
     ASCENDING(1, "asc"),
     DESCENDING(-1, "desc");
 
-    private int compareIndex;
+    private int compareAdj;
     private String sqlToken;
 
-    SortDirection(int compareIndex, String sqlToken) {
-        this.compareIndex = compareIndex;
+    SortDirection(int compareAdj, String sqlToken) {
+        this.compareAdj = compareAdj;
         this.sqlToken = sqlToken;
     }
 
-    public int getCompareIndex() {
-        return compareIndex;
+    public int getCompareAdj() {
+        return compareAdj;
     }
 
     public boolean isIndefinite() {

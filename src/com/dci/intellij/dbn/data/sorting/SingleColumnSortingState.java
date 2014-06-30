@@ -1,42 +1,32 @@
 package com.dci.intellij.dbn.data.sorting;
 
-public class SingleColumnSortingState implements SortingState{
-    private SortDirection direction = SortDirection.INDEFINITE;
-    private String columnName = "";
+import com.dci.intellij.dbn.common.util.StringUtil;
+import org.jdom.Element;
 
-    public SortDirection getDirection() {
-        return direction;
-    }
-
-    public void setDirection(SortDirection direction) {
-        this.direction = direction;
+public class SingleColumnSortingState extends SortingInstruction implements SortingState{
+    public SingleColumnSortingState() {
+        super("", SortDirection.INDEFINITE);
     }
 
     public void setDirectionAsString(String direction) {
-        this.direction =
+        SortDirection sortDirection =
             "ASC".equals(direction) ? SortDirection.ASCENDING :
             "DESC".equals(direction) ? SortDirection.DESCENDING :
                     SortDirection.INDEFINITE;
+        setDirection(sortDirection);
     }
 
-
-    public String getColumnName() {
-        return columnName == null ? "" : columnName;
-    }
-
-    public void setColumnName(String columnName) {
-        this.columnName = columnName;
-    }
 
     public boolean isColumnName(String columnName) {
-        return columnName.equals(this.columnName);
+        return columnName.equals(getColumnName());
     }
 
     public boolean isDirection(SortDirection direction) {
-        return this.direction == direction;
+        return direction == getDirection();
     }
 
     public String getDirectionAsString() {
+        SortDirection direction = getDirection();
         return
             direction == SortDirection.ASCENDING ? "ASC" :
             direction == SortDirection.DESCENDING ? "DESC" :
@@ -44,15 +34,34 @@ public class SingleColumnSortingState implements SortingState{
     }
 
     public void swichDirection() {
+        SortDirection direction = getDirection();
         direction =
                 direction == SortDirection.ASCENDING ? SortDirection.DESCENDING :
                 direction == SortDirection.DESCENDING ? SortDirection.ASCENDING : SortDirection.ASCENDING;
+        setDirection(direction);
     }
 
     public boolean isValid() {
         return
-            direction != SortDirection.INDEFINITE &&
-            columnName != null &&
-            columnName.trim().length() > 0;
+            getDirection() != SortDirection.INDEFINITE &&
+            StringUtil.isNotEmpty(getColumnName());
+    }
+
+    @Override
+    public void readState(Element element) {
+
+    }
+
+    @Override
+    public void writeState(Element element) {
+
+    }
+
+    @Override
+    public SortingInstruction getSortingInstruction(String columnName) {
+        if (columnName.equalsIgnoreCase(getColumnName())) {
+            return this;
+        }
+        return null;
     }
 }

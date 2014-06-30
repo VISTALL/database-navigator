@@ -2,6 +2,7 @@ package com.dci.intellij.dbn.editor.data.ui.table.renderer;
 
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.data.sorting.SortDirection;
+import com.dci.intellij.dbn.data.sorting.SortingInstruction;
 import com.dci.intellij.dbn.editor.data.model.DatasetEditorModel;
 
 import javax.swing.JLabel;
@@ -37,12 +38,14 @@ public class DatasetEditorTableHeaderRenderer extends JPanel implements TableCel
         setBackground(header.getBackground());
         setFont(header.getFont());
         setBorder(BORDER);
-        if (column == table.convertColumnIndexToView(model.getSortColumnIndex())) {
-            sortingLabel.setIcon(model.getSortDirection() == SortDirection.ASCENDING ? Icons.ACTION_SORT_ASC : Icons.ACTION_SORT_DESC);
+        String columnName = value.toString();
+        SortingInstruction sortingInstruction = model.getSortingState().getSortingInstruction(columnName);
+        if (sortingInstruction != null) {
+            sortingLabel.setIcon(sortingInstruction.getDirection() == SortDirection.ASCENDING ? Icons.ACTION_SORT_ASC : Icons.ACTION_SORT_DESC);
         } else {
             sortingLabel.setIcon(null);
         }
-        nameLabel.setText(value.toString());
+        nameLabel.setText(columnName);
         return this;
     }
 }
