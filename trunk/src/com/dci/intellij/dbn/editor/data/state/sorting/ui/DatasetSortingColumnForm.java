@@ -67,6 +67,7 @@ public class DatasetSortingColumnForm extends DBNFormImpl {
     }
 
     public void setIndex(int index) {
+        sortingInstruction.setIndex(index);
         indexLabel.setText(Integer.toString(index));
     }
 

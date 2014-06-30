@@ -61,6 +61,14 @@ public class MultiColumnSortingState implements SortingState{
         return null;
     }
 
+    public void clear() {
+        sortingInstructions.clear();
+    }
+
+    public void addSortingInstruction(SortingInstruction sortingInstruction) {
+        sortingInstructions.add(sortingInstruction);
+    }
+
     public SortingInstruction addSortingInstruction(String columnName, SortDirection direction) {
         SortingInstruction sortingInstruction = new SortingInstruction(columnName, direction);
         sortingInstructions.add(sortingInstruction);

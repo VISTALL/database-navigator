@@ -19,6 +19,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.MouseInfo;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
@@ -198,9 +199,17 @@ public class DBNTable extends JTable {
     }
 
     public void selectCell(int rowIndex, int columnIndex) {
-        scrollRectToVisible(getCellRect(rowIndex, columnIndex, true));
-        setRowSelectionInterval(rowIndex, rowIndex);
-        setColumnSelectionInterval(columnIndex, columnIndex);
+        Rectangle cellRect = getCellRect(rowIndex, columnIndex, true);
+        if (!getVisibleRect().contains(cellRect)) {
+            scrollRectToVisible(cellRect);
+        }
+        if (getSelectedRowCount() != 1 || getSelectedRow() != rowIndex) {
+            setRowSelectionInterval(rowIndex, rowIndex);
+        }
+
+        if (getSelectedColumnCount() != 1 || getSelectedColumn() != columnIndex) {
+            setColumnSelectionInterval(columnIndex, columnIndex);
+        }
     }
 
     private class ScrollTask extends TimerTask {
