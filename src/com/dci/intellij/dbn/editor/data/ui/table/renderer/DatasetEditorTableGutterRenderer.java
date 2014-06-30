@@ -64,7 +64,7 @@ public class DatasetEditorTableGutterRenderer extends JPanel implements ListCell
                                             row.isModified() ? Icons.DATA_EDITOR_ROW_MODIFIED :
                                                     table.getModel().isModified() ? Icons.DATA_EDITOR_ROW_DEFAULT : null;
 
-            textLabel.setText(Integer.toString(row.getIndex()));
+            textLabel.setText(Integer.toString(row.getIndex() + 1));
             if (imageLabel.getIcon() != icon) {
                 imageLabel.setIcon(icon);
             }

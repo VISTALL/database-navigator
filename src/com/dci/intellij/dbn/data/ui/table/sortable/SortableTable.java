@@ -22,7 +22,7 @@ public abstract class SortableTable extends BasicTable {
         Project project = dataModel.getProject();
         regionalSettings = RegionalSettings.getInstance(project);
         addMouseListener(new SortableTableMouseListener(this));
-        getTableHeader().setDefaultRenderer(SortableTableHeaderRenderer.INSTANCE);
+        getTableHeader().setDefaultRenderer(new SortableTableHeaderRenderer());
         getTableHeader().addMouseListener(new SortableTableHeaderMouseListener(this));
 
         setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
