@@ -1,6 +1,7 @@
 package com.dci.intellij.dbn.editor.data.ui.table.renderer;
 
 import com.dci.intellij.dbn.common.Icons;
+import com.dci.intellij.dbn.data.sorting.MultiColumnSortingState;
 import com.dci.intellij.dbn.data.sorting.SortDirection;
 import com.dci.intellij.dbn.data.sorting.SortingInstruction;
 import com.dci.intellij.dbn.editor.data.model.DatasetEditorModel;
@@ -31,14 +32,18 @@ public class DatasetEditorHeaderRenderer implements TableCellRenderer {
         sortingLabel.setText(null);
         int width = 0;
         String columnName = value.toString();
-        SortingInstruction sortingInstruction = model.getSortingState().getSortingInstruction(columnName);
+        MultiColumnSortingState sortingState = (MultiColumnSortingState) model.getSortingState();
+        SortingInstruction sortingInstruction = sortingState.getSortingInstruction(columnName);
 
         if (sortingInstruction != null) {
             Icon icon = sortingInstruction.getDirection() == SortDirection.ASCENDING ?
-                    Icons.ACTION_SORT_ASC :
-                    Icons.ACTION_SORT_DESC;
+                    Icons.DATA_EDITOR_SORT_ASC :
+                    Icons.DATA_EDITOR_SORT_DESC;
             sortingLabel.setIcon(icon);
             width += icon.getIconWidth();
+            if (sortingState.size() > 1) {
+                sortingLabel.setText(Integer.toString(sortingInstruction.getIndex()));
+            }
         } else {
             sortingLabel.setIcon(null);
         }
