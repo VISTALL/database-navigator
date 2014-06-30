@@ -3,8 +3,6 @@ package com.dci.intellij.dbn.data.model.sortable;
 import com.dci.intellij.dbn.data.model.DataModelRow;
 import com.dci.intellij.dbn.data.model.DataModelState;
 import com.dci.intellij.dbn.data.model.basic.BasicDataModel;
-import com.dci.intellij.dbn.data.sorting.MultiColumnSortingState;
-import com.dci.intellij.dbn.data.sorting.SingleColumnSortingState;
 import com.dci.intellij.dbn.data.sorting.SortDirection;
 import com.dci.intellij.dbn.data.sorting.SortingState;
 import com.intellij.openapi.project.Project;
@@ -42,33 +40,8 @@ public class SortableDataModel<T extends SortableDataModelRow> extends BasicData
 
     protected boolean updateSortingState(int columnIndex, SortDirection direction, boolean keepExisting) {
         SortingState sortingState = getSortingState();
-        if (sortingState instanceof SingleColumnSortingState) {
-            SingleColumnSortingState singleColumnSortingState = (SingleColumnSortingState) sortingState;
-            String columnName = getColumnName(columnIndex);
-            if (direction == SortDirection.INDEFINITE) {
-                if (columnName.equals(singleColumnSortingState.getColumnName())) {
-                    singleColumnSortingState.swichDirection();
-                } else {
-                    singleColumnSortingState.setDirection(SortDirection.ASCENDING);
-                    singleColumnSortingState.setColumnName(columnName);
-                }
-                return true;
-            } else {
-                if (!singleColumnSortingState.isColumnName(columnName) || !singleColumnSortingState.isDirection(direction)) {
-                    singleColumnSortingState.setColumnName(columnName);
-                    singleColumnSortingState.setDirection(direction);
-                    return true;
-                }
-                return false;
-            }
-        } else {
-            if (sortingState instanceof MultiColumnSortingState) {
-                MultiColumnSortingState multiColumnSortingState = (MultiColumnSortingState) sortingState;
-                String columnName = getColumnName(columnIndex);
-                return multiColumnSortingState.applySorting(columnName, direction, keepExisting);
-            }
-        }
-        return false;
+        String columnName = getColumnName(columnIndex);
+        return sortingState.applySorting(columnName, direction, keepExisting);
     }
 
     protected void sortByIndex() {
