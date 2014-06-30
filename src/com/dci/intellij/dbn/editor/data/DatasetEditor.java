@@ -171,10 +171,6 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
         return model != null && model.isModified();
     }
 
-    public void sort(int tableColumnIndex, int direction) {
-
-    }
-
     public boolean isValid() {
         return true;
     }
