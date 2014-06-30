@@ -38,6 +38,7 @@ public class DatasetEditorSortingDialog extends DBNDialog {
     @Override
     protected void doOKAction() {
         stateForm.applyChanges();
+        datasetEditor.getEditorTable().sort();
         super.doOKAction();
     }
 

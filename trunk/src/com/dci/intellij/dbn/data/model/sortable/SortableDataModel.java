@@ -49,7 +49,7 @@ public class SortableDataModel<T extends SortableDataModelRow> extends BasicData
         updateRowIndexes(0);
     }
 
-    protected void sort() {
+    public void sort() {
         sort(getRows());
     }
 
