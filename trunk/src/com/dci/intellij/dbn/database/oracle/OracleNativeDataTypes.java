@@ -27,8 +27,8 @@ public class OracleNativeDataTypes extends DatabaseNativeDataTypes {
         createLiteralDefinition("STRING", String.class, OracleTypes.VARCHAR);
         createLiteralDefinition("RAW", String.class, OracleTypes.RAW);
         
-        createBasicDefinition("LONG RAW", String.class, OracleTypes.LONGVARCHAR, GenericDataType.NUMERIC);
-        createBasicDefinition("LONG", String.class, OracleTypes.LONGVARCHAR, GenericDataType.NUMERIC);
+        createLiteralDefinition("LONG RAW", String.class, OracleTypes.LONGVARCHAR);
+        createLiteralDefinition("LONG", String.class, OracleTypes.LONGVARCHAR);
 
         createNumericDefinition("NUMBER", BigDecimal.class, OracleTypes.NUMBER);
         createNumericDefinition("BINARY_INTEGER", Integer.class, OracleTypes.INTEGER);
