@@ -1,28 +1,20 @@
 package com.dci.intellij.dbn.data.sorting;
 
-import com.dci.intellij.dbn.common.Reference;
-import com.dci.intellij.dbn.common.Referenceable;
-
-public class SortingInstruction<T extends Referenceable> {
-    private Reference<T> columnRef;
+public final class SortingInstruction {
+    private String columnName;
     private SortDirection direction;
 
-    public SortingInstruction(T column, SortDirection direction) {
-        this.columnRef = column.getRef();
+    public SortingInstruction(String columnName, SortDirection direction) {
+        this.columnName = columnName;
         this.direction = direction;
     }
 
-    public SortingInstruction(Reference<T> columnRef, SortDirection direction) {
-        this.columnRef = columnRef;
-        this.direction = direction;
+    public String getColumnName() {
+        return columnName;
     }
 
-    public T getColumn() {
-        return columnRef == null ? null : columnRef.get();
-    }
-
-    public void setColumn(T column) {
-        this.columnRef = column.getRef();
+    public void setColumnName(String columnName) {
+        this.columnName = columnName;
     }
 
     public SortDirection getDirection() {
@@ -41,7 +33,7 @@ public class SortingInstruction<T extends Referenceable> {
         }
     }
 
-    public SortingInstruction<T> clone() {
-        return new SortingInstruction<T>(columnRef, direction);
+    public SortingInstruction clone() {
+        return new SortingInstruction(columnName, direction);
     }
 }

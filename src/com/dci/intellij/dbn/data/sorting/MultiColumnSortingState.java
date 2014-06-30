@@ -1,22 +1,20 @@
 package com.dci.intellij.dbn.data.sorting;
 
-import com.dci.intellij.dbn.object.DBColumn;
-
 import java.util.ArrayList;
 import java.util.List;
 
-public class MultiColumnSortingState {
+public class MultiColumnSortingState implements SortingState{
     private int maxColumns = 3;     
     private List<SortingInstruction> sortingInstructions = new ArrayList<SortingInstruction>();
 
-    public void applySorting(DBColumn column, SortDirection direction, boolean isAddition) {
-        SortingInstruction instruction = getInstruction(column);
+    public void applySorting(String columnName, SortDirection direction, boolean isAddition) {
+        SortingInstruction instruction = getInstruction(columnName);
         boolean isNewColumn = instruction == null;
         if (isNewColumn) {
             if (direction.isIndefinite()) {
                 direction = SortDirection.ASCENDING;
             }
-            instruction = new SortingInstruction(column, direction);
+            instruction = new SortingInstruction(columnName, direction);
         } else {
             if (direction.isIndefinite()) {
                 instruction.switchDirection();
@@ -39,14 +37,18 @@ public class MultiColumnSortingState {
             sortingInstructions.add(instruction);
         }
     }
-    
-    private SortingInstruction getInstruction(DBColumn column) {
+
+    private SortingInstruction getInstruction(String columnName) {
         for (SortingInstruction instruction : sortingInstructions) {
-            if (instruction.getColumn().equals(column)) {
+            if (instruction.getColumnName().equals(columnName)) {
                 return instruction;
             }
         }
         return null;
+    }
+
+    public void addSortingInstruction(String columnName, SortDirection direction) {
+        sortingInstructions.add(new SortingInstruction(columnName, direction));
     }
 
     public List<SortingInstruction> getSortingInstructions() {
@@ -71,4 +73,6 @@ public class MultiColumnSortingState {
         }
         return clone;
     }
+
+
 }

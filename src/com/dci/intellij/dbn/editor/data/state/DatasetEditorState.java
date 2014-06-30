@@ -15,12 +15,13 @@ import org.jetbrains.annotations.NotNull;
 public class DatasetEditorState extends SortableDataModelState implements FileEditorState {
     public static final DatasetEditorState VOID = new DatasetEditorState();
     private DatasetColumnSetup columnSetup = new DatasetColumnSetup();
-    private DatasetSortingState dataSortingState = new DatasetSortingState();
+    private DatasetSortingState dataSortingState;
     private DBObjectRef<DBDataset> datasetRef;
 
     public DatasetEditorState(DBDataset dataset) {
         datasetRef = DBObjectRef.from(dataset);
         columnSetup.init(dataset);
+        dataSortingState = new DatasetSortingState(dataset);
     }
 
     public DatasetEditorState() {
@@ -49,6 +50,10 @@ public class DatasetEditorState extends SortableDataModelState implements FileEd
         Element columnsElement = element.getChild("columns");
         columnSetup.readState(columnsElement);
 
+        Element sortingElement = element.getChild("sorting");
+        dataSortingState.readState(sortingElement);
+
+
         Element contentTypesElement = element.getChild("content-types");
         if (contentTypesElement != null) {
             for (Object o : contentTypesElement.getChildren()) {
@@ -69,6 +74,10 @@ public class DatasetEditorState extends SortableDataModelState implements FileEd
         Element columnsElement = new Element("columns");
         targetElement.addContent(columnsElement);
         columnSetup.writeState(columnsElement);
+
+        Element sortingElement = new Element("sorting");
+        targetElement.addContent(sortingElement);
+        dataSortingState.writeState(sortingElement);
 
         Element contentTypesElement = new Element("content-types");
         targetElement.addContent(contentTypesElement);

@@ -1,6 +1,6 @@
 package com.dci.intellij.dbn.data.sorting;
 
-public class SingleColumnSortingState {
+public class SingleColumnSortingState implements SortingState{
     private SortDirection direction = SortDirection.INDEFINITE;
     private String columnName = "";
 

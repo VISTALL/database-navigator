@@ -2,7 +2,7 @@ package com.dci.intellij.dbn.editor.data.filter;
 
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.options.ui.ConfigurationEditorForm;
-import com.dci.intellij.dbn.data.sorting.SingleColumnSortingState;
+import com.dci.intellij.dbn.data.sorting.SortingState;
 import com.dci.intellij.dbn.editor.data.filter.ui.DatasetCustomFilterForm;
 import com.dci.intellij.dbn.object.DBDataset;
 import com.intellij.openapi.util.InvalidDataException;
@@ -41,7 +41,7 @@ public class DatasetCustomFilter extends DatasetFilterImpl {
                 Icons.DATASET_FILTER_CUSTOM_ERR;
     }
 
-    public String createSelectStatement(DBDataset dataset, SingleColumnSortingState sortingState) {
+    public String createSelectStatement(DBDataset dataset, SortingState sortingState) {
         setError(null);
         StringBuilder buffer = new StringBuilder();
         DatasetFilterUtil.createSimpleSelectStatement(dataset, buffer);

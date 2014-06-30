@@ -5,7 +5,6 @@ import com.dci.intellij.dbn.common.ui.DBNFormImpl;
 import com.dci.intellij.dbn.common.ui.ValueSelector;
 import com.dci.intellij.dbn.common.util.ActionUtil;
 import com.dci.intellij.dbn.data.sorting.SortingInstruction;
-import com.dci.intellij.dbn.editor.data.state.sorting.DatasetSortingInstruction;
 import com.dci.intellij.dbn.editor.data.state.sorting.action.ChangeSortingDirectionAction;
 import com.dci.intellij.dbn.editor.data.state.sorting.action.DeleteSortingCriteriaAction;
 import com.dci.intellij.dbn.object.DBColumn;
@@ -31,11 +30,11 @@ public class DatasetSortingColumnForm extends DBNFormImpl {
     private DatasetEditorSortingForm parentForm;
     private SortingInstruction sortingInstruction;
 
-    public DatasetSortingColumnForm(final DatasetEditorSortingForm parentForm, DatasetSortingInstruction sortingInstruction) {
+    public DatasetSortingColumnForm(final DatasetEditorSortingForm parentForm, SortingInstruction sortingInstruction) {
         this.parentForm = parentForm;
         this.sortingInstruction = sortingInstruction;
 
-        DBColumn column = sortingInstruction.getColumn();
+        DBColumn column = parentForm.getDataset().getColumn(sortingInstruction.getColumnName());
         ColumnSelector columnSelector = new ColumnSelector(column);
         columnPanel.add(columnSelector, BorderLayout.CENTER);
         dataTypeLabel.setText(column.getDataType().getQualifiedName());

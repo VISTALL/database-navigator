@@ -1,7 +1,7 @@
 package com.dci.intellij.dbn.editor.data.filter;
 
 import com.dci.intellij.dbn.common.options.PersistentConfiguration;
-import com.dci.intellij.dbn.data.sorting.SingleColumnSortingState;
+import com.dci.intellij.dbn.data.sorting.SortingState;
 import com.dci.intellij.dbn.object.DBDataset;
 import com.intellij.openapi.options.UnnamedConfigurable;
 import org.jetbrains.annotations.NotNull;
@@ -26,5 +26,5 @@ public interface DatasetFilter extends UnnamedConfigurable, PersistentConfigurat
 
     DatasetFilterGroup getFilterGroup() ;
 
-    String createSelectStatement(DBDataset dataset, SingleColumnSortingState sortingState);
+    String createSelectStatement(DBDataset dataset, SortingState sortingState);
 }
