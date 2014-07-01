@@ -32,7 +32,7 @@
             </constraints>
             <properties>
               <font size="9" style="1"/>
-              <foreground color="-3407872"/>
+              <foreground color="-4440260"/>
               <horizontalTextPosition value="11"/>
               <iconTextGap value="2"/>
               <text value="[sorting]"/>
