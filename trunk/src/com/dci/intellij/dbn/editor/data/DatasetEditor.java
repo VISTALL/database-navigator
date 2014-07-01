@@ -2,8 +2,9 @@ package com.dci.intellij.dbn.editor.data;
 
 import com.dci.intellij.dbn.common.Constants;
 import com.dci.intellij.dbn.common.action.DBNDataKeys;
+import com.dci.intellij.dbn.common.content.loader.DynamicContentLoader;
 import com.dci.intellij.dbn.common.event.EventManager;
-import com.dci.intellij.dbn.common.thread.BackgroundTask;
+import com.dci.intellij.dbn.common.thread.SimpleBackgroundTask;
 import com.dci.intellij.dbn.common.thread.SimpleLaterInvocator;
 import com.dci.intellij.dbn.common.util.MessageUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
@@ -38,7 +39,6 @@ import com.intellij.openapi.fileEditor.FileEditorLocation;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.FileEditorState;
 import com.intellij.openapi.fileEditor.FileEditorStateLevel;
-import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.UserDataHolderBase;
@@ -268,20 +268,17 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
     public void loadData(final DatasetLoadInstructions instructions) {
         if (!isLoading) {
             setLoading(true);
-            new BackgroundTask(project, "Loading data", true) {
-                public void execute(@NotNull ProgressIndicator progressIndicator) {
-                    if (isDisposed) return;
-                    initProgressIndicator(progressIndicator, true);
-                    DatasetEditorTable oldEditorTable = null;
+            new SimpleBackgroundTask() {
+                public void run() {
                     try {
                         if (!isDisposed()) {
                             editorForm.showLoadingHint();
                             editorForm.getEditorTable().cancelEditing();
-                            oldEditorTable = instructions.isRebuild() ? editorForm.beforeRebuild() : null;
+                            DatasetEditorTable oldEditorTable = instructions.isRebuild() ? editorForm.beforeRebuild() : null;
                             try {
                                 DatasetEditorModel tableModel = getTableModel();
                                 if (tableModel != null) {
-                                    tableModel.load(progressIndicator, instructions.isUseCurrentFilter(), instructions.isKeepChanges());
+                                    tableModel.load(null, instructions.isUseCurrentFilter(), instructions.isKeepChanges());
                                 }
                             } finally {
                                 if (!isDisposed()) {
@@ -291,8 +288,10 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
                         }
                         dataLoadError = null;
                     } catch (final SQLException e) {
-                        dataLoadError = e.getMessage();
-                        handleLoadError(e, instructions);
+                        if (e != DynamicContentLoader.DBN_INTERRUPTED_EXCEPTION) {
+                            dataLoadError = e.getMessage();
+                            handleLoadError(e, instructions);
+                        }
                     } finally {
                         if (editorForm != null) {
                             editorForm.hideLoadingHint();
@@ -374,12 +373,15 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
     }
 
     protected void setLoading(boolean loading) {
-        this.isLoading = loading;
-        DatasetEditorTable editorTable = getEditorTable();
-        if (editorTable != null) {
-            editorTable.setLoading(loading);
-            editorTable.repaint();
+        if (this.isLoading != loading) {
+            this.isLoading = loading;
+            DatasetEditorTable editorTable = getEditorTable();
+            if (editorTable != null) {
+                editorTable.setLoading(loading);
+                editorTable.repaint();
+            }
         }
+
     }
 
     public void deleteRecords() {

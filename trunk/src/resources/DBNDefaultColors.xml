@@ -2,7 +2,7 @@
 <list>
     <option name="DBNavigator.DefaultTextAttributes.DataEditor.PlainData">
         <value>
-
+            <option name="BACKGROUND" value="FFFFFF"/>
         </value>
     </option>
     <option name="DBNavigator.DefaultTextAttributes.DataEditor.ModifiedData">

@@ -63,7 +63,6 @@ public class DatasetEditorForm extends DBNFormImpl implements DBNForm, Searchabl
             actionsPanel.add(actionToolbar.getComponent(), BorderLayout.WEST);
             loadingIconPanel.add(new AsyncProcessIcon("Loading"), BorderLayout.CENTER);
             hideLoadingHint();
-            datasetTableScrollPane.getViewport().setBackground(datasetEditorTable.getBackground());
 
             ActionUtil.registerDataProvider(actionsPanel, datasetEditor.getDataProvider(), true);
         } catch (SQLException e) {
@@ -104,6 +103,7 @@ public class DatasetEditorForm extends DBNFormImpl implements DBNForm, Searchabl
                 public void run() {
                     datasetTableScrollPane.setViewportView(datasetEditorTable);
                     datasetTableScrollPane.setRowHeaderView(datasetEditorTable.getTableGutter());
+                    datasetEditorTable.updateBackground(false);
                     oldEditorTable.dispose();
                 }
             }.start();

@@ -1,5 +1,7 @@
 package com.dci.intellij.dbn.data.model.resultSet;
 
+import com.dci.intellij.dbn.common.content.loader.DynamicContentLoader;
+import com.dci.intellij.dbn.common.thread.SimpleBackgroundTask;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.ConnectionUtil;
 import com.dci.intellij.dbn.data.model.sortable.SortableDataModel;
@@ -43,13 +45,14 @@ public class ResultSetDataModel<T extends ResultSetDataModelRow> extends Sortabl
         int initialIndex = reset ? 0 : originalRowCount;
         int count = 0;
 
-        List<T> oldRows = getRows();
+        final List<T> oldRows = getRows();
         List<T> newRows = reset ? new ArrayList<T>(oldRows.size()) : new ArrayList<T>(oldRows);
         if (resultSet == null) {
             resultSetExhausted = true;
         } else {
             while (count < records) {
                 if (resultSet.next()) {
+                    checkInterrupted();
                     if (isDisposed()) break;
                     count++;
                     T row = createRow(initialIndex + count);
@@ -61,14 +64,20 @@ public class ResultSetDataModel<T extends ResultSetDataModelRow> extends Sortabl
             }
         }
 
+        checkInterrupted();
         sort(newRows);
         setRows(newRows);
 
         if (reset) {
-            // dispose old content
-            for (T row : oldRows) {
-                disposeRow(row);
-            }
+            new SimpleBackgroundTask() {
+                @Override
+                public void run() {
+                    // dispose old content
+                    for (T row : oldRows) {
+                        disposeRow(row);
+                    }
+                }
+            }.start();
         }
 
         int newRowCount = getRowCount();
@@ -79,6 +88,10 @@ public class ResultSetDataModel<T extends ResultSetDataModelRow> extends Sortabl
         if (updateIndex > 0) notifyRowsUpdated(0, updateIndex);
 
         return newRowCount;
+    }
+
+    private void checkInterrupted() throws SQLException {
+        if (isDisposed()) throw DynamicContentLoader.DBN_INTERRUPTED_EXCEPTION;
     }
 
     protected void disposeRow(T row) {
@@ -113,9 +126,11 @@ public class ResultSetDataModel<T extends ResultSetDataModelRow> extends Sortabl
 
     @Override
     public void dispose() {
-        super.dispose();
-        ConnectionUtil.closeResultSet(resultSet);
-        resultSet = null;
-        connectionHandler = null;
+        if (!isDisposed()) {
+            super.dispose();
+            ConnectionUtil.closeResultSet(resultSet);
+            resultSet = null;
+            connectionHandler = null;
+        }
     }
 }
