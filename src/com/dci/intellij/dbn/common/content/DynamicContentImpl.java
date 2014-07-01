@@ -184,10 +184,11 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
                 } catch (InterruptedException e) {
                     setElements(EMPTY_LIST);
                     isDirty = false;
+                } finally {
+                    isLoaded = true;
+                    isLoading = false;
+                    updateChangeTimestamp();
                 }
-                isLoaded = true;
-                isLoading = false;
-                updateChangeTimestamp();
             }
         }
     }
