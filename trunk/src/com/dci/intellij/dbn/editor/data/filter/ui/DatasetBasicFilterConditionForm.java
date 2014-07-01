@@ -7,6 +7,7 @@ import com.dci.intellij.dbn.common.util.ActionUtil;
 import com.dci.intellij.dbn.data.editor.ui.DataEditorComponent;
 import com.dci.intellij.dbn.data.editor.ui.TextFieldPopupType;
 import com.dci.intellij.dbn.data.editor.ui.TextFieldWithPopup;
+import com.dci.intellij.dbn.data.type.DBNativeDataType;
 import com.dci.intellij.dbn.data.type.GenericDataType;
 import com.dci.intellij.dbn.editor.data.filter.ConditionOperator;
 import com.dci.intellij.dbn.editor.data.filter.DatasetBasicFilterCondition;
@@ -62,7 +63,12 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
 
         DBColumn column = dataset.getColumn(condition.getColumnName());
         if (column == null) {
-            column = dataset.getColumns().get(0);
+            for (DBColumn col : dataset.getColumns()) {
+                if (col.getDataType().getNativeDataType() != null) {
+                    column = col;
+                    break;
+                }
+            }
         }
         GenericDataType dataType = column.getDataType().getNativeDataType().getBasicDataType();
 
@@ -118,7 +124,8 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
         @Override
         public void valueSelected(DBColumn column) {
             if (column != null) {
-                GenericDataType dataType = column.getDataType().getNativeDataType().getBasicDataType();
+                DBNativeDataType nativeDataType = column.getDataType().getNativeDataType();
+                GenericDataType dataType = nativeDataType == null ? null : nativeDataType.getBasicDataType();
                 textFieldWithPopup.setPopupEnabled(TextFieldPopupType.CALENDAR, dataType == GenericDataType.DATE_TIME);
             }
             if (basicFilterForm != null) {

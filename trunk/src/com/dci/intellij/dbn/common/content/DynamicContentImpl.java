@@ -123,11 +123,29 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
                 isLoading = true;
                 try {
                     performLoad();
+                    isLoaded = true;
                 } catch (InterruptedException e) {
                     setElements(EMPTY_LIST);
-                    isDirty = false;
+                    isDirty = true;
                 } finally {
+                    isLoading = false;
+                    updateChangeTimestamp();
+                }
+            }
+        }
+    }
+
+    public final void reload() {
+        synchronized (LOAD_LOCK) {
+            if (!isDisposed && !isLoading) {
+                isLoading = true;
+                try {
+                    performReload();
                     isLoaded = true;
+                } catch (InterruptedException e) {
+                    setElements(EMPTY_LIST);
+                    isDirty = true;
+                } finally {
                     isLoading = false;
                     updateChangeTimestamp();
                 }
@@ -155,10 +173,6 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
         }
     }
 
-    public void updateChangeTimestamp() {
-        changeTimestamp = System.currentTimeMillis();
-    }
-
     private void performLoad() throws InterruptedException {
         check();
         dependencyAdapter.beforeLoad();
@@ -175,34 +189,22 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
         dependencyAdapter.afterLoad();
     }
 
-    public final void reload() {
-        synchronized (LOAD_LOCK) {
-            if (!isDisposed && !isLoading) {
-                isLoading = true;
-                try {
-                    performReload();
-                } catch (InterruptedException e) {
-                    setElements(EMPTY_LIST);
-                    isDirty = false;
-                } finally {
-                    isLoaded = true;
-                    isLoading = false;
-                    updateChangeTimestamp();
-                }
-            }
-        }
-    }
-
     private void performReload() throws InterruptedException {
+        check();
         dependencyAdapter.beforeReload(this);
+        check();
         try {
             check();
             getLoader().reloadContent(this);
         } catch (DynamicContentLoadException e) {
-            isDirty = true;
+            isDirty = !e.isModelException();
         }
         check();
         dependencyAdapter.afterReload(this);
+    }
+
+    public void updateChangeTimestamp() {
+        changeTimestamp = System.currentTimeMillis();
     }
 
 
