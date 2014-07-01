@@ -1,5 +1,8 @@
 package com.dci.intellij.dbn.navigation.action;
 
+import com.dci.intellij.dbn.common.editor.BasicTextEditor;
+import com.dci.intellij.dbn.common.util.CommonUtil;
+import com.dci.intellij.dbn.common.util.StringUtil;
 import com.dci.intellij.dbn.connection.ConnectionBundle;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.ConnectionManager;
@@ -18,6 +21,9 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.application.ModalityState;
+import com.intellij.openapi.fileEditor.FileEditor;
+import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.fileEditor.TextEditor;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
@@ -28,6 +34,7 @@ import java.util.List;
 
 public class GoToDatabaseObjectAction extends GotoActionBase implements DumbAware {
     private ConnectionHandler latestSelection; // todo move to data context
+    private String latestPredefinedText;
     public void gotoActionPerformed(AnActionEvent event) {
         //FeatureUsageTracker.getInstance().triggerFeatureUsed("navigation.popup.file");
         Project project = event.getData(PlatformDataKeys.PROJECT);
@@ -108,9 +115,45 @@ public class GoToDatabaseObjectAction extends GotoActionBase implements DumbAwar
             removeActionLock();
         } else {
             GoToDatabaseObjectModel model = new GoToDatabaseObjectModel(project, connectionHandler, selectedSchema);
-            ChooseByNamePopup popup = ChooseByNamePopup.createPopup(project, model, getPsiContext(e));
+            String predefinedText = getPredefinedText(project);
+
+            ChooseByNamePopup popup = ChooseByNamePopup.createPopup(project, model, getPsiContext(e), predefinedText);
             popup.invoke(new Callback(model), ModalityState.current(), false);
         }
+    }
+
+    private String getPredefinedText(Project project) {
+        String predefinedText = null;
+        FileEditor[] selectedEditors = FileEditorManager.getInstance(project).getSelectedEditors();
+        for (FileEditor fileEditor : selectedEditors) {
+            if (fileEditor instanceof BasicTextEditor) {
+                BasicTextEditor textEditor = (BasicTextEditor) fileEditor;
+                predefinedText = textEditor.getEditor().getSelectionModel().getSelectedText();
+            } else if (fileEditor instanceof TextEditor) {
+                TextEditor textEditor = (TextEditor) fileEditor;
+                predefinedText = textEditor.getEditor().getSelectionModel().getSelectedText();
+            }
+            if (isValidPredefinedText(predefinedText)) {
+                break;
+            } else {
+                predefinedText = null;
+            }
+        }
+
+        if (predefinedText == null) {
+            predefinedText = CommonUtil.getClipboardContent();
+            if (!isValidPredefinedText(predefinedText)) {
+                predefinedText = latestPredefinedText;
+            }
+        }
+
+
+        latestPredefinedText = StringUtil.trim(predefinedText);
+        return latestPredefinedText;
+    }
+
+    private boolean isValidPredefinedText(String predefinedText) {
+        return predefinedText != null && !predefinedText.contains("\n") && predefinedText.trim().length() < 50;
     }
 
     private void removeActionLock() {
