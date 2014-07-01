@@ -1,5 +1,6 @@
 package com.dci.intellij.dbn.common.content.loader;
 
+import com.dci.intellij.dbn.DatabaseNavigator;
 import com.dci.intellij.dbn.common.LoggerFactory;
 import com.dci.intellij.dbn.common.content.DynamicContent;
 import com.dci.intellij.dbn.common.content.DynamicContentElement;
@@ -51,6 +52,7 @@ public abstract class DynamicContentResultSetLoader<T extends DynamicContentElem
     }
 
     public void loadContent(DynamicContent<T> dynamicContent, boolean forceReload) throws DynamicContentLoadException, InterruptedException {
+        boolean addDelay = DatabaseNavigator.getInstance().isSlowDatabaseModeEnabled();
         ProgressMonitor.setTaskDescription("Loading " + dynamicContent.getContentDescription());
 
         DebugInfo debugInfo = preLoadContent(dynamicContent);
@@ -66,8 +68,10 @@ public abstract class DynamicContentResultSetLoader<T extends DynamicContentElem
             connection = connectionHandler.getPoolConnection();
             dynamicContent.check();
             resultSet = createResultSet(dynamicContent, connection);
+            if (addDelay) Thread.sleep(1000);
             List<T> list = null;
             while (resultSet != null && resultSet.next()) {
+                if (addDelay) Thread.sleep(10);
                 dynamicContent.check();
                 
                 T element = null;
