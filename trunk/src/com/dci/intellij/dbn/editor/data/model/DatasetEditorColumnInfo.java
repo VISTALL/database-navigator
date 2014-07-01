@@ -17,11 +17,15 @@ public class DatasetEditorColumnInfo extends ResultSetColumnInfo {
     private List<String> possibleValues;
     private DBObjectRef<DBColumn> column;
     private int columnIndex;
+    private boolean isPrimaryKey;
+    private boolean isForeignKey;
 
     public DatasetEditorColumnInfo(DBColumn column, int columnIndex, int resultSetColumnIndex) {
         super(columnIndex, resultSetColumnIndex);
         this.column = column.getRef();
         this.columnIndex = columnIndex;
+        this.isPrimaryKey = column.isPrimaryKey();
+        this.isForeignKey = column.isForeignKey();
     }
 
     @Nullable
@@ -39,6 +43,14 @@ public class DatasetEditorColumnInfo extends ResultSetColumnInfo {
 
     public DBDataType getDataType() {
         return getColumn().getDataType();
+    }
+
+    public boolean isPrimaryKey() {
+        return isPrimaryKey;
+    }
+
+    public boolean isForeignKey() {
+        return isForeignKey;
     }
 
     public synchronized List<String> getPossibleValues() {

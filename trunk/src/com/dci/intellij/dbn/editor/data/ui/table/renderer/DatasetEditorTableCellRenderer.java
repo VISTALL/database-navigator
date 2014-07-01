@@ -7,7 +7,6 @@ import com.dci.intellij.dbn.editor.data.model.DatasetEditorColumnInfo;
 import com.dci.intellij.dbn.editor.data.model.DatasetEditorModelCell;
 import com.dci.intellij.dbn.editor.data.model.DatasetEditorModelRow;
 import com.dci.intellij.dbn.editor.data.ui.table.DatasetEditorTable;
-import com.dci.intellij.dbn.object.DBColumn;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.SimpleTextAttributes;
 
@@ -39,18 +38,17 @@ public class DatasetEditorTableCellRenderer extends BasicTableCellRenderer {
             DataGridTextAttributes attributes = getAttributes();
             SimpleTextAttributes textAttributes = attributes.getPlainData(isModified, isCaretRow);
 
-            DBColumn column = columnInfo.getColumn();
             if (isSelected) {
                 textAttributes = attributes.getSelection();
-            } else if (isLoading || !datasetEditorTable.getDataset().getConnectionHandler().isConnected()) {
+            } else if (isLoading || !datasetEditorTable.getDatasetEditor().getConnectionHandler().isConnected()) {
                 textAttributes = attributes.getLoadingData(isCaretRow);
             } else if (isDeletedRow) {
                 textAttributes = attributes.getDeletedData();
             } else if ((isInserting && !isInsertRow)) {
                 textAttributes = attributes.getReadonlyData(isModified, isCaretRow);
-            } else if (isPrimaryKey(column)) {
+            } else if (columnInfo.isPrimaryKey()) {
                 textAttributes = attributes.getPrimaryKey(isModified, isCaretRow);
-            } else if (isForeignKey(column)) {
+            } else if (columnInfo.isForeignKey()) {
                 textAttributes = attributes.getForeignKey(isModified, isCaretRow);
             } else if (cell.isLobValue()) {
                 textAttributes = attributes.getReadonlyData(isModified, isCaretRow);
@@ -75,14 +73,6 @@ public class DatasetEditorTableCellRenderer extends BasicTableCellRenderer {
             setForeground(foreground);
             writeUserValue(cell, textAttributes, attributes);
         }
-    }
-
-    private boolean isForeignKey(DBColumn column) {
-        return column != null && column.isForeignKey();
-    }
-
-    private boolean isPrimaryKey(DBColumn column) {
-        return column != null && column.isPrimaryKey();
     }
 
     @Override

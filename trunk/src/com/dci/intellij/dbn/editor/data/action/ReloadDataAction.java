@@ -2,10 +2,13 @@ package com.dci.intellij.dbn.editor.data.action;
 
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.editor.data.DatasetEditor;
+import com.dci.intellij.dbn.editor.data.DatasetLoadInstructions;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 
 public class ReloadDataAction extends AbstractDataEditorAction {
+
+    public static final DatasetLoadInstructions LOAD_INSTRUCTIONS = new DatasetLoadInstructions(true, true, true, false);
 
     public ReloadDataAction() {
         super("Reload", Icons.DATA_EDITOR_RELOAD_DATA);
@@ -14,7 +17,7 @@ public class ReloadDataAction extends AbstractDataEditorAction {
     public void actionPerformed(AnActionEvent e) {
         DatasetEditor datasetEditor = getDatasetEditor(e);
         if (datasetEditor != null) {
-            datasetEditor.loadData(true, true, true, false);
+            datasetEditor.loadData(LOAD_INSTRUCTIONS);
         }
     }
 
