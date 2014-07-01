@@ -28,13 +28,16 @@ public abstract class BackgroundTask extends Task.Backgroundable {
     };
 
     public void run(@NotNull ProgressIndicator progressIndicator) {
+        int priority = Thread.currentThread().getPriority();
         try {
+            Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
             execute(progressIndicator);
         } catch (InterruptedException e) {
             // no action required here
         } catch (Exception e) {
             LOGGER.error("Error executing background operation.", e);
         } finally {
+            Thread.currentThread().setPriority(priority);
             /*if (progressIndicator.isRunning()) {
                 progressIndicator.stop();
             }*/

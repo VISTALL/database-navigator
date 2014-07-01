@@ -130,7 +130,7 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
     }
 
     @Override
-    public final synchronized void loadInBackground(final boolean force) {
+    public final void loadInBackground(final boolean force) {
         if (!isLoadingInBackground && shouldLoad(force)) {
             isLoadingInBackground = true;
             new BackgroundTask(getProject(), "Loading data dictionary", true) {
