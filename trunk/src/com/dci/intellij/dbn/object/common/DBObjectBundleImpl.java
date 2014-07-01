@@ -440,7 +440,7 @@ public class DBObjectBundleImpl implements DBObjectBundle {
         if (objectType == DBObjectType.CHARSET) return getCharset(name);
         if (objectType == DBObjectType.PRIVILEGE) return getPrivilege(name);
         for (DBSchema schema : getSchemas()) {
-            if (schema.isPublicSchema()) {
+            if (schema.isPublicSchema() && objectType.isSchemaObject()) {
                 DBObject childObject = schema.getChildObject(objectType, name, true);
                 if (childObject != null) {
                     return childObject;
