@@ -43,6 +43,7 @@ public class DatabaseNavigator implements ApplicationComponent, JDOMExternalizab
 
     private boolean debugModeEnabled;
     private boolean developerModeEnabled;
+    private boolean slowDatabaseModeEnabled;
     private boolean showPluginConflictDialog;
     private String repositoryPluginVersion;
 
@@ -127,6 +128,14 @@ public class DatabaseNavigator implements ApplicationComponent, JDOMExternalizab
 
     public void setDeveloperModeEnabled(boolean developerModeEnabled) {
         this.developerModeEnabled = developerModeEnabled;
+    }
+
+    public boolean isSlowDatabaseModeEnabled() {
+        return developerModeEnabled && slowDatabaseModeEnabled;
+    }
+
+    public void setSlowDatabaseModeEnabled(boolean slowDatabaseModeEnabled) {
+        this.slowDatabaseModeEnabled = slowDatabaseModeEnabled;
     }
 
     public void disposeComponent() {
