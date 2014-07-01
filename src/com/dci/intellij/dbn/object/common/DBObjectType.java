@@ -323,6 +323,7 @@ public enum DBObjectType implements DynamicContentType {
         COLUMN.addParent(TABLE);
         COLUMN.addParent(VIEW);
         COLUMN.addParent(MATERIALIZED_VIEW);
+        CONSTRAINT.addParent(SCHEMA);
         CONSTRAINT.addParent(DATASET);
         CONSTRAINT.addParent(TABLE);
         CONSTRAINT.addParent(VIEW);
@@ -351,6 +352,7 @@ public enum DBObjectType implements DynamicContentType {
         SEQUENCE.addParent(SCHEMA);
         SYNONYM.addParent(SCHEMA);
         TABLE.addParent(SCHEMA);
+        TRIGGER.addParent(SCHEMA);
         TRIGGER.addParent(DATASET);
         TRIGGER.addParent(TABLE);
         TRIGGER.addParent(VIEW);

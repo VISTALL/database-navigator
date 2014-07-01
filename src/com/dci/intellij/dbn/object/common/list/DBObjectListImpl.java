@@ -157,12 +157,12 @@ public class DBObjectListImpl<T extends DBObject> extends DynamicContentImpl<T> 
         if (isLoading()) {
             return elements;
         } else {
-            if (!isTouched || shouldLoad(false)) {
-                getElements();
+            if (!isTouched) {
+                load(false);
                 isTouched = true;
                 DatabaseBrowserManager.scrollToSelectedElement(getConnectionHandler());
             }
-            return getElements();
+            return elements;
         }
     }
 
