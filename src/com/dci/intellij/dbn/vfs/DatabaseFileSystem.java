@@ -15,6 +15,7 @@ import com.dci.intellij.dbn.language.common.DBLanguageFileType;
 import com.dci.intellij.dbn.language.sql.SQLFileType;
 import com.dci.intellij.dbn.object.DBSchema;
 import com.dci.intellij.dbn.object.common.DBObject;
+import com.dci.intellij.dbn.object.common.DBObjectType;
 import com.dci.intellij.dbn.object.common.DBSchemaObject;
 import com.dci.intellij.dbn.object.common.list.DBObjectListContainer;
 import com.dci.intellij.dbn.object.common.property.DBObjectProperty;
@@ -77,9 +78,16 @@ public class DatabaseFileSystem extends VirtualFileSystem implements Application
                     while (path.hasMoreElements() && object != null) {
                         String token = path.nextToken();
                         if (path.hasMoreTokens()) {
-                            object = object.getChildObject(token, false);
+                            int idx = token.indexOf("~");
+                            if (idx > -1) {
+                                String type = token.substring(0, idx);
+                                String name = token.substring(idx + 1);
+                                DBObjectType objectType = DBObjectType.getObjectType(type);
+                                object = object.getChildObject(objectType, name, false);
+                            } else {
+                                object = object.getChildObject(token, false);
+                            }
                         }
-
                     }
                     // object may have been deleted by another party
                     if (object != null && object.getProperties().is(DBObjectProperty.EDITABLE)) {
@@ -163,14 +171,21 @@ public class DatabaseFileSystem extends VirtualFileSystem implements Application
 
     public static String createUrl(DBObject object) {
         StringBuilder buffer = new StringBuilder(object.getRef().getFileName());
+        DBObjectType objectType = object.getObjectType();
+        buffer.insert(0, "~");
+        buffer.insert(0, objectType);
         buffer.append(".");
         buffer.append(getDefaultExtension(object));
-
 
         DBObject parent = object.getParentObject();
         while (parent != null) {
             buffer.insert(0, ".");
             buffer.insert(0, parent.getName());
+            objectType = parent.getObjectType();
+            if (objectType != DBObjectType.SCHEMA) {
+                buffer.insert(0, "~");
+                buffer.insert(0, objectType);
+            }
             if (parent instanceof DBSchema) break;
             parent = parent.getParentObject();
         }

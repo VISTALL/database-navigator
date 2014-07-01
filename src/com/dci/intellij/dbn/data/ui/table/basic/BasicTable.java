@@ -15,7 +15,7 @@ import com.intellij.openapi.editor.colors.EditorColorsManager;
 import com.intellij.openapi.editor.colors.EditorColorsScheme;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.JBPopup;
-import com.intellij.ui.components.JBScrollPane;
+import com.intellij.ui.components.JBViewport;
 import com.intellij.util.ui.UIUtil;
 
 import javax.swing.event.ListSelectionEvent;
@@ -62,8 +62,8 @@ public class BasicTable extends DBNTable implements EditorColorsListener, Dispos
     }
 
     public void updateBackground(final boolean readonly) {
-        final JBScrollPane scrollPane = UIUtil.getParentOfType(JBScrollPane.class, this);
-        if (scrollPane != null) {
+        final JBViewport viewport = UIUtil.getParentOfType(JBViewport.class, this);
+        if (viewport != null) {
             new ConditionalLaterInvocator() {
                 @Override
                 public void run() {
@@ -71,8 +71,8 @@ public class BasicTable extends DBNTable implements EditorColorsListener, Dispos
                     Color background = readonly ?
                             attributes.getLoadingData(false).getBgColor() :
                             attributes.getPlainData(false, false).getBgColor();
-                    scrollPane.getViewport().setBackground(background);
-                    scrollPane.getViewport().updateUI();
+                    viewport.setBackground(background);
+                    viewport.repaint();
                 }
             }.start();
         }

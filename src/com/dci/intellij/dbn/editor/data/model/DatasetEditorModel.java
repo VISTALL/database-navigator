@@ -52,7 +52,7 @@ public class DatasetEditorModel extends ResultSetDataModel<DatasetEditorModelRow
 
     public synchronized void load(ProgressIndicator progressIndicator, boolean useCurrentFilter, boolean keepChanges) throws SQLException {
         if (!isDisposed()) {
-            progressIndicator.setText("Loading data for " + datasetRef.getObjectType().getName() + " " + datasetRef.getPath());
+            //progressIndicator.setText("Loading data for " + datasetRef.getObjectType().getName() + " " + datasetRef.getPath());
             load(useCurrentFilter, keepChanges);
         }
     }
