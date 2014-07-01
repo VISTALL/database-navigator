@@ -145,16 +145,6 @@ public class VoidDynamicContent implements DynamicContent{
     }
 
     @Override
-    public void removeElements(List elements) {
-
-    }
-
-    @Override
-    public void addElements(List elements) {
-
-    }
-
-    @Override
     public String getName() {
         return "Empty Content";
     }

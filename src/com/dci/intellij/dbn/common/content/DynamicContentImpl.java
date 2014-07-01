@@ -23,6 +23,9 @@ import java.util.Map;
 public abstract class DynamicContentImpl<T extends DynamicContentElement> implements DynamicContent<T> {
     public static final List EMPTY_LIST = new ArrayList(0);
 
+    private final Object LOAD_LOCK = new Object();
+    private final Object BACKGROUND_LOAD_LOCK = new Object();
+
     private long changeTimestamp = 0;
     private volatile boolean isLoading = false;
     private volatile boolean isLoadingInBackground = false;
@@ -114,36 +117,40 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
         isDirty = dirty;
     }
 
-    public final synchronized void load(boolean force) {
-        if (shouldLoad(force)) {
-            isLoading = true;
-            try {
-                performLoad();
-            } catch (InterruptedException e) {
-                setElements(EMPTY_LIST);
-                isDirty = false;
+    public final void load(boolean force) {
+        synchronized (LOAD_LOCK) {
+            if (shouldLoad(force)) {
+                isLoading = true;
+                try {
+                    performLoad();
+                } catch (InterruptedException e) {
+                    setElements(EMPTY_LIST);
+                    isDirty = false;
+                }
+                isLoaded = true;
+                isLoading = false;
+                updateChangeTimestamp();
             }
-            isLoaded = true;
-            isLoading = false;
-            updateChangeTimestamp();
         }
     }
 
     @Override
     public final void loadInBackground(final boolean force) {
-        if (!isLoadingInBackground && shouldLoad(force)) {
-            isLoadingInBackground = true;
-            new BackgroundTask(getProject(), "Loading data dictionary", true) {
-                public void execute(@NotNull ProgressIndicator progressIndicator) {
-                    try {
-                        DatabaseLoadMonitor.startBackgroundLoad();
-                        load(force);
-                    } finally {
-                        DatabaseLoadMonitor.endBackgroundLoad();
-                        isLoadingInBackground = false;
+        synchronized (BACKGROUND_LOAD_LOCK) {
+            if (!isLoadingInBackground && shouldLoad(force)) {
+                isLoadingInBackground = true;
+                new BackgroundTask(getProject(), "Loading data dictionary", true) {
+                    public void execute(@NotNull ProgressIndicator progressIndicator) {
+                        try {
+                            DatabaseLoadMonitor.startBackgroundLoad();
+                            load(force);
+                        } finally {
+                            DatabaseLoadMonitor.endBackgroundLoad();
+                            isLoadingInBackground = false;
+                        }
                     }
-                }
-            }.start();
+                }.start();
+            }
         }
     }
 
@@ -167,18 +174,20 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
         dependencyAdapter.afterLoad();
     }
 
-    public final synchronized void reload() {
-        if (!isDisposed && !isLoading) {
-            isLoading = true;
-            try {
-                performReload();
-            } catch (InterruptedException e) {
-                setElements(EMPTY_LIST);
-                isDirty = false;
+    public final void reload() {
+        synchronized (LOAD_LOCK) {
+            if (!isDisposed && !isLoading) {
+                isLoading = true;
+                try {
+                    performReload();
+                } catch (InterruptedException e) {
+                    setElements(EMPTY_LIST);
+                    isDirty = false;
+                }
+                isLoaded = true;
+                isLoading = false;
+                updateChangeTimestamp();
             }
-            isLoaded = true;
-            isLoading = false;
-            updateChangeTimestamp();
         }
     }
 
@@ -200,7 +209,7 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
      */
     public abstract void notifyChangeListeners();
 
-    public synchronized void setElements(List<T> elements) {
+    public void setElements(List<T> elements) {
         filterHashCode = getFilter() == null ? 0 : getFilter().hashCode();
 
         if (isDisposed || elements == null || elements.size() == 0) {
@@ -219,16 +228,6 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
         if (!dependencyAdapter.isSubContent() && oldElements.size() > 0 ) {
             DisposeUtil.disposeCollection(oldElements);
         }
-    }
-
-    public synchronized void removeElements(List<T> elements) {
-        this.elements.removeAll(elements);
-        updateIndex();
-    }
-
-    public synchronized void addElements(List<T> elements) {
-        this.elements.addAll(elements);
-        updateIndex();
     }
 
     @NotNull
@@ -289,7 +288,7 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
         return elements;
     }
 
-    public synchronized int size() {
+    public int size() {
         return getElements().size();
     }
 
