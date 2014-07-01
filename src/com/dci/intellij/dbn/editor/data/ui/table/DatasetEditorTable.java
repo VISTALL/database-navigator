@@ -17,6 +17,7 @@ import com.dci.intellij.dbn.data.ui.table.basic.BasicTableGutter;
 import com.dci.intellij.dbn.data.ui.table.resultSet.ResultSetTable;
 import com.dci.intellij.dbn.data.value.LazyLoadedValue;
 import com.dci.intellij.dbn.editor.data.DatasetEditor;
+import com.dci.intellij.dbn.editor.data.DatasetLoadInstructions;
 import com.dci.intellij.dbn.editor.data.action.DatasetEditorTableActionGroup;
 import com.dci.intellij.dbn.editor.data.model.DatasetEditorModel;
 import com.dci.intellij.dbn.editor.data.model.DatasetEditorModelCell;
@@ -57,6 +58,7 @@ import java.sql.SQLException;
 import java.util.EventObject;
 
 public class DatasetEditorTable extends ResultSetTable {
+    public static final DatasetLoadInstructions SORT_LOAD_INSTRUCTIONS = new DatasetLoadInstructions(true, true, true, false);
     private DatasetTableCellEditorFactory cellEditorFactory = new DatasetTableCellEditorFactory();
     private DatasetEditor datasetEditor;
     private boolean isEditingEnabled = true;
@@ -329,7 +331,7 @@ public class DatasetEditorTable extends ResultSetTable {
         if (!isLoading()) {
             super.sort();
             if (!getModel().isResultSetExhausted()) {
-                datasetEditor.loadData(true, true, true, false);
+                datasetEditor.loadData(SORT_LOAD_INSTRUCTIONS);
             }
             updateUI();
         }
@@ -342,7 +344,7 @@ public class DatasetEditorTable extends ResultSetTable {
         if (columnInfo.isSortable()) {
             if (!isLoading() && super.sort(columnIndex, sortDirection, keepExisting)) {
                 if (!getModel().isResultSetExhausted()) {
-                    datasetEditor.loadData(true, true, true, false);
+                    datasetEditor.loadData(SORT_LOAD_INSTRUCTIONS);
                 }
                 return true;
             }

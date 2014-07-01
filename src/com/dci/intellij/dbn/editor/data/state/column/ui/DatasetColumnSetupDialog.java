@@ -2,6 +2,7 @@ package com.dci.intellij.dbn.editor.data.state.column.ui;
 
 import com.dci.intellij.dbn.common.ui.dialog.DBNDialog;
 import com.dci.intellij.dbn.editor.data.DatasetEditor;
+import com.dci.intellij.dbn.editor.data.DatasetLoadInstructions;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -9,6 +10,7 @@ import javax.swing.Action;
 import javax.swing.JComponent;
 
 public class DatasetColumnSetupDialog extends DBNDialog {
+    public static final DatasetLoadInstructions LOAD_INSTRUCTIONS = new DatasetLoadInstructions(true, true, true, true);
     private DatasetColumnSetupForm columnSetupForm;
     private DatasetEditor datasetEditor;
 
@@ -40,7 +42,7 @@ public class DatasetColumnSetupDialog extends DBNDialog {
         boolean changed = columnSetupForm.applyChanges();
         super.doOKAction();
         if (changed) {
-            datasetEditor.loadData(true, true, true, true);
+            datasetEditor.loadData(LOAD_INSTRUCTIONS);
         }
     }
 

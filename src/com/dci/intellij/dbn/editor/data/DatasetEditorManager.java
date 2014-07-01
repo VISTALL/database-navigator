@@ -39,6 +39,8 @@ import java.awt.event.MouseEvent;
 import java.sql.SQLException;
 
 public class DatasetEditorManager extends AbstractProjectComponent implements JDOMExternalizable {
+    public static final DatasetLoadInstructions INITIAL_LOAD_INSTRUCTIONS = new DatasetLoadInstructions(true, true, true, true);
+    public static final DatasetLoadInstructions RELOAD_LOAD_INSTRUCTIONS = new DatasetLoadInstructions(true, true, true, false);
     private ColumnSortingType recordViewColumnSortingType = ColumnSortingType.BY_INDEX;
     private boolean valuePreviewTextWrapping = true;
     private boolean valuePreviewPinned = false;
@@ -57,7 +59,7 @@ public class DatasetEditorManager extends AbstractProjectComponent implements JD
         for (FileEditor fileEditor : fileEditors) {
             if (fileEditor instanceof DatasetEditor) {
                 DatasetEditor datasetEditor = (DatasetEditor) fileEditor;
-                datasetEditor.loadData(true, true, true, false);
+                datasetEditor.loadData(RELOAD_LOAD_INSTRUCTIONS);
                 break;
             }
         }
@@ -154,7 +156,7 @@ public class DatasetEditorManager extends AbstractProjectComponent implements JD
                     for (FileEditor fileEditor : fileEditors) {
                         if (fileEditor instanceof DatasetEditor) {
                             DatasetEditor datasetEditor = (DatasetEditor) fileEditor;
-                            datasetEditor.loadData(true, true, true, true);
+                            datasetEditor.loadData(INITIAL_LOAD_INSTRUCTIONS);
                         }
                     }
                 }
