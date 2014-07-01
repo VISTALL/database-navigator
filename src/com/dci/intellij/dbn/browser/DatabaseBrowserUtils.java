@@ -5,8 +5,8 @@ import com.dci.intellij.dbn.common.filter.Filter;
 import com.dci.intellij.dbn.object.common.DBObjectBundle;
 
 import javax.swing.tree.TreePath;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 public class DatabaseBrowserUtils {
     public static TreePath createTreePath(BrowserTreeNode treeNode) {
@@ -41,7 +41,7 @@ public class DatabaseBrowserUtils {
     }
 
     public static List<BrowserTreeNode> createList(BrowserTreeNode... treeNodes) {
-        List<BrowserTreeNode> treeNodeList = new CopyOnWriteArrayList<BrowserTreeNode>();
+        List<BrowserTreeNode> treeNodeList = new ArrayList<BrowserTreeNode>();
         for (BrowserTreeNode treeNode : treeNodes) {
             if (treeNode != null) {
                 treeNodeList.add(treeNode);
