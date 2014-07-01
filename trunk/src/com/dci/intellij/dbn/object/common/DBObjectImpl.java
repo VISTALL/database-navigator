@@ -65,7 +65,6 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBObject, ToolTipProvider {
     private DBContentType contentType = DBContentType.NONE;
@@ -576,7 +575,7 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
                     }
                 }
             }
-            newTreeChildren = new CopyOnWriteArrayList<BrowserTreeNode>(newTreeChildren);
+            newTreeChildren = new ArrayList<BrowserTreeNode>(newTreeChildren);
 
             for (BrowserTreeNode treeNode : newTreeChildren) {
                 DBObjectList objectList = (DBObjectList) treeNode;

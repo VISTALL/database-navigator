@@ -19,7 +19,6 @@ import gnu.trove.THashMap;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class DBObjectListContainer implements Disposable {
     private Map<DBObjectType, DBObjectList<DBObject>> objectLists;
@@ -244,10 +243,10 @@ public class DBObjectListContainer implements Disposable {
         if (objectList != null) {
             DBObjectType objectType = objectList.getObjectType();
             if (objectList.isHidden()) {
-                if (hiddenObjectLists == null) hiddenObjectLists = new ConcurrentHashMap<DBObjectType, DBObjectList<DBObject>>(new THashMap<DBObjectType, DBObjectList<DBObject>>());
+                if (hiddenObjectLists == null) hiddenObjectLists = new THashMap<DBObjectType, DBObjectList<DBObject>>();
                 hiddenObjectLists.put(objectType, objectList);
             } else {
-                if (objectLists == null) objectLists =  new ConcurrentHashMap<DBObjectType, DBObjectList<DBObject>>(new THashMap<DBObjectType, DBObjectList<DBObject>>());
+                if (objectLists == null) objectLists =  new THashMap<DBObjectType, DBObjectList<DBObject>>();
                 objectLists.put(objectType, objectList);
             }
         }
