@@ -65,7 +65,7 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
 
     private Set<PropertyChangeListener> propertyChangeListeners = new HashSet<PropertyChangeListener>();
     private String dataLoadError;
-    private DatasetEditorState editorState;
+    private DatasetEditorState editorState = new DatasetEditorState();
 
     public DatasetEditor(DatabaseEditableObjectFile databaseFile, DBDataset dataset) {
         this.project = dataset.getProject();
@@ -154,9 +154,6 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
 
     @NotNull
     public FileEditorState getState(@NotNull FileEditorStateLevel level) {
-        if (editorState == null) {
-            editorState = new DatasetEditorState(getDataset());
-        }
         return editorState;
     }
 

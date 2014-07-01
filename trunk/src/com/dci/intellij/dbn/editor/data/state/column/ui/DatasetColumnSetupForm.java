@@ -23,6 +23,7 @@ import javax.swing.JPanel;
 import javax.swing.ListModel;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -31,13 +32,19 @@ public class DatasetColumnSetupForm extends DBNFormImpl {
     private JPanel actionPanel;
     private JBScrollPane columnListScrollPane;
     private JPanel headerPanel;
-    private CheckBoxList columnList;
+    private CheckBoxList<ColumnStateSelectable> columnList;
     private DatasetColumnSetup columnSetup;
 
     public DatasetColumnSetupForm(DatasetEditor datasetEditor) {
+        DBDataset dataset = datasetEditor.getDataset();
         this.columnSetup = datasetEditor.getState().getColumnSetup();
-        List<DatasetColumnState> columnStates = columnSetup.getColumns();
-        columnList = new CheckBoxList(columnStates, true);
+        List<DatasetColumnState> columnStates = columnSetup.getColumnStates();
+        List<ColumnStateSelectable> columnStateSel = new ArrayList<ColumnStateSelectable>();
+        for (DatasetColumnState columnState : columnStates) {
+            columnStateSel.add(new ColumnStateSelectable(dataset, columnState));
+        }
+
+        columnList = new CheckBoxList<ColumnStateSelectable>(columnStateSel, true);
         columnListScrollPane.setViewportView(columnList);
 
         ActionToolbar actionToolbar = ActionUtil.createActionToolbar("", false,
@@ -50,7 +57,7 @@ public class DatasetColumnSetupForm extends DBNFormImpl {
                 new RevertColumnOrderAction(columnList));
         actionPanel.add(actionToolbar.getComponent(), BorderLayout.WEST);
 
-        createHeaderForm(datasetEditor.getDataset());
+        createHeaderForm(dataset);
     }
 
     private void createHeaderForm(DBDataset dataset) {
@@ -76,11 +83,12 @@ public class DatasetColumnSetupForm extends DBNFormImpl {
         boolean changed = columnList.applyChanges();
         ListModel model = columnList.getModel();
         for(int i=0; i<model.getSize(); i++ ) {
-            DatasetColumnState columnState = (DatasetColumnState) columnList.getElementAt(i);
+            ColumnStateSelectable columnState = columnList.getElementAt(i);
             changed = changed || columnState.getPosition() != i;
             columnState.setPosition(i);
         }
-        Collections.sort(columnSetup.getColumns());
+        Collections.sort(columnSetup.getColumnStates());
         return changed;
     }
+
 }

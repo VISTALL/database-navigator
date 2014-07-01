@@ -3,8 +3,6 @@ package com.dci.intellij.dbn.editor.data.state;
 import com.dci.intellij.dbn.common.options.setting.SettingsUtil;
 import com.dci.intellij.dbn.data.model.sortable.SortableDataModelState;
 import com.dci.intellij.dbn.editor.data.state.column.DatasetColumnSetup;
-import com.dci.intellij.dbn.object.DBDataset;
-import com.dci.intellij.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.fileEditor.FileEditorState;
 import com.intellij.openapi.fileEditor.FileEditorStateLevel;
 import gnu.trove.THashMap;
@@ -14,12 +12,6 @@ import org.jetbrains.annotations.NotNull;
 public class DatasetEditorState extends SortableDataModelState implements FileEditorState {
     public static final DatasetEditorState VOID = new DatasetEditorState();
     private DatasetColumnSetup columnSetup = new DatasetColumnSetup();
-    private DBObjectRef<DBDataset> datasetRef;
-
-    public DatasetEditorState(DBDataset dataset) {
-        datasetRef = DBObjectRef.from(dataset);
-        columnSetup.init(dataset);
-    }
 
     public DatasetEditorState() {
     }
@@ -90,7 +82,6 @@ public class DatasetEditorState extends SortableDataModelState implements FileEd
 
     public DatasetEditorState clone() {
         DatasetEditorState clone = new DatasetEditorState();
-        clone.datasetRef = datasetRef;
         clone.setReadonly(isReadonly());
         clone.setRowCount(getRowCount());
         clone.setSortingState(getSortingState());

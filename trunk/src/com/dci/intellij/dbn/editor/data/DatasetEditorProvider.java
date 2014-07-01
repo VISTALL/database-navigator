@@ -51,14 +51,13 @@ public class DatasetEditorProvider implements FileEditorProvider, ApplicationCom
             DatabaseEditableObjectFile editableObjectFile = (DatabaseEditableObjectFile) virtualFile;
             DBSchemaObject object = editableObjectFile.getObject();
             if (object instanceof DBDataset) {
-                DBDataset dataset = (DBDataset) object;
-                DatasetEditorState editorState = new DatasetEditorState(dataset);
+                DatasetEditorState editorState = new DatasetEditorState();
                 editorState.readState(sourceElement);
                 return editorState;
 
             }
         }
-        return new DatasetEditorState(null);
+        return new DatasetEditorState();
     }
 
     public void writeState(@NotNull FileEditorState state, @NotNull Project project, @NotNull Element targetElement) {
