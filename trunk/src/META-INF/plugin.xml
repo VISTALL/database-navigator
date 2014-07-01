@@ -204,12 +204,15 @@
             <separator/>
             <action id="DBNavigator.Actions.OpenSettings" class="com.dci.intellij.dbn.language.editor.action.OpenSettingsAction" text="Script Editor - Settings"/>
         </group>
-        <group id="Dbnavigator.Actions.MainMenu" text="_DB Navigator">
+        <group id="DBNavigator.Actions.MainMenu" text="_DB Navigator">
             <action class="com.dci.intellij.dbn.menu.action.OpenSQLConsoleAction" text="Open SQL console..." id="DBNavigator.Actions.MainMenu.OpenSQLConsole" icon="/img/v1/file/SQLConsole.png"/>
             <action class="com.dci.intellij.dbn.menu.action.OpenMethodExecutionHistoryAction" text="Method execution history" id="DBNavigator.Actions.MainMenu.OpenMethodExecutionHistory" icon="/img/v1/MethodExecutionHistory.png"/>
             <action class="com.dci.intellij.dbn.menu.action.OpenUncommittedChangesOverviewAction" text="Uncommitted changes" id="DBNavigator.Actions.MainMenu.OpenUncommittedChangesOverview"/>
             <separator/>
-            <action id="DBNavigator.Actions.MainMenu.DevelopmentReset" class="com.dci.intellij.dbn.menu.action.MetaDataDefinitionReloadAction" text="Reload Metadata Definitions (dev)"/>
+            <group id="DBNavigator.ActionGroup.Development" text="Development" popup="true">
+                <action id="DBNavigator.Actions.MainMenu.DevelopmentReset" class="com.dci.intellij.dbn.menu.action.MetaDataDefinitionReloadAction" text="Reload Metadata Definitions"/>
+                <action id="DBNavigator.Actions.MainMenu.DevelopmentSlowDatabase" class="com.dci.intellij.dbn.menu.action.SimulateSlowDatabaseAction" text="Simulate Slow Database Connection"/>
+            </group>
             <action id="DBNavigator.Actions.MainMenu.OpenSettings" class="com.dci.intellij.dbn.menu.action.OpenSettingsAction" text="Settings"/>
             <action id="DBNavigator.Actions.MainMenu.OpenAbout" class="com.dci.intellij.dbn.menu.action.OpenAboutPageAction" text="About"/>
             <add-to-group anchor="before" group-id="MainMenu" relative-to-action="HelpMenu"/>
