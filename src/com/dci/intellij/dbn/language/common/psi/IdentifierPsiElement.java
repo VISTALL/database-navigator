@@ -439,7 +439,7 @@ public class IdentifierPsiElement extends LeafPsiElement implements PsiNamedElem
     private PsiResolveResult ref;
 
     @Nullable
-    public synchronized PsiElement resolve() {
+    public PsiElement resolve() {
         if (isResolving()) {
             return ref.getReferencedElement();
         }

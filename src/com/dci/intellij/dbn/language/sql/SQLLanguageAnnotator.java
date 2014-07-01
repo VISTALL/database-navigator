@@ -1,6 +1,7 @@
 package com.dci.intellij.dbn.language.sql;
 
 import com.dci.intellij.dbn.code.sql.color.SQLTextAttributesKeys;
+import com.dci.intellij.dbn.common.content.DatabaseLoadMonitor;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.execution.statement.StatementGutterRenderer;
 import com.dci.intellij.dbn.execution.statement.processor.StatementExecutionProcessor;
@@ -59,7 +60,14 @@ public class SQLLanguageAnnotator implements Annotator {
             annotation.setTextAttributes(SQLTextAttributesKeys.IDENTIFIER);
         }
         if (identifierPsiElement.isObject()) {
-            annotateObject(identifierPsiElement, holder);
+            boolean ensureDataLoaded = DatabaseLoadMonitor.isEnsureDataLoaded();
+            DatabaseLoadMonitor.setEnsureDataLoaded(false);
+            try {
+                annotateObject(identifierPsiElement, holder);
+            } finally {
+                DatabaseLoadMonitor.setEnsureDataLoaded(ensureDataLoaded);
+            }
+
         } else if (identifierPsiElement.isAlias()) {
             if (identifierPsiElement.isReference())
                 annotateAliasRef(identifierPsiElement, holder); else
