@@ -78,8 +78,6 @@ public interface DynamicContent<T extends DynamicContentElement> extends Disposa
 
     void updateChangeTimestamp();
 
-    void removeElements(List<T> elements);
-    void addElements(List<T> elements);
     String getName();
 
     boolean accepts(T element);
