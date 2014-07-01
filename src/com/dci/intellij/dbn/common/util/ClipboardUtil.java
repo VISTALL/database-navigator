@@ -1,5 +1,9 @@
 package com.dci.intellij.dbn.common.util;
 
+import org.jetbrains.annotations.Nullable;
+
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
@@ -41,6 +45,22 @@ public class ClipboardUtil {
 
         public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException, IOException {
             return content;
+        }
+    }
+
+    @Nullable
+    public static String getStringContent() {
+        try {
+            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            Object data = clipboard.getData(DataFlavor.stringFlavor);
+            if (data instanceof String) {
+                return (String) data;
+            } else {
+                return null;
+            }
+
+        } catch (Exception e) {
+            return null;
         }
     }
 }

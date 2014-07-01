@@ -1,7 +1,7 @@
 package com.dci.intellij.dbn.navigation.action;
 
 import com.dci.intellij.dbn.common.editor.BasicTextEditor;
-import com.dci.intellij.dbn.common.util.CommonUtil;
+import com.dci.intellij.dbn.common.util.ClipboardUtil;
 import com.dci.intellij.dbn.common.util.StringUtil;
 import com.dci.intellij.dbn.connection.ConnectionBundle;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
@@ -141,7 +141,7 @@ public class GoToDatabaseObjectAction extends GotoActionBase implements DumbAwar
         }
 
         if (predefinedText == null) {
-            predefinedText = CommonUtil.getClipboardContent();
+            predefinedText = ClipboardUtil.getStringContent();
             if (!isValidPredefinedText(predefinedText)) {
                 predefinedText = latestPredefinedText;
             }

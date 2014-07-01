@@ -6,9 +6,6 @@ import org.jdom.input.DOMBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.awt.Toolkit;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.DataFlavor;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -121,14 +118,5 @@ public class CommonUtil {
             set.add(stringTokenizer.nextToken());
         }
         return set;
-    }
-
-    public static String getClipboardContent() {
-        try {
-            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-            return (String) clipboard.getData(DataFlavor.stringFlavor);
-        } catch (Exception e) {
-            return null;
-        }
     }
 }
