@@ -3,43 +3,48 @@ package com.dci.intellij.dbn.editor.data.state.column;
 import com.dci.intellij.dbn.object.DBColumn;
 import com.dci.intellij.dbn.object.DBDataset;
 import org.jdom.Element;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 public class DatasetColumnSetup {
-    private List<DatasetColumnState> columns;
+    private List<DatasetColumnState> columnStates = new ArrayList<DatasetColumnState>();
 
-    public List<DatasetColumnState> getColumns() {
-        return columns;
+    @NotNull
+    public List<DatasetColumnState> getColumnStates() {
+        return columnStates;
     }
 
-    public synchronized void init(DBDataset dataset) {
-        if (columns == null) columns = new ArrayList<DatasetColumnState>();
-
-        if (dataset != null) {
-            for (DBColumn column : dataset.getColumns()) {
-                DatasetColumnState columnsState = getColumnState(column.getName());
-                if (columnsState == null) {
-                    if (!column.isHidden()) {
-                        columnsState = new DatasetColumnState(column);
-                        columns.add(columnsState);
-                    }
-                } else {
-                    columnsState.init(column);
+    public void init(@NotNull DBDataset dataset) {
+        for (DBColumn column : dataset.getColumns()) {
+            DatasetColumnState columnsState = getColumnState(column.getName());
+            if (columnsState == null) {
+                if (!column.isHidden()) {
+                    columnsState = new DatasetColumnState(column);
+                    columnStates.add(columnsState);
                 }
+            } else {
+                columnsState.init(column);
             }
         }
-        Collections.sort(columns);
+        for (Iterator<DatasetColumnState> iterator = columnStates.iterator(); iterator.hasNext(); ) {
+            DatasetColumnState columnState = iterator.next();
+            if (dataset.getColumn(columnState.getName()) == null) {
+                iterator.remove();
+            }
+        }
+
+        Collections.sort(columnStates);
     }
 
+
     public DatasetColumnState getColumnState(String columnName) {
-        if (columns != null) {
-            for (DatasetColumnState columnsState : columns) {
-                if (columnName.equals(columnsState.getName())) {
-                    return columnsState;
-                }
+        for (DatasetColumnState columnsState : columnStates) {
+            if (columnName.equals(columnsState.getName())) {
+                return columnsState;
             }
         }
         return null;
@@ -49,27 +54,24 @@ public class DatasetColumnSetup {
         if (element != null) {
             List<Element> childElements = element.getChildren();
             for (Element childElement : childElements) {
-                if (columns == null) columns = new ArrayList<DatasetColumnState>();
                 String columnName = childElement.getAttributeValue("name");
                 DatasetColumnState columnState = getColumnState(columnName);
                 if (columnState == null) {
                     columnState = new DatasetColumnState(childElement);
-                    columns.add(columnState);
+                    columnStates.add(columnState);
                 } else {
                     columnState.readState(childElement);
                 }
             }
-            Collections.sort(columns);
+            Collections.sort(columnStates);
         }
     }
 
     public void writeState(Element element) {
-        if (columns != null) {
-            for (DatasetColumnState columnState : columns) {
-                Element childElement = new Element("column");
-                element.addContent(childElement);
-                columnState.writeState(childElement);
-            }
+        for (DatasetColumnState columnState : columnStates) {
+            Element childElement = new Element("column");
+            element.addContent(childElement);
+            columnState.writeState(childElement);
         }
     }
 
@@ -78,8 +80,8 @@ public class DatasetColumnSetup {
         int visibleToIndex = toIndex;
 
         int visibleIndex = -1;
-        for (int i=0; i< columns.size(); i++) {
-            DatasetColumnState columnState = columns.get(i);
+        for (int i=0; i< columnStates.size(); i++) {
+            DatasetColumnState columnState = columnStates.get(i);
             if (columnState.isVisible()) {
                 visibleIndex++;
                 if (visibleIndex == fromIndex) visibleFromIndex = i;
@@ -87,10 +89,10 @@ public class DatasetColumnSetup {
             }
         }
 
-        DatasetColumnState columnState = columns.remove(visibleFromIndex);
-        columns.add(visibleToIndex, columnState);
-        for (int i=0; i< columns.size(); i++) {
-            columns.get(i).setPosition(i);
+        DatasetColumnState columnState = columnStates.remove(visibleFromIndex);
+        columnStates.add(visibleToIndex, columnState);
+        for (int i=0; i< columnStates.size(); i++) {
+            columnStates.get(i).setPosition(i);
         }
     }
 
@@ -98,4 +100,5 @@ public class DatasetColumnSetup {
         DatasetColumnState columnState = getColumnState(name);
         return columnState == null || columnState.isVisible();
     }
+
 }
