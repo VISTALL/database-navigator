@@ -68,7 +68,7 @@ public abstract class DynamicContentResultSetLoader<T extends DynamicContentElem
             connection = connectionHandler.getPoolConnection();
             dynamicContent.check();
             resultSet = createResultSet(dynamicContent, connection);
-            if (addDelay) Thread.sleep(1000);
+            if (addDelay) Thread.sleep(500);
             List<T> list = null;
             while (resultSet != null && resultSet.next()) {
                 if (addDelay) Thread.sleep(10);
