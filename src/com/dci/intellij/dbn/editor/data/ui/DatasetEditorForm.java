@@ -65,10 +65,10 @@ public class DatasetEditorForm extends DBNFormImpl implements DBNForm, Searchabl
             loadingIconPanel.add(new AsyncProcessIcon("Loading"), BorderLayout.CENTER);
             hideLoadingHint();
 
+            ActionUtil.registerDataProvider(actionsPanel, datasetEditor.getDataProvider(), true);
+
             Disposer.register(this, autoCommitLabel);
             Disposer.register(this, datasetEditorTable);
-
-            ActionUtil.registerDataProvider(actionsPanel, datasetEditor.getDataProvider(), true);
         } catch (SQLException e) {
 
             MessageDialog.showErrorDialog(
@@ -85,6 +85,7 @@ public class DatasetEditorForm extends DBNFormImpl implements DBNForm, Searchabl
     public DatasetEditorTable beforeRebuild() throws SQLException {
         DatasetEditorTable oldEditorTable = datasetEditorTable;
         datasetEditorTable = new DatasetEditorTable(datasetEditor);
+        Disposer.register(this, datasetEditorTable);
 
         List<TableColumn> hiddenColumns = new ArrayList<TableColumn>();
         for (DatasetColumnState columnState : datasetEditor.getState().getColumnSetup().getColumnStates()) {
@@ -151,10 +152,6 @@ public class DatasetEditorForm extends DBNFormImpl implements DBNForm, Searchabl
     public void dispose() {
         if (!isDisposed()) {
             super.dispose();
-            autoCommitLabel.dispose();
-            dataSearchComponent = null;
-            datasetEditorTable.dispose();
-            datasetEditorTable = null;
             datasetEditor = null;
         }
     }

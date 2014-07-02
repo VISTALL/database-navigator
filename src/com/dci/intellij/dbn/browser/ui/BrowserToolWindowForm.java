@@ -139,7 +139,7 @@ public class BrowserToolWindowForm extends DBNFormImpl implements DBNForm {
         public void projectSettingsChanged(Project project) {
             BrowserDisplayMode configDisplayMode = getConfigDisplayMode();
             if (displayMode != configDisplayMode) {
-                browserForm.dispose();
+                Disposer.dispose(browserForm);
                 displayMode = configDisplayMode;
                 initBrowserForm();
                 browserPanel.updateUI();
