@@ -3,6 +3,7 @@ package com.dci.intellij.dbn.common.ui.table;
 import com.dci.intellij.dbn.common.dispose.Disposable;
 import com.dci.intellij.dbn.common.thread.SimpleLaterInvocator;
 import com.dci.intellij.dbn.common.ui.DBNColor;
+import com.dci.intellij.dbn.common.ui.GUIUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.ui.components.JBScrollPane;
@@ -241,6 +242,7 @@ public class DBNTable extends JTable implements Disposable{
     public void dispose() {
         if (!isDisposed()) {
             disposed = true;
+            GUIUtil.removeListeners(this);
             project = null;
         }
     }

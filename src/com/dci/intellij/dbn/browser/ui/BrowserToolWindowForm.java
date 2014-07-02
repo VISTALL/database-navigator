@@ -15,6 +15,7 @@ import com.dci.intellij.dbn.object.properties.ui.ObjectPropertiesForm;
 import com.dci.intellij.dbn.options.ProjectSettingsChangeListener;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.ui.GuiUtils;
 import org.jetbrains.annotations.Nullable;
 
@@ -54,16 +55,24 @@ public class BrowserToolWindowForm extends DBNFormImpl implements DBNForm {
         GuiUtils.replaceJSplitPaneWithIDEASplitter(mainPanel);
         GUIUtil.updateSplitterProportion(mainPanel, (float) 0.7);
 
+
         EventManager.subscribe(project, ProjectSettingsChangeListener.TOPIC, projectSettingsChangeListener);
+        Disposer.register(this, objectPropertiesForm);
     }
 
     private void initBrowserForm() {
+        if (browserForm != null) {
+            Disposer.dispose(browserForm);
+        }
+        browserPanel.removeAll();
+
         browserForm =
                 displayMode == BrowserDisplayMode.TABBED ? new TabbedBrowserForm(project) :
                 displayMode == BrowserDisplayMode.SIMPLE ? new SimpleBrowserForm(project) : null;
 
-        browserPanel.removeAll();
+
         browserPanel.add(browserForm.getComponent(), BorderLayout.CENTER);
+        Disposer.register(this, browserForm);
     }
 
     public DatabaseBrowserTree getBrowserTree(ConnectionHandler connectionHandler) {
@@ -117,9 +126,7 @@ public class BrowserToolWindowForm extends DBNFormImpl implements DBNForm {
     public void dispose() {
         EventManager.unsubscribe(projectSettingsChangeListener);
         super.dispose();
-        objectPropertiesForm.dispose();
         objectPropertiesForm = null;
-        browserForm.dispose();
         browserForm = null;
         project = null;
     }

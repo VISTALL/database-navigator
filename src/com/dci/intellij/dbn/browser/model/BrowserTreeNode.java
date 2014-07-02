@@ -1,10 +1,10 @@
 package com.dci.intellij.dbn.browser.model;
 
 import com.dci.intellij.dbn.browser.ui.ToolTipProvider;
+import com.dci.intellij.dbn.common.dispose.Disposable;
 import com.dci.intellij.dbn.connection.GenericDatabaseElement;
 import com.intellij.navigation.ItemPresentation;
 import com.intellij.navigation.NavigationItem;
-import com.intellij.openapi.Disposable;
 
 import javax.swing.Icon;
 import java.util.ArrayList;
@@ -43,6 +43,4 @@ public interface BrowserTreeNode extends NavigationItem, ItemPresentation, ToolT
     String getPresentableTextDetails();
 
     String getPresentableTextConditionalDetails();
-
-    boolean isDisposed();
 }

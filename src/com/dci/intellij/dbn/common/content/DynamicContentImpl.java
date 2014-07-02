@@ -214,7 +214,8 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
     public abstract void notifyChangeListeners();
 
     public void setElements(List<T> elements) {
-        filterHashCode = getFilter() == null ? 0 : getFilter().hashCode();
+        Filter filter = getFilter();
+        filterHashCode = filter == null ? 0 : filter.hashCode();
 
         if (isDisposed || elements == null || elements.size() == 0) {
             elements = EMPTY_LIST;

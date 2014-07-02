@@ -8,7 +8,6 @@ import com.dci.intellij.dbn.common.ui.ListUtil;
 import com.dci.intellij.dbn.common.util.MessageUtil;
 import com.dci.intellij.dbn.common.util.VirtualFileUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
-import com.dci.intellij.dbn.connection.ConnectionManager;
 import com.dci.intellij.dbn.connection.mapping.FileConnectionMappingManager;
 import com.dci.intellij.dbn.ddl.ui.AttachDDLFileDialog;
 import com.dci.intellij.dbn.ddl.ui.DDLFileNameListCellRenderer;
@@ -53,8 +52,7 @@ import java.util.Map;
 
 public class DDLFileAttachmentManager extends AbstractProjectComponent implements VirtualFileListener, JDOMExternalizable {
 
-    private Map<String, String> mappings = new HashMap<String, String>();
-    private Map<VirtualFile, DBObjectRef<DBSchemaObject>> cache = new HashMap<VirtualFile, DBObjectRef<DBSchemaObject>>();
+    private Map<String, DBObjectRef<DBSchemaObject>> mappings = new HashMap<String, DBObjectRef<DBSchemaObject>>();
     private DDLFileAttachmentManager(Project project) {
         super(project);
         VirtualFileManager.getInstance().addVirtualFileListener(this);
@@ -82,45 +80,15 @@ public class DDLFileAttachmentManager extends AbstractProjectComponent implement
 
     @Nullable
     public DBSchemaObject getEditableObject(VirtualFile ddlFile) {
-        if (cache.containsKey(ddlFile)) {
-            return DBObjectRef.get(cache.get(ddlFile));
-        }
-
-        String objectPath = mappings.get(ddlFile.getPath());
-        if (objectPath != null) {
-            int startIndex = 1;
-            int endIndex = objectPath.indexOf(']');
-            String connectionId = objectPath.substring(startIndex, endIndex);
-
-            ConnectionManager connectionManager = ConnectionManager.getInstance(getProject());
-            ConnectionHandler connectionHandler = connectionManager.getConnectionHandler(connectionId);
-            if (connectionHandler != null) {
-                startIndex = endIndex + 1;
-                endIndex = objectPath.indexOf('.', startIndex);
-                String schemaName = objectPath.substring(startIndex, endIndex);
-                DBSchema schema = connectionHandler.getObjectBundle().getSchema(schemaName);
-                if (schema != null) {
-                    startIndex = endIndex + 1;
-                    endIndex = objectPath.length();
-                    String objectName = objectPath.substring(startIndex, endIndex);
-                    DBSchemaObject object = (DBSchemaObject) schema.getChildObject(objectName, false);
-                    cache.put(ddlFile, DBObjectRef.from(object));
-                    return object;
-                }
-            }
-        }
-        cache.put(ddlFile, null);
-        return null;
+        DBObjectRef<DBSchemaObject> objectRef = mappings.get(ddlFile.getPath());
+        return DBObjectRef.get(objectRef);
     }
 
 
     public boolean hasBoundDDLFiles(DBSchemaObject object) {
-        String objectPath = object.getQualifiedNameWithConnectionId();
         for (String filePath : mappings.keySet()) {
-            String path = mappings.get(filePath);
-            if (path.equals(objectPath)) {
-                return true;
-            }
+            DBObjectRef<DBSchemaObject> objectRef = mappings.get(filePath);
+            if (objectRef.is(object)) return true;
         }
         return false;
     }
@@ -166,14 +134,15 @@ public class DDLFileAttachmentManager extends AbstractProjectComponent implement
     }
 
     public void bindDDLFile(DBSchemaObject object, VirtualFile virtualFile) {
-        cache.put(virtualFile, DBObjectRef.from(object));
-        mappings.put(virtualFile.getPath(), object.getQualifiedNameWithConnectionId());
-        EventManager.notify(getProject(), DDLMappingListener.TOPIC).ddlFileAttached(virtualFile);
+        DBObjectRef<DBSchemaObject> objectRef = DBObjectRef.from(object);
+        if (objectRef != null) {
+            mappings.put(virtualFile.getPath(), objectRef);
+            EventManager.notify(getProject(), DDLMappingListener.TOPIC).ddlFileAttached(virtualFile);
+        }
     }
 
     public void detachDDLFile(VirtualFile virtualFile) {
-        DBObjectRef<DBSchemaObject> objectRef = cache.remove(virtualFile);
-        mappings.remove(virtualFile.getPath());
+        DBObjectRef<DBSchemaObject> objectRef = mappings.remove(virtualFile.getPath());
 
         // map last used connection/schema
         FileConnectionMappingManager connectionMappingManager = FileConnectionMappingManager.getInstance(getProject());
@@ -356,18 +325,13 @@ public class DDLFileAttachmentManager extends AbstractProjectComponent implement
         String objectPath = object.getQualifiedNameWithConnectionId();
         List<String> filePaths = new ArrayList<String>();
         for (String filePath : mappings.keySet()) {
-            String path = mappings.get(filePath);
-            if (path.equals(objectPath)) {
+            DBObjectRef<DBSchemaObject> objectRef = mappings.get(filePath);
+            if (objectRef.is(object)) {
                 filePaths.add(filePath);
             }
         }
         return filePaths;
     }
-
-    private String getObjectPath(String filePath) {
-        return mappings.get(filePath);
-    }
-
 
     /***************************************
      *            ProjectComponent         *
@@ -383,7 +347,6 @@ public class DDLFileAttachmentManager extends AbstractProjectComponent implement
     }
     public void disposeComponent() {
         mappings.clear();
-        cache.clear();
         super.disposeComponent();
     }
     /************************************************
@@ -405,7 +368,8 @@ public class DDLFileAttachmentManager extends AbstractProjectComponent implement
 
     @Override
     public void fileDeleted(@NotNull VirtualFileEvent event) {
-        DBSchemaObject object = DBObjectRef.get(cache.get(event.getFile()));
+        DBObjectRef<DBSchemaObject> objectRef = mappings.get(event.getFile().getPath());
+        DBSchemaObject object = DBObjectRef.get(objectRef);
         if (object != null) {
             detachDDLFile(event.getFile());
             DatabaseFileSystem.getInstance().reopenEditor(object);
@@ -443,8 +407,11 @@ public class DDLFileAttachmentManager extends AbstractProjectComponent implement
         for (Object child : element.getChildren()) {
             Element childElement = (Element) child;
             String file = childElement.getAttributeValue("file");
-            String object = childElement.getAttributeValue("object");
-            mappings.put(file, object);
+            DBObjectRef<DBSchemaObject> objectRef = DBObjectRef.from(childElement);
+            if (objectRef != null) {
+                mappings.put(file, objectRef);
+            }
+
         }
     }
 
@@ -452,7 +419,8 @@ public class DDLFileAttachmentManager extends AbstractProjectComponent implement
         for (String file : mappings.keySet()) {
             Element childElement = new Element("mapping");
             childElement.setAttribute("file", file);
-            childElement.setAttribute("object", mappings.get(file));
+            DBObjectRef<DBSchemaObject> objectRef = mappings.get(file);
+            objectRef.writeState(childElement);
             element.addContent(childElement);
         }
 

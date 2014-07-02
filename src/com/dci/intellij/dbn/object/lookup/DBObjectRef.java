@@ -1,6 +1,7 @@
 package com.dci.intellij.dbn.object.lookup;
 
 import com.dci.intellij.dbn.common.Reference;
+import com.dci.intellij.dbn.common.util.StringUtil;
 import com.dci.intellij.dbn.connection.ConnectionCache;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.ConnectionManager;
@@ -55,15 +56,22 @@ public class DBObjectRef<T extends DBObject> implements Comparable, Reference<T>
 
     }
 
-    public DBObjectRef(Element element) {
-        readState(element);
+    public static DBObjectRef from(Element element) {
+        if (StringUtil.isNotEmpty(element.getAttributeValue("object-ref"))) {
+            DBObjectRef objectRef = new DBObjectRef();
+            objectRef.readState(element);
+            return objectRef;
+        }
+        return null;
     }
 
     public void readState(Element element) {
         if (element != null) {
             connectionId = element.getAttributeValue("connection-id");
-            StringTokenizer objectTypes = new StringTokenizer(element.getAttributeValue("type"), ".");
-            StringTokenizer objectNames = new StringTokenizer(element.getAttributeValue("name"), ".");
+            String databaseObject = element.getAttributeValue("object-ref");
+            int typeEndIndex = databaseObject.lastIndexOf("]");
+            StringTokenizer objectTypes = new StringTokenizer(databaseObject.substring(1, typeEndIndex), ".");
+            StringTokenizer objectNames = new StringTokenizer(databaseObject.substring(typeEndIndex + 1), ".");
             while (objectTypes.hasMoreTokens()) {
                 String objectTypeName = objectTypes.nextToken();
                 String objectName = objectNames.nextToken();
@@ -86,8 +94,7 @@ public class DBObjectRef<T extends DBObject> implements Comparable, Reference<T>
             objectNames.append(node.getName());
         }
 
-        element.setAttribute("type", objectTypes.toString());
-        element.setAttribute("name", objectNames.toString());
+        element.setAttribute("object-ref", "[" + objectTypes.toString() + "]" + objectNames);
     }
 
     public DBObjectRef append(DBObjectType objectType, String name) {

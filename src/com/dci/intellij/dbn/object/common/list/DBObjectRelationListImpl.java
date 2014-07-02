@@ -4,6 +4,7 @@ import com.dci.intellij.dbn.common.content.DynamicContentImpl;
 import com.dci.intellij.dbn.common.content.dependency.ContentDependencyAdapter;
 import com.dci.intellij.dbn.common.content.loader.DynamicContentLoader;
 import com.dci.intellij.dbn.common.filter.Filter;
+import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.GenericDatabaseElement;
 import com.dci.intellij.dbn.object.common.DBObject;
 import com.dci.intellij.dbn.object.common.DBObjectRelationType;
@@ -30,8 +31,12 @@ public class DBObjectRelationListImpl<T extends DBObjectRelation> extends Dynami
     }
 
     public Filter getFilter() {
-        ObjectNameFilterSettings nameFilterSettings = getConnectionHandler().getSettings().getFilterSettings().getObjectNameFilterSettings();
-        return nameFilterSettings.getFilter(objectRelationType);
+        ConnectionHandler connectionHandler = getConnectionHandler();
+        if (connectionHandler != null) {
+            ObjectNameFilterSettings nameFilterSettings = connectionHandler.getSettings().getFilterSettings().getObjectNameFilterSettings();
+            return nameFilterSettings.getFilter(objectRelationType);
+        }
+        return null;
     }
 
     public DBObjectRelationType getObjectRelationType() {
