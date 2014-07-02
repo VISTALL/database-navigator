@@ -1,7 +1,7 @@
 package com.dci.intellij.dbn.editor.data.record.ui;
 
 import com.dci.intellij.dbn.common.Icons;
-import com.dci.intellij.dbn.common.dispose.DisposeUtil;
+import com.dci.intellij.dbn.common.dispose.DisposerUtil;
 import com.dci.intellij.dbn.common.ui.DBNForm;
 import com.dci.intellij.dbn.common.ui.DBNFormImpl;
 import com.dci.intellij.dbn.common.ui.DBNHeaderForm;
@@ -278,7 +278,7 @@ public class DatasetRecordEditorForm extends DBNFormImpl implements DBNForm {
 
     public void dispose() {
         super.dispose();
-        DisposeUtil.disposeCollection(columnForms);
+        DisposerUtil.dispose(columnForms);
         columnForms = null;
         row = null;
     }

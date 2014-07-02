@@ -6,6 +6,7 @@ import com.intellij.openapi.actionSystem.IdeActions;
 import com.intellij.openapi.actionSystem.Shortcut;
 import com.intellij.openapi.keymap.KeymapUtil;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Disposer;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -137,31 +138,36 @@ public class TextFieldWithPopup extends JPanel implements DataEditorComponent {
      *                    PopupProviders                  *
      ******************************************************/
     public void createValuesListPopup(List<String> valuesList, boolean useDynamicFiltering) {
-        ValuesListPopupProviderForm listPopupProviderForm = new ValuesListPopupProviderForm(this, valuesList, useDynamicFiltering);
-        popupProviders.add(listPopupProviderForm);
+        ValuesListPopupProviderForm popupProviderForm = new ValuesListPopupProviderForm(this, valuesList, useDynamicFiltering);
+        addPopupProvider(popupProviderForm);
         updateButtonToolTip();
     }
 
     public void createValuesListPopup(ListPopupValuesProvider valuesProvider, boolean useDynamicFiltering) {
-        ValuesListPopupProviderForm listPopupProvider = new ValuesListPopupProviderForm(this, valuesProvider, useDynamicFiltering);
-        popupProviders.add(listPopupProvider);
+        ValuesListPopupProviderForm popupProviderForm = new ValuesListPopupProviderForm(this, valuesProvider, useDynamicFiltering);
+        addPopupProvider(popupProviderForm);
         updateButtonToolTip();
     }
 
     public void createTextAreaPopup(boolean autoPopup) {
-        TextEditorPopupProviderForm popupProvider = new TextEditorPopupProviderForm(this, autoPopup);
-        popupProviders.add(popupProvider);
+        TextEditorPopupProviderForm popupProviderForm = new TextEditorPopupProviderForm(this, autoPopup);
+        addPopupProvider(popupProviderForm);
         updateButtonToolTip();
         showsButton = true;
         button.setVisible(true);
     }
 
     public void createCalendarPopup(boolean autoPopup) {
-        CalendarPopupProviderForm popupProvider = new CalendarPopupProviderForm(this, autoPopup);
-        popupProviders.add(popupProvider);
+        CalendarPopupProviderForm popupProviderForm = new CalendarPopupProviderForm(this, autoPopup);
+        addPopupProvider(popupProviderForm);
         updateButtonToolTip();
         showsButton = true;
         button.setVisible(true);
+    }
+
+    private void addPopupProvider(TextFieldPopupProviderForm popupProviderForm) {
+        popupProviders.add(popupProviderForm);
+        Disposer.register(this, popupProviderForm);
     }
 
     public void setPopupEnabled(TextFieldPopupType popupType, boolean enabled) {
@@ -179,7 +185,7 @@ public class TextFieldWithPopup extends JPanel implements DataEditorComponent {
     public void disposeActivePopup() {
         TextFieldPopupProviderForm popupProvider = getActivePopupProvider();
         if ( popupProvider != null) {
-             popupProvider.disposePopup();
+             popupProvider.hidePopup();
         }
     }
 
@@ -282,4 +288,23 @@ public class TextFieldWithPopup extends JPanel implements DataEditorComponent {
     public UserValueHolder getUserValueHolder() {
         return userValueHolder;
     }
+
+    /********************************************************
+     *                    Disposable                        *
+     ********************************************************/
+    private boolean disposed;
+
+    @Override
+    public boolean isDisposed() {
+        return disposed;
+    }
+
+    @Override
+    public void dispose() {
+        if (!isDisposed()) {
+            disposed = true;
+            userValueHolder = null;
+        }
+    }
+
 }

@@ -155,4 +155,23 @@ public class TextFieldWithTextEditor extends JPanel implements DataEditorCompone
             setText(text);
         }
     }
+
+    /********************************************************
+     *                    Disposable                        *
+     ********************************************************/
+    private boolean isDisposed;
+
+    @Override
+    public boolean isDisposed() {
+        return isDisposed;
+    }
+
+    @Override
+    public void dispose() {
+        if (!isDisposed()) {
+            isDisposed = true;
+            userValueHolder = null;
+            project = null;
+        }
+    }
 }

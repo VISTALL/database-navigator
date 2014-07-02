@@ -12,6 +12,7 @@ import com.intellij.openapi.actionSystem.Shortcut;
 import com.intellij.openapi.keymap.KeymapUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.JBPopup;
+import com.intellij.openapi.util.Disposer;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JPanel;
@@ -35,7 +36,6 @@ public abstract class TextFieldPopupProviderForm extends KeyAdapter implements D
     private boolean isEnabled = true;
     private JBPopup popup;
     private Set<AnAction> actions = new HashSet<AnAction>();
-    private boolean disposed;
 
     protected TextFieldPopupProviderForm(TextFieldWithPopup editorComponent, boolean isAutoPopup) {
         this.editorComponent = editorComponent;
@@ -120,6 +120,8 @@ public abstract class TextFieldPopupProviderForm extends KeyAdapter implements D
                 if (!isShowingPopup()) {
                     popup = createPopup();
                     if (popup != null) {
+                        Disposer.register(TextFieldPopupProviderForm.this, popup);
+
                         JPanel panel = (JPanel) popup.getContent();
                         panel.setBorder(new LineBorder(Color.DARK_GRAY));
 
@@ -137,7 +139,7 @@ public abstract class TextFieldPopupProviderForm extends KeyAdapter implements D
         }.start();
     }
 
-    protected void disposePopup() {
+    protected void hidePopup() {
         if (isShowingPopup()) {
             new ConditionalLaterInvocator() {
                 @Override
@@ -153,13 +155,23 @@ public abstract class TextFieldPopupProviderForm extends KeyAdapter implements D
         return popup != null && popup.isVisible();
     }
 
-    @Override
-    public void dispose() {
-        disposed = true;
-    }
+
+    /********************************************************
+     *                    Disposable                        *
+     ********************************************************/
+    private boolean disposed;
 
     @Override
     public boolean isDisposed() {
         return disposed;
+    }
+
+    public void dispose() {
+        if (!disposed) {
+            disposed = true;
+
+            editorComponent = null;
+            popup = null;
+        }
     }
 }

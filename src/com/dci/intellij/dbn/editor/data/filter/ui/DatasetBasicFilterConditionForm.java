@@ -4,7 +4,6 @@ import com.dci.intellij.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dci.intellij.dbn.common.ui.ComboBoxSelectionKeyListener;
 import com.dci.intellij.dbn.common.ui.ValueSelector;
 import com.dci.intellij.dbn.common.util.ActionUtil;
-import com.dci.intellij.dbn.data.editor.ui.DataEditorComponent;
 import com.dci.intellij.dbn.data.editor.ui.TextFieldPopupType;
 import com.dci.intellij.dbn.data.editor.ui.TextFieldWithPopup;
 import com.dci.intellij.dbn.data.type.DBNativeDataType;
@@ -18,6 +17,7 @@ import com.dci.intellij.dbn.object.DBDataset;
 import com.dci.intellij.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.options.ConfigurationException;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.ui.ColoredListCellRenderer;
 import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.SimpleTextAttributes;
@@ -41,7 +41,6 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
     private JPanel valueFieldPanel;
     private JPanel columnPanel;
     private JPanel operatorPanel;
-    private DataEditorComponent editorComponent;
 
     private boolean active = true;
 
@@ -49,7 +48,7 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
     private OperatorSelector operatorSelector;
 
     private DatasetBasicFilterForm basicFilterForm;
-    private TextFieldWithPopup textFieldWithPopup;
+    private TextFieldWithPopup editorComponent;
     private DBObjectRef<DBDataset> datasetRef;
 
     public DatasetBasicFilterConditionForm(DBDataset dataset, DatasetBasicFilterCondition condition) {
@@ -80,12 +79,11 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
         operatorSelector = new OperatorSelector(selectedOperator);
         operatorPanel.add(operatorSelector, BorderLayout.CENTER);
 
-        textFieldWithPopup = new TextFieldWithPopup(dataset.getProject());
-        textFieldWithPopup.createCalendarPopup(false);
-        textFieldWithPopup.setPopupEnabled(TextFieldPopupType.CALENDAR, dataType == GenericDataType.DATE_TIME);
+        editorComponent = new TextFieldWithPopup(dataset.getProject());
+        editorComponent.createCalendarPopup(false);
+        editorComponent.setPopupEnabled(TextFieldPopupType.CALENDAR, dataType == GenericDataType.DATE_TIME);
         
-        valueFieldPanel.add(textFieldWithPopup, BorderLayout.CENTER);
-        editorComponent = textFieldWithPopup;
+        valueFieldPanel.add(editorComponent, BorderLayout.CENTER);
 
         JTextField valueTextField = editorComponent.getTextField();
         valueTextField.setText(condition.getValue());
@@ -102,6 +100,8 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
         valueTextField.setToolTipText("<html>While editing value, <br> " +
                 "press <b>Up/Down</b> keys to change column or <br> " +
                 "press <b>Ctrl-Up/Ctrl-Down</b> keys to change operator</html>");
+
+        Disposer.register(this, editorComponent);
 
     }
 
@@ -126,7 +126,7 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
             if (column != null) {
                 DBNativeDataType nativeDataType = column.getDataType().getNativeDataType();
                 GenericDataType dataType = nativeDataType == null ? null : nativeDataType.getBasicDataType();
-                textFieldWithPopup.setPopupEnabled(TextFieldPopupType.CALENDAR, dataType == GenericDataType.DATE_TIME);
+                editorComponent.setPopupEnabled(TextFieldPopupType.CALENDAR, dataType == GenericDataType.DATE_TIME);
             }
             if (basicFilterForm != null) {
                 basicFilterForm.updateNameAndPreview();

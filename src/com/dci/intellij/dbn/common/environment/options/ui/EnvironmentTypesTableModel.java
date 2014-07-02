@@ -5,20 +5,19 @@ import com.dci.intellij.dbn.common.environment.EnvironmentTypeBundle;
 import com.dci.intellij.dbn.common.environment.options.EnvironmentPresentationChangeListener;
 import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.common.ui.DBNColor;
+import com.dci.intellij.dbn.common.ui.table.DBNTableModel;
 import com.dci.intellij.dbn.common.util.CommonUtil;
 import com.dci.intellij.dbn.common.util.StringUtil;
-import com.intellij.openapi.Disposable;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
-import javax.swing.table.TableModel;
 import java.awt.Color;
 import java.util.HashSet;
 import java.util.Set;
 
-public class EnvironmentTypesTableModel implements TableModel, Disposable {
+public class EnvironmentTypesTableModel implements DBNTableModel {
     private EnvironmentTypeBundle environmentTypes;
     private Set<TableModelListener> tableModelListeners = new HashSet<TableModelListener>();
     private Project project;
@@ -143,8 +142,20 @@ public class EnvironmentTypesTableModel implements TableModel, Disposable {
         }
     }
 
+    /********************************************************
+     *                    Disposable                        *
+     ********************************************************/
+    private boolean disposed;
+
     @Override
+    public boolean isDisposed() {
+        return disposed;
+    }
+
     public void dispose() {
-        tableModelListeners.clear();
+        if (!disposed) {
+            disposed = true;
+            tableModelListeners.clear();
+        }
     }
 }

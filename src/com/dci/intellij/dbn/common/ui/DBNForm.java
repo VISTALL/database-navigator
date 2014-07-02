@@ -1,10 +1,9 @@
 package com.dci.intellij.dbn.common.ui;
 
-import com.intellij.openapi.Disposable;
+import com.dci.intellij.dbn.common.dispose.Disposable;
 
 import javax.swing.JComponent;
 
 public interface DBNForm extends Disposable {
     JComponent getComponent();
-    boolean isDisposed();
 }

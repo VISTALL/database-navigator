@@ -1,16 +1,22 @@
 package com.dci.intellij.dbn.data.model.basic;
 
 
-import com.dci.intellij.dbn.common.dispose.DisposeUtil;
 import com.dci.intellij.dbn.data.model.ColumnInfo;
 import com.dci.intellij.dbn.data.model.DataModelHeader;
 import com.dci.intellij.dbn.data.type.DBDataType;
+import com.intellij.openapi.util.Disposer;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class BasicDataModelHeader implements DataModelHeader {
-    protected List<ColumnInfo> columnInfos = new ArrayList<ColumnInfo>();
+    private List<ColumnInfo> columnInfos = new ArrayList<ColumnInfo>();
+
+
+    protected void addColumnInfo(ColumnInfo columnInfo) {
+        columnInfos.add(columnInfo);
+        Disposer.register(this, columnInfo);
+    }
 
     public List<ColumnInfo> getColumnInfos() {
         return columnInfos;
@@ -42,7 +48,21 @@ public class BasicDataModelHeader implements DataModelHeader {
         return columnInfos.size();
     }
 
+    /********************************************************
+     *                    Disposable                        *
+     ********************************************************/
+    private boolean disposed;
+
+    @Override
+    public boolean isDisposed() {
+        return disposed;
+    }
+
+    @Override
     public void dispose() {
-        DisposeUtil.disposeCollection(columnInfos);
+        if (!isDisposed()) {
+            disposed = true;
+            columnInfos.clear();
+        }
     }
 }

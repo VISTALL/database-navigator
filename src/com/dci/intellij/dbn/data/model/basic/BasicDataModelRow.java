@@ -1,5 +1,6 @@
 package com.dci.intellij.dbn.data.model.basic;
 
+import com.dci.intellij.dbn.common.dispose.DisposerUtil;
 import com.dci.intellij.dbn.data.model.DataModelCell;
 import com.dci.intellij.dbn.data.model.DataModelRow;
 
@@ -15,6 +16,10 @@ public class BasicDataModelRow<T extends DataModelCell> implements DataModelRow<
     public BasicDataModelRow(BasicDataModel model) {
         cells = new ArrayList<T>(model.getColumnCount());
         this.model = model;
+    }
+
+    protected void addCell(T cell) {
+        cells.add(cell);
     }
 
     public BasicDataModel getModel() {
@@ -41,13 +46,21 @@ public class BasicDataModelRow<T extends DataModelCell> implements DataModelRow<
         return cells.indexOf(cell);
     }
 
+
+    /********************************************************
+     *                    Disposable                        *
+     ********************************************************/
+    private boolean disposed;
+
+    @Override
+    public boolean isDisposed() {
+        return disposed;
+    }
+
     public void dispose() {
         if (!isDisposed) {
             isDisposed = true;
-            for (DataModelCell cell : cells) {
-                cell.dispose();
-            }
-            cells.clear();
+            DisposerUtil.dispose(cells);
             cells = null;
             model = null;
         }

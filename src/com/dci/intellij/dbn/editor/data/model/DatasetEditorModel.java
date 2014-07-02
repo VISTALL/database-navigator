@@ -46,8 +46,8 @@ public class DatasetEditorModel extends ResultSetDataModel<DatasetEditorModelRow
         super(datasetEditor.getConnectionHandler());
         this.datasetEditor = datasetEditor;
         this.datasetRef = DBObjectRef.from(datasetEditor.getDataset());
-        this.header = new DatasetEditorModelHeader(datasetEditor, null);
         this.settings =  DataEditorSettings.getInstance(datasetEditor.getProject());
+        setHeader(new DatasetEditorModelHeader(datasetEditor, null));
     }
 
     public synchronized void load(ProgressIndicator progressIndicator, boolean useCurrentFilter, boolean keepChanges) throws SQLException {
@@ -71,9 +71,9 @@ public class DatasetEditorModel extends ResultSetDataModel<DatasetEditorModelRow
         Connection connection = connectionHandler.getStandaloneConnection();
         ResultSet newResultSet = loadResultSet(connection, useCurrentFilter);
         if (newResultSet != null) {
+            checkDisposed();
             resultSet = newResultSet;
             resultSetExhausted = false;
-
             if (keepChanges) snapshotChanges(); else clearChanges();
             fetchNextRecords(rowCount, true);
             restoreChanges();
@@ -449,10 +449,11 @@ public class DatasetEditorModel extends ResultSetDataModel<DatasetEditorModelRow
      *********************************************************/
     @Override
     public void dispose() {
-        super.dispose();
-        datasetRef = null;
-        datasetEditor = null;
-        changedRows.clear();
-        settings = null;
+        if (!isDisposed()) {
+            super.dispose();
+            datasetEditor = null;
+            changedRows.clear();
+            settings = null;
+        }
     }
 }

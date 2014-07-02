@@ -1,7 +1,7 @@
 package com.dci.intellij.dbn.debugger.execution.ui;
 
 import com.dci.intellij.dbn.common.Icons;
-import com.dci.intellij.dbn.common.dispose.DisposeUtil;
+import com.dci.intellij.dbn.common.dispose.DisposerUtil;
 import com.dci.intellij.dbn.common.thread.BackgroundTask;
 import com.dci.intellij.dbn.common.thread.SimpleLaterInvocator;
 import com.dci.intellij.dbn.common.ui.DBNForm;
@@ -239,7 +239,7 @@ public class DBProgramRunConfigurationEditorForm extends DBNFormImpl implements 
 
     public void dispose() {
         super.dispose();
-        DisposeUtil.dispose(methodExecutionForm);
+        DisposerUtil.dispose(methodExecutionForm);
         methodExecutionForm = null;
         executionInput = null;
         configuration = null;

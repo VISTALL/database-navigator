@@ -13,7 +13,7 @@ import com.dci.intellij.dbn.code.sql.color.SQLTextAttributesKeys;
 import com.dci.intellij.dbn.common.content.DynamicContent;
 import com.dci.intellij.dbn.common.content.DynamicContentType;
 import com.dci.intellij.dbn.common.content.loader.DynamicContentLoader;
-import com.dci.intellij.dbn.common.dispose.DisposeUtil;
+import com.dci.intellij.dbn.common.dispose.DisposerUtil;
 import com.dci.intellij.dbn.common.environment.EnvironmentType;
 import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.common.filter.Filter;
@@ -693,12 +693,12 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
     public void dispose() {
         if (!isDisposed) {
             isDisposed = true;
-            DisposeUtil.dispose(childObjects);
-            DisposeUtil.dispose(childObjectRelations);
+            DisposerUtil.dispose(childObjects);
+            DisposerUtil.dispose(childObjectRelations);
             CollectionUtil.clearCollection(visibleTreeChildren);
             CollectionUtil.clearCollection(allPossibleTreeChildren);
-            DisposeUtil.dispose(sqlLookupItemFactory);
-            DisposeUtil.dispose(psqlLookupItemFactory);
+            DisposerUtil.dispose(sqlLookupItemFactory);
+            DisposerUtil.dispose(psqlLookupItemFactory);
             objectBundle = null;
         }
     }

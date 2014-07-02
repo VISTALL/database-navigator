@@ -1,6 +1,6 @@
 package com.dci.intellij.dbn.navigation.psi;
 
-import com.dci.intellij.dbn.common.dispose.DisposeUtil;
+import com.dci.intellij.dbn.common.dispose.DisposerUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.object.common.DBObject;
 import com.dci.intellij.dbn.object.common.list.DBObjectList;
@@ -78,9 +78,9 @@ public class NavigationPsiCache implements Disposable {
 
     @Override
     public void dispose() {
-        DisposeUtil.dispose(connectionPsiDirectory);
-        DisposeUtil.disposeMap(objectListPsiDirectories);
-        DisposeUtil.disposeMap(objectPsiDirectories);
-        DisposeUtil.disposeMap(objectPsiFiles);
+        DisposerUtil.dispose(connectionPsiDirectory);
+        DisposerUtil.dispose(objectListPsiDirectories);
+        DisposerUtil.dispose(objectPsiDirectories);
+        DisposerUtil.dispose(objectPsiFiles);
     }
 }

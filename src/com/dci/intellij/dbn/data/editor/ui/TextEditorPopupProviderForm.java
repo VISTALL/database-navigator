@@ -141,7 +141,7 @@ public class TextEditorPopupProviderForm extends TextFieldPopupProviderForm {
 
                 textField.setText(text);
             }
-            disposePopup();
+            hidePopup();
         }
 
         @Override
@@ -158,7 +158,7 @@ public class TextEditorPopupProviderForm extends TextFieldPopupProviderForm {
         }
 
         public void actionPerformed(AnActionEvent e) {
-            disposePopup();
+            hidePopup();
         }
 
         @Override
@@ -179,7 +179,7 @@ public class TextEditorPopupProviderForm extends TextFieldPopupProviderForm {
             getEditorComponent().getUserValueHolder().updateUserValue(null, false);
             getEditorComponent().setEditable(true);
             textField.setText("");
-            disposePopup();
+            hidePopup();
         }
     }
 

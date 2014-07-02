@@ -7,7 +7,7 @@ import com.dci.intellij.dbn.common.content.dependency.ContentDependencyAdapter;
 import com.dci.intellij.dbn.common.content.dependency.MultipleContentDependencyAdapter;
 import com.dci.intellij.dbn.common.content.dependency.SubcontentDependencyAdapterImpl;
 import com.dci.intellij.dbn.common.content.loader.DynamicContentLoader;
-import com.dci.intellij.dbn.common.dispose.DisposeUtil;
+import com.dci.intellij.dbn.common.dispose.DisposerUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.GenericDatabaseElement;
 import com.dci.intellij.dbn.database.DatabaseCompatibilityInterface;
@@ -253,8 +253,8 @@ public class DBObjectListContainer implements Disposable {
     }
 
     public void dispose() {
-        DisposeUtil.disposeMap(objectLists);
-        DisposeUtil.disposeMap(hiddenObjectLists);
+        DisposerUtil.dispose(objectLists);
+        DisposerUtil.dispose(hiddenObjectLists);
         owner = null;
 
     }

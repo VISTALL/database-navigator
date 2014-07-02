@@ -1,15 +1,14 @@
 package com.dci.intellij.dbn.data.model;
 
+import com.dci.intellij.dbn.common.ui.table.DBNTableModel;
 import com.dci.intellij.dbn.data.find.DataSearchResult;
-import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.ListModel;
-import javax.swing.table.TableModel;
 import java.util.List;
 
-public interface DataModel<T extends DataModelRow> extends TableModel, ListModel, Disposable {
+public interface DataModel<T extends DataModelRow> extends DBNTableModel, ListModel {
     boolean isReadonly();
 
     Project getProject();

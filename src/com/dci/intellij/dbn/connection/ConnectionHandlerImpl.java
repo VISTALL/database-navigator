@@ -4,7 +4,7 @@ import com.dci.intellij.dbn.browser.model.BrowserTreeChangeListener;
 import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.LoggerFactory;
-import com.dci.intellij.dbn.common.dispose.DisposeUtil;
+import com.dci.intellij.dbn.common.dispose.DisposerUtil;
 import com.dci.intellij.dbn.common.environment.EnvironmentType;
 import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.common.filter.Filter;
@@ -373,11 +373,11 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
     public void dispose() {
         if (!isDisposed) {
             isDisposed = true;
-            DisposeUtil.dispose(objectBundle);
-            DisposeUtil.dispose(connectionPool);
-            DisposeUtil.dispose(sqlConsoleFile);
-            DisposeUtil.dispose(psiCache);
-            DisposeUtil.dispose(loadMonitor);
+            DisposerUtil.dispose(objectBundle);
+            DisposerUtil.dispose(connectionPool);
+            DisposerUtil.dispose(sqlConsoleFile);
+            DisposerUtil.dispose(psiCache);
+            DisposerUtil.dispose(loadMonitor);
             connectionPool = null;
             changesBundle = null;
         }

@@ -13,7 +13,7 @@ public class ResultSetDataModelRow<T extends ResultSetDataModelCell> extends Sor
         for (int i = 0; i < model.getColumnCount(); i++) {
             ResultSetColumnInfo columnInfo = (ResultSetColumnInfo) getModel().getColumnInfo(i);
             T cell = createCell(resultSet, columnInfo);
-            getCells().add(cell);
+            addCell(cell);
         }
     }
 

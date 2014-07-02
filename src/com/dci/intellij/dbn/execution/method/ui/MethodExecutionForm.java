@@ -1,7 +1,7 @@
 package com.dci.intellij.dbn.execution.method.ui;
 
 import com.dci.intellij.dbn.common.Icons;
-import com.dci.intellij.dbn.common.dispose.DisposeUtil;
+import com.dci.intellij.dbn.common.dispose.DisposerUtil;
 import com.dci.intellij.dbn.common.ui.AutoCommitLabel;
 import com.dci.intellij.dbn.common.ui.DBNForm;
 import com.dci.intellij.dbn.common.ui.DBNFormImpl;
@@ -217,7 +217,7 @@ public class MethodExecutionForm extends DBNFormImpl implements DBNForm {
     public void dispose() {
         super.dispose();
         autoCommitLabel.dispose();
-        DisposeUtil.disposeCollection(argumentForms);
+        DisposerUtil.dispose(argumentForms);
         changeListeners.clear();
         argumentForms = null;
         executionInput = null;

@@ -25,4 +25,22 @@ public class BasicDataEditorComponent extends JTextField implements DataEditorCo
     public void setEnabled(boolean enabled) {
         setEditable(enabled);
     }
+
+    /********************************************************
+     *                    Disposable                        *
+     ********************************************************/
+    private boolean disposed;
+
+    @Override
+    public boolean isDisposed() {
+        return disposed;
+    }
+
+    @Override
+    public void dispose() {
+        if (!isDisposed()) {
+            disposed = true;
+            userValueHolder = null;
+        }
+    }
 }

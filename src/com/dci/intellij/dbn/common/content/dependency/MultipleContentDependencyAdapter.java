@@ -1,7 +1,7 @@
 package com.dci.intellij.dbn.common.content.dependency;
 
 import com.dci.intellij.dbn.common.content.DynamicContent;
-import com.dci.intellij.dbn.common.dispose.DisposeUtil;
+import com.dci.intellij.dbn.common.dispose.DisposerUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 
 import java.util.HashSet;
@@ -88,7 +88,7 @@ public class MultipleContentDependencyAdapter extends BasicDependencyAdapter imp
     public void dispose() {
         if (!isDisposed) {
             isDisposed = true;
-            DisposeUtil.disposeCollection(dependencies);
+            DisposerUtil.dispose(dependencies);
             super.dispose();
         }
     }

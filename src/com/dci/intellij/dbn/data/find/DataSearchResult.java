@@ -1,6 +1,6 @@
 package com.dci.intellij.dbn.data.find;
 
-import com.dci.intellij.dbn.common.dispose.DisposeUtil;
+import com.dci.intellij.dbn.common.dispose.DisposerUtil;
 import com.dci.intellij.dbn.common.list.ReversedList;
 import com.dci.intellij.dbn.common.ui.ListUtil;
 import com.dci.intellij.dbn.data.model.DataModelCell;
@@ -24,7 +24,7 @@ public class DataSearchResult implements Disposable {
         selectedMatch = null;
         List<DataSearchResultMatch> oldMatches = matches;
         matches = new ArrayList<DataSearchResultMatch>();
-        DisposeUtil.disposeCollection(oldMatches);
+        DisposerUtil.dispose(oldMatches);
     }
 
     public synchronized int size() {
@@ -219,7 +219,7 @@ public class DataSearchResult implements Disposable {
 
     @Override
     public void dispose() {
-        DisposeUtil.disposeCollection(matches);
+        DisposerUtil.dispose(matches);
         listeners.clear();
         matches = null;
         listeners = null;

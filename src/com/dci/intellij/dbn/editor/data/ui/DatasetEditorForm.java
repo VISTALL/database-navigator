@@ -17,6 +17,7 @@ import com.dci.intellij.dbn.editor.data.ui.table.DatasetEditorTable;
 import com.dci.intellij.dbn.editor.data.ui.table.cell.DatasetTableCellEditor;
 import com.dci.intellij.dbn.object.DBDataset;
 import com.intellij.openapi.actionSystem.ActionToolbar;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.util.ui.AsyncProcessIcon;
 import com.intellij.util.ui.UIUtil;
 
@@ -64,6 +65,9 @@ public class DatasetEditorForm extends DBNFormImpl implements DBNForm, Searchabl
             loadingIconPanel.add(new AsyncProcessIcon("Loading"), BorderLayout.CENTER);
             hideLoadingHint();
 
+            Disposer.register(this, autoCommitLabel);
+            Disposer.register(this, datasetEditorTable);
+
             ActionUtil.registerDataProvider(actionsPanel, datasetEditor.getDataProvider(), true);
         } catch (SQLException e) {
 
@@ -105,7 +109,8 @@ public class DatasetEditorForm extends DBNFormImpl implements DBNForm, Searchabl
                         datasetTableScrollPane.setViewportView(datasetEditorTable);
                         datasetTableScrollPane.setRowHeaderView(datasetEditorTable.getTableGutter());
                         datasetEditorTable.updateBackground(false);
-                        oldEditorTable.dispose();
+
+                        Disposer.dispose(oldEditorTable);
                     }
                 }
             }.start();
@@ -147,10 +152,7 @@ public class DatasetEditorForm extends DBNFormImpl implements DBNForm, Searchabl
         if (!isDisposed()) {
             super.dispose();
             autoCommitLabel.dispose();
-            if (dataSearchComponent != null) {
-                dataSearchComponent.dispose();
-                dataSearchComponent = null;
-            }
+            dataSearchComponent = null;
             datasetEditorTable.dispose();
             datasetEditorTable = null;
             datasetEditor = null;
@@ -176,6 +178,8 @@ public class DatasetEditorForm extends DBNFormImpl implements DBNForm, Searchabl
         if (dataSearchComponent == null) {
             dataSearchComponent = new DataSearchComponent(this);
             searchPanel.add(dataSearchComponent, BorderLayout.CENTER);
+
+            Disposer.register(this, dataSearchComponent);
         } else {
             dataSearchComponent.initializeFindModel();
         }
