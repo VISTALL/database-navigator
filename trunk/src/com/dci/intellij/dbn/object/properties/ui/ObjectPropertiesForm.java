@@ -12,8 +12,10 @@ import com.dci.intellij.dbn.common.ui.DBNFormImpl;
 import com.dci.intellij.dbn.common.ui.table.DBNTable;
 import com.dci.intellij.dbn.common.util.NamingUtil;
 import com.dci.intellij.dbn.object.common.DBObject;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.ui.components.JBScrollPane;
 import org.jetbrains.annotations.NotNull;
 
@@ -105,5 +107,6 @@ public class ObjectPropertiesForm extends DBNFormImpl implements DBNForm, Browse
     private void createUIComponents() {
         objectPropertiesTable = new ObjectPropertiesTable(null, new ObjectPropertiesTableModel());
         objectPropertiesTable.getTableHeader().setReorderingAllowed(false);
+        Disposer.register(this, (Disposable) objectPropertiesTable);
     }
 }

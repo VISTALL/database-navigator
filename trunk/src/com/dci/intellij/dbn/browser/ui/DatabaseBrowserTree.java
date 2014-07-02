@@ -7,6 +7,7 @@ import com.dci.intellij.dbn.browser.model.BrowserTreeModel;
 import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
 import com.dci.intellij.dbn.browser.model.TabbedBrowserTreeModel;
 import com.dci.intellij.dbn.common.content.DatabaseLoadMonitor;
+import com.dci.intellij.dbn.common.dispose.Disposable;
 import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.common.filter.Filter;
 import com.dci.intellij.dbn.common.thread.BackgroundTask;
@@ -27,13 +28,13 @@ import com.dci.intellij.dbn.object.common.list.action.ObjectListActionGroup;
 import com.dci.intellij.dbn.object.common.property.DBObjectProperties;
 import com.dci.intellij.dbn.object.common.property.DBObjectProperty;
 import com.dci.intellij.dbn.vfs.DatabaseFileSystem;
-import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionPopupMenu;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.util.ui.tree.TreeUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -59,7 +60,6 @@ public class DatabaseBrowserTree extends DBNTree implements Disposable {
     private BrowserTreeModel treeModel;
     private JPopupMenu popupMenu;
     private TreeNavigationHistory navigationHistory = new TreeNavigationHistory();
-    private boolean isDisposed = false;
     private DatabaseBrowserTreeSpeedSearch speedSearch;
 
     public DatabaseBrowserTree(BrowserTreeModel treeModel) {
@@ -79,6 +79,7 @@ public class DatabaseBrowserTree extends DBNTree implements Disposable {
         //setExpandedState(DatabaseBrowserUtils.createTreePath(treeModel.getRoot()), false);
 
         speedSearch = new DatabaseBrowserTreeSpeedSearch(this);
+        Disposer.register(this, speedSearch);
     }
 
     public Project getProject() {
@@ -304,24 +305,12 @@ public class DatabaseBrowserTree extends DBNTree implements Disposable {
         }
     }  */
 
-    public void dispose() {
-        if (!isDisposed) {
-            isDisposed = true;
-            speedSearch.dispose();
-            targetSelection = null;
-            setModel(EMPTY_TREE_MODEL);
-            treeModel.dispose();
-            navigationHistory.clear();
-            navigationHistory = null;
-        }
-    }
-
     /********************************************************
      *                 TreeSelectionListener                *
      ********************************************************/
     private TreeSelectionListener treeSelectionListener = new TreeSelectionListener() {
         public void valueChanged(TreeSelectionEvent e) {
-            if (!isDisposed && listenersEnabled) {
+            if (!isDisposed() && listenersEnabled) {
                 Object object = e.getPath().getLastPathComponent();
                 if (object != null && object instanceof BrowserTreeNode) {
                     BrowserTreeNode treeNode = (BrowserTreeNode) object;
@@ -403,4 +392,27 @@ public class DatabaseBrowserTree extends DBNTree implements Disposable {
             }
         }
     };
+
+    /********************************************************
+     *                    Disposable                        *
+     ********************************************************/
+    private boolean disposed;
+
+    public void dispose() {
+        if (!isDisposed()) {
+            disposed = true;
+            speedSearch.dispose();
+            targetSelection = null;
+            setModel(EMPTY_TREE_MODEL);
+            treeModel.dispose();
+            GUIUtil.removeListeners(this);
+            navigationHistory.clear();
+            navigationHistory = null;
+        }
+    }
+
+    @Override
+    public boolean isDisposed() {
+        return disposed;
+    }
 }
