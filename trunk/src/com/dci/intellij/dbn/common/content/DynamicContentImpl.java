@@ -174,9 +174,9 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
     }
 
     private void performLoad() throws InterruptedException {
-        check();
+        checkDisposed();
         dependencyAdapter.beforeLoad();
-        check();
+        checkDisposed();
         try {
             // mark first the dirty status since dirty dependencies may
             // become valid due to parallel background load
@@ -185,21 +185,21 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
         } catch (DynamicContentLoadException e) {
             isDirty = !e.isModelException();
         }
-        check();
+        checkDisposed();
         dependencyAdapter.afterLoad();
     }
 
     private void performReload() throws InterruptedException {
-        check();
+        checkDisposed();
         dependencyAdapter.beforeReload(this);
-        check();
+        checkDisposed();
         try {
-            check();
+            checkDisposed();
             getLoader().reloadContent(this);
         } catch (DynamicContentLoadException e) {
             isDirty = !e.isModelException();
         }
-        check();
+        checkDisposed();
         dependencyAdapter.afterReload(this);
     }
 
@@ -300,7 +300,7 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
         return !(isLoading || isDisposed) && (force || !isLoaded || (isDirty() && dependencyAdapter.shouldLoadIfDirty()));
     }
 
-    public void check() throws InterruptedException {
+    public void checkDisposed() throws InterruptedException {
         if (isDisposed) throw new InterruptedException();
     }
 

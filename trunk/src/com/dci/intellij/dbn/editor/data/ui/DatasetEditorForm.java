@@ -101,10 +101,12 @@ public class DatasetEditorForm extends DBNFormImpl implements DBNForm, Searchabl
             new ConditionalLaterInvocator(){
                 @Override
                 public void run() {
-                    datasetTableScrollPane.setViewportView(datasetEditorTable);
-                    datasetTableScrollPane.setRowHeaderView(datasetEditorTable.getTableGutter());
-                    datasetEditorTable.updateBackground(false);
-                    oldEditorTable.dispose();
+                    if (!isDisposed()) {
+                        datasetTableScrollPane.setViewportView(datasetEditorTable);
+                        datasetTableScrollPane.setRowHeaderView(datasetEditorTable.getTableGutter());
+                        datasetEditorTable.updateBackground(false);
+                        oldEditorTable.dispose();
+                    }
                 }
             }.start();
         }

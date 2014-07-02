@@ -28,7 +28,7 @@ public class DatasetLoadErrorNotificationProvider extends EditorNotifications.Pr
     DatasetLoadListener datasetLoadListener = new DatasetLoadListener() {
         @Override
         public void datasetLoaded(VirtualFile virtualFile) {
-            if (!project.isDisposed()) {
+            if (virtualFile != null && !project.isDisposed()) {
                 EditorNotifications notifications = EditorNotifications.getInstance(project);
                 notifications.updateNotifications(virtualFile);
             }

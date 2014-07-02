@@ -1,5 +1,6 @@
 package com.dci.intellij.dbn.editor.data;
 
+import com.dci.intellij.dbn.common.thread.SimpleBackgroundTask;
 import com.dci.intellij.dbn.editor.DBContentType;
 import com.dci.intellij.dbn.editor.data.state.DatasetEditorState;
 import com.dci.intellij.dbn.object.DBDataset;
@@ -40,9 +41,14 @@ public class DatasetEditorProvider implements FileEditorProvider, ApplicationCom
         return new DatasetEditor(databaseFile, dataset);
     }
 
-    public void disposeEditor(@NotNull FileEditor editor) {
-        DatasetEditor datasetEditor = (DatasetEditor) editor;
-        datasetEditor.dispose();
+    public void disposeEditor(@NotNull final FileEditor editor) {
+        new SimpleBackgroundTask() {
+            @Override
+            public void run() {
+                DatasetEditor datasetEditor = (DatasetEditor) editor;
+                datasetEditor.dispose();
+            }
+        }.start();
     }
 
     @NotNull

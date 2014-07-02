@@ -200,7 +200,7 @@ public class BasicDataModel<T extends DataModelRow> implements DataModel<T> {
     }
 
     public int getColumnCount() {
-        return getHeader().getColumnCount();
+        return isDisposed() ? 0 : getHeader().getColumnCount();
     }
 
     public String getColumnName(int columnIndex) {

@@ -103,7 +103,7 @@ public class DatasetEditorModel extends ResultSetDataModel<DatasetEditorModelRow
 
     private ResultSet loadResultSet(Connection connection, boolean useCurrentFilter) throws SQLException {
         DBDataset dataset = getDataset();
-        if (dataset != null) {
+        if (dataset != null && !isDisposed()) {
             Project project = dataset.getProject();
             DatasetFilter filter = DatasetFilterManager.EMPTY_FILTER;
             if (useCurrentFilter) {
@@ -116,7 +116,7 @@ public class DatasetEditorModel extends ResultSetDataModel<DatasetEditorModelRow
             Statement statement = isReadonly() ?
                     connection.createStatement() :
                     connection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
-
+            checkDisposed();
             int timeout = settings.getGeneralSettings().getFetchTimeout().value();
             if (timeout != -1) {
                 statement.setQueryTimeout(timeout);

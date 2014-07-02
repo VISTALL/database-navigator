@@ -15,14 +15,14 @@ import java.util.List;
 public class DatasetEditorColumnInfo extends ResultSetColumnInfo {
     private static final List<String> EMPTY_LIST = new ArrayList<String>(0);
     private List<String> possibleValues;
-    private DBObjectRef<DBColumn> column;
+    private DBObjectRef<DBColumn> columnRef;
     private int columnIndex;
     private boolean isPrimaryKey;
     private boolean isForeignKey;
 
     public DatasetEditorColumnInfo(DBColumn column, int columnIndex, int resultSetColumnIndex) {
         super(columnIndex, resultSetColumnIndex);
-        this.column = column.getRef();
+        this.columnRef = DBObjectRef.from(column);
         this.columnIndex = columnIndex;
         this.isPrimaryKey = column.isPrimaryKey();
         this.isForeignKey = column.isForeignKey();
@@ -30,19 +30,21 @@ public class DatasetEditorColumnInfo extends ResultSetColumnInfo {
 
     @Nullable
     public DBColumn getColumn() {
-        return column.get();
+        return DBObjectRef.get(columnRef);
     }
 
     public String getName() {
-        return column.getName();
+        return columnRef.getName();
     }
 
     public int getColumnIndex() {
         return columnIndex;
     }
 
+    @Nullable
     public DBDataType getDataType() {
-        return getColumn().getDataType();
+        DBColumn column = getColumn();
+        return column == null ? null : column.getDataType();
     }
 
     public boolean isPrimaryKey() {

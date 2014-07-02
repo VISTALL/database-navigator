@@ -155,7 +155,7 @@ public class VoidDynamicContent implements DynamicContent{
     }
 
     @Override
-    public void check() throws InterruptedException {
+    public void checkDisposed() throws InterruptedException {
 
     }
 

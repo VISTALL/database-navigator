@@ -14,11 +14,11 @@ public abstract class DynamicSubcontentCustomLoader<T extends DynamicContentElem
         List<T> list = null;
         SubcontentDependencyAdapter dependencyAdapter = (SubcontentDependencyAdapter) dynamicContent.getDependencyAdapter();
         for (Object object : dependencyAdapter.getSourceContent().getElements()) {
-            dynamicContent.check();
+            dynamicContent.checkDisposed();
             DynamicContentElement sourceElement = (DynamicContentElement) object;
             T element = resolveElement(dynamicContent, sourceElement);
             if (element != null && dynamicContent.accepts(element)) {
-                dynamicContent.check();
+                dynamicContent.checkDisposed();
                 if (list == null) list = new ArrayList<T>();
                 list.add(element);
             }
