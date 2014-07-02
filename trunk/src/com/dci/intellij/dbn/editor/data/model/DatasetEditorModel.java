@@ -1,6 +1,5 @@
 package com.dci.intellij.dbn.editor.data.model;
 
-import com.dci.intellij.dbn.common.thread.ConditionalLaterInvocator;
 import com.dci.intellij.dbn.common.util.MessageUtil;
 import com.dci.intellij.dbn.connection.ConnectionUtil;
 import com.dci.intellij.dbn.data.model.resultSet.ResultSetDataModel;
@@ -18,7 +17,6 @@ import com.dci.intellij.dbn.object.DBConstraint;
 import com.dci.intellij.dbn.object.DBDataset;
 import com.dci.intellij.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.fileEditor.FileEditorStateLevel;
-import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -50,14 +48,30 @@ public class DatasetEditorModel extends ResultSetDataModel<DatasetEditorModelRow
         setHeader(new DatasetEditorModelHeader(datasetEditor, null));
     }
 
-    public synchronized void load(ProgressIndicator progressIndicator, boolean useCurrentFilter, boolean keepChanges) throws SQLException {
-        if (!isDisposed()) {
-            //progressIndicator.setText("Loading data for " + datasetRef.getObjectType().getName() + " " + datasetRef.getPath());
-            load(useCurrentFilter, keepChanges);
+    public void load(boolean useCurrentFilter, boolean keepChanges) throws SQLException {
+        ResultSet newResultSet;
+        synchronized (DISPOSE_LOCK) {
+            checkDisposed();
+
+            ConnectionUtil.closeResultSet(resultSet);
+            newResultSet = loadResultSet(useCurrentFilter);
+        }
+
+        if (newResultSet != null) {
+            synchronized (DISPOSE_LOCK) {
+                checkDisposed();
+
+                resultSet = newResultSet;
+                resultSetExhausted = false;
+                if (keepChanges) snapshotChanges(); else clearChanges();
+            }
+            int rowCount = computeRowCount();
+            fetchNextRecords(rowCount, true);
+            restoreChanges();
         }
     }
 
-    private void load(boolean useCurrentFilter, boolean keepChanges) throws SQLException {
+    private int computeRowCount() {
         int originalRowCount = getRowCount();
         int stateRowCount = getState().getRowCount();
         int fetchRowCount = Math.max(stateRowCount, originalRowCount);
@@ -65,29 +79,7 @@ public class DatasetEditorModel extends ResultSetDataModel<DatasetEditorModelRow
         int fetchBlockSize = settings.getGeneralSettings().getFetchBlockSize().value();
         fetchRowCount = (fetchRowCount/fetchBlockSize + 1) * fetchBlockSize;
 
-        int rowCount = Math.max(fetchRowCount, fetchBlockSize);
-
-        ConnectionUtil.closeResultSet(resultSet);
-        Connection connection = connectionHandler.getStandaloneConnection();
-        ResultSet newResultSet = loadResultSet(connection, useCurrentFilter);
-        if (newResultSet != null) {
-            checkDisposed();
-            resultSet = newResultSet;
-            resultSetExhausted = false;
-            if (keepChanges) snapshotChanges(); else clearChanges();
-            fetchNextRecords(rowCount, true);
-            restoreChanges();
-
-            new ConditionalLaterInvocator() {
-                public void run() {
-                    DatasetEditorTable editorTable = getEditorTable();
-                    if (editorTable != null) {
-                        editorTable.cancelEditing();
-                        editorTable.clearSelection();
-                    }
-                }
-            }.start();
-        }
+        return Math.max(fetchRowCount, fetchBlockSize);
     }
 
     public DataEditorSettings getSettings() {
@@ -101,9 +93,10 @@ public class DatasetEditorModel extends ResultSetDataModel<DatasetEditorModelRow
         }
     }
 
-    private ResultSet loadResultSet(Connection connection, boolean useCurrentFilter) throws SQLException {
+    private ResultSet loadResultSet(boolean useCurrentFilter) throws SQLException {
+        Connection connection = connectionHandler.getStandaloneConnection();
         DBDataset dataset = getDataset();
-        if (dataset != null && !isDisposed()) {
+        if (dataset != null) {
             Project project = dataset.getProject();
             DatasetFilter filter = DatasetFilterManager.EMPTY_FILTER;
             if (useCurrentFilter) {
@@ -134,12 +127,16 @@ public class DatasetEditorModel extends ResultSetDataModel<DatasetEditorModelRow
         }
     }
 
-    private void restoreChanges() {
+    private void restoreChanges() throws SQLException {
         if (hasChanges()) {
             for (DatasetEditorModelRow row : getRows()) {
-                DatasetEditorModelRow changedRow = lookupChangedRow(row, true);
-                if (changedRow != null) {
-                    row.updateStatusFromRow(changedRow);
+                synchronized (DISPOSE_LOCK) {
+                    checkDisposed();
+
+                    DatasetEditorModelRow changedRow = lookupChangedRow(row, true);
+                    if (changedRow != null) {
+                        row.updateStatusFromRow(changedRow);
+                    }
                 }
             }
             isModified = true;

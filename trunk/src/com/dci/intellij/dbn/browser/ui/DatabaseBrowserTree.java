@@ -96,7 +96,7 @@ public class DatabaseBrowserTree extends DBNTree implements Disposable {
 
     public void expandConnectionManagers() {
         new SimpleLaterInvocator() {
-            public void run() {
+            public void execute() {
                 ConnectionManager connectionManager = ConnectionManager.getInstance(getProject());
                 List<ConnectionBundle> connectionBundles = connectionManager.getConnectionBundles();
                 for (ConnectionBundle connectionBundle : connectionBundles) {
@@ -162,7 +162,7 @@ public class DatabaseBrowserTree extends DBNTree implements Disposable {
 
     private void selectPath(final TreePath treePath) {
         new SimpleLaterInvocator() {
-            public void run() {
+            public void execute() {
                 TreeUtil.selectPath(DatabaseBrowserTree.this, treePath, true);
             }
         }.start();
@@ -263,7 +263,7 @@ public class DatabaseBrowserTree extends DBNTree implements Disposable {
                             final DBObject navigationObject = object.getDefaultNavigationObject();
                             if (navigationObject != null) {
                                 new SimpleLaterInvocator(){
-                                    public void run() {
+                                    public void execute() {
                                         navigationObject.navigate(true);
                                     }
                                 }.start();
@@ -378,7 +378,7 @@ public class DatabaseBrowserTree extends DBNTree implements Disposable {
                                 ActionPopupMenu actionPopupMenu = ActionManager.getInstance().createActionPopupMenu("", actionGroup);
                                 popupMenu = actionPopupMenu.getComponent();
                                 new SimpleLaterInvocator() {
-                                    public void run() {
+                                    public void execute() {
                                         popupMenu.show(DatabaseBrowserTree.this, event.getX(), event.getY());
                                     }
                                 }.start();

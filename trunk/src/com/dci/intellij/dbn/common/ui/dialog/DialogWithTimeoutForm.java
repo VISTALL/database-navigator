@@ -30,7 +30,7 @@ public class DialogWithTimeoutForm extends DBNFormImpl {
     public void updateTimeLeft(final int secondsLeft) {
         new SimpleLaterInvocator() {
             @Override
-            public void run() {
+            public void execute() {
                 int minutes = 0;
                 int seconds = secondsLeft;
                 if (secondsLeft > 60) {

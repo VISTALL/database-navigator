@@ -106,7 +106,7 @@ public class MethodExecutionBrowserForm extends DBNFormImpl implements DBNForm {
                 initProgressIndicator(progressIndicator, true);
                 final ObjectTreeModel model = new ObjectTreeModel(settings.getSchema(), settings.getVisibleObjectTypes(), null);
                 new SimpleLaterInvocator() {
-                    public void run() {
+                    public void execute() {
                         methodsTree.setModel(model);
                         methodsTree.repaint();
                     }

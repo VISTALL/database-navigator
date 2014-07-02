@@ -107,7 +107,7 @@ public class UncommittedChangesForm extends DBNFormImpl implements TransactionLi
     private void refreshForm(final ConnectionHandler connectionHandler) {
         new SimpleLaterInvocator() {
             @Override
-            public void run() {
+            public void execute() {
                 if (!isDisposed()) {
                     UncommittedChangesTableModel model = new UncommittedChangesTableModel(connectionHandler);
                     changesTable.setModel(model);

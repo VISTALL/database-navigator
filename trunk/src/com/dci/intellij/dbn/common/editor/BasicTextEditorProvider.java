@@ -31,7 +31,7 @@ public abstract class BasicTextEditorProvider implements FileEditorProvider, App
 
     protected void updateTabIcon(final DatabaseEditableObjectFile databaseFile, final BasicTextEditor textEditor, final Icon icon) {
         new SimpleLaterInvocator() {
-            public void run() {
+            public void execute() {
                 EditorUtil.setEditorIcon(databaseFile, textEditor, icon);
             }
         }.start();

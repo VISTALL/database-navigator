@@ -27,7 +27,7 @@ public class DatabaseLoaderManager extends AbstractProjectComponent {
             public void contentsLoaded(final ConnectionHandler connectionHandler) {
                 new SimpleLaterInvocator() {
                     @Override
-                    public void run() {
+                    public void execute() {
                         FileEditorManager fileEditorManager = FileEditorManager.getInstance(project);
                         FileConnectionMappingManager connectionMappingManager = FileConnectionMappingManager.getInstance(project);
                         VirtualFile[] openFiles = fileEditorManager.getOpenFiles();

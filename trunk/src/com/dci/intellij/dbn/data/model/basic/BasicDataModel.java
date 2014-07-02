@@ -164,7 +164,7 @@ public class BasicDataModel<T extends DataModelRow> implements DataModel<T> {
 
     private void notifyListeners(final ListDataEvent listDataEvent, final TableModelEvent event) {
         new ConditionalLaterInvocator() {
-            public void run() {
+            public void execute() {
                 for (ListDataListener listDataListener : listDataListeners) {
                     listDataListener.contentsChanged(listDataEvent);
                 }

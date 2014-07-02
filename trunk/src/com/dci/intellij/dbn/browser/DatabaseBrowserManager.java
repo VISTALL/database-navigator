@@ -180,7 +180,7 @@ public class DatabaseBrowserManager extends AbstractProjectComponent implements 
                 final DatabaseBrowserTree browserTree = toolWindowForm.getBrowserTree(connectionHandler);
                 if (browserTree != null && browserTree.getTargetSelection() != null) {
                     new ConditionalLaterInvocator() {
-                        public void run() {
+                        public void execute() {
                             browserTree.scrollToSelectedElement();
                         }
                     }.start();

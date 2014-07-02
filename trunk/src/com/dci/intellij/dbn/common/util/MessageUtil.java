@@ -31,7 +31,7 @@ public class MessageUtil {
 
     public static void showErrorDialog(final String message, @Nullable final Exception exception, @Nullable final String title) {
         new ConditionalLaterInvocator() {
-            public void run() {
+            public void execute() {
                 String localMessage = message;
                 String localTitle = title;
                 if (exception != null) {
@@ -48,7 +48,7 @@ public class MessageUtil {
     public static void showInfoMessage(final String message, final String title) {
         new ConditionalLaterInvocator() {
             @Override
-            public void run() {
+            public void execute() {
                 Messages.showInfoMessage(message, Constants.DBN_TITLE_PREFIX + title);
             }
         }.start();

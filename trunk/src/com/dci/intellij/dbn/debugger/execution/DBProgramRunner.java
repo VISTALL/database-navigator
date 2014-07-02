@@ -93,7 +93,7 @@ public class DBProgramRunner extends GenericProgramRunner {
         final List<String> missingPrivileges = debuggerManager.getMissingDebugPrivileges(connectionHandler);
         if (missingPrivileges.size() > 0) {
             new SimpleLaterInvocator() {
-                public void run() {
+                public void execute() {
                     StringBuilder buffer = new StringBuilder();
                     buffer.append("The current user (").append(connectionHandler.getUserName()).append(") does not have sufficient privileges to perform debug operations on this database.\n");
                     buffer.append("Please contact your administrator to grant the required privileges. ");
@@ -181,7 +181,7 @@ public class DBProgramRunner extends GenericProgramRunner {
             final List<DBSchemaObject> dependencies) {
 
         new SimpleLaterInvocator() {
-            public void run() {
+            public void execute() {
                 final Project project = executionInput.getProject();
                 DBProgramRunConfiguration runConfiguration = (DBProgramRunConfiguration) environment.getRunProfile();
                 CompileDebugDependenciesDialog dependenciesDialog = new CompileDebugDependenciesDialog(runConfiguration, dependencies);
@@ -229,7 +229,7 @@ public class DBProgramRunner extends GenericProgramRunner {
             final ExecutionEnvironment environment,
             final Callback callback) {
         new SimpleLaterInvocator() {
-            public void run() {
+            public void execute() {
                 final ConnectionHandler connectionHandler = executionInput.getConnectionHandler();
                 final Project project = connectionHandler.getProject();
 

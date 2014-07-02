@@ -116,7 +116,7 @@ public abstract class TextFieldPopupProviderForm extends KeyAdapter implements D
 
     public void showPopup() {
         new ConditionalLaterInvocator(){
-            public void run() {
+            public void execute() {
                 if (!isShowingPopup()) {
                     popup = createPopup();
                     if (popup != null) {
@@ -143,7 +143,7 @@ public abstract class TextFieldPopupProviderForm extends KeyAdapter implements D
         if (isShowingPopup()) {
             new ConditionalLaterInvocator() {
                 @Override
-                public void run() {
+                public void execute() {
                     popup.cancel();
                     popup = null;
                 }

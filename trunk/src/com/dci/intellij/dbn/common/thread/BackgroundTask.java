@@ -78,7 +78,7 @@ public abstract class BackgroundTask extends Task.Backgroundable {
     public void initProgressIndicator(final ProgressIndicator progressIndicator, final boolean indeterminate, @Nullable final String text) {
         new ConditionalLaterInvocator() {
             @Override
-            public void run() {
+            public void execute() {
                 if (progressIndicator.isRunning()) {
                     progressIndicator.setIndeterminate(indeterminate);
                     if (text != null) progressIndicator.setText(text);

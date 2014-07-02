@@ -145,7 +145,7 @@ public class DatabaseEditableObjectFile extends DatabaseObjectFile<DBSchemaObjec
 
     public void updateDDLFiles(final DBContentType sourceContentType) {
         new ConditionalLaterInvocator() {
-            public void run() {
+            public void execute() {
                 ObjectToDDLContentSynchronizer synchronizer = new ObjectToDDLContentSynchronizer(sourceContentType, DatabaseEditableObjectFile.this);
                 ApplicationManager.getApplication().runWriteAction(synchronizer);
             }

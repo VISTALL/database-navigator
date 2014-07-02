@@ -66,7 +66,7 @@ public class BasicTable extends DBNTable implements EditorColorsListener, Dispos
         if (viewport != null) {
             new ConditionalLaterInvocator() {
                 @Override
-                public void run() {
+                public void execute() {
                     DataGridTextAttributes attributes = cellRenderer.getAttributes();
                     Color background = readonly ?
                             attributes.getLoadingData(false).getBgColor() :

@@ -79,7 +79,7 @@ public class ObjectPropertiesForm extends DBNFormImpl implements DBNForm, Browse
                     final ObjectPropertiesTableModel tableModel = new ObjectPropertiesTableModel(object.getPresentableProperties());
 
                     new SimpleLaterInvocator() {
-                        public void run() {
+                        public void execute() {
                             objectLabel.setText(object.getName());
                             objectLabel.setIcon(object.getIcon());
                             objectTypeLabel.setText(NamingUtil.capitalize(object.getTypeName()) + ":");

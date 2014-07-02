@@ -17,7 +17,7 @@ public class ResultSetDataModel<T extends ResultSetDataModelRow> extends Sortabl
     protected ResultSet resultSet;
     protected ConnectionHandler connectionHandler;
     protected boolean resultSetExhausted = false;
-    private final Object DISPOSE_LOCK = new Object();
+    protected final Object DISPOSE_LOCK = new Object();
 
     public ResultSetDataModel(ConnectionHandler connectionHandler) throws SQLException {
         super(connectionHandler.getProject());
@@ -41,6 +41,7 @@ public class ResultSetDataModel<T extends ResultSetDataModelRow> extends Sortabl
     }
 
     public int fetchNextRecords(int records, boolean reset) throws SQLException {
+        checkDisposed();
         int originalRowCount = getRowCount();
         if (resultSetExhausted) return originalRowCount;
 
@@ -49,6 +50,7 @@ public class ResultSetDataModel<T extends ResultSetDataModelRow> extends Sortabl
 
         final List<T> oldRows = getRows();
         List<T> newRows = reset ? new ArrayList<T>(oldRows.size()) : new ArrayList<T>(oldRows);
+
         if (resultSet == null) {
             resultSetExhausted = true;
         } else {
@@ -67,30 +69,36 @@ public class ResultSetDataModel<T extends ResultSetDataModelRow> extends Sortabl
             }
         }
 
-        checkDisposed();
-        sort(newRows);
-        setRows(newRows);
+        synchronized (DISPOSE_LOCK) {
+            checkDisposed();
 
-        if (reset) {
-            new SimpleBackgroundTask() {
-                @Override
-                public void run() {
-                    // dispose old content
-                    for (T row : oldRows) {
-                        disposeRow(row);
-                    }
-                }
-            }.start();
+            sort(newRows);
+            setRows(newRows);
+
+            if (reset) {
+                disposeRows(oldRows);
+            }
+
+            int newRowCount = getRowCount();
+            if (newRowCount > originalRowCount) notifyRowsInserted(originalRowCount, newRowCount);
+            if (newRowCount < originalRowCount) notifyRowsDeleted(newRowCount, originalRowCount);
+            int updateIndex = Math.min(originalRowCount, newRowCount);
+            if (updateIndex > 0) notifyRowsUpdated(0, updateIndex);
+
+            return newRowCount;
         }
+    }
 
-        int newRowCount = getRowCount();
-
-        if (newRowCount > originalRowCount) notifyRowsInserted(originalRowCount, newRowCount);
-        if (newRowCount < originalRowCount) notifyRowsDeleted(newRowCount, originalRowCount);
-        int updateIndex = Math.min(originalRowCount, newRowCount);
-        if (updateIndex > 0) notifyRowsUpdated(0, updateIndex);
-
-        return newRowCount;
+    private void disposeRows(final List<T> oldRows) {
+        new SimpleBackgroundTask() {
+            @Override
+            public void run() {
+                // dispose old content
+                for (T row : oldRows) {
+                    disposeRow(row);
+                }
+            }
+        }.start();
     }
 
     protected void checkDisposed() throws SQLException {
@@ -105,7 +113,7 @@ public class ResultSetDataModel<T extends ResultSetDataModelRow> extends Sortabl
         return resultSetExhausted;
     }
 
-    public void closeResultSet() throws SQLException {
+    public void closeResultSet() {
         ConnectionUtil.closeResultSet(resultSet);
     }
 
@@ -132,7 +140,7 @@ public class ResultSetDataModel<T extends ResultSetDataModelRow> extends Sortabl
         if (!isDisposed()) {
             synchronized (DISPOSE_LOCK) {
                 super.dispose();
-                ConnectionUtil.closeResultSet(resultSet);
+                closeResultSet();
                 resultSet = null;
                 connectionHandler = null;
             }

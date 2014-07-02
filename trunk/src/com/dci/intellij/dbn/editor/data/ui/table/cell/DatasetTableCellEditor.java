@@ -111,7 +111,7 @@
         if (textField.isEditable()) {
             final String originalText = textField.getText();
             new SimpleLaterInvocator() {
-                public void run() {
+                public void execute() {
                     // select all only if the text didn't change
                     if (settings.getGeneralSettings().getSelectContentOnCellEdit().value()) {
                         if (originalText.equals(textField.getText())) {

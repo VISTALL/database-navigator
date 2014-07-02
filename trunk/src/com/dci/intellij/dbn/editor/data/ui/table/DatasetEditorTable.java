@@ -177,11 +177,19 @@ public class DatasetEditorTable extends ResultSetTable {
         updateTableGutter();
     }
 
+    public void clearSelection() {
+        new ConditionalLaterInvocator() {
+            public void execute() {
+                DatasetEditorTable.super.clearSelection();
+            }
+        }.start();
+    }
+
     @Override
     public void removeEditor() {
         new ConditionalLaterInvocator() {
             @Override
-            public void run() {
+            public void execute() {
                 DatasetEditorTable.super.removeEditor();
             }
         }.start();
@@ -190,7 +198,7 @@ public class DatasetEditorTable extends ResultSetTable {
     public void updateTableGutter() {
         new ConditionalLaterInvocator() {
             @Override
-            public void run() {
+            public void execute() {
                 getTableGutter().updateUI();
             }
         }.start();
@@ -310,7 +318,7 @@ public class DatasetEditorTable extends ResultSetTable {
     public void fireEditingCancel() {
         if (isEditing()) {
             new SimpleLaterInvocator() {
-                public void run() {
+                public void execute() {
                     cancelEditing();
                 }
             }.start();
@@ -469,7 +477,7 @@ public class DatasetEditorTable extends ResultSetTable {
                     ActionPopupMenu actionPopupMenu = ActionManager.getInstance().createActionPopupMenu("", actionGroup);
                     final JPopupMenu popupMenu = actionPopupMenu.getComponent();
                     new SimpleLaterInvocator() {
-                        public void run() {
+                        public void execute() {
                             popupMenu.show((Component) event.getSource(), event.getX(), event.getY());
                         }
                     }.start();

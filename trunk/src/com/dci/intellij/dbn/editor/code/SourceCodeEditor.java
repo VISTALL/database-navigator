@@ -64,7 +64,7 @@ public class SourceCodeEditor extends BasicTextEditorImpl<SourceCodeFile> implem
     public void objectDropped(DBSchemaObject object) {
         if (objectRef.is(object)) {
             new ConditionalLaterInvocator() {
-                public void run() {
+                public void execute() {
                     FileEditorManager fileEditorManager = FileEditorManager.getInstance(getProject());
                     fileEditorManager.closeFile(getVirtualFile().getDatabaseFile());
                 }

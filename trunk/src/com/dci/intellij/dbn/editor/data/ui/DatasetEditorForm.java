@@ -104,7 +104,7 @@ public class DatasetEditorForm extends DBNFormImpl implements DBNForm, Searchabl
         if (oldEditorTable != null) {
             new ConditionalLaterInvocator(){
                 @Override
-                public void run() {
+                public void execute() {
                     if (!isDisposed()) {
                         datasetTableScrollPane.setViewportView(datasetEditorTable);
                         datasetTableScrollPane.setRowHeaderView(datasetEditorTable.getTableGutter());
@@ -127,7 +127,7 @@ public class DatasetEditorForm extends DBNFormImpl implements DBNForm, Searchabl
 
     public void showLoadingHint() {
         new ConditionalLaterInvocator() {
-            public void run() {
+            public void execute() {
                 loadingLabel.setVisible(true);
                 loadingIconPanel.setVisible(true);
             }
@@ -136,7 +136,7 @@ public class DatasetEditorForm extends DBNFormImpl implements DBNForm, Searchabl
 
     public void hideLoadingHint() {
         new ConditionalLaterInvocator() {
-            public void run() {
+            public void execute() {
                 loadingLabel.setVisible(false);
                 loadingIconPanel.setVisible(false);
             }

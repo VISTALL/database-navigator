@@ -101,7 +101,7 @@ public class DataSearchResultController {
                 searchResult.stopUpdating();
 
                 new SimpleLaterInvocator() {
-                    public void run() {
+                    public void execute() {
                         BasicTable table = searchableComponent.getTable();
                         int selectedRowIndex = table.getSelectedRow();
                         int selectedColumnIndex = table.getSelectedRow();

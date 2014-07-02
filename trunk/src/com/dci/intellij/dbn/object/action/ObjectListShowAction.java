@@ -54,7 +54,7 @@ public abstract class ObjectListShowAction extends AnAction {
                     if (objects.size() > 0) {
                         final ObjectListActionGroup actionGroup = new ObjectListActionGroup(ObjectListShowAction.this, objects);
                         new SimpleLaterInvocator() {
-                            public void run() {
+                            public void execute() {
                                 JBPopup popup = JBPopupFactory.getInstance().createActionGroupPopup(
                                         ObjectListShowAction.this.getTitle(),
                                         actionGroup,
@@ -70,7 +70,7 @@ public abstract class ObjectListShowAction extends AnAction {
                     }
                     else {
                         new SimpleLaterInvocator() {
-                            public void run() {
+                            public void execute() {
                                 JLabel label = new JLabel(getEmptyListMessage(), Icons.EXEC_MESSAGES_INFO, SwingConstants.LEFT);
                                 label.setBorder(new EmptyBorder(3, 3, 3, 3));
                                 JPanel panel = new JPanel(new BorderLayout());

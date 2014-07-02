@@ -21,7 +21,7 @@ public abstract class AbstractDiffAction extends AbstractSourceCodeEditorAction 
         final Project project = ActionUtil.getProject(e);
         if (project!= null && virtualFile != null) {
             new SimpleLaterInvocator() {
-                public void run() {
+                public void execute() {
                     SimpleContent originalContent = new SimpleContent(referenceText, virtualFile.getFileType());
                     DBSourceFileContent changedContent = new DBSourceFileContent(project, virtualFile);
 
