@@ -15,6 +15,7 @@ import com.intellij.openapi.editor.colors.EditorColorsManager;
 import com.intellij.openapi.editor.colors.EditorColorsScheme;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.JBPopup;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.ui.components.JBViewport;
 import com.intellij.util.ui.UIUtil;
 
@@ -89,6 +90,7 @@ public class BasicTable extends DBNTable implements EditorColorsListener, Dispos
     public BasicTableGutter getTableGutter() {
         if (tableGutter == null) {
             tableGutter = createTableGutter();
+            Disposer.register(this, tableGutter);
         }
         return tableGutter;
     }
@@ -228,12 +230,8 @@ public class BasicTable extends DBNTable implements EditorColorsListener, Dispos
     }
 
     public void dispose() {
+        super.dispose();
         EditorColorsManager.getInstance().removeEditorColorsListener(this);
-        getModel().dispose();
-        if (tableGutter != null) {
-            tableGutter.dispose();
-            tableGutter = null;
-        }
     }
 
     public Rectangle getCellRect(DataModelCell cell) {

@@ -242,8 +242,8 @@ public class DBNTable extends JTable implements Disposable{
     public void dispose() {
         if (!isDisposed()) {
             disposed = true;
-            GUIUtil.removeListeners(this);
             project = null;
+            GUIUtil.removeListeners(this);
         }
     }
 

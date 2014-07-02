@@ -10,6 +10,7 @@ import com.dci.intellij.dbn.connection.ConnectionBundle;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.ConnectionManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.ui.components.JBList;
 import com.intellij.ui.tabs.TabInfo;
 import com.intellij.ui.tabs.TabsListener;
@@ -47,6 +48,8 @@ public class TabbedBrowserForm extends DatabaseBrowserForm{
         });
 
         EventManager.subscribe(project, EnvironmentChangeListener.TOPIC, environmentChangeListener);
+
+        Disposer.register(this, connectionTabs);
     }
 
 

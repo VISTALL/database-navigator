@@ -13,6 +13,7 @@ import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 
@@ -99,8 +100,7 @@ public abstract class BasicSourceCodeEditorProvider extends BasicTextEditorProvi
     }
 
     public void disposeEditor(@NotNull FileEditor editor) {
-        SourceCodeEditor sourceEditor = (SourceCodeEditor) editor;
-        sourceEditor.dispose();
+        Disposer.dispose(editor);
     }
 
 }

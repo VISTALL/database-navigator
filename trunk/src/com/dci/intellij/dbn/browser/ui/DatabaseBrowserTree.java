@@ -60,7 +60,6 @@ public class DatabaseBrowserTree extends DBNTree implements Disposable {
     private BrowserTreeModel treeModel;
     private JPopupMenu popupMenu;
     private TreeNavigationHistory navigationHistory = new TreeNavigationHistory();
-    private DatabaseBrowserTreeSpeedSearch speedSearch;
 
     public DatabaseBrowserTree(BrowserTreeModel treeModel) {
         super(treeModel);
@@ -78,8 +77,10 @@ public class DatabaseBrowserTree extends DBNTree implements Disposable {
         setCellRenderer(browserTreeCellRenderer);
         //setExpandedState(DatabaseBrowserUtils.createTreePath(treeModel.getRoot()), false);
 
-        speedSearch = new DatabaseBrowserTreeSpeedSearch(this);
+        DatabaseBrowserTreeSpeedSearch speedSearch = new DatabaseBrowserTreeSpeedSearch(this);
+
         Disposer.register(this, speedSearch);
+        Disposer.register(this, treeModel);
     }
 
     public Project getProject() {
@@ -401,13 +402,10 @@ public class DatabaseBrowserTree extends DBNTree implements Disposable {
     public void dispose() {
         if (!isDisposed()) {
             disposed = true;
-            speedSearch.dispose();
             targetSelection = null;
             setModel(EMPTY_TREE_MODEL);
-            treeModel.dispose();
             GUIUtil.removeListeners(this);
             navigationHistory.clear();
-            navigationHistory = null;
         }
     }
 

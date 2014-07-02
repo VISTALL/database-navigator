@@ -146,4 +146,6 @@ public class BrowserToolWindowForm extends DBNFormImpl implements DBNForm {
             }
         }
     };
+
+
 }

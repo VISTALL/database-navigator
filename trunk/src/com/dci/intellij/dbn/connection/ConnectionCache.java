@@ -17,8 +17,9 @@ public class ConnectionCache implements ApplicationComponent{
 
     public static synchronized ConnectionHandler findConnectionHandler(String connectionId) {
         ConnectionHandler connectionHandler = CACHE.get(connectionId);
-        if (connectionHandler == null) {
-            for (Project project : ProjectManager.getInstance().getOpenProjects()) {
+        ProjectManager projectManager = ProjectManager.getInstance();
+        if (connectionHandler == null && projectManager != null) {
+            for (Project project : projectManager.getOpenProjects()) {
                 ConnectionManager connectionManager = ConnectionManager.getInstance(project);
                 connectionHandler = connectionManager.getConnectionHandler(connectionId);
                 if (connectionHandler != null) {
