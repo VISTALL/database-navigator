@@ -2,6 +2,7 @@ package com.dci.intellij.dbn.common.ui.tab;
 
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.ui.tabs.TabInfo;
 import com.intellij.ui.tabs.impl.JBTabsImpl;
 import org.jetbrains.annotations.NotNull;
@@ -26,7 +27,7 @@ public class TabbedPane extends JBTabsImpl {
             Object object = tabInfo.getObject();
             if (object instanceof Disposable) {
                 Disposable disposable = (Disposable) object;
-                disposable.dispose();
+                Disposer.dispose(disposable);
             }
         }
         super.dispose();

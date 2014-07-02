@@ -111,7 +111,8 @@ public class DatasetEditorTable extends ResultSetTable {
     }
 
     public String getName() {
-        return getModel().isDisposed() ? "Disposed" : getDataset().getName();
+        DBDataset dataset = getDataset();
+        return dataset == null ? "Disposed" : dataset.getName();
     }
 
     @Override

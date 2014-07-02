@@ -28,31 +28,33 @@ public class DatabaseLoaderManager extends AbstractProjectComponent {
                 new SimpleLaterInvocator() {
                     @Override
                     public void execute() {
-                        FileEditorManager fileEditorManager = FileEditorManager.getInstance(project);
-                        FileConnectionMappingManager connectionMappingManager = FileConnectionMappingManager.getInstance(project);
-                        VirtualFile[] openFiles = fileEditorManager.getOpenFiles();
-                        for (VirtualFile openFile : openFiles) {
+                        if (!project.isDisposed()) {
+                            FileEditorManager fileEditorManager = FileEditorManager.getInstance(project);
+                            FileConnectionMappingManager connectionMappingManager = FileConnectionMappingManager.getInstance(project);
+                            VirtualFile[] openFiles = fileEditorManager.getOpenFiles();
+                            for (VirtualFile openFile : openFiles) {
 
-                            ConnectionHandler activeConnection = connectionMappingManager.getActiveConnection(openFile);
-                            if (activeConnection == connectionHandler) {
-                                FileEditor[] fileEditors = fileEditorManager.getEditors(openFile);
-                                for (FileEditor fileEditor : fileEditors) {
-                                    Editor editor = null;
-                                    if (fileEditor instanceof TextEditor) {
-                                        TextEditor textEditor = (TextEditor) fileEditor;
-                                        editor = textEditor.getEditor();
-                                    }
-                                    else if (fileEditor instanceof BasicTextEditor) {
-                                        BasicTextEditor textEditor = (BasicTextEditor) fileEditor;
-                                        editor = textEditor.getEditor();
-                                    }
+                                ConnectionHandler activeConnection = connectionMappingManager.getActiveConnection(openFile);
+                                if (activeConnection == connectionHandler) {
+                                    FileEditor[] fileEditors = fileEditorManager.getEditors(openFile);
+                                    for (FileEditor fileEditor : fileEditors) {
+                                        Editor editor = null;
+                                        if (fileEditor instanceof TextEditor) {
+                                            TextEditor textEditor = (TextEditor) fileEditor;
+                                            editor = textEditor.getEditor();
+                                        }
+                                        else if (fileEditor instanceof BasicTextEditor) {
+                                            BasicTextEditor textEditor = (BasicTextEditor) fileEditor;
+                                            editor = textEditor.getEditor();
+                                        }
 
-                                    if (editor != null) {
-                                        DocumentUtil.refreshEditorAnnotations(editor);
+                                        if (editor != null) {
+                                            DocumentUtil.refreshEditorAnnotations(editor);
+                                        }
+
                                     }
 
                                 }
-
                             }
                         }
                     }

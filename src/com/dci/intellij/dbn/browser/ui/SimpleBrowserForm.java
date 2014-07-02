@@ -10,6 +10,7 @@ import com.dci.intellij.dbn.common.ui.tree.TreeEventType;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.ConnectionManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.util.IncorrectOperationException;
 
 import javax.swing.JComponent;
@@ -41,6 +42,7 @@ public class SimpleBrowserForm extends DatabaseBrowserForm{
         ToolTipManager.sharedInstance().registerComponent(browserTree);
 
         EventManager.subscribe(project, ObjectDisplaySettingsListener.TOPIC, objectDisplaySettingsListener);
+        Disposer.register(this, browserTree);
     }
     
     public ConnectionHandler getConnectionHandler(){
@@ -74,11 +76,8 @@ public class SimpleBrowserForm extends DatabaseBrowserForm{
     }
 
     public void dispose() {
-        EventManager.unsubscribe(objectDisplaySettingsListener);
-        browserScrollPane.getViewport().remove(browserTree);
-        browserTree.dispose();
-        browserTree = null;
         super.dispose();
+        EventManager.unsubscribe(objectDisplaySettingsListener);
     }
 
     /********************************************************

@@ -27,6 +27,7 @@ public abstract class DatabaseBrowserForm extends DBNFormImpl {
 
     @Override
     public void dispose() {
+        super.dispose();
         project = null;
     }
 }
