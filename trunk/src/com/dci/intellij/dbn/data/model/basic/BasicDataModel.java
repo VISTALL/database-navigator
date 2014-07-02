@@ -1,5 +1,6 @@
 package com.dci.intellij.dbn.data.model.basic;
 
+import com.dci.intellij.dbn.common.dispose.DisposerUtil;
 import com.dci.intellij.dbn.common.thread.ConditionalLaterInvocator;
 import com.dci.intellij.dbn.data.find.DataSearchResult;
 import com.dci.intellij.dbn.data.model.ColumnInfo;
@@ -10,6 +11,7 @@ import com.dci.intellij.dbn.data.model.DataModelListener;
 import com.dci.intellij.dbn.data.model.DataModelRow;
 import com.dci.intellij.dbn.data.model.DataModelState;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Disposer;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.event.ListDataEvent;
@@ -22,14 +24,13 @@ import java.util.List;
 import java.util.Set;
 
 public class BasicDataModel<T extends DataModelRow> implements DataModel<T> {
-    protected DataModelHeader header;
+    private DataModelHeader header;
     private DataModelState state;
     private Set<TableModelListener> tableModelListeners = new HashSet<TableModelListener>();
     private Set<ListDataListener> listDataListeners = new HashSet<ListDataListener>();
     private Set<DataModelListener> dataModelListeners = new HashSet<DataModelListener>();
     private List<T> rows = new ArrayList<T>();
     private Project project;
-    private boolean isDisposed;
 
     private DataSearchResult searchResult;
 
@@ -44,6 +45,11 @@ public class BasicDataModel<T extends DataModelRow> implements DataModel<T> {
 
     public Project getProject() {
         return project;
+    }
+
+    public void setHeader(@NotNull DataModelHeader header) {
+        this.header = header;
+        Disposer.register(this, header);
     }
 
     public DataModelHeader getHeader() {
@@ -76,8 +82,8 @@ public class BasicDataModel<T extends DataModelRow> implements DataModel<T> {
         getState().setRowCount(getRowCount());
     }
 
-    public void addRow(T tableRow) {
-        rows.add(tableRow);
+    public void addRow(T row) {
+        rows.add(row);
         getState().setRowCount(getRowCount());
     }
 
@@ -89,9 +95,10 @@ public class BasicDataModel<T extends DataModelRow> implements DataModel<T> {
 
     public void removeRowAtIndex(int index) {
         DataModelRow row = rows.remove(index);
-        row.dispose();
         updateRowIndexes(index);
         getState().setRowCount(getRowCount());
+
+        Disposer.dispose(row);
     }
 
     public T getRowAtIndex(int index) {
@@ -244,6 +251,8 @@ public class BasicDataModel<T extends DataModelRow> implements DataModel<T> {
     public DataSearchResult getSearchResult() {
         if (searchResult == null) {
             searchResult = new DataSearchResult();
+
+            Disposer.register(this, searchResult);
         }
         return searchResult;
     }
@@ -258,24 +267,25 @@ public class BasicDataModel<T extends DataModelRow> implements DataModel<T> {
         return header.getColumnIndex(columnName);
     }
 
+    /********************************************************
+     *                    Disposable                        *
+     ********************************************************/
+    private boolean disposed;
+
+    @Override
     public boolean isDisposed() {
-        return isDisposed;
+        return disposed;
     }
 
     public void dispose() {
-        if (!isDisposed) {
-            isDisposed = true;
-            for (DataModelRow row : rows) {
-                row.dispose();
-            }
-            rows.clear();
-            if (header != null) {
-                header.dispose();
-                header = null;
-            }
+        if (!disposed) {
+            disposed = true;
+            DisposerUtil.dispose(rows);
+            header = null;
             tableModelListeners.clear();
             listDataListeners.clear();
             searchResult = null;
         }
     }
+
 }

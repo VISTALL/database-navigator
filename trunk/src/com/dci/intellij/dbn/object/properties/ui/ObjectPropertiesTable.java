@@ -2,6 +2,7 @@ package com.dci.intellij.dbn.object.properties.ui;
 
 import com.dci.intellij.dbn.common.ui.MouseUtil;
 import com.dci.intellij.dbn.common.ui.table.DBNTable;
+import com.dci.intellij.dbn.common.ui.table.DBNTableModel;
 import com.dci.intellij.dbn.object.properties.PresentableProperty;
 import com.intellij.openapi.project.Project;
 import com.intellij.pom.Navigatable;
@@ -9,7 +10,6 @@ import com.intellij.pom.Navigatable;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableModel;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
@@ -22,7 +22,7 @@ import java.awt.event.MouseListener;
 
 public class ObjectPropertiesTable extends DBNTable {
 
-    public ObjectPropertiesTable(Project project, TableModel tableModel) {
+    public ObjectPropertiesTable(Project project, DBNTableModel tableModel) {
         super(project, tableModel, false);
         setDefaultRenderer(String.class, cellRenderer);
         setDefaultRenderer(PresentableProperty.class, cellRenderer);

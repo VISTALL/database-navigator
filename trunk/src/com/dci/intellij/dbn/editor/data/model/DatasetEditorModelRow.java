@@ -196,9 +196,4 @@ public class DatasetEditorModelRow extends ResultSetDataModelRow<DatasetEditorMo
     public boolean isModified() {
         return isModified;
     }
-
-    @Override
-    public void dispose() {
-        super.dispose();
-    }
 }

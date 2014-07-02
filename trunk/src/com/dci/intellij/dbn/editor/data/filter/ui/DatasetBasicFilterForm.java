@@ -237,11 +237,13 @@ public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasic
     public void addConditionPanel(DatasetBasicFilterCondition condition) {
         condition.createComponent();
         DatasetBasicFilterConditionForm conditionForm = condition.getSettingsEditor();
-        conditionForm.setBasicFilterPanel(this);
-        conditionForms.add(conditionForm);
-        conditionsPanel.add(conditionForm.getComponent());
-        conditionsPanel.updateUI();
-        conditionForm.focus();
+        if (conditionForm != null) {
+            conditionForm.setBasicFilterPanel(this);
+            conditionForms.add(conditionForm);
+            conditionsPanel.add(conditionForm.getComponent());
+            conditionsPanel.updateUI();
+            conditionForm.focus();
+        }
     }
 
     public void addConditionPanel(DBColumn column) {

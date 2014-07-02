@@ -1,6 +1,5 @@
 package com.dci.intellij.dbn.editor.data;
 
-import com.dci.intellij.dbn.common.thread.SimpleBackgroundTask;
 import com.dci.intellij.dbn.editor.DBContentType;
 import com.dci.intellij.dbn.editor.data.state.DatasetEditorState;
 import com.dci.intellij.dbn.object.DBDataset;
@@ -14,6 +13,7 @@ import com.intellij.openapi.fileEditor.FileEditorProvider;
 import com.intellij.openapi.fileEditor.FileEditorState;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jdom.Element;
 import org.jetbrains.annotations.NonNls;
@@ -42,13 +42,7 @@ public class DatasetEditorProvider implements FileEditorProvider, ApplicationCom
     }
 
     public void disposeEditor(@NotNull final FileEditor editor) {
-        new SimpleBackgroundTask() {
-            @Override
-            public void run() {
-                DatasetEditor datasetEditor = (DatasetEditor) editor;
-                datasetEditor.dispose();
-            }
-        }.start();
+        Disposer.dispose(editor);
     }
 
     @NotNull

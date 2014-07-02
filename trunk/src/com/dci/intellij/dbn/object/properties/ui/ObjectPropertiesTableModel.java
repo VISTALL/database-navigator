@@ -1,13 +1,13 @@
 package com.dci.intellij.dbn.object.properties.ui;
 
+import com.dci.intellij.dbn.common.ui.table.DBNTableModel;
 import com.dci.intellij.dbn.object.properties.PresentableProperty;
 
 import javax.swing.event.TableModelListener;
-import javax.swing.table.TableModel;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ObjectPropertiesTableModel implements TableModel {
+public class ObjectPropertiesTableModel implements DBNTableModel {
     private List<PresentableProperty> presentableProperties = new ArrayList<PresentableProperty>();
 
     public ObjectPropertiesTableModel() {}
@@ -56,4 +56,21 @@ public class ObjectPropertiesTableModel implements TableModel {
 
     @Override
     public void removeTableModelListener(TableModelListener l) {}
+
+    /********************************************************
+     *                    Disposable                        *
+     ********************************************************/
+    private boolean disposed;
+
+    @Override
+    public boolean isDisposed() {
+        return disposed;
+    }
+
+    @Override
+    public void dispose() {
+        if (!isDisposed()) {
+            presentableProperties.clear();
+        }
+    }
 }

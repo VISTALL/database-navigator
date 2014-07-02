@@ -1,6 +1,6 @@
 package com.dci.intellij.dbn.execution.method.ui;
 
-import com.dci.intellij.dbn.common.dispose.DisposeUtil;
+import com.dci.intellij.dbn.common.dispose.DisposerUtil;
 import com.dci.intellij.dbn.common.ui.DBNForm;
 import com.dci.intellij.dbn.common.ui.DBNFormImpl;
 import com.dci.intellij.dbn.common.util.CommonUtil;
@@ -148,7 +148,7 @@ public class MethodExecutionArgumentForm extends DBNFormImpl implements DBNForm 
 
     public void dispose() {
         super.dispose();
-        DisposeUtil.disposeCollection(typeAttributeForms);
+        DisposerUtil.dispose(typeAttributeForms);
         argument = null;
         typeAttributeForms = null;
         executionComponent = null;

@@ -17,7 +17,7 @@ public class ResultSetDataModelHeader extends BasicDataModelHeader implements Da
         int columnCount = metaData.getColumnCount();
         for (int i = 0; i < columnCount; i++) {
             ColumnInfo columnInfo = new ResultSetColumnInfo(objectBundle, resultSet, i);
-            getColumnInfos().add(columnInfo);
+            addColumnInfo(columnInfo);
         }
     }
 

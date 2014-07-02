@@ -116,14 +116,14 @@ public class ValuesListPopupProviderForm extends TextFieldPopupProviderForm {
         } else if (keyCode == 10 || keyCode == 9) { // ENTER or TAB
             String selectedValue = (String) list.getSelectedValue();
             if (selectedValue != null) {
-                disposePopup();
+                hidePopup();
                 JTextField textField = getTextField();
                 textField.setText(selectedValue);
                 textField.requestFocus();
             }
             e.consume();
         } else if (keyCode == 27) { //ESC
-            disposePopup();
+            hidePopup();
             e.consume();
         } else {
             updateList();
@@ -138,7 +138,7 @@ public class ValuesListPopupProviderForm extends TextFieldPopupProviderForm {
 
     public void handleFocusLostEvent(FocusEvent e) {
         if (getPopup().getContent().getParent().getParent().getParent().getParent() != e.getOppositeComponent()) {
-            disposePopup();    
+            hidePopup();
         }
     }
 
@@ -218,7 +218,7 @@ public class ValuesListPopupProviderForm extends TextFieldPopupProviderForm {
             if (!event.isConsumed() && event.getButton() == MouseEvent.BUTTON1) {
                 String selectedValue = (String) list.getSelectedValue();
                 if (selectedValue != null) {
-                    disposePopup();
+                    hidePopup();
                     JTextField textField = getTextField();
                     textField.setText(selectedValue);
                     textField.requestFocus();

@@ -5,8 +5,8 @@ import com.dci.intellij.dbn.common.thread.ConditionalLaterInvocator;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.ConnectionStatusListener;
 import com.dci.intellij.dbn.connection.VirtualConnectionHandler;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
-import org.picocontainer.Disposable;
 
 import javax.swing.JLabel;
 import java.awt.Color;

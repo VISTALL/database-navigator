@@ -1,14 +1,14 @@
 package com.dci.intellij.dbn.execution.method.result.ui;
 
+import com.dci.intellij.dbn.common.ui.table.DBNTableModel;
 import com.dci.intellij.dbn.execution.method.ArgumentValue;
 import com.intellij.openapi.project.Project;
 
 import javax.swing.event.TableModelListener;
-import javax.swing.table.TableModel;
 import java.util.List;
 
 @Deprecated
-public class ArgumentValuesTableModel implements TableModel {
+public class ArgumentValuesTableModel implements DBNTableModel {
     private List<ArgumentValue> argumentValues;
     private Project project;
 
@@ -71,4 +71,23 @@ public class ArgumentValuesTableModel implements TableModel {
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {}
     public void addTableModelListener(TableModelListener l) {}
     public void removeTableModelListener(TableModelListener l) {}
+
+
+    /********************************************************
+     *                    Disposable                        *
+     ********************************************************/
+    private boolean disposed;
+
+    @Override
+    public boolean isDisposed() {
+        return disposed;
+    }
+
+    @Override
+    public void dispose() {
+        if (!isDisposed()) {
+            disposed = true;
+            project = null;
+        }
+    }
 }

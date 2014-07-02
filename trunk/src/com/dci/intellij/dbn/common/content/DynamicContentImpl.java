@@ -4,7 +4,7 @@ import com.dci.intellij.dbn.common.content.dependency.ContentDependencyAdapter;
 import com.dci.intellij.dbn.common.content.dependency.VoidContentDependencyAdapter;
 import com.dci.intellij.dbn.common.content.loader.DynamicContentLoadException;
 import com.dci.intellij.dbn.common.content.loader.DynamicContentLoader;
-import com.dci.intellij.dbn.common.dispose.DisposeUtil;
+import com.dci.intellij.dbn.common.dispose.DisposerUtil;
 import com.dci.intellij.dbn.common.filter.Filter;
 import com.dci.intellij.dbn.common.thread.BackgroundTask;
 import com.dci.intellij.dbn.common.util.CollectionUtil;
@@ -230,7 +230,7 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
             notifyChangeListeners();
         }
         if (!dependencyAdapter.isSubContent() && oldElements.size() > 0 ) {
-            DisposeUtil.disposeCollection(oldElements);
+            DisposerUtil.dispose(oldElements);
         }
     }
 
@@ -309,7 +309,7 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
             isDisposed = true;
             if (dependencyAdapter.isSubContent())
                 elements.clear(); else
-                DisposeUtil.disposeCollection(elements);
+                DisposerUtil.dispose(elements);
             CollectionUtil.clearMap(index);
             dependencyAdapter.dispose();
             dependencyAdapter = VoidContentDependencyAdapter.INSTANCE;

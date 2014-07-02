@@ -1,8 +1,10 @@
 package com.dci.intellij.dbn.common.ui.table;
 
+import com.dci.intellij.dbn.common.dispose.Disposable;
 import com.dci.intellij.dbn.common.thread.SimpleLaterInvocator;
 import com.dci.intellij.dbn.common.ui.DBNColor;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.util.ui.UIUtil;
 import sun.swing.SwingUtilities2;
@@ -12,7 +14,6 @@ import javax.swing.JViewport;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
-import javax.swing.table.TableModel;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -27,7 +28,7 @@ import java.awt.font.LineMetrics;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class DBNTable extends JTable {
+public class DBNTable extends JTable implements Disposable{
     private static final int MAX_COLUMN_WIDTH = 300;
     private static final int MIN_COLUMN_WIDTH = 10;
     public static final DBNColor GRID_COLOR = new DBNColor(new Color(0xE6E6E6), Color.DARK_GRAY);
@@ -37,7 +38,7 @@ public class DBNTable extends JTable {
     private Timer scrollTimer;
 
 
-    public DBNTable(Project project, TableModel tableModel, boolean showHeader) {
+    public DBNTable(Project project, DBNTableModel tableModel, boolean showHeader) {
         super(tableModel);
         this.project = project;
         setGridColor(GRID_COLOR);
@@ -77,6 +78,8 @@ public class DBNTable extends JTable {
                 }
             });
         }
+
+        Disposer.register(this, tableModel);
     }
 
     private double calculateScrollDistance() {
@@ -227,4 +230,24 @@ public class DBNTable extends JTable {
             }
         }
     }
+
+
+    /********************************************************
+     *                    Disposable                        *
+     ********************************************************/
+    private boolean disposed;
+
+    @Override
+    public void dispose() {
+        if (!isDisposed()) {
+            disposed = true;
+            project = null;
+        }
+    }
+
+    @Override
+    public boolean isDisposed() {
+        return disposed;
+    }
+
 }

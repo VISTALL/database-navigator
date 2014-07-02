@@ -6,6 +6,7 @@ import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.ConnectionUtil;
 import com.dci.intellij.dbn.data.model.sortable.SortableDataModel;
 import com.dci.intellij.dbn.data.model.sortable.SortableDataModelState;
+import com.intellij.openapi.util.Disposer;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -27,7 +28,7 @@ public class ResultSetDataModel<T extends ResultSetDataModelRow> extends Sortabl
         super(connectionHandler.getProject());
         this.connectionHandler = connectionHandler;
         this.resultSet = resultSet;
-        header = new ResultSetDataModelHeader(connectionHandler.getObjectBundle(), resultSet);
+        setHeader(new ResultSetDataModelHeader(connectionHandler.getObjectBundle(), resultSet));
         fetchNextRecords(maxRecords, false);
     }
 
@@ -97,7 +98,7 @@ public class ResultSetDataModel<T extends ResultSetDataModelRow> extends Sortabl
     }
 
     protected void disposeRow(T row) {
-        row.dispose();
+        Disposer.dispose(row);
     }
 
     public boolean isResultSetExhausted() {

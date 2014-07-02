@@ -3,6 +3,7 @@ package com.dci.intellij.dbn.editor.data;
 import com.dci.intellij.dbn.common.Constants;
 import com.dci.intellij.dbn.common.action.DBNDataKeys;
 import com.dci.intellij.dbn.common.content.loader.DynamicContentLoader;
+import com.dci.intellij.dbn.common.dispose.Disposable;
 import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.common.thread.SimpleBackgroundTask;
 import com.dci.intellij.dbn.common.thread.SimpleLaterInvocator;
@@ -41,6 +42,7 @@ import com.intellij.openapi.fileEditor.FileEditorState;
 import com.intellij.openapi.fileEditor.FileEditorStateLevel;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.UserDataHolderBase;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -53,14 +55,13 @@ import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
 
-public class DatasetEditor extends UserDataHolderBase implements FileEditor, FileConnectionMappingProvider, ConnectionStatusListener, TransactionListener {
+public class DatasetEditor extends UserDataHolderBase implements FileEditor, FileConnectionMappingProvider, ConnectionStatusListener, TransactionListener, Disposable {
     public static final DatasetLoadInstructions STATUS_CHANGE_LOAD_INSTRUCTIONS = new DatasetLoadInstructions(true, false, false, false);
-    private DBObjectRef<DBDataset> dataset;
+    private DBObjectRef<DBDataset> datasetRef;
     private DatabaseEditableObjectFile databaseFile;
     private DatasetEditorForm editorForm;
     private StructureViewModel structureViewModel;
     private ConnectionHandler connectionHandler;
-    private boolean isDisposed;
     private DataEditorSettings settings;
     private Project project;
     private boolean isLoading;
@@ -72,11 +73,12 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
     public DatasetEditor(DatabaseEditableObjectFile databaseFile, DBDataset dataset) {
         this.project = dataset.getProject();
         this.databaseFile = databaseFile;
-        this.dataset = new DBObjectRef<DBDataset>(dataset);
+        this.datasetRef = DBObjectRef.from(dataset);
         this.settings = DataEditorSettings.getInstance(project);
 
         connectionHandler = dataset.getConnectionHandler();
         editorForm = new DatasetEditorForm(this);
+
 
 
 /*
@@ -84,13 +86,15 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
             load(true, true, false);
         }
 */
+        Disposer.register(this, editorForm);
+
         EventManager.subscribe(project, TransactionListener.TOPIC, this);
         EventManager.subscribe(project, ConnectionStatusListener.TOPIC, this);
     }
 
     @Nullable
     public DBDataset getDataset() {
-        return dataset.get(project);
+        return datasetRef.get(project);
     }
 
     public DataEditorSettings getSettings() {
@@ -212,22 +216,6 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
                 return structureViewModel;
             }
         };
-    }
-
-    public void dispose() {
-        if (!isDisposed) {
-            isDisposed = true;
-            EventManager.unsubscribe(this);
-            editorForm.dispose();
-            editorForm = null;
-            databaseFile = null;
-            structureViewModel = null;
-            settings = null;
-        }
-    }
-
-    public boolean isDisposed() {
-        return isDisposed;
     }
 
     public static DatasetEditor getSelected(Project project) {
@@ -581,4 +569,27 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
     public String getDataLoadError() {
         return dataLoadError;
     }
+
+    /********************************************************
+     *                    Disposable                        *
+     ********************************************************/
+    private boolean disposed;
+
+    @Override
+    public boolean isDisposed() {
+        return disposed;
+    }
+
+    public void dispose() {
+        if (!disposed) {
+            disposed = true;
+            EventManager.unsubscribe(this);
+            editorForm = null;
+            databaseFile = null;
+            structureViewModel = null;
+            settings = null;
+        }
+    }
+
+
 }

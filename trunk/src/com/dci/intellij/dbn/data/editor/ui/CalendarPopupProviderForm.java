@@ -182,7 +182,7 @@ public class CalendarPopupProviderForm extends TextFieldPopupProviderForm implem
         CalendarTableModel model = (CalendarTableModel) daysTable.getModel();
         Date date = model.getTimestamp(daysTable.getSelectedRow(), daysTable.getSelectedColumn());
         editorComponent.setText(getFormatter().formatDateTime(date));
-        disposePopup();
+        hidePopup();
         getTextField().requestFocus();
     }
 

@@ -1,7 +1,7 @@
 package com.dci.intellij.dbn.data.model;
 
+import com.dci.intellij.dbn.common.dispose.Disposable;
 import com.dci.intellij.dbn.data.type.DBDataType;
-import com.intellij.openapi.Disposable;
 
 import java.util.List;
 

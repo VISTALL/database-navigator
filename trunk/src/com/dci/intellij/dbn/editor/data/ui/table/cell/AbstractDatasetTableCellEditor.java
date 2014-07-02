@@ -1,5 +1,6 @@
 package com.dci.intellij.dbn.editor.data.ui.table.cell;
 
+import com.dci.intellij.dbn.common.dispose.Disposable;
 import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.common.locale.Formatter;
 import com.dci.intellij.dbn.common.util.StringUtil;
@@ -9,7 +10,6 @@ import com.dci.intellij.dbn.editor.data.model.DatasetEditorModelCell;
 import com.dci.intellij.dbn.editor.data.model.DatasetEditorModelCellValueListener;
 import com.dci.intellij.dbn.editor.data.options.DataEditorGeneralSettings;
 import com.dci.intellij.dbn.editor.data.options.DataEditorSettings;
-import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
 
 import javax.swing.AbstractCellEditor;
@@ -32,6 +32,7 @@ public abstract class AbstractDatasetTableCellEditor extends AbstractCellEditor 
     private int clickCountToStart = 1;
     private DatasetEditorModelCell cell;
     protected DataEditorSettings settings;
+
     private DatasetEditorModelCellValueListener cellValueListener = new DatasetEditorModelCellValueListener() {
         @Override
         public void valueChanged(DatasetEditorModelCell cell) {
@@ -144,15 +145,6 @@ public abstract class AbstractDatasetTableCellEditor extends AbstractCellEditor 
         return Formatter.getInstance(project);
     }
 
-    @Override
-    public void dispose() {
-        EventManager.unsubscribe(cellValueListener);
-        editorComponent = null;
-        cell = null;
-        settings = null;
-
-    }
-
     /********************************************************
      *                    EditorDelegate                    *
      ********************************************************/
@@ -164,6 +156,28 @@ public abstract class AbstractDatasetTableCellEditor extends AbstractCellEditor 
 
         public void itemStateChanged(ItemEvent e) {
             AbstractDatasetTableCellEditor.this.stopCellEditing();
+        }
+    }
+
+
+    /********************************************************
+     *                    Disposable                        *
+     ********************************************************/
+    private boolean disposed;
+
+    @Override
+    public boolean isDisposed() {
+        return disposed;
+    }
+
+    @Override
+    public void dispose() {
+        if (!isDisposed()) {
+            disposed = true;
+            EventManager.unsubscribe(cellValueListener);
+            editorComponent = null;
+            settings = null;
+            cell = null;
         }
     }
 }

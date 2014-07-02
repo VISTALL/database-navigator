@@ -30,7 +30,7 @@ public class DatasetEditorModelHeader extends BasicDataModelHeader implements Da
                 for (DatasetColumnState columnState : columnStates) {
                     DBColumn column = dataset.getColumn(columnState.getName());
                     ColumnInfo columnInfo = new DatasetEditorColumnInfo(column, index, column.getPosition());
-                    columnInfos.add(columnInfo);
+                    addColumnInfo(columnInfo);
                     index++;
                 }
             } else {
@@ -40,7 +40,7 @@ public class DatasetEditorModelHeader extends BasicDataModelHeader implements Da
                     String name = metaData.getColumnName(i+1);
                     DBColumn column = dataset.getColumn(name);
                     ColumnInfo columnInfo = new DatasetEditorColumnInfo(column, i, i+1);
-                    columnInfos.add(columnInfo);
+                    addColumnInfo(columnInfo);
                 }
             }
 
@@ -51,7 +51,8 @@ public class DatasetEditorModelHeader extends BasicDataModelHeader implements Da
         for (int i=0; i<getColumnCount(); i++) {
             ColumnInfo info = getColumnInfo(i);
             DatasetEditorColumnInfo columnInfo = (DatasetEditorColumnInfo) info;
-            if (columnInfo.getColumn().equals(column)) return i;
+            DBColumn col = columnInfo.getColumn();
+            if (col != null && col.equals(column)) return i;
         }
         return -1;
     }
