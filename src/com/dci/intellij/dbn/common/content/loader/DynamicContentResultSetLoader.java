@@ -57,7 +57,7 @@ public abstract class DynamicContentResultSetLoader<T extends DynamicContentElem
 
         DebugInfo debugInfo = preLoadContent(dynamicContent);
 
-        dynamicContent.check();
+        dynamicContent.checkDisposed();
         ConnectionHandler connectionHandler = dynamicContent.getConnectionHandler();
         LoaderCache loaderCache = new LoaderCache();
         Connection connection = null;
@@ -66,13 +66,13 @@ public abstract class DynamicContentResultSetLoader<T extends DynamicContentElem
         try {
             connectionHandler.getLoadMonitor().incrementLoaderCount();
             connection = connectionHandler.getPoolConnection();
-            dynamicContent.check();
+            dynamicContent.checkDisposed();
             resultSet = createResultSet(dynamicContent, connection);
             if (addDelay) Thread.sleep(500);
             List<T> list = null;
             while (resultSet != null && resultSet.next()) {
                 if (addDelay) Thread.sleep(10);
-                dynamicContent.check();
+                dynamicContent.checkDisposed();
                 
                 T element = null;
                 try {
@@ -81,7 +81,7 @@ public abstract class DynamicContentResultSetLoader<T extends DynamicContentElem
                     System.out.println("RuntimeException: " + e.getMessage());
                 }
 
-                dynamicContent.check();
+                dynamicContent.checkDisposed();
                 if (element != null && dynamicContent.accepts(element)) {
                     if (list == null) list = new ArrayList<T>();
                     list.add(element);
@@ -93,7 +93,7 @@ public abstract class DynamicContentResultSetLoader<T extends DynamicContentElem
                     count++;
                 }
             }
-            dynamicContent.check();
+            dynamicContent.checkDisposed();
             dynamicContent.setElements(list);
             postLoadContent(dynamicContent, debugInfo);
         } catch (Exception e) {

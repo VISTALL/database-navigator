@@ -82,5 +82,5 @@ public interface DynamicContent<T extends DynamicContentElement> extends Disposa
 
     boolean accepts(T element);
 
-    void check() throws InterruptedException;
+    void checkDisposed() throws InterruptedException;
 }

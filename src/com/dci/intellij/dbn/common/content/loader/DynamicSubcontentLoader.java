@@ -36,7 +36,7 @@ public abstract class DynamicSubcontentLoader<T extends DynamicContentElement> i
             boolean matchedOnce = false;
             List<T> list = null;
             for (Object object : sourceContent.getElements()) {
-                dynamicContent.check();
+                dynamicContent.checkDisposed();
 
                 T element = (T) object;
                 if (match(element, dynamicContent) && dynamicContent.accepts(element)) {
