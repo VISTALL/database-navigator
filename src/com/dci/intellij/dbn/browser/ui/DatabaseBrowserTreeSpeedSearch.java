@@ -116,6 +116,7 @@ public class DatabaseBrowserTreeSpeedSearch extends SpeedSearchBase<JTree> imple
     public void dispose() {
         tree.getModel().removeTreeModelListener(treeModelListener);
         elements = EMPTY_ARRAY;
+        treeModelListener = null;
         tree = null;
     }
 }

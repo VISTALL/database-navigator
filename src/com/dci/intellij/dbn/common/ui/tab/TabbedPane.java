@@ -28,6 +28,7 @@ public class TabbedPane extends JBTabsImpl {
             if (object instanceof Disposable) {
                 Disposable disposable = (Disposable) object;
                 Disposer.dispose(disposable);
+                tabInfo.setObject(null);
             }
         }
         super.dispose();
