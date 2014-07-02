@@ -137,7 +137,7 @@ public class UncommittedChangesOverviewForm extends DBNFormImpl implements DBNFo
     private void refreshForm() {
         new SimpleLaterInvocator() {
             @Override
-            public void run() {
+            public void execute() {
                 if (!isDisposed()) {
                     updateListModel();
                 }

@@ -47,7 +47,7 @@ public abstract class GenerateStatementAction extends AnAction {
     private void pasteStatement(final StatementGeneratorResult result, final Project project) {
         new SimpleLaterInvocator() {
             @Override
-            public void run() {
+            public void execute() {
                 Editor editor = EditorUtil.getSelectedEditor(project, SQLFileType.INSTANCE);
                 if (editor != null)
                     pasteToEditor(editor, result); else

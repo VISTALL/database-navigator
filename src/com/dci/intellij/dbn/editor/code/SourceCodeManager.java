@@ -205,7 +205,7 @@ public class SourceCodeManager extends AbstractProjectComponent implements JDOME
 
     private void showSourceDiffDialog(final String databaseContent, final SourceCodeFile virtualFile, final Editor editor) {
         new SimpleLaterInvocator() {
-            public void run() {
+            public void execute() {
                 DiffRequestFactory diffRequestFactory = new DiffRequestFactoryImpl();
                 MergeRequest mergeRequest = diffRequestFactory.createMergeRequest(
                         databaseContent,

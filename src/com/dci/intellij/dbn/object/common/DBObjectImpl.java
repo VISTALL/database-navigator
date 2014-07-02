@@ -592,7 +592,7 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
         EventManager.notify(getProject(), BrowserTreeChangeListener.TOPIC).nodeChanged(this, TreeEventType.STRUCTURE_CHANGED);
 
         new ConditionalLaterInvocator() {
-            public void run() {
+            public void execute() {
                 if (!isDisposed()) {
                     DatabaseBrowserManager.scrollToSelectedElement(getConnectionHandler());
                 }

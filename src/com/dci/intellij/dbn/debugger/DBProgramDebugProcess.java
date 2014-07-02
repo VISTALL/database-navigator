@@ -432,7 +432,7 @@ public class DBProgramDebugProcess extends XDebugProcess {
 
     private void navigateInEditor(final DatabaseEditableObjectFile databaseFile, final int line) {
         new SimpleLaterInvocator() {
-            public void run() {
+            public void execute() {
                 // todo review this!!!
                 SourceCodeEditor sourceCodeEditor = null;
                 if (databaseFile.getContentFiles().size() > 1) {

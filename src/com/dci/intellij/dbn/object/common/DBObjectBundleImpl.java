@@ -289,7 +289,7 @@ public class DBObjectBundleImpl implements DBObjectBundle {
         if (project != null) {
             EventManager.notify(project, BrowserTreeChangeListener.TOPIC).nodeChanged(this, TreeEventType.STRUCTURE_CHANGED);
             new ConditionalLaterInvocator() {
-                public void run() {
+                public void execute() {
                     DatabaseBrowserManager.scrollToSelectedElement(getConnectionHandler());
 
                 }

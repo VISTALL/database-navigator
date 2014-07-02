@@ -81,7 +81,7 @@ public class ExecutionManager extends AbstractProjectComponent implements JDOMEx
 
     public void showExecutionConsole(final CompilerResult compilerResult) {
         new SimpleLaterInvocator() {
-            public void run() {
+            public void execute() {
                 getExecutionConsoleForm().show(compilerResult);
                 showExecutionConsole();
             }
@@ -90,7 +90,7 @@ public class ExecutionManager extends AbstractProjectComponent implements JDOMEx
 
     public void showExecutionConsole(final List<CompilerResult> compilerResults) {
         new SimpleLaterInvocator() {
-            public void run() {
+            public void execute() {
                 getExecutionConsoleForm().show(compilerResults);
                 showExecutionConsole();
             }
@@ -99,7 +99,7 @@ public class ExecutionManager extends AbstractProjectComponent implements JDOMEx
 
     public void showExecutionConsole(final StatementExecutionResult executionResult) {
         new SimpleLaterInvocator() {
-            public void run() {
+            public void execute() {
                 getExecutionConsoleForm().show(executionResult);
                 showExecutionConsole();
                 StatementExecutionSettings statementExecutionSettings = ExecutionEngineSettings.getInstance(getProject()).getStatementExecutionSettings();
@@ -112,7 +112,7 @@ public class ExecutionManager extends AbstractProjectComponent implements JDOMEx
 
     public void showExecutionConsole(final MethodExecutionResult executionResult) {
         new SimpleLaterInvocator() {
-            public void run() {
+            public void execute() {
                 getExecutionConsoleForm().show(executionResult);
                 showExecutionConsole();
             }

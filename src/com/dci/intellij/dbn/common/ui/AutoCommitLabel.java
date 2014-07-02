@@ -43,7 +43,7 @@ public class AutoCommitLabel extends JLabel implements ConnectionStatusListener,
     private void update() {
         new ConditionalLaterInvocator() {
             @Override
-            public void run() {
+            public void execute() {
                 if (connectionHandler != null) {
                     setVisible(true);
                     boolean disconnected = !connectionHandler.isConnected();

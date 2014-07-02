@@ -162,7 +162,7 @@ public class MethodExecutionManager extends AbstractProjectComponent implements 
                         executionProcessor.execute(executionInput);
                         if (!executionInput.isExecutionCancelled()) {
                             new SimpleLaterInvocator() {
-                                public void run() {
+                                public void execute() {
                                     ExecutionManager executionManager = ExecutionManager.getInstance(project);
                                     executionManager.showExecutionConsole(executionInput.getExecutionResult());
                                     executionInput.setExecuting(false);
@@ -175,7 +175,7 @@ public class MethodExecutionManager extends AbstractProjectComponent implements 
                         executionInput.setExecuting(false);
                         if (!executionInput.isExecutionCancelled()) {
                             new SimpleLaterInvocator() {
-                                public void run() {
+                                public void execute() {
                                     MessageUtil.showErrorDialog("Could not execute " + method.getTypeName() + ".", e);
                                     if (promptExecutionDialog(executionInput, false)) {
                                         MethodExecutionManager.this.execute(executionInput);
@@ -198,7 +198,7 @@ public class MethodExecutionManager extends AbstractProjectComponent implements 
             executionProcessor.execute(executionInput, connection);
             if (!executionInput.isExecutionCancelled()) {
                 new SimpleLaterInvocator() {
-                    public void run() {
+                    public void execute() {
                         ExecutionManager executionManager = ExecutionManager.getInstance(method.getProject());
                         executionManager.showExecutionConsole(executionInput.getExecutionResult());
                     }
@@ -209,7 +209,7 @@ public class MethodExecutionManager extends AbstractProjectComponent implements 
         } catch (final SQLException e) {
             if (!executionInput.isExecutionCancelled()) {
                 new SimpleLaterInvocator() {
-                    public void run() {
+                    public void execute() {
                         MessageUtil.showErrorDialog("Could not execute " + method.getTypeName() + ".", e);
                     }
                 }.start();

@@ -107,7 +107,7 @@ public class UncommittedChangesOverviewDialog extends DBNDialog implements Trans
         if (!connectionManager.hasUncommittedChanges()) {
             new ConditionalLaterInvocator() {
                 @Override
-                public void run() {
+                public void execute() {
                     getCancelAction().putValue(Action.NAME, "Close");
                     commitAllAction.setEnabled(false);
                     rollbackAllAction.setEnabled(false);

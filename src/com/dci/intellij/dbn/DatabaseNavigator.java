@@ -78,7 +78,7 @@ public class DatabaseNavigator implements ApplicationComponent, JDOMExternalizab
         if (showPluginConflictDialog && sqlPluginActive()) {
             showPluginConflictDialog = false;
             new SimpleLaterInvocator() {
-                public void run() {
+                public void execute() {
                     List<String> disabledList = PluginManager.getDisabledPlugins();
                     String message =
                         "Database Navigator plugin (DBN) is not compatible with the IntelliJ IDEA built-in SQL functionality. " +

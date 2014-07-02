@@ -266,7 +266,8 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
                             try {
                                 DatasetEditorModel tableModel = getTableModel();
                                 if (tableModel != null) {
-                                    tableModel.load(null, instructions.isUseCurrentFilter(), instructions.isKeepChanges());
+                                    tableModel.load(instructions.isUseCurrentFilter(), instructions.isKeepChanges());
+                                    getEditorTable().clearSelection();
                                 }
                             } finally {
                                 if (!isDisposed()) {
@@ -295,7 +296,7 @@ public class DatasetEditor extends UserDataHolderBase implements FileEditor, Fil
 
     private void handleLoadError(final SQLException e, final DatasetLoadInstructions instr) {
         new SimpleLaterInvocator() {
-            public void run() {
+            public void execute() {
                 DBDataset dataset = getDataset();
                 if (!isDisposed() && dataset != null) {
                     focusEditor();

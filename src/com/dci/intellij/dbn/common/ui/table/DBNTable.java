@@ -220,7 +220,7 @@ public class DBNTable extends JTable implements Disposable{
             if (scrollPane != null && scrollDistance != 0) {
                 new SimpleLaterInvocator() {
                     @Override
-                    public void run() {
+                    public void execute() {
                         JViewport viewport = scrollPane.getViewport();
                         Point viewPosition = viewport.getViewPosition();
                         viewport.setViewPosition(new Point((int) (viewPosition.x + scrollDistance), viewPosition.y));

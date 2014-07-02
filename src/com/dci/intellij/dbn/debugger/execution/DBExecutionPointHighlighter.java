@@ -31,7 +31,7 @@ public class DBExecutionPointHighlighter {
 
     public void show(final @NotNull XSourcePosition position, final boolean useSelection) {
         new ConditionalLaterInvocator() {
-            public void run() {
+            public void execute() {
                 doShow(position, useSelection);
             }
         }.start();
@@ -39,7 +39,7 @@ public class DBExecutionPointHighlighter {
 
     public void hide() {
         new ConditionalLaterInvocator() {
-            public void run() {
+            public void execute() {
                 doHide();
             }
         }.start();

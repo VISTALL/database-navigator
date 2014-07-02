@@ -320,7 +320,7 @@ public class DatabaseFileSystem extends VirtualFileSystem implements Application
         if (!progressIndicator.isCanceled()) {
             new SimpleLaterInvocator() {
                 @Override
-                public void run() {
+                public void execute() {
                     if (isFileOpened(object) || databaseFile.preOpen()) {
                         DatabaseBrowserManager.AUTOSCROLL_FROM_EDITOR.set(scroll);
                         FileEditorManager fileEditorManager = FileEditorManager.getInstance(object.getProject());
@@ -339,7 +339,7 @@ public class DatabaseFileSystem extends VirtualFileSystem implements Application
             new SimpleLaterInvocator() {
 
                 @Override
-                public void run() {
+                public void execute() {
                     if (isFileOpened(schemaObject) || databaseFile.preOpen()) {
                         DatabaseBrowserManager.AUTOSCROLL_FROM_EDITOR.set(scroll);
                         FileEditorManager fileEditorManager = FileEditorManager.getInstance(object.getProject());

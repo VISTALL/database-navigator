@@ -301,7 +301,7 @@ public class ConnectionManager extends AbstractProjectComponent implements Proje
                     if (connectionHandler.hasUncommittedChanges()) {
                         connectionHandler.getConnectionStatus().setResolvingIdleStatus(true);
                         new SimpleLaterInvocator() {
-                            public void run() {
+                            public void execute() {
                                 IdleConnectionDialog idleConnectionDialog = new IdleConnectionDialog(connectionHandler);
                                 idleConnectionDialog.show();
                             }

@@ -23,15 +23,10 @@ public class ConnectionUtil {
     public static void closeResultSet(final ResultSet resultSet) {
         if (resultSet != null) {
             try {
-                Statement statement = resultSet.getStatement();
-                if (statement != null) {
-                    statement.close();
+                closeStatement(resultSet.getStatement());
+                if (!resultSet.isClosed()) {
+                    resultSet.close();
                 }
-            } catch (Exception e) {
-                LOGGER.warn("Error closing statement", e);
-            }
-            try {
-                resultSet.close();
             } catch (Exception e) {
                 LOGGER.warn("Error closing result set", e);
             }
@@ -39,13 +34,14 @@ public class ConnectionUtil {
     }
 
     public static void closeStatement(final Statement statement) {
-        if (statement != null) {
-            try {
+        try {
+            if (statement != null && !statement.isClosed()) {
                 statement.close();
-            } catch (SQLException e) {
-                LOGGER.warn("Error closing statement", e);
             }
+        } catch (SQLException e) {
+            LOGGER.warn("Error closing statement", e);
         }
+
     }
 
     public static void closeConnection(final Connection connection) {

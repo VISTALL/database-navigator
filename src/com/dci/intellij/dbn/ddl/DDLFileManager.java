@@ -117,7 +117,7 @@ public class DDLFileManager extends AbstractProjectComponent implements JDOMExte
 
     public void projectOpened() {
         new SimpleLaterInvocator() {
-            public void run() {
+            public void execute() {
                 registerExtensions();
             }
         }.start();

@@ -61,7 +61,7 @@ public class SQLConsoleEditorState extends BasicTextEditorState {
     public void applyToEditor(@NotNull final TextEditor textEditor) {
         new ConditionalLaterInvocator() {
             @Override
-            public void run() {
+            public void execute() {
                 new WriteActionRunner() {
                     public void run() {
                         textEditor.getEditor().getDocument().setText(content);

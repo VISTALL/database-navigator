@@ -121,7 +121,7 @@ public class DBProgramRunConfigurationEditorForm extends DBNFormImpl implements 
                         final ObjectTreeModel objectTreeModel = new ObjectTreeModel(settings.getSchema(), settings.getVisibleObjectTypes(), settings.getMethod());
 
                         new SimpleLaterInvocator() {
-                            public void run() {
+                            public void execute() {
                                 final MethodExecutionBrowserDialog browserDialog = new MethodExecutionBrowserDialog(project, settings, objectTreeModel);
                                 browserDialog.show();
                                 if (browserDialog.getExitCode() == DialogWrapper.OK_EXIT_CODE) {

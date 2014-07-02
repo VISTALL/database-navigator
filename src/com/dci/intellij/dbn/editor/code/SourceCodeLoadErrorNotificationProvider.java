@@ -32,7 +32,7 @@ public class SourceCodeLoadErrorNotificationProvider extends EditorNotifications
         public void sourceCodeLoaded(final VirtualFile virtualFile) {
             new ConditionalLaterInvocator() {
                 @Override
-                public void run() {
+                public void execute() {
                     if (!project.isDisposed()) {
                         EditorNotifications notifications = EditorNotifications.getInstance(project);
                         notifications.updateNotifications(virtualFile);
