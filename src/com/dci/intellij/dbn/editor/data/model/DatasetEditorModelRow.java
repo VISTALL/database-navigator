@@ -1,5 +1,9 @@
 package com.dci.intellij.dbn.editor.data.model;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+
 import com.dci.intellij.dbn.common.util.MessageUtil;
 import com.dci.intellij.dbn.data.model.ColumnInfo;
 import com.dci.intellij.dbn.data.model.DataModelCell;
@@ -10,10 +14,6 @@ import com.dci.intellij.dbn.object.DBColumn;
 import com.dci.intellij.dbn.object.DBConstraint;
 import com.dci.intellij.dbn.object.DBTable;
 import com.dci.intellij.dbn.object.common.DBObject;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.List;
 
 public class DatasetEditorModelRow extends ResultSetDataModelRow<DatasetEditorModelCell> {
     private int resultSetRowIndex;
@@ -45,11 +45,11 @@ public class DatasetEditorModelRow extends ResultSetDataModelRow<DatasetEditorMo
 
     public void updateStatusFromRow(DatasetEditorModelRow oldRow) {
         if (oldRow != null) {
-            isNew = oldRow.isNew();
-            isDeleted = oldRow.isDeleted();
-            isModified = oldRow.isModified();
+            isNew = oldRow.isNew;
+            isDeleted = oldRow.isDeleted;
+            isModified = oldRow.isModified;
             setIndex(oldRow.getIndex());
-            if (oldRow.isModified()) {
+            if (oldRow.isModified) {
                 for (int i=1; i<getCells().size(); i++) {
                     DatasetEditorModelCell oldCell = oldRow.getCellAtIndex(i);
                     DatasetEditorModelCell newCell = getCellAtIndex(i);
@@ -67,6 +67,13 @@ public class DatasetEditorModelRow extends ResultSetDataModelRow<DatasetEditorMo
         }
     }
 
+    public void setUserValuesToResultSet(ResultSet resultSet) throws SQLException {
+        for (int i=0; i<getCells().size(); i++) {
+            DatasetEditorModelCell newCell = getCellAtIndex(i);
+            newCell.setUserValueToResultSet(resultSet);
+        }
+    }
+
     public void delete() {
         try {
             ResultSet resultSet = scrollResultSet();
@@ -75,7 +82,7 @@ public class DatasetEditorModelRow extends ResultSetDataModelRow<DatasetEditorMo
             isModified = false;
             isNew = false;
         } catch (SQLException e) {
-            MessageUtil.showErrorDialog("Could not delete row at index " + getIndex() + ".", e);
+            MessageUtil.showErrorDialog(getProject(), "Could not delete row at index " + getIndex() + '.', e);
         }
     }
 
@@ -141,7 +148,7 @@ public class DatasetEditorModelRow extends ResultSetDataModelRow<DatasetEditorMo
     }
 
     public void revertChanges() {
-        if (isModified()) {
+        if (isModified) {
             for (DatasetEditorModelCell cell : getCells()) {
                 cell.revertChanges();
             }

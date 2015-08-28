@@ -1,39 +1,33 @@
 package com.dci.intellij.dbn.execution.statement.variables.ui;
 
-import com.dci.intellij.dbn.common.Constants;
-import com.dci.intellij.dbn.common.Icons;
-import com.dci.intellij.dbn.common.ui.dialog.DBNDialog;
-import com.dci.intellij.dbn.execution.statement.variables.StatementExecutionVariablesBundle;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.Messages;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JComponent;
 import java.awt.event.ActionEvent;
+import org.jetbrains.annotations.NotNull;
 
-public class StatementExecutionVariablesDialog extends DBNDialog {
-    private StatementExecutionVariablesForm variablesForm;
-    private StatementExecutionVariablesBundle variablesBundle;
+import com.dci.intellij.dbn.common.Icons;
+import com.dci.intellij.dbn.common.ui.dialog.DBNDialog;
+import com.dci.intellij.dbn.common.util.MessageUtil;
+import com.dci.intellij.dbn.execution.statement.processor.StatementExecutionProcessor;
+import com.dci.intellij.dbn.execution.statement.variables.StatementExecutionVariablesBundle;
+import com.intellij.openapi.project.Project;
 
-    public StatementExecutionVariablesDialog(Project project, StatementExecutionVariablesBundle variablesBundle, String statementText) {
-        super(project, "Execution Variables", true);
-        this.variablesBundle = variablesBundle;
+public class StatementExecutionVariablesDialog extends DBNDialog<StatementExecutionVariablesForm> {
+    private StatementExecutionProcessor executionProcessor;
+
+    public StatementExecutionVariablesDialog(StatementExecutionProcessor executionProcessor, String statementText) {
+        super(executionProcessor.getProject(), "Execution Variables", true);
+        this.executionProcessor = executionProcessor;
         setModal(true);
         setResizable(true);
-        variablesForm = new StatementExecutionVariablesForm(variablesBundle, statementText);
+        component = new StatementExecutionVariablesForm(this, executionProcessor, statementText);
         init();
-    }
-
-    protected String getDimensionServiceKey() {
-        return "DBNavigator.ExecutionVariables";
     }
 
     @Override
     public JComponent getPreferredFocusedComponent() {
-        return variablesForm.getPreferredFocusComponent();
+        return component.getPreferredFocusedComponent();
     }
 
     @NotNull
@@ -52,34 +46,33 @@ public class StatementExecutionVariablesDialog extends DBNDialog {
         }
 
         public void actionPerformed(ActionEvent e) {
-            variablesForm.saveValues();
-            if (variablesBundle.isIncomplete()) {
-                Messages.showErrorDialog(
+            component.saveValues();
+            StatementExecutionVariablesBundle executionVariables = executionProcessor.getExecutionVariables();
+            Project project = getProject();
+            if (executionVariables.isIncomplete()) {
+                MessageUtil.showErrorDialog(
+                        project,
+                        "Statement execution",
                         "You didn't specify values for all the variables. \n" +
-                        "Please enter values for all the listed variables and try again.",
-                        Constants.DBN_TITLE_PREFIX + "Statement execution");
-            } else if (variablesBundle.hasErrors()) {
-                Messages.showErrorDialog(
+                            "Please enter values for all the listed variables and try again."
+                );
+            } else if (executionVariables.hasErrors()) {
+                MessageUtil.showErrorDialog(
+                        project,
+                        "Statement execution",
                         "You provided invalid/unsupported variable values. \n" +
-                        "Please correct your input and try again.",
-                        Constants.DBN_TITLE_PREFIX + "Statement execution");
+                            "Please correct your input and try again."
+                );
             } else {
                 doOKAction();
             }
         }
     }
 
-    @Nullable
-    protected JComponent createCenterPanel() {
-        return variablesForm.getComponent();
-    }
-
     @Override
     public void dispose() {
-        if (!isDisposed()) {
-            super.dispose();
-            variablesForm.dispose();
-        }
+        super.dispose();
+        executionProcessor = null;
     }
 
 

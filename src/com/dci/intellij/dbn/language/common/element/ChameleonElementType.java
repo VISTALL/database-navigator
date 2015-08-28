@@ -1,5 +1,9 @@
 package com.dci.intellij.dbn.language.common.element;
 
+import javax.swing.Icon;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import com.dci.intellij.dbn.code.common.style.formatting.FormattingDefinition;
 import com.dci.intellij.dbn.language.common.DBLanguage;
 import com.dci.intellij.dbn.language.common.DBLanguageDialect;
@@ -7,27 +11,39 @@ import com.dci.intellij.dbn.language.common.TokenType;
 import com.dci.intellij.dbn.language.common.TokenTypeCategory;
 import com.dci.intellij.dbn.language.common.element.impl.WrappingDefinition;
 import com.dci.intellij.dbn.language.common.element.lookup.ElementTypeLookupCache;
+import com.dci.intellij.dbn.language.common.element.parser.Branch;
 import com.dci.intellij.dbn.language.common.element.parser.ElementTypeParser;
+import com.dci.intellij.dbn.language.common.element.path.PathNode;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeAttributesBundle;
 import com.dci.intellij.dbn.language.common.psi.ChameleonPsiElement;
 import com.dci.intellij.dbn.object.common.DBObjectType;
 import com.intellij.lang.ASTNode;
+import com.intellij.lang.PsiBuilder;
+import com.intellij.lang.PsiBuilderFactory;
+import com.intellij.lang.PsiParser;
+import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.tree.ILazyParseableElementType;
-import org.jetbrains.annotations.NotNull;
-
-import javax.swing.Icon;
 
 public class ChameleonElementType extends ILazyParseableElementType implements ElementType, TokenType {
-    public ChameleonElementType(DBLanguageDialect language) {
+    private DBLanguageDialect parentLanguage;
+    public ChameleonElementType(DBLanguageDialect language,DBLanguageDialect parentLanguage) {
         super("chameleon (" + language.getDisplayName() + ")", language);
+        this.parentLanguage = parentLanguage;
     }
 
     public String getId() {
         return "";
     }
 
+    @Override
+    protected ASTNode doParseContents(@NotNull final ASTNode chameleon, @NotNull final PsiElement psi) {
+        Project project = psi.getProject();
+        PsiBuilder builder = PsiBuilderFactory.getInstance().createBuilder(project, chameleon, null, getLanguageDialect(), chameleon.getChars());
+        PsiParser parser = getLanguageDialect().getParserDefinition().getParser();
+        return parser.parse(this, builder).getFirstChildNode();
+    }
 
     @NotNull
     @Override
@@ -70,6 +86,11 @@ public class ChameleonElementType extends ILazyParseableElementType implements E
     }
 
     @Override
+    public TokenPairTemplate getTokenPairTemplate() {
+        return null;
+    }
+
+    @Override
     public void setDefaultFormatting(FormattingDefinition defaults) {
     }
 
@@ -81,6 +102,27 @@ public class ChameleonElementType extends ILazyParseableElementType implements E
     @Override
     public WrappingDefinition getWrapping() {
         return null;
+    }
+
+    @Override
+    public boolean isWrappingBegin(LeafElementType elementType) {
+        return false;
+    }
+
+    @Override
+    public boolean isWrappingEnd(LeafElementType elementType) {
+        return false;
+    }
+
+    @Override
+    @Nullable
+    public Branch getBranch() {
+        return null;
+    }
+
+    @Override
+    public int getIndexInParent(PathNode pathNode) {
+        return 0;
     }
 
     public boolean is(ElementTypeAttribute attribute) {
@@ -95,10 +137,6 @@ public class ChameleonElementType extends ILazyParseableElementType implements E
         return false;
     }
 
-    public boolean isVirtualObjectInsideLookup() {
-        return false;
-    }
-
     public DBObjectType getVirtualObjectType() {
         return null;
     }
@@ -107,17 +145,13 @@ public class ChameleonElementType extends ILazyParseableElementType implements E
         return new ChameleonPsiElement(astNode, this);
     }
 
-    public String getResolveScopeId() {
-        return null;
-    }
-
     public ElementTypeBundle getElementBundle() {
-        return null;
+        return getLanguageDialect().getParserDefinition().getParser().getElementTypes();
     }
 
-    public void registerVirtualObject(DBObjectType objectType) {
+    public DBLanguageDialect getParentLanguage() {
+        return parentLanguage;
     }
-
 
     public int getIdx() {
         return 0;
@@ -183,7 +217,24 @@ public class ChameleonElementType extends ILazyParseableElementType implements E
         return false;
     }
 
+    @Override
+    public boolean isLiteral() {
+        return false;
+    }
+
+    @Override
+    public boolean isNumeric() {
+        return false;
+    }
+
+    @NotNull
     public TokenTypeCategory getCategory() {
+        return TokenTypeCategory.CHAMELEON;
+    }
+
+    @Nullable
+    @Override
+    public DBObjectType getObjectType() {
         return null;
     }
 
@@ -199,5 +250,4 @@ public class ChameleonElementType extends ILazyParseableElementType implements E
     public boolean matches(TokenType tokenType) {
         return this.equals(tokenType);
     }
-
 }

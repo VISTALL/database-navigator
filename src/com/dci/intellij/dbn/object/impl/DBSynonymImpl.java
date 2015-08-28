@@ -1,9 +1,16 @@
 package com.dci.intellij.dbn.object.impl;
 
+import javax.swing.Icon;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
 import com.dci.intellij.dbn.browser.ui.HtmlToolTipBuilder;
 import com.dci.intellij.dbn.common.Icons;
-import com.dci.intellij.dbn.editor.DBContentType;
+import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.object.DBSchema;
 import com.dci.intellij.dbn.object.DBSynonym;
 import com.dci.intellij.dbn.object.common.DBObject;
@@ -17,31 +24,31 @@ import com.dci.intellij.dbn.object.common.status.DBObjectStatus;
 import com.dci.intellij.dbn.object.lookup.DBObjectRef;
 import com.dci.intellij.dbn.object.properties.DBObjectPresentableProperty;
 import com.dci.intellij.dbn.object.properties.PresentableProperty;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import javax.swing.Icon;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.List;
 
 public class DBSynonymImpl extends DBSchemaObjectImpl implements DBSynonym {
     private DBObjectRef<DBObject> underlyingObject;
 
     public DBSynonymImpl(DBSchema schema, ResultSet resultSet) throws SQLException {
-        super(schema, DBContentType.NONE, resultSet);
+        super(schema, resultSet);
     }
 
     @Override
     protected void initObject(ResultSet resultSet) throws SQLException {
         name = resultSet.getString("SYNONYM_NAME");
-        underlyingObject = new DBObjectRef<DBObject>(getConnectionHandler());
         String schemaName = resultSet.getString("OBJECT_OWNER");
         String objectName = resultSet.getString("OBJECT_NAME");
         DBObjectType objectType = DBObjectType.getObjectType(resultSet.getString("OBJECT_TYPE"), DBObjectType.ANY);
 
-        underlyingObject.append(DBObjectType.SCHEMA, schemaName);
-        underlyingObject.append(objectType, objectName);
+        ConnectionHandler connectionHandler = getConnectionHandler();
+        if (connectionHandler != null) {
+            DBSchema schema = connectionHandler.getObjectBundle().getSchema(schemaName);
+            if (schema != null) {
+                DBObjectRef schemaRef = schema.getRef();
+                underlyingObject = new DBObjectRef<DBObject>(schemaRef, objectType, objectName);
+            }
+        }
+
+
     }
 
     public void initStatus(ResultSet resultSet) throws SQLException {
@@ -65,6 +72,7 @@ public class DBSynonymImpl extends DBSchemaObjectImpl implements DBSynonym {
         return getUnderlyingObject();
     }
 
+    @Nullable
     public Icon getIcon() {
         if (getStatus().is(DBObjectStatus.VALID)) {
             return Icons.DBO_SYNONYM;
@@ -79,7 +87,7 @@ public class DBSynonymImpl extends DBSchemaObjectImpl implements DBSynonym {
 
     @Nullable
     public DBObject getUnderlyingObject() {
-        return underlyingObject.get();
+        return DBObjectRef.get(underlyingObject);
     }
 
     public String getNavigationTooltipText() {
@@ -135,7 +143,6 @@ public class DBSynonymImpl extends DBSchemaObjectImpl implements DBSynonym {
     @Override
     public void dispose() {
         super.dispose();
-        underlyingObject = null;
     }
 
     /*********************************************************
@@ -148,7 +155,7 @@ public class DBSynonymImpl extends DBSchemaObjectImpl implements DBSynonym {
 
     @NotNull
     public List<BrowserTreeNode> buildAllPossibleTreeChildren() {
-        return BrowserTreeNode.EMPTY_LIST;
+        return EMPTY_TREE_NODE_LIST;
     }
 
 

@@ -1,17 +1,7 @@
 package com.dci.intellij.dbn.data.editor.ui;
 
-import com.dci.intellij.dbn.common.filter.Filter;
-import com.dci.intellij.dbn.common.list.FiltrableList;
-import com.dci.intellij.dbn.common.thread.ConditionalLaterInvocator;
-import com.dci.intellij.dbn.common.ui.DBNColor;
-import com.dci.intellij.dbn.common.util.StringUtil;
-import com.intellij.openapi.actionSystem.IdeActions;
-import com.intellij.openapi.ui.popup.JBPopup;
-import com.intellij.openapi.ui.popup.JBPopupFactory;
-import com.intellij.openapi.ui.popup.PopupChooserBuilder;
-import org.jetbrains.annotations.NotNull;
-
 import javax.swing.AbstractListModel;
+import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -27,29 +17,35 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import com.dci.intellij.dbn.common.Icons;
+import com.dci.intellij.dbn.common.filter.Filter;
+import com.dci.intellij.dbn.common.list.FiltrableList;
+import com.dci.intellij.dbn.common.thread.ConditionalLaterInvocator;
+import com.dci.intellij.dbn.common.util.StringUtil;
+import com.intellij.openapi.actionSystem.IdeActions;
+import com.intellij.openapi.ui.popup.JBPopup;
+import com.intellij.openapi.ui.popup.JBPopupFactory;
+import com.intellij.openapi.ui.popup.PopupChooserBuilder;
+import com.intellij.ui.JBColor;
+
+@Deprecated
 public class ValuesListPopupProviderForm extends TextFieldPopupProviderForm {
-    public static final DBNColor BACKGROUND_COLOR = new DBNColor(
+    public static final Color BACKGROUND_COLOR = new JBColor(
             new Color(0xEBF4FE),
             new Color(0x3c3f41));
     private ListPopupValuesProvider valuesProvider;
-    private List<String> valuesList;
     private ListModel listModel;
     private JList list;
     private JPanel mainPanel;
     private boolean useDynamicFiltering;
 
-    public ValuesListPopupProviderForm(TextFieldWithPopup textField, @NotNull ListPopupValuesProvider valuesProvider, boolean useDynamicFiltering) {
-        super(textField, false);
+    public ValuesListPopupProviderForm(TextFieldWithPopup textField, @NotNull ListPopupValuesProvider valuesProvider, boolean buttonVisible, boolean dynamicFiltering) {
+        super(textField, false, buttonVisible);
         this.valuesProvider = valuesProvider;
-        this.useDynamicFiltering = useDynamicFiltering;
-        list.setBackground(BACKGROUND_COLOR);
-    }
-
-    public ValuesListPopupProviderForm(TextFieldWithPopup textField, @NotNull List<String> valuesList, boolean useDynamicFiltering) {
-        super(textField, false);
-        this.valuesList = valuesList;
-        this.useDynamicFiltering = useDynamicFiltering;
+        this.useDynamicFiltering = dynamicFiltering;
         list.setBackground(BACKGROUND_COLOR);
     }
 
@@ -57,8 +53,14 @@ public class ValuesListPopupProviderForm extends TextFieldPopupProviderForm {
         return mainPanel;
     }
 
+    @Override
+    public void preparePopup() {
+        // this may take long time so has to be executed in background
+        valuesProvider.getValues();
+    }
+
     public JBPopup createPopup() {
-        List<String> possibleValues = valuesProvider == null ? valuesList : valuesProvider.getValues();
+        List<String> possibleValues = valuesProvider.getValues();
         if (possibleValues.size() > 0) {
             Collections.sort(possibleValues);
             listModel = useDynamicFiltering ? new ListModel(new DynamicFilter(), possibleValues) : new ListModel(possibleValues);
@@ -148,6 +150,12 @@ public class ValuesListPopupProviderForm extends TextFieldPopupProviderForm {
 
     public String getDescription() {
         return "Possible Values List";
+    }
+
+    @Nullable
+    @Override
+    public Icon getButtonIcon() {
+        return Icons.DATA_EDITOR_LIST;
     }
 
     @Override

@@ -1,8 +1,12 @@
 package com.dci.intellij.dbn.execution.compiler.action;
 
+import org.jetbrains.annotations.NotNull;
+
 import com.dci.intellij.dbn.editor.DBContentType;
 import com.dci.intellij.dbn.execution.common.options.ExecutionEngineSettings;
-import com.dci.intellij.dbn.execution.compiler.CompileType;
+import com.dci.intellij.dbn.execution.compiler.CompileTypeOption;
+import com.dci.intellij.dbn.execution.compiler.CompilerAction;
+import com.dci.intellij.dbn.execution.compiler.CompilerActionSource;
 import com.dci.intellij.dbn.execution.compiler.DatabaseCompilerManager;
 import com.dci.intellij.dbn.execution.compiler.options.CompilerSettings;
 import com.dci.intellij.dbn.object.common.DBSchemaObject;
@@ -23,21 +27,22 @@ public class CompileObjectAction extends AnAction {
         this.contentType = contentType;
     }
 
-    public void actionPerformed(AnActionEvent e) {
+    public void actionPerformed(@NotNull AnActionEvent e) {
         DatabaseCompilerManager compilerManager = DatabaseCompilerManager.getInstance(object.getProject());
-        CompileType compileType = getCompilerSettings(object.getProject()).getCompileType();
-        compilerManager.compileObject(object, contentType, compileType, false);
+        CompileTypeOption compileType = getCompilerSettings(object.getProject()).getCompileTypeOption();
+        CompilerAction compilerAction = new CompilerAction(CompilerActionSource.COMPILE, contentType);
+        compilerManager.compileInBackground(object, compileType, compilerAction);
     }
 
-    public void update(AnActionEvent e) {
+    public void update(@NotNull AnActionEvent e) {
         Presentation presentation = e.getPresentation();
 
         CompilerSettings compilerSettings = getCompilerSettings(object.getProject());
-        CompileType compileType = compilerSettings.getCompileType();
+        CompileTypeOption compileType = compilerSettings.getCompileTypeOption();
         DBObjectStatusHolder status = object.getStatus();
 
-        boolean isDebug = compileType == CompileType.DEBUG;
-        if (compileType == CompileType.KEEP) {
+        boolean isDebug = compileType == CompileTypeOption.DEBUG;
+        if (compileType == CompileTypeOption.KEEP) {
             isDebug = status.is(contentType, DBObjectStatus.DEBUG);
         }
 
@@ -50,14 +55,14 @@ public class CompileObjectAction extends AnAction {
         presentation.setEnabled(isEnabled);
 
         String text =
-                contentType == DBContentType.CODE_SPEC ? "Compile spec" :
-                contentType == DBContentType.CODE_BODY ? "Compile body" : "Compile";
+                contentType == DBContentType.CODE_SPEC ? "Compile Spec" :
+                contentType == DBContentType.CODE_BODY ? "Compile Body" : "Compile";
         if (isDebug) text = text + " (Debug)";
-        if (compileType == CompileType.ASK) text = text + "...";
+        if (compileType == CompileTypeOption.ASK) text = text + "...";
         presentation.setText(text);
     }
 
-    private CompilerSettings getCompilerSettings(Project project) {
+    private static CompilerSettings getCompilerSettings(Project project) {
         return ExecutionEngineSettings.getInstance(project).getCompilerSettings();
     }
 }

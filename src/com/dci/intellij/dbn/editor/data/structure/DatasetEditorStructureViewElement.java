@@ -1,5 +1,10 @@
 package com.dci.intellij.dbn.editor.data.structure;
 
+import javax.swing.Icon;
+import java.util.List;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
 import com.dci.intellij.dbn.editor.data.DatasetEditor;
 import com.dci.intellij.dbn.editor.data.model.DatasetEditorModel;
@@ -11,12 +16,6 @@ import com.dci.intellij.dbn.object.common.DBObjectBundle;
 import com.intellij.ide.structureView.StructureViewTreeElement;
 import com.intellij.navigation.ItemPresentation;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import javax.swing.Icon;
-import java.util.Arrays;
-import java.util.List;
 
 public class DatasetEditorStructureViewElement implements StructureViewTreeElement, Comparable{
     private BrowserTreeNode treeNode;
@@ -32,6 +31,7 @@ public class DatasetEditorStructureViewElement implements StructureViewTreeEleme
         return treeNode;
     }
 
+    @NotNull
     public ItemPresentation getPresentation() {
         return new ItemPresentation() {
             public String getPresentableText() {
@@ -42,7 +42,7 @@ public class DatasetEditorStructureViewElement implements StructureViewTreeEleme
             public String getLocationString() {
                 if (treeNode instanceof DBColumn) {
                     DBColumn column  = (DBColumn) treeNode;
-                    return column.getPresentableTextDetails();
+                    return column.getDataType().getName().toLowerCase();
 
                 }
                 return null;
@@ -60,6 +60,7 @@ public class DatasetEditorStructureViewElement implements StructureViewTreeEleme
         };
     }
 
+    @NotNull
     public StructureViewTreeElement[] getChildren() {
         if (children == null) {
             if (datasetEditor.isDisposed())  {
@@ -82,7 +83,6 @@ public class DatasetEditorStructureViewElement implements StructureViewTreeEleme
                 for (int i=0; i<children.length; i++) {
                     children[i] = new DatasetEditorStructureViewElement(columns.get(i), datasetEditor);
                 }
-                Arrays.sort(children);
             }
             else {
                 children = EMPTY_ARRAY;

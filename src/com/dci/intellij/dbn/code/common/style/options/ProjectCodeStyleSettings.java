@@ -1,5 +1,8 @@
 package com.dci.intellij.dbn.code.common.style.options;
 
+import org.jdom.Element;
+import org.jetbrains.annotations.NotNull;
+
 import com.dci.intellij.dbn.code.common.style.options.ui.CodeStyleSettingsForm;
 import com.dci.intellij.dbn.code.psql.style.options.PSQLCodeStyleSettings;
 import com.dci.intellij.dbn.code.psql.style.options.PSQLCustomCodeStyleSettings;
@@ -7,21 +10,20 @@ import com.dci.intellij.dbn.code.sql.style.options.SQLCodeStyleSettings;
 import com.dci.intellij.dbn.code.sql.style.options.SQLCustomCodeStyleSettings;
 import com.dci.intellij.dbn.common.options.CompositeProjectConfiguration;
 import com.dci.intellij.dbn.common.options.Configuration;
+import com.dci.intellij.dbn.options.ConfigId;
+import com.dci.intellij.dbn.options.ProjectSettingsManager;
+import com.dci.intellij.dbn.options.TopLevelConfig;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.InvalidDataException;
-import com.intellij.openapi.util.WriteExternalException;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
-import org.jdom.Element;
-import org.jetbrains.annotations.NotNull;
 
-public class ProjectCodeStyleSettings extends CompositeProjectConfiguration<CodeStyleSettingsForm> {
+public class ProjectCodeStyleSettings extends CompositeProjectConfiguration<CodeStyleSettingsForm> implements TopLevelConfig {
     public ProjectCodeStyleSettings(Project project){
         super(project);
     }
 
     public static ProjectCodeStyleSettings getInstance(Project project) {
-        return getGlobalProjectSettings(project).getCodeStyleSettings();
+        return ProjectSettingsManager.getSettings(project).getCodeStyleSettings();
     }
 
     @NotNull
@@ -32,6 +34,11 @@ public class ProjectCodeStyleSettings extends CompositeProjectConfiguration<Code
 
     public String getDisplayName() {
         return "Code Style";
+    }
+
+    @Override
+    public ConfigId getConfigId() {
+        return ConfigId.CODE_STYLE;
     }
 
     public CodeStyleSettingsForm createConfigurationEditor() {
@@ -73,11 +80,11 @@ public class ProjectCodeStyleSettings extends CompositeProjectConfiguration<Code
                 getPSQLCodeStyleSettings()};
     }
 
-    public void readConfiguration(Element element) throws InvalidDataException {
+    public void readConfiguration(Element element) {
 
     }
 
-    public void writeConfiguration(Element element) throws WriteExternalException {
+    public void writeConfiguration(Element element) {
 
     }
 

@@ -1,47 +1,42 @@
 package com.dci.intellij.dbn.object.filter.name.ui;
 
-import com.dci.intellij.dbn.common.Constants;
+import com.dci.intellij.dbn.common.ui.dialog.DBNDialog;
 import com.dci.intellij.dbn.object.common.DBObjectType;
 import com.dci.intellij.dbn.object.filter.name.CompoundFilterCondition;
 import com.dci.intellij.dbn.object.filter.name.ConditionJoinType;
 import com.dci.intellij.dbn.object.filter.name.SimpleFilterCondition;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.DialogWrapper;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.JComponent;
 
-public class EditFilterConditionDialog extends DialogWrapper {
-    private EditFilterConditionForm filterConditionForm;
+public class EditFilterConditionDialog extends DBNDialog<EditFilterConditionForm> {
+    private SimpleFilterCondition condition;
+    private ConditionJoinType joinType;
 
     public EditFilterConditionDialog(Project project, CompoundFilterCondition parentCondition, SimpleFilterCondition condition, DBObjectType objectType, EditFilterConditionForm.Operation operation) {
-        super(project, true);
-        filterConditionForm = new EditFilterConditionForm(parentCondition, condition,  objectType, operation);
+        super(project, getTitle(operation), true);
+        component = new EditFilterConditionForm(this, parentCondition, condition,  objectType, operation);
         setModal(true);
         setResizable(false);
-        String title =
-                operation == EditFilterConditionForm.Operation.CREATE ? "Create filter" :
-                operation == EditFilterConditionForm.Operation.EDIT ? "Edit filter condition" :
-                operation == EditFilterConditionForm.Operation.JOIN ? "Join filter condition" : null;
-        setTitle(Constants.DBN_TITLE_PREFIX + title);
         init();
+    }
+
+    @Nullable
+    private static String getTitle(EditFilterConditionForm.Operation operation) {
+        return operation == EditFilterConditionForm.Operation.CREATE ? "Create filter" :
+        operation == EditFilterConditionForm.Operation.EDIT ? "Edit filter condition" :
+        operation == EditFilterConditionForm.Operation.JOIN ? "Join filter condition" : null;
     }
 
     @Override
     public JComponent getPreferredFocusedComponent() {
-        return filterConditionForm.getFocusComponent();
-    }
-
-    protected String getDimensionServiceKey() {
-        return "DBNavigator.ObjectFilterConditionDialog";
-    }
-
-    @Nullable
-    protected JComponent createCenterPanel() {
-        return filterConditionForm.getComponent();
+        return component.getFocusComponent();
     }
 
     public void doOKAction() {
+        condition = component.getCondition();
+        joinType = component.getJoinType();
         super.doOKAction();
     }
 
@@ -50,12 +45,10 @@ public class EditFilterConditionDialog extends DialogWrapper {
     }
 
     public SimpleFilterCondition getCondition() {
-        return filterConditionForm.getCondition();
+        return condition;
     }
 
     public ConditionJoinType getJoinType() {
-        return filterConditionForm.getJoinType();
+        return joinType;
     }
-
-
 }

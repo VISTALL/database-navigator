@@ -1,5 +1,7 @@
 package com.dci.intellij.dbn.object.filter.name.action;
 
+import java.util.List;
+
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.util.ActionUtil;
 import com.dci.intellij.dbn.object.filter.name.CompoundFilterCondition;
@@ -11,22 +13,22 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 
-import java.util.List;
-
 public class MoveConditionDownAction extends ObjectNameFilterAction{
 
     public MoveConditionDownAction(ObjectNameFilterSettingsForm settingsForm) {
-        super("Move down", Icons.ACTION_MOVE_DOWN, settingsForm);
+        super("Move Down", Icons.ACTION_MOVE_DOWN, settingsForm);
     }
 
     @Override
     public void actionPerformed(AnActionEvent e) {
         Object selection = getSelection();
         if (selection instanceof FilterCondition) {
-            FilterCondition condition = (FilterCondition) selection;
             Project project = ActionUtil.getProject(e);
-            ObjectNameFilterManager filterManager = ObjectNameFilterManager.getInstance(project);
-            filterManager.moveFilterConditionDown(condition, settingsForm);
+            if (project != null) {
+                FilterCondition condition = (FilterCondition) selection;
+                ObjectNameFilterManager filterManager = ObjectNameFilterManager.getInstance(project);
+                filterManager.moveFilterConditionDown(condition, settingsForm);
+            }
         }
     }
 

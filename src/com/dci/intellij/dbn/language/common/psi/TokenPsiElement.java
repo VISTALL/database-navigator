@@ -1,5 +1,10 @@
 package com.dci.intellij.dbn.language.common.psi;
 
+import javax.swing.Icon;
+import java.util.Set;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import com.dci.intellij.dbn.common.util.StringUtil;
 import com.dci.intellij.dbn.language.common.TokenType;
 import com.dci.intellij.dbn.language.common.element.TokenElementType;
@@ -9,10 +14,6 @@ import com.dci.intellij.dbn.object.common.DBObjectType;
 import com.intellij.lang.ASTNode;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.psi.PsiElement;
-import org.jetbrains.annotations.Nullable;
-
-import javax.swing.Icon;
-import java.util.Set;
 
 public class TokenPsiElement extends LeafPsiElement {
     public TokenPsiElement(ASTNode astNode, TokenElementType elementType) {
@@ -23,13 +24,20 @@ public class TokenPsiElement extends LeafPsiElement {
         return (TokenElementType) super.getElementType();
     }
 
-    public BasePsiElement lookupPsiElement(PsiLookupAdapter lookupAdapter, int scopeCrossCount) {return null;}
-    public Set<BasePsiElement> collectPsiElements(PsiLookupAdapter lookupAdapter, Set<BasePsiElement> bucket, int scopeCrossCount) {return bucket;}
+    @Nullable
+    public BasePsiElement findPsiElement(PsiLookupAdapter lookupAdapter, int scopeCrossCount) {
+        if (lookupAdapter.matches(this)) {
+            return this;
+        }
+        return null;
+    }
+    @Nullable
+    public Set<BasePsiElement> collectPsiElements(PsiLookupAdapter lookupAdapter, @Nullable Set<BasePsiElement> bucket, int scopeCrossCount) {return bucket;}
 
-    public void collectExecVariablePsiElements(Set<ExecVariablePsiElement> bucket) {}
-    public void collectSubjectPsiElements(Set<BasePsiElement> bucket) {}
-    public NamedPsiElement lookupNamedPsiElement(String id) {return null;}
-    public BasePsiElement lookupPsiElementBySubject(ElementTypeAttribute attribute, CharSequence subjectName, DBObjectType subjectType) {return null;}
+    public void collectExecVariablePsiElements(@NotNull Set<ExecVariablePsiElement> bucket) {}
+    public void collectSubjectPsiElements(@NotNull Set<IdentifierPsiElement> bucket) {}
+    public NamedPsiElement findNamedPsiElement(String id) {return null;}
+    public BasePsiElement findPsiElementBySubject(ElementTypeAttribute attribute, CharSequence subjectName, DBObjectType subjectType) {return null;}
 
 
     /*********************************************************
@@ -70,38 +78,23 @@ public class TokenPsiElement extends LeafPsiElement {
     }
 
     @Override
-    public boolean equals(BasePsiElement basePsiElement) {
-        if (this == basePsiElement) {
-            return true;
-        } else {
-            if (basePsiElement instanceof TokenPsiElement) {
-                TokenPsiElement remote = (TokenPsiElement) basePsiElement;
-                TokenType localTokenType = getElementType().getTokenType();
-                TokenType remoteTokenType = remote.getElementType().getTokenType();
-                if (localTokenType == remoteTokenType) {
-                    return
-                        localTokenType.isReservedWord() ||
-                        localTokenType.isCharacter() ||
-                        localTokenType.isOperator() ||
-                        StringUtil.equalsIgnoreCase(getChars(), remote.getChars());
+    public boolean matches(BasePsiElement basePsiElement, MatchType matchType) {
+        if (basePsiElement instanceof TokenPsiElement) {
+            TokenPsiElement remote = (TokenPsiElement) basePsiElement;
+            TokenType localTokenType = getElementType().getTokenType();
+            TokenType remoteTokenType = remote.getElementType().getTokenType();
+            if (localTokenType == remoteTokenType) {
+                if (matchType == MatchType.SOFT) {
+                    return true;
+                } else {
+                    if (localTokenType.isNumeric() || localTokenType.isLiteral()) {
+                        return StringUtil.equals(getChars(), remote.getChars());
+                    } else {
+                        return true;
+                    }
                 }
             }
-            return false;
         }
-    }
-
-    @Override
-    public boolean matches(BasePsiElement basePsiElement) {
-        if (this == basePsiElement) {
-            return true;
-        } else {
-            if (basePsiElement instanceof TokenPsiElement) {
-                TokenPsiElement remote = (TokenPsiElement) basePsiElement;
-                TokenType localTokenType = getElementType().getTokenType();
-                TokenType remoteTokenType = remote.getElementType().getTokenType();
-                return localTokenType == remoteTokenType;
-            }
-            return false;
-        }
+        return false;
     }
 }

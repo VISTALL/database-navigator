@@ -1,20 +1,22 @@
 package com.dci.intellij.dbn.data.find;
 
+import java.awt.Rectangle;
+import org.jetbrains.annotations.NotNull;
+
 import com.dci.intellij.dbn.common.thread.BackgroundTask;
 import com.dci.intellij.dbn.common.thread.SimpleLaterInvocator;
+import com.dci.intellij.dbn.data.grid.ui.table.basic.BasicTable;
 import com.dci.intellij.dbn.data.model.DataModel;
 import com.dci.intellij.dbn.data.model.DataModelCell;
 import com.dci.intellij.dbn.data.model.DataModelRow;
-import com.dci.intellij.dbn.data.ui.table.basic.BasicTable;
+import com.dci.intellij.dbn.data.model.basic.BasicDataModel;
 import com.intellij.find.FindManager;
 import com.intellij.find.FindResult;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
-import org.jetbrains.annotations.NotNull;
 
-import java.awt.Rectangle;
-
-public class DataSearchResultController {
+public class DataSearchResultController implements Disposable{
     private SearchableDataComponent searchableComponent;
 
     public DataSearchResultController(SearchableDataComponent searchableComponent) {
@@ -22,7 +24,7 @@ public class DataSearchResultController {
     }
 
     public void moveCursor(DataSearchDirection direction) {
-        BasicTable table = searchableComponent.getTable();
+        BasicTable<? extends BasicDataModel> table = searchableComponent.getTable();
         DataModel dataModel = table.getModel();
         DataSearchResult searchResult = dataModel.getSearchResult();
         DataSearchResultScrollPolicy scrollPolicy = DataSearchResultScrollPolicy.HORIZONTAL;
@@ -35,7 +37,7 @@ public class DataSearchResultController {
     }
 
     public void selectFirst(int selectedRowIndex, int selectedColumnIndex) {
-        BasicTable table = searchableComponent.getTable();
+        BasicTable<? extends BasicDataModel> table = searchableComponent.getTable();
         DataModel dataModel = table.getModel();
         DataSearchResult searchResult = dataModel.getSearchResult();
         DataSearchResultScrollPolicy scrollPolicy = DataSearchResultScrollPolicy.HORIZONTAL;
@@ -46,7 +48,7 @@ public class DataSearchResultController {
         updateSelection(table, oldSelection, selection);
     }
 
-    private void updateSelection(BasicTable table, DataSearchResultMatch oldSelection, DataSearchResultMatch selection) {
+    private static void updateSelection(BasicTable table, DataSearchResultMatch oldSelection, DataSearchResultMatch selection) {
         if (oldSelection != null) {
             DataModelCell cell = oldSelection.getCell();
             Rectangle cellRectangle = table.getCellRect(cell);
@@ -110,7 +112,9 @@ public class DataSearchResultController {
                         searchableComponent.cancelEditActions();
 
                         table.clearSelection();
+                        table.revalidate();
                         table.repaint();
+
                         selectFirst(selectedRowIndex, selectedColumnIndex);
                         searchResult.notifyListeners();
 
@@ -120,5 +124,10 @@ public class DataSearchResultController {
             }
         }.start();
 
+    }
+
+    @Override
+    public void dispose() {
+        searchableComponent = null;
     }
 }

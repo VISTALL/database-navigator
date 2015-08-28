@@ -1,20 +1,18 @@
 package com.dci.intellij.dbn.ddl.ui;
 
 import com.dci.intellij.dbn.common.ui.dialog.DBNDialog;
+import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.ddl.DDLFileAttachmentManager;
 import com.dci.intellij.dbn.object.common.DBSchemaObject;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.JComponent;
 import java.awt.event.ActionEvent;
 import java.util.List;
 
-public class AttachDDLFileDialog extends DBNDialog {
-    private SelectDDLFileForm fileForm;
+public class AttachDDLFileDialog extends DBNDialog<SelectDDLFileForm> {
     private DBSchemaObject object;
     private boolean showLookupOption;
 
@@ -25,14 +23,10 @@ public class AttachDDLFileDialog extends DBNDialog {
         String hint =
             "Following DDL files were found matching the name of the selected " + object.getTypeName() + ".\n" +
             "Select files to attach to this object.\n\n" +
-            "NOTE: \nBound DDL files will become readonly and their content will change automatically when the database object is edited.";
-        fileForm = new SelectDDLFileForm(object, virtualFiles, hint, showLookupOption);
+            "NOTE: \nAttached DDL files will become readonly and their content will change automatically when the database object is edited.";
+        component = new SelectDDLFileForm(object, virtualFiles, hint, showLookupOption);
         getOKAction().putValue(Action.NAME, "Attach selected");
         init();
-    }
-
-    protected String getDimensionServiceKey() {
-        return "DBNavigator.DDLFileBinding";
     }
 
     @NotNull
@@ -51,7 +45,7 @@ public class AttachDDLFileDialog extends DBNDialog {
         }
 
         public void actionPerformed(ActionEvent e) {
-            fileForm.selectAll();
+            component.selectAll();
             doOKAction();
         }
     }
@@ -62,9 +56,12 @@ public class AttachDDLFileDialog extends DBNDialog {
         }
 
         public void actionPerformed(ActionEvent e) {
-            fileForm.selectNone();
-            if (showLookupOption && fileForm.isDoNotPromptSelected()) {
-                object.getConnectionHandler().getSettings().getDetailSettings().setDdlFileBinding(false);
+            component.selectNone();
+            if (showLookupOption && component.isDoNotPromptSelected()) {
+                ConnectionHandler connectionHandler = object.getConnectionHandler();
+                if (connectionHandler != null) {
+                    connectionHandler.getSettings().getDetailSettings().setEnableDdlFileBinding(false);
+                }
             }
             close(2);
         }
@@ -72,24 +69,18 @@ public class AttachDDLFileDialog extends DBNDialog {
 
     protected void doOKAction() {
         DDLFileAttachmentManager fileAttachmentManager = DDLFileAttachmentManager.getInstance(object.getProject());
-        Object[] selectedPsiFiles = getSelection();
+        Object[] selectedPsiFiles = component.getSelection();
         for (Object selectedPsiFile : selectedPsiFiles) {
             VirtualFile virtualFile = (VirtualFile) selectedPsiFile;
             fileAttachmentManager.bindDDLFile(object, virtualFile);
         }
-        if (showLookupOption && fileForm.isDoNotPromptSelected()) {
-            object.getConnectionHandler().getSettings().getDetailSettings().setDdlFileBinding(false);
+        if (showLookupOption && component.isDoNotPromptSelected()) {
+            ConnectionHandler connectionHandler = object.getConnectionHandler();
+            if (connectionHandler != null) {
+                connectionHandler.getSettings().getDetailSettings().setEnableDdlFileBinding(false);
+            }
         }
 
         super.doOKAction();
-    }
-
-    @Nullable
-    protected JComponent createCenterPanel() {
-        return fileForm.getComponent();
-    }
-
-    public Object[] getSelection() {
-        return fileForm.getSelection();
     }
 }

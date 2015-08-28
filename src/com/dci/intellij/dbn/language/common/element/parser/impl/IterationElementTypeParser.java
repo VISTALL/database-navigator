@@ -1,5 +1,8 @@
 package com.dci.intellij.dbn.language.common.element.parser.impl;
 
+import java.util.Set;
+import org.jetbrains.annotations.NotNull;
+
 import com.dci.intellij.dbn.language.common.ParseException;
 import com.dci.intellij.dbn.language.common.TokenType;
 import com.dci.intellij.dbn.language.common.element.BasicElementType;
@@ -7,14 +10,15 @@ import com.dci.intellij.dbn.language.common.element.ElementType;
 import com.dci.intellij.dbn.language.common.element.IterationElementType;
 import com.dci.intellij.dbn.language.common.element.SequenceElementType;
 import com.dci.intellij.dbn.language.common.element.TokenElementType;
+import com.dci.intellij.dbn.language.common.element.lookup.ElementTypeLookupCache;
 import com.dci.intellij.dbn.language.common.element.parser.AbstractElementTypeParser;
 import com.dci.intellij.dbn.language.common.element.parser.ParseResult;
 import com.dci.intellij.dbn.language.common.element.parser.ParseResultType;
 import com.dci.intellij.dbn.language.common.element.parser.ParserBuilder;
 import com.dci.intellij.dbn.language.common.element.parser.ParserContext;
 import com.dci.intellij.dbn.language.common.element.path.ParsePathNode;
+import com.dci.intellij.dbn.language.common.element.util.ParseBuilderErrorHandler;
 import com.intellij.lang.PsiBuilder;
-import org.jetbrains.annotations.NotNull;
 
 public class IterationElementTypeParser extends AbstractElementTypeParser<IterationElementType> {
     public IterationElementTypeParser(IterationElementType elementType) {
@@ -24,15 +28,13 @@ public class IterationElementTypeParser extends AbstractElementTypeParser<Iterat
     public ParseResult parse(@NotNull ParsePathNode parentNode, boolean optional, int depth, ParserContext context) throws ParseException {
         ParserBuilder builder = context.getBuilder();
         logBegin(builder, optional, depth);
-
-        ParsePathNode node = createParseNode(parentNode, builder.getCurrentOffset());
-        PsiBuilder.Marker marker = builder.mark(node);
+        ParsePathNode node = stepIn(parentNode, context);
 
         IterationElementType elementType = getElementType();
         ElementType iteratedElementType = elementType.getIteratedElementType();
         TokenElementType[] separatorTokens = elementType.getSeparatorTokens();
 
-        int elementCounter = 0;
+        int iterations = 0;
         int matchedTokens = 0;
         //TokenType tokenType = (TokenType) builder.getTokenType();
         // check if the token objectType can be part of this iteration
@@ -43,10 +45,11 @@ public class IterationElementTypeParser extends AbstractElementTypeParser<Iterat
             // check first iteration element
             if (result.isMatch()) {
                 if (node.isRecursive(node.getStartOffset())) {
-                    return stepOut(marker, depth, ParseResultType.FULL_MATCH, matchedTokens, node, context);
+                    ParseResultType resultType = matchesMinIterations(iterations) ? ParseResultType.FULL_MATCH : ParseResultType.NO_MATCH;
+                    return stepOut(node, context, depth, resultType, matchedTokens);
                 }
                 while (true) {
-                    elementCounter++;
+                    iterations++;
                     // check separator
                     // if not matched just step out
                     if (separatorTokens != null) {
@@ -58,10 +61,13 @@ public class IterationElementTypeParser extends AbstractElementTypeParser<Iterat
 
                         if (result.isNoMatch()) {
                             // if NO_MATCH, no additional separator found, hence then iteration should exit with MATCH
-                            ParseResultType resultType = matchesElementsCount(elementCounter) ?
-                                    ParseResultType.FULL_MATCH :
-                                    ParseResultType.PARTIAL_MATCH;
-                            return stepOut(marker, depth, resultType, matchedTokens, node, context);
+                            ParseResultType resultType =
+                                    matchesMinIterations(iterations) ?
+                                        matchesIterations(iterations) ?
+                                            ParseResultType.FULL_MATCH :
+                                            ParseResultType.PARTIAL_MATCH :
+                                    ParseResultType.NO_MATCH;
+                            return stepOut(node, context, depth, resultType, matchedTokens);
                         } else {
                             node.setCurrentOffset(builder.getCurrentOffset());
                         }
@@ -75,14 +81,21 @@ public class IterationElementTypeParser extends AbstractElementTypeParser<Iterat
                     if (result.isNoMatch()) {
                         // missing separators permit ending the iteration as valid at any time
                         if (separatorTokens == null) {
-                            ParseResultType resultType = matchesElementsCount(elementCounter) ?
-                                    ParseResultType.FULL_MATCH :
-                                    ParseResultType.PARTIAL_MATCH;
-                            return stepOut(marker, depth, resultType, matchedTokens, node, context);
+                            ParseResultType resultType =
+                                    matchesMinIterations(iterations) ?
+                                        matchesIterations(iterations) ?
+                                            ParseResultType.FULL_MATCH :
+                                            ParseResultType.PARTIAL_MATCH :
+                                    ParseResultType.NO_MATCH;
+                            return stepOut(node, context, depth, resultType, matchedTokens);
                         } else {
-                            boolean exit = advanceLexerToNextLandmark(parentNode, false, context);
-                            if (exit){
-                                return stepOut(marker, depth, ParseResultType.PARTIAL_MATCH, matchedTokens, node, context);
+                            if (matchesMinIterations(iterations)) {
+                                boolean exit = advanceLexerToNextLandmark(node, false, context);
+                                if (exit){
+                                    return stepOut(node, context, depth, ParseResultType.PARTIAL_MATCH, matchedTokens);
+                                }
+                            } else {
+                                return stepOut(node, context, depth, ParseResultType.NO_MATCH, matchedTokens);
                             }
                         }
                     } else {
@@ -94,7 +107,7 @@ public class IterationElementTypeParser extends AbstractElementTypeParser<Iterat
         if (!optional) {
             //updateBuilderError(builder, this);
         }
-        return stepOut(marker, depth, ParseResultType.NO_MATCH, matchedTokens, node, context);
+        return stepOut(node, context, depth, ParseResultType.NO_MATCH, matchedTokens);
     }
 
     private boolean advanceLexerToNextLandmark(ParsePathNode parentNode, boolean lenient, ParserContext context) throws ParseException {
@@ -106,7 +119,9 @@ public class IterationElementTypeParser extends AbstractElementTypeParser<Iterat
         TokenElementType[] separatorTokens = elementType.getSeparatorTokens();
 
         if (!lenient) {
-            getErrorHandler().updateBuilderError(iteratedElementType.getLookupCache().getFirstPossibleTokens(), context);
+            ElementTypeLookupCache lookupCache = iteratedElementType.getLookupCache();
+            Set<TokenType> expectedTokens = lookupCache.collectFirstPossibleTokens(context.reset());
+            ParseBuilderErrorHandler.updateBuilderError(expectedTokens, context);
         }
         boolean advanced = false;
         BasicElementType unknownElementType = getElementBundle().getUnknownElementType();
@@ -128,8 +143,8 @@ public class IterationElementTypeParser extends AbstractElementTypeParser<Iterat
                 while (parseNode != null) {
                     if (parseNode.getElementType() instanceof SequenceElementType) {
                         SequenceElementType sequenceElementType = (SequenceElementType) parseNode.getElementType();
-                        int index = parseNode.getCurrentSiblingIndex();
-                        if ( sequenceElementType.containsLandmarkTokenFromIndex(tokenType, index + 1)) {
+                        int index = parseNode.getCursorPosition();
+                        if (!iteratedElementType.getLookupCache().containsToken(tokenType) && sequenceElementType.containsLandmarkTokenFromIndex(tokenType, index + 1)) {
                             if (advanced || !lenient) {
                                 builder.markerDone(marker, unknownElementType);
                             } else {
@@ -151,11 +166,16 @@ public class IterationElementTypeParser extends AbstractElementTypeParser<Iterat
         return true;
     }
 
-    private boolean matchesElementsCount(int elementsCount) {
+    private boolean matchesMinIterations(int iterations) {
+        Integer minIterations = getElementType().getMinIterations();
+        return minIterations == null || minIterations <= iterations;
+    }
+
+    private boolean matchesIterations(int iterations) {
         int[]elementsCountVariants = getElementType().getElementsCountVariants();
         if (elementsCountVariants != null) {
             for (int elementsCountVariant: elementsCountVariants) {
-                if (elementsCountVariant == elementsCount) {
+                if (elementsCountVariant == iterations) {
                     return true;
                 }
             }

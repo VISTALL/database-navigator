@@ -1,5 +1,13 @@
 package com.dci.intellij.dbn.object.impl;
 
+import javax.swing.Icon;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import com.dci.intellij.dbn.browser.DatabaseBrowserUtils;
 import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
 import com.dci.intellij.dbn.browser.ui.HtmlToolTipBuilder;
@@ -8,6 +16,7 @@ import com.dci.intellij.dbn.common.content.DynamicContent;
 import com.dci.intellij.dbn.common.content.loader.DynamicContentLoader;
 import com.dci.intellij.dbn.common.content.loader.DynamicContentResultSetLoader;
 import com.dci.intellij.dbn.common.content.loader.DynamicSubcontentLoader;
+import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.database.DatabaseMetadataInterface;
 import com.dci.intellij.dbn.ddl.DDLFileManager;
 import com.dci.intellij.dbn.ddl.DDLFileType;
@@ -25,18 +34,11 @@ import com.dci.intellij.dbn.object.common.list.DBObjectListContainer;
 import com.dci.intellij.dbn.object.common.loader.DBObjectTimestampLoader;
 import com.dci.intellij.dbn.object.common.loader.DBSourceCodeLoader;
 import com.dci.intellij.dbn.object.common.status.DBObjectStatus;
-import org.jetbrains.annotations.NotNull;
-
-import javax.swing.Icon;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.List;
 
 public class DBPackageImpl extends DBProgramImpl implements DBPackage {
     protected DBObjectList<DBPackageType> types;
     public DBPackageImpl(DBSchema schema, ResultSet resultSet) throws SQLException {
-        super(schema, DBContentType.CODE_SPEC_AND_BODY, resultSet);
+        super(schema, resultSet);
     }
 
     @Override
@@ -54,6 +56,11 @@ public class DBPackageImpl extends DBProgramImpl implements DBPackage {
         types = childObjects.createSubcontentObjectList(DBObjectType.PACKAGE_TYPE, this, TYPES_LOADER, schema, true);
     }
 
+    @Override
+    public DBContentType getContentType() {
+        return DBContentType.CODE_SPEC_AND_BODY;
+    }
+
     public List getTypes() {
         return types.getObjects();
     }
@@ -66,6 +73,7 @@ public class DBPackageImpl extends DBProgramImpl implements DBPackage {
         return DBObjectType.PACKAGE;
     }
 
+    @Nullable
     public Icon getIcon() {
         if (getStatus().is(DBObjectStatus.VALID)) {
             if (getStatus().is(DBObjectStatus.DEBUG))  {
@@ -184,9 +192,13 @@ public class DBPackageImpl extends DBProgramImpl implements DBPackage {
         }
 
         public ResultSet loadSourceCode(Connection connection) throws SQLException {
-            DatabaseMetadataInterface metadataInterface = getConnectionHandler().getInterfaceProvider().getMetadataInterface();
-            return metadataInterface.loadObjectSourceCode(
-                   getSchema().getName(), getName(), "PACKAGE", connection);
+            ConnectionHandler connectionHandler = getConnectionHandler();
+            if (connectionHandler != null) {
+                DatabaseMetadataInterface metadataInterface = connectionHandler.getInterfaceProvider().getMetadataInterface();
+                return metadataInterface.loadObjectSourceCode(
+                        getSchema().getName(), getName(), "PACKAGE", connection);
+            }
+            return null;
         }
     }
 
@@ -196,8 +208,12 @@ public class DBPackageImpl extends DBProgramImpl implements DBPackage {
         }
 
         public ResultSet loadSourceCode(Connection connection) throws SQLException {
-            DatabaseMetadataInterface metadataInterface = getConnectionHandler().getInterfaceProvider().getMetadataInterface();
-            return metadataInterface.loadObjectSourceCode(getSchema().getName(), getName(), "PACKAGE BODY",connection);
+            ConnectionHandler connectionHandler = getConnectionHandler();
+            if (connectionHandler != null) {
+                DatabaseMetadataInterface metadataInterface = connectionHandler.getInterfaceProvider().getMetadataInterface();
+                return metadataInterface.loadObjectSourceCode(getSchema().getName(), getName(), "PACKAGE BODY",connection);
+            }
+            return null;
         }
     }
 

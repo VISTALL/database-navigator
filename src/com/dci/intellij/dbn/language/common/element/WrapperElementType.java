@@ -8,5 +8,7 @@ public interface WrapperElementType extends ElementType {
 
     ElementType getWrappedElement();
 
-    boolean isWrappingOptional();
+    boolean isWrappedElementOptional();
+
+    boolean isStrong();
 }

@@ -6,11 +6,17 @@ public enum TokenTypeCategory {
     FUNCTION("function"),
     PARAMETER("parameter"),
     DATATYPE("datatype"),
+    OBJECT("object"),
     EXCEPTION("exception"),
     OPERATOR("operator"),
     CHARACTER("character"),
     IDENTIFIER("identifier"),
-    CHAMELEON("chameleon");
+    CHAMELEON("chameleon"),
+    WHITESPACE("whitespace"),
+    COMMENT("comment"),
+    NUMERIC("numeric"),
+    LITERAL("literal")
+    ;
 
     private String name;
     TokenTypeCategory(String name) {
@@ -23,7 +29,7 @@ public enum TokenTypeCategory {
 
     public static TokenTypeCategory getCategory(String categoryName) {
         for (TokenTypeCategory identifier : TokenTypeCategory.values()) {
-            if (identifier.getName().equals(categoryName)) return identifier;
+            if (identifier.name.equals(categoryName)) return identifier;
         }
         return UNKNOWN;
     }

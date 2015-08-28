@@ -1,5 +1,7 @@
 package com.dci.intellij.dbn.language.editor.action;
 
+import org.jetbrains.annotations.NotNull;
+
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.util.ActionUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
@@ -14,7 +16,7 @@ public class TransactionRollbackEditorAction extends TransactionEditorAction {
         super("Rollback", "Rollback changes", Icons.CONNECTION_ROLLBACK);
     }
 
-    public void actionPerformed(AnActionEvent e) {
+    public void actionPerformed(@NotNull AnActionEvent e) {
         Project project = ActionUtil.getProject(e);
         VirtualFile virtualFile = e.getData(PlatformDataKeys.VIRTUAL_FILE);
         if (project != null) {
@@ -25,7 +27,7 @@ public class TransactionRollbackEditorAction extends TransactionEditorAction {
     }
 
     @Override
-    public void update(AnActionEvent e) {
+    public void update(@NotNull AnActionEvent e) {
         super.update(e);
         e.getPresentation().setText("Rollback");
 

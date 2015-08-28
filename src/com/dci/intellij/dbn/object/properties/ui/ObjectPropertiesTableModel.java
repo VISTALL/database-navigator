@@ -1,11 +1,12 @@
 package com.dci.intellij.dbn.object.properties.ui;
 
-import com.dci.intellij.dbn.common.ui.table.DBNTableModel;
-import com.dci.intellij.dbn.object.properties.PresentableProperty;
-
+import javax.swing.event.ListDataListener;
 import javax.swing.event.TableModelListener;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.dci.intellij.dbn.common.ui.table.DBNTableModel;
+import com.dci.intellij.dbn.object.properties.PresentableProperty;
 
 public class ObjectPropertiesTableModel implements DBNTableModel {
     private List<PresentableProperty> presentableProperties = new ArrayList<PresentableProperty>();
@@ -33,29 +34,22 @@ public class ObjectPropertiesTableModel implements DBNTableModel {
             columnIndex == 1 ? "Value" : null;
     }
 
-    @Override
-    public Class<?> getColumnClass(int columnIndex) {
+    @Override public Class<?> getColumnClass(int columnIndex) {
         return String.class;
     }
-
-    @Override
-    public boolean isCellEditable(int rowIndex, int columnIndex) {
+    @Override public boolean isCellEditable(int rowIndex, int columnIndex) {
         return false;
     }
-
-    @Override
-    public Object getValueAt(int rowIndex, int columnIndex) {
+    @Override public Object getValueAt(int rowIndex, int columnIndex) {
         return presentableProperties.get(rowIndex);
     }
-
-    @Override
-    public void setValueAt(Object aValue, int rowIndex, int columnIndex) {}
-
-    @Override
-    public void addTableModelListener(TableModelListener l) {}
-
-    @Override
-    public void removeTableModelListener(TableModelListener l) {}
+    @Override public void setValueAt(Object aValue, int rowIndex, int columnIndex) {}
+    @Override public void addTableModelListener(TableModelListener l) {}
+    @Override public void removeTableModelListener(TableModelListener l) {}
+    @Override public int getSize() { return 0;}
+    @Override public Object getElementAt(int index) {return null;}
+    @Override public void addListDataListener(ListDataListener l) {}
+    @Override public void removeListDataListener(ListDataListener l) {}
 
     /********************************************************
      *                    Disposable                        *
@@ -69,7 +63,7 @@ public class ObjectPropertiesTableModel implements DBNTableModel {
 
     @Override
     public void dispose() {
-        if (!isDisposed()) {
+        if (!disposed) {
             presentableProperties.clear();
         }
     }

@@ -3,12 +3,13 @@ package com.dci.intellij.dbn.editor.ddl;
 import com.dci.intellij.dbn.common.editor.BasicTextEditor;
 import com.dci.intellij.dbn.common.editor.BasicTextEditorProvider;
 import com.dci.intellij.dbn.common.util.VirtualFileUtil;
-import com.dci.intellij.dbn.vfs.DatabaseEditableObjectFile;
+import com.dci.intellij.dbn.vfs.DBEditableObjectVirtualFile;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorPolicy;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -30,9 +31,9 @@ public abstract class DDLFileEditorProvider extends BasicTextEditorProvider impl
     }
 
     public boolean accept(@NotNull Project project, @NotNull VirtualFile virtualFile) {
-        if (virtualFile instanceof DatabaseEditableObjectFile) {
-            DatabaseEditableObjectFile databaseFile = (DatabaseEditableObjectFile) virtualFile;
-            List<VirtualFile> ddlFiles = databaseFile.getBoundDDLFiles();
+        if (virtualFile instanceof DBEditableObjectVirtualFile) {
+            DBEditableObjectVirtualFile databaseFile = (DBEditableObjectVirtualFile) virtualFile;
+            List<VirtualFile> ddlFiles = databaseFile.getAttachedDDLFiles();
             return ddlFiles != null && ddlFiles.size() > index;
         }
         return false;
@@ -40,10 +41,10 @@ public abstract class DDLFileEditorProvider extends BasicTextEditorProvider impl
 
     @NotNull
     public FileEditor createEditor(@NotNull Project project, @NotNull VirtualFile file) {
-        DatabaseEditableObjectFile databaseFile = (DatabaseEditableObjectFile) file;
-        VirtualFile virtualFile = databaseFile.getBoundDDLFiles().get(index);
+        DBEditableObjectVirtualFile databaseFile = (DBEditableObjectVirtualFile) file;
+        VirtualFile virtualFile = databaseFile.getAttachedDDLFiles().get(index);
 
-        BasicTextEditor textEditor = new DDLFileEditor(project, virtualFile);
+        BasicTextEditor textEditor = new DDLFileEditor(project, virtualFile, getEditorProviderId());
         updateTabIcon(databaseFile, textEditor, VirtualFileUtil.getIcon(virtualFile));
         return textEditor;
     }
@@ -52,19 +53,13 @@ public abstract class DDLFileEditorProvider extends BasicTextEditorProvider impl
         DDLFileEditor sourceEditor = (DDLFileEditor) editor;
         Document document = sourceEditor.getEditor().getDocument();
         //DocumentUtil.removeGuardedBlock(document);
-        sourceEditor.dispose();
+        Disposer.dispose(sourceEditor);
     }
 
     @NotNull
     public FileEditorPolicy getPolicy() {
         return FileEditorPolicy.PLACE_AFTER_DEFAULT_EDITOR;
 
-    }
-
-    @NotNull
-    @NonNls
-    public String getEditorTypeId() {
-        return "" + (index + 3);
     }
 
     public String getName() {

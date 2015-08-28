@@ -1,12 +1,16 @@
 package com.dci.intellij.dbn.execution.method.history.ui;
 
-import com.dci.intellij.dbn.execution.method.MethodExecutionInput;
-import com.dci.intellij.dbn.object.lookup.DBMethodRef;
-
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.dci.intellij.dbn.common.dispose.FailsafeUtil;
+import com.dci.intellij.dbn.connection.ConnectionHandler;
+import com.dci.intellij.dbn.execution.method.MethodExecutionInput;
+import com.dci.intellij.dbn.object.DBMethod;
+import com.dci.intellij.dbn.object.common.DBObjectType;
+import com.dci.intellij.dbn.object.lookup.DBObjectRef;
 
 public class MethodExecutionHistoryGroupedTreeModel extends MethodExecutionHistoryTreeModel {
     private List<MethodExecutionInput> executionInputs;
@@ -19,8 +23,9 @@ public class MethodExecutionHistoryGroupedTreeModel extends MethodExecutionHisto
             ConnectionTreeNode connectionNode = rootNode.getConnectionNode(executionInput);
             SchemaTreeNode schemaNode = connectionNode.getSchemaNode(executionInput);
 
-            String programName = executionInput.getMethodRef().getProgramName();
-            if (programName != null) {
+            DBObjectRef<DBMethod> methodRef = executionInput.getMethodRef();
+            DBObjectRef parentRef = methodRef.getParentRef(DBObjectType.PROGRAM);
+            if (parentRef != null) {
                 ProgramTreeNode programNode = schemaNode.getProgramNode(executionInput);
                 programNode.getMethodNode(executionInput);
             } else {
@@ -31,7 +36,7 @@ public class MethodExecutionHistoryGroupedTreeModel extends MethodExecutionHisto
 
     @Override
     protected String getMethodName(MethodExecutionInput executionInput) {
-        return executionInput.getMethodRef().getMethodName();
+        return executionInput.getMethodRef().getObjectName();
     }
 
     @Override
@@ -43,7 +48,7 @@ public class MethodExecutionHistoryGroupedTreeModel extends MethodExecutionHisto
         path.add(connectionTreeNode);
         SchemaTreeNode schemaTreeNode = connectionTreeNode.getSchemaNode(executionInput);
         path.add(schemaTreeNode);
-        if (executionInput.getMethodRef().getProgramName() != null) {
+        if (executionInput.getMethodRef().getParentObject(DBObjectType.PROGRAM) != null) {
             ProgramTreeNode programTreeNode = schemaTreeNode.getProgramNode(executionInput);
             path.add(programTreeNode);
             MethodTreeNode methodTreeNode = programTreeNode.getMethodNode(executionInput);
@@ -96,18 +101,20 @@ public class MethodExecutionHistoryGroupedTreeModel extends MethodExecutionHisto
             ProgramTreeNode programNode,
             MethodTreeNode methodNode) {
         for (MethodExecutionInput executionInput : executionInputs) {
-            DBMethodRef methodIdentifier = executionInput.getMethodRef();
-            if (executionInput.getConnectionHandler().getId().equals(connectionNode.getConnectionHandler().getId()) &&
-                methodIdentifier.getSchemaName().equalsIgnoreCase(schemaNode.getName()) &&
-                methodIdentifier.getMethodName().equalsIgnoreCase(methodNode.getName()) &&
-                methodIdentifier.getOverload() == methodNode.getOverload() ) {
-                String inputProgramName = methodIdentifier.getProgramName();
-                if (programNode == null) {
-                    if (inputProgramName == null) {
-                        return executionInput;
-                    }
-                } else {
-                    if (programNode.getName().equalsIgnoreCase(inputProgramName)) {
+            DBObjectRef<DBMethod> methodRef = executionInput.getMethodRef();
+            ConnectionHandler connectionHandler = FailsafeUtil.get(executionInput.getConnectionHandler());
+            if (connectionHandler.getId().equals(connectionNode.getConnectionHandlerId()) &&
+                methodRef.getSchemaName().equalsIgnoreCase(schemaNode.getName()) &&
+                methodRef.getObjectName().equalsIgnoreCase(methodNode.getName()) &&
+                methodRef.getOverload() == methodNode.getOverload() ) {
+
+                DBObjectRef programRef = methodRef.getParentRef(DBObjectType.PROGRAM);
+                if (programNode == null && programRef == null) {
+                    return executionInput;
+                } else if (programNode != null && programRef != null){
+                    String programName = programNode.getName();
+                    String inputProgramName = programRef.getObjectName();
+                    if (programName.equalsIgnoreCase(inputProgramName)) {
                         return executionInput;
                     }
                 }

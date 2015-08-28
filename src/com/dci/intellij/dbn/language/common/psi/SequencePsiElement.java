@@ -1,5 +1,9 @@
 package com.dci.intellij.dbn.language.common.psi;
 
+import java.util.Set;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import com.dci.intellij.dbn.code.common.style.formatting.FormattingAttributes;
 import com.dci.intellij.dbn.common.util.StringUtil;
 import com.dci.intellij.dbn.language.common.element.BlockElementType;
@@ -13,13 +17,8 @@ import com.dci.intellij.dbn.language.common.psi.lookup.PsiLookupAdapter;
 import com.dci.intellij.dbn.object.common.DBObjectType;
 import com.intellij.lang.ASTNode;
 import com.intellij.openapi.progress.ProgressIndicatorProvider;
-import com.intellij.psi.PsiComment;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiErrorElement;
-import com.intellij.psi.PsiWhiteSpace;
 import gnu.trove.THashSet;
-
-import java.util.Set;
 
 public class SequencePsiElement extends BasePsiElement {
     public SequencePsiElement(ASTNode astNode, ElementType elementType) {
@@ -48,7 +47,8 @@ public class SequencePsiElement extends BasePsiElement {
      *                   Lookup routines                     *
      *********************************************************/
 
-    public BasePsiElement lookupPsiElement(
+    @Nullable
+    public BasePsiElement findPsiElement(
             PsiLookupAdapter lookupAdapter,
             int scopeCrossCount) {
 
@@ -61,7 +61,7 @@ public class SequencePsiElement extends BasePsiElement {
                     boolean isScopeBoundary = basePsiElement.isScopeBoundary();
                     if (!isScopeBoundary || scopeCrossCount > 0) {
                         int childScopeCrossCount = isScopeBoundary ? scopeCrossCount-1 : scopeCrossCount;
-                        BasePsiElement result = basePsiElement.lookupPsiElement(lookupAdapter, childScopeCrossCount);
+                        BasePsiElement result = basePsiElement.findPsiElement(lookupAdapter, childScopeCrossCount);
                         if (result != null) return result;
                     }
                 }
@@ -71,9 +71,10 @@ public class SequencePsiElement extends BasePsiElement {
         return null;
     }
 
+    @Nullable
     public Set<BasePsiElement> collectPsiElements(
             PsiLookupAdapter lookupAdapter,
-            Set<BasePsiElement> bucket,
+            @Nullable Set<BasePsiElement> bucket,
             int scopeCrossCount) {
 
         if (lookupAdapter.matches(this)) {
@@ -86,7 +87,7 @@ public class SequencePsiElement extends BasePsiElement {
             if (child instanceof BasePsiElement) {
                 BasePsiElement basePsiElement = (BasePsiElement) child;
 
-                if (lookupAdapter.accepts(basePsiElement)) {
+                if (lookupAdapter.accepts(basePsiElement) || bucket == null) {
                     boolean isScopeBoundary = basePsiElement.isScopeBoundary();
                     if (!isScopeBoundary || scopeCrossCount > 0) {
                         int childScopeCrossCount = isScopeBoundary ? scopeCrossCount-1 : scopeCrossCount;
@@ -99,7 +100,7 @@ public class SequencePsiElement extends BasePsiElement {
         return bucket;
     }
 
-    public void collectExecVariablePsiElements(Set<ExecVariablePsiElement> bucket) {
+    public void collectExecVariablePsiElements(@NotNull Set<ExecVariablePsiElement> bucket) {
         PsiElement child = getFirstChild();
         while (child != null) {
             if (child instanceof BasePsiElement) {
@@ -110,7 +111,7 @@ public class SequencePsiElement extends BasePsiElement {
         }
     }
 
-    public void collectSubjectPsiElements(Set<BasePsiElement> bucket) {
+    public void collectSubjectPsiElements(@NotNull Set<IdentifierPsiElement> bucket) {
         PsiElement child = getFirstChild();
         while (child != null) {
             if (child instanceof BasePsiElement) {
@@ -140,7 +141,7 @@ public class SequencePsiElement extends BasePsiElement {
         //}
     }
 
-    public NamedPsiElement lookupNamedPsiElement(String id) {
+    public NamedPsiElement findNamedPsiElement(String id) {
         PsiElement child = getFirstChild();
         while (child != null) {
             if (child instanceof SequencePsiElement) {
@@ -152,7 +153,7 @@ public class SequencePsiElement extends BasePsiElement {
                     }
                 }
 
-                NamedPsiElement namedPsiElement = bundlePsiElement.lookupNamedPsiElement(id);
+                NamedPsiElement namedPsiElement = bundlePsiElement.findNamedPsiElement(id);
                 if (namedPsiElement != null) {
                     return namedPsiElement;
                 }
@@ -163,7 +164,7 @@ public class SequencePsiElement extends BasePsiElement {
     }
 
     @Override
-    public BasePsiElement lookupFirstPsiElement(ElementTypeAttribute attribute) {
+    public BasePsiElement findFirstPsiElement(ElementTypeAttribute attribute) {
         if (this.getElementType().is(attribute)) {
             return this;
         }
@@ -172,7 +173,7 @@ public class SequencePsiElement extends BasePsiElement {
         while (child != null) {
             if (child instanceof BasePsiElement) {
                 BasePsiElement basePsiElement = (BasePsiElement) child;
-                BasePsiElement firstElement = basePsiElement.lookupFirstPsiElement(attribute);
+                BasePsiElement firstElement = basePsiElement.findFirstPsiElement(attribute);
                 if (firstElement != null) {
                     return firstElement;
                 }
@@ -181,21 +182,42 @@ public class SequencePsiElement extends BasePsiElement {
         }
         return null;
     }
-    public BasePsiElement lookupFirstLeafPsiElement() {
+
+    @Override
+    public BasePsiElement findFirstPsiElement(Class<? extends ElementType> clazz) {
+        if (clazz.isAssignableFrom(this.getElementType().getClass())) {
+            return this;
+        }
+
+        PsiElement child = getFirstChild();
+        while (child != null) {
+            if (child instanceof BasePsiElement) {
+                BasePsiElement basePsiElement = (BasePsiElement) child;
+                BasePsiElement firstElement = basePsiElement.findFirstPsiElement(clazz);
+                if (firstElement != null) {
+                    return firstElement;
+                }
+            }
+            child = child.getNextSibling();
+        }
+        return null;
+    }
+
+    public BasePsiElement findFirstLeafPsiElement() {
         PsiElement firstChild = getFirstChild();
         while (firstChild != null) {
             if (firstChild instanceof BasePsiElement) {
                 BasePsiElement basePsiElement = (BasePsiElement) firstChild;
-                return basePsiElement.lookupFirstLeafPsiElement();
+                return basePsiElement.findFirstLeafPsiElement();
             }
             firstChild = firstChild.getNextSibling();
         }
         return null;
     }
 
-    public BasePsiElement lookupPsiElementBySubject(ElementTypeAttribute attribute, CharSequence subjectName, DBObjectType subjectType) {
+    public BasePsiElement findPsiElementBySubject(ElementTypeAttribute attribute, CharSequence subjectName, DBObjectType subjectType) {
         if (getElementType().is(attribute)) {
-            BasePsiElement subjectPsiElement = lookupFirstPsiElement(ElementTypeAttribute.SUBJECT);
+            BasePsiElement subjectPsiElement = findFirstPsiElement(ElementTypeAttribute.SUBJECT);
             if (subjectPsiElement instanceof IdentifierPsiElement) {
                 IdentifierPsiElement identifierPsiElement = (IdentifierPsiElement) subjectPsiElement;
                 if (identifierPsiElement.getObjectType() == subjectType &&
@@ -208,7 +230,7 @@ public class SequencePsiElement extends BasePsiElement {
         while (child != null) {
             if (child instanceof BasePsiElement) {
                 BasePsiElement basePsiElement = (BasePsiElement) child;
-                BasePsiElement childPsiElement = basePsiElement.lookupPsiElementBySubject(attribute, subjectName, subjectType);
+                BasePsiElement childPsiElement = basePsiElement.findPsiElementBySubject(attribute, subjectName, subjectType);
                 if (childPsiElement != null) {
                     return childPsiElement;
                 }
@@ -219,7 +241,7 @@ public class SequencePsiElement extends BasePsiElement {
     }
 
     @Override
-    public BasePsiElement lookupPsiElementByAttribute(ElementTypeAttribute attribute) {
+    public BasePsiElement findPsiElementByAttribute(ElementTypeAttribute attribute) {
         if (getElementType().is(attribute)) {
             return this;
         }
@@ -227,7 +249,7 @@ public class SequencePsiElement extends BasePsiElement {
         while (child != null) {
             if (child instanceof BasePsiElement) {
                 BasePsiElement basePsiElement = (BasePsiElement) child;
-                BasePsiElement childPsiElement = basePsiElement.lookupPsiElementByAttribute(attribute);
+                BasePsiElement childPsiElement = basePsiElement.findPsiElementByAttribute(attribute);
                 if (childPsiElement != null) {
                     return childPsiElement;
                 }
@@ -261,37 +283,40 @@ public class SequencePsiElement extends BasePsiElement {
      *                    Miscellaneous                      *
      *********************************************************/
      public boolean hasErrors() {
-        PsiElement[] psiElements = getChildren();
-        for (PsiElement psiElement: psiElements) {
-            if (psiElement instanceof BasePsiElement) {
-                BasePsiElement basePsiElement = (BasePsiElement) psiElement;
+         PsiElement child = getFirstChild();
+
+         while (child != null) {
+            if (child instanceof BasePsiElement) {
+                BasePsiElement basePsiElement = (BasePsiElement) child;
                 if (basePsiElement.hasErrors()) {
                     return true;
                 }
             }
-        }
-         if (true) return false;
+             child = child.getNextSibling();
+         }
 
-        if (getElementType() instanceof SequenceElementType) {
+/*         if (true) return false;
+
+         PsiElement[] psiElements = getChildren();
+         if (getElementType() instanceof SequenceElementType) {
             int offset = 0;
             SequenceElementType sequenceElementType = (SequenceElementType) getElementType();
-            ElementType[] elementTypes = sequenceElementType.getElementTypes();
+            ElementTypeRef[] children = sequenceElementType.getChildren();
 
-
-            for (int i=0; i<elementTypes.length; i++) {
+            for (int i=0; i<children.length; i++) {
                 while (offset < psiElements.length &&
                         (psiElements[offset] instanceof PsiWhiteSpace ||
                          psiElements[offset] instanceof PsiErrorElement)) offset++;
 
                 PsiElement psiElement = offset == psiElements.length ? null : psiElements[offset];
-                if (psiElement!= null && psiElement instanceof BasePsiElement && elementTypes[i] == ((BasePsiElement)psiElement).getElementType()) {
+                if (psiElement!= null && psiElement instanceof BasePsiElement && children[i].getElementType() == ((BasePsiElement)psiElement).getElementType()) {
                     offset++;
                     if (offset == psiElements.length) {
-                        boolean isLast = i == elementTypes.length-1;
+                        boolean isLast = i == children.length-1;
                         return !isLast && !sequenceElementType.isOptionalFromIndex(i+1);
                     }
                 } else {
-                    if (!sequenceElementType.isOptional(i) && !(psiElement instanceof PsiWhiteSpace) && !(psiElement instanceof PsiComment)) {
+                    if (!children[i].isOptional() && !(psiElement instanceof PsiWhiteSpace) && !(psiElement instanceof PsiComment)) {
                         return true;
                     }
                 }
@@ -307,7 +332,7 @@ public class SequencePsiElement extends BasePsiElement {
             } else {
                 return psiElement instanceof PsiErrorElement;
             }
-        }
+        }*/
         return false;
     }
 
@@ -335,53 +360,25 @@ public class SequencePsiElement extends BasePsiElement {
          return psiElement == getFirstChild();
     }
 
-    public boolean equals(BasePsiElement basePsiElement) {
-        if (this == basePsiElement) {
-            return true;
-        } else {
-            PsiElement localChild = getFirstChild();
-            PsiElement remoteChild = basePsiElement.getFirstChild();
+    @Override
+    public boolean matches(BasePsiElement basePsiElement, MatchType matchType) {
+        PsiElement localChild = getFirstChild();
+        PsiElement remoteChild = basePsiElement == null ? null : basePsiElement.getFirstChild();
 
-            while(localChild != null && remoteChild != null) {
-                if (localChild instanceof BasePsiElement && remoteChild instanceof BasePsiElement) {
-                    BasePsiElement localPsiElement = (BasePsiElement) localChild;
-                    BasePsiElement remotePsiElement = (BasePsiElement) remoteChild;
-                    if (localPsiElement != remotePsiElement && !localPsiElement.equals(remotePsiElement)) {
-                        return false;
-                    }
-                    localChild = PsiUtil.getNextSibling(localChild);
-                    remoteChild = PsiUtil.getNextSibling(remoteChild);
-                } else {
+        while(localChild != null && remoteChild != null) {
+            if (localChild instanceof BasePsiElement && remoteChild instanceof BasePsiElement) {
+                BasePsiElement localPsiElement = (BasePsiElement) localChild;
+                BasePsiElement remotePsiElement = (BasePsiElement) remoteChild;
+                if (!localPsiElement.matches(remotePsiElement, matchType)) {
                     return false;
                 }
+                localChild = PsiUtil.getNextSibling(localChild);
+                remoteChild = PsiUtil.getNextSibling(remoteChild);
+            } else {
+                return false;
             }
-            return localChild == null && remoteChild == null;
         }
-    }
-
-    public boolean matches(BasePsiElement basePsiElement) {
-        if (this == basePsiElement) {
-            return true;
-        } else if (basePsiElement != null && basePsiElement.isValid()){
-            PsiElement localChild = getFirstChild();
-            PsiElement remoteChild = basePsiElement.getFirstChild();
-
-            while(localChild != null && remoteChild != null) {
-                if (localChild instanceof BasePsiElement && remoteChild instanceof BasePsiElement) {
-                    BasePsiElement localPsiElement = (BasePsiElement) localChild;
-                    BasePsiElement remotePsiElement = (BasePsiElement) remoteChild;
-                    if (localPsiElement != remotePsiElement && !localPsiElement.matches(remotePsiElement)) {
-                        return false;
-                    }
-                    localChild = PsiUtil.getNextSibling(localChild);
-                    remoteChild = PsiUtil.getNextSibling(remoteChild);
-                } else {
-                    return false;
-                }
-            }
-            return localChild == null && remoteChild == null;
-        }
-        return false;
+        return localChild == null && remoteChild == null;
     }
 
 

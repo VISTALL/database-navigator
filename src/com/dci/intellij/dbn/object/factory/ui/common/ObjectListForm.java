@@ -1,6 +1,8 @@
 package com.dci.intellij.dbn.object.factory.ui.common;
 
 import com.dci.intellij.dbn.common.Icons;
+import com.dci.intellij.dbn.common.dispose.DisposableProjectComponent;
+import com.dci.intellij.dbn.common.ui.DBNFormImpl;
 import com.dci.intellij.dbn.common.util.ActionUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.object.common.DBObjectType;
@@ -16,7 +18,7 @@ import java.awt.BorderLayout;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class ObjectListForm<T extends ObjectFactoryInput> {
+public abstract class ObjectListForm<T extends ObjectFactoryInput> extends DBNFormImpl<DisposableProjectComponent> {
     private JPanel mainPanel;
     private JPanel listPanel;
     private JPanel actionsPanel;
@@ -25,7 +27,8 @@ public abstract class ObjectListForm<T extends ObjectFactoryInput> {
 
     private List<ObjectFactoryInputForm<T>> inputForms = new ArrayList<ObjectFactoryInputForm<T>>();
 
-    public ObjectListForm(ConnectionHandler connectionHandler) {
+    public ObjectListForm(DisposableProjectComponent parentComponent, ConnectionHandler connectionHandler) {
+        super(parentComponent);
         this.connectionHandler = connectionHandler;
         listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.Y_AXIS));
 
@@ -53,14 +56,18 @@ public abstract class ObjectListForm<T extends ObjectFactoryInput> {
         inputForms.add(inputForm);
         ObjectListItemForm listItemForm = new ObjectListItemForm(this, inputForm);
         listPanel.add(listItemForm.getComponent());
-        mainPanel.updateUI();
+
+        mainPanel.revalidate();
+        mainPanel.repaint();
         inputForm.focus();
     }
 
     public void removeObjectPanel(ObjectListItemForm child) {
         inputForms.remove(child.getObjectDetailsPanel());
         listPanel.remove(child.getComponent());
-        mainPanel.updateUI();
+
+        mainPanel.revalidate();
+        mainPanel.repaint();
         // rebuild indexes
         for (int i=0; i< inputForms.size(); i++) {
             inputForms.get(i).setIndex(i);

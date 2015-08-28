@@ -1,21 +1,44 @@
 package com.dci.intellij.dbn.editor.data.ui.table;
 
+import javax.swing.JPopupMenu;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.TableColumnModelEvent;
+import javax.swing.table.JTableHeader;
+import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.event.MouseEvent;
+import java.sql.SQLException;
+import java.util.EventObject;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import com.dci.intellij.dbn.common.content.DatabaseLoadMonitor;
+import com.dci.intellij.dbn.common.dispose.FailsafeUtil;
 import com.dci.intellij.dbn.common.thread.ConditionalLaterInvocator;
 import com.dci.intellij.dbn.common.thread.ModalTask;
 import com.dci.intellij.dbn.common.thread.SimpleLaterInvocator;
 import com.dci.intellij.dbn.common.ui.MouseUtil;
 import com.dci.intellij.dbn.common.util.ActionUtil;
 import com.dci.intellij.dbn.common.util.MessageUtil;
+import com.dci.intellij.dbn.data.grid.options.DataGridTrackingColumnSettings;
+import com.dci.intellij.dbn.data.grid.ui.table.basic.BasicTableCellRenderer;
+import com.dci.intellij.dbn.data.grid.ui.table.basic.BasicTableGutter;
+import com.dci.intellij.dbn.data.grid.ui.table.resultSet.ResultSetTable;
 import com.dci.intellij.dbn.data.model.ColumnInfo;
 import com.dci.intellij.dbn.data.model.DataModelCell;
 import com.dci.intellij.dbn.data.preview.LargeValuePreviewPopup;
 import com.dci.intellij.dbn.data.record.RecordViewInfo;
 import com.dci.intellij.dbn.data.sorting.SortDirection;
-import com.dci.intellij.dbn.data.ui.table.basic.BasicTableCellRenderer;
-import com.dci.intellij.dbn.data.ui.table.basic.BasicTableGutter;
-import com.dci.intellij.dbn.data.ui.table.resultSet.ResultSetTable;
-import com.dci.intellij.dbn.data.value.LazyLoadedValue;
+import com.dci.intellij.dbn.data.value.ArrayValue;
+import com.dci.intellij.dbn.data.value.LargeObjectValue;
+import com.dci.intellij.dbn.data.value.ValueAdapter;
 import com.dci.intellij.dbn.editor.data.DatasetEditor;
 import com.dci.intellij.dbn.editor.data.DatasetLoadInstructions;
 import com.dci.intellij.dbn.editor.data.action.DatasetEditorTableActionGroup;
@@ -37,27 +60,10 @@ import com.intellij.openapi.actionSystem.ActionPopupMenu;
 import com.intellij.openapi.actionSystem.DataProvider;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.ui.awt.RelativePoint;
-import org.jetbrains.annotations.NotNull;
 
-import javax.swing.JPopupMenu;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.TableColumnModelEvent;
-import javax.swing.table.JTableHeader;
-import javax.swing.table.TableCellEditor;
-import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableColumn;
-import javax.swing.table.TableColumnModel;
-import java.awt.Component;
-import java.awt.Cursor;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.event.MouseEvent;
-import java.sql.SQLException;
-import java.util.EventObject;
-
-public class DatasetEditorTable extends ResultSetTable {
+public class DatasetEditorTable extends ResultSetTable<DatasetEditorModel> {
     public static final DatasetLoadInstructions SORT_LOAD_INSTRUCTIONS = new DatasetLoadInstructions(true, true, true, false);
     private DatasetTableCellEditorFactory cellEditorFactory = new DatasetTableCellEditorFactory();
     private DatasetEditor datasetEditor;
@@ -80,13 +86,15 @@ public class DatasetEditorTable extends ResultSetTable {
 
         DataProvider dataProvider = datasetEditor.getDataProvider();
         ActionUtil.registerDataProvider(this, dataProvider, false);
-        ActionUtil.registerDataProvider(getTableGutter(), dataProvider, false);
         ActionUtil.registerDataProvider(getTableHeader(), dataProvider, false);
+
+        Disposer.register(this, cellEditorFactory);
+        Disposer.register(this, tableMouseListener);
     }
 
     @Override
-    protected BasicTableCellRenderer createCellRenderer(Project project) {
-        return new DatasetEditorTableCellRenderer(project);
+    protected BasicTableCellRenderer createCellRenderer() {
+        return new DatasetEditorTableCellRenderer();
     }
 
     public Project getProject() {
@@ -106,6 +114,7 @@ public class DatasetEditorTable extends ResultSetTable {
         isEditingEnabled = editingEnabled;
     }
 
+    @Nullable
     public DBDataset getDataset() {
         return getModel().getDataset();
     }
@@ -116,12 +125,8 @@ public class DatasetEditorTable extends ResultSetTable {
     }
 
     @Override
-    public BasicTableGutter createTableGutter() {
+    protected BasicTableGutter createTableGutter() {
         return new DatasetEditorTableGutter(this);
-    }
-
-    public DatasetEditorModel getModel() {
-        return (DatasetEditorModel) super.getModel();
     }
 
     public boolean isInserting() {
@@ -135,7 +140,7 @@ public class DatasetEditorTable extends ResultSetTable {
         columnModel.removeColumn(column);
 
         ColumnInfo columnInfo = getModel().getColumnInfo(columnIndex);
-        datasetEditor.getState().getColumnSetup().getColumnState(columnInfo.getName()).setVisible(false);
+        datasetEditor.getColumnSetup().getColumnState(columnInfo.getName()).setVisible(false);
     }
 
     @Override
@@ -148,7 +153,7 @@ public class DatasetEditorTable extends ResultSetTable {
         int fromIndex = e.getFromIndex();
         int toIndex = e.getToIndex();
         if (fromIndex != toIndex) {
-            datasetEditor.getState().getColumnSetup().moveColumn(fromIndex, toIndex);
+            datasetEditor.getColumnSetup().moveColumn(fromIndex, toIndex);
         }
         super.columnMoved(e);
     }
@@ -200,7 +205,8 @@ public class DatasetEditorTable extends ResultSetTable {
         new ConditionalLaterInvocator() {
             @Override
             public void execute() {
-                getTableGutter().updateUI();
+                getTableGutter().revalidate();
+                getTableGutter().repaint();
             }
         }.start();
     }
@@ -243,6 +249,13 @@ public class DatasetEditorTable extends ResultSetTable {
 
         int modelColumnIndex = getModelColumnIndex(columnIndex);
         ColumnInfo columnInfo = getModel().getColumnInfo(modelColumnIndex);
+
+        DataGridTrackingColumnSettings trackingColumnSettings = getDataGridSettings().getTrackingColumnSettings();
+        if (!trackingColumnSettings.isAllowEditing()) {
+            boolean isTrackingColumn = trackingColumnSettings.isTrackingColumn(columnInfo.getName());
+            if (isTrackingColumn) return null;
+        }
+
         return cellEditorFactory.getCellEditor(columnInfo, this);
     }
 
@@ -293,7 +306,7 @@ public class DatasetEditorTable extends ResultSetTable {
                     text.append("<br>");
                 }
 
-                if (editorTableCell.isModified() && !(editorTableCell.getUserValue() instanceof LazyLoadedValue)) {
+                if (editorTableCell.isModified() && !(editorTableCell.getUserValue() instanceof ValueAdapter)) {
                     text.append("<br>Original value: <b>");
                     text.append(editorTableCell.getOriginalUserValue());
                     text.append("</b></html>");
@@ -305,7 +318,9 @@ public class DatasetEditorTable extends ResultSetTable {
             }
 
             if (editorTableCell.isModified() && !event.isControlDown()) {
-                if (editorTableCell.getUserValue() instanceof LazyLoadedValue) {
+                if (editorTableCell.getUserValue() instanceof ArrayValue) {
+                    return "Array value has changed";
+                } else  if (editorTableCell.getUserValue() instanceof LargeObjectValue) {
                     return "LOB content has changed";
                 } else {
                     return "<HTML>Original value: <b>" + editorTableCell.getOriginalUserValue() + "</b></html>";
@@ -342,7 +357,8 @@ public class DatasetEditorTable extends ResultSetTable {
             if (!getModel().isResultSetExhausted()) {
                 datasetEditor.loadData(SORT_LOAD_INSTRUCTIONS);
             }
-            updateUI();
+            revalidate();
+            repaint();
         }
     }
 
@@ -360,13 +376,6 @@ public class DatasetEditorTable extends ResultSetTable {
             return false;
         }
         return false;
-    }
-
-    @Override
-    public void dispose() {
-        super.dispose();
-        cellEditorFactory.dispose();
-        datasetEditor = null;
     }
 
     public DatasetEditor getDatasetEditor() {
@@ -423,9 +432,9 @@ public class DatasetEditorTable extends ResultSetTable {
             int insertRowIndex = getModel().getInsertRowIndex();
             if (insertRowIndex != -1 && (insertRowIndex == e.getFirstIndex() || insertRowIndex == e.getLastIndex()) && getSelectedRow() != insertRowIndex) {
                 try {
-                    model.postInsertRecord(false, true);
+                    model.postInsertRecord(false, true, false);
                 } catch (SQLException e1) {
-                    MessageUtil.showErrorDialog("Could not create row in " + getDataset().getQualifiedNameWithType() + ".", e1);
+                    MessageUtil.showErrorDialog(getProject(), "Could not create row in " + getDataset().getQualifiedNameWithType() + ".", e1);
                 }
             }
         }
@@ -443,14 +452,9 @@ public class DatasetEditorTable extends ResultSetTable {
     }
 
     private void startCellEditing(ListSelectionEvent e) {
-        if (!isLoading() && isEditingEnabled && getSelectedColumnCount() == 1 && getSelectedRowCount() == 1 && !isEditing() && !e.getValueIsAdjusting() && getDataset().getConnectionHandler().isConnected()) {
+        DBDataset dataset = getDataset();
+        if (!isLoading() && isEditingEnabled && getSelectedColumnCount() == 1 && getSelectedRowCount() == 1 && !isEditing() && !e.getValueIsAdjusting() && dataset != null && FailsafeUtil.get(dataset.getConnectionHandler()).isConnected()) {
             editCellAt(getSelectedRows()[0], getSelectedColumns()[0]);
-        }
-    }
-
-    public void stopCellEditing() {
-        if (isEditing()) {
-            getCellEditor().stopCellEditing();
         }
     }
 
@@ -471,19 +475,37 @@ public class DatasetEditorTable extends ResultSetTable {
             final DatasetEditorModelCell cell,
             final ColumnInfo columnInfo) {
         new ModalTask(getDataset().getProject(), "Loading column information", true) {
-            public void run(@NotNull ProgressIndicator progressIndicator) {
-                progressIndicator.setIndeterminate(true);
+            public void execute(@NotNull ProgressIndicator progressIndicator) {
                 ActionGroup actionGroup = new DatasetEditorTableActionGroup(datasetEditor, cell, columnInfo);
                 if (!progressIndicator.isCanceled()) {
                     ActionPopupMenu actionPopupMenu = ActionManager.getInstance().createActionPopupMenu("", actionGroup);
                     final JPopupMenu popupMenu = actionPopupMenu.getComponent();
                     new SimpleLaterInvocator() {
                         public void execute() {
-                            popupMenu.show((Component) event.getSource(), event.getX(), event.getY());
+                            Component component = (Component) event.getSource();
+                            int x = event.getX();
+                            int y = event.getY();
+                            if (x >= 0 && x < component.getWidth() && y >= 0 && y < component.getHeight()) {
+                                popupMenu.show(component, x, y);
+                            }
+
                         }
                     }.start();
                 }
             }
         }.start();
+    }
+
+
+    /********************************************************
+     *                     Disposable                       *
+     ********************************************************/
+
+    @Override
+    public void dispose() {
+        super.dispose();
+        datasetEditor = null;
+        removeMouseListener(tableMouseListener);
+        tableMouseListener = null;
     }
 }

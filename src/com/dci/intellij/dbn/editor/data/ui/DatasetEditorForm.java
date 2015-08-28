@@ -2,14 +2,16 @@ package com.dci.intellij.dbn.editor.data.ui;
 
 import com.dci.intellij.dbn.common.thread.ConditionalLaterInvocator;
 import com.dci.intellij.dbn.common.ui.AutoCommitLabel;
-import com.dci.intellij.dbn.common.ui.DBNForm;
 import com.dci.intellij.dbn.common.ui.DBNFormImpl;
-import com.dci.intellij.dbn.common.ui.dialog.MessageDialog;
 import com.dci.intellij.dbn.common.util.ActionUtil;
+import com.dci.intellij.dbn.common.util.MessageUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.data.find.DataSearchComponent;
 import com.dci.intellij.dbn.data.find.SearchableDataComponent;
-import com.dci.intellij.dbn.data.ui.table.basic.BasicTable;
+import com.dci.intellij.dbn.data.grid.options.DataGridSettings;
+import com.dci.intellij.dbn.data.grid.options.DataGridTrackingColumnSettings;
+import com.dci.intellij.dbn.data.grid.ui.table.basic.BasicTable;
+import com.dci.intellij.dbn.data.grid.ui.table.basic.BasicTableScrollPane;
 import com.dci.intellij.dbn.editor.DBContentType;
 import com.dci.intellij.dbn.editor.data.DatasetEditor;
 import com.dci.intellij.dbn.editor.data.state.column.DatasetColumnState;
@@ -32,7 +34,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DatasetEditorForm extends DBNFormImpl implements DBNForm, SearchableDataComponent {
+public class DatasetEditorForm extends DBNFormImpl implements SearchableDataComponent {
     private JPanel actionsPanel;
     private JScrollPane datasetTableScrollPane;
     private JPanel mainPanel;
@@ -46,12 +48,13 @@ public class DatasetEditorForm extends DBNFormImpl implements DBNForm, Searchabl
     private DatasetEditor datasetEditor;
 
     public DatasetEditorForm(DatasetEditor datasetEditor) {
+        super(datasetEditor.getProject());
         this.datasetEditor = datasetEditor;
         DBDataset dataset = getDataset();
         try {
             datasetEditorTable = new DatasetEditorTable(datasetEditor);
             datasetTableScrollPane.setViewportView(datasetEditorTable);
-            datasetTableScrollPane.setRowHeaderView(datasetEditorTable.getTableGutter());
+            datasetEditorTable.initTableGutter();
 
 
             JPanel panel = new JPanel();
@@ -70,10 +73,10 @@ public class DatasetEditorForm extends DBNFormImpl implements DBNForm, Searchabl
             Disposer.register(this, autoCommitLabel);
             Disposer.register(this, datasetEditorTable);
         } catch (SQLException e) {
-
-            MessageDialog.showErrorDialog(
-                    datasetEditor.getProject(),
-                    "Error opening data editor for " + dataset.getQualifiedNameWithType(), e.getMessage(), false);
+            MessageUtil.showErrorDialog(
+                    getProject(),
+                    "Error",
+                    "Error opening data editor for " + dataset.getQualifiedNameWithType(), e);
         }
 
         if (dataset.isEditable(DBContentType.DATA)) {
@@ -87,9 +90,13 @@ public class DatasetEditorForm extends DBNFormImpl implements DBNForm, Searchabl
         datasetEditorTable = new DatasetEditorTable(datasetEditor);
         Disposer.register(this, datasetEditorTable);
 
+        DataGridSettings dataGridSettings = DataGridSettings.getInstance(getProject());
+        DataGridTrackingColumnSettings trackingColumnSettings = dataGridSettings.getTrackingColumnSettings();
+
         List<TableColumn> hiddenColumns = new ArrayList<TableColumn>();
-        for (DatasetColumnState columnState : datasetEditor.getState().getColumnSetup().getColumnStates()) {
-            if (!columnState.isVisible()) {
+        for (DatasetColumnState columnState : datasetEditor.getColumnSetup().getColumnStates()) {
+
+            if (!columnState.isVisible() || !trackingColumnSettings.isColumnVisible(columnState.getName())) {
                 int columnIndex = columnState.getPosition();
                 TableColumn tableColumn = datasetEditorTable.getColumnModel().getColumn(columnIndex);
                 hiddenColumns.add(tableColumn);
@@ -108,7 +115,7 @@ public class DatasetEditorForm extends DBNFormImpl implements DBNForm, Searchabl
                 public void execute() {
                     if (!isDisposed()) {
                         datasetTableScrollPane.setViewportView(datasetEditorTable);
-                        datasetTableScrollPane.setRowHeaderView(datasetEditorTable.getTableGutter());
+                        datasetEditorTable.initTableGutter();
                         datasetEditorTable.updateBackground(false);
 
                         Disposer.dispose(oldEditorTable);
@@ -192,6 +199,7 @@ public class DatasetEditorForm extends DBNFormImpl implements DBNForm, Searchabl
     public void hideSearchHeader() {
         dataSearchComponent.resetFindModel();
         searchPanel.setVisible(false);
+        datasetEditorTable.revalidate();
         datasetEditorTable.repaint();
         datasetEditorTable.requestFocus();
     }
@@ -214,5 +222,9 @@ public class DatasetEditorForm extends DBNFormImpl implements DBNForm, Searchabl
     @Override
     public BasicTable getTable() {
         return datasetEditorTable;
+    }
+
+    private void createUIComponents() {
+        datasetTableScrollPane = new BasicTableScrollPane();
     }
 }

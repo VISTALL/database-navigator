@@ -1,12 +1,16 @@
 package com.dci.intellij.dbn.database;
 
-import com.dci.intellij.dbn.editor.code.SourceCodeContent;
-import com.dci.intellij.dbn.object.factory.MethodFactoryInput;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 
+import com.dci.intellij.dbn.editor.DBContentType;
+import com.dci.intellij.dbn.editor.code.SourceCodeContent;
+import com.dci.intellij.dbn.object.factory.MethodFactoryInput;
+import com.intellij.openapi.project.Project;
+
 public interface DatabaseDDLInterface extends DatabaseInterface{
+    String createDDLStatement(Project project, DatabaseObjectTypeId objectTypeId, String userName, String schemaName, String objectName, DBContentType contentType, String code, String alternativeDelimiter);
+
     void computeSourceCodeOffsets(SourceCodeContent content, DatabaseObjectTypeId objectTypeId, String objectName);
 
     boolean includesTypeAndNameInSourceContent(DatabaseObjectTypeId objectTypeId);
@@ -34,8 +38,12 @@ public interface DatabaseDDLInterface extends DatabaseInterface{
     *********************************************************/
     void dropObject(String objectType, String objectName, Connection connection) throws SQLException;
 
+    void dropObjectBody(String objectType, String objectName, Connection connection) throws SQLException;
+
    /*********************************************************
     *                   RENAME statements                     *
     *********************************************************/
+
+
 
 }

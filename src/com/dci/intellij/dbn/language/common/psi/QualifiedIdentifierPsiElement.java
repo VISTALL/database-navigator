@@ -1,5 +1,9 @@
 package com.dci.intellij.dbn.language.common.psi;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import com.dci.intellij.dbn.language.common.element.ElementType;
 import com.dci.intellij.dbn.language.common.element.IdentifierElementType;
 import com.dci.intellij.dbn.language.common.element.LeafElementType;
@@ -7,16 +11,11 @@ import com.dci.intellij.dbn.language.common.element.QualifiedIdentifierElementTy
 import com.dci.intellij.dbn.language.common.element.impl.QualifiedIdentifierVariant;
 import com.dci.intellij.dbn.language.common.element.parser.ParseResultType;
 import com.dci.intellij.dbn.object.common.DBObject;
-import com.dci.intellij.dbn.object.common.DBObjectType;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 public class QualifiedIdentifierPsiElement extends SequencePsiElement {
-    List<QualifiedIdentifierVariant> parseVariants;
+    private ParseVariants parseVariants;
 
     public QualifiedIdentifierPsiElement(ASTNode astNode, ElementType elementType) {
         super(astNode, elementType);
@@ -27,12 +26,10 @@ public class QualifiedIdentifierPsiElement extends SequencePsiElement {
     }
 
     public synchronized List<QualifiedIdentifierVariant> getParseVariants() {
-        if (parseVariants == null){
+        if (parseVariants == null || parseVariants.getReferenceElementCount() != getElementsCount()){
             parseVariants = buildParseVariants();
         }
-        return parseVariants;
-
-        //TODO try to remove this if all elements are resolved
+        return parseVariants.getElements();
     }
 
     public int getIndexOf(LeafPsiElement leafPsiElement) {
@@ -67,7 +64,6 @@ public class QualifiedIdentifierPsiElement extends SequencePsiElement {
         return -1;
     }
 
-
     public IdentifierPsiElement getLeafAtIndex(int index) {
         if (index >= 0) {
             int idx = 0;
@@ -86,7 +82,7 @@ public class QualifiedIdentifierPsiElement extends SequencePsiElement {
         return null;
     }
 
-    public List<QualifiedIdentifierVariant> buildParseVariants() {
+    public ParseVariants buildParseVariants() {
         List<QualifiedIdentifierVariant> parseVariants = new ArrayList<QualifiedIdentifierVariant>();
         for (LeafElementType[] elementTypes : getElementType().getVariants()) {
 
@@ -126,48 +122,71 @@ public class QualifiedIdentifierPsiElement extends SequencePsiElement {
             }
         }
         Collections.sort(parseVariants);
-        return parseVariants;
+        return new ParseVariants(parseVariants, getElementsCount());
     }
 
-    public boolean checkPaternitySequence(LeafElementType leafElementType, DBObjectType objectType, String objectName) {
-        for (QualifiedIdentifierVariant parseVariant : getParseVariants()) {
-            int index = parseVariant.getIndexOf(leafElementType);
-            if (index == 0) {
-                return true;
-            }
-            if (index > 0) {
-                LeafPsiElement previousPsiElement = getLeafAtIndex(index-1);
-                if (previousPsiElement instanceof IdentifierPsiElement) {
-                    IdentifierPsiElement parentPsiElement = (IdentifierPsiElement) previousPsiElement;
-                    DBObject parentObject = parentPsiElement.resolveUnderlyingObject();
-                    if (parentObject != null) {
-                        DBObject childObject = parentObject.getChildObject(objectType, objectName, false);
-                        return childObject != null;
-                    }
-                }
-
-            }
+    public LeafPsiElement lookupParentElementFor(LeafPsiElement element) {
+        int index = getIndexOf(element);
+        if (index > 0) {
+            return getLeafAtIndex(index - 1);
         }
-        return false;
+        return null;
+    }
+
+    public DBObject lookupParentObjectFor(LeafPsiElement leafPsiElement) {
+        LeafPsiElement parent = lookupParentElementFor(leafPsiElement);
+        return parent == null ? null : parent.resolveUnderlyingObject();
     }
 
     public DBObject lookupParentObjectFor(LeafElementType leafElementType) {
        for (QualifiedIdentifierVariant parseVariant : getParseVariants()) {
-            int index = parseVariant.getIndexOf(leafElementType);
-            if (index == 0) {
-                return null;
-            }
-            if (index > 0) {
-                LeafPsiElement previousPsiElement = getLeafAtIndex(index-1);
-                if (previousPsiElement instanceof IdentifierPsiElement) {
-                    IdentifierPsiElement parentPsiElement = (IdentifierPsiElement) previousPsiElement;
-                    DBObject parentObject = parentPsiElement.resolveUnderlyingObject();
-                    if (parentObject != null) {
-                        return parentObject;
+            if (parseVariant.getLeafs().length == getElementsCount()) {
+                int index = parseVariant.getIndexOf(leafElementType);
+                if (index > 0) {
+                    LeafPsiElement previousPsiElement = getLeafAtIndex(index-1);
+                    if (previousPsiElement != null) {
+                        IdentifierPsiElement parentPsiElement = (IdentifierPsiElement) previousPsiElement;
+                        DBObject parentObject = parentPsiElement.resolveUnderlyingObject();
+                        if (parentObject != null) {
+                            return parentObject;
+                        }
                     }
                 }
             }
         }
         return null;
+    }
+
+    public int getElementsCount() {
+        int count = 0;
+        PsiElement child = getFirstChild();
+        while (child != null) {
+            if (child instanceof LeafPsiElement) {
+                LeafPsiElement leafPsiElement = (LeafPsiElement) child;
+                if (leafPsiElement.getElementType() != getElementType().getSeparatorToken() ) {
+                    count++;
+                }
+            }
+            child = child.getNextSibling();
+        }
+        return count;
+    }
+
+    public class ParseVariants {
+        private List<QualifiedIdentifierVariant> elements;
+        private int referenceElementCount;
+
+        public ParseVariants(List<QualifiedIdentifierVariant> elements, int referenceElementCount) {
+            this.elements = elements;
+            this.referenceElementCount = referenceElementCount;
+        }
+
+        public List<QualifiedIdentifierVariant> getElements() {
+            return elements;
+        }
+
+        public int getReferenceElementCount() {
+            return referenceElementCount;
+        }
     }
 }

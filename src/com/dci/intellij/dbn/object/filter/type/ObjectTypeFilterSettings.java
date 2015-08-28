@@ -1,6 +1,7 @@
 package com.dci.intellij.dbn.object.filter.type;
 
 import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
+import com.dci.intellij.dbn.browser.options.DatabaseBrowserSettings;
 import com.dci.intellij.dbn.common.filter.Filter;
 import com.dci.intellij.dbn.common.options.ProjectConfiguration;
 import com.dci.intellij.dbn.common.options.setting.BooleanSetting;
@@ -9,26 +10,28 @@ import com.dci.intellij.dbn.object.common.DBObjectType;
 import com.dci.intellij.dbn.object.common.list.DBObjectList;
 import com.dci.intellij.dbn.object.filter.type.ui.ObjectTypeFilterSettingsForm;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.InvalidDataException;
-import com.intellij.openapi.util.WriteExternalException;
 import org.jdom.Element;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ObjectTypeFilterSettings extends ProjectConfiguration<ObjectTypeFilterSettingsForm> {
     private List<ObjectTypeFilterSetting> objectTypeFilterSettings;
-    private ObjectTypeFilterSettings master;
     private BooleanSetting useMasterSettings = new BooleanSetting("use-master-settings", true);
+    private boolean projectLevel;
 
-    public ObjectTypeFilterSettings(Project project, @Nullable ObjectTypeFilterSettings master) {
+    public ObjectTypeFilterSettings(Project project, boolean projectLevel) {
         super(project);
-        this.master = master;
+        this.projectLevel = projectLevel;
     }
 
     public ObjectTypeFilterSettings getMasterSettings() {
-        return master;
+        if (projectLevel) {
+            return null;
+        } else {
+            DatabaseBrowserSettings databaseBrowserSettings = DatabaseBrowserSettings.getInstance(getProject());
+            return databaseBrowserSettings.getFilterSettings().getObjectTypeFilterSettings();
+        }
     }
 
     public BooleanSetting getUseMasterSettings() {
@@ -71,19 +74,16 @@ public class ObjectTypeFilterSettings extends ProjectConfiguration<ObjectTypeFil
 
     private Filter<DBObjectType> typeFilter = new Filter<DBObjectType>() {
         public boolean accepts(DBObjectType objectType) {
-            if (objectType == null) {
-                return false;
-            }
-            return isVisible(objectType);
+            return objectType != null && isVisible(objectType);
         }
     };
 
     private boolean isVisible(DBObjectType objectType) {
-        return master == null ?
+        return projectLevel ?
             isSelected(objectType) :
             useMasterSettings.value() ?
-                    master.isSelected(objectType) :
-                    master.isSelected(objectType) && isSelected(objectType);
+                    getMasterSettings().isSelected(objectType) :
+                    getMasterSettings().isSelected(objectType) && isSelected(objectType);
     }
 
     private boolean isSelected(DBObjectType objectType) {
@@ -93,7 +93,9 @@ public class ObjectTypeFilterSettings extends ProjectConfiguration<ObjectTypeFil
 
     private void setVisible(DBObjectType objectType, boolean visible) {
         ObjectTypeFilterSetting objectTypeEntry = getObjectTypeEntry(objectType);
-        objectTypeEntry.setSelected(visible);
+        if (objectTypeEntry != null) {
+            objectTypeEntry.setSelected(visible);
+        }
     }
 
 
@@ -122,7 +124,8 @@ public class ObjectTypeFilterSettings extends ProjectConfiguration<ObjectTypeFil
             objectTypeFilterSettings.add(new ObjectTypeFilterSetting(this, DBObjectType.COLUMN));
             objectTypeFilterSettings.add(new ObjectTypeFilterSetting(this, DBObjectType.INDEX));
             objectTypeFilterSettings.add(new ObjectTypeFilterSetting(this, DBObjectType.CONSTRAINT));
-            objectTypeFilterSettings.add(new ObjectTypeFilterSetting(this, DBObjectType.TRIGGER));
+            objectTypeFilterSettings.add(new ObjectTypeFilterSetting(this, DBObjectType.DATASET_TRIGGER));
+            objectTypeFilterSettings.add(new ObjectTypeFilterSetting(this, DBObjectType.DATABASE_TRIGGER));
             objectTypeFilterSettings.add(new ObjectTypeFilterSetting(this, DBObjectType.SYNONYM));
             objectTypeFilterSettings.add(new ObjectTypeFilterSetting(this, DBObjectType.SEQUENCE));
             objectTypeFilterSettings.add(new ObjectTypeFilterSetting(this, DBObjectType.PROCEDURE));
@@ -140,7 +143,7 @@ public class ObjectTypeFilterSettings extends ProjectConfiguration<ObjectTypeFil
     }
 
     public boolean isSelected(ObjectTypeFilterSetting objectFilterEntry) {
-        for (ObjectTypeFilterSetting entry : objectTypeFilterSettings) {
+        for (ObjectTypeFilterSetting entry : getSettings()) {
             if (entry.equals(objectFilterEntry)) {
                 return entry.isSelected();
             }
@@ -153,7 +156,7 @@ public class ObjectTypeFilterSettings extends ProjectConfiguration<ObjectTypeFil
         return "object-type-filter";
     }
 
-    public void readConfiguration(Element element) throws InvalidDataException {
+    public void readConfiguration(Element element) {
         useMasterSettings.readConfigurationAttribute(element);
         for (Object o : element.getChildren()) {
             Element child = (Element) o;
@@ -166,8 +169,8 @@ public class ObjectTypeFilterSettings extends ProjectConfiguration<ObjectTypeFil
         }
     }
 
-    public void writeConfiguration(Element element) throws WriteExternalException {
-        if (master != null) {
+    public void writeConfiguration(Element element) {
+        if (!projectLevel) {
             useMasterSettings.writeConfigurationAttribute(element);
         }
 

@@ -1,5 +1,14 @@
 package com.dci.intellij.dbn.object.impl;
 
+import javax.swing.Icon;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import com.dci.intellij.dbn.browser.DatabaseBrowserUtils;
 import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
 import com.dci.intellij.dbn.common.Icons;
@@ -25,14 +34,6 @@ import com.dci.intellij.dbn.object.common.list.DBObjectNavigationListImpl;
 import com.dci.intellij.dbn.object.common.list.DBObjectRelationListContainer;
 import com.dci.intellij.dbn.object.properties.PresentableProperty;
 import com.dci.intellij.dbn.object.properties.SimplePresentableProperty;
-import org.jetbrains.annotations.NotNull;
-
-import javax.swing.Icon;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class DBTableImpl extends DBDatasetImpl implements DBTable {
     private static final List<DBColumn> EMPTY_COLUMN_LIST = new ArrayList<DBColumn>();
@@ -42,7 +43,7 @@ public class DBTableImpl extends DBDatasetImpl implements DBTable {
     private DBObjectList<DBNestedTable> nestedTables;
 
     public DBTableImpl(DBSchema schema, ResultSet resultSet) throws SQLException {
-        super(schema, DBContentType.DATA, resultSet);
+        super(schema, resultSet);
     }
 
     @Override
@@ -63,12 +64,18 @@ public class DBTableImpl extends DBDatasetImpl implements DBTable {
         childObjectRelations.createSubcontentObjectRelationList(DBObjectRelationType.INDEX_COLUMN, this, "Index column relations", INDEX_COLUMN_RELATION_LOADER, schema);
     }
 
+    @Override
+    public DBContentType getContentType() {
+        return DBContentType.DATA;
+    }
+
     public DBObjectType getObjectType() {
         return DBObjectType.TABLE;
     }
 
+    @Nullable
     public Icon getIcon() {
-        return isTemporary() ?
+        return isTemporary ?
                 Icons.DBO_TMP_TABLE :
                 Icons.DBO_TABLE;
     }
@@ -200,7 +207,7 @@ public class DBTableImpl extends DBDatasetImpl implements DBTable {
     @Override
     public List<PresentableProperty> getPresentableProperties() {
         List<PresentableProperty> properties = super.getPresentableProperties();
-        if (isTemporary()) {
+        if (isTemporary) {
             properties.add(0, new SimplePresentableProperty("Attributes", "temporary"));
         }
         return properties;

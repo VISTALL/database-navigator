@@ -26,14 +26,16 @@ public class AutoscrollFromEditorAction extends ToggleAction implements DumbAwar
 
     public void setSelected(AnActionEvent e, boolean state) {
         Project project = ActionUtil.getProject(e);
-        DatabaseBrowserManager browserManager = DatabaseBrowserManager.getInstance(project);
-        browserManager.getAutoscrollFromEditor().setValue(state);
+        if (project != null) {
+            DatabaseBrowserManager browserManager = DatabaseBrowserManager.getInstance(project);
+            browserManager.getAutoscrollFromEditor().setValue(state);
+        }
     }
 
     @Override
     public void update(AnActionEvent e) {
         super.update(e);
-        e.getPresentation().setText("Autoscroll from editor");
+        e.getPresentation().setText("Autoscroll from Editor");
     }
 
 }

@@ -1,14 +1,18 @@
 package com.dci.intellij.dbn.common.util;
 
+import java.util.ArrayList;
+
 import com.dci.intellij.dbn.common.editor.document.OverrideReadonlyFragmentModificationHandler;
-import com.dci.intellij.dbn.common.thread.CommandWriteActionRunner;
+import com.dci.intellij.dbn.common.event.EventManager;
+import com.dci.intellij.dbn.common.thread.ConditionalReadActionRunner;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.language.common.DBLanguage;
 import com.dci.intellij.dbn.language.common.DBLanguageDialect;
-import com.dci.intellij.dbn.language.common.DBLanguageFile;
+import com.dci.intellij.dbn.language.common.DBLanguagePsiFile;
 import com.dci.intellij.dbn.language.common.DBLanguageSyntaxHighlighter;
 import com.dci.intellij.dbn.language.common.psi.PsiUtil;
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer;
+import com.intellij.codeInsight.folding.CodeFoldingManager;
 import com.intellij.ide.highlighter.HighlighterFactory;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
@@ -16,25 +20,28 @@ import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.RangeMarker;
 import com.intellij.openapi.editor.colors.ColorKey;
 import com.intellij.openapi.editor.colors.EditorColorsScheme;
+import com.intellij.openapi.editor.ex.DocumentBulkUpdateListener;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.editor.highlighter.EditorHighlighter;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Key;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.text.BlockSupport;
+import com.intellij.util.FileContentUtil;
 
 public class DocumentUtil {
+    private static final Key<Boolean> FOLDING_STATE_KEY = Key.create("FOLDING_STATE_KEY");
 
-
-    public static void touchDocument(final Editor editor) {
+    public static void touchDocument(final Editor editor, boolean reparse) {
         final Document document = editor.getDocument();
 
         // restart highlighting
+        Project project = editor.getProject();
         final PsiFile file = DocumentUtil.getFile(editor);
-        if (file instanceof DBLanguageFile) {
-            DBLanguageFile dbLanguageFile = (DBLanguageFile) file;
+        if (project != null && !project.isDisposed() && file instanceof DBLanguagePsiFile) {
+            DBLanguagePsiFile dbLanguageFile = (DBLanguagePsiFile) file;
             DBLanguage dbLanguage = dbLanguageFile.getDBLanguage();
             if (dbLanguage != null) {
                 ConnectionHandler connectionHandler = dbLanguageFile.getActiveConnection();
@@ -43,19 +50,16 @@ public class DocumentUtil {
                 EditorHighlighter editorHighlighter = HighlighterFactory.createHighlighter(syntaxHighlighter, editor.getColorsScheme());
                 ((EditorEx) editor).setHighlighter(editorHighlighter);
             }
-        }
-
-        new CommandWriteActionRunner(editor.getProject()) {
-            public void run() {
-                // touch the editor to trigger parsing
-
-                String text = document.getText();
-                BlockSupport.getInstance(file.getProject()).reparseRange(file, 0, text.length(), text);
-                refreshEditorAnnotations(file);
+            if (reparse) {
+                EventManager.notify(project, DocumentBulkUpdateListener.TOPIC).updateStarted(document);
+                ArrayList<VirtualFile> files = new ArrayList<VirtualFile>();
+                files.add(file.getVirtualFile());
+                FileContentUtil.reparseFiles(project, files, true);
+                CodeFoldingManager codeFoldingManager = CodeFoldingManager.getInstance(project);
+                codeFoldingManager.buildInitialFoldings(editor);
             }
-        }.start();
-
-        //refreshEditorAnnotations(editor.getProject());
+            refreshEditorAnnotations(file);
+        }
     }
 
     private static DBLanguageSyntaxHighlighter getSyntaxHighlighter(DBLanguage dbLanguage, ConnectionHandler connectionHandler) {
@@ -119,7 +123,18 @@ public class DocumentUtil {
         return FileDocumentManager.getInstance().getFile(editor.getDocument());
     }
 
-    public static Document getDocument(VirtualFile virtualFile) {
-        return FileDocumentManager.getInstance().getDocument(virtualFile);
+    public static Document getDocument(final VirtualFile virtualFile) {
+        return new ConditionalReadActionRunner<Document>() {
+            @Override
+            protected Document run() {
+                return FileDocumentManager.getInstance().getDocument(virtualFile);
+            }
+        }.start();
+    }
+
+    public static PsiFile getPsiFile(Project project, VirtualFile virtualFile) {
+        Document document = getDocument(virtualFile);
+        PsiDocumentManager psiDocumentManager = PsiDocumentManager.getInstance(project);
+        return psiDocumentManager.getPsiFile(document);
     }
 }

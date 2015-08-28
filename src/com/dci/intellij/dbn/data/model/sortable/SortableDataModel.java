@@ -1,19 +1,24 @@
 package com.dci.intellij.dbn.data.model.sortable;
 
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import org.jetbrains.annotations.NotNull;
+
+import com.dci.intellij.dbn.common.list.FiltrableList;
+import com.dci.intellij.dbn.data.grid.options.DataGridSettings;
+import com.dci.intellij.dbn.data.grid.options.DataGridSortingSettings;
 import com.dci.intellij.dbn.data.model.DataModelRow;
 import com.dci.intellij.dbn.data.model.DataModelState;
 import com.dci.intellij.dbn.data.model.basic.BasicDataModel;
 import com.dci.intellij.dbn.data.sorting.SortDirection;
 import com.dci.intellij.dbn.data.sorting.SortingState;
 import com.intellij.openapi.project.Project;
-import org.jetbrains.annotations.NotNull;
-
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 
 
 public class SortableDataModel<T extends SortableDataModelRow> extends BasicDataModel<T> {
+    private boolean sortingNullsFirst;
+
     protected SortableDataModel(Project project) {
         super(project);
     }
@@ -41,8 +46,15 @@ public class SortableDataModel<T extends SortableDataModelRow> extends BasicData
     protected boolean updateSortingState(int columnIndex, SortDirection direction, boolean keepExisting) {
         SortingState sortingState = getSortingState();
         String columnName = getColumnName(columnIndex);
-        return sortingState.applySorting(columnName, direction, keepExisting);
+        int maxSortingColumns = getSortingSettings().getMaxSortingColumns();
+        return sortingState.applySorting(columnName, direction, keepExisting, maxSortingColumns);
     }
+
+    private DataGridSortingSettings getSortingSettings() {
+        DataGridSettings dataGridSettings = DataGridSettings.getInstance(getProject());
+        return dataGridSettings.getSortingSettings();
+    }
+
 
     protected void sortByIndex() {
         Collections.sort(getRows(), INDEX_COMPARATOR);
@@ -54,7 +66,13 @@ public class SortableDataModel<T extends SortableDataModelRow> extends BasicData
     }
 
     protected void sort(List<T> rows) {
+        if (rows instanceof FiltrableList) {
+            FiltrableList<T> filtrableList = (FiltrableList<T>) rows;
+            rows = filtrableList.getFullList();
+        }
         if (getSortingState().isValid()) {
+            boolean nullsFirst = DataGridSettings.getInstance(getProject()).getSortingSettings().isNullsFirst();
+            this.sortingNullsFirst = nullsFirst;
             Collections.sort(rows);
         }
         updateRowIndexes(rows, 0);
@@ -75,6 +93,14 @@ public class SortableDataModel<T extends SortableDataModelRow> extends BasicData
 
     public SortingState getSortingState() {
         return getState().getSortingState();
+    }
+
+    public void setSortingNullsFirst(boolean sortingNullsFirst) {
+        this.sortingNullsFirst = sortingNullsFirst;
+    }
+
+    public boolean isSortingNullsFirst() {
+        return sortingNullsFirst;
     }
 
 /*

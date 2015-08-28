@@ -1,5 +1,11 @@
 package com.dci.intellij.dbn.object.impl;
 
+import javax.swing.Icon;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import org.jetbrains.annotations.Nullable;
+
 import com.dci.intellij.dbn.browser.ui.HtmlToolTipBuilder;
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.ddl.DDLFileManager;
@@ -17,20 +23,15 @@ import com.dci.intellij.dbn.object.common.loader.DBSourceCodeLoader;
 import com.dci.intellij.dbn.object.common.status.DBObjectStatus;
 import com.dci.intellij.dbn.object.common.status.DBObjectStatusHolder;
 
-import javax.swing.Icon;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
 public class DBProcedureImpl extends DBMethodImpl implements DBProcedure {
     protected DBProcedureImpl(DBSchemaObject parent, ResultSet resultSet) throws SQLException {
         // type functions are not editable independently
-        super(parent, DBContentType.NONE, resultSet);
+        super(parent, resultSet);
         assert this.getClass() != DBProcedureImpl.class;
     }
 
     public DBProcedureImpl(DBSchema schema, ResultSet resultSet) throws SQLException {
-        super(schema, DBContentType.CODE, resultSet);
+        super(schema, resultSet);
     }
 
     @Override
@@ -39,10 +40,16 @@ public class DBProcedureImpl extends DBMethodImpl implements DBProcedure {
         name = resultSet.getString("PROCEDURE_NAME");
     }
 
+    @Override
+    public DBContentType getContentType() {
+        return DBContentType.CODE;
+    }
+
     public DBObjectType getObjectType() {
         return DBObjectType.PROCEDURE;
     }
 
+    @Nullable
     public Icon getIcon() {
         if (getContentType() == DBContentType.CODE) {
             DBObjectStatusHolder objectStatus = getStatus();

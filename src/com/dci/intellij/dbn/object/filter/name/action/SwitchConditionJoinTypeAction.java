@@ -12,17 +12,20 @@ import com.intellij.openapi.project.Project;
 public class SwitchConditionJoinTypeAction extends ObjectNameFilterAction{
 
     public SwitchConditionJoinTypeAction(ObjectNameFilterSettingsForm settingsForm) {
-        super("Switch join type", Icons.CONDITION_JOIN_TYPE, settingsForm);
+        super("Switch Join Type", Icons.CONDITION_JOIN_TYPE, settingsForm);
     }
 
     @Override
     public void actionPerformed(AnActionEvent e) {
         Project project = ActionUtil.getProject(e);
         Object selection = getSelection();
-        ObjectNameFilterManager filterManager = ObjectNameFilterManager.getInstance(project);
-        if (selection instanceof CompoundFilterCondition) {
-            CompoundFilterCondition condition = (CompoundFilterCondition) selection;
-            filterManager.switchConditionJoinType(condition, settingsForm);
+        ObjectNameFilterManager filterManager = null;
+        if (project != null) {
+            filterManager = ObjectNameFilterManager.getInstance(project);
+            if (selection instanceof CompoundFilterCondition) {
+                CompoundFilterCondition condition = (CompoundFilterCondition) selection;
+                filterManager.switchConditionJoinType(condition, settingsForm);
+            }
         }
     }
 

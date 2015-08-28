@@ -1,5 +1,12 @@
 package com.dci.intellij.dbn.execution.statement.result.ui;
 
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.ScrollPaneConstants;
+import java.awt.BorderLayout;
+
+import com.dci.intellij.dbn.common.dispose.DisposerUtil;
 import com.dci.intellij.dbn.common.thread.ConditionalLaterInvocator;
 import com.dci.intellij.dbn.common.thread.ReadActionRunner;
 import com.dci.intellij.dbn.common.thread.SimpleLaterInvocator;
@@ -7,23 +14,19 @@ import com.dci.intellij.dbn.common.ui.DBNFormImpl;
 import com.dci.intellij.dbn.common.util.ActionUtil;
 import com.dci.intellij.dbn.data.find.DataSearchComponent;
 import com.dci.intellij.dbn.data.find.SearchableDataComponent;
+import com.dci.intellij.dbn.data.grid.ui.table.basic.BasicTable;
+import com.dci.intellij.dbn.data.grid.ui.table.basic.BasicTableScrollPane;
+import com.dci.intellij.dbn.data.grid.ui.table.resultSet.ResultSetTable;
 import com.dci.intellij.dbn.data.model.resultSet.ResultSetDataModel;
 import com.dci.intellij.dbn.data.record.RecordViewInfo;
-import com.dci.intellij.dbn.data.ui.table.basic.BasicTable;
-import com.dci.intellij.dbn.data.ui.table.resultSet.ResultSetTable;
 import com.dci.intellij.dbn.execution.ExecutionManager;
 import com.dci.intellij.dbn.execution.common.result.ui.ExecutionResultForm;
 import com.dci.intellij.dbn.execution.statement.result.StatementExecutionCursorResult;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.ui.IdeBorderFactory;
 import com.intellij.util.ui.UIUtil;
-
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.ScrollPaneConstants;
-import java.awt.BorderLayout;
 
 public class StatementExecutionResultForm extends DBNFormImpl implements ExecutionResultForm<StatementExecutionCursorResult>, SearchableDataComponent {
     private JPanel mainPanel;
@@ -48,28 +51,34 @@ public class StatementExecutionResultForm extends DBNFormImpl implements Executi
             @Override
             protected RecordViewInfo run() {
                 return new RecordViewInfo(
-                                executionResult.getResultName(),
-                                executionResult.getResultIcon());
+                                executionResult.getName(),
+                                executionResult.getIcon());
             }
         }.start();
 
         resultPanel.setBorder(IdeBorderFactory.createBorder());
         resultTable = new ResultSetTable(executionResult.getTableModel(), true, recordViewInfo);
+        resultTable.setName(executionResult.getName());
 
         resultScrollPane.setViewportView(resultTable);
-        resultScrollPane.setRowHeaderView(resultTable.getTableGutter());
         resultScrollPane.getViewport().setBackground(resultTable.getBackground());
+        resultTable.initTableGutter();
 
         JPanel panel = new JPanel();
         panel.setBorder(UIUtil.getTableHeaderCellBorder());
         resultScrollPane.setCorner(ScrollPaneConstants.UPPER_LEFT_CORNER, panel);
         ActionUtil.registerDataProvider(resultTable, executionResult.getDataProvider(), false);
+
+        Disposer.register(this, executionResult);
     }
 
     public void setExecutionResult(StatementExecutionCursorResult executionResult) {
         if (this.executionResult != executionResult) {
+            StatementExecutionCursorResult oldExecutionResult = this.executionResult;
             this.executionResult = executionResult;
             reloadTableModel();
+
+            DisposerUtil.dispose(oldExecutionResult);
         }
     }
 
@@ -83,7 +92,8 @@ public class StatementExecutionResultForm extends DBNFormImpl implements Executi
                 if (executionResult != null) {
                     resultTable = new ResultSetTable(executionResult.getTableModel(), true, recordViewInfo);
                     resultScrollPane.setViewportView(resultTable);
-                    resultScrollPane.setRowHeaderView(resultTable.getTableGutter());
+                    resultTable.initTableGutter();
+                    resultTable.setName(executionResult.getName());
                 }
             }
         }.start();
@@ -106,14 +116,7 @@ public class StatementExecutionResultForm extends DBNFormImpl implements Executi
 
     public void dispose() {
         super.dispose();
-        if (executionResult != null) {
-            if (executionResult.hasResult()) {
-                executionResult.getTableModel().dispose();
-            }
-            executionResult.getExecutionProcessor().reset();
-            executionResult.dispose();
-            executionResult = null;
-        }
+        executionResult = null;
     }
 
     public void show() {
@@ -127,6 +130,8 @@ public class StatementExecutionResultForm extends DBNFormImpl implements Executi
 
     public void highlightLoading(boolean loading) {
         resultTable.setLoading(loading);
+
+        resultTable.revalidate();
         resultTable.repaint();
     }
 
@@ -140,6 +145,8 @@ public class StatementExecutionResultForm extends DBNFormImpl implements Executi
             dataSearchComponent = new DataSearchComponent(this);
             ActionUtil.registerDataProvider(dataSearchComponent.getSearchField(), executionResult.getDataProvider(), false);
             searchPanel.add(dataSearchComponent, BorderLayout.CENTER);
+
+            Disposer.register(this, dataSearchComponent);
         } else {
             dataSearchComponent.initializeFindModel();
         }
@@ -155,6 +162,8 @@ public class StatementExecutionResultForm extends DBNFormImpl implements Executi
     public void hideSearchHeader() {
         dataSearchComponent.resetFindModel();
         searchPanel.setVisible(false);
+
+        resultTable.revalidate();
         resultTable.repaint();
         resultTable.requestFocus();
     }
@@ -171,5 +180,9 @@ public class StatementExecutionResultForm extends DBNFormImpl implements Executi
     @Override
     public String getSelectedText() {
         return null;
+    }
+
+    private void createUIComponents() {
+        resultScrollPane = new BasicTableScrollPane();
     }
 }

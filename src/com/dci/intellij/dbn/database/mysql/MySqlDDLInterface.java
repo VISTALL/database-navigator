@@ -1,22 +1,62 @@
 package com.dci.intellij.dbn.database.mysql;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+
 import com.dci.intellij.dbn.code.common.style.options.CodeStyleCaseOption;
 import com.dci.intellij.dbn.code.common.style.options.CodeStyleCaseSettings;
 import com.dci.intellij.dbn.code.psql.style.options.PSQLCodeStyleSettings;
+import com.dci.intellij.dbn.code.sql.style.options.SQLCodeStyleSettings;
 import com.dci.intellij.dbn.database.DatabaseInterfaceProvider;
 import com.dci.intellij.dbn.database.DatabaseObjectTypeId;
 import com.dci.intellij.dbn.database.common.DatabaseDDLInterfaceImpl;
+import com.dci.intellij.dbn.ddl.options.DDLFileSettings;
+import com.dci.intellij.dbn.editor.DBContentType;
 import com.dci.intellij.dbn.editor.code.SourceCodeContent;
 import com.dci.intellij.dbn.object.factory.ArgumentFactoryInput;
 import com.dci.intellij.dbn.object.factory.MethodFactoryInput;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.text.StringUtil;
-
-import java.sql.Connection;
-import java.sql.SQLException;
 
 public class MySqlDDLInterface extends DatabaseDDLInterfaceImpl {
     public MySqlDDLInterface(DatabaseInterfaceProvider provider) {
         super("mysql_ddl_interface.xml", provider);
+    }
+
+
+    public String createDDLStatement(Project project, DatabaseObjectTypeId objectTypeId, String userName, String schemaName, String objectName, DBContentType contentType, String code, String alternativeDelimiter) {
+        if (StringUtil.isEmpty(alternativeDelimiter)) {
+            alternativeDelimiter = getProvider().getCompatibilityInterface().getDefaultAlternativeStatementDelimiter();
+        }
+
+        DDLFileSettings ddlFileSettings = DDLFileSettings.getInstance(project);
+        boolean useQualified = ddlFileSettings.getGeneralSettings().isUseQualifiedObjectNames();
+        boolean makeRerunnable = ddlFileSettings.getGeneralSettings().isMakeScriptsRerunnable();
+
+        CodeStyleCaseSettings caseSettings = SQLCodeStyleSettings.getInstance(project).getCaseSettings();
+        CodeStyleCaseOption kco = caseSettings.getKeywordCaseOption();
+        CodeStyleCaseOption oco = caseSettings.getObjectCaseOption();
+
+
+        if (objectTypeId == DatabaseObjectTypeId.VIEW) {
+            return kco.format("create" + (makeRerunnable ? " or replace" : "") + " view ") +
+                    oco.format((useQualified ? schemaName + "." : "") + objectName) +
+                    kco.format(" as\n") +
+                    code;
+        }
+
+        if (objectTypeId == DatabaseObjectTypeId.PROCEDURE || objectTypeId == DatabaseObjectTypeId.FUNCTION) {
+            String objectType = objectTypeId.toString().toLowerCase();
+            code = updateNameQualification(code, useQualified, objectType, schemaName, objectName, caseSettings);
+            String delimiterChange = kco.format("delimiter ") + alternativeDelimiter + "\n";
+            String dropStatement =
+                    kco.format("drop " + objectType + " if exists ") +
+                    oco.format((useQualified ? schemaName + "." : "") + objectName) + alternativeDelimiter + "\n";
+            String createStatement = kco.format("create definer=current_user\n") + code + alternativeDelimiter + "\n";
+            String delimiterReset = kco.format("delimiter ;");
+            return delimiterChange + (makeRerunnable ? dropStatement : "") + createStatement + delimiterReset;
+        }
+        return code;
     }
 
     @Override
@@ -88,8 +128,8 @@ public class MySqlDDLInterface extends DatabaseDDLInterfaceImpl {
 
         StringBuilder buffer = new StringBuilder();
         String methodType = method.isFunction() ? "function " : "procedure ";
-        buffer.append(keywordCaseOption.changeCase(methodType));
-        buffer.append(objectCaseOption.changeCase(method.getObjectName()));
+        buffer.append(keywordCaseOption.format(methodType));
+        buffer.append(objectCaseOption.format(method.getObjectName()));
         buffer.append("(");
 
         int maxArgNameLength = 0;
@@ -108,17 +148,17 @@ public class MySqlDDLInterface extends DatabaseDDLInterfaceImpl {
             
             if (!method.isFunction()) {
                 String direction =
-                        argument.isInput() && argument.isOutput() ? keywordCaseOption.changeCase("inout") :
-                                argument.isInput() ? keywordCaseOption.changeCase("in") :
-                                        argument.isOutput() ? keywordCaseOption.changeCase("out") : "";
+                        argument.isInput() && argument.isOutput() ? keywordCaseOption.format("inout") :
+                                argument.isInput() ? keywordCaseOption.format("in") :
+                                        argument.isOutput() ? keywordCaseOption.format("out") : "";
                 buffer.append(direction);
                 buffer.append(StringUtil.repeatSymbol(' ', maxArgDirectionLength - direction.length() + 1));
             }
 
-            buffer.append(objectCaseOption.changeCase(argument.getObjectName()));
+            buffer.append(objectCaseOption.format(argument.getObjectName()));
             buffer.append(StringUtil.repeatSymbol(' ', maxArgNameLength - argument.getObjectName().length() + 1));
 
-            buffer.append(dataTypeCaseOption.changeCase(argument.getDataType()));
+            buffer.append(dataTypeCaseOption.format(argument.getDataType()));
             if (argument != method.getArguments().get(method.getArguments().size() -1)) {
                 buffer.append(",");
             }
@@ -126,12 +166,12 @@ public class MySqlDDLInterface extends DatabaseDDLInterfaceImpl {
 
         buffer.append(")\n");
         if (method.isFunction()) {
-            buffer.append(keywordCaseOption.changeCase("returns "));
-            buffer.append(dataTypeCaseOption.changeCase(method.getReturnArgument().getDataType()));
+            buffer.append(keywordCaseOption.format("returns "));
+            buffer.append(dataTypeCaseOption.format(method.getReturnArgument().getDataType()));
             buffer.append("\n");
         }
-        buffer.append(keywordCaseOption.changeCase("begin\n\n"));
-        if (method.isFunction()) buffer.append(keywordCaseOption.changeCase("    return null;\n\n"));
+        buffer.append(keywordCaseOption.format("begin\n\n"));
+        if (method.isFunction()) buffer.append(keywordCaseOption.format("    return null;\n\n"));
         buffer.append("end");
         
         String sqlMode = getSessionSqlMode(connection);

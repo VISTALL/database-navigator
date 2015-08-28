@@ -1,8 +1,8 @@
 package com.dci.intellij.dbn.data.export.ui;
 
-import com.dci.intellij.dbn.common.Constants;
 import com.dci.intellij.dbn.common.Icons;
-import com.dci.intellij.dbn.common.ui.DBNForm;
+import com.dci.intellij.dbn.common.thread.RunnableTask;
+import com.dci.intellij.dbn.common.thread.SimpleTask;
 import com.dci.intellij.dbn.common.ui.DBNFormImpl;
 import com.dci.intellij.dbn.common.ui.DBNHeaderForm;
 import com.dci.intellij.dbn.common.util.MessageUtil;
@@ -15,8 +15,6 @@ import com.dci.intellij.dbn.object.common.DBObject;
 import com.dci.intellij.dbn.object.common.DBSchemaObject;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
@@ -32,7 +30,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 
-public class ExportDataForm extends DBNFormImpl implements DBNForm {
+public class ExportDataForm extends DBNFormImpl<ExportDataDialog> {
     private static final FileChooserDescriptor DIRECTORY_FILE_DESCRIPTOR = new FileChooserDescriptor(false, true, false, false, false, false);
 
     private JPanel mainPanel;
@@ -44,6 +42,7 @@ public class ExportDataForm extends DBNFormImpl implements DBNForm {
     private JRadioButton formatCustomRadioButton;
     private JRadioButton formatHTMLRadioButton;
     private JRadioButton formatXMLRadioButton;
+    private JRadioButton formatExcelXRadioButton;
 
     private JTextField valueSeparatorTextField;
     private JRadioButton destinationClipboardRadioButton;
@@ -59,10 +58,13 @@ public class ExportDataForm extends DBNFormImpl implements DBNForm {
     private JPanel destinationPanel;
     private JPanel optionsPanel;
 
-    private DBObject sourceObject;
     private DataExportInstructions instructions;
+    private ConnectionHandler connectionHandler;
+    private DBObject sourceObject;
 
-    public ExportDataForm(DataExportInstructions instructions, boolean hasSelection, @NotNull ConnectionHandler connectionHandler, @Nullable DBObject sourceObject) {
+    public ExportDataForm(ExportDataDialog parentComponent, DataExportInstructions instructions, boolean hasSelection, @NotNull ConnectionHandler connectionHandler, @Nullable DBObject sourceObject) {
+        super(parentComponent);
+        this.connectionHandler = connectionHandler;
         this.sourceObject = sourceObject;
         this.instructions = instructions;
         updateBorderTitleForeground(scopePanel);
@@ -76,6 +78,7 @@ public class ExportDataForm extends DBNFormImpl implements DBNForm {
         formatHTMLRadioButton.addActionListener(actionListener);
         formatXMLRadioButton.addActionListener(actionListener);
         formatExcelRadioButton.addActionListener(actionListener);
+        formatExcelXRadioButton.addActionListener(actionListener);
         formatCSVRadioButton.addActionListener(actionListener);
         formatCustomRadioButton.addActionListener(actionListener);
         destinationClipboardRadioButton.addActionListener(actionListener);
@@ -87,15 +90,17 @@ public class ExportDataForm extends DBNFormImpl implements DBNForm {
 
         formatSQLRadioButton.setEnabled(sourceObject instanceof DBTable);
 
+        DataExportFormat format = instructions.getFormat();
         if (formatSQLRadioButton.isEnabled()) {
-            formatSQLRadioButton.setSelected(instructions.getFormat() == DataExportFormat.SQL);
+            formatSQLRadioButton.setSelected(format == DataExportFormat.SQL);
         }
 
-        formatExcelRadioButton.setSelected(instructions.getFormat() == DataExportFormat.EXCEL);
-        formatHTMLRadioButton.setSelected(instructions.getFormat() == DataExportFormat.HTML);
-        formatXMLRadioButton.setSelected(instructions.getFormat() == DataExportFormat.XML);
-        formatCSVRadioButton.setSelected(instructions.getFormat() == DataExportFormat.CSV);
-        formatCustomRadioButton.setSelected(instructions.getFormat() == DataExportFormat.CUSTOM);
+        formatExcelRadioButton.setSelected(format == DataExportFormat.EXCEL);
+        formatExcelXRadioButton.setSelected(format == DataExportFormat.EXCELX);
+        formatHTMLRadioButton.setSelected(format == DataExportFormat.HTML);
+        formatXMLRadioButton.setSelected(format == DataExportFormat.XML);
+        formatCSVRadioButton.setSelected(format == DataExportFormat.CSV);
+        formatCustomRadioButton.setSelected(format == DataExportFormat.CUSTOM);
 
         valueSeparatorTextField.setText(instructions.getValueSeparator());
         createHeaderCheckBox.setSelected(instructions.createHeader());
@@ -165,13 +170,14 @@ public class ExportDataForm extends DBNFormImpl implements DBNForm {
         return
             formatSQLRadioButton.isSelected() ? DataExportFormat.SQL :
             formatExcelRadioButton.isSelected() ? DataExportFormat.EXCEL :
+            formatExcelXRadioButton.isSelected() ? DataExportFormat.EXCELX :
             formatHTMLRadioButton.isSelected() ? DataExportFormat.HTML :
             formatXMLRadioButton.isSelected() ? DataExportFormat.XML :
             formatCSVRadioButton.isSelected() ? DataExportFormat.CSV :
             formatCustomRadioButton.isSelected() ? DataExportFormat.CUSTOM : null;
     }
 
-    public boolean validateEntries() {
+    public void validateEntries(final RunnableTask callback) {
         boolean validValueSeparator = valueSeparatorTextField.getText().trim().length() > 0;
         boolean validFileName = fileNameTextField.getText().trim().length() > 0;
         boolean validFileLocation = fileLocationTextField.getText().trim().length() > 0;
@@ -190,23 +196,32 @@ public class ExportDataForm extends DBNFormImpl implements DBNForm {
             }
         }
 
+        Project project = connectionHandler.getProject();
         if (buffer.length() > 0) {
             buffer.insert(0, "Please provide values for: ");
-            MessageUtil.showErrorDialog(buffer.toString(), "Required input");
-            return false;
+            MessageUtil.showErrorDialog(project, "Required input", buffer.toString());
+            return;
         }
 
         if (destinationFileRadioButton.isSelected()) {
             File file = getExportInstructions().getFile();
             if (file.exists()) {
-                int response = Messages.showYesNoDialog(
-                        "File " + file.getPath() + " already exists. Overwrite?", Constants.DBN_TITLE_PREFIX + "Warning",
-                        Messages.getQuestionIcon());
-                return response == DialogWrapper.OK_EXIT_CODE;
+                MessageUtil.showQuestionDialog(project, "File exists",
+                        "File " + file.getPath() + " already exists. Overwrite?",
+                        MessageUtil.OPTIONS_YES_NO, 0,
+                        new SimpleTask() {
+                            @Override
+                            public void execute() {
+                                if (getResult() == 0) {
+                                    callback.start();
+                                }
+                            }
+                        });
+                return;
             }
         }
 
-        return true;
+        callback.start();
     }
 
     ActionListener actionListener = new ActionListener() {

@@ -1,10 +1,26 @@
 package com.dci.intellij.dbn.browser.ui;
 
+import javax.swing.JPopupMenu;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
+import javax.swing.tree.TreePath;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import org.jetbrains.annotations.NotNull;
+
 import com.dci.intellij.dbn.browser.DatabaseBrowserManager;
 import com.dci.intellij.dbn.browser.DatabaseBrowserUtils;
 import com.dci.intellij.dbn.browser.TreeNavigationHistory;
 import com.dci.intellij.dbn.browser.model.BrowserTreeModel;
 import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
+import com.dci.intellij.dbn.browser.model.EmptyBrowserTreeModel;
 import com.dci.intellij.dbn.browser.model.TabbedBrowserTreeModel;
 import com.dci.intellij.dbn.common.content.DatabaseLoadMonitor;
 import com.dci.intellij.dbn.common.dispose.Disposable;
@@ -36,26 +52,9 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.util.ui.tree.TreeUtil;
-import org.jetbrains.annotations.NotNull;
-
-import javax.swing.JPopupMenu;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
-import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreePath;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.event.InputEvent;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.util.List;
 
 public class DatabaseBrowserTree extends DBNTree implements Disposable {
-    public static final DefaultTreeModel EMPTY_TREE_MODEL = new DefaultTreeModel(null);
+    public static final EmptyBrowserTreeModel EMPTY_TREE_MODEL = new EmptyBrowserTreeModel();
     private BrowserTreeNode targetSelection;
     private BrowserTreeModel treeModel;
     private JPopupMenu popupMenu;
@@ -81,6 +80,7 @@ public class DatabaseBrowserTree extends DBNTree implements Disposable {
 
         Disposer.register(this, speedSearch);
         Disposer.register(this, treeModel);
+        Disposer.register(this, navigationHistory);
     }
 
     public Project getProject() {
@@ -100,11 +100,9 @@ public class DatabaseBrowserTree extends DBNTree implements Disposable {
         new SimpleLaterInvocator() {
             public void execute() {
                 ConnectionManager connectionManager = ConnectionManager.getInstance(getProject());
-                List<ConnectionBundle> connectionBundles = connectionManager.getConnectionBundles();
-                for (ConnectionBundle connectionBundle : connectionBundles) {
-                    TreePath treePath = DatabaseBrowserUtils.createTreePath(connectionBundle);
-                    setExpandedState(treePath, true);
-                }
+                ConnectionBundle connectionBundle = connectionManager.getConnectionBundle();
+                TreePath treePath = DatabaseBrowserUtils.createTreePath(connectionBundle);
+                setExpandedState(treePath, true);
             }
         }.start();
     }
@@ -112,8 +110,8 @@ public class DatabaseBrowserTree extends DBNTree implements Disposable {
     public void selectElement(BrowserTreeNode treeNode, boolean requestFocus) {
         ConnectionHandler connectionHandler = treeNode.getConnectionHandler();
         Filter<BrowserTreeNode> filter = connectionHandler == null ?
-                DatabaseBrowserManager.getInstance(getProject()).getObjectFilter() :
-                connectionHandler.getObjectFilter();
+                DatabaseBrowserManager.getInstance(getProject()).getObjectTypeFilter() :
+                connectionHandler.getObjectTypeFilter();
 
         if (filter.accepts(treeNode)) {
             targetSelection = treeNode;
@@ -127,27 +125,29 @@ public class DatabaseBrowserTree extends DBNTree implements Disposable {
         if (getProject().isOpen() && targetSelection != null) {
             targetSelection = (BrowserTreeNode) targetSelection.getUndisposedElement();
             TreePath treePath = DatabaseBrowserUtils.createTreePath(targetSelection);
-            for (Object object : treePath.getPath()) {
-                BrowserTreeNode treeNode = (BrowserTreeNode) object;
-                if (treeNode == null || treeNode.isDisposed()) {
-                    targetSelection = null;
-                    return;
-                }
+            if (treePath != null) {
+                for (Object object : treePath.getPath()) {
+                    BrowserTreeNode treeNode = (BrowserTreeNode) object;
+                    if (treeNode == null || treeNode.isDisposed()) {
+                        targetSelection = null;
+                        return;
+                    }
 
 
-                if (treeNode.equals(targetSelection)) {
-                    break;
+                    if (treeNode.equals(targetSelection)) {
+                        break;
+                    }
+
+                    if (!treeNode.isLeafTreeElement() && !treeNode.isTreeStructureLoaded()) {
+                        selectPath(DatabaseBrowserUtils.createTreePath(treeNode));
+                        treeNode.getTreeChildren();
+                        return;
+                    }
                 }
 
-                if (!treeNode.isLeafTreeElement() && !treeNode.isTreeStructureLoaded()) {
-                    selectPath(DatabaseBrowserUtils.createTreePath(treeNode));
-                    treeNode.getTreeChildren();
-                    return;
-                }
+                targetSelection = null;
+                selectPath(treePath);
             }
-
-            targetSelection = null;
-            selectPath(treePath);
         }
     }
 
@@ -198,20 +198,26 @@ public class DatabaseBrowserTree extends DBNTree implements Disposable {
 
     public void navigateBack() {
         BrowserTreeNode treeNode = navigationHistory.previous();
-        selectPathSilently(DatabaseBrowserUtils.createTreePath(treeNode));
+        if (treeNode != null) {
+            selectPathSilently(DatabaseBrowserUtils.createTreePath(treeNode));
+        }
     }
 
     public void navigateForward() {
         BrowserTreeNode treeNode = navigationHistory.next();
-        selectPathSilently(DatabaseBrowserUtils.createTreePath(treeNode));
+        if (treeNode != null) {
+            selectPathSilently(DatabaseBrowserUtils.createTreePath(treeNode));
+        }
     }
 
 
     public void selectPathSilently(TreePath treePath) {
-        listenersEnabled = false;
-        selectionModel.setSelectionPath(treePath);
-        TreeUtil.selectPath(DatabaseBrowserTree.this, treePath, true);
-        listenersEnabled = true;
+        if (treePath != null) {
+            listenersEnabled = false;
+            selectionModel.setSelectionPath(treePath);
+            TreeUtil.selectPath(DatabaseBrowserTree.this, treePath, true);
+            listenersEnabled = true;
+        }
     }
 
     private boolean listenersEnabled = true;
@@ -254,10 +260,10 @@ public class DatabaseBrowserTree extends DBNTree implements Disposable {
                 DBObjectProperties properties = object.getProperties();
                 if (properties.is(DBObjectProperty.EDITABLE)) {
                     DBSchemaObject schemaObject = (DBSchemaObject) object;
-                    DatabaseFileSystem.getInstance().openEditor(schemaObject);
+                    DatabaseFileSystem.getInstance().openEditor(schemaObject, deliberate);
                     event.consume();
                 } else if (properties.is(DBObjectProperty.NAVIGABLE)) {
-                    DatabaseFileSystem.getInstance().openEditor(object);
+                    DatabaseFileSystem.getInstance().openEditor(object, deliberate);
                     event.consume();
                 } else if (deliberate) {
                     new BackgroundTask(getProject(), "Loading Object Reference", false, false) {
@@ -278,8 +284,10 @@ public class DatabaseBrowserTree extends DBNTree implements Disposable {
             } else if (lastPathEntity instanceof DBObjectBundle) {
                 DBObjectBundle objectBundle = (DBObjectBundle) lastPathEntity;
                 ConnectionHandler connectionHandler = objectBundle.getConnectionHandler();
-                FileEditorManager fileEditorManager = FileEditorManager.getInstance(connectionHandler.getProject());
-                fileEditorManager.openFile(connectionHandler.getSQLConsoleFile(), true);
+                if (connectionHandler != null && !connectionHandler.isDisposed()) {
+                    FileEditorManager fileEditorManager = FileEditorManager.getInstance(connectionHandler.getProject());
+                    fileEditorManager.openFile(connectionHandler.getConsoleBundle().getDefaultConsole(), deliberate);
+                }
             }
         }
     }
@@ -349,8 +357,7 @@ public class DatabaseBrowserTree extends DBNTree implements Disposable {
                     if (lastPathEntity.isDisposed()) return;
 
                     new ModalTask(lastPathEntity.getProject(), "Loading object information", true) {
-                        public void run(@NotNull ProgressIndicator progressIndicator) {
-                            progressIndicator.setIndeterminate(true);
+                        public void execute(@NotNull ProgressIndicator progressIndicator) {
                             ActionGroup actionGroup = null;
                             if (lastPathEntity instanceof DBObjectList) {
                                 DBObjectList objectList = (DBObjectList) lastPathEntity;
@@ -400,14 +407,18 @@ public class DatabaseBrowserTree extends DBNTree implements Disposable {
     private boolean disposed;
 
     public void dispose() {
-        if (!isDisposed()) {
+        if (!disposed) {
             disposed = true;
             targetSelection = null;
             setModel(EMPTY_TREE_MODEL);
             GUIUtil.removeListeners(this);
-            navigationHistory.clear();
+            treeSelectionListener = null;
+            mouseListener = null;
+            keyListener = null;
+            treeModelListener = null;
         }
     }
+
 
     @Override
     public boolean isDisposed() {

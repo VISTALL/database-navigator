@@ -1,6 +1,9 @@
 package com.dci.intellij.dbn.data.model.basic;
 
 import com.dci.intellij.dbn.common.dispose.DisposerUtil;
+import com.dci.intellij.dbn.common.filter.Filter;
+import com.dci.intellij.dbn.common.list.FiltrableList;
+import com.dci.intellij.dbn.common.locale.options.RegionalSettings;
 import com.dci.intellij.dbn.common.thread.ConditionalLaterInvocator;
 import com.dci.intellij.dbn.data.find.DataSearchResult;
 import com.dci.intellij.dbn.data.model.ColumnInfo;
@@ -13,6 +16,7 @@ import com.dci.intellij.dbn.data.model.DataModelState;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
@@ -31,11 +35,19 @@ public class BasicDataModel<T extends DataModelRow> implements DataModel<T> {
     private Set<DataModelListener> dataModelListeners = new HashSet<DataModelListener>();
     private List<T> rows = new ArrayList<T>();
     private Project project;
+    private Filter<T> filter;
 
     private DataSearchResult searchResult;
+    RegionalSettings regionalSettings;
 
     public BasicDataModel(Project project) {
         this.project = project;
+        this.regionalSettings = RegionalSettings.getInstance(project);
+    }
+
+
+    public RegionalSettings getRegionalSettings() {
+        return regionalSettings;
     }
 
     @Override
@@ -68,6 +80,33 @@ public class BasicDataModel<T extends DataModelRow> implements DataModel<T> {
         this.state = state;
     }
 
+    @Override
+    public void setFilter(Filter<T> filter) {
+        if (filter == null) {
+            if (rows instanceof FiltrableList) {
+                FiltrableList<T> filtrableList = (FiltrableList<T>) rows;
+                rows = filtrableList.getFullList();
+            }
+        }
+        else {
+            FiltrableList<T> filtrableList;
+            if (rows instanceof FiltrableList) {
+                filtrableList = (FiltrableList<T>) rows;
+            } else {
+                filtrableList = new FiltrableList<T>(rows);
+                rows = filtrableList;
+            }
+            filtrableList.setFilter(filter);
+        }
+        this.filter = filter;
+    }
+
+    @Nullable
+    @Override
+    public Filter<T> getFilter() {
+        return filter;
+    }
+
     protected DataModelState createState() {
         return new DataModelState();
     }
@@ -78,7 +117,12 @@ public class BasicDataModel<T extends DataModelRow> implements DataModel<T> {
     }
 
     public void setRows(List<T> rows) {
-        this.rows = rows;
+        if (filter != null) {
+            this.rows = new FiltrableList<T>(rows, filter);
+        } else {
+            this.rows = rows;
+        }
+
         getState().setRowCount(getRowCount());
     }
 
@@ -207,7 +251,7 @@ public class BasicDataModel<T extends DataModelRow> implements DataModel<T> {
     }
 
     public int getColumnCount() {
-        return isDisposed() ? 0 : getHeader().getColumnCount();
+        return disposed ? 0 : getHeader().getColumnCount();
     }
 
     public String getColumnName(int columnIndex) {
@@ -225,7 +269,7 @@ public class BasicDataModel<T extends DataModelRow> implements DataModel<T> {
     public Object getValueAt(int rowIndex, int columnIndex) {
         // model may be reloading when this is called, hence
         // IndexOutOfBoundsException is thrown if the range is not checked
-        return rows.size() > rowIndex ? rows.get(rowIndex).getCellAtIndex(columnIndex) : null;
+        return rows.size() > rowIndex && columnIndex > -1 ? rows.get(rowIndex).getCellAtIndex(columnIndex) : null;
     }
 
     public void setValueAt(Object value, int rowIndex, int columnIndex) {}
@@ -285,7 +329,8 @@ public class BasicDataModel<T extends DataModelRow> implements DataModel<T> {
             tableModelListeners.clear();
             listDataListeners.clear();
             searchResult = null;
+            regionalSettings = null;
+            project = null;
         }
     }
-
 }

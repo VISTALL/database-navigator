@@ -1,20 +1,19 @@
 package com.dci.intellij.dbn.data.type;
 
-import com.dci.intellij.dbn.common.LoggerFactory;
-import com.dci.intellij.dbn.common.content.DynamicContent;
-import com.dci.intellij.dbn.common.content.DynamicContentElement;
-import com.dci.intellij.dbn.data.value.BlobValue;
-import com.dci.intellij.dbn.data.value.ClobValue;
-import com.intellij.openapi.diagnostic.Logger;
-import org.jetbrains.annotations.NotNull;
-
 import java.math.BigDecimal;
+import java.sql.CallableStatement;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
+import org.jetbrains.annotations.NotNull;
+
+import com.dci.intellij.dbn.common.LoggerFactory;
+import com.dci.intellij.dbn.common.content.DynamicContentElement;
+import com.dci.intellij.dbn.data.value.ValueAdapter;
+import com.intellij.openapi.diagnostic.Logger;
 
 public class DBNativeDataType implements DynamicContentElement{
     private static final Logger LOGGER = LoggerFactory.createLogger();
@@ -33,23 +32,41 @@ public class DBNativeDataType implements DynamicContentElement{
         return dataTypeDefinition.getName();
     }
 
+    @Override
+    public int getOverload() {
+        return 0;
+    }
+
     public DataTypeDefinition getDataTypeDefinition() {
         return dataTypeDefinition;
     }
     
-    public GenericDataType getBasicDataType() {
+    public GenericDataType getGenericDataType() {
         return dataTypeDefinition.getGenericDataType();
     }
 
-    public boolean isLOB() {
-        return getBasicDataType().isLOB();
+    public boolean isPseudoNative() {
+        return dataTypeDefinition.isPseudoNative();
+    }
+
+    public boolean isLargeObject() {
+        return getGenericDataType().isLOB();
     }
 
     public Object getValueFromResultSet(ResultSet resultSet, int columnIndex) throws SQLException {
         // FIXME: add support for stream updatable types
+
         GenericDataType genericDataType = dataTypeDefinition.getGenericDataType();
-        if (genericDataType == GenericDataType.BLOB) return new BlobValue(resultSet.getBlob(columnIndex));
-        if (genericDataType == GenericDataType.CLOB) return new ClobValue(resultSet.getClob(columnIndex));
+        if (ValueAdapter.supports(genericDataType)) {
+            return ValueAdapter.create(genericDataType, resultSet, columnIndex);
+        }
+
+/*
+        if (genericDataType == GenericDataType.BLOB) return new BlobValue(resultSet, columnIndex);
+        if (genericDataType == GenericDataType.CLOB) return new ClobValue(resultSet, columnIndex);
+        if (genericDataType == GenericDataType.XMLTYPE) return new XmlTypeValue((OracleResultSet) resultSet, columnIndex);
+        if (genericDataType == GenericDataType.ARRAY) return new ArrayValue(resultSet, columnIndex);
+*/
         if (genericDataType == GenericDataType.ROWID) return "[ROWID]";
         if (genericDataType == GenericDataType.FILE) return "[FILE]";
 
@@ -72,10 +89,12 @@ public class DBNativeDataType implements DynamicContentElement{
                     clazz == Date.class ? resultSet.getDate(columnIndex) :
                     clazz == Time.class ? resultSet.getTime(columnIndex) :
                     clazz == Timestamp.class ? resultSet.getTimestamp(columnIndex) :
+                    //clazz == Array.class ? resultSet.getArray(columnIndex) :
                             resultSet.getObject(columnIndex);
         } catch (SQLException e) {
-            LOGGER.error("Error resolving result set value", e);
-            return resultSet.getObject(columnIndex);
+            Object object = resultSet.getObject(columnIndex);
+            LOGGER.error("Error resolving result set value for '" + object + "'. (data type definition " + dataTypeDefinition + ')', e);
+            return object;
         }
     }
 
@@ -84,8 +103,10 @@ public class DBNativeDataType implements DynamicContentElement{
         GenericDataType genericDataType = dataTypeDefinition.getGenericDataType();
         if (genericDataType == GenericDataType.BLOB) return;
         if (genericDataType == GenericDataType.CLOB) return;
+        if (genericDataType == GenericDataType.XMLTYPE) return;
         if (genericDataType == GenericDataType.ROWID) return;
         if (genericDataType == GenericDataType.FILE) return;
+        if (genericDataType == GenericDataType.ARRAY) return;
 
         if (value == null) {
             resultSet.updateObject(columnIndex, null);
@@ -103,6 +124,7 @@ public class DBNativeDataType implements DynamicContentElement{
                 if(clazz == Date.class) resultSet.updateDate(columnIndex, (Date) value); else
                 if(clazz == Time.class) resultSet.updateTime(columnIndex, (Time) value); else
                 if(clazz == Timestamp.class) resultSet.updateTimestamp(columnIndex, (Timestamp) value); else
+                //if(clazz == Array.class) resultSet.updateArray(columnIndex, (Array) value); else
                         resultSet.updateObject(columnIndex, value);
             } else {
                 throw new SQLException("Can not convert \"" + value.toString() + "\" into " + dataTypeDefinition.getName());
@@ -110,9 +132,29 @@ public class DBNativeDataType implements DynamicContentElement{
         }
     }
 
-    public void setValueToPreparedStatement(PreparedStatement preparedStatement, int parameterIndex, Object value) throws SQLException {
+    public Object getValueFromStatement(CallableStatement callableStatement, int parameterIndex) throws SQLException {
         GenericDataType genericDataType = dataTypeDefinition.getGenericDataType();
-        if (genericDataType == GenericDataType.CURSOR) return;
+        if (ValueAdapter.supports(genericDataType)) {
+            return ValueAdapter.create(genericDataType, callableStatement, parameterIndex);
+        }
+/*
+        if (genericDataType == GenericDataType.BLOB) return new BlobValue(callableStatement, parameterIndex);
+        if (genericDataType == GenericDataType.CLOB) return new ClobValue(callableStatement, parameterIndex);
+        if (genericDataType == GenericDataType.XMLTYPE) return new XmlTypeValue((OracleCallableStatement) callableStatement, parameterIndex);
+*/
+
+        return callableStatement.getObject(parameterIndex);
+    }
+
+    public void setValueToStatement(PreparedStatement preparedStatement, int parameterIndex, Object value) throws SQLException {
+        GenericDataType genericDataType = dataTypeDefinition.getGenericDataType();
+        if (ValueAdapter.supports(genericDataType)) {
+            ValueAdapter valueAdapter = ValueAdapter.create(genericDataType);
+            valueAdapter.write(preparedStatement.getConnection(), preparedStatement, parameterIndex, value);
+            return;
+        }
+        if (genericDataType == GenericDataType.CURSOR) return;// not supported
+
 
         if (value == null) {
             preparedStatement.setObject(parameterIndex, null);
@@ -150,23 +192,9 @@ public class DBNativeDataType implements DynamicContentElement{
     /*********************************************************
      *                 DynamicContentElement                 *
      *********************************************************/
-    public boolean isValid() {
-        return true;
-    }
-
-    public void setValid(boolean valid) {
-
-    }
 
     public String getDescription() {
         return null;
-    }
-
-    public DynamicContent getOwnerContent() {
-        return null;
-    }
-
-    public void setOwnerContent(DynamicContent ownerContent) {
     }
 
     public void reload() {

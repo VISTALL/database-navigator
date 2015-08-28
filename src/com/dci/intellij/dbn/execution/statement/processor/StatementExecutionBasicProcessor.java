@@ -1,179 +1,359 @@
 package com.dci.intellij.dbn.execution.statement.processor;
 
+import java.lang.ref.WeakReference;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import com.dci.intellij.dbn.common.editor.BasicTextEditor;
+import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.common.message.MessageType;
+import com.dci.intellij.dbn.common.thread.ReadActionRunner;
+import com.dci.intellij.dbn.common.util.EditorUtil;
 import com.dci.intellij.dbn.common.util.StringUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
+import com.dci.intellij.dbn.editor.DBContentType;
+import com.dci.intellij.dbn.editor.EditorProviderId;
 import com.dci.intellij.dbn.execution.ExecutionManager;
 import com.dci.intellij.dbn.execution.common.options.ExecutionEngineSettings;
+import com.dci.intellij.dbn.execution.compiler.CompilerAction;
+import com.dci.intellij.dbn.execution.compiler.CompilerActionSource;
+import com.dci.intellij.dbn.execution.compiler.CompilerResult;
+import com.dci.intellij.dbn.execution.logging.DatabaseLoggingManager;
+import com.dci.intellij.dbn.execution.statement.DataDefinitionChangeListener;
 import com.dci.intellij.dbn.execution.statement.StatementExecutionInput;
 import com.dci.intellij.dbn.execution.statement.options.StatementExecutionSettings;
 import com.dci.intellij.dbn.execution.statement.result.StatementExecutionBasicResult;
 import com.dci.intellij.dbn.execution.statement.result.StatementExecutionResult;
+import com.dci.intellij.dbn.execution.statement.result.StatementExecutionStatus;
 import com.dci.intellij.dbn.execution.statement.variables.StatementExecutionVariablesBundle;
-import com.dci.intellij.dbn.execution.statement.variables.ui.StatementExecutionVariablesDialog;
-import com.dci.intellij.dbn.language.common.DBLanguageFile;
-import com.dci.intellij.dbn.language.common.psi.ExecVariablePsiElement;
+import com.dci.intellij.dbn.language.common.DBLanguagePsiFile;
+import com.dci.intellij.dbn.language.common.element.util.ElementTypeAttribute;
+import com.dci.intellij.dbn.language.common.psi.BasePsiElement;
+import com.dci.intellij.dbn.language.common.psi.ChameleonPsiElement;
 import com.dci.intellij.dbn.language.common.psi.ExecutablePsiElement;
-import com.dci.intellij.dbn.language.common.psi.NamedPsiElement;
+import com.dci.intellij.dbn.language.common.psi.IdentifierPsiElement;
+import com.dci.intellij.dbn.language.common.psi.QualifiedIdentifierPsiElement;
 import com.dci.intellij.dbn.object.DBSchema;
+import com.dci.intellij.dbn.object.common.DBObject;
+import com.dci.intellij.dbn.object.common.DBObjectType;
+import com.dci.intellij.dbn.object.common.DBSchemaObject;
+import com.dci.intellij.dbn.object.common.list.DBObjectList;
+import com.dci.intellij.dbn.object.common.list.DBObjectListContainer;
+import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.DialogWrapper;
-import gnu.trove.THashSet;
-
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.Set;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiElement;
 
 public class StatementExecutionBasicProcessor implements StatementExecutionProcessor {
 
-    protected StatementExecutionVariablesBundle executionVariables;
-    protected ExecutablePsiElement executablePsiElement;
-    protected String executableStatement;
-    protected DBLanguageFile file;
-
+    protected WeakReference<FileEditor> fileEditorRef;
+    protected WeakReference<DBLanguagePsiFile> psiFileRef;
+    protected ExecutablePsiElement cachedExecutable;
+    private EditorProviderId editorProviderId;
 
     protected String resultName;
     protected int index;
 
-    protected StatementExecutionResult executionResult;
+    private StatementExecutionInput executionInput;
+    private StatementExecutionResult executionResult;
 
-    public StatementExecutionBasicProcessor(ExecutablePsiElement psiElement, int index) {
-        this.executablePsiElement = psiElement;
-        this.file = psiElement.getFile();
+    public StatementExecutionBasicProcessor(FileEditor fileEditor, ExecutablePsiElement psiElement, int index) {
+        this.fileEditorRef = new WeakReference<FileEditor>(fileEditor);
+        this.psiFileRef = new WeakReference<DBLanguagePsiFile>(psiElement.getFile());
+
+        this.cachedExecutable = psiElement;
         this.index = index;
-
+        executionInput = new StatementExecutionInput(psiElement.getText(), psiElement.prepareStatementText(), this);
+        initEditorProviderId(fileEditor);
     }
 
-    public StatementExecutionBasicProcessor(DBLanguageFile file, String sqlStatement, int index) {
-        this.executableStatement = sqlStatement.trim();
-        this.file = file;
+    public StatementExecutionBasicProcessor(FileEditor fileEditor, DBLanguagePsiFile psiFile, String sqlStatement, int index) {
+        this.fileEditorRef = new WeakReference<FileEditor>(fileEditor);
+        this.psiFileRef = new WeakReference<DBLanguagePsiFile>(psiFile);
         this.index = index;
+        sqlStatement = sqlStatement.trim();
+        executionInput = new StatementExecutionInput(sqlStatement, sqlStatement, this);
+
+        initEditorProviderId(fileEditor);
     }
 
+    private void initEditorProviderId(FileEditor fileEditor) {
+        if (fileEditor instanceof BasicTextEditor) {
+            BasicTextEditor basicTextEditor = (BasicTextEditor) fileEditor;
+            editorProviderId = basicTextEditor.getEditorProviderId();
+        }
+    }
+
+    public boolean isDirty(){
+        if (getConnectionHandler() != executionInput.getConnectionHandler() || // connection changed since execution
+            getCurrentSchema() != executionInput.getCurrentSchema()) { // current schema changed since execution)
+            return true;
+
+        } else {
+            ExecutablePsiElement executablePsiElement = executionInput.getExecutablePsiElement();
+            return
+                this.cachedExecutable == null ||
+                executablePsiElement == null ||
+                !this.cachedExecutable.matches(executablePsiElement, BasePsiElement.MatchType.STRONG);
+        }
+    }
+
+    @Override
     public void bind(ExecutablePsiElement executablePsiElement) {
-        this.executablePsiElement = executablePsiElement;
+        this.cachedExecutable = executablePsiElement;
+        executablePsiElement.setExecutionProcessor(this);
     }
 
-    public boolean matches(ExecutablePsiElement executablePsiElement, boolean lenient) {
-        if (executablePsiElement.getFile().equals(file)) {
-            if (executionResult == null) {
-                return lenient ?
-                        this.executablePsiElement.matches(executablePsiElement) :
-                        this.executablePsiElement.equals(executablePsiElement);
-            } else {
-                StatementExecutionInput executionInput = executionResult.getExecutionInput();
-                return lenient || executionInput == null ?
-                        this.executablePsiElement.matches(executablePsiElement) :
-                        executionInput.getExecutablePsiElement().matches(executablePsiElement);
+    @Override
+    public void unbind() {
+        cachedExecutable = null;
+    }
+
+    @Override
+    public boolean isBound() {
+        return cachedExecutable != null;
+    }
+
+    public DBLanguagePsiFile getPsiFile() {
+        return psiFileRef.get();
+    }
+
+    @Override
+    public VirtualFile getVirtualFile() {
+        DBLanguagePsiFile psiFile = getPsiFile();
+        return psiFile == null ? null : psiFile.getVirtualFile();
+    }
+
+    @Override
+    public FileEditor getFileEditor() {
+        FileEditor fileEditor = this.fileEditorRef == null ? null : this.fileEditorRef.get();
+        if (fileEditor != null) {
+            Editor editor = EditorUtil.getEditor(fileEditor);
+            if (editor != null && editor.isDisposed()) {
+                this.fileEditorRef = null;
             }
         }
+        return fileEditor;
+    }
 
+    @Override
+    @Nullable
+    public EditorProviderId getEditorProviderId() {
+        return editorProviderId;
+    }
+
+    @Override
+    @Nullable
+    public ExecutablePsiElement getCachedExecutable() {
+        return cachedExecutable;
+    }
+
+    public static boolean contains(PsiElement parent, BasePsiElement childElement, BasePsiElement.MatchType matchType) {
+        PsiElement child = parent.getFirstChild();
+        while (child != null) {
+            if (child == childElement) {
+                return true;
+            }
+            if (child instanceof ChameleonPsiElement) {
+                if (contains(child, childElement, matchType)) {
+                    return true;
+                }
+            } else if(child instanceof BasePsiElement) {
+                BasePsiElement basePsiElement = (BasePsiElement) child;
+                if (basePsiElement.matches(childElement, matchType)) {
+                    return true;
+                }
+            }
+            child = child.getNextSibling();
+        }
         return false;
     }
 
-    public boolean isOrphan(){
-        if (executablePsiElement == null || !executablePsiElement.isValid()) return true;
-        NamedPsiElement rootPsiElement = executablePsiElement.lookupEnclosingRootPsiElement();
-        return rootPsiElement == null || !file.contains(rootPsiElement, true);
+    @Override
+    public String toString() {
+        return executionInput.getOriginalStatementText();
     }
 
-    public boolean isDirty() {
-        return executablePsiElement == null || !executablePsiElement.isValid();
+    @Override
+    public StatementExecutionInput getExecutionInput() {
+        return executionInput;
     }
 
-    public StatementExecutionBasicResult getExecutionResult() {
-        return (StatementExecutionBasicResult) executionResult;
+    public StatementExecutionResult getExecutionResult() {
+        if (executionResult != null && executionResult.isDisposed()) {
+            executionResult = null;
+        }
+        return executionResult;
     }
 
-    public boolean promptVariablesDialog() {
-        Set<ExecVariablePsiElement> bucket = new THashSet<ExecVariablePsiElement>();
-        if (executablePsiElement != null) {
-            executablePsiElement.collectExecVariablePsiElements(bucket);
+    @Override
+    public void initExecutionInput(boolean bulkExecution) {
+        // overwrite the input if it was leniently bound
+        if (cachedExecutable != null) {
+            executionInput.setOriginalStatementText(cachedExecutable.getText());
+            executionInput.setExecutableStatementText(cachedExecutable.prepareStatementText());
+            executionInput.setConnectionHandler(getConnectionHandler());
+            executionInput.setCurrentSchema(getCurrentSchema());
+            executionInput.setBulkExecution(bulkExecution);
         }
 
-        if (bucket.isEmpty()) {
-            executionVariables = null;
-        } else {
-            if (executionVariables == null)
-                executionVariables = new StatementExecutionVariablesBundle(getActiveConnection(), getCurrentSchema(), bucket); else
-                executionVariables.initialize(bucket);
-        }
-
-        if (executionVariables != null) {
-            StatementExecutionVariablesDialog dialog = new StatementExecutionVariablesDialog(executablePsiElement.getProject(), executionVariables, executablePsiElement.getText());
-            dialog.show();
-            return dialog.getExitCode() == DialogWrapper.OK_EXIT_CODE;
-        }
-        return true;
     }
 
     public void execute(ProgressIndicator progressIndicator) {
         progressIndicator.setText("Executing " + getStatementName());
         long startTimeMillis = System.currentTimeMillis();
         resultName = null;
-        ConnectionHandler activeConnection = getActiveConnection();
+        ConnectionHandler activeConnection = getConnectionHandler();
         DBSchema currentSchema = getCurrentSchema();
-        String originalStatementText = executablePsiElement == null ? executableStatement : executablePsiElement.getText();
-        String executeStatementText = executablePsiElement == null ? executableStatement : executablePsiElement.prepareStatementText();
 
-        StatementExecutionInput executionInput = new StatementExecutionInput(originalStatementText, executeStatementText, this);
         boolean continueExecution = true;
 
+        String executableStatementText = executionInput.getExecutableStatementText();
+        StatementExecutionVariablesBundle executionVariables = executionInput.getExecutionVariables();
         if (executionVariables != null) {
-            executeStatementText = executionVariables.prepareStatementText(activeConnection, executeStatementText, false);
-            executionInput.setExecuteStatement(executeStatementText);
+            executableStatementText = executionVariables.prepareStatementText(activeConnection, executableStatementText, false);
+            executionInput.setExecutableStatementText(executableStatementText);
 
             if (executionVariables.hasErrors()) {
-                executionResult = createErrorExecutionResult(executionInput, "Could not bind all variables. ");
+                executionResult = createErrorExecutionResult("Could not bind all variables.");
                 continueExecution = false;
             }
         }
 
+        Project project = getProject();
+        boolean loggingEnabled = false;
         if (continueExecution) {
+            DatabaseLoggingManager loggingManager = DatabaseLoggingManager.getInstance(project);
+            Connection connection = null;
             try {
-                if (!activeConnection.isDisposed()) {
-                    Connection connection = activeConnection.getStandaloneConnection(currentSchema);
+                if (activeConnection != null && !activeConnection.isDisposed()) {
+                    connection = activeConnection.getStandaloneConnection(currentSchema);
+
+                    if (activeConnection.isLoggingEnabled() && executionInput.isDatabaseLogProducer()) {
+                        loggingEnabled = loggingManager.enableLogger(activeConnection, connection);
+                    }
                     Statement statement = connection.createStatement();
 
                     statement.setQueryTimeout(getStatementExecutionSettings().getExecutionTimeout());
-                    statement.execute(executeStatementText);
+                    statement.execute(executableStatementText);
                     executionResult = createExecutionResult(statement, executionInput);
+                    ExecutablePsiElement executablePsiElement = executionInput.getExecutablePsiElement();
+                    VirtualFile virtualFile = getPsiFile().getVirtualFile();
                     if (executablePsiElement != null) {
-                        if (executablePsiElement.isTransactional()) activeConnection.notifyChanges(file.getVirtualFile());
+                        if (executablePsiElement.isTransactional()) activeConnection.notifyChanges(virtualFile);
                         if (executablePsiElement.isTransactionControl()) activeConnection.resetChanges();
+                    } else{
+                        if (executionResult.getUpdateCount() > 0) activeConnection.notifyChanges(virtualFile);
+                    }
+
+                    executionResult.setLoggingActive(loggingEnabled);
+                    if (loggingEnabled) {
+                        String logOutput = loggingManager.readLoggerOutput(activeConnection, connection);
+                        executionResult.setLoggingOutput(logOutput);
+                    }
+
+
+                    if (isDataDefinitionStatement()) {
+                        DBSchemaObject affectedObject = getAffectedObject();
+                        if (affectedObject != null) {
+                            DataDefinitionChangeListener listener = EventManager.notify(project, DataDefinitionChangeListener.TOPIC);
+                            listener.dataDefinitionChanged(affectedObject);
+                        } else {
+                            DBSchema affectedSchema = getAffectedSchema();
+                            IdentifierPsiElement subjectPsiElement = getSubjectPsiElement();
+                            if (affectedSchema != null && subjectPsiElement != null) {
+                                DataDefinitionChangeListener listener = EventManager.notify(project, DataDefinitionChangeListener.TOPIC);
+                                listener.dataDefinitionChanged(affectedSchema, subjectPsiElement.getObjectType());
+                            }
+                        }
                     }
                 }
             } catch (SQLException e) {
-                executionResult = createErrorExecutionResult(executionInput, e.getMessage());
+                executionResult = createErrorExecutionResult(e.getMessage());
+            } finally {
+                if (loggingEnabled) {
+                    loggingManager.disableLogger(activeConnection, connection);
+                }
             }
         }
 
         executionResult.setExecutionDuration((int) (System.currentTimeMillis() - startTimeMillis));
-        ExecutionManager.getInstance(getProject()).showExecutionConsole(executionResult);
+        ExecutionManager executionManager = ExecutionManager.getInstance(project);
+        executionManager.addExecutionResult(executionResult);
     }
 
     public StatementExecutionVariablesBundle getExecutionVariables() {
-        return executionVariables;
+        return executionInput.getExecutionVariables();
     }
 
-    protected StatementExecutionResult createExecutionResult(Statement statement, StatementExecutionInput executionInput) throws SQLException {
-        StatementExecutionResult executionResult = new StatementExecutionBasicResult(getResultName(), executionInput);
-        String message = executablePsiElement.getPresentableText() + " executed successfully";
-        int updateCount = statement.getUpdateCount();
-        if (updateCount > -1) {
-            message = message + ": " + updateCount + (updateCount != 1 ? " rows" : " row") + " affected";
+    protected StatementExecutionResult createExecutionResult(Statement statement, final StatementExecutionInput executionInput) throws SQLException {
+        final StatementExecutionBasicResult executionResult = new StatementExecutionBasicResult(this, getResultName(), statement.getUpdateCount());
+        boolean isDdlStatement = isDataDefinitionStatement();
+        boolean hasCompilerErrors = false;
+        if (isDdlStatement) {
+            final BasePsiElement compilablePsiElement = getCompilableBlockPsiElement();
+            if (compilablePsiElement != null) {
+                hasCompilerErrors = new ReadActionRunner<Boolean>() {
+                    @Override
+                    protected Boolean run() {
+                        DBContentType contentType = getCompilableContentType();
+                        CompilerAction compilerAction = new CompilerAction(CompilerActionSource.DDL, contentType, getPsiFile().getVirtualFile(), getFileEditor());
+                        compilerAction.setStartOffset(compilablePsiElement.getTextOffset());
+                        CompilerResult compilerResult = null;
+
+                        DBSchemaObject underlyingObject = getAffectedObject();
+                        if (underlyingObject == null) {
+                            ConnectionHandler connectionHandler = executionInput.getConnectionHandler();
+                            DBSchema schema = getAffectedSchema();
+                            IdentifierPsiElement subjectPsiElement = getSubjectPsiElement();
+                            if (connectionHandler != null && schema != null && subjectPsiElement != null) {
+                                DBObjectType objectType = subjectPsiElement.getObjectType();
+                                String objectName = subjectPsiElement.getUnquotedText().toString().toUpperCase();
+                                compilerResult = new CompilerResult(compilerAction, connectionHandler, schema, objectType, objectName);
+                            }
+                        } else {
+                            compilerResult = new CompilerResult(compilerAction, underlyingObject);
+                        }
+
+                        if (compilerResult != null) {
+                            executionResult.setCompilerResult(compilerResult);
+                            return compilerResult.hasErrors();
+                        }
+                        return false;
+                    }
+                }.start();
+            }
         }
-        executionResult.updateExecutionMessage(MessageType.INFO, message);
-        executionResult.setExecutionStatus(StatementExecutionResult.STATUS_SUCCESS);
+
+        if (hasCompilerErrors) {
+            String message = executionInput.getStatementDescription() + " executed with warnings";
+            executionResult.updateExecutionMessage(MessageType.WARNING, message);
+            executionResult.setExecutionStatus(StatementExecutionStatus.WARNING);
+
+        } else {
+            String message = executionInput.getStatementDescription() + " executed successfully";
+            int updateCount = executionResult.getUpdateCount();
+            if (!isDdlStatement && updateCount > -1) {
+                message = message + ": " + updateCount + (updateCount != 1 ? " rows" : " row") + " affected";
+            }
+            executionResult.updateExecutionMessage(MessageType.INFO, message);
+            executionResult.setExecutionStatus(StatementExecutionStatus.SUCCESS);
+        }
+
         return executionResult;
     }
 
-    public StatementExecutionResult createErrorExecutionResult(StatementExecutionInput executionInput, String cause) {
-        StatementExecutionResult executionResult = new StatementExecutionBasicResult(getResultName(), executionInput);
-        executionResult.updateExecutionMessage(MessageType.ERROR, "Could not execute " + getStatementName() + ".", cause);
-        executionResult.setExecutionStatus(StatementExecutionResult.STATUS_ERROR);
+
+
+    public StatementExecutionResult createErrorExecutionResult(String cause) {
+        StatementExecutionResult executionResult = new StatementExecutionBasicResult(this, getResultName(), 0);
+        executionResult.updateExecutionMessage(MessageType.ERROR, "Could not execute " + getStatementName() + '.', cause);
+        executionResult.setExecutionStatus(StatementExecutionStatus.ERROR);
         return executionResult;
     }
 
@@ -181,34 +361,28 @@ public class StatementExecutionBasicProcessor implements StatementExecutionProce
         return ExecutionEngineSettings.getInstance(getProject()).getStatementExecutionSettings();
     }
 
-    public void reset() {
-        executionResult = null;
-    }
-
-    public ConnectionHandler getActiveConnection() {
-        return file.getActiveConnection();
+    @Nullable
+    public ConnectionHandler getConnectionHandler() {
+        DBLanguagePsiFile psiFile = getPsiFile();
+        return psiFile == null ? null : psiFile.getActiveConnection();
     }
 
     public DBSchema getCurrentSchema() {
-        return file.getCurrentSchema();
-    }
-
-    public ExecutablePsiElement getExecutablePsiElement() {
-        return executablePsiElement;
+        DBLanguagePsiFile psiFile = getPsiFile();
+        return psiFile == null ? null : psiFile.getCurrentSchema();
     }
 
     public Project getProject() {
-        return file.getProject();
+        DBLanguagePsiFile psiFile = getPsiFile();
+        return psiFile == null ? null : psiFile.getProject();
     }
 
-    public DBLanguageFile getFile() {
-        return file;
-    }
-
+    @NotNull
     public synchronized String getResultName() {
         if (resultName == null) {
+            ExecutablePsiElement executablePsiElement = executionInput.getExecutablePsiElement();
             if (executablePsiElement!= null) {
-                 resultName = executablePsiElement.createResultName();
+                 resultName = executablePsiElement.createSubjectList();
             }
             if (StringUtil.isEmptyOrSpaces(resultName)) {
                 resultName = "Result " + index;
@@ -218,6 +392,7 @@ public class StatementExecutionBasicProcessor implements StatementExecutionProce
     }
 
     public String getStatementName() {
+        ExecutablePsiElement executablePsiElement = executionInput.getExecutablePsiElement();
         return executablePsiElement == null ? "SQL statement" : executablePsiElement.getElementType().getDescription();
     }
 
@@ -226,16 +401,113 @@ public class StatementExecutionBasicProcessor implements StatementExecutionProce
     }
 
     public boolean canExecute() {
-        return true;
+        return !disposed;
     }
 
     public void navigateToResult() {
-
+        StatementExecutionResult executionResult = getExecutionResult();
+        if (executionResult != null) {
+            ExecutionManager executionManager = ExecutionManager.getInstance(getProject());
+            executionManager.selectExecutionResult(executionResult);
+        }
     }
 
     public void navigateToEditor(boolean requestFocus) {
-        if (executablePsiElement != null) {
-            executablePsiElement.navigate(requestFocus);
+        FileEditor fileEditor = getFileEditor();
+        if (cachedExecutable != null) {
+            if (fileEditor != null) {
+                cachedExecutable.navigateInEditor(fileEditor, requestFocus);
+            } else {
+                cachedExecutable.navigate(requestFocus);
+            }
         }
+    }
+
+    /********************************************************
+     *                    Disposable                        *
+     ********************************************************/
+    public boolean isDataDefinitionStatement() {
+        return cachedExecutable != null && cachedExecutable.is(ElementTypeAttribute.DATA_DEFINITION);
+    }
+
+    @Nullable
+    public DBSchemaObject getAffectedObject() {
+        if (isDataDefinitionStatement()) {
+            IdentifierPsiElement subjectPsiElement = getSubjectPsiElement();
+            if (subjectPsiElement != null) {
+                DBSchema currentSchema = getCurrentSchema();
+                if (currentSchema != null) {
+                    DBObjectListContainer childObjects = currentSchema.getChildObjects();
+                    if (childObjects != null) {
+                        DBObjectList objectList = childObjects.getObjectList(subjectPsiElement.getObjectType());
+                        if (objectList != null) {
+                            return (DBSchemaObject) objectList.getObject(subjectPsiElement.getText());
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    @Nullable
+    public DBSchema getAffectedSchema() {
+        if (isDataDefinitionStatement()) {
+            IdentifierPsiElement subjectPsiElement = getSubjectPsiElement();
+            if (subjectPsiElement != null) {
+                PsiElement parent = subjectPsiElement.getParent();
+                if (parent instanceof QualifiedIdentifierPsiElement) {
+                    QualifiedIdentifierPsiElement qualifiedIdentifierPsiElement = (QualifiedIdentifierPsiElement) parent;
+                    DBObject parentObject = qualifiedIdentifierPsiElement.lookupParentObjectFor(subjectPsiElement.getElementType());
+                    if (parentObject instanceof DBSchema) {
+                        return (DBSchema) parentObject;
+                    }
+                }
+            }
+        }
+        return getCurrentSchema();
+    }
+
+    @Nullable
+    public IdentifierPsiElement getSubjectPsiElement() {
+        return cachedExecutable == null ? null : (IdentifierPsiElement) cachedExecutable.findFirstPsiElement(ElementTypeAttribute.SUBJECT);
+    }
+
+    public BasePsiElement getCompilableBlockPsiElement() {
+        return cachedExecutable == null ? null : cachedExecutable.findFirstPsiElement(ElementTypeAttribute.COMPILABLE_BLOCK);
+    }
+
+    public DBContentType getCompilableContentType() {
+        BasePsiElement compilableBlockPsiElement = getCompilableBlockPsiElement();
+        if (compilableBlockPsiElement != null) {
+            //if (compilableBlockPsiElement.is(ElementTypeAttribute.OBJECT_DEFINITION)) return DBContentType.CODE;
+            if (compilableBlockPsiElement.is(ElementTypeAttribute.OBJECT_SPECIFICATION)) return DBContentType.CODE_SPEC;
+            if (compilableBlockPsiElement.is(ElementTypeAttribute.OBJECT_DECLARATION)) return DBContentType.CODE_BODY;
+        }
+        return DBContentType.CODE;
+    }
+
+    public boolean isQuery() {
+        return false;
+    }
+
+    /********************************************************
+     *                    Disposable                        *
+     ********************************************************/
+    private boolean disposed;
+
+    @Override
+    public void dispose() {
+        if (!disposed) {
+            disposed = true;
+            cachedExecutable = null;
+            psiFileRef = null;
+
+        }
+    }
+
+    @Override
+    public boolean isDisposed() {
+        return disposed;
     }
 }

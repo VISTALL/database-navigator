@@ -1,67 +1,5 @@
 package com.dci.intellij.dbn.object.common;
 
-import com.dci.intellij.dbn.browser.DatabaseBrowserManager;
-import com.dci.intellij.dbn.browser.DatabaseBrowserUtils;
-import com.dci.intellij.dbn.browser.model.BrowserTreeChangeListener;
-import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
-import com.dci.intellij.dbn.browser.model.LoadInProgressTreeNode;
-import com.dci.intellij.dbn.browser.ui.HtmlToolTipBuilder;
-import com.dci.intellij.dbn.code.sql.color.SQLTextAttributesKeys;
-import com.dci.intellij.dbn.common.content.DynamicContent;
-import com.dci.intellij.dbn.common.content.DynamicContentElement;
-import com.dci.intellij.dbn.common.content.DynamicContentType;
-import com.dci.intellij.dbn.common.content.loader.DynamicContentLoader;
-import com.dci.intellij.dbn.common.content.loader.DynamicContentResultSetLoader;
-import com.dci.intellij.dbn.common.dispose.DisposerUtil;
-import com.dci.intellij.dbn.common.event.EventManager;
-import com.dci.intellij.dbn.common.filter.Filter;
-import com.dci.intellij.dbn.common.lookup.ConsumerStoppedException;
-import com.dci.intellij.dbn.common.lookup.LookupConsumer;
-import com.dci.intellij.dbn.common.thread.BackgroundTask;
-import com.dci.intellij.dbn.common.thread.ConditionalLaterInvocator;
-import com.dci.intellij.dbn.common.ui.tree.TreeEventType;
-import com.dci.intellij.dbn.common.util.CollectionUtil;
-import com.dci.intellij.dbn.common.util.CommonUtil;
-import com.dci.intellij.dbn.connection.ConnectionBundle;
-import com.dci.intellij.dbn.connection.ConnectionHandler;
-import com.dci.intellij.dbn.connection.ConnectionPool;
-import com.dci.intellij.dbn.connection.GenericDatabaseElement;
-import com.dci.intellij.dbn.connection.ModuleConnectionBundle;
-import com.dci.intellij.dbn.data.type.DBNativeDataType;
-import com.dci.intellij.dbn.data.type.DataTypeDefinition;
-import com.dci.intellij.dbn.database.DatabaseCompatibilityInterface;
-import com.dci.intellij.dbn.database.DatabaseFeature;
-import com.dci.intellij.dbn.database.DatabaseMetadataInterface;
-import com.dci.intellij.dbn.database.DatabaseObjectIdentifier;
-import com.dci.intellij.dbn.object.DBCharset;
-import com.dci.intellij.dbn.object.DBGrantedPrivilege;
-import com.dci.intellij.dbn.object.DBGrantedRole;
-import com.dci.intellij.dbn.object.DBPrivilege;
-import com.dci.intellij.dbn.object.DBRole;
-import com.dci.intellij.dbn.object.DBSchema;
-import com.dci.intellij.dbn.object.DBSynonym;
-import com.dci.intellij.dbn.object.DBUser;
-import com.dci.intellij.dbn.object.common.list.DBObjectList;
-import com.dci.intellij.dbn.object.common.list.DBObjectListContainer;
-import com.dci.intellij.dbn.object.common.list.DBObjectRelationListContainer;
-import com.dci.intellij.dbn.object.impl.DBCharsetImpl;
-import com.dci.intellij.dbn.object.impl.DBGrantedPrivilegeImpl;
-import com.dci.intellij.dbn.object.impl.DBGrantedRoleImpl;
-import com.dci.intellij.dbn.object.impl.DBPrivilegeImpl;
-import com.dci.intellij.dbn.object.impl.DBRoleImpl;
-import com.dci.intellij.dbn.object.impl.DBRolePrivilegeRelation;
-import com.dci.intellij.dbn.object.impl.DBRoleRoleRelation;
-import com.dci.intellij.dbn.object.impl.DBSchemaImpl;
-import com.dci.intellij.dbn.object.impl.DBUserImpl;
-import com.dci.intellij.dbn.object.impl.DBUserPrivilegeRelation;
-import com.dci.intellij.dbn.object.impl.DBUserRoleRelation;
-import com.intellij.navigation.ItemPresentation;
-import com.intellij.openapi.editor.colors.TextAttributesKey;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.FileStatus;
-import org.jetbrains.annotations.NotNull;
-
 import javax.swing.Icon;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -71,6 +9,73 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import com.dci.intellij.dbn.browser.DatabaseBrowserManager;
+import com.dci.intellij.dbn.browser.DatabaseBrowserUtils;
+import com.dci.intellij.dbn.browser.model.BrowserTreeChangeListener;
+import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
+import com.dci.intellij.dbn.browser.model.LoadInProgressTreeNode;
+import com.dci.intellij.dbn.browser.ui.HtmlToolTipBuilder;
+import com.dci.intellij.dbn.common.content.DynamicContent;
+import com.dci.intellij.dbn.common.content.DynamicContentElement;
+import com.dci.intellij.dbn.common.content.DynamicContentType;
+import com.dci.intellij.dbn.common.content.loader.DynamicContentLoader;
+import com.dci.intellij.dbn.common.content.loader.DynamicContentResultSetLoader;
+import com.dci.intellij.dbn.common.dispose.DisposerUtil;
+import com.dci.intellij.dbn.common.dispose.FailsafeUtil;
+import com.dci.intellij.dbn.common.event.EventManager;
+import com.dci.intellij.dbn.common.filter.Filter;
+import com.dci.intellij.dbn.common.lookup.ConsumerStoppedException;
+import com.dci.intellij.dbn.common.lookup.LookupConsumer;
+import com.dci.intellij.dbn.common.thread.BackgroundTask;
+import com.dci.intellij.dbn.common.thread.ConditionalLaterInvocator;
+import com.dci.intellij.dbn.common.ui.tree.TreeEventType;
+import com.dci.intellij.dbn.common.util.CollectionUtil;
+import com.dci.intellij.dbn.common.util.CommonUtil;
+import com.dci.intellij.dbn.common.util.MessageUtil;
+import com.dci.intellij.dbn.connection.ConnectionBundle;
+import com.dci.intellij.dbn.connection.ConnectionHandler;
+import com.dci.intellij.dbn.connection.ConnectionPool;
+import com.dci.intellij.dbn.connection.GenericDatabaseElement;
+import com.dci.intellij.dbn.data.type.DBDataType;
+import com.dci.intellij.dbn.data.type.DBNativeDataType;
+import com.dci.intellij.dbn.data.type.DataTypeDefinition;
+import com.dci.intellij.dbn.database.DatabaseCompatibilityInterface;
+import com.dci.intellij.dbn.database.DatabaseFeature;
+import com.dci.intellij.dbn.database.DatabaseMetadataInterface;
+import com.dci.intellij.dbn.database.DatabaseObjectIdentifier;
+import com.dci.intellij.dbn.execution.statement.DataDefinitionChangeListener;
+import com.dci.intellij.dbn.object.DBCharset;
+import com.dci.intellij.dbn.object.DBGrantedPrivilege;
+import com.dci.intellij.dbn.object.DBGrantedRole;
+import com.dci.intellij.dbn.object.DBObjectPrivilege;
+import com.dci.intellij.dbn.object.DBPrivilege;
+import com.dci.intellij.dbn.object.DBRole;
+import com.dci.intellij.dbn.object.DBSchema;
+import com.dci.intellij.dbn.object.DBSynonym;
+import com.dci.intellij.dbn.object.DBSystemPrivilege;
+import com.dci.intellij.dbn.object.DBUser;
+import com.dci.intellij.dbn.object.common.list.DBObjectList;
+import com.dci.intellij.dbn.object.common.list.DBObjectListContainer;
+import com.dci.intellij.dbn.object.common.list.DBObjectRelationListContainer;
+import com.dci.intellij.dbn.object.impl.DBCharsetImpl;
+import com.dci.intellij.dbn.object.impl.DBGrantedPrivilegeImpl;
+import com.dci.intellij.dbn.object.impl.DBGrantedRoleImpl;
+import com.dci.intellij.dbn.object.impl.DBObjectPrivilegeImpl;
+import com.dci.intellij.dbn.object.impl.DBRoleImpl;
+import com.dci.intellij.dbn.object.impl.DBRolePrivilegeRelation;
+import com.dci.intellij.dbn.object.impl.DBRoleRoleRelation;
+import com.dci.intellij.dbn.object.impl.DBSchemaImpl;
+import com.dci.intellij.dbn.object.impl.DBSystemPrivilegeImpl;
+import com.dci.intellij.dbn.object.impl.DBUserImpl;
+import com.dci.intellij.dbn.object.impl.DBUserPrivilegeRelation;
+import com.dci.intellij.dbn.object.impl.DBUserRoleRelation;
+import com.intellij.navigation.ItemPresentation;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.project.Project;
 
 public class DBObjectBundleImpl implements DBObjectBundle {
     private ConnectionHandler connectionHandler;
@@ -83,10 +88,12 @@ public class DBObjectBundleImpl implements DBObjectBundle {
     private DBObjectList<DBSchema> schemas;
     private DBObjectList<DBUser> users;
     private DBObjectList<DBRole> roles;
-    private DBObjectList<DBPrivilege> privileges;
+    private DBObjectList<DBSystemPrivilege> systemPrivileges;
+    private DBObjectList<DBObjectPrivilege> objectPrivileges;
     private DBObjectList<DBCharset> charsets;
 
     private List<DBNativeDataType> nativeDataTypes;
+    private List<DBDataType> cachedDataTypes = new CopyOnWriteArrayList<DBDataType>();
 
     protected DBObjectListContainer objectLists;
     protected DBObjectRelationListContainer objectRelationLists;
@@ -101,9 +108,9 @@ public class DBObjectBundleImpl implements DBObjectBundle {
         users = objectLists.createObjectList(DBObjectType.USER, this, USERS_LOADER, true, false);
         schemas = objectLists.createObjectList(DBObjectType.SCHEMA, this, SCHEMAS_LOADER, new DBObjectList[]{users}, true, false);
         roles = objectLists.createObjectList(DBObjectType.ROLE, this, ROLES_LOADER, true, false);
-        privileges = objectLists.createObjectList(DBObjectType.PRIVILEGE, this, PRIVILEGES_LOADER, true, false);
+        systemPrivileges = objectLists.createObjectList(DBObjectType.SYSTEM_PRIVILEGE, this, SYSTEM_PRIVILEGES_LOADER, true, false);
         charsets = objectLists.createObjectList(DBObjectType.CHARSET, this, CHARSETS_LOADER, true, false);
-        allPossibleTreeChildren = DatabaseBrowserUtils.createList(schemas, users, roles, privileges, charsets);
+        allPossibleTreeChildren = DatabaseBrowserUtils.createList(schemas, users, roles, systemPrivileges, charsets);
 
         objectRelationLists = new DBObjectRelationListContainer(this);
         objectRelationLists.createObjectRelationList(
@@ -116,7 +123,7 @@ public class DBObjectBundleImpl implements DBObjectBundle {
                 DBObjectRelationType.USER_PRIVILEGE, this,
                 "User privilege relations",
                 USER_PRIVILEGE_RELATION_LOADER,
-                users, privileges);
+                users, systemPrivileges);
 
         objectRelationLists.createObjectRelationList(
                 DBObjectRelationType.ROLE_ROLE, this,
@@ -128,15 +135,57 @@ public class DBObjectBundleImpl implements DBObjectBundle {
                 DBObjectRelationType.ROLE_PRIVILEGE, this,
                 "Role privilege relations",
                 ROLE_PRIVILEGE_RELATION_LOADER,
-                roles, privileges);
+                roles, systemPrivileges);
+
+        EventManager.subscribe(connectionHandler.getProject(), DataDefinitionChangeListener.TOPIC, dataDefinitionChangeListener);
     }
+
+    private final DataDefinitionChangeListener dataDefinitionChangeListener = new DataDefinitionChangeListener() {
+        @Override
+        public void dataDefinitionChanged(DBSchema schema, DBObjectType objectType) {
+            if (schema.getConnectionHandler() == connectionHandler) {
+                DBObjectList childObjectList = schema.getChildObjectList(objectType);
+                if (childObjectList != null && childObjectList.isLoaded()) {
+                    childObjectList.reload();
+                }
+
+                Set<DBObjectType> childObjectTypes = objectType.getChildren();
+                for (DBObjectType childObjectType : childObjectTypes) {
+                    DBObjectListContainer childObjects = schema.getChildObjects();
+                    if (childObjects != null) {
+                        childObjectList = childObjects.getHiddenObjectList(childObjectType);
+                        if (childObjectList != null && childObjectList.isLoaded()) {
+                            childObjectList.reload();
+                        }
+                    }
+                }
+            }
+        }
+
+        @Override
+        public void dataDefinitionChanged(@NotNull DBSchemaObject schemaObject) {
+            if (schemaObject.getConnectionHandler() == connectionHandler) {
+                DBObjectListContainer childObjects = schemaObject.getChildObjects();
+                List<DBObjectList<DBObject>> objectLists = null;
+                if (childObjects != null) {
+                    objectLists = childObjects.getAllObjectLists();
+                    for (DBObjectList objectList : objectLists) {
+                        if (objectList.isLoaded()) {
+                            objectList.reload();
+                        }
+                    }
+                }
+            }
+        }
+    };
 
     public boolean isValid() {
         return connectionConfigHash == connectionHandler.getSettings().getDatabaseSettings().hashCode();
     }
 
+    @Nullable
     public ConnectionHandler getConnectionHandler() {
-        return connectionHandler;
+        return FailsafeUtil.get(connectionHandler);
     }
 
     public List<DBSchema> getSchemas() {
@@ -151,8 +200,8 @@ public class DBObjectBundleImpl implements DBObjectBundle {
         return roles.getObjects();
     }
 
-    public List<DBPrivilege> getPrivileges() {
-        return privileges.getObjects();
+    public List<DBSystemPrivilege> getSystemPrivileges() {
+        return systemPrivileges.getObjects();
     }
 
     public List<DBCharset> getCharsets() {
@@ -215,12 +264,22 @@ public class DBObjectBundleImpl implements DBObjectBundle {
         return roles.getObject(name);
     }
 
+    @Override
     public DBPrivilege getPrivilege(String name) {
-        return privileges.getObject(name);
+        return systemPrivileges.getObject(name);
+    }
+
+    public DBSystemPrivilege getSystemPrivilege(String name) {
+        return systemPrivileges.getObject(name);
     }
 
     public DBCharset getCharset(String name) {
         return charsets.getObject(name);
+    }
+
+    @Override
+    public List<DBDataType> getCachedDataTypes() {
+        return cachedDataTypes;
     }
 
     /*********************************************************
@@ -250,7 +309,10 @@ public class DBObjectBundleImpl implements DBObjectBundle {
         if (visibleTreeChildren == null) {
             visibleTreeChildren = new ArrayList<BrowserTreeNode>();
             visibleTreeChildren.add(new LoadInProgressTreeNode(this));
-            new BackgroundTask(getProject(), "Loading data dictionary", true) {
+            ConnectionHandler connectionHandler = getConnectionHandler();
+            String connectionString = connectionHandler == null ? "" : " (" + connectionHandler.getName() + ")";
+
+            new BackgroundTask(getProject(), "Loading data dictionary" + connectionString, true) {
                 public void execute(@NotNull ProgressIndicator progressIndicator) {
                     buildTreeChildren();
                 }
@@ -262,7 +324,7 @@ public class DBObjectBundleImpl implements DBObjectBundle {
 
     private void buildTreeChildren() {
         List<BrowserTreeNode> newTreeChildren = allPossibleTreeChildren;
-        Filter<BrowserTreeNode> filter = connectionHandler.getObjectFilter();
+        Filter<BrowserTreeNode> filter = connectionHandler.getObjectTypeFilter();
         if (!filter.acceptsAll(allPossibleTreeChildren)) {
             newTreeChildren = new ArrayList<BrowserTreeNode>();
             for (BrowserTreeNode treeNode : allPossibleTreeChildren) {
@@ -297,8 +359,17 @@ public class DBObjectBundleImpl implements DBObjectBundle {
         }
     }
 
+    @Override
+    public void refreshTreeChildren(@Nullable DBObjectType objectType) {
+        if (visibleTreeChildren != null) {
+            for (BrowserTreeNode treeNode : visibleTreeChildren) {
+                treeNode.refreshTreeChildren(objectType);
+            }
+        }
+    }
+
     public void rebuildTreeChildren() {
-        Filter<BrowserTreeNode> filter = connectionHandler.getObjectFilter();
+        Filter<BrowserTreeNode> filter = connectionHandler.getObjectTypeFilter();
         if (visibleTreeChildren != null && DatabaseBrowserUtils.treeVisibilityChanged(allPossibleTreeChildren, visibleTreeChildren, filter)) {
             buildTreeChildren();
         }
@@ -346,28 +417,23 @@ public class DBObjectBundleImpl implements DBObjectBundle {
         return new HtmlToolTipBuilder() {
             public void buildToolTip() {
                 append(true, "connection", true);
-                if (getConnectionHandler().getConnectionStatus().isConnected()) {
+                ConnectionHandler connectionHandler = getConnectionHandler();
+                if (connectionHandler.getConnectionStatus().isConnected()) {
                     append(false, " - active", true);
-                } else if (!getConnectionHandler().isValid()) {
+                } else if (connectionHandler.canConnect() && !connectionHandler.isValid()) {
                     append(false, " - invalid", true);
-                    append(true, getConnectionHandler().getConnectionStatus().getStatusMessage(), "-2", "red", false);
+                    append(true, connectionHandler.getConnectionStatus().getStatusMessage(), "-2", "red", false);
                 }
                 createEmptyRow();
 
-                append(true, getConnectionHandler().getProject().getName(), false);
+                append(true, connectionHandler.getProject().getName(), false);
                 append(false, "/", false);
-                ConnectionBundle connectionBundle = getConnectionHandler().getConnectionBundle();
-                if (connectionBundle instanceof ModuleConnectionBundle) {
-                    ModuleConnectionBundle moduleConnectionManager = (ModuleConnectionBundle) connectionBundle;
-                    append(false, moduleConnectionManager.getModule().getName(), false);
-                    append(false, "/", false);
-                }
+                ConnectionBundle connectionBundle = connectionHandler.getConnectionBundle();
+                append(false, connectionHandler.getName(), false);
 
-                append(false, getConnectionHandler().getName(), false);
-
-                ConnectionPool connectionPool = getConnectionHandler().getConnectionPool();
+                ConnectionPool connectionPool = connectionHandler.getConnectionPool();
                 append(true, "Pool size: ", "-2", null, false);
-                append(false, "" + connectionPool.getSize(), false);
+                append(false, String.valueOf(connectionPool.getSize()), false);
                 append(false, " (", false);
                 append(false, "peak&nbsp;" + connectionPool.getPeakPoolSize(), false);
                 append(false, ")", false);
@@ -395,10 +461,6 @@ public class DBObjectBundleImpl implements DBObjectBundle {
         return this;
     }
 
-    public FileStatus getFileStatus() {
-        return FileStatus.NOT_CHANGED;
-    }
-
     /*********************************************************
      *                   NavigationItem                      *
      *********************************************************/
@@ -408,10 +470,6 @@ public class DBObjectBundleImpl implements DBObjectBundle {
 
     public Icon getIcon(boolean open) {
         return getIcon(0);
-    }
-
-    public TextAttributesKey getTextAttributesKey() {
-        return SQLTextAttributesKeys.IDENTIFIER;
     }
 
     /*********************************************************
@@ -435,13 +493,18 @@ public class DBObjectBundleImpl implements DBObjectBundle {
     }
 
     public DBObject getObject(DBObjectType objectType, String name) {
+        return getObject(objectType, name, 0);
+    }
+
+    public DBObject getObject(DBObjectType objectType, String name, int overload) {
         if (objectType == DBObjectType.SCHEMA) return getSchema(name);
         if (objectType == DBObjectType.USER) return getUser(name);
+        if (objectType == DBObjectType.ROLE) return getRole(name);
         if (objectType == DBObjectType.CHARSET) return getCharset(name);
-        if (objectType == DBObjectType.PRIVILEGE) return getPrivilege(name);
+        if (objectType == DBObjectType.SYSTEM_PRIVILEGE) return getSystemPrivilege(name);
         for (DBSchema schema : getSchemas()) {
             if (schema.isPublicSchema() && objectType.isSchemaObject()) {
-                DBObject childObject = schema.getChildObject(objectType, name, true);
+                DBObject childObject = schema.getChildObject(objectType, name, overload, true);
                 if (childObject != null) {
                     return childObject;
                 }
@@ -458,8 +521,9 @@ public class DBObjectBundleImpl implements DBObjectBundle {
         if (getConnectionObjectTypeFilter().accepts(objectType)) {
             if (objectType == DBObjectType.SCHEMA) consumer.consume(getSchemas()); else
             if (objectType == DBObjectType.USER) consumer.consume(getUsers()); else
+            if (objectType == DBObjectType.ROLE) consumer.consume(getRoles()); else
             if (objectType == DBObjectType.CHARSET) consumer.consume(getCharsets());
-            if (objectType == DBObjectType.PRIVILEGE) consumer.consume(getPrivileges());
+            if (objectType == DBObjectType.SYSTEM_PRIVILEGE) consumer.consume(getSystemPrivileges());
         }
     }
 
@@ -511,16 +575,22 @@ public class DBObjectBundleImpl implements DBObjectBundle {
         }
     }
 
-    public void refreshObjectsStatus() {
-        if (DatabaseCompatibilityInterface.getInstance(getConnectionHandler()).supportsFeature(DatabaseFeature.OBJECT_INVALIDATION)) {
+    public void refreshObjectsStatus(final DBSchemaObject requester) {
+        if (DatabaseFeature.OBJECT_INVALIDATION.isSupported(connectionHandler)) {
             new BackgroundTask(getProject(), "Updating objects status", true) {
                 public void execute(@NotNull ProgressIndicator progressIndicator) {
-                    List<DBSchema> schemas = getSchemas();
-                    for (int i=0; i<schemas.size(); i++) {
-                        DBSchema schema = schemas.get(i);
-                        progressIndicator.setText("Updating object status in schema " + schema.getName() + "... ");
-                        progressIndicator.setFraction(CommonUtil.getProgressPercentage(i, schemas.size()));
-                        schema.refreshObjectsStatus();
+                    try {
+                        List<DBSchema> schemas = requester == null ? getSchemas() : requester.getReferencingSchemas();
+
+                        int size = schemas.size();
+                        for (int i=0; i<size; i++) {
+                            DBSchema schema = schemas.get(i);
+                            progressIndicator.setText("Updating object status in schema " + schema.getName() + "... ");
+                            progressIndicator.setFraction(CommonUtil.getProgressPercentage(i, size));
+                            schema.refreshObjectsStatus();
+                        }
+                    } catch (SQLException e) {
+                        MessageUtil.showErrorDialog(getProject(), "Object Dependencies Refresh", "Could not refresh dependencies", e);
                     }
                 }
 
@@ -570,10 +640,12 @@ public class DBObjectBundleImpl implements DBObjectBundle {
     public void dispose() {
         if (!isDisposed) {
             isDisposed = true;
+            EventManager.unsubscribe(dataDefinitionChangeListener);
             DisposerUtil.dispose(objectLists);
             DisposerUtil.dispose(objectRelationLists);
             CollectionUtil.clearCollection(visibleTreeChildren);
             CollectionUtil.clearCollection(allPossibleTreeChildren);
+            cachedDataTypes.clear();
             treeParent = null;
             connectionHandler = null;
         }
@@ -616,14 +688,25 @@ public class DBObjectBundleImpl implements DBObjectBundle {
     };
 
 
-    private static final DynamicContentLoader<DBPrivilege> PRIVILEGES_LOADER = new DynamicContentResultSetLoader<DBPrivilege>() {
-        public ResultSet createResultSet(DynamicContent<DBPrivilege> dynamicContent, Connection connection) throws SQLException {
+    private static final DynamicContentLoader<DBSystemPrivilege> SYSTEM_PRIVILEGES_LOADER = new DynamicContentResultSetLoader<DBSystemPrivilege>() {
+        public ResultSet createResultSet(DynamicContent<DBSystemPrivilege> dynamicContent, Connection connection) throws SQLException {
             DatabaseMetadataInterface metadataInterface = dynamicContent.getConnectionHandler().getInterfaceProvider().getMetadataInterface();
-            return metadataInterface.loadPrivileges(connection);
+            return metadataInterface.loadSystemPrivileges(connection);
         }
 
-        public DBPrivilege createElement(DynamicContent<DBPrivilege> dynamicContent, ResultSet resultSet, LoaderCache loaderCache) throws SQLException {
-            return new DBPrivilegeImpl(dynamicContent.getConnectionHandler(), resultSet);
+        public DBSystemPrivilege createElement(DynamicContent<DBSystemPrivilege> dynamicContent, ResultSet resultSet, LoaderCache loaderCache) throws SQLException {
+            return new DBSystemPrivilegeImpl(dynamicContent.getConnectionHandler(), resultSet);
+        }
+    };
+
+    private static final DynamicContentLoader<DBObjectPrivilege> OBJECT_PRIVILEGES_LOADER = new DynamicContentResultSetLoader<DBObjectPrivilege>() {
+        public ResultSet createResultSet(DynamicContent<DBObjectPrivilege> dynamicContent, Connection connection) throws SQLException {
+            DatabaseMetadataInterface metadataInterface = dynamicContent.getConnectionHandler().getInterfaceProvider().getMetadataInterface();
+            return metadataInterface.loadObjectPrivileges(connection);
+        }
+
+        public DBObjectPrivilege createElement(DynamicContent<DBObjectPrivilege> dynamicContent, ResultSet resultSet, LoaderCache loaderCache) throws SQLException {
+            return new DBObjectPrivilegeImpl(dynamicContent.getConnectionHandler(), resultSet);
         }
     };
 

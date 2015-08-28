@@ -1,9 +1,12 @@
 package com.dci.intellij.dbn.common.options.ui;
 
 import com.dci.intellij.dbn.common.options.Configuration;
+import com.dci.intellij.dbn.common.ui.DBNComboBox;
 import com.dci.intellij.dbn.common.ui.DBNFormImpl;
+import com.dci.intellij.dbn.common.ui.ValueSelectorListener;
 import com.dci.intellij.dbn.common.ui.list.CheckBoxList;
 import com.intellij.openapi.options.ConfigurationException;
+import com.intellij.openapi.project.Project;
 import com.intellij.ui.DocumentAdapter;
 
 import javax.swing.AbstractButton;
@@ -21,7 +24,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
-public abstract class ConfigurationEditorForm<E extends Configuration> extends DBNFormImpl {
+public abstract class ConfigurationEditorForm<E extends Configuration> extends DBNFormImpl<ConfigurationEditorForm> {
+    public static final String DBN_REGISTERED = "DBN_REGISTERED";
     private ItemListener itemListener;
     private ActionListener actionListener;
     private DocumentListener documentListener;
@@ -29,6 +33,7 @@ public abstract class ConfigurationEditorForm<E extends Configuration> extends D
     private E configuration;
 
     protected ConfigurationEditorForm(E configuration) {
+        super((Project) null);
         this.configuration = configuration;
     }
 
@@ -36,8 +41,8 @@ public abstract class ConfigurationEditorForm<E extends Configuration> extends D
         return configuration;
     }
 
-    public abstract void applyChanges() throws ConfigurationException;
-    public abstract void resetChanges();
+    public abstract void applyFormChanges() throws ConfigurationException;
+    public abstract void resetFormChanges();
 
     protected DocumentListener createDocumentListener() {
         return new DocumentAdapter() {
@@ -78,34 +83,47 @@ public abstract class ConfigurationEditorForm<E extends Configuration> extends D
     }
 
     protected void registerComponent(JComponent component) {
-        if (component instanceof AbstractButton) {
-            AbstractButton abstractButton = (AbstractButton) component;
-            if (actionListener == null) actionListener = createActionListener();
-            abstractButton.addActionListener(actionListener);
-        }
-        else if (component instanceof CheckBoxList) {
-            CheckBoxList checkBoxList = (CheckBoxList) component;
-            if (actionListener == null) actionListener = createActionListener();
-            checkBoxList.addActionListener(actionListener);
-        } else if (component instanceof JTextField) {
-            JTextField textField = (JTextField) component;
-            if (documentListener == null) documentListener = createDocumentListener();
-            textField.getDocument().addDocumentListener(documentListener);
-        } else if (component instanceof JComboBox) {
-            JComboBox comboBox = (JComboBox) component;
-            if (itemListener == null) itemListener = createItemListener();
-            comboBox.addItemListener(itemListener);
-        } else if (component instanceof JTable) {
-            JTable table = (JTable) component;
-            if (tableModelListener == null) tableModelListener = createTableModelListener();
-            table.getModel().addTableModelListener(tableModelListener);
-        } else {
-            for (Component childComponent : component.getComponents()) {
-                if (childComponent instanceof JComponent) {
-                    registerComponent((JComponent) childComponent);
+        if (component.getClientProperty(DBN_REGISTERED) == null) {
+            component.putClientProperty(DBN_REGISTERED, true);
+            if (component instanceof AbstractButton) {
+                AbstractButton abstractButton = (AbstractButton) component;
+                if (actionListener == null) actionListener = createActionListener();
+                abstractButton.addActionListener(actionListener);
+            }
+            else if (component instanceof DBNComboBox) {
+                DBNComboBox comboBox = (DBNComboBox) component;
+                comboBox.addListener(new ValueSelectorListener() {
+                    @Override
+                    public void valueSelected(Object value) {
+                        getConfiguration().setModified(true);
+                    }
+                });
+            }
+            else if (component instanceof CheckBoxList) {
+                CheckBoxList checkBoxList = (CheckBoxList) component;
+                if (actionListener == null) actionListener = createActionListener();
+                checkBoxList.addActionListener(actionListener);
+            } else if (component instanceof JTextField) {
+                JTextField textField = (JTextField) component;
+                if (documentListener == null) documentListener = createDocumentListener();
+                textField.getDocument().addDocumentListener(documentListener);
+            } else if (component instanceof JComboBox) {
+                JComboBox comboBox = (JComboBox) component;
+                if (itemListener == null) itemListener = createItemListener();
+                comboBox.addItemListener(itemListener);
+            } else if (component instanceof JTable) {
+                JTable table = (JTable) component;
+                if (tableModelListener == null) tableModelListener = createTableModelListener();
+                table.getModel().addTableModelListener(tableModelListener);
+            } else {
+                for (Component childComponent : component.getComponents()) {
+                    if (childComponent instanceof JComponent) {
+                        registerComponent((JComponent) childComponent);
+                    }
                 }
             }
         }
+
     }
 
     public void focus() {}

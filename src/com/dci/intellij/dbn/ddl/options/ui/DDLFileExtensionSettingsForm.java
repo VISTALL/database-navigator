@@ -1,14 +1,5 @@
 package com.dci.intellij.dbn.ddl.options.ui;
 
-import com.dci.intellij.dbn.common.Icons;
-import com.dci.intellij.dbn.common.options.ui.ConfigurationEditorForm;
-import com.dci.intellij.dbn.common.options.ui.ConfigurationEditorUtil;
-import com.dci.intellij.dbn.common.util.StringUtil;
-import com.dci.intellij.dbn.ddl.DDLFileManager;
-import com.dci.intellij.dbn.ddl.DDLFileTypeId;
-import com.dci.intellij.dbn.ddl.options.DDLFileExtensionSettings;
-import com.intellij.openapi.options.ConfigurationException;
-
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -16,6 +7,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import com.dci.intellij.dbn.common.Icons;
+import com.dci.intellij.dbn.common.options.ui.ConfigurationEditorForm;
+import com.dci.intellij.dbn.common.options.ui.ConfigurationEditorUtil;
+import com.dci.intellij.dbn.common.util.StringUtil;
+import com.dci.intellij.dbn.ddl.DDLFileManager;
+import com.dci.intellij.dbn.ddl.DDLFileType;
+import com.dci.intellij.dbn.ddl.DDLFileTypeId;
+import com.dci.intellij.dbn.ddl.options.DDLFileExtensionSettings;
+import com.intellij.openapi.options.ConfigurationException;
 
 public class DDLFileExtensionSettingsForm extends ConfigurationEditorForm<DDLFileExtensionSettings> {
     private JPanel mainPanel;
@@ -41,7 +43,7 @@ public class DDLFileExtensionSettingsForm extends ConfigurationEditorForm<DDLFil
     public DDLFileExtensionSettingsForm(DDLFileExtensionSettings settings) {
         super(settings);
         updateBorderTitleForeground(mainPanel);
-        resetChanges();
+        resetFormChanges();
         viewIconLabel.setText(null);
         triggerIconLabel.setText(null);
         procedureIconLabel.setText(null);
@@ -56,16 +58,7 @@ public class DDLFileExtensionSettingsForm extends ConfigurationEditorForm<DDLFil
         packageIconLabel.setIcon(Icons.DBO_PACKAGE);
         typeIconLabel.setIcon(Icons.DBO_TYPE);
 
-        registerComponent(viewTextField);
-        registerComponent(triggerTextField);
-        registerComponent(procedureTextField);
-        registerComponent(functionTextField);
-        registerComponent(packageTextField);
-        registerComponent(packageSpecTextField);
-        registerComponent(packageBodyTextField);
-        registerComponent(typeTextField);
-        registerComponent(typeSpecTextField);
-        registerComponent(typeBodyTextField);
+        registerComponent(mainPanel);
 
         extensionTextFields.put("View", viewTextField);
         extensionTextFields.put("Trigger", triggerTextField);
@@ -99,27 +92,34 @@ public class DDLFileExtensionSettingsForm extends ConfigurationEditorForm<DDLFil
         }
     }
 
-    public void applyChanges() throws ConfigurationException {
+    public void applyFormChanges() throws ConfigurationException {
         validateInputs();
-        applySetting(viewTextField, DDLFileTypeId.VIEW);
-        applySetting(triggerTextField, DDLFileTypeId.TRIGGER);
-        applySetting(procedureTextField, DDLFileTypeId.PROCEDURE);
-        applySetting(functionTextField, DDLFileTypeId.FUNCTION);
-        applySetting(packageTextField, DDLFileTypeId.PACKAGE);
-        applySetting(packageSpecTextField, DDLFileTypeId.PACKAGE_SPEC);
-        applySetting(packageBodyTextField, DDLFileTypeId.PACKAGE_BODY);
-        applySetting(typeTextField, DDLFileTypeId.TYPE);
-        applySetting(typeSpecTextField, DDLFileTypeId.TYPE_SPEC);
-        applySetting(typeBodyTextField, DDLFileTypeId.TYPE_BODY);
+        AtomicBoolean changed = new AtomicBoolean(false);
+        applySetting(viewTextField, DDLFileTypeId.VIEW, changed);
+        applySetting(triggerTextField, DDLFileTypeId.TRIGGER, changed);
+        applySetting(procedureTextField, DDLFileTypeId.PROCEDURE, changed);
+        applySetting(functionTextField, DDLFileTypeId.FUNCTION, changed);
+        applySetting(packageTextField, DDLFileTypeId.PACKAGE, changed);
+        applySetting(packageSpecTextField, DDLFileTypeId.PACKAGE_SPEC, changed);
+        applySetting(packageBodyTextField, DDLFileTypeId.PACKAGE_BODY, changed);
+        applySetting(typeTextField, DDLFileTypeId.TYPE, changed);
+        applySetting(typeSpecTextField, DDLFileTypeId.TYPE_SPEC, changed);
+        applySetting(typeBodyTextField, DDLFileTypeId.TYPE_BODY, changed);
 
-        DDLFileManager.getInstance(getConfiguration().getProject()).registerExtensions();
+        if (changed.get()) {
+            DDLFileManager.getInstance(getConfiguration().getProject()).registerExtensions();
+        }
     }
 
-    private void applySetting(JTextField textField, String fileTypeId) throws ConfigurationException {
-        getConfiguration().getDDLFileType(fileTypeId).setExtensionsAsString(textField.getText());
+    private void applySetting(JTextField textField, String fileTypeId, AtomicBoolean changed) throws ConfigurationException {
+        DDLFileType ddlFileType = getConfiguration().getDDLFileType(fileTypeId);
+        boolean valueChanged = ddlFileType.setExtensionsAsString(textField.getText());
+        if (valueChanged) {
+            changed.set(true);
+        }
     }
 
-    public void resetChanges() {
+    public void resetFormChanges() {
         resetSetting(viewTextField, DDLFileTypeId.VIEW);
         resetSetting(triggerTextField, DDLFileTypeId.TRIGGER);
         resetSetting(procedureTextField, DDLFileTypeId.PROCEDURE);

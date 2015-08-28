@@ -1,10 +1,16 @@
 package com.dci.intellij.dbn.navigation.psi;
 
+import javax.swing.Icon;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import com.dci.intellij.dbn.common.dispose.FailsafeUtil;
 import com.dci.intellij.dbn.connection.GenericDatabaseElement;
 import com.dci.intellij.dbn.language.common.psi.EmptySearchScope;
 import com.dci.intellij.dbn.object.common.DBObject;
 import com.dci.intellij.dbn.object.common.list.DBObjectList;
 import com.dci.intellij.dbn.object.lookup.DBObjectRef;
+import com.dci.intellij.dbn.vfs.DBObjectVirtualFile;
 import com.dci.intellij.dbn.vfs.DatabaseFileViewProvider;
 import com.intellij.lang.FileASTNode;
 import com.intellij.lang.Language;
@@ -17,7 +23,6 @@ import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.vcs.FileStatus;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.newvfs.impl.NullVirtualFile;
 import com.intellij.psi.FileViewProvider;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
@@ -33,10 +38,6 @@ import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.PsiElementProcessor;
 import com.intellij.psi.search.SearchScope;
 import com.intellij.util.IncorrectOperationException;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import javax.swing.Icon;
 
 public class DBObjectPsiFile implements PsiFile, Disposable {
     private DBObjectRef objectRef;
@@ -60,7 +61,7 @@ public class DBObjectPsiFile implements PsiFile, Disposable {
      *********************************************************/
     @NotNull
     public String getName() {
-        return objectRef.getName();
+        return objectRef.getObjectName();
     }
 
     public ItemPresentation getPresentation() {
@@ -73,7 +74,9 @@ public class DBObjectPsiFile implements PsiFile, Disposable {
 
     @NotNull
     public Project getProject() throws PsiInvalidElementAccessException {
-        return getObject().getProject();
+        DBObject object = getObject();
+        Project project = object == null ? null : object.getProject();
+        return FailsafeUtil.nvl(project);
     }
 
     @NotNull
@@ -83,10 +86,12 @@ public class DBObjectPsiFile implements PsiFile, Disposable {
 
     public PsiDirectory getParent() {
         DBObject object = getObject();
-        GenericDatabaseElement parent = object.getTreeParent();
-        if (parent instanceof DBObjectList) {
-            DBObjectList objectList = (DBObjectList) parent;
-            return NavigationPsiCache.getPsiDirectory(objectList);
+        if (object != null) {
+            GenericDatabaseElement parent = object.getTreeParent();
+            if (parent instanceof DBObjectList) {
+                DBObjectList objectList = (DBObjectList) parent;
+                return NavigationPsiCache.getPsiDirectory(objectList);
+            }
         }
         return null;
     }
@@ -96,7 +101,10 @@ public class DBObjectPsiFile implements PsiFile, Disposable {
     }
 
     public void navigate(boolean requestFocus) {
-        getObject().navigate(requestFocus);
+        DBObject object = getObject();
+        if (object != null) {
+            object.navigate(requestFocus);
+        }
     }
 
     public boolean canNavigate() {
@@ -315,7 +323,8 @@ public class DBObjectPsiFile implements PsiFile, Disposable {
     @NotNull
     public VirtualFile getVirtualFile() {
         DBObject object = getObject();
-        return object == null ? NullVirtualFile.INSTANCE : object.getVirtualFile();
+        DBObjectVirtualFile virtualFile = object == null ? null : object.getVirtualFile();
+        return FailsafeUtil.nvl(virtualFile);
     }
 
     public boolean processChildren(PsiElementProcessor<PsiFileSystemItem> processor) {
@@ -366,5 +375,4 @@ public class DBObjectPsiFile implements PsiFile, Disposable {
     public void checkSetName(String name) throws IncorrectOperationException {
 
     }
-
 }

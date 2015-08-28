@@ -1,16 +1,16 @@
 package com.dci.intellij.dbn.options.general.ui;
 
-import com.dci.intellij.dbn.DatabaseNavigator;
-import com.dci.intellij.dbn.common.Icons;
-import com.dci.intellij.dbn.common.options.ui.CompositeConfigurationEditorForm;
-import com.dci.intellij.dbn.options.general.GeneralProjectSettings;
-
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
+import com.dci.intellij.dbn.DatabaseNavigator;
+import com.dci.intellij.dbn.common.Icons;
+import com.dci.intellij.dbn.common.options.ui.CompositeConfigurationEditorForm;
+import com.dci.intellij.dbn.options.general.GeneralProjectSettings;
 
 public class GeneralProjectSettingsForm extends CompositeConfigurationEditorForm<GeneralProjectSettings> {
     private JPanel mainPanel;
@@ -26,11 +26,10 @@ public class GeneralProjectSettingsForm extends CompositeConfigurationEditorForm
         debugInfoLabel.setIcon(Icons.COMMON_WARNING);
         debugInfoLabel.setText("NOTE: Active debug mode considerably slows down your system.");
         developerInfoLabel.setIcon(Icons.COMMON_WARNING);
-        developerInfoLabel.setText("NOTE: Active developer mode enables actions that may compromise your system stability and database integrity.");
-        resetChanges();
+        developerInfoLabel.setText("NOTE: Developer mode enables actions that may compromise your system stability and database integrity.");
+        resetFormChanges();
 
-        registerComponent(enableDebugCheckBox);
-        registerComponent(enableDeveloperCheckBox);
+        registerComponent(mainPanel);
 
         localeSettingsPanel.add(generalSettings.getRegionalSettings().createComponent(), BorderLayout.CENTER);
         environmentSettingsPanel.add(generalSettings.getEnvironmentSettings().createComponent(), BorderLayout.CENTER);
@@ -50,12 +49,12 @@ public class GeneralProjectSettingsForm extends CompositeConfigurationEditorForm
         return mainPanel;
     }
 
-    public void applyChanges() {
+    public void applyFormChanges() {
         DatabaseNavigator.getInstance().setDebugModeEnabled(enableDebugCheckBox.isSelected());
         DatabaseNavigator.getInstance().setDeveloperModeEnabled(enableDeveloperCheckBox.isSelected());
     }
 
-    public void resetChanges() {
+    public void resetFormChanges() {
         enableDebugCheckBox.setSelected(DatabaseNavigator.getInstance().isDebugModeEnabled());
         debugInfoLabel.setVisible(enableDebugCheckBox.isSelected());
         enableDeveloperCheckBox.setSelected(DatabaseNavigator.getInstance().isDeveloperModeEnabled());

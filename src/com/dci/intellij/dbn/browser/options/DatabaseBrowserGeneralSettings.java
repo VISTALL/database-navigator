@@ -1,14 +1,13 @@
 package com.dci.intellij.dbn.browser.options;
 
+import org.jdom.Element;
+
 import com.dci.intellij.dbn.browser.options.ui.DatabaseBrowserGeneralSettingsForm;
 import com.dci.intellij.dbn.common.options.ProjectConfiguration;
 import com.dci.intellij.dbn.common.options.setting.BooleanSetting;
 import com.dci.intellij.dbn.common.options.setting.IntegerSetting;
 import com.dci.intellij.dbn.common.options.setting.SettingsUtil;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.InvalidDataException;
-import com.intellij.openapi.util.WriteExternalException;
-import org.jdom.Element;
 
 public class DatabaseBrowserGeneralSettings extends ProjectConfiguration<DatabaseBrowserGeneralSettingsForm> {
     private BrowserDisplayMode displayMode = BrowserDisplayMode.TABBED;
@@ -45,13 +44,14 @@ public class DatabaseBrowserGeneralSettings extends ProjectConfiguration<Databas
         return showObjectDetails;
     }
 
-    public void readConfiguration(Element element) throws InvalidDataException {
+    public void readConfiguration(Element element) {
         displayMode = SettingsUtil.getEnum(element, "display-mode", BrowserDisplayMode.TABBED);
+        if (displayMode == BrowserDisplayMode.SINGLE) displayMode = BrowserDisplayMode.SIMPLE;
         navigationHistorySize.readConfiguration(element);
         showObjectDetails.readConfiguration(element);
     }
 
-    public void writeConfiguration(Element element) throws WriteExternalException {
+    public void writeConfiguration(Element element) {
         SettingsUtil.setEnum(element, "display-mode", displayMode);
         navigationHistorySize.writeConfiguration(element);
         showObjectDetails.writeConfiguration(element);

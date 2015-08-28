@@ -1,5 +1,11 @@
 package com.dci.intellij.dbn.object.impl;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+import org.jetbrains.annotations.NotNull;
+
 import com.dci.intellij.dbn.browser.DatabaseBrowserUtils;
 import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
 import com.dci.intellij.dbn.common.content.DynamicContent;
@@ -8,6 +14,7 @@ import com.dci.intellij.dbn.common.content.loader.DynamicContentResultSetLoader;
 import com.dci.intellij.dbn.common.content.loader.DynamicSubcontentLoader;
 import com.dci.intellij.dbn.database.DatabaseMetadataInterface;
 import com.dci.intellij.dbn.editor.DBContentType;
+import com.dci.intellij.dbn.language.common.DBLanguage;
 import com.dci.intellij.dbn.object.DBArgument;
 import com.dci.intellij.dbn.object.DBMethod;
 import com.dci.intellij.dbn.object.DBProgram;
@@ -20,32 +27,28 @@ import com.dci.intellij.dbn.object.common.list.DBObjectListContainer;
 import com.dci.intellij.dbn.object.common.property.DBObjectProperty;
 import com.dci.intellij.dbn.object.common.status.DBObjectStatus;
 import com.dci.intellij.dbn.object.common.status.DBObjectStatusHolder;
-import com.dci.intellij.dbn.object.lookup.DBMethodRef;
-import com.dci.intellij.dbn.object.lookup.DBObjectRef;
-import org.jetbrains.annotations.NotNull;
-
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.List;
 
 public abstract class DBMethodImpl extends DBSchemaObjectImpl implements DBMethod {
     protected DBObjectList<DBArgument> arguments;
+    protected int position;
     protected int overload;
     protected boolean isDeterministic;
+    private DBLanguage language;
 
-    public DBMethodImpl(DBSchemaObject parent, DBContentType contentType, ResultSet resultSet) throws SQLException {
-        super(parent, contentType, resultSet);
+    public DBMethodImpl(DBSchemaObject parent, ResultSet resultSet) throws SQLException {
+        super(parent, resultSet);
     }
 
-    public DBMethodImpl(DBSchema schema, DBContentType contentType, ResultSet resultSet) throws SQLException {
-        super(schema, contentType, resultSet);
+    public DBMethodImpl(DBSchema schema, ResultSet resultSet) throws SQLException {
+        super(schema, resultSet);
     }
 
     @Override
     protected void initObject(ResultSet resultSet) throws SQLException {
         isDeterministic = resultSet.getString("IS_DETERMINISTIC").equals("Y");
         overload = resultSet.getInt("OVERLOAD");
+        position = resultSet.getInt("POSITION");
+        language = DBLanguage.getLanguage(resultSet.getString("LANGUAGE"));
     }
 
     @Override
@@ -69,9 +72,9 @@ public abstract class DBMethodImpl extends DBSchemaObjectImpl implements DBMetho
         arguments = container.createSubcontentObjectList(DBObjectType.ARGUMENT, this, ARGUMENTS_LOADER, getSchema(), true);
     }
 
-    @Override
-    protected DBObjectRef createRef() {
-        return new DBMethodRef(this);
+    @NotNull
+    public DBLanguage getLanguage() {
+        return language;
     }
 
     @Override
@@ -96,6 +99,11 @@ public abstract class DBMethodImpl extends DBSchemaObjectImpl implements DBMetho
         return arguments.getObjects();
     }
 
+    @Override
+    public DBArgument getReturnArgument() {
+        return null;
+    }
+
     public DBArgument getArgument(String name) {
         return (DBArgument) getObjectByName(getArguments(), name);
     }
@@ -105,8 +113,13 @@ public abstract class DBMethodImpl extends DBSchemaObjectImpl implements DBMetho
     }
 
     @Override
+    public int getPosition() {
+        return position;
+    }
+
+    @Override
     public String getPresentableTextDetails() {
-        return getOverload() > 0 ? " #" + getOverload() : "";
+        return overload > 0 ? " #" + overload : "";
     }
 
     public boolean isProgramMethod() {
@@ -123,7 +136,7 @@ public abstract class DBMethodImpl extends DBSchemaObjectImpl implements DBMetho
         int result = super.compareTo(o);
         if (result == 0) {
             DBMethod method = (DBMethod) o;
-            return getOverload() - method.getOverload();
+            return overload - method.getOverload();
         }
         return result;
     }
@@ -133,7 +146,7 @@ public abstract class DBMethodImpl extends DBSchemaObjectImpl implements DBMetho
         if (this == obj) return true;
         if (super.equals(obj)) {
             DBMethod method = (DBMethod) obj;
-            return method.getOverload() == getOverload();
+            return method.getOverload() == overload;
         }
         return false;
     }
@@ -187,7 +200,8 @@ public abstract class DBMethodImpl extends DBSchemaObjectImpl implements DBMetho
 
         public boolean match(DBArgument argument, DynamicContent dynamicContent) {
             DBMethod method = (DBMethod) dynamicContent.getParent();
-            return argument.getMethod().equals(method) && argument.getOverload() == method.getOverload();
+            DBMethod argumentMethod = argument.getMethod();
+            return argumentMethod != null && argumentMethod.equals(method) && argument.getOverload() == method.getOverload();
         }
     };
 }

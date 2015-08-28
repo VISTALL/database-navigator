@@ -1,10 +1,10 @@
 package com.dci.intellij.dbn.debugger.execution.ui;
 
 import com.dci.intellij.dbn.common.Icons;
+import com.dci.intellij.dbn.common.action.GroupPopupAction;
 import com.dci.intellij.dbn.common.dispose.DisposerUtil;
 import com.dci.intellij.dbn.common.thread.BackgroundTask;
 import com.dci.intellij.dbn.common.thread.SimpleLaterInvocator;
-import com.dci.intellij.dbn.common.ui.DBNForm;
 import com.dci.intellij.dbn.common.ui.DBNFormImpl;
 import com.dci.intellij.dbn.common.ui.DBNHeaderForm;
 import com.dci.intellij.dbn.common.util.ActionUtil;
@@ -17,18 +17,14 @@ import com.dci.intellij.dbn.execution.method.browser.ui.MethodExecutionBrowserDi
 import com.dci.intellij.dbn.execution.method.ui.MethodExecutionForm;
 import com.dci.intellij.dbn.object.DBMethod;
 import com.dci.intellij.dbn.object.common.ui.ObjectTreeModel;
-import com.dci.intellij.dbn.object.lookup.DBMethodRef;
-import com.intellij.ide.DataManager;
+import com.dci.intellij.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.openapi.ui.popup.JBPopupFactory;
-import com.intellij.openapi.ui.popup.ListPopup;
 import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -37,9 +33,8 @@ import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Point;
 
-public class DBProgramRunConfigurationEditorForm extends DBNFormImpl implements DBNForm {
+public class DBProgramRunConfigurationEditorForm extends DBNFormImpl {
     private JPanel headerPanel;
     private JPanel mainPanel;
     private JPanel methodArgumentsPanel;
@@ -62,38 +57,17 @@ public class DBProgramRunConfigurationEditorForm extends DBNFormImpl implements 
         return mainPanel;
     }
 
-    public class SelectMethodAction extends AnAction {
+    public class SelectMethodAction extends GroupPopupAction {
         public SelectMethodAction()  {
-            super("Select method", null, Icons.DBO_METHOD);
+            super("Select method", "Select method", Icons.DBO_METHOD);
         }
 
-        public void actionPerformed(AnActionEvent e) {
-            DefaultActionGroup actionGroup = new DefaultActionGroup();
-            OpenMethodHistoryAction historyAction = new OpenMethodHistoryAction();
-            OpenMethodBrowserAction browserAction = new OpenMethodBrowserAction();
-            actionGroup.add(historyAction);
-            actionGroup.add(browserAction);
-            if (configuration.getMethodSelectionHistory().size() > 0) {
-                actionGroup.addSeparator();
-                for (MethodExecutionInput methodExecutionInput : configuration.getMethodSelectionHistory()) {
-                    if (!methodExecutionInput.equals(configuration.getExecutionInput())) {
-                        actionGroup.add(new SelectHistoryMethodAction(methodExecutionInput));
-                    }
-                }
-            }
-
-            ListPopup popup = JBPopupFactory.getInstance().createActionGroupPopup(
-                    "Select method",
-                    actionGroup,
-                    DataManager.getInstance().getDataContext(getComponent()),
-                    JBPopupFactory.ActionSelectionAid.SPEEDSEARCH,
-                    true, null, 10);
-
-            Point locationOnScreen = selectMethodActionPanel.getLocationOnScreen();
-            Point location = new Point(
-                    (int) (locationOnScreen.getX()),
-                    (int) locationOnScreen.getY() + selectMethodActionPanel.getHeight());
-            popup.showInScreenCoordinates(selectMethodActionPanel, location);
+        @Override
+        protected AnAction[] getActions(AnActionEvent e) {
+            return new AnAction[]{
+                    new OpenMethodHistoryAction(),
+                    new OpenMethodBrowserAction()
+            };
         }
     }
 
@@ -103,13 +77,12 @@ public class DBProgramRunConfigurationEditorForm extends DBNFormImpl implements 
         }
 
         @Override
-        public void actionPerformed(AnActionEvent e) {
+        public void actionPerformed(@NotNull AnActionEvent e) {
             final Project project = ActionUtil.getProject(e);
             if (project != null) {
                 BackgroundTask backgroundTask = new BackgroundTask(project, "Loading executable elements", false) {
                     @Override
                     public void execute(@NotNull ProgressIndicator progressIndicator) {
-                        initProgressIndicator(progressIndicator, true);
                         final MethodBrowserSettings settings = MethodExecutionManager.getInstance(project).getBrowserSettings();
                         DBMethod currentMethod = configuration.getExecutionInput() == null ? null : configuration.getExecutionInput().getMethod();
                         if (currentMethod != null) {
@@ -147,7 +120,7 @@ public class DBProgramRunConfigurationEditorForm extends DBNFormImpl implements 
         }
 
         @Override
-        public void actionPerformed(AnActionEvent e) {
+        public void actionPerformed(@NotNull AnActionEvent e) {
             Project project = ActionUtil.getProject(e);
             if (project != null) {
                 MethodExecutionManager methodExecutionManager = MethodExecutionManager.getInstance(project);
@@ -168,12 +141,12 @@ public class DBProgramRunConfigurationEditorForm extends DBNFormImpl implements 
         }
 
         @Override
-        public void actionPerformed(AnActionEvent e) {
+        public void actionPerformed(@NotNull AnActionEvent e) {
             configuration.setExecutionInput(executionInput);
         }
 
         @Override
-        public void update(AnActionEvent e) {
+        public void update(@NotNull AnActionEvent e) {
             Presentation presentation = e.getPresentation();
             DBMethod method = executionInput.getMethod();
             if (method == null) {
@@ -211,17 +184,19 @@ public class DBProgramRunConfigurationEditorForm extends DBNFormImpl implements 
         Color headerBackground = UIUtil.getPanelBackground();
 
         methodArgumentsPanel.removeAll();
-        if (executionInput != null && executionInput.getMethod() != null) {
-            headerTitle = executionInput.getMethodRef().getPath();
-            methodExecutionForm = new MethodExecutionForm(executionInput, false, true);
-            methodArgumentsPanel.add(methodExecutionForm.getComponent(), BorderLayout.CENTER);
-            if (touchForm) methodExecutionForm.touch();
-            DBMethodRef methodRef = executionInput.getMethodRef();
-            methodRef.getPath();
-            headerIcon = executionInput.getMethod().getOriginalIcon();
-            DBMethod method = methodRef.get();
-            if (method != null && getEnvironmentSettings(method.getProject()).getVisibilitySettings().getDialogHeaders().value()) {
-                headerBackground = method.getEnvironmentType().getColor();
+        if (executionInput != null) {
+            DBObjectRef<DBMethod> methodRef = executionInput.getMethodRef();
+            headerTitle = methodRef.getPath();
+            headerIcon = methodRef.getObjectType().getIcon();
+            DBMethod method = executionInput.getMethod();
+            if (method != null) {
+                methodExecutionForm = new MethodExecutionForm(this, executionInput, false, true);
+                methodArgumentsPanel.add(methodExecutionForm.getComponent(), BorderLayout.CENTER);
+                if (touchForm) methodExecutionForm.touch();
+                headerIcon = method.getOriginalIcon();
+                if (getEnvironmentSettings(method.getProject()).getVisibilitySettings().getDialogHeaders().value()) {
+                    headerBackground = method.getEnvironmentType().getColor();
+                }
             }
         }
 
@@ -232,9 +207,8 @@ public class DBProgramRunConfigurationEditorForm extends DBNFormImpl implements 
         headerPanel.removeAll();
         headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
 
-
-
-        mainPanel.updateUI();
+        mainPanel.revalidate();
+        mainPanel.repaint();
     }
 
     public void dispose() {

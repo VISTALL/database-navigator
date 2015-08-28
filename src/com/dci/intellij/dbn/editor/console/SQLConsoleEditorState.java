@@ -1,19 +1,22 @@
 package com.dci.intellij.dbn.editor.console;
 
+import org.jdom.CDATA;
+import org.jdom.Content;
+import org.jdom.Element;
+import org.jdom.Text;
+import org.jetbrains.annotations.NotNull;
+
 import com.dci.intellij.dbn.common.editor.BasicTextEditorState;
 import com.dci.intellij.dbn.common.thread.ConditionalLaterInvocator;
 import com.dci.intellij.dbn.common.thread.WriteActionRunner;
 import com.dci.intellij.dbn.common.util.DocumentUtil;
 import com.dci.intellij.dbn.object.DBSchema;
-import com.dci.intellij.dbn.vfs.SQLConsoleFile;
+import com.dci.intellij.dbn.vfs.DBConsoleVirtualFile;
 import com.intellij.openapi.fileEditor.FileEditorStateLevel;
 import com.intellij.openapi.fileEditor.TextEditor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
-import org.jdom.CDATA;
-import org.jdom.Element;
-import org.jetbrains.annotations.NotNull;
 
 public class SQLConsoleEditorState extends BasicTextEditorState {
     private String content = "";
@@ -39,11 +42,17 @@ public class SQLConsoleEditorState extends BasicTextEditorState {
         if (contentElement != null) {
             currentSchema = contentElement.getAttributeValue("current-schema");
             if (contentElement.getContentSize() > 0) {
-                CDATA cdata = (CDATA) contentElement.getContent(0);
 
-                String content = StringUtil.replace(cdata.getText(), "<br>", "\n");
-                content = StringUtil.replace(content, "<sp>", "  ");
-                this.content = content;
+                Content content = contentElement.getContent(0);
+                String textContent = "";
+                if (content instanceof Text) {
+                    Text cdata = (Text) content;
+                    textContent = cdata.getText();
+                }
+
+                textContent = StringUtil.replace(textContent, "<br>", "\n");
+                textContent = StringUtil.replace(textContent, "<sp>", "  ");
+                this.content = textContent;
             }
         }
     }
@@ -52,7 +61,7 @@ public class SQLConsoleEditorState extends BasicTextEditorState {
     public void loadFromEditor(@NotNull FileEditorStateLevel level, @NotNull TextEditor textEditor) {
         super.loadFromEditor(level, textEditor);
         content = textEditor.getEditor().getDocument().getText();
-        SQLConsoleFile file = (SQLConsoleFile) DocumentUtil.getVirtualFile(textEditor.getEditor());
+        DBConsoleVirtualFile file = (DBConsoleVirtualFile) DocumentUtil.getVirtualFile(textEditor.getEditor());
         DBSchema schema = file.getCurrentSchema();
         currentSchema = schema == null ? "" : schema.getName();
     }
@@ -66,10 +75,9 @@ public class SQLConsoleEditorState extends BasicTextEditorState {
                     public void run() {
                         textEditor.getEditor().getDocument().setText(content);
                         SQLConsoleEditorState.super.applyToEditor(textEditor);
-                        SQLConsoleFile file = (SQLConsoleFile) DocumentUtil.getVirtualFile(textEditor.getEditor());
-                        if (currentSchema != null) {
-                            DBSchema schema = file.getConnectionHandler().getObjectBundle().getSchema(currentSchema);
-                            if (schema != null) file.setCurrentSchema(schema);
+                        DBConsoleVirtualFile file = (DBConsoleVirtualFile) DocumentUtil.getVirtualFile(textEditor.getEditor());
+                        if (StringUtil.isNotEmpty(currentSchema)) {
+                            file.setCurrentSchemaName(currentSchema);
                         }
                     }
                 }.start();

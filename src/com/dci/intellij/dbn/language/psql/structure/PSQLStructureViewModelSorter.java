@@ -1,15 +1,15 @@
 package com.dci.intellij.dbn.language.psql.structure;
 
+import javax.swing.Icon;
+import java.util.Comparator;
+import org.jetbrains.annotations.NotNull;
+
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dci.intellij.dbn.language.common.psi.BasePsiElement;
 import com.intellij.ide.util.treeView.smartTree.ActionPresentation;
 import com.intellij.ide.util.treeView.smartTree.Sorter;
 import com.intellij.psi.PsiElement;
-import org.jetbrains.annotations.NotNull;
-
-import javax.swing.Icon;
-import java.util.Comparator;
 
 public class PSQLStructureViewModelSorter implements Sorter {
 
@@ -32,6 +32,7 @@ public class PSQLStructureViewModelSorter implements Sorter {
     }
 
     private static final ActionPresentation ACTION_PRESENTATION = new ActionPresentation() {
+        @NotNull
         public String getText() {
             return "Sort by Name";
         }
@@ -56,8 +57,8 @@ public class PSQLStructureViewModelSorter implements Sorter {
                 if (psiElement1 instanceof BasePsiElement && psiElement2 instanceof BasePsiElement) {
                     BasePsiElement namedPsiElement1 = (BasePsiElement) psiElement1;
                     BasePsiElement namedPsiElement2 = (BasePsiElement) psiElement2;
-                    BasePsiElement subjectPsiElement1 = namedPsiElement1.lookupFirstPsiElement(ElementTypeAttribute.SUBJECT);
-                    BasePsiElement subjectPsiElement2 = namedPsiElement2.lookupFirstPsiElement(ElementTypeAttribute.SUBJECT);
+                    BasePsiElement subjectPsiElement1 = namedPsiElement1.findFirstPsiElement(ElementTypeAttribute.SUBJECT);
+                    BasePsiElement subjectPsiElement2 = namedPsiElement2.findFirstPsiElement(ElementTypeAttribute.SUBJECT);
                     if (subjectPsiElement1 != null && subjectPsiElement2 != null) {
                         return subjectPsiElement1.getText().toUpperCase().compareTo(subjectPsiElement2.getText().toUpperCase());
                     }

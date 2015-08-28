@@ -1,5 +1,12 @@
 package com.dci.intellij.dbn.common.content.loader;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
 import com.dci.intellij.dbn.DatabaseNavigator;
 import com.dci.intellij.dbn.common.LoggerFactory;
 import com.dci.intellij.dbn.common.content.DynamicContent;
@@ -9,16 +16,11 @@ import com.dci.intellij.dbn.common.options.setting.SettingsUtil;
 import com.dci.intellij.dbn.common.util.StringUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.ConnectionUtil;
+import com.dci.intellij.dbn.database.DatabaseInterface;
 import com.dci.intellij.dbn.database.DatabaseInterfaceProvider;
 import com.dci.intellij.dbn.object.common.DBObject;
 import com.intellij.openapi.diagnostic.Logger;
-
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import com.intellij.openapi.progress.ProcessCanceledException;
 
 public abstract class DynamicContentResultSetLoader<T extends DynamicContentElement> implements DynamicContentLoader<T> {
     private static final Logger LOGGER = LoggerFactory.createLogger();
@@ -64,6 +66,7 @@ public abstract class DynamicContentResultSetLoader<T extends DynamicContentElem
         ResultSet resultSet = null;
         int count = 0;
         try {
+            dynamicContent.checkDisposed();
             connectionHandler.getLoadMonitor().incrementLoaderCount();
             connection = connectionHandler.getPoolConnection();
             dynamicContent.checkDisposed();
@@ -77,7 +80,9 @@ public abstract class DynamicContentResultSetLoader<T extends DynamicContentElem
                 T element = null;
                 try {
                     element = createElement(dynamicContent, resultSet, loaderCache);
-                } catch (RuntimeException e){
+                } catch (ProcessCanceledException e){
+                    return;
+                } catch (RuntimeException e) {
                     System.out.println("RuntimeException: " + e.getMessage());
                 }
 
@@ -98,17 +103,19 @@ public abstract class DynamicContentResultSetLoader<T extends DynamicContentElem
             postLoadContent(dynamicContent, debugInfo);
         } catch (Exception e) {
             if (e instanceof InterruptedException) throw (InterruptedException) e;
-            if (e == DynamicContentLoader.DBN_INTERRUPTED_EXCEPTION) throw new InterruptedException();
+            if (e == DatabaseInterface.DBN_INTERRUPTED_EXCEPTION) throw new InterruptedException();
+            if (e == DatabaseInterface.DBN_NOT_CONNECTED_EXCEPTION) throw new InterruptedException();
 
             String message = StringUtil.trim(e.getMessage()).replace("\n", " ");
             LOGGER.warn("Error loading database content (" + dynamicContent.getContentDescription() + "): " + message);
 
             boolean modelException = false;
             if (e instanceof SQLException) {
-
                 SQLException sqlException = (SQLException) e;
-                DatabaseInterfaceProvider interfaceProvider = dynamicContent.getConnectionHandler().getInterfaceProvider();
-                modelException = interfaceProvider.getMessageParserInterface().isModelException(sqlException);
+                if (!dynamicContent.isDisposed()) {
+                    DatabaseInterfaceProvider interfaceProvider = dynamicContent.getConnectionHandler().getInterfaceProvider();
+                    modelException = interfaceProvider.getMessageParserInterface().isModelException(sqlException);
+                }
             }
             throw new DynamicContentLoadException(e, modelException);
         } finally {

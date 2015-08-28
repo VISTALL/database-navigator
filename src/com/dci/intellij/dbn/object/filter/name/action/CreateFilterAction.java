@@ -9,7 +9,7 @@ import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.ui.popup.ListPopup;
 
-import java.awt.*;
+import java.awt.Component;
 
 public class CreateFilterAction extends ObjectNameFilterAction{
     private static final DBObjectType[] OBJECT_TYPES = new DBObjectType[] {
@@ -23,7 +23,8 @@ public class CreateFilterAction extends ObjectNameFilterAction{
             DBObjectType.NESTED_TABLE,
             DBObjectType.INDEX,
             DBObjectType.CONSTRAINT,
-            DBObjectType.TRIGGER,
+            DBObjectType.DATASET_TRIGGER,
+            DBObjectType.DATABASE_TRIGGER,
             DBObjectType.SYNONYM,
             DBObjectType.SEQUENCE,
             DBObjectType.PROCEDURE,
@@ -51,7 +52,7 @@ public class CreateFilterAction extends ObjectNameFilterAction{
             }
         }
         ListPopup popup = JBPopupFactory.getInstance().createActionGroupPopup(
-                "Select object type",
+                "Select Object Type",
                 actionGroup,
                 e.getDataContext(),
                 JBPopupFactory.ActionSelectionAid.SPEEDSEARCH,

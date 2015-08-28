@@ -1,12 +1,13 @@
 package com.dci.intellij.dbn.language.common.element.impl;
 
+import org.jetbrains.annotations.NotNull;
+
 import com.dci.intellij.dbn.language.common.element.IdentifierElementType;
 import com.dci.intellij.dbn.language.common.element.LeafElementType;
 import com.dci.intellij.dbn.language.common.element.TokenElementType;
 import com.dci.intellij.dbn.language.common.psi.LeafPsiElement;
 import com.dci.intellij.dbn.language.common.psi.QualifiedIdentifierPsiElement;
 import com.intellij.psi.PsiElement;
-import org.jetbrains.annotations.NotNull;
 
 public class QualifiedIdentifierVariant implements Comparable{
     private LeafElementType[] leafs;
@@ -78,8 +79,8 @@ public class QualifiedIdentifierVariant implements Comparable{
 
     public int compareTo(@NotNull Object o) {
         QualifiedIdentifierVariant variant = (QualifiedIdentifierVariant) o;
-        if (variant.isIncomplete() != this.isIncomplete()) {
-            return variant.isIncomplete() ? -1 : 1;
+        if (variant.incomplete != incomplete) {
+            return variant.incomplete ? -1 : 1;
         }
 
         if (variant.leafs.length == leafs.length) {
@@ -107,9 +108,9 @@ public class QualifiedIdentifierVariant implements Comparable{
 
     public boolean matchesPsiElement(QualifiedIdentifierPsiElement psiElement) {
         TokenElementType separatorToken = psiElement.getElementType().getSeparatorToken();
-        PsiElement[] children = psiElement.getChildren();
+        PsiElement child = psiElement.getFirstChild();
         int index = 0;
-        for (PsiElement child : children) {
+        while (child != null) {
             if (child instanceof LeafPsiElement) {
                 LeafPsiElement leafPsiElement = (LeafPsiElement) child;
 
@@ -122,11 +123,11 @@ public class QualifiedIdentifierVariant implements Comparable{
                     }
 
                     PsiElement reference = leafPsiElement.resolve();
-                    LeafElementType leafElementType = (LeafElementType) leafPsiElement.getElementType();
+                    LeafElementType leafElementType = leafPsiElement.getElementType();
                     if (reference == null) {
                         if (!(leafElementType.isIdentifier() && leafs[index].isIdentifier()) ||
                                 !leafElementType.isSameAs(leafs[index])) {
-                            if(child != children[children.length-1]) {
+                            if(child.getNextSibling() != null) {
                                 return false;
                             }
                         }
@@ -134,13 +135,14 @@ public class QualifiedIdentifierVariant implements Comparable{
                     } else {
                         // element is resolved. Must entirely match variant leaf
                         if (!leafElementType.isSameAs(leafs[index])) {
-                             if(child != children[children.length-1]) {
+                             if(child.getNextSibling() != null) {
                                  return false;
                              }
                         }
                     }
                 }
             }
+            child = child.getNextSibling();
         }
         return true;
     }

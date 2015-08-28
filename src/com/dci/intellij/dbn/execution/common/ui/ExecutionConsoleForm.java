@@ -1,11 +1,11 @@
 package com.dci.intellij.dbn.execution.common.ui;
 
 import com.dci.intellij.dbn.common.Icons;
-import com.dci.intellij.dbn.common.environment.EnvironmentChangeListener;
 import com.dci.intellij.dbn.common.environment.EnvironmentType;
 import com.dci.intellij.dbn.common.environment.options.EnvironmentVisibilitySettings;
+import com.dci.intellij.dbn.common.environment.options.listener.EnvironmentChangeListener;
 import com.dci.intellij.dbn.common.event.EventManager;
-import com.dci.intellij.dbn.common.ui.DBNForm;
+import com.dci.intellij.dbn.common.message.MessageType;
 import com.dci.intellij.dbn.common.ui.DBNFormImpl;
 import com.dci.intellij.dbn.common.ui.tab.TabbedPane;
 import com.dci.intellij.dbn.common.util.DocumentUtil;
@@ -13,26 +13,38 @@ import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.execution.ExecutionManager;
 import com.dci.intellij.dbn.execution.ExecutionResult;
 import com.dci.intellij.dbn.execution.common.message.ui.ExecutionMessagesPanel;
+import com.dci.intellij.dbn.execution.common.options.ExecutionEngineSettings;
 import com.dci.intellij.dbn.execution.common.result.ui.ExecutionResultForm;
 import com.dci.intellij.dbn.execution.compiler.CompilerMessage;
 import com.dci.intellij.dbn.execution.compiler.CompilerResult;
+import com.dci.intellij.dbn.execution.explain.result.ExplainPlanMessage;
+import com.dci.intellij.dbn.execution.explain.result.ExplainPlanResult;
+import com.dci.intellij.dbn.execution.logging.DatabaseLogOutput;
+import com.dci.intellij.dbn.execution.logging.ui.DatabaseLogOutputForm;
 import com.dci.intellij.dbn.execution.method.result.MethodExecutionResult;
 import com.dci.intellij.dbn.execution.statement.StatementExecutionInput;
 import com.dci.intellij.dbn.execution.statement.StatementExecutionMessage;
+import com.dci.intellij.dbn.execution.statement.options.StatementExecutionSettings;
+import com.dci.intellij.dbn.execution.statement.processor.StatementExecutionProcessor;
 import com.dci.intellij.dbn.execution.statement.result.StatementExecutionCursorResult;
 import com.dci.intellij.dbn.execution.statement.result.StatementExecutionResult;
-import com.dci.intellij.dbn.language.common.DBLanguageFile;
+import com.dci.intellij.dbn.language.common.DBLanguagePsiFile;
+import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Disposer;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.impl.PsiDocumentTransactionListener;
 import com.intellij.ui.tabs.JBTabsPosition;
 import com.intellij.ui.tabs.TabInfo;
 import com.intellij.ui.tabs.TabsListener;
 import com.intellij.ui.tabs.impl.TabLabel;
-import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.tree.TreePath;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.event.MouseAdapter;
@@ -40,18 +52,17 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.List;
 
-public class ExecutionConsoleForm extends DBNFormImpl implements DBNForm, EnvironmentChangeListener {
+public class ExecutionConsoleForm extends DBNFormImpl{
     private JPanel mainPanel;
     //private Map<Component, ExecutionResult> executionResultsMap = new HashMap<Component, ExecutionResult>();
     private TabbedPane resultTabs;
     private ExecutionMessagesPanel executionMessagesPanel;
 
     private boolean canScrollToSource;
-    private Project project;
 
     public ExecutionConsoleForm(Project project) {
-        this.project = project;
-        resultTabs = new TabbedPane(project);
+        super(project);
+        resultTabs = new TabbedPane(this);
         mainPanel.add(resultTabs, BorderLayout.CENTER);
         resultTabs.setFocusable(false);
         //resultTabs.setAdjustBorders(false);
@@ -60,44 +71,63 @@ public class ExecutionConsoleForm extends DBNFormImpl implements DBNForm, Enviro
         resultTabs.setPopupGroup(new ExecutionConsolePopupActionGroup(this), "place", false);
         resultTabs.setTabsPosition(JBTabsPosition.bottom);
         resultTabs.setBorder(null);
-        EventManager.subscribe(project, EnvironmentChangeListener.TOPIC, this);
+        EventManager.subscribe(project, EnvironmentChangeListener.TOPIC, environmentChangeListener);
+        EventManager.subscribe(project, PsiDocumentTransactionListener.TOPIC, psiDocumentTransactionListener);
     }
 
     public int getTabCount() {
         return resultTabs.getTabCount();
     }
 
-    @Override
-    public void environmentConfigChanged(String environmentTypeId) {
-        EnvironmentVisibilitySettings visibilitySettings = getEnvironmentSettings(project).getVisibilitySettings();
-        for (TabInfo tabInfo : resultTabs.getTabs()) {
-            ExecutionResult executionResult = (ExecutionResult) tabInfo.getObject();
-            if (executionResult != null) {
-                ConnectionHandler connectionHandler = executionResult.getConnectionHandler();
-                if (connectionHandler.getSettings().getDetailSettings().getEnvironmentTypeId().equals(environmentTypeId)) {
-                    if (visibilitySettings.getExecutionResultTabs().value()){
-                        tabInfo.setTabColor(connectionHandler.getEnvironmentType().getColor());
-                    } else {
-                        tabInfo.setTabColor(null);
+    private EnvironmentChangeListener environmentChangeListener = new EnvironmentChangeListener() {
+        @Override
+        public void configurationChanged() {
+            EnvironmentVisibilitySettings visibilitySettings = getEnvironmentSettings(getProject()).getVisibilitySettings();
+            for (TabInfo tabInfo : resultTabs.getTabs()) {
+                ExecutionResult executionResult = getExecutionResult(tabInfo);
+                if (executionResult != null) {
+                    ConnectionHandler connectionHandler = executionResult.getConnectionHandler();
+                    if (connectionHandler != null) {
+                        EnvironmentType environmentType = connectionHandler.getEnvironmentType();
+                        if (visibilitySettings.getExecutionResultTabs().value()){
+                            tabInfo.setTabColor(environmentType.getColor());
+                        } else {
+                            tabInfo.setTabColor(null);
+                        }
                     }
                 }
             }
         }
-    }
+    };
 
-    @Override
-    public void environmentVisibilitySettingsChanged() {
-        EnvironmentVisibilitySettings visibilitySettings = getEnvironmentSettings(project).getVisibilitySettings();
-        for (TabInfo tabInfo : resultTabs.getTabs()) {
-            ExecutionResult browserForm = (ExecutionResult) tabInfo.getObject();
-            EnvironmentType environmentType = browserForm.getConnectionHandler().getEnvironmentType();
-            if (visibilitySettings.getExecutionResultTabs().value()){
-                tabInfo.setTabColor(environmentType.getColor());
-            } else {
-                tabInfo.setTabColor(null);
+    private PsiDocumentTransactionListener psiDocumentTransactionListener = new PsiDocumentTransactionListener() {
+
+        @Override
+        public void transactionStarted(@NotNull Document document, @NotNull PsiFile file) {
+
+        }
+
+        @Override
+        public void transactionCompleted(@NotNull Document document, @NotNull PsiFile file) {
+            for (TabInfo tabInfo : resultTabs.getTabs()) {
+                ExecutionResult executionResult = getExecutionResult(tabInfo);
+                if (executionResult instanceof StatementExecutionResult) {
+                    StatementExecutionResult statementExecutionResult = (StatementExecutionResult) executionResult;
+                    StatementExecutionProcessor executionProcessor = statementExecutionResult.getExecutionProcessor();
+                    if (executionProcessor.getPsiFile().equals(file)) {
+                        Icon icon = executionProcessor.isDirty() ? Icons.STMT_EXEC_RESULTSET_ORPHAN : Icons.STMT_EXEC_RESULTSET;
+                        tabInfo.setIcon(icon);
+                    }
+                }
+
+                if (executionMessagesPanel != null) {
+                    JComponent messagePanelComponent = executionMessagesPanel.getComponent();
+                    messagePanelComponent.revalidate();
+                    messagePanelComponent.repaint();
+                }
             }
         }
-    }
+    };
 
 
     private MouseListener mouseListener = new MouseAdapter() {
@@ -116,17 +146,15 @@ public class ExecutionConsoleForm extends DBNFormImpl implements DBNForm, Enviro
         public void selectionChanged(TabInfo oldSelection, TabInfo newSelection) {
             if (canScrollToSource) {
                 if (newSelection != null) {
-                    ExecutionResult executionResult = (ExecutionResult) newSelection.getObject();
-                    if (executionResult != null) {
-                        if (executionResult instanceof StatementExecutionResult) {
-                            StatementExecutionResult statementExecutionResult = (StatementExecutionResult) executionResult;
-                            Icon icon = statementExecutionResult.isOrphan() ? Icons.STMT_EXEC_RESULTSET_ORPHAN : Icons.STMT_EXEC_RESULTSET;
-                            newSelection.setIcon(icon);
-                            statementExecutionResult.navigateToEditor(false);
-                        }
+                    ExecutionResult executionResult = getExecutionResult(newSelection);
+                    if (executionResult instanceof StatementExecutionResult) {
+                        StatementExecutionResult statementExecutionResult = (StatementExecutionResult) executionResult;
+                        statementExecutionResult.navigateToEditor(false);
                     }
-
                 }
+            }
+            if (oldSelection != null && newSelection != null && getExecutionResult(newSelection) instanceof DatabaseLogOutput) {
+                newSelection.setIcon(Icons.EXEC_LOG_OUTPUT_CONSOLE);
             }
 
         }
@@ -141,7 +169,7 @@ public class ExecutionConsoleForm extends DBNFormImpl implements DBNForm, Enviro
     }
 
     public synchronized void removeTab(TabInfo tabInfo) {
-        ExecutionResult executionResult = (ExecutionResult) tabInfo.getObject();
+        ExecutionResult executionResult = getExecutionResult(tabInfo);
         if (executionResult == null) {
             removeMessagesTab();
         } else {
@@ -159,58 +187,110 @@ public class ExecutionConsoleForm extends DBNFormImpl implements DBNForm, Enviro
         return resultTabs;
     }
 
-    public void show(StatementExecutionResult executionResult) {
+    public void selectResult(StatementExecutionResult executionResult) {
+        StatementExecutionMessage executionMessage = executionResult.getExecutionMessage();
+        if (executionMessage != null) {
+            prepareMessagesTab();
+            ExecutionMessagesPanel messagesPane = getMessagesPanel();
+            messagesPane.selectMessage(executionMessage, true);
+        }
+    }
+
+    public void addResult(ExplainPlanResult explainPlanResult) {
+        if (explainPlanResult.isError()) {
+            prepareMessagesTab();
+            ExecutionMessagesPanel messagesPane = getMessagesPanel();
+            ExplainPlanMessage explainPlanMessage = new ExplainPlanMessage(explainPlanResult, MessageType.ERROR);
+            messagesPane.addExplainPlanMessage(explainPlanMessage, true);
+        } else {
+            showResultTab(explainPlanResult);
+        }
+    }
+
+    public void addResult(StatementExecutionResult executionResult) {
+        ExecutionMessagesPanel messagesPane = getMessagesPanel();
+        TreePath messageTreePath = null;
+        CompilerResult compilerResult = executionResult.getCompilerResult();
+        boolean hasCompilerResult = compilerResult != null;
+        boolean selectMessage = !executionResult.getExecutionProcessor().getExecutionInput().isBulkExecution() && !hasCompilerResult;
+        boolean focusMessage = selectMessage && focusOnExecution();
         if (executionResult instanceof StatementExecutionCursorResult) {
             StatementExecutionMessage executionMessage = executionResult.getExecutionMessage();
             if (executionMessage == null) {
                 showResultTab(executionResult);
             } else {
                 prepareMessagesTab();
-                getMessagesPanel().addExecutionMessage(executionMessage, true);
+                messageTreePath = messagesPane.addExecutionMessage(executionMessage, selectMessage, focusMessage);
             }
         } else {
             prepareMessagesTab();
-            getMessagesPanel().addExecutionMessage(executionResult.getExecutionMessage(), true);
+            messageTreePath = messagesPane.addExecutionMessage(executionResult.getExecutionMessage(), selectMessage, focusMessage);
+        }
+
+        if (compilerResult != null) {
+            addResult(compilerResult);
+        }
+        if (messageTreePath != null) {
+            messagesPane.expand(messageTreePath);
         }
     }
 
-    public void show(CompilerResult compilerResult) {
+    private boolean focusOnExecution() {
+        ExecutionEngineSettings executionEngineSettings = ExecutionEngineSettings.getInstance(getProject());
+        StatementExecutionSettings statementExecutionSettings = executionEngineSettings.getStatementExecutionSettings();
+        return statementExecutionSettings.isFocusResult();
+    }
+
+    public void addResult(CompilerResult compilerResult) {
         prepareMessagesTab();
+        CompilerMessage firstMessage = null;
+        ExecutionMessagesPanel messagesPanel = getMessagesPanel();
         if (compilerResult.getCompilerMessages().size() > 0) {
-            boolean isFirst = true;
             for (CompilerMessage compilerMessage : compilerResult.getCompilerMessages()) {
-                getMessagesPanel().addCompilerMessage(compilerMessage, isFirst);
-                isFirst = false;
+                if (firstMessage == null) {
+                    firstMessage = compilerMessage;
+                }
+                messagesPanel.addCompilerMessage(compilerMessage, false);
             }
         }
+
+        if (firstMessage != null && firstMessage.isError()) {
+            messagesPanel.selectMessage(firstMessage);
+        }
     }
 
-    public void show(MethodExecutionResult executionResult) {
+    public void addResult(MethodExecutionResult executionResult) {
         showResultTab(executionResult);
     }
 
-    public void show(List<CompilerResult> compilerResults) {
+    public void addResults(List<CompilerResult> compilerResults) {
         prepareMessagesTab();
-        CompilerResult firstCompilerResult = null;
+        CompilerMessage firstMessage = null;
+        ExecutionMessagesPanel messagesPanel = getMessagesPanel();
         for (CompilerResult compilerResult : compilerResults) {
             if (compilerResult.getCompilerMessages().size() > 0) {
-                if (firstCompilerResult == null) {
-                    firstCompilerResult = compilerResult;
-                }
-
                 for (CompilerMessage compilerMessage : compilerResult.getCompilerMessages()) {
-                    getMessagesPanel().addCompilerMessage(compilerMessage, false);
+                    if (firstMessage == null) {
+                        firstMessage = compilerMessage;
+                    }
+                    messagesPanel.addCompilerMessage(compilerMessage, false);
                 }
             }
         }
-        if (firstCompilerResult != null) {
-            getMessagesPanel().select(firstCompilerResult.getCompilerMessages().get(0));    
+        if (firstMessage != null && firstMessage.isError()) {
+            messagesPanel.selectMessage(firstMessage);
         }
     }
     
     public ExecutionResult getSelectedExecutionResult() {
         TabInfo selectedInfo = resultTabs.getSelectedInfo();
-        return selectedInfo == null ? null : (ExecutionResult) selectedInfo.getObject();
+        return selectedInfo == null ? null : getExecutionResult(selectedInfo);
+    }
+
+    @Nullable
+    private static ExecutionResult getExecutionResult(TabInfo tabInfo) {
+        ExecutionResultForm executionResultForm = (ExecutionResultForm) tabInfo.getObject();
+        return executionResultForm == null ? null : executionResultForm.getExecutionResult();
     }
 
     /*********************************************************
@@ -218,7 +298,8 @@ public class ExecutionConsoleForm extends DBNFormImpl implements DBNForm, Enviro
      *********************************************************/
     private ExecutionMessagesPanel getMessagesPanel() {
         if (executionMessagesPanel == null) {
-            executionMessagesPanel = new ExecutionMessagesPanel();
+            executionMessagesPanel = new ExecutionMessagesPanel(this);
+            Disposer.register(this, executionMessagesPanel);
         }
         return executionMessagesPanel;
     }
@@ -249,7 +330,54 @@ public class ExecutionConsoleForm extends DBNFormImpl implements DBNForm, Enviro
 
         executionMessagesPanel.reset();
         if (getTabCount() == 0) {
-            ExecutionManager.getInstance(project).hideExecutionConsole();
+            ExecutionManager.getInstance(getProject()).hideExecutionConsole();
+        }
+    }
+
+    private boolean isMessagesTabVisible() {
+        if (resultTabs.getTabCount() > 0) {
+            JComponent messagesPanelComponent = getMessagesPanel().getComponent();
+            TabInfo tabInfo = resultTabs.getTabAt(0);
+            return tabInfo.getComponent() == messagesPanelComponent;
+        }
+        return false;
+    }
+
+    /*********************************************************
+     *                       Logging                         *
+     *********************************************************/
+    public void displayLogOutput(ConnectionHandler connectionHandler, String output) {
+        for (TabInfo tabInfo : resultTabs.getTabs()) {
+            ExecutionResult executionResult = getExecutionResult(tabInfo);
+            if (executionResult instanceof DatabaseLogOutput) {
+                DatabaseLogOutput logOutput = (DatabaseLogOutput) executionResult;
+                if (logOutput.getConnectionHandler() == connectionHandler) {
+                    logOutput.write(output);
+                    tabInfo.setIcon(Icons.EXEC_LOG_OUTPUT_CONSOLE_UNREAD);
+                    return;
+                }
+            }
+        }
+        boolean messagesTabVisible = isMessagesTabVisible();
+
+        DatabaseLogOutput logOutput = new DatabaseLogOutput(connectionHandler);
+        DatabaseLogOutputForm form = logOutput.getForm(true);
+        if (form != null) {
+            JComponent component = form.getComponent();
+            TabInfo tabInfo = new TabInfo(component);
+            tabInfo.setObject(form);
+            tabInfo.setText(logOutput.getName());
+            tabInfo.setIcon(Icons.EXEC_LOG_OUTPUT_CONSOLE_UNREAD);
+
+            EnvironmentVisibilitySettings visibilitySettings = getEnvironmentSettings(getProject()).getVisibilitySettings();
+            if (visibilitySettings.getExecutionResultTabs().value()){
+                tabInfo.setTabColor(connectionHandler.getEnvironmentType().getColor());
+            } else {
+                tabInfo.setTabColor(null);
+            }
+
+            resultTabs.addTab(tabInfo, messagesTabVisible ? 1 : 0);
+            logOutput.write(output);
         }
     }
 
@@ -257,69 +385,89 @@ public class ExecutionConsoleForm extends DBNFormImpl implements DBNForm, Enviro
      *                  Statement executions                 *
      *********************************************************/
     public void showResultTab(ExecutionResult executionResult) {
-        if (containsResultTab(executionResult)) {
-            selectResultTab(executionResult);
-        } else {
+        if (executionResult instanceof ExplainPlanResult) {
             addResultTab(executionResult);
+        } else {
+            if (containsResultTab(executionResult)) {
+                selectResultTab(executionResult);
+            } else {
+                addResultTab(executionResult);
+            }
         }
     }
 
     public void addResultTab(ExecutionResult executionResult) {
-        JComponent component = executionResult.getResultPanel().getComponent();
-        TabInfo tabInfo = new TabInfo(component);
-        tabInfo.setObject(executionResult);
-        EnvironmentVisibilitySettings visibilitySettings = getEnvironmentSettings(project).getVisibilitySettings();
-        if (visibilitySettings.getExecutionResultTabs().value()){
-            tabInfo.setTabColor(executionResult.getConnectionHandler().getEnvironmentType().getColor());
-        } else {
-            tabInfo.setTabColor(null);
+        ExecutionResultForm resultForm = executionResult.getForm(true);
+        if (resultForm != null) {
+            JComponent component = resultForm.getComponent();
+            TabInfo tabInfo = new TabInfo(component);
+            tabInfo.setObject(resultForm);
+            EnvironmentVisibilitySettings visibilitySettings = getEnvironmentSettings(getProject()).getVisibilitySettings();
+            if (visibilitySettings.getExecutionResultTabs().value()){
+                tabInfo.setTabColor(executionResult.getConnectionHandler().getEnvironmentType().getColor());
+            } else {
+                tabInfo.setTabColor(null);
+            }
+            tabInfo.setText(executionResult.getName());
+            tabInfo.setIcon(executionResult.getIcon());
+            resultTabs.addTab(tabInfo);
+            selectResultTab(tabInfo);
         }
-        tabInfo.setText(executionResult.getResultName());
-        tabInfo.setIcon(executionResult.getResultIcon());
-        resultTabs.addTab(tabInfo);
-        selectResultTab(tabInfo);
     }
 
     public boolean containsResultTab(ExecutionResult executionProcessor) {
-        Component component = executionProcessor.getResultPanel().getComponent();
-        return containsResultTab(component);
+        ExecutionResultForm resultForm = executionProcessor.getForm(false);
+        if (resultForm != null) {
+            Component component = resultForm.getComponent();
+            return containsResultTab(component);
+        }
+        return false;
     }
 
     public void removeResultTab(ExecutionResult executionResult) {
         try {
             canScrollToSource = false;
-            ExecutionResultForm resultComponent = executionResult.getResultPanel();
-            TabInfo tabInfo = resultTabs.findInfo(resultComponent.getComponent());
-            if (resultTabs.getTabs().contains(tabInfo)) {
-                resultTabs.removeTab(tabInfo);
-                if (executionResult instanceof StatementExecutionResult) {
-                    StatementExecutionResult statementExecutionResult = (StatementExecutionResult) executionResult;
-                    StatementExecutionInput executionInput = statementExecutionResult.getExecutionInput();
-                    if (executionInput != null && !executionInput.isDisposed()) {
-                        DBLanguageFile file = executionInput.getExecutablePsiElement().getFile();
-                        DocumentUtil.refreshEditorAnnotations(file);
+            ExecutionResultForm resultForm = executionResult.getForm(false);
+            if (resultForm != null) {
+                TabInfo tabInfo = resultTabs.findInfo(resultForm.getComponent());
+                if (resultTabs.getTabs().contains(tabInfo)) {
+                    resultTabs.removeTab(tabInfo);
+                    if (executionResult instanceof StatementExecutionResult) {
+                        StatementExecutionResult statementExecutionResult = (StatementExecutionResult) executionResult;
+                        StatementExecutionInput executionInput = statementExecutionResult.getExecutionInput();
+                        if (executionInput != null && !executionInput.isDisposed()) {
+                            DBLanguagePsiFile file = executionInput.getExecutionProcessor().getPsiFile();
+                            DocumentUtil.refreshEditorAnnotations(file);
+                        }
                     }
                 }
-                resultComponent.dispose();
+                if (getTabCount() == 0) {
+                    ExecutionManager.getInstance(getProject()).hideExecutionConsole();
+                }
             }
-            if (getTabCount() == 0) {
-                ExecutionManager.getInstance(project).hideExecutionConsole();
-            }
-
         } finally {
             canScrollToSource = true;
         }
     }
 
-    public void selectResultTab(ExecutionResult executionResult) {
-        executionResult.getResultPanel().setExecutionResult(executionResult);
-        JComponent component = executionResult.getResultPanel().getComponent();
-        TabInfo tabInfo = resultTabs.findInfo(component);
-        if (tabInfo != null) {
-            tabInfo.setText(executionResult.getResultName());
-            tabInfo.setIcon(executionResult.getResultIcon());
-            selectResultTab(tabInfo);
+    public <T extends ExecutionResult> void selectResultTab(T executionResult) {
+        ExecutionResultForm resultForm = executionResult.getForm(false);
+        if (resultForm != null) {
+            resultForm.setExecutionResult(executionResult);
+            resultForm = executionResult.getForm(false);
+            if (resultForm != null) {
+                JComponent component = resultForm.getComponent();
+                TabInfo tabInfo = resultTabs.findInfo(component);
+                if (tabInfo != null) {
+                    tabInfo.setText(executionResult.getName());
+                    tabInfo.setIcon(executionResult.getIcon());
+                    selectResultTab(tabInfo);
+                }
+
+            }
         }
+
+
     }
 
     /*********************************************************
@@ -344,15 +492,8 @@ public class ExecutionConsoleForm extends DBNFormImpl implements DBNForm, Enviro
         }
     }
 
-    @NonNls
-    @NotNull
-    public String getComponentName() {
-        return "DBNavigator.Project.ExecutionConsolePanel";
-    }
-
     public void dispose() {
-        EventManager.unsubscribe(this);
+        EventManager.unsubscribe(environmentChangeListener);
         super.dispose();
-        project = null;
     }
 }

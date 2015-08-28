@@ -1,27 +1,28 @@
 package com.dci.intellij.dbn.connection.config.action;
 
+import javax.swing.JList;
+import org.jetbrains.annotations.NotNull;
+
 import com.dci.intellij.dbn.common.Icons;
-import com.dci.intellij.dbn.connection.ConnectionBundle;
+import com.dci.intellij.dbn.connection.config.ConnectionBundleSettings;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.ui.ListUtil;
 
-import javax.swing.JList;
-
 public class RemoveConnectionAction extends DumbAwareAction {
-    private ConnectionBundle connectionBundle;
+    private ConnectionBundleSettings connectionBundleSettings;
     private JList list;
 
-    public RemoveConnectionAction(JList list, ConnectionBundle connectionBundle) {
+    public RemoveConnectionAction(JList list, ConnectionBundleSettings connectionBundleSettings) {
         super("Remove connection", null, Icons.ACTION_REMOVE);
         this.list = list;
-        this.connectionBundle = connectionBundle;
+        this.connectionBundleSettings = connectionBundleSettings;
     }
 
-    public void actionPerformed(AnActionEvent e) {
+    public void actionPerformed(@NotNull AnActionEvent e) {
         if (confirmDelete(list.getSelectedValues())) {
-            connectionBundle.setModified(true);
+            connectionBundleSettings.setModified(true);
             ListUtil.removeSelectedItems(list);
 /*
             int index = list.getMinSelectionIndex();
@@ -32,7 +33,7 @@ public class RemoveConnectionAction extends DumbAwareAction {
         }
     }
 
-    public boolean confirmDelete(Object[] connections) {
+    public static boolean confirmDelete(Object[] connections) {
         /*SettingsBundle settings = manager.getSettingsBundle();
         boolean confirm = settings.getBoolean(SettingsBundle.KEY_CONFIRM_ACTION_DELETE, true);
         if (confirm) {
@@ -55,6 +56,6 @@ public class RemoveConnectionAction extends DumbAwareAction {
         int length = list.getSelectedValues().length;
         Presentation presentation = e.getPresentation();
         presentation.setEnabled(length > 0);
-        presentation.setText(length > 1 ? "Remove connections" : "Remove connection");
+        presentation.setText(length > 1 ? "Remove Connections" : "Remove Connection");
     }
 }

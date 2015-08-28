@@ -1,21 +1,32 @@
 package com.dci.intellij.dbn.database.postgres;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+
 import com.dci.intellij.dbn.code.common.style.options.CodeStyleCaseOption;
 import com.dci.intellij.dbn.code.common.style.options.CodeStyleCaseSettings;
 import com.dci.intellij.dbn.code.psql.style.options.PSQLCodeStyleSettings;
 import com.dci.intellij.dbn.database.DatabaseInterfaceProvider;
+import com.dci.intellij.dbn.database.DatabaseObjectTypeId;
 import com.dci.intellij.dbn.database.common.DatabaseDDLInterfaceImpl;
+import com.dci.intellij.dbn.editor.DBContentType;
 import com.dci.intellij.dbn.object.factory.ArgumentFactoryInput;
 import com.dci.intellij.dbn.object.factory.MethodFactoryInput;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.text.StringUtil;
-
-import java.sql.Connection;
-import java.sql.SQLException;
 
 public class PostgresDDLInterface extends DatabaseDDLInterfaceImpl {
     public PostgresDDLInterface(DatabaseInterfaceProvider provider) {
         super("postgres_ddl_interface.xml", provider);
     }
+
+    public String createDDLStatement(Project project, DatabaseObjectTypeId objectTypeId, String userName, String schemaName, String objectName, DBContentType contentType, String code, String alternativeDelimiter) {
+        return objectTypeId == DatabaseObjectTypeId.VIEW ? "create view " + objectName + " as\n" + code :
+                objectTypeId == DatabaseObjectTypeId.FUNCTION ? "create function " + objectName + " as\n" + code :
+                        "create or replace\n" + code;
+    }
+
+
 
     public String getSessionSqlMode(Connection connection) throws SQLException {
         return getSingleValue(connection, "get-session-sql-mode");
@@ -69,8 +80,8 @@ public class PostgresDDLInterface extends DatabaseDDLInterfaceImpl {
 
         StringBuilder buffer = new StringBuilder();
         String methodType = method.isFunction() ? "function " : "procedure ";
-        buffer.append(keywordCaseOption.changeCase(methodType));
-        buffer.append(objectCaseOption.changeCase(method.getObjectName()));
+        buffer.append(keywordCaseOption.format(methodType));
+        buffer.append(objectCaseOption.format(method.getObjectName()));
         buffer.append("(");
 
         int maxArgNameLength = 0;
@@ -89,17 +100,17 @@ public class PostgresDDLInterface extends DatabaseDDLInterfaceImpl {
             
             if (!method.isFunction()) {
                 String direction =
-                        argument.isInput() && argument.isOutput() ? keywordCaseOption.changeCase("inout") :
-                                argument.isInput() ? keywordCaseOption.changeCase("in") :
-                                        argument.isOutput() ? keywordCaseOption.changeCase("out") : "";
+                        argument.isInput() && argument.isOutput() ? keywordCaseOption.format("inout") :
+                                argument.isInput() ? keywordCaseOption.format("in") :
+                                        argument.isOutput() ? keywordCaseOption.format("out") : "";
                 buffer.append(direction);
                 buffer.append(StringUtil.repeatSymbol(' ', maxArgDirectionLength - direction.length() + 1));
             }
 
-            buffer.append(objectCaseOption.changeCase(argument.getObjectName()));
+            buffer.append(objectCaseOption.format(argument.getObjectName()));
             buffer.append(StringUtil.repeatSymbol(' ', maxArgNameLength - argument.getObjectName().length() + 1));
 
-            buffer.append(dataTypeCaseOption.changeCase(argument.getDataType()));
+            buffer.append(dataTypeCaseOption.format(argument.getDataType()));
             if (argument != method.getArguments().get(method.getArguments().size() -1)) {
                 buffer.append(",");
             }
@@ -107,12 +118,12 @@ public class PostgresDDLInterface extends DatabaseDDLInterfaceImpl {
 
         buffer.append(")\n");
         if (method.isFunction()) {
-            buffer.append(keywordCaseOption.changeCase("returns "));
-            buffer.append(dataTypeCaseOption.changeCase(method.getReturnArgument().getDataType()));
+            buffer.append(keywordCaseOption.format("returns "));
+            buffer.append(dataTypeCaseOption.format(method.getReturnArgument().getDataType()));
             buffer.append("\n");
         }
-        buffer.append(keywordCaseOption.changeCase("begin\n\n"));
-        if (method.isFunction()) buffer.append(keywordCaseOption.changeCase("    return null;\n\n"));
+        buffer.append(keywordCaseOption.format("begin\n\n"));
+        if (method.isFunction()) buffer.append(keywordCaseOption.format("    return null;\n\n"));
         buffer.append("end");
         
         String sqlMode = getSessionSqlMode(connection);

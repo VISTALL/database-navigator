@@ -1,5 +1,13 @@
 package com.dci.intellij.dbn.browser.model;
 
+import javax.swing.event.TreeModelListener;
+import javax.swing.tree.TreeModel;
+import javax.swing.tree.TreePath;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
+
 import com.dci.intellij.dbn.browser.DatabaseBrowserUtils;
 import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.common.ui.tree.TreeEventType;
@@ -9,14 +17,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.util.containers.HashSet;
 import gnu.trove.THashSet;
 
-import javax.swing.event.TreeModelListener;
-import javax.swing.tree.TreeModel;
-import javax.swing.tree.TreePath;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
-
 public abstract class BrowserTreeModel implements TreeModel, Disposable {
     private Set<TreeModelListener> treeModelListeners = new HashSet<TreeModelListener>();
     private BrowserTreeNode root;
@@ -24,8 +24,10 @@ public abstract class BrowserTreeModel implements TreeModel, Disposable {
     private final Set<LoadInProgressTreeNode> loadInProgressNodes = new THashSet<LoadInProgressTreeNode>();
 
     protected BrowserTreeModel(BrowserTreeNode root) {
-        this.root = root;
-        EventManager.subscribe(root.getProject(), BrowserTreeChangeListener.TOPIC, browserTreeChangeListener);
+        if (root != null) {
+            this.root = root;
+            EventManager.subscribe(root.getProject(), BrowserTreeChangeListener.TOPIC, browserTreeChangeListener);
+        }
     }
 
     public void addTreeModelListener(TreeModelListener listener) {
@@ -44,7 +46,7 @@ public abstract class BrowserTreeModel implements TreeModel, Disposable {
     }
 
     public Project getProject() {
-        return root.getProject();
+        return root == null ? null : root.getProject();
     }
 
     public abstract boolean contains(BrowserTreeNode node);
@@ -58,8 +60,8 @@ public abstract class BrowserTreeModel implements TreeModel, Disposable {
             boolean startTimer = loadInProgressNodes.size() == 0;
             loadInProgressNodes.add(node);
             if (startTimer) {
-                Timer reloader = new Timer("Load in progress tree leaf reloader");
-                reloader.schedule(new LoadInProgressRefreshTask(), 0, 100);
+                Timer reloader = new Timer("DBN Load in progress tree leaf reloader");
+                reloader.schedule(new LoadInProgressRefreshTask(), 0, 50);
             }
         }
     }

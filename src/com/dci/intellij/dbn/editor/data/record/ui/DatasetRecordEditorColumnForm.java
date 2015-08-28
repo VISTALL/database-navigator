@@ -2,18 +2,18 @@ package com.dci.intellij.dbn.editor.data.record.ui;
 
 import com.dci.intellij.dbn.common.locale.Formatter;
 import com.dci.intellij.dbn.common.locale.options.RegionalSettings;
-import com.dci.intellij.dbn.common.ui.DBNForm;
 import com.dci.intellij.dbn.common.ui.DBNFormImpl;
 import com.dci.intellij.dbn.data.editor.ui.BasicDataEditorComponent;
 import com.dci.intellij.dbn.data.editor.ui.DataEditorComponent;
 import com.dci.intellij.dbn.data.editor.ui.ListPopupValuesProvider;
+import com.dci.intellij.dbn.data.editor.ui.ListPopupValuesProviderImpl;
 import com.dci.intellij.dbn.data.editor.ui.TextFieldWithPopup;
 import com.dci.intellij.dbn.data.editor.ui.TextFieldWithTextEditor;
 import com.dci.intellij.dbn.data.type.DBDataType;
 import com.dci.intellij.dbn.data.type.DBNativeDataType;
 import com.dci.intellij.dbn.data.type.DataTypeDefinition;
 import com.dci.intellij.dbn.data.type.GenericDataType;
-import com.dci.intellij.dbn.data.value.LazyLoadedValue;
+import com.dci.intellij.dbn.data.value.LargeObjectValue;
 import com.dci.intellij.dbn.editor.data.model.DatasetEditorColumnInfo;
 import com.dci.intellij.dbn.editor.data.model.DatasetEditorModelCell;
 import com.dci.intellij.dbn.editor.data.model.DatasetEditorModelRow;
@@ -45,7 +45,7 @@ import java.awt.event.KeyListener;
 import java.text.ParseException;
 import java.util.List;
 
-public class DatasetRecordEditorColumnForm extends DBNFormImpl implements DBNForm {
+public class DatasetRecordEditorColumnForm extends DBNFormImpl {
     private JLabel columnLabel;
     private JPanel valueFieldPanel;
     private JLabel dataTypeLabel;
@@ -79,7 +79,7 @@ public class DatasetRecordEditorColumnForm extends DBNFormImpl implements DBNFor
 
             long dataLength = dataType.getLength();
 
-            if (genericDataType.is(GenericDataType.DATE_TIME, GenericDataType.LITERAL)) {
+            if (genericDataType.is(GenericDataType.DATE_TIME, GenericDataType.LITERAL, GenericDataType.ARRAY)) {
                 TextFieldWithPopup textFieldWithPopup = new TextFieldWithPopup(project);
 
                 textFieldWithPopup.setPreferredSize(new Dimension(200, -1));
@@ -89,25 +89,29 @@ public class DatasetRecordEditorColumnForm extends DBNFormImpl implements DBNFor
                 valueTextField.addFocusListener(focusListener);
 
                 if (cell.getRow().getModel().isEditable()) {
-                    if (genericDataType == GenericDataType.DATE_TIME) {
-                        textFieldWithPopup.createCalendarPopup(false);
-                    }
+                    switch (genericDataType) {
+                        case DATE_TIME: textFieldWithPopup.createCalendarPopup(false); break;
+                        case ARRAY: textFieldWithPopup.createArrayEditorPopup(false); break;
+                        case LITERAL: {
+                            DataEditorValueListPopupSettings valueListPopupSettings = dataEditorSettings.getValueListPopupSettings();
 
-                    if (genericDataType == GenericDataType.LITERAL) {
-                        if (dataLength > 20 && !column.isPrimaryKey() && !column.isForeignKey())
-                            textFieldWithPopup.createTextAreaPopup(false);
-                        DataEditorValueListPopupSettings valueListPopupSettings = dataEditorSettings.getValueListPopupSettings();
+                            if (!column.isPrimaryKey() && !column.isUniqueKey() && dataLength <= valueListPopupSettings.getDataLengthThreshold()) {
+                                ListPopupValuesProvider valuesProvider = new ListPopupValuesProviderImpl("Possible Values List", true) {
+                                    @Override
+                                    public List<String> getValues() {
+                                        return columnInfo.getPossibleValues();
+                                    }
+                                };
+                                textFieldWithPopup.createValuesListPopup(valuesProvider, valueListPopupSettings.isShowPopupButton());
+                            }
 
-                        if (column.isForeignKey() || (dataLength <= valueListPopupSettings.getDataLengthThreshold() &&
-                                (!column.isSinglePrimaryKey() || valueListPopupSettings.isActiveForPrimaryKeyColumns()))) {
-                            ListPopupValuesProvider valuesProvider = new ListPopupValuesProvider() {
-                                public List<String> getValues() {
-                                    return columnInfo.getPossibleValues();
-                                }
-                            };
-                            textFieldWithPopup.createValuesListPopup(valuesProvider, false);
+                            if (dataLength > 20 && !column.isPrimaryKey() && !column.isForeignKey()) {
+                                textFieldWithPopup.createTextEditorPopup(false);
+                            }
+                            break;
                         }
                     }
+
                 }
                 editorComponent = textFieldWithPopup;
             } else if (genericDataType.is(GenericDataType.BLOB, GenericDataType.CLOB)) {
@@ -150,7 +154,7 @@ public class DatasetRecordEditorColumnForm extends DBNFormImpl implements DBNFor
             }
             editorComponent.setText(userValue);
         } else {
-            editable = editable && !(cell.getUserValue() instanceof LazyLoadedValue);
+            editable = editable && !(cell.getUserValue() instanceof LargeObjectValue);
             editorComponent.setEditable(editable);
             String formattedUserValue = formatter.formatObject(cell.getUserValue());
             editorComponent.setText(formattedUserValue);
@@ -185,7 +189,8 @@ public class DatasetRecordEditorColumnForm extends DBNFormImpl implements DBNFor
         String textValue = editorComponent.getText().trim();
         if (textValue.length() > 0) {
             Object value = getFormatter().parseObject(clazz, textValue);
-            return dataType.getNativeDataType().getDataTypeDefinition().convert(value);
+            DBNativeDataType nativeDataType = dataType.getNativeDataType();
+            return nativeDataType == null ? null : nativeDataType.getDataTypeDefinition().convert(value);
         } else {
             return null;
         }
@@ -214,10 +219,6 @@ public class DatasetRecordEditorColumnForm extends DBNFormImpl implements DBNFor
     private Formatter getFormatter() {
         Project project = cell.getRow().getModel().getDataset().getProject();
         return Formatter.getInstance(project);
-    }
-
-    private Project getProject() {
-        return null;
     }
 
     /*********************************************************

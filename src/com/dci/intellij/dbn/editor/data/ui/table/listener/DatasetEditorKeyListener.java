@@ -1,14 +1,14 @@
 package com.dci.intellij.dbn.editor.data.ui.table.listener;
 
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.sql.SQLException;
+
 import com.dci.intellij.dbn.common.util.MessageUtil;
 import com.dci.intellij.dbn.data.type.DBDataType;
 import com.dci.intellij.dbn.editor.data.model.DatasetEditorModel;
 import com.dci.intellij.dbn.editor.data.model.DatasetEditorModelCell;
 import com.dci.intellij.dbn.editor.data.ui.table.DatasetEditorTable;
-
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.sql.SQLException;
 
 public class DatasetEditorKeyListener extends KeyAdapter {
     private DatasetEditorTable table;
@@ -29,12 +29,12 @@ public class DatasetEditorKeyListener extends KeyAdapter {
                     case 10:  // enter
                         int index = model.getInsertRowIndex();
                         try {
-                            model.postInsertRecord(false, true);
+                            model.postInsertRecord(false, true, false);
                             if (!model.isInserting()) {
                                 model.insertRecord(index + 1);
                             }
                         } catch (SQLException e1) {
-                            MessageUtil.showErrorDialog("Could not create row in " + table.getDataset().getQualifiedNameWithType() + ".", e1);
+                            MessageUtil.showErrorDialog(table.getProject(), "Could not create row in " + table.getDataset().getQualifiedNameWithType() + ".", e1);
                         }
                         e.consume();
                 }
@@ -44,12 +44,13 @@ public class DatasetEditorKeyListener extends KeyAdapter {
                         for (int columnIndex : table.getSelectedColumns()) {
                             DatasetEditorModelCell cell = model.getCellAt(rowIndex, columnIndex);
                             DBDataType dataType = cell.getColumnInfo().getDataType();
-                            if (dataType.isNative() && !dataType.getNativeDataType().isLOB()) {
+                            if (dataType != null && dataType.isNative() && !dataType.getNativeDataType().isLargeObject()) {
                                 cell.updateUserValue(null, true);
                             }
                         }
                     }
-                    table.updateUI();
+                    table.revalidate();
+                    table.repaint();
                 }
             }
         }

@@ -1,6 +1,7 @@
 package com.dci.intellij.dbn.common.about.ui;
 
 import com.dci.intellij.dbn.common.Icons;
+import com.dci.intellij.dbn.common.ui.Borders;
 import com.dci.intellij.dbn.common.ui.DBNFormImpl;
 import com.intellij.ide.BrowserUtil;
 import com.intellij.ide.plugins.IdeaPluginDescriptor;
@@ -27,12 +28,15 @@ public class AboutComponent extends DBNFormImpl{
     private JLabel supportPageLinkLabel;
     private JLabel requestTrackerPageLinkLabel;
     private JLabel buildLabel;
+    private JPanel linksPanel;
 
-    public AboutComponent() {
+    public AboutComponent(Project project) {
+        super(project);
         Cursor handCursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR);
 
         splashLabel.setIcon(Icons.DATABASE_NAVIGATOR);
         splashLabel.setText("");
+        linksPanel.setBorder(Borders.BOTTOM_LINE_BORDER);
 
         donateLabel.setIcon(Icons.DONATE_DISABLED);
         donateLabel.setText("");
@@ -77,7 +81,7 @@ public class AboutComponent extends DBNFormImpl{
         });
         IdeaPluginDescriptor ideaPluginDescriptor = PluginManager.getPlugin(PluginId.getId("DBN"));
         String version = ideaPluginDescriptor.getVersion();
-        buildLabel.setText("Build: " + version.substring(version.lastIndexOf(".") + 1));
+        buildLabel.setText("Build: " + version.substring(version.lastIndexOf('.') + 1));
     }
 
     @Override

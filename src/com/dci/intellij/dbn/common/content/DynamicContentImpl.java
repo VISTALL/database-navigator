@@ -1,5 +1,12 @@
 package com.dci.intellij.dbn.common.content;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import com.dci.intellij.dbn.common.content.dependency.ContentDependencyAdapter;
 import com.dci.intellij.dbn.common.content.dependency.VoidContentDependencyAdapter;
 import com.dci.intellij.dbn.common.content.loader.DynamicContentLoadException;
@@ -12,16 +19,10 @@ import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.GenericDatabaseElement;
 import com.intellij.openapi.progress.ProgressIndicator;
 import gnu.trove.THashMap;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 public abstract class DynamicContentImpl<T extends DynamicContentElement> implements DynamicContent<T> {
-    public static final List EMPTY_LIST = new ArrayList(0);
+    public static final List EMPTY_CONTENT = Collections.unmodifiableList(new ArrayList(0));
+    public static final List EMPTY_UNTOUCHED_CONTENT = Collections.unmodifiableList(new ArrayList(0));
 
     private final Object LOAD_LOCK = new Object();
     private final Object BACKGROUND_LOAD_LOCK = new Object();
@@ -31,7 +32,7 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
     private volatile boolean isLoadingInBackground = false;
     private volatile boolean isLoaded = false;
     private volatile boolean isDirty = false;
-    private volatile boolean isDisposed = false;
+    private volatile boolean disposed = false;
 
     private GenericDatabaseElement parent;
     protected DynamicContentLoader<T> loader;
@@ -40,7 +41,7 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
     private Map<String, T> index;
     private int filterHashCode = 0;
 
-    protected List<T> elements = EMPTY_LIST;
+    protected List<T> elements = EMPTY_UNTOUCHED_CONTENT;
 
     protected DynamicContentImpl(GenericDatabaseElement parent, DynamicContentLoader<T> loader, ContentDependencyAdapter dependencyAdapter, boolean indexed) {
         this.parent = parent;
@@ -50,16 +51,17 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
     }
 
     public boolean accepts(T element) {
-        Filter filter = getFilter();
+        Filter<T> filter = getFilter();
         return filter == null || filter.accepts(element);
     }
 
-    public abstract Filter getFilter();
+    public abstract Filter<T> getFilter();
 
     public GenericDatabaseElement getParent() {
         return parent;
     }
 
+    @Nullable
     public ConnectionHandler getConnectionHandler() {
         return parent == null ? null : parent.getConnectionHandler();
     }
@@ -89,7 +91,7 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
 
     @Override
     public boolean isSubContent() {
-        return getDependencyAdapter().isSubContent();
+        return dependencyAdapter.isSubContent();
     }
 
     public boolean isLoading() {
@@ -110,7 +112,7 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
     }
 
     public boolean isDisposed() {
-        return isDisposed;
+        return disposed;
     }
 
     public void setDirty(boolean dirty) {
@@ -125,7 +127,7 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
                     performLoad();
                     isLoaded = true;
                 } catch (InterruptedException e) {
-                    setElements(EMPTY_LIST);
+                    setElements(EMPTY_CONTENT);
                     isDirty = true;
                 } finally {
                     isLoading = false;
@@ -137,13 +139,13 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
 
     public final void reload() {
         synchronized (LOAD_LOCK) {
-            if (!isDisposed && !isLoading) {
+            if (!disposed && !isLoading) {
                 isLoading = true;
                 try {
                     performReload();
                     isLoaded = true;
                 } catch (InterruptedException e) {
-                    setElements(EMPTY_LIST);
+                    setElements(EMPTY_CONTENT);
                     isDirty = true;
                 } finally {
                     isLoading = false;
@@ -158,7 +160,9 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
         synchronized (BACKGROUND_LOAD_LOCK) {
             if (!isLoadingInBackground && shouldLoad(force)) {
                 isLoadingInBackground = true;
-                new BackgroundTask(getProject(), "Loading data dictionary", true) {
+                ConnectionHandler connectionHandler = getConnectionHandler();
+                String connectionString = connectionHandler == null ? "" : " (" + connectionHandler.getName() + ')';
+                new BackgroundTask(getProject(), "Loading data dictionary" + connectionString, true) {
                     public void execute(@NotNull ProgressIndicator progressIndicator) {
                         try {
                             DatabaseLoadMonitor.startBackgroundLoad();
@@ -181,7 +185,7 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
             // mark first the dirty status since dirty dependencies may
             // become valid due to parallel background load
             isDirty = false;
-            getLoader().loadContent(this, false);
+            loader.loadContent(this, false);
         } catch (DynamicContentLoadException e) {
             isDirty = !e.isModelException();
         }
@@ -195,7 +199,7 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
         checkDisposed();
         try {
             checkDisposed();
-            getLoader().reloadContent(this);
+            loader.reloadContent(this);
         } catch (DynamicContentLoadException e) {
             isDirty = !e.isModelException();
         }
@@ -217,12 +221,11 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
         Filter filter = getFilter();
         filterHashCode = filter == null ? 0 : filter.hashCode();
 
-        if (isDisposed || elements == null || elements.size() == 0) {
-            elements = EMPTY_LIST;
+        if (disposed || elements == null || elements.size() == 0) {
+            elements = EMPTY_CONTENT;
             index = null;
         } else {
-            Collections.sort(elements);
-
+            sortElements(elements);
         }
         List<T> oldElements = this.elements;
         this.elements = elements;
@@ -233,6 +236,10 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
         if (!dependencyAdapter.isSubContent() && oldElements.size() > 0 ) {
             DisposerUtil.dispose(oldElements);
         }
+    }
+
+    public void sortElements(List<T> elements) {
+        Collections.sort(elements);
     }
 
     @NotNull
@@ -247,7 +254,7 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
 
     protected void updateIndex() {
         if (indexed) {
-            if (elements.size() > 0) {
+            if (elements.size() > 30) {
                 if (index == null)
                     index = new THashMap<String, T>(); else
                     index.clear();
@@ -262,15 +269,17 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
         }
     }
 
-    public T getElement(String name) {
+    public T getElement(String name, int overload) {
         if (name != null) {
+            List<T> elements = getElements();
             if (indexed && index != null) {
                 return index.get(name.toUpperCase());
             } else {
-                List<T> elements = getElements();
                 for (T element : elements) {
                     if (element.getName().equalsIgnoreCase(name)) {
-                        return element;
+                        if (overload == 0 || overload == element.getOverload()) {
+                            return element;
+                        }
                     }
                 }
             }
@@ -298,19 +307,34 @@ public abstract class DynamicContentImpl<T extends DynamicContentElement> implem
     }
 
     public boolean shouldLoad(boolean force) {
-        return !(isLoading || isDisposed) && (force || !isLoaded || (isDirty() && dependencyAdapter.shouldLoadIfDirty()));
+        if (isLoading || disposed) {
+            return false;
+        }
+
+        ConnectionHandler connectionHandler = getConnectionHandler();
+        if (force || !isLoaded) {
+            return dependencyAdapter.canConnect(connectionHandler);
+        }
+
+        if (isDirty()) {
+            return dependencyAdapter.canLoad(connectionHandler);
+        }
+
+        return false;
     }
 
     public void checkDisposed() throws InterruptedException {
-        if (isDisposed) throw new InterruptedException();
+        if (disposed) throw new InterruptedException();
     }
 
     public void dispose() {
-        if (!isDisposed) {
-            isDisposed = true;
-            if (dependencyAdapter.isSubContent())
-                elements.clear(); else
-                DisposerUtil.dispose(elements);
+        if (!disposed) {
+            disposed = true;
+            if (elements != EMPTY_CONTENT && elements != EMPTY_UNTOUCHED_CONTENT) {
+                if (dependencyAdapter.isSubContent())
+                    elements.clear(); else
+                    DisposerUtil.dispose(elements);
+            }
             CollectionUtil.clearMap(index);
             dependencyAdapter.dispose();
             dependencyAdapter = VoidContentDependencyAdapter.INSTANCE;

@@ -1,15 +1,13 @@
 package com.dci.intellij.dbn.object.filter.name;
 
+import java.util.ArrayList;
+import java.util.List;
+import org.jdom.Element;
+
 import com.dci.intellij.dbn.common.filter.Filter;
 import com.dci.intellij.dbn.common.util.StringUtil;
 import com.dci.intellij.dbn.object.common.DBObject;
 import com.dci.intellij.dbn.object.common.DBObjectType;
-import com.intellij.openapi.util.InvalidDataException;
-import com.intellij.openapi.util.WriteExternalException;
-import org.jdom.Element;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class CompoundFilterCondition extends Filter<DBObject> implements FilterCondition {
     private List<FilterCondition> conditions = new ArrayList<FilterCondition>();
@@ -64,9 +62,8 @@ public class CompoundFilterCondition extends Filter<DBObject> implements FilterC
 
     protected void cleanup() {
         if (conditions.size() == 1) {
-            CompoundFilterCondition parent = getParent();
             if (parent != null) {
-                int index = parent.getConditions().indexOf(this);
+                int index = parent.conditions.indexOf(this);
                 FilterCondition condition = conditions.get(0);
                 parent.addCondition(condition, index);
                 parent.removeCondition(this, true);
@@ -75,8 +72,8 @@ public class CompoundFilterCondition extends Filter<DBObject> implements FilterC
             FilterCondition filterCondition = conditions.get(0);
             if (filterCondition instanceof CompoundFilterCondition) {
                 CompoundFilterCondition compoundFilterCondition = (CompoundFilterCondition) filterCondition;
-                setJoinType(compoundFilterCondition.getJoinType());
-                for (FilterCondition childCondition : compoundFilterCondition.getConditions()) {
+                this.joinType = compoundFilterCondition.joinType;
+                for (FilterCondition childCondition : compoundFilterCondition.conditions) {
                     addCondition(childCondition);
                 }
                 removeCondition(compoundFilterCondition, true);
@@ -161,7 +158,7 @@ public class CompoundFilterCondition extends Filter<DBObject> implements FilterC
     /*********************************************************
      *                     Configuration                     *
      *********************************************************/
-    public void readConfiguration(Element element) throws InvalidDataException {
+    public void readConfiguration(Element element) {
         String joinTypeString = element.getAttributeValue("join-type");
         joinType = StringUtil.isEmptyOrSpaces(joinTypeString) ? ConditionJoinType.AND : ConditionJoinType.valueOf(joinTypeString);
         for (Object o : element.getChildren()) {
@@ -177,7 +174,7 @@ public class CompoundFilterCondition extends Filter<DBObject> implements FilterC
         }
     }
 
-    public void writeConfiguration(Element element) throws WriteExternalException {
+    public void writeConfiguration(Element element) {
         element.setAttribute("join-type", joinType.toString());
         for (FilterCondition condition : conditions) {
             Element childElement =

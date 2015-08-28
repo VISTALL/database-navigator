@@ -1,17 +1,18 @@
 package com.dci.intellij.dbn.data.model.resultSet;
 
-import com.dci.intellij.dbn.common.content.loader.DynamicContentLoader;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import org.jetbrains.annotations.Nullable;
+
 import com.dci.intellij.dbn.common.thread.SimpleBackgroundTask;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.ConnectionUtil;
 import com.dci.intellij.dbn.data.model.sortable.SortableDataModel;
 import com.dci.intellij.dbn.data.model.sortable.SortableDataModelState;
+import com.dci.intellij.dbn.database.DatabaseInterface;
 import com.intellij.openapi.util.Disposer;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class ResultSetDataModel<T extends ResultSetDataModelRow> extends SortableDataModel<T> {
     protected ResultSet resultSet;
@@ -19,7 +20,7 @@ public class ResultSetDataModel<T extends ResultSetDataModelRow> extends Sortabl
     protected boolean resultSetExhausted = false;
     protected final Object DISPOSE_LOCK = new Object();
 
-    public ResultSetDataModel(ConnectionHandler connectionHandler) throws SQLException {
+    public ResultSetDataModel(ConnectionHandler connectionHandler) {
         super(connectionHandler.getProject());
         this.connectionHandler = connectionHandler;
     }
@@ -28,7 +29,7 @@ public class ResultSetDataModel<T extends ResultSetDataModelRow> extends Sortabl
         super(connectionHandler.getProject());
         this.connectionHandler = connectionHandler;
         this.resultSet = resultSet;
-        setHeader(new ResultSetDataModelHeader(connectionHandler.getObjectBundle(), resultSet));
+        setHeader(new ResultSetDataModelHeader(connectionHandler, resultSet));
         fetchNextRecords(maxRecords, false);
     }
 
@@ -90,9 +91,9 @@ public class ResultSetDataModel<T extends ResultSetDataModelRow> extends Sortabl
     }
 
     private void disposeRows(final List<T> oldRows) {
-        new SimpleBackgroundTask() {
+        new SimpleBackgroundTask("dispose result-set mocel") {
             @Override
-            public void run() {
+            public void execute() {
                 // dispose old content
                 for (T row : oldRows) {
                     disposeRow(row);
@@ -102,7 +103,7 @@ public class ResultSetDataModel<T extends ResultSetDataModelRow> extends Sortabl
     }
 
     protected void checkDisposed() throws SQLException {
-        if (isDisposed()) throw DynamicContentLoader.DBN_INTERRUPTED_EXCEPTION;
+        if (isDisposed()) throw DatabaseInterface.DBN_INTERRUPTED_EXCEPTION;
     }
 
     protected void disposeRow(T row) {
@@ -117,6 +118,7 @@ public class ResultSetDataModel<T extends ResultSetDataModelRow> extends Sortabl
         ConnectionUtil.closeResultSet(resultSet);
     }
 
+    @Nullable
     public ConnectionHandler getConnectionHandler() {
         return connectionHandler;
     }
@@ -145,5 +147,9 @@ public class ResultSetDataModel<T extends ResultSetDataModelRow> extends Sortabl
                 connectionHandler = null;
             }
         }
+    }
+
+    public boolean isInserting() {
+        return false;
     }
 }

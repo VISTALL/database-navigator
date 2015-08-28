@@ -2,7 +2,6 @@ package com.dci.intellij.dbn.editor.data.record.ui;
 
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.dispose.DisposerUtil;
-import com.dci.intellij.dbn.common.ui.DBNForm;
 import com.dci.intellij.dbn.common.ui.DBNFormImpl;
 import com.dci.intellij.dbn.common.ui.DBNHeaderForm;
 import com.dci.intellij.dbn.common.util.ActionUtil;
@@ -17,22 +16,19 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.ToggleAction;
 import com.intellij.openapi.project.Project;
-import com.intellij.util.ui.UIUtil;
 
 import javax.swing.BoxLayout;
-import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-public class DatasetRecordEditorForm extends DBNFormImpl implements DBNForm {
+public class DatasetRecordEditorForm extends DBNFormImpl<DatasetRecordEditorDialog> {
     private JPanel actionsPanel;
     private JPanel columnsPanel;
     private JPanel mainPanel;
@@ -43,21 +39,12 @@ public class DatasetRecordEditorForm extends DBNFormImpl implements DBNForm {
 
     private DatasetEditorModelRow row;
 
-    public DatasetRecordEditorForm(DatasetEditorModelRow row) {
+    public DatasetRecordEditorForm(DatasetRecordEditorDialog parentComponent, DatasetEditorModelRow row) {
+        super(parentComponent);
         this.row = row;
         DBDataset dataset = row.getModel().getDataset();
-        Project project = dataset.getProject();
 
-        String headerTitle = dataset.getQualifiedName();
-        Icon headerIcon = dataset.getIcon();
-        Color headerBackground = UIUtil.getPanelBackground();
-        if (getEnvironmentSettings(project).getVisibilitySettings().getDialogHeaders().value()) {
-            headerBackground = dataset.getEnvironmentType().getColor();
-        }
-        DBNHeaderForm headerForm = new DBNHeaderForm(
-                headerTitle,
-                headerIcon,
-                headerBackground);
+        DBNHeaderForm headerForm = new DBNHeaderForm(dataset);
         headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
 
         ActionToolbar actionToolbar = ActionUtil.createActionToolbar(
@@ -77,6 +64,8 @@ public class DatasetRecordEditorForm extends DBNFormImpl implements DBNForm {
             DatasetRecordEditorColumnForm columnForm = new DatasetRecordEditorColumnForm(this, cell);
             columnForms.add(columnForm);
         }
+
+        Project project = getProject();
         ColumnSortingType columnSortingType = DatasetEditorManager.getInstance(project).getRecordViewColumnSortingType();
         sortColumns(columnSortingType);
 
@@ -100,7 +89,8 @@ public class DatasetRecordEditorForm extends DBNFormImpl implements DBNForm {
         }
     }
 
-    public JComponent getPreferredFocusComponent() {
+    @Override
+    public JComponent getPreferredFocusedComponent() {
         return isDisposed() ? null : columnForms.get(0).getEditorComponent();
     }
 
@@ -143,7 +133,8 @@ public class DatasetRecordEditorForm extends DBNFormImpl implements DBNForm {
             for (DatasetRecordEditorColumnForm columnForm : columnForms) {
                 columnsPanel.add(columnForm.getComponent());
             }
-            columnsPanel.updateUI();
+            columnsPanel.revalidate();
+            columnsPanel.repaint();
         }
     }
 
@@ -203,7 +194,7 @@ public class DatasetRecordEditorForm extends DBNFormImpl implements DBNForm {
 
     private class FirstRecordAction extends AnAction {
         private FirstRecordAction() {
-            super("First record", null, Icons.DATA_EDITOR_FIRST_RECORD);
+            super("First Record", null, Icons.DATA_EDITOR_FIRST_RECORD);
         }
 
         public void actionPerformed(AnActionEvent e) {
@@ -220,7 +211,7 @@ public class DatasetRecordEditorForm extends DBNFormImpl implements DBNForm {
 
     private class PreviousRecordAction extends AnAction {
         private PreviousRecordAction() {
-            super("Previus record", null, Icons.DATA_EDITOR_PREVIOUS_RECORD);
+            super("Previous Record", null, Icons.DATA_EDITOR_PREVIOUS_RECORD);
         }
 
         public void actionPerformed(AnActionEvent e) {
@@ -240,7 +231,7 @@ public class DatasetRecordEditorForm extends DBNFormImpl implements DBNForm {
 
     private class NextRecordAction extends AnAction {
         private NextRecordAction() {
-            super("Next record", null, Icons.DATA_EDITOR_NEXT_RECORD);
+            super("Next Record", null, Icons.DATA_EDITOR_NEXT_RECORD);
         }
 
         public void actionPerformed(AnActionEvent e) {

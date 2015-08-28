@@ -1,16 +1,20 @@
 package com.dci.intellij.dbn.object.common;
 
-import com.dci.intellij.dbn.common.Icons;
-import com.dci.intellij.dbn.common.content.DynamicContentType;
-import com.dci.intellij.dbn.database.DatabaseObjectTypeId;
-import com.dci.intellij.dbn.editor.DBContentType;
-import gnu.trove.THashMap;
-import gnu.trove.THashSet;
-
 import javax.swing.Icon;
+import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.StringTokenizer;
+
+import com.dci.intellij.dbn.common.Icons;
+import com.dci.intellij.dbn.common.content.DynamicContentType;
+import com.dci.intellij.dbn.common.util.StringUtil;
+import com.dci.intellij.dbn.database.DatabaseObjectTypeId;
+import com.dci.intellij.dbn.editor.DBContentType;
+import gnu.trove.THashSet;
 
 public enum DBObjectType implements DynamicContentType {
     
@@ -23,6 +27,7 @@ public enum DBObjectType implements DynamicContentType {
     CONSTRAINT(DatabaseObjectTypeId.CONSTRAINT, "constraint", "constraints", Icons.DBO_CONSTRAINT, Icons.DBO_CONSTRAINT_DISABLED, Icons.DBO_CONSTRAINTS, false),
     DATABASE(DatabaseObjectTypeId.DATABASE, "database", "databases", null, null, false),
     DATASET(DatabaseObjectTypeId.DATASET, "dataset", "datasets", null, null, true),
+    DIRECTORY(DatabaseObjectTypeId.DIRECTORY, "directory", "directories", null, null, true),
     DBLINK(DatabaseObjectTypeId.DBLINK, "dblink", "database links", Icons.DBO_DATABASE_LINK, Icons.DBO_DATABASE_LINKS, false),
     DIMENSION(DatabaseObjectTypeId.DIMENSION, "dimension", "dimensions", Icons.DBO_DIMENSION, Icons.DBO_DIMENSIONS, false),
     DIMENSION_ATTRIBUTE(DatabaseObjectTypeId.DIMENSION_ATTRIBUTE, "dimension attribute", "dimension attributes", null, null, false),
@@ -30,6 +35,7 @@ public enum DBObjectType implements DynamicContentType {
     DIMENSION_LEVEL(DatabaseObjectTypeId.DIMENSION_LEVEL, "dimension level", "dimension levels", null, null, false),
     DISKGROUP(DatabaseObjectTypeId.DISKGROUP, "diskgroup", "diskgroups", null, null, false),
     DOMAIN(DatabaseObjectTypeId.DOMAIN, "domain", "domains", null, null, false),
+    EDITION(DatabaseObjectTypeId.EDITION, "edition", "editions", null, null, false),
     FUNCTION(DatabaseObjectTypeId.FUNCTION, "function", "functions", Icons.DBO_FUNCTION, Icons.DBO_FUNCTIONS, false),
     GRANTED_ROLE(DatabaseObjectTypeId.GRANTED_ROLE, "granted role", "granted roles", Icons.DBO_ROLE, Icons.DBO_ROLES, false),
     GRANTED_PRIVILEGE(DatabaseObjectTypeId.GRANTED_PRIVILEGE, "granted privilege", "granted privileges", Icons.DBO_PRIVILEGE, Icons.DBO_PRIVILEGES, false),
@@ -52,7 +58,10 @@ public enum DBObjectType implements DynamicContentType {
     PACKAGE_TYPE(DatabaseObjectTypeId.PACKAGE_TYPE, "package type", "types", Icons.DBO_TYPE, Icons.DBO_TYPES, false),
     PARTITION(DatabaseObjectTypeId.PARTITION, "partition", "partitions", null, null, false),
     PRIVILEGE(DatabaseObjectTypeId.PRIVILEGE, "privilege", "privileges", Icons.DBO_PRIVILEGE, Icons.DBO_PRIVILEGES, false),
+    SYSTEM_PRIVILEGE(DatabaseObjectTypeId.SYSTEM_PRIVILEGE, "system privilege", "system privileges", Icons.DBO_PRIVILEGE, Icons.DBO_PRIVILEGES, false),
+    OBJECT_PRIVILEGE(DatabaseObjectTypeId.OBJECT_PRIVILEGE, "object privilege", "object privileges", Icons.DBO_PRIVILEGE, Icons.DBO_PRIVILEGES, false),
     PROCEDURE(DatabaseObjectTypeId.PROCEDURE, "procedure", "procedures", Icons.DBO_PROCEDURE, Icons.DBO_PROCEDURES, false),
+    PROGRAM(DatabaseObjectTypeId.PROGRAM, "program", "programs", null, null, true),
     PROFILE(DatabaseObjectTypeId.PROFILE, "profile", "profiles", null, null, false),
     ROLLBACK_SEGMENT(DatabaseObjectTypeId.ROLLBACK_SEGMENT, "rollback segment", "rollback segments", null, null, false),
     ROLE(DatabaseObjectTypeId.ROLE, "role", "roles", Icons.DBO_ROLE, Icons.DBO_ROLES, false),
@@ -63,7 +72,11 @@ public enum DBObjectType implements DynamicContentType {
     TABLE(DatabaseObjectTypeId.TABLE, "table", "tables", Icons.DBO_TABLE, Icons.DBO_TABLES, false),
     TABLESPACE(DatabaseObjectTypeId.TABLESPACE, "tablespace", "tablespaces", null, null, false),
     TRIGGER(DatabaseObjectTypeId.TRIGGER, "trigger", "triggers", Icons.DBO_TRIGGER, Icons.DBO_TRIGGER_DISABLED, Icons.DBO_TRIGGERS, false),
+    DATASET_TRIGGER(DatabaseObjectTypeId.DATASET_TRIGGER, "trigger", "triggers", Icons.DBO_TRIGGER, Icons.DBO_TRIGGER_DISABLED, Icons.DBO_TRIGGERS, false),
+    DATABASE_TRIGGER(DatabaseObjectTypeId.DATABASE_TRIGGER, "trigger", "triggers", Icons.DBO_DATABASE_TRIGGER, Icons.DBO_DATABASE_TRIGGER_DISABLED, Icons.DBO_DATABASE_TRIGGERS, false),
     TYPE(DatabaseObjectTypeId.TYPE, "type", "types", Icons.DBO_TYPE, Icons.DBO_TYPES, false),
+    TYPE_BODY(DatabaseObjectTypeId.TYPE_BODY, "type body", "type bodies", Icons.DBO_TYPE, Icons.DBO_TYPES, false),
+    XMLTYPE(DatabaseObjectTypeId.XMLTYPE, "type", "types", Icons.DBO_TYPE, Icons.DBO_TYPES, false),
     TYPE_ATTRIBUTE(DatabaseObjectTypeId.TYPE_ATTRIBUTE, "type attribute", "attributes", Icons.DBO_ATTRIBUTE, Icons.DBO_ATTRIBUTES, false),
     TYPE_FUNCTION(DatabaseObjectTypeId.TYPE_FUNCTION, "type function", "functions", Icons.DBO_FUNCTION, Icons.DBO_FUNCTIONS, false),
     TYPE_PROCEDURE(DatabaseObjectTypeId.TYPE_PROCEDURE, "type procedure", "procedures", Icons.DBO_PROCEDURE, Icons.DBO_PROCEDURES, false),
@@ -73,12 +86,17 @@ public enum DBObjectType implements DynamicContentType {
     VIEW(DatabaseObjectTypeId.VIEW, "view", "views", Icons.DBO_VIEW, Icons.DBO_VIEWS, false),
 
     CURSOR(DatabaseObjectTypeId.CURSOR, "cursor", "cursors", null, null, false),
+    RECORD(DatabaseObjectTypeId.RECORD, "record", "records", null, null, false),
+    PROPERTY(DatabaseObjectTypeId.PROPERTY, "property", "properties", null, null, false),
+    JAVA(DatabaseObjectTypeId.JAVA, "java", "java", null, null, false),
+    JAVA_LIB(DatabaseObjectTypeId.JAVA_LIB, "java library", "java libraries", null, null, false),
     PARAMETER(DatabaseObjectTypeId.PARAMETER, "parameter", "parameters", null, null, false),
     EXCEPTION(DatabaseObjectTypeId.EXCEPTION, "exception", "exceptions", null, null, false),
     SAVEPOINT(DatabaseObjectTypeId.SAVEPOINT, "savepoint", "savepoints", null, null, false),
     LABEL(DatabaseObjectTypeId.LABEL, "label", "labels", null, null, false),
     WINDOW(DatabaseObjectTypeId.WINDOW, "window", "windows", null, null, false),
 
+    NON_EXISTENT(DatabaseObjectTypeId.NON_EXISTENT, "non-existent", null, null, null, true),
     UNKNOWN(DatabaseObjectTypeId.UNKNOWN, "unknown", null, null, null, true),
     NONE(DatabaseObjectTypeId.NONE, "none", null, null, null, true),
     ANY(DatabaseObjectTypeId.ANY, "any", "dependencies", null, null, true);
@@ -125,7 +143,7 @@ public enum DBObjectType implements DynamicContentType {
 
     public void addIcon(DBContentType contentType, Icon icon) {
         if (icons == null) {
-            icons = new THashMap<DBContentType, Icon>();
+            icons = new EnumMap<DBContentType, Icon>(DBContentType.class);
         }
         icons.put(contentType, icon);
     }
@@ -218,7 +236,7 @@ public enum DBObjectType implements DynamicContentType {
     }
 
     public boolean isInheriting(DBObjectType objectType) {
-        return objectType.getInheritingTypes().contains(this);
+        return objectType.inheritingTypes.contains(this);
     }
 
     public void addParent(DBObjectType parent) {
@@ -235,19 +253,19 @@ public enum DBObjectType implements DynamicContentType {
     }
 
     public String toString() {
-        return getName();
+        return name;
     }
 
     public boolean isParentOf(DBObjectType objectType) {
-        return objectType.getParents().contains(this) || objectType.getGenericParents().contains(this);
+        return objectType.parents.contains(this) || objectType.genericParents.contains(this);
     }
 
     public boolean isChildOf(DBObjectType objectType) {
-        return objectType.getChildren().contains(this);
+        return objectType.children.contains(this);
     }
 
     public boolean hasChild(DBObjectType objectType) {
-        for (DBObjectType childObjectType : getChildren()) {
+        for (DBObjectType childObjectType : children) {
             if (childObjectType.matches(objectType)) {
                 return true;
             }
@@ -258,7 +276,7 @@ public enum DBObjectType implements DynamicContentType {
 
     public static DBObjectType getObjectType(DatabaseObjectTypeId typeId) {
         for (DBObjectType objectType: values()) {
-            if (objectType.getTypeId() == typeId) {
+            if (objectType.typeId == typeId) {
                 return objectType;
             }
         }
@@ -272,17 +290,48 @@ public enum DBObjectType implements DynamicContentType {
     }
 
     public static DBObjectType getObjectType(String typeName) {
-       typeName = typeName.replace('_', ' ');
-        for (DBObjectType objectType: values()) {
-            if (objectType.getName().equalsIgnoreCase(typeName)) {
-                return objectType;
-            }
+        if (StringUtil.isEmpty(typeName)) {
+            return null;
         }
-        System.out.println("ERROR - [UNKNOWN] undefined object type: " + typeName);
-        return UNKNOWN;
+
+        try {
+            return valueOf(typeName);
+        } catch (IllegalArgumentException e) {
+            typeName = typeName.replace('_', ' ');
+            for (DBObjectType objectType: values()) {
+                if (objectType.name.equalsIgnoreCase(typeName)) {
+                    return objectType;
+                }
+            }
+            System.out.println("ERROR - [UNKNOWN] undefined object type: " + typeName);
+            return UNKNOWN;
+        }
+    }
+
+    public static String toCommaSeparated(List<DBObjectType> objectTypes) {
+        StringBuilder buffer = new StringBuilder();
+        for (DBObjectType objectType : objectTypes) {
+            if (buffer.length() != 0) buffer.append(", ");
+            buffer.append(objectType.name);
+        }
+        return buffer.toString();
+    }
+
+    public static List<DBObjectType> fromCommaSeparated(String objectTypes) {
+        List<DBObjectType> list = new ArrayList<DBObjectType>();
+        StringTokenizer tokenizer = new StringTokenizer(objectTypes, ",");
+        while (tokenizer.hasMoreTokens()) {
+            String objectTypeName = tokenizer.nextToken().trim();
+            list.add(DBObjectType.getObjectType(objectTypeName));
+        }
+        return list;
     }
 
     public boolean matches(DBObjectType objectType) {
+        if (this == ANY || objectType == ANY) {
+            return true;
+        }
+
         DBObjectType thisObjectType = this;
         while (thisObjectType != null) {
             if (thisObjectType == objectType) return true;
@@ -295,21 +344,31 @@ public enum DBObjectType implements DynamicContentType {
             thatObjectType = thatObjectType.genericType;
         }
 
-        return objectType == DBObjectType.ANY;
+        return false;
 
     }
 
     static {
         TABLE.setGenericType(DATASET);
         VIEW.setGenericType(DATASET);
+        CURSOR.setGenericType(DATASET);
         MATERIALIZED_VIEW.setGenericType(DATASET);
         PROCEDURE.setGenericType(METHOD);
         FUNCTION.setGenericType(METHOD);
+        TYPE.setGenericType(PROGRAM);
         TYPE_PROCEDURE.setGenericType(PROCEDURE);
         TYPE_FUNCTION.setGenericType(FUNCTION);
+        TYPE_ATTRIBUTE.setGenericType(ATTRIBUTE);
+        PACKAGE.setGenericType(PROGRAM);
         PACKAGE_PROCEDURE.setGenericType(PROCEDURE);
         PACKAGE_FUNCTION.setGenericType(FUNCTION);
+        PACKAGE_TYPE.setGenericType(TYPE);
+        DATASET_TRIGGER.setGenericType(TRIGGER);
+        DATABASE_TRIGGER.setGenericType(TRIGGER);
+        XMLTYPE.setGenericType(TYPE);
 
+        SYSTEM_PRIVILEGE.setGenericType(PRIVILEGE);
+        OBJECT_PRIVILEGE.setGenericType(PRIVILEGE);
         GRANTED_PRIVILEGE.setGenericType(PRIVILEGE);
         GRANTED_ROLE.setGenericType(ROLE);
 
@@ -322,6 +381,7 @@ public enum DBObjectType implements DynamicContentType {
         COLUMN.addParent(DATASET);
         COLUMN.addParent(TABLE);
         COLUMN.addParent(VIEW);
+        COLUMN.addParent(CURSOR);
         COLUMN.addParent(MATERIALIZED_VIEW);
         CONSTRAINT.addParent(SCHEMA);
         CONSTRAINT.addParent(DATASET);
@@ -357,9 +417,20 @@ public enum DBObjectType implements DynamicContentType {
         TRIGGER.addParent(TABLE);
         TRIGGER.addParent(VIEW);
         TRIGGER.addParent(MATERIALIZED_VIEW);
+        DATASET_TRIGGER.addParent(SCHEMA);
+        DATASET_TRIGGER.addParent(DATASET);
+        DATASET_TRIGGER.addParent(TABLE);
+        DATASET_TRIGGER.addParent(VIEW);
+        DATASET_TRIGGER.addParent(MATERIALIZED_VIEW);
+        DATABASE_TRIGGER.addParent(SCHEMA);
         TYPE.addParent(SCHEMA);
         TYPE_FUNCTION.addParent(TYPE);
         TYPE_PROCEDURE.addParent(TYPE);
+        TYPE_ATTRIBUTE.addParent(TYPE);
+        TYPE_FUNCTION.addParent(PACKAGE_TYPE);
+        TYPE_PROCEDURE.addParent(PACKAGE_TYPE);
+        TYPE_ATTRIBUTE.addParent(PACKAGE_TYPE);
+        TYPE_ATTRIBUTE.addParent(PACKAGE_TYPE);
         VIEW.addParent(SCHEMA);
 
         PACKAGE.addIcon(DBContentType.CODE_SPEC, Icons.DBO_PACKAGE_SPEC);

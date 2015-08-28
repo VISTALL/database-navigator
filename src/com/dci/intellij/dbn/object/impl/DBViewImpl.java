@@ -1,5 +1,12 @@
 package com.dci.intellij.dbn.object.impl;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import org.jetbrains.annotations.NotNull;
+
 import com.dci.intellij.dbn.browser.DatabaseBrowserUtils;
 import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
@@ -19,26 +26,18 @@ import com.dci.intellij.dbn.object.common.DBObjectType;
 import com.dci.intellij.dbn.object.common.list.DBObjectNavigationList;
 import com.dci.intellij.dbn.object.common.list.DBObjectNavigationListImpl;
 import com.dci.intellij.dbn.object.common.loader.DBSourceCodeLoader;
-import org.jetbrains.annotations.NotNull;
-
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class DBViewImpl extends DBDatasetImpl implements DBView {
     private boolean isSystemView;
     private DBType type;
     public DBViewImpl(DBSchema schema, ResultSet resultSet) throws SQLException {
-        super(schema, DBContentType.CODE_AND_DATA, resultSet);
+        super(schema, resultSet);
     }
 
     @Override
     protected void initObject(ResultSet resultSet) throws SQLException {
         name = resultSet.getString("VIEW_NAME");
         isSystemView = resultSet.getString("IS_SYSTEM_VIEW").equals("Y");
-        if (isSystemView) setContentType(DBContentType.DATA);
         String typeOwner = resultSet.getString("VIEW_TYPE_OWNER");
         String typeName = resultSet.getString("VIEW_TYPE");
         if (typeOwner != null && typeName != null) {
@@ -46,6 +45,11 @@ public class DBViewImpl extends DBDatasetImpl implements DBView {
             DBSchema typeSchema = objectBundle.getSchema(typeOwner);
             type = typeSchema.getType(typeName);
         }
+    }
+
+    @Override
+    public DBContentType getContentType() {
+        return isSystemView ? DBContentType.DATA : DBContentType.CODE_AND_DATA;
     }
 
     public DBObjectType getObjectType() {

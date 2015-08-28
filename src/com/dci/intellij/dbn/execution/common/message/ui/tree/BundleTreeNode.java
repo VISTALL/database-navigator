@@ -1,27 +1,38 @@
 package com.dci.intellij.dbn.execution.common.message.ui.tree;
 
+import com.dci.intellij.dbn.common.dispose.DisposerUtil;
+import com.intellij.openapi.util.Disposer;
+
 import javax.swing.tree.TreeNode;
-import java.util.List;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.Collections;
+import java.util.Enumeration;
+import java.util.List;
 
 public abstract class BundleTreeNode implements MessagesTreeNode{
     protected MessagesTreeNode parent;
-    protected List<MessagesTreeNode> children = new ArrayList<MessagesTreeNode>();
+    private List<MessagesTreeNode> children = new ArrayList<MessagesTreeNode>();
 
     protected BundleTreeNode(MessagesTreeNode parent) {
         this.parent = parent;
     }
 
-    public void dispose() {
-        for (MessagesTreeNode treeNode : children) {
-            treeNode.dispose();
-        }
+    public void addChild(MessagesTreeNode child) {
+        children.add(child);
+        Disposer.register(this, child);
+    }
+
+    public void clearChildren() {
+        DisposerUtil.dispose(children);
+        children.clear();
     }
 
     public MessagesTreeModel getTreeModel() {
         return parent.getTreeModel();
+    }
+
+    public List<MessagesTreeNode> getChildren() {
+        return children;
     }
 
     /*********************************************************
@@ -54,4 +65,14 @@ public abstract class BundleTreeNode implements MessagesTreeNode{
     public Enumeration children() {
         return Collections.enumeration(children);
     }
+
+    /*********************************************************
+     *                      Disposable                       *
+     *********************************************************/
+    public void dispose() {
+        children.clear();
+        parent = null;
+    }
+
+
 }

@@ -2,12 +2,14 @@ package com.dci.intellij.dbn.data.editor.ui;
 
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.ui.KeyUtil;
+import com.dci.intellij.dbn.common.util.StringUtil;
 import com.dci.intellij.dbn.data.editor.text.TextEditorAdapter;
 import com.dci.intellij.dbn.data.editor.text.ui.TextEditorDialog;
 import com.intellij.openapi.actionSystem.IdeActions;
 import com.intellij.openapi.actionSystem.Shortcut;
 import com.intellij.openapi.keymap.KeymapUtil;
 import com.intellij.openapi.project.Project;
+import com.intellij.util.ui.UIUtil;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -16,6 +18,7 @@ import javax.swing.text.Document;
 import java.awt.BorderLayout;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -32,10 +35,15 @@ public class TextFieldWithTextEditor extends JPanel implements DataEditorCompone
 
     private UserValueHolder userValueHolder;
     private Project project;
+    private String displayValue;
 
     public TextFieldWithTextEditor(Project project) {
+        this(project, null);
+    }
+    public TextFieldWithTextEditor(Project project, String displayValue) {
         super(new BorderLayout(2, 0));
         this.project = project;
+        this.displayValue = displayValue;
         setBounds(0, 0, 0, 0);
 
         textField = new JTextField();
@@ -49,14 +57,28 @@ public class TextFieldWithTextEditor extends JPanel implements DataEditorCompone
         Shortcut[] shortcuts = KeyUtil.getShortcuts(IdeActions.ACTION_SHOW_INTENTION_ACTIONS);
         String shortcutText = KeymapUtil.getShortcutsText(shortcuts);
 
-        button.setToolTipText("Open editor (" + shortcutText +")");
+        button.setToolTipText("Open editor (" + shortcutText + ')');
         add(button, BorderLayout.EAST);
+        if (StringUtil.isNotEmpty(displayValue)) {
+            textField.setText(displayValue);
+            textField.setEnabled(false);
+            textField.setDisabledTextColor(UIUtil.getLabelDisabledForeground());
+        }
         textField.setPreferredSize(new Dimension(150, -1));
         textField.addKeyListener(keyListener);
         textField.setEditable(false);
 
+        button.addKeyListener(keyListener);
+        addKeyListener(keyListener);
+
         customizeButton(button);
         customizeTextField(textField);
+    }
+
+    @Override
+    public void setFont(Font font) {
+        super.setFont(font);
+        if (textField != null) textField.setFont(font);
     }
 
     public void setEditable(boolean editable){
@@ -149,9 +171,10 @@ public class TextFieldWithTextEditor extends JPanel implements DataEditorCompone
      *                 TextEditorListener                   *
      ********************************************************/
     public void afterUpdate() {
-        if (userValueHolder.getUserValue() instanceof String) {
-            String text = (String) userValueHolder.getUserValue();
-            setEditable(text == null || (text.length() < 1000 && text.indexOf('\n') == -1));
+        Object userValue = userValueHolder.getUserValue();
+        if (userValue instanceof String && StringUtil.isEmpty(displayValue)) {
+            String text = (String) userValue;
+            setEditable(text.length() < 1000 && text.indexOf('\n') == -1);
             setText(text);
         }
     }
@@ -168,7 +191,7 @@ public class TextFieldWithTextEditor extends JPanel implements DataEditorCompone
 
     @Override
     public void dispose() {
-        if (!isDisposed()) {
+        if (!isDisposed) {
             isDisposed = true;
             userValueHolder = null;
             project = null;

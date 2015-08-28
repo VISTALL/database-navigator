@@ -1,18 +1,25 @@
 package com.dci.intellij.dbn.language.common.psi;
 
+import javax.swing.Icon;
+import java.util.Set;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import com.dci.intellij.dbn.code.common.style.formatting.FormattingAttributes;
 import com.dci.intellij.dbn.code.common.style.formatting.FormattingDefinition;
 import com.dci.intellij.dbn.code.common.style.formatting.FormattingProviderPsiElement;
 import com.dci.intellij.dbn.common.editor.BasicTextEditor;
 import com.dci.intellij.dbn.common.thread.ReadActionRunner;
-import com.dci.intellij.dbn.common.util.DocumentUtil;
 import com.dci.intellij.dbn.common.util.EditorUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.database.DatabaseCompatibilityInterface;
 import com.dci.intellij.dbn.editor.ddl.DDLFileEditor;
+import com.dci.intellij.dbn.editor.session.SessionBrowser;
+import com.dci.intellij.dbn.editor.session.SessionBrowserStatementVirtualFile;
+import com.dci.intellij.dbn.editor.session.ui.SessionBrowserForm;
 import com.dci.intellij.dbn.language.common.DBLanguage;
 import com.dci.intellij.dbn.language.common.DBLanguageDialect;
-import com.dci.intellij.dbn.language.common.DBLanguageFile;
+import com.dci.intellij.dbn.language.common.DBLanguagePsiFile;
 import com.dci.intellij.dbn.language.common.element.ElementType;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeAttributesBundle;
@@ -23,8 +30,9 @@ import com.dci.intellij.dbn.object.DBSchema;
 import com.dci.intellij.dbn.object.common.DBObject;
 import com.dci.intellij.dbn.object.common.DBObjectType;
 import com.dci.intellij.dbn.object.common.DBVirtualObject;
-import com.dci.intellij.dbn.vfs.DatabaseEditableObjectFile;
-import com.dci.intellij.dbn.vfs.SourceCodeFile;
+import com.dci.intellij.dbn.vfs.DBConsoleVirtualFile;
+import com.dci.intellij.dbn.vfs.DBEditableObjectVirtualFile;
+import com.dci.intellij.dbn.vfs.DBSourceCodeVirtualFile;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.intellij.ide.util.EditSourceUtil;
 import com.intellij.lang.ASTNode;
@@ -32,10 +40,13 @@ import com.intellij.navigation.ItemPresentation;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
+import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.wm.IdeFocusManager;
 import com.intellij.psi.PsiComment;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
@@ -44,11 +55,6 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.search.LocalSearchScope;
 import com.intellij.psi.search.SearchScope;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import javax.swing.Icon;
-import java.util.Set;
 
 public abstract class BasePsiElement extends ASTWrapperPsiElement implements ItemPresentation, FormattingProviderPsiElement {
     private ElementType elementType;
@@ -56,6 +62,12 @@ public abstract class BasePsiElement extends ASTWrapperPsiElement implements Ite
     private boolean isScopeIsolation;
     private boolean isScopeDemarcation;
     private FormattingAttributes formattingAttributes;
+
+    public enum MatchType {
+        STRONG,
+        CACHED,
+        SOFT,
+    }
 
     public BasePsiElement(ASTNode astNode, ElementType elementType) {
         super(astNode);
@@ -159,31 +171,37 @@ public abstract class BasePsiElement extends ASTWrapperPsiElement implements Ite
         return elementType;
     }
 
-    public DBLanguageFile getFile() {
+    public DBLanguagePsiFile getFile() {
         PsiElement parent = getParent();
-        while (parent != null && !(parent instanceof DBLanguageFile)) {
+        while (parent != null && !(parent instanceof DBLanguagePsiFile)) {
             parent = parent.getParent();
         }
-        return (DBLanguageFile) parent;
+        return (DBLanguagePsiFile) parent;
     }
 
     @Nullable
     public ConnectionHandler getActiveConnection() {
-        DBLanguageFile file = getFile();
+        DBLanguagePsiFile file = getFile();
         return file == null ? null : file.getActiveConnection();
     }
 
     public DBSchema getCurrentSchema() {
-        DBLanguageFile file = getFile();
+        PsiElement parent = getParent();
+        if (parent instanceof BasePsiElement) {
+            BasePsiElement basePsiElement = (BasePsiElement) parent;
+            return basePsiElement.getCurrentSchema();
+        }
+        DBLanguagePsiFile file = getFile();
         return file == null ? null : file.getCurrentSchema();
     }
 
     public String toString() {
+        //return elementType.is(ElementTypeAttribute.SCOPE_DEMARCATION);
         return hasErrors() ?
                 "[INVALID] " + elementType.getDebugName() :
                 elementType.getDebugName() +
-                        (isScopeDemarcation() ? " SCOPE_DEMARCATION" : "") +
-                        (isScopeIsolation() ? " SCOPE_ISOLATION" : "");
+                        (isScopeDemarcation ? " SCOPE_DEMARCATION" : "") +
+                        (isScopeIsolation ? " SCOPE_ISOLATION" : "");
     }
 
     public void acceptChildren(@NotNull PsiElementVisitor visitor) {
@@ -233,16 +251,49 @@ public abstract class BasePsiElement extends ASTWrapperPsiElement implements Ite
         return psiElement;
     }
 
+    @Nullable
     public BasePsiElement getPrevElement() {
         PsiElement preElement = getPrevSibling();
-        while (preElement != null && preElement instanceof PsiWhiteSpace) {
+        while (preElement != null && preElement instanceof PsiWhiteSpace && preElement instanceof PsiComment) {
             preElement = preElement.getPrevSibling();
         }
-        BasePsiElement previous = (BasePsiElement) preElement;
-        while (previous != null && previous.getLastChild() instanceof BasePsiElement) {
-            previous = (BasePsiElement) previous.getLastChild();
+
+        if (preElement instanceof BasePsiElement) {
+            BasePsiElement previous = (BasePsiElement) preElement;
+            while (previous.getLastChild() instanceof BasePsiElement) {
+                previous = (BasePsiElement) previous.getLastChild();
+            }
+            return previous;
         }
-        return previous;
+        return null;
+    }
+
+    public LeafPsiElement getPrevLeaf() {
+        PsiElement previousElement = getPrevSibling();
+        while (previousElement != null && previousElement instanceof PsiWhiteSpace && previousElement instanceof PsiComment) {
+            previousElement = previousElement.getPrevSibling();
+        }
+
+        // is first in parent
+        if (previousElement == null) {
+            PsiElement parent = getParent();
+            if (parent instanceof BasePsiElement) {
+                BasePsiElement basePsiElement = (BasePsiElement) parent;
+                return basePsiElement.getPrevLeaf();
+            }
+        } else if (previousElement instanceof LeafPsiElement) {
+            return (LeafPsiElement) previousElement;
+        } else if (previousElement instanceof BasePsiElement) {
+            BasePsiElement basePsiElement = (BasePsiElement) previousElement;
+            PsiElement lastChild = basePsiElement.getLastChild();
+            while (lastChild != null) {
+                lastChild = lastChild.getLastChild();
+                if (lastChild instanceof LeafPsiElement) {
+                    return (LeafPsiElement) lastChild;
+                }
+            }
+        }
+        return null;
     }
 
     protected BasePsiElement getNextElement() {
@@ -266,22 +317,48 @@ public abstract class BasePsiElement extends ASTWrapperPsiElement implements Ite
             OpenFileDescriptor descriptor = (OpenFileDescriptor) EditSourceUtil.getDescriptor(this);
             if (descriptor != null) {
                 VirtualFile virtualFile = getFile().getVirtualFile();
-                FileEditorManager editorManager = FileEditorManager.getInstance(getProject());
+                Project project = getProject();
+                FileEditorManager editorManager = FileEditorManager.getInstance(project);
                 if (virtualFile != null) {
-                    if (virtualFile instanceof SourceCodeFile) {
-                        SourceCodeFile sourceCodeFile = (SourceCodeFile) virtualFile;
-                        DatabaseEditableObjectFile databaseFile = sourceCodeFile.getDatabaseFile();
+                    if (virtualFile instanceof DBSourceCodeVirtualFile) {
+                        DBSourceCodeVirtualFile sourceCodeFile = (DBSourceCodeVirtualFile) virtualFile;
+                        DBEditableObjectVirtualFile databaseFile = sourceCodeFile.getMainDatabaseFile();
                         if (!editorManager.isFileOpen(databaseFile)) {
                             editorManager.openFile(databaseFile, requestFocus);
                         }
-                        BasicTextEditor textEditor = EditorUtil.getFileEditor(databaseFile, virtualFile);
-                        descriptor.navigateIn(textEditor.getEditor());
+                        BasicTextEditor textEditor = EditorUtil.getTextEditor(databaseFile, (DBSourceCodeVirtualFile) virtualFile);
+                        if (textEditor != null) {
+                            Editor editor = textEditor.getEditor();
+                            descriptor.navigateIn(editor);
+                            if (requestFocus) focusEditor(editor);
+                        }
                         return;
                     }
 
-                    Editor editor = editorManager.getSelectedTextEditor();
-                    if (editor != null && virtualFile == DocumentUtil.getVirtualFile(editor)) {
-                        super.navigate(requestFocus);
+                    if (virtualFile instanceof DBConsoleVirtualFile) {
+                        DBConsoleVirtualFile consoleVirtualFile = (DBConsoleVirtualFile) virtualFile;
+                        BasicTextEditor textEditor = EditorUtil.getTextEditor(consoleVirtualFile);
+                        if (textEditor != null) {
+                            Editor editor = textEditor.getEditor();
+                            descriptor.navigateIn(editor);
+                            if (requestFocus) focusEditor(editor);
+                        }
+                        return;
+                    }
+
+                    if (virtualFile instanceof SessionBrowserStatementVirtualFile) {
+                        SessionBrowserStatementVirtualFile sessionBrowserStatementFile = (SessionBrowserStatementVirtualFile) virtualFile;
+                        SessionBrowser sessionBrowser = sessionBrowserStatementFile.getSessionBrowser();
+                        if (sessionBrowser != null) {
+                            SessionBrowserForm editorForm = sessionBrowser.getEditorForm();
+                            if (editorForm != null) {
+                                EditorEx viewer = editorForm.getDetailsForm().getCurrentSqlPanel().getViewer();
+                                if (viewer != null) {
+                                    descriptor.navigateIn(viewer);
+                                    if (requestFocus) focusEditor(viewer);
+                                }
+                            }
+                        }
                         return;
                     }
 
@@ -289,8 +366,10 @@ public abstract class BasePsiElement extends ASTWrapperPsiElement implements Ite
                     for (FileEditor fileEditor : fileEditors) {
                         if (fileEditor instanceof DDLFileEditor) {
                             DDLFileEditor textEditor = (DDLFileEditor) fileEditor;
-                            if (textEditor.getVirtualFile() == virtualFile) {
-                                descriptor.navigateIn(textEditor.getEditor());
+                            if (textEditor.getVirtualFile().equals(virtualFile)) {
+                                Editor editor = textEditor.getEditor();
+                                descriptor.navigateIn(editor);
+                                if (requestFocus) focusEditor(editor);
                                 return;
                             }
 
@@ -301,6 +380,23 @@ public abstract class BasePsiElement extends ASTWrapperPsiElement implements Ite
                 }
             }
         }
+    }
+
+    public void navigateInEditor(@NotNull FileEditor fileEditor, boolean requestFocus) {
+        OpenFileDescriptor descriptor = (OpenFileDescriptor) EditSourceUtil.getDescriptor(this);
+        if (descriptor != null) {
+            Editor editor = EditorUtil.getEditor(fileEditor);
+            if (editor != null) {
+                descriptor.navigateIn(editor);
+                if (requestFocus) focusEditor(editor);
+            }
+        }
+    }
+
+
+    private static void focusEditor(@NotNull Editor editor) {
+        Project project = editor.getProject();
+        IdeFocusManager.getInstance(project).requestFocus(editor.getContentComponent(), true);
     }
 
     /*********************************************************
@@ -314,11 +410,11 @@ public abstract class BasePsiElement extends ASTWrapperPsiElement implements Ite
         return bucket;
     }
 
-    public abstract BasePsiElement lookupPsiElement(PsiLookupAdapter lookupAdapter, int scopeCrossCount);
-    public abstract Set<BasePsiElement> collectPsiElements(PsiLookupAdapter lookupAdapter, Set<BasePsiElement> bucket, int scopeCrossCount);
+    public abstract @Nullable BasePsiElement findPsiElement(PsiLookupAdapter lookupAdapter, int scopeCrossCount);
+    public abstract @Nullable Set<BasePsiElement> collectPsiElements(PsiLookupAdapter lookupAdapter, @Nullable Set<BasePsiElement> bucket, int scopeCrossCount);
 
-    public abstract void collectExecVariablePsiElements(Set<ExecVariablePsiElement> bucket);
-    public abstract void collectSubjectPsiElements(Set<BasePsiElement> bucket);
+    public abstract void collectExecVariablePsiElements(@NotNull Set<ExecVariablePsiElement> bucket);
+    public abstract void collectSubjectPsiElements(@NotNull Set<IdentifierPsiElement> bucket);
 
 
     public void collectVirtualObjectPsiElements(Set<BasePsiElement> bucket, DBObjectType objectType) {
@@ -330,11 +426,12 @@ public abstract class BasePsiElement extends ASTWrapperPsiElement implements Ite
         }
     }
 
-    public abstract NamedPsiElement lookupNamedPsiElement(String id);
-    public abstract BasePsiElement lookupFirstPsiElement(ElementTypeAttribute attribute);
-    public abstract BasePsiElement lookupFirstLeafPsiElement();
-    public abstract BasePsiElement lookupPsiElementBySubject(ElementTypeAttribute attribute, CharSequence subjectName, DBObjectType subjectType);
-    public abstract BasePsiElement lookupPsiElementByAttribute(ElementTypeAttribute attribute);
+    public abstract NamedPsiElement findNamedPsiElement(String id);
+    public abstract BasePsiElement findFirstPsiElement(ElementTypeAttribute attribute);
+    public abstract BasePsiElement findFirstPsiElement(Class<? extends ElementType> clazz);
+    public abstract BasePsiElement findFirstLeafPsiElement();
+    public abstract BasePsiElement findPsiElementBySubject(ElementTypeAttribute attribute, CharSequence subjectName, DBObjectType subjectType);
+    public abstract BasePsiElement findPsiElementByAttribute(ElementTypeAttribute attribute);
 
 
     public boolean containsPsiElement(BasePsiElement basePsiElement) {
@@ -345,7 +442,7 @@ public abstract class BasePsiElement extends ASTWrapperPsiElement implements Ite
      *                       ItemPresentation                *
      *********************************************************/
 
-    public BasePsiElement lookupEnclosingPsiElement(ElementTypeAttribute attribute) {
+    public BasePsiElement findEnclosingPsiElement(ElementTypeAttribute attribute) {
         PsiElement element = this;
         while (element != null) {
             if (element instanceof BasePsiElement) {
@@ -359,7 +456,21 @@ public abstract class BasePsiElement extends ASTWrapperPsiElement implements Ite
         return null;
     }
 
-    public BasePsiElement lookupEnclosingPsiElement(ElementTypeAttribute[] typeAttributes) {
+    public BasePsiElement findEnclosingVirtualObjectPsiElement(DBObjectType objectType) {
+        PsiElement element = this;
+        while (element != null) {
+            if (element instanceof BasePsiElement) {
+                BasePsiElement basePsiElement = (BasePsiElement) element;
+                if (basePsiElement.getElementType().getVirtualObjectType() == objectType) {
+                    return (BasePsiElement) element;
+                }
+            }
+            element = element.getParent();
+        }
+        return null;
+    }
+
+    public BasePsiElement findEnclosingPsiElement(ElementTypeAttribute[] typeAttributes) {
         PsiElement element = this;
         while (element != null) {
             if (element  instanceof BasePsiElement) {
@@ -376,7 +487,7 @@ public abstract class BasePsiElement extends ASTWrapperPsiElement implements Ite
     }
 
 
-    public NamedPsiElement lookupEnclosingNamedPsiElement() {
+    public NamedPsiElement findEnclosingNamedPsiElement() {
         PsiElement parent = getParent();
         while (parent != null) {
             if (parent instanceof NamedPsiElement) {
@@ -387,7 +498,7 @@ public abstract class BasePsiElement extends ASTWrapperPsiElement implements Ite
         return null;
     }
 
-    public SequencePsiElement lookupEnclosingSequencePsiElement() {
+    public SequencePsiElement findEnclosingSequencePsiElement() {
         PsiElement parent = getParent();
         while (parent != null) {
             if (parent instanceof SequencePsiElement) {
@@ -402,19 +513,19 @@ public abstract class BasePsiElement extends ASTWrapperPsiElement implements Ite
 
     public BasePsiElement getEnclosingScopePsiElement() {
         if (enclosingScopePsiElement == null) {
-            enclosingScopePsiElement = lookupEnclosingScopePsiElement();
+            enclosingScopePsiElement = findEnclosingScopePsiElement();
         }
 
         return enclosingScopePsiElement;
     }
 
-    public BasePsiElement lookupEnclosingScopeIsolationPsiElement() {
+    public BasePsiElement findEnclosingScopeIsolationPsiElement() {
         PsiElement element = this;
         BasePsiElement basePsiElement = null;
         while (element != null) {
             if (element instanceof BasePsiElement) {
                 basePsiElement = (BasePsiElement) element;
-                if (basePsiElement.isScopeIsolation()) {
+                if (basePsiElement.isScopeIsolation) {
                     return basePsiElement;
                 }
             }
@@ -424,13 +535,14 @@ public abstract class BasePsiElement extends ASTWrapperPsiElement implements Ite
         return basePsiElement;
     }
 
-    public BasePsiElement lookupEnclosingScopeDemarcationPsiElement() {
+    public BasePsiElement findEnclosingScopeDemarcationPsiElement() {
         PsiElement element = this;
         BasePsiElement basePsiElement = null;
         while (element != null) {
             if (element instanceof BasePsiElement) {
                 basePsiElement = (BasePsiElement) element;
-                if (basePsiElement.isScopeDemarcation()) {
+                //return elementType.is(ElementTypeAttribute.SCOPE_DEMARCATION);
+                if (basePsiElement.isScopeDemarcation) {
                     return basePsiElement;
                 }
             }
@@ -443,7 +555,7 @@ public abstract class BasePsiElement extends ASTWrapperPsiElement implements Ite
     /**
      * @deprecated use scope demarcation and isolation
      */
-    public BasePsiElement lookupEnclosingScopePsiElement() {
+    public BasePsiElement findEnclosingScopePsiElement() {
         PsiElement element = this;
         BasePsiElement basePsiElement = null;
         while (element != null) {
@@ -461,18 +573,35 @@ public abstract class BasePsiElement extends ASTWrapperPsiElement implements Ite
 
 
 
-    public BasePsiElement lookupEnclosingPsiElement(Class type) {
+/*    public BasePsiElement findEnclosingPsiElement(Class<? extends BasePsiElement> type) {
         PsiElement parent = getParent();
         while (parent != null) {
-            if (type.isAssignableFrom(parent.getClass())) {
-                return (BasePsiElement) parent;
+            if (parent instanceof BasePsiElement) {
+                BasePsiElement basePsiElement = (BasePsiElement) parent;
+                if (type.isAssignableFrom(basePsiElement.getElementType().getClass())) {
+                    return (BasePsiElement) parent;
+                }
+            }
+            parent = parent.getParent();
+        }
+        return null;
+    }*/
+
+    public <T extends BasePsiElement> T findEnclosingPsiElement(Class<T> psiClass) {
+        PsiElement parent = getParent();
+        while (parent != null) {
+            if (parent instanceof BasePsiElement) {
+                BasePsiElement basePsiElement = (BasePsiElement) parent;
+                if (psiClass.isAssignableFrom(basePsiElement.getClass())) {
+                    return (T) parent;
+                }
             }
             parent = parent.getParent();
         }
         return null;
     }
 
-    public NamedPsiElement lookupEnclosingRootPsiElement() {
+    public NamedPsiElement findEnclosingRootPsiElement() {
         PsiElement parent = getParent();
         while (parent != null) {
             if (parent instanceof NamedPsiElement) {
@@ -514,7 +643,8 @@ public abstract class BasePsiElement extends ASTWrapperPsiElement implements Ite
     }
     
     public boolean isScopeBoundary() {
-        return isScopeDemarcation() || isScopeIsolation();
+        //return elementType.is(ElementTypeAttribute.SCOPE_DEMARCATION);
+        return isScopeDemarcation || isScopeIsolation;
     }
 
 
@@ -522,7 +652,31 @@ public abstract class BasePsiElement extends ASTWrapperPsiElement implements Ite
      *                       ItemPresentation                *
      *********************************************************/
     public String getPresentableText() {
+        ElementType elementType = getSpecificElementType();
         return elementType.getDescription();
+    }
+
+    public ElementType getSpecificElementType() {
+        ElementType elementType = this.elementType;
+        if (elementType.is(ElementTypeAttribute.GENERIC)) {
+            BasePsiElement specificElement = findFirstPsiElement(ElementTypeAttribute.SPECIFIC);
+            if (specificElement != null) {
+                elementType = specificElement.getElementType();
+            }
+        }
+        return elementType;
+    }
+
+    public boolean is(ElementTypeAttribute attribute) {
+        if (elementType.is(attribute)) {
+            return true;
+        } else if (attribute.isSpecific()) {
+            ElementType specificElementType = getSpecificElementType();
+            if (specificElementType != null) {
+                return specificElementType.is(attribute);
+            }
+        }
+        return false;
     }
 
     @Nullable
@@ -532,7 +686,7 @@ public abstract class BasePsiElement extends ASTWrapperPsiElement implements Ite
 
     @Nullable
     public Icon getIcon(boolean open) {
-        return getElementType().getIcon();
+        return getSpecificElementType().getIcon();
     }
 
     @Nullable
@@ -552,9 +706,7 @@ public abstract class BasePsiElement extends ASTWrapperPsiElement implements Ite
         return getElementType().getLanguageDialect();
     }
 
-    public abstract boolean equals(BasePsiElement basePsiElement);
-
-    public abstract boolean matches(BasePsiElement basePsiElement);
+    public abstract boolean matches(BasePsiElement basePsiElement, MatchType matchType);
 
     public synchronized DBObject resolveUnderlyingObject() {
         if (isVirtualObject() && (underlyingObject == null || !underlyingObject.isValid()) ) {

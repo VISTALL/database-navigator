@@ -1,51 +1,43 @@
 package com.dci.intellij.dbn.connection.config;
 
-import com.dci.intellij.dbn.common.options.ProjectConfiguration;
-import com.dci.intellij.dbn.common.options.setting.SettingsUtil;
-import com.dci.intellij.dbn.connection.ConnectionBundle;
-import com.dci.intellij.dbn.connection.ConnectivityStatus;
-import com.dci.intellij.dbn.connection.DatabaseType;
-import com.dci.intellij.dbn.connection.config.ui.GenericDatabaseSettingsForm;
-import com.intellij.openapi.project.Project;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.UUID;
+import com.dci.intellij.dbn.common.LoggerFactory;
+import com.dci.intellij.dbn.common.options.Configuration;
+import com.dci.intellij.dbn.common.util.StringUtil;
+import com.dci.intellij.dbn.connection.ConnectivityStatus;
+import com.dci.intellij.dbn.connection.DatabaseType;
+import com.dci.intellij.dbn.connection.config.ui.GenericDatabaseSettingsForm;
+import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.project.Project;
+import com.intellij.util.Base64Converter;
 
-public abstract class ConnectionDatabaseSettings extends ProjectConfiguration<GenericDatabaseSettingsForm>{
+public abstract class ConnectionDatabaseSettings extends Configuration<GenericDatabaseSettingsForm> {
+    public static final Logger LOGGER = LoggerFactory.createLogger();
+
     private transient ConnectivityStatus connectivityStatus = ConnectivityStatus.UNKNOWN;
     protected boolean active = true;
     protected boolean osAuthentication = false;
-    protected String id;
     protected String name;
     protected String description;
-    protected DatabaseType databaseType;
+    protected DatabaseType databaseType = DatabaseType.UNKNOWN;
+    protected double databaseVersion = 9999;
     protected String user;
     protected String password;
     protected int hashCode;
-    protected ConnectionBundle connectionBundle;
+    private ConnectionSettings parent;
 
-    private boolean isNew;
-
-    public ConnectionDatabaseSettings(Project project, ConnectionBundle connectionBundle) {
-        super(project);
-        this.connectionBundle = connectionBundle;
+    public ConnectionDatabaseSettings(ConnectionSettings parent) {
+        this.parent = parent;
     }
 
-    public boolean isNew() {
-        return isNew;
-    }
-
-    public void setNew(boolean isNew) {
-        this.isNew = isNew;
+    public ConnectionSettings getParent() {
+        return parent;
     }
 
     protected static String nvl(Object value) {
         return (String) (value == null ? "" : value);
-    }
-
-    public ConnectionBundle getConnectionBundle() {
-        return connectionBundle;
     }
 
     public ConnectivityStatus getConnectivityStatus() {
@@ -71,15 +63,6 @@ public abstract class ConnectionDatabaseSettings extends ProjectConfiguration<Ge
 
     public void setActive(boolean active) {
         this.active = active;
-    }
-
-    public void generateNewId() {
-        id =  UUID.randomUUID().toString();
-    }
-
-    @NotNull
-    public String getId() {
-        return id;
     }
 
     public String getName() {
@@ -110,6 +93,14 @@ public abstract class ConnectionDatabaseSettings extends ProjectConfiguration<Ge
         this.databaseType = databaseType;
     }
 
+    public double getDatabaseVersion() {
+        return databaseVersion;
+    }
+
+    public void setDatabaseVersion(double databaseVersion) {
+        this.databaseVersion = databaseVersion;
+    }
+
     public String getUser() {
         return user;
     }
@@ -132,6 +123,11 @@ public abstract class ConnectionDatabaseSettings extends ProjectConfiguration<Ge
                "User:\t"      + user;
     }
 
+    @Override
+    public String getConfigElementName() {
+        return "database";
+    }
+
     public abstract String getDriverLibrary();
 
     public abstract void updateHashCode();
@@ -145,33 +141,63 @@ public abstract class ConnectionDatabaseSettings extends ProjectConfiguration<Ge
         return hashCode;
     }
 
-   /*********************************************************
-    *                   JDOMExternalizable                 *
+    @NotNull
+    public String getConnectionId() {
+        return parent.getConnectionId();
+    }
+
+    /*********************************************************
+    *                 PersistentConfiguration               *
     *********************************************************/
     public void readConfiguration(Element element) {
-        active = SettingsUtil.getBooleanAttribute(element, "active", active);
-        osAuthentication = SettingsUtil.getBooleanAttribute(element, "os-authentication", osAuthentication);
-        id = element.getAttributeValue("id");
-        name = element.getAttributeValue("name");
-        description = element.getAttributeValue("description");
-        databaseType = DatabaseType.get(element.getAttributeValue("database-type"));
-        user = element.getAttributeValue("user");
-        password = element.getAttributeValue("password");
+        String connectionId = getString(element, "id", null);
+        if (connectionId != null) {
+            parent.setConnectionId(connectionId);
+        }
 
+        name             = getString(element, "name", name);
+        description      = getString(element, "description", description);
+        databaseType     = DatabaseType.get(getString(element, "database-type", databaseType.getName()));
+        databaseVersion  = getDouble(element, "database-version", databaseVersion);
+        user             = getString(element, "user", user);
+        password         = decodePassword(getString(element, "password", password));
+        active           = getBoolean(element, "active", active);
+        osAuthentication = getBoolean(element, "os-authentication", osAuthentication);
         updateHashCode();
     }
 
     public void writeConfiguration(Element element) {
-        SettingsUtil.setBooleanAttribute(element, "active", active);
-        SettingsUtil.setBooleanAttribute(element, "os-authentication", osAuthentication);
-        element.setAttribute("id",             id);
-        element.setAttribute("name",           nvl(name));
-        element.setAttribute("description",    nvl(description));
-        element.setAttribute("database-type",  nvl(databaseType == null ? DatabaseType.UNKNOWN.getName() : databaseType.getName()));
-        element.setAttribute("user",           nvl(user));
-        element.setAttribute("password",       nvl(password));
+        setString(element, "name", nvl(name));
+        setString(element, "description", nvl(description));
+        setBoolean(element, "active", active);
+        setBoolean(element, "os-authentication", osAuthentication);
+        setString(element, "database-type", nvl(databaseType == null ? DatabaseType.UNKNOWN.getName() : databaseType.getName()));
+        setDouble(element, "database-version", databaseVersion);
+        setString(element, "user", nvl(user));
+        setString(element, "password", encodePassword(password));
     }
 
+    private static String encodePassword(String password) {
+        try {
+            password = StringUtil.isEmpty(password) ? "" : Base64Converter.encode(nvl(password));
+        } catch (Exception e) {
+            // any exception would break the logic storing the connection settings
+            LOGGER.error("Error encoding password", e);
+        }
+        return password;
+    }
 
+    private static String decodePassword(String password) {
+        try {
+            password = StringUtil.isEmpty(password) ? "" : Base64Converter.decode(nvl(password));
+        } catch (Exception e) {
+            // password may not be encoded yet
+        }
 
+        return password;
+    }
+
+    public Project getProject() {
+        return parent.getProject();
+    }
 }

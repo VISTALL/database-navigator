@@ -1,10 +1,17 @@
 package com.dci.intellij.dbn.object.impl;
 
+import javax.swing.Icon;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
 import com.dci.intellij.dbn.browser.ui.HtmlToolTipBuilder;
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.data.type.DBDataType;
-import com.dci.intellij.dbn.editor.DBContentType;
 import com.dci.intellij.dbn.object.DBArgument;
 import com.dci.intellij.dbn.object.DBFunction;
 import com.dci.intellij.dbn.object.DBMethod;
@@ -13,18 +20,9 @@ import com.dci.intellij.dbn.object.common.DBObjectImpl;
 import com.dci.intellij.dbn.object.common.DBObjectType;
 import com.dci.intellij.dbn.object.common.list.DBObjectNavigationList;
 import com.dci.intellij.dbn.object.common.list.DBObjectNavigationListImpl;
-import com.dci.intellij.dbn.object.lookup.DBArgumentRef;
-import com.dci.intellij.dbn.object.lookup.DBObjectRef;
 import com.dci.intellij.dbn.object.properties.DBDataTypePresentableProperty;
 import com.dci.intellij.dbn.object.properties.PresentableProperty;
 import com.dci.intellij.dbn.object.properties.SimplePresentableProperty;
-import org.jetbrains.annotations.NotNull;
-
-import javax.swing.Icon;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class DBArgumentImpl extends DBObjectImpl implements DBArgument {
     private DBDataType dataType;
@@ -35,7 +33,7 @@ public class DBArgumentImpl extends DBObjectImpl implements DBArgument {
     private boolean output;
 
     public DBArgumentImpl(DBMethod method, ResultSet resultSet) throws SQLException {
-        super(method, DBContentType.NONE, resultSet);
+        super(method, resultSet);
     }
 
     @Override
@@ -52,20 +50,10 @@ public class DBArgumentImpl extends DBObjectImpl implements DBArgument {
         name = resultSet.getString("ARGUMENT_NAME");
         if (name == null) name = position == 0 ? "return" : "[unnamed]";
 
-        dataType = new DBDataType(this, resultSet);
+        dataType = DBDataType.get(this.getConnectionHandler(), resultSet);
         if (getParentObject() instanceof DBFunction) {
             position++;
         }
-    }
-
-    @Override
-    protected DBObjectRef createRef() {
-        return new DBArgumentRef(this);
-    }
-
-    @Override
-    public DBArgumentRef getRef() {
-        return (DBArgumentRef) super.getRef();
     }
 
     public DBDataType getDataType() {
@@ -102,7 +90,7 @@ public class DBArgumentImpl extends DBObjectImpl implements DBArgument {
 
     @NotNull
     public List<BrowserTreeNode> buildAllPossibleTreeChildren() {
-        return BrowserTreeNode.EMPTY_LIST;
+        return EMPTY_TREE_NODE_LIST;
     }
 
     public void buildToolTip(HtmlToolTipBuilder ttb) {
@@ -117,7 +105,7 @@ public class DBArgumentImpl extends DBObjectImpl implements DBArgument {
 
     @Override
     public String getPresentableTextConditionalDetails() {
-        return getDataType().getQualifiedName();
+        return dataType.getQualifiedName();
     }
 
     @Override
@@ -138,11 +126,12 @@ public class DBArgumentImpl extends DBObjectImpl implements DBArgument {
         return null;
     }
 
+    @Nullable
     @Override
     public Icon getIcon() {
-        return isInput() && isOutput() ? Icons.DBO_ARGUMENT_IN_OUT :
-               isInput() ? Icons.DBO_ARGUMENT_IN :
-               isOutput() ? Icons.DBO_ARGUMENT_OUT : Icons.DBO_ARGUMENT;
+        return input && output ? Icons.DBO_ARGUMENT_IN_OUT :
+               input ? Icons.DBO_ARGUMENT_IN :
+               output ? Icons.DBO_ARGUMENT_OUT : Icons.DBO_ARGUMENT;
     }
 
     public DBObjectType getObjectType() {
@@ -155,7 +144,7 @@ public class DBArgumentImpl extends DBObjectImpl implements DBArgument {
             DBMethod thisMethod = getMethod();
             DBMethod thatMethod = argument.getMethod();
             if (thisMethod.equals(thatMethod)) {
-                return getPosition() - argument.getPosition();
+                return position - argument.getPosition();
             } else {
                 return thisMethod.compareTo(thatMethod);
             }
@@ -167,8 +156,8 @@ public class DBArgumentImpl extends DBObjectImpl implements DBArgument {
     public boolean equals(Object obj) {
         if (super.equals(obj)) {
             DBArgument argument = (DBArgument) obj;
-            return getOverload() == argument.getOverload() &&
-                    getPosition() == argument.getPosition();
+            return overload == argument.getOverload() &&
+                    position == argument.getPosition();
         }
         return false;
     }

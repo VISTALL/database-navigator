@@ -1,7 +1,7 @@
 package com.dci.intellij.dbn.common.editor.document;
 
 import com.dci.intellij.dbn.common.util.MessageUtil;
-import com.dci.intellij.dbn.vfs.SourceCodeFile;
+import com.dci.intellij.dbn.vfs.DBSourceCodeVirtualFile;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.ReadOnlyFragmentModificationException;
 import com.intellij.openapi.editor.actionSystem.EditorActionManager;
@@ -26,10 +26,10 @@ public class OverrideReadonlyFragmentModificationHandler implements
         Document document = e.getGuardedBlock().getDocument();
         String message = document.getUserData(GUARDED_BLOCK_REASON);
         if (message != null) {
-            MessageUtil.showErrorDialog(message, "Action denied");
+            MessageUtil.showErrorDialog(null, "Action denied", message);
         } else {
             VirtualFile virtualFile = FileDocumentManager.getInstance().getFile(document);
-            if (virtualFile instanceof SourceCodeFile || virtualFile instanceof LightVirtualFile) {
+            if (virtualFile instanceof DBSourceCodeVirtualFile || virtualFile instanceof LightVirtualFile) {
                 //Messages.showErrorDialog("You're not allowed to change name and type of the edited component.", "Action denied");
             } else {
                 originalHandler.handle(e);

@@ -1,5 +1,10 @@
 package com.dci.intellij.dbn.language.common.psi;
 
+import javax.swing.Icon;
+import java.util.Set;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import com.dci.intellij.dbn.common.util.StringUtil;
 import com.dci.intellij.dbn.language.common.element.ExecVariableElementType;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeAttribute;
@@ -8,10 +13,6 @@ import com.dci.intellij.dbn.object.common.DBObjectType;
 import com.intellij.lang.ASTNode;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.psi.PsiElement;
-import org.jetbrains.annotations.Nullable;
-
-import javax.swing.Icon;
-import java.util.Set;
 
 public class ExecVariablePsiElement extends LeafPsiElement {
     public ExecVariablePsiElement(ASTNode astNode, ExecVariableElementType elementType) {
@@ -22,14 +23,16 @@ public class ExecVariablePsiElement extends LeafPsiElement {
         return (ExecVariableElementType) super.getElementType();
     }
 
-    public BasePsiElement lookupPsiElement(PsiLookupAdapter lookupAdapter, int scopeCrossCount) {return null;}
-    public Set<BasePsiElement> collectPsiElements(PsiLookupAdapter lookupAdapter, Set<BasePsiElement> bucket, int scopeCrossCount) {return bucket;}
+    @Nullable
+    public BasePsiElement findPsiElement(PsiLookupAdapter lookupAdapter, int scopeCrossCount) {return null;}
+    @Nullable
+    public Set<BasePsiElement> collectPsiElements(PsiLookupAdapter lookupAdapter, @Nullable Set<BasePsiElement> bucket, int scopeCrossCount) {return bucket;}
 
 
-    public void collectExecVariablePsiElements(Set<ExecVariablePsiElement> bucket) { bucket.add(this);}
-    public void collectSubjectPsiElements(Set<BasePsiElement> bucket) {}
-    public NamedPsiElement lookupNamedPsiElement(String id) {return null;}
-    public BasePsiElement lookupPsiElementBySubject(ElementTypeAttribute attribute, CharSequence subjectName, DBObjectType subjectType) {return null;}
+    public void collectExecVariablePsiElements(@NotNull Set<ExecVariablePsiElement> bucket) { bucket.add(this);}
+    public void collectSubjectPsiElements(@NotNull Set<IdentifierPsiElement> bucket) {}
+    public NamedPsiElement findNamedPsiElement(String id) {return null;}
+    public BasePsiElement findPsiElementBySubject(ElementTypeAttribute attribute, CharSequence subjectName, DBObjectType subjectType) {return null;}
 
 
     /*********************************************************
@@ -70,25 +73,11 @@ public class ExecVariablePsiElement extends LeafPsiElement {
     }
 
     @Override
-    public boolean equals(BasePsiElement basePsiElement) {
-        if (this == basePsiElement) {
-            return true;
-        } else {
-            if (basePsiElement instanceof ExecVariablePsiElement) {
-                ExecVariablePsiElement execVariablePsiElement = (ExecVariablePsiElement) basePsiElement;
-                return StringUtil.equalsIgnoreCase(execVariablePsiElement.getChars(), getChars());
-            }
-            return false;
+    public boolean matches(BasePsiElement basePsiElement, MatchType matchType) {
+        if (basePsiElement instanceof ExecVariablePsiElement) {
+            ExecVariablePsiElement execVariablePsiElement = (ExecVariablePsiElement) basePsiElement;
+            return matchType == MatchType.SOFT || StringUtil.equalsIgnoreCase(execVariablePsiElement.getChars(), getChars());
         }
-
-    }
-
-    @Override
-    public boolean matches(BasePsiElement basePsiElement) {
-        if (this == basePsiElement) {
-            return true;
-        } else {
-            return basePsiElement instanceof ExecVariablePsiElement;
-        }
+        return false;
     }
 }

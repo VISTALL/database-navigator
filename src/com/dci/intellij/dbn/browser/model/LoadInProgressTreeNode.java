@@ -1,30 +1,26 @@
 package com.dci.intellij.dbn.browser.model;
 
+import javax.swing.Icon;
+import java.util.List;
+import org.jetbrains.annotations.Nullable;
+
 import com.dci.intellij.dbn.code.sql.color.SQLTextAttributesKeys;
 import com.dci.intellij.dbn.common.content.DynamicContent;
 import com.dci.intellij.dbn.common.content.DynamicContentType;
+import com.dci.intellij.dbn.common.load.LoadIcon;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.GenericDatabaseElement;
+import com.dci.intellij.dbn.object.common.DBObjectType;
 import com.intellij.navigation.ItemPresentation;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.IconLoader;
 import com.intellij.openapi.vcs.FileStatus;
 
-import javax.swing.Icon;
-import java.util.List;
-
 public class LoadInProgressTreeNode implements BrowserTreeNode {
-    private BrowserTreeNode parent;
-    private int iconIndex;
-    private boolean disposed;
+    public static final LoadInProgressTreeNode LOOSE_INSTANCE = new LoadInProgressTreeNode(null);
 
-    private static Icon[] icons = new Icon[12];
-    static {
-        for (int i = 0; i <= 12 - 1; i++) {
-            icons[i] = IconLoader.getIcon("/process/step_" + (i + 1) + ".png");
-        }
-    }
+    private BrowserTreeNode parent;
+    private boolean disposed;
 
     public LoadInProgressTreeNode(BrowserTreeNode parent) {
         this.parent = parent;
@@ -41,7 +37,7 @@ public class LoadInProgressTreeNode implements BrowserTreeNode {
     }
 
     public int getTreeDepth() {
-        return parent.getTreeDepth() + 1;
+        return parent == null ? 0 : parent.getTreeDepth() + 1;
     }
 
     public BrowserTreeNode getTreeChild(int index) {
@@ -56,8 +52,10 @@ public class LoadInProgressTreeNode implements BrowserTreeNode {
         return null;
     }
 
-    public void rebuildTreeChildren() {
-    }
+    @Override
+    public void refreshTreeChildren(@Nullable DBObjectType objectType) {}
+
+    public void rebuildTreeChildren() {}
 
     public int getTreeChildCount() {
         return 0;
@@ -72,11 +70,8 @@ public class LoadInProgressTreeNode implements BrowserTreeNode {
     }
 
     public Icon getIcon(int flags) {
-        iconIndex++;
-        if (iconIndex == icons.length) iconIndex = 0;
-        return icons[iconIndex];
+        return LoadIcon.INSTANCE;
     }
-
     public String getPresentableText() {
         return "Loading...";
     }
@@ -89,6 +84,7 @@ public class LoadInProgressTreeNode implements BrowserTreeNode {
         return null;
     }
 
+    @Nullable
     public ConnectionHandler getConnectionHandler() {
         return parent.getConnectionHandler();
     }
@@ -152,5 +148,6 @@ public class LoadInProgressTreeNode implements BrowserTreeNode {
 
     public void dispose() {
         disposed = true;
+        parent = null;
     }
 }

@@ -1,5 +1,12 @@
 package com.dci.intellij.dbn.connection;
 
+import javax.swing.Icon;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Comparator;
+import java.util.List;
+import org.jetbrains.annotations.NotNull;
+
 import com.dci.intellij.dbn.browser.model.BrowserTreeChangeListener;
 import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
 import com.dci.intellij.dbn.common.Icons;
@@ -11,30 +18,25 @@ import com.dci.intellij.dbn.common.filter.Filter;
 import com.dci.intellij.dbn.common.options.setting.SettingsUtil;
 import com.dci.intellij.dbn.common.thread.BackgroundTask;
 import com.dci.intellij.dbn.common.ui.tree.TreeEventType;
+import com.dci.intellij.dbn.common.util.LazyValue;
 import com.dci.intellij.dbn.connection.config.ConnectionSettings;
+import com.dci.intellij.dbn.connection.console.DatabaseConsoleBundle;
 import com.dci.intellij.dbn.connection.transaction.UncommittedChangeBundle;
+import com.dci.intellij.dbn.database.DatabaseInterface;
 import com.dci.intellij.dbn.database.DatabaseInterfaceProvider;
+import com.dci.intellij.dbn.execution.logging.DatabaseLogOutput;
 import com.dci.intellij.dbn.language.common.DBLanguage;
 import com.dci.intellij.dbn.language.common.DBLanguageDialect;
 import com.dci.intellij.dbn.navigation.psi.NavigationPsiCache;
 import com.dci.intellij.dbn.object.DBSchema;
 import com.dci.intellij.dbn.object.common.DBObjectBundle;
 import com.dci.intellij.dbn.object.common.DBObjectBundleImpl;
-import com.dci.intellij.dbn.vfs.SQLConsoleFile;
+import com.dci.intellij.dbn.vfs.DBSessionBrowserVirtualFile;
+import com.intellij.lang.Language;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.module.Module;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import javax.swing.Icon;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.SQLException;
-import java.util.Comparator;
-import java.util.List;
 
 public class ConnectionHandlerImpl implements ConnectionHandler {
     private static final Logger LOGGER = LoggerFactory.createLogger();
@@ -43,18 +45,26 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
     private ConnectionBundle connectionBundle;
     private ConnectionStatus connectionStatus;
     private ConnectionPool connectionPool;
-    private ConnectionInfo connectionInfo;
     private ConnectionLoadMonitor loadMonitor;
     private DBObjectBundle objectBundle;
     private DatabaseInterfaceProvider interfaceProvider;
     private UncommittedChangeBundle changesBundle;
+    private DatabaseConsoleBundle consoleBundle;
+    private DBSessionBrowserVirtualFile sessionBrowserFile;
+    private DatabaseLogOutput logOutput;
 
     private boolean isDisposed;
     private boolean checkingIdleStatus;
+    private boolean allowConnection;
     private long validityCheckTimestamp = 0;
+    private ConnectionHandlerRef ref;
 
-    private SQLConsoleFile sqlConsoleFile;
-    private NavigationPsiCache psiCache = new NavigationPsiCache(this);
+    private LazyValue<NavigationPsiCache> psiCache = new LazyValue<NavigationPsiCache>() {
+        @Override
+        protected NavigationPsiCache load() {
+            return new NavigationPsiCache(ConnectionHandlerImpl.this);
+        }
+    };
 
     public ConnectionHandlerImpl(ConnectionBundle connectionBundle, ConnectionSettings connectionSettings) {
         this.connectionBundle = connectionBundle;
@@ -62,6 +72,23 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
         connectionStatus = new ConnectionStatus();
         connectionPool = new ConnectionPool(this);
         loadMonitor = new ConnectionLoadMonitor(this);
+        consoleBundle = new DatabaseConsoleBundle(this);
+        ref = new ConnectionHandlerRef(this);
+    }
+
+    @Override
+    public boolean isAllowConnection() {
+        return allowConnection;
+    }
+
+    @Override
+    public void setAllowConnection(boolean allowConnection) {
+        this.allowConnection = allowConnection;
+    }
+
+    @Override
+    public boolean canConnect() {
+        return !isDisposed && (allowConnection || connectionSettings.getDetailSettings().isConnectAutomatically());
     }
 
     public ConnectionBundle getConnectionBundle() {
@@ -76,6 +103,19 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
         return connectionStatus;
     }
 
+    @Override
+    public DatabaseConsoleBundle getConsoleBundle() {
+        return consoleBundle;
+    }
+
+    @Override
+    public DBSessionBrowserVirtualFile getSessionBrowserFile() {
+        if (sessionBrowserFile == null) {
+            sessionBrowserFile = new DBSessionBrowserVirtualFile(this);
+        }
+        return sessionBrowserFile;
+    }
+
     public boolean isActive() {
         return connectionSettings.getDatabaseSettings().isActive();
     }
@@ -84,25 +124,23 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
         return connectionSettings.getDatabaseSettings().getDatabaseType();
     }
 
-    public Filter<BrowserTreeNode> getObjectFilter() {
-        return getSettings().getFilterSettings().getObjectTypeFilterSettings().getElementFilter();
+    @Override
+    public double getDatabaseVersion() {
+        return connectionSettings.getDatabaseSettings().getDatabaseVersion();
     }
 
-    public SQLConsoleFile getSQLConsoleFile() {
-        if (sqlConsoleFile == null) {
-            sqlConsoleFile = new SQLConsoleFile(this);
-        }
-        return sqlConsoleFile;
+    public Filter<BrowserTreeNode> getObjectTypeFilter() {
+        return connectionSettings.getFilterSettings().getObjectTypeFilterSettings().getElementFilter();
     }
 
     @Override
     public NavigationPsiCache getPsiCache() {
-        return psiCache;
+        return psiCache.get();
     }
 
     @Override
     public EnvironmentType getEnvironmentType() {
-        return getSettings().getDetailSettings().getEnvironmentType();
+        return connectionSettings.getDetailSettings().getEnvironmentType();
     }
 
     public boolean hasUncommittedChanges() {
@@ -156,14 +194,6 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
         return connectionBundle.getProject();
     }
 
-    public Module getModule() {
-        if (connectionBundle instanceof ModuleConnectionBundle) {
-            ModuleConnectionBundle moduleConnectionManager = (ModuleConnectionBundle) connectionBundle;
-            return moduleConnectionManager.getModule();
-        }
-        return null;
-    }
-
     public boolean isValid(boolean check) {
         if (check) {
             try {
@@ -180,24 +210,23 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
         return connectionPool == null ? 0 : connectionPool.getIdleMinutes();
     }
 
+    @Override
+    public ConnectionHandlerRef getRef() {
+        return ref;
+    }
+
     public boolean isValid() {
         if (connectionBundle.containsConnection(this)) {
             long currentTimestamp = System.currentTimeMillis();
             if (validityCheckTimestamp < currentTimestamp - 30000) {
                 validityCheckTimestamp = currentTimestamp;
-                new Thread() {
-                    @Override
-                    public void run() {
-                        try {
-                            getStandaloneConnection();
-                        } catch (SQLException e) {
-                            if (SettingsUtil.isDebugEnabled) {
-                                LOGGER.warn("[DBN-INFO] Could not connect to database [" + getName() + "]: " + e.getMessage());
-                            }
-                        }
+                try {
+                    getStandaloneConnection();
+                } catch (SQLException e) {
+                    if (SettingsUtil.isDebugEnabled) {
+                        LOGGER.warn("[DBN-INFO] Could not connect to database [" + getName() + "]: " + e.getMessage());
                     }
-                }.start();
-
+                }
             }
             return connectionStatus.isValid();
         }
@@ -210,40 +239,39 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
 
     @Override
     public boolean isAutoCommit() {
-        return connectionSettings.getDetailSettings().isAutoCommit();
+        return connectionSettings.getDetailSettings().isEnableAutoCommit();
+    }
+
+    @Override
+    public boolean isLoggingEnabled() {
+        return connectionSettings.getDetailSettings().isEnableDatabaseLogging();
+    }
+
+    public void setLoggingEnabled(boolean loggingEnabled) {
+        connectionSettings.getDetailSettings().setEnableDatabaseLogging(loggingEnabled);
     }
 
     @Override
     public void setAutoCommit(boolean autoCommit) throws SQLException {
         connectionPool.setAutoCommit(autoCommit);
-        connectionSettings.getDetailSettings().setAutoCommit(autoCommit);
+        connectionSettings.getDetailSettings().setEnableAutoCommit(autoCommit);
     }
 
     public void disconnect() throws SQLException {
         try {
             connectionPool.closeConnections();
+            changesBundle = null;
         } finally {
-            getConnectionStatus().setConnected(false);
+            connectionStatus.setConnected(false);
         }
     }
 
     public String getId() {
-        return connectionSettings.getDatabaseSettings().getId();
+        return connectionSettings.getConnectionId();
     }
 
     public String getUserName() {
         return connectionSettings.getDatabaseSettings().getUser() == null ? "" : connectionSettings.getDatabaseSettings().getUser();
-    }
-
-    public ConnectionInfo getConnectionInfo() throws SQLException {
-        if (connectionInfo == null) {
-            Connection connection = getStandaloneConnection();
-            DatabaseMetaData databaseMetaData = connection.getMetaData();
-            connectionInfo = new ConnectionInfo(databaseMetaData);
-        }
-
-        //System.out.println(ResultSetLister.list("Catalogs", getStandaloneConnection().getMetaData().getTypeInfo()));
-        return connectionInfo;
     }
 
     public ConnectionLoadMonitor getLoadMonitor() {
@@ -271,28 +299,35 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
     }
 
     public Connection getStandaloneConnection() throws SQLException {
+        assertCanConnect();
         return connectionPool.getStandaloneConnection(true);
     }
 
+    public Connection getPoolConnection() throws SQLException {
+        assertCanConnect();
+        return connectionPool.allocateConnection();
+    }
+
     public Connection getStandaloneConnection(DBSchema schema) throws SQLException {
-        Connection connection = connectionPool.getStandaloneConnection(true);
+        Connection connection = getStandaloneConnection();
         if (!schema.isPublicSchema()) {
             getInterfaceProvider().getMetadataInterface().setCurrentSchema(schema.getQuotedName(false), connection);
         }
         return connection;
     }
 
-    @Nullable
-    public Connection getPoolConnection() throws SQLException {
-        return connectionPool.allocateConnection();
-    }
-
     public Connection getPoolConnection(DBSchema schema) throws SQLException {
-        Connection connection = connectionPool.allocateConnection();
+        Connection connection = getPoolConnection();
         //if (!schema.isPublicSchema()) {
-            getInterfaceProvider().getMetadataInterface().setCurrentSchema(schema.getQuotedName(false), connection);
+        getInterfaceProvider().getMetadataInterface().setCurrentSchema(schema.getQuotedName(false), connection);
         //}
         return connection;
+    }
+
+    private void assertCanConnect() throws SQLException {
+        if (!canConnect()) {
+            throw DatabaseInterface.DBN_NOT_CONNECTED_EXCEPTION;
+        }
     }
 
     public void freePoolConnection(Connection connection) {
@@ -309,11 +344,25 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
             try {
                 interfaceProvider = DatabaseInterfaceProviderFactory.createInterfaceProvider(this);
             } catch (SQLException e) {
-                // do not initialize 
-                return DatabaseInterfaceProviderFactory.GENERIC_INTERFACE_PROVIDER;
+
             }
         }
-        return interfaceProvider;
+        if (interfaceProvider != null) {
+            interfaceProvider.setProject(getProject());
+        }
+
+        // do not initialize
+        return interfaceProvider == null ? DatabaseInterfaceProviderFactory.GENERIC_INTERFACE_PROVIDER : interfaceProvider;
+    }
+
+    @Override
+    public DBLanguageDialect resolveLanguageDialect(Language language) {
+        if (language instanceof DBLanguageDialect) {
+            return (DBLanguageDialect) language;
+        } else if (language instanceof DBLanguage) {
+            return getLanguageDialect((DBLanguage) language);
+        }
+        return null;
     }
 
     public DBLanguageDialect getLanguageDialect(DBLanguage language) {
@@ -340,13 +389,7 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
      *                       TreeElement                     *
      *********************************************************/
     public String getQualifiedName() {
-        if (connectionBundle instanceof ProjectConnectionBundle) {
-            return "Project - " + getPresentableText();
-        } else {
-            ModuleConnectionBundle connectionManager = (ModuleConnectionBundle) this.connectionBundle;
-            Module module = connectionManager.getModule();
-            return module.getName() + " - " + getPresentableText();
-        }
+        return getPresentableText();
     }
 
     public String getName() {
@@ -375,9 +418,10 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
             isDisposed = true;
             DisposerUtil.dispose(objectBundle);
             DisposerUtil.dispose(connectionPool);
-            DisposerUtil.dispose(sqlConsoleFile);
+            DisposerUtil.dispose(consoleBundle);
             DisposerUtil.dispose(psiCache);
             DisposerUtil.dispose(loadMonitor);
+            DisposerUtil.dispose(sessionBrowserFile);
             connectionPool = null;
             changesBundle = null;
         }
@@ -397,9 +441,8 @@ public class ConnectionHandlerImpl implements ConnectionHandler {
             new BackgroundTask(getProject(), "Trying to connect to " + getName(), false) {
                 @Override
                 public void execute(@NotNull ProgressIndicator progressIndicator) {
-                    initProgressIndicator(progressIndicator, true);
                     ConnectionManager connectionManager = ConnectionManager.getInstance(project);
-                    connectionManager.testConnection(ConnectionHandlerImpl.this, false);
+                    connectionManager.testConnection(ConnectionHandlerImpl.this, false, false);
                     //fixme check if the connection is pointing to a new database and reload if this is the case
                     //objectBundle.checkForDatabaseChange();
 

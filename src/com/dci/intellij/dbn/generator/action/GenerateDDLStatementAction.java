@@ -1,11 +1,13 @@
 package com.dci.intellij.dbn.generator.action;
 
+import java.sql.SQLException;
+import org.jetbrains.annotations.Nullable;
+
 import com.dci.intellij.dbn.common.util.StringUtil;
+import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.generator.StatementGeneratorResult;
 import com.dci.intellij.dbn.object.common.DBObject;
 import com.intellij.openapi.project.Project;
-
-import java.sql.SQLException;
 
 public class GenerateDDLStatementAction extends GenerateStatementAction {
     private DBObject object;
@@ -13,6 +15,12 @@ public class GenerateDDLStatementAction extends GenerateStatementAction {
         super("DDL Statement");
         this.object = object;
 
+    }
+
+    @Nullable
+    @Override
+    public ConnectionHandler getConnectionHandler() {
+        return object.getConnectionHandler();
     }
 
     @Override

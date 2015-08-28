@@ -6,11 +6,12 @@ import com.dci.intellij.dbn.code.common.style.options.ProjectCodeStyleSettings;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.language.common.DBLanguage;
 import com.dci.intellij.dbn.language.common.DBLanguageDialect;
-import com.dci.intellij.dbn.language.common.DBLanguageFile;
+import com.dci.intellij.dbn.language.common.DBLanguagePsiFile;
 import com.dci.intellij.dbn.language.common.psi.BasePsiElement;
 import com.dci.intellij.dbn.language.common.psi.PsiUtil;
 import com.dci.intellij.dbn.language.sql.SQLLanguage;
-import com.dci.intellij.dbn.options.GlobalProjectSettings;
+import com.dci.intellij.dbn.options.ProjectSettings;
+import com.dci.intellij.dbn.options.ProjectSettingsManager;
 import com.intellij.codeInsight.completion.CompletionParameters;
 import com.intellij.codeInsight.completion.CompletionResultSet;
 import com.intellij.codeInsight.completion.CompletionType;
@@ -18,7 +19,7 @@ import com.intellij.psi.PsiElement;
 
 public class CodeCompletionContext {
     private boolean extended;
-    private DBLanguageFile file;
+    private DBLanguagePsiFile file;
     private ProjectCodeStyleSettings codeStyleSettings;
     private CodeCompletionSettings codeCompletionSettings;
     private CompletionParameters parameters;
@@ -26,9 +27,10 @@ public class CodeCompletionContext {
     private PsiElement elementAtCaret;
     private ConnectionHandler connectionHandler;
     private String userInput;
+    private double databaseVersion;
 
 
-    public CodeCompletionContext(DBLanguageFile file, CompletionParameters parameters, CompletionResultSet result) {
+    public CodeCompletionContext(DBLanguagePsiFile file, CompletionParameters parameters, CompletionResultSet result) {
         this.file = file;
         this.parameters = parameters;
         this.result = result;
@@ -40,12 +42,14 @@ public class CodeCompletionContext {
             userInput = position.getText().substring(0, parameters.getOffset() - position.getTextOffset());
         }
 
-        GlobalProjectSettings globalSettings = GlobalProjectSettings.getInstance(file.getProject());
-        codeStyleSettings = globalSettings.getCodeStyleSettings();
-        codeCompletionSettings = globalSettings.getCodeCompletionSettings();
+        ProjectSettings projectSettings = ProjectSettingsManager.getSettings(file.getProject());
+        codeStyleSettings = projectSettings.getCodeStyleSettings();
+        codeCompletionSettings = projectSettings.getCodeCompletionSettings();
 
         elementAtCaret = position instanceof BasePsiElement ? (BasePsiElement) position : PsiUtil.lookupLeafAtOffset(file, position.getTextOffset());
         elementAtCaret = elementAtCaret == null ? file : elementAtCaret;
+
+        databaseVersion = file.getDatabaseVersion();
     }
 
     public String getUserInput() {
@@ -88,12 +92,16 @@ public class CodeCompletionContext {
         return codeCompletionSettings.getFilterSettings().getFilterSettings(extended);
     }
 
-    public DBLanguageFile getFile() {
+    public DBLanguagePsiFile getFile() {
         return file;
     }
 
     public DBLanguage getLanguage() {
         DBLanguageDialect languageDialect = file.getLanguageDialect();
         return languageDialect == null ? SQLLanguage.INSTANCE : languageDialect.getBaseLanguage();
+    }
+
+    public double getDatabaseVersion() {
+        return databaseVersion;
     }
 }

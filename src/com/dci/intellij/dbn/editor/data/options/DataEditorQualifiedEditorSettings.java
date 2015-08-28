@@ -1,15 +1,16 @@
 package com.dci.intellij.dbn.editor.data.options;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.dci.intellij.dbn.common.util.StringUtil;
+import org.jdom.Element;
+import org.jetbrains.annotations.Nullable;
+
 import com.dci.intellij.dbn.common.options.Configuration;
 import com.dci.intellij.dbn.common.options.setting.SettingsUtil;
 import com.dci.intellij.dbn.data.editor.text.TextContentType;
 import com.dci.intellij.dbn.editor.data.options.ui.DataEditorQualifiedEditorSettingsForm;
-import com.intellij.openapi.util.InvalidDataException;
-import com.intellij.openapi.util.WriteExternalException;
-import org.jdom.Element;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class DataEditorQualifiedEditorSettings extends Configuration<DataEditorQualifiedEditorSettingsForm> {
     private List<TextContentType> contentTypes;
@@ -59,10 +60,6 @@ public class DataEditorQualifiedEditorSettings extends Configuration<DataEditorQ
         return contentTypes;
     }
 
-    public TextContentType getPlainTextContentType() {
-        return getContentType("Text");
-    }
-
     private void createContentType(String name, String fileTypeName) {
         TextContentType contentType = TextContentType.create(name, fileTypeName);
         if (contentType != null) {
@@ -70,10 +67,13 @@ public class DataEditorQualifiedEditorSettings extends Configuration<DataEditorQ
         }
     }
 
+    @Nullable
     public TextContentType getContentType(String name) {
-        for (TextContentType contentType : getContentTypes()) {
-            if (contentType.getName().equals(name)) {
-                return contentType;
+        if (StringUtil.isNotEmpty(name)) {
+            for (TextContentType contentType : getContentTypes()) {
+                if (contentType.getName().equals(name)) {
+                    return contentType;
+                }
             }
         }
         return null;
@@ -99,7 +99,7 @@ public class DataEditorQualifiedEditorSettings extends Configuration<DataEditorQ
         return "qualified-text-editor";
     }
 
-    public void readConfiguration(Element element) throws InvalidDataException {
+    public void readConfiguration(Element element) {
         textLengthThreshold = SettingsUtil.getIntegerAttribute(element, "text-length-threshold", textLengthThreshold);
         Element contentTypes = element.getChild("content-types");
         for (Object o : contentTypes.getChildren()) {
@@ -113,7 +113,7 @@ public class DataEditorQualifiedEditorSettings extends Configuration<DataEditorQ
         }
     }
 
-    public void writeConfiguration(Element element) throws WriteExternalException {
+    public void writeConfiguration(Element element) {
         SettingsUtil.setIntegerAttribute(element, "text-length-threshold", textLengthThreshold);
         Element contentTypes = new Element("content-types");
         element.addContent(contentTypes);

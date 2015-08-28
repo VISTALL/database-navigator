@@ -1,5 +1,6 @@
 package com.dci.intellij.dbn.common.editor;
 
+import com.dci.intellij.dbn.editor.EditorProviderId;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.project.Project;
@@ -18,4 +19,6 @@ public interface BasicTextEditor<T extends VirtualFile> extends FileEditor {
     boolean canNavigateTo(@NotNull final Navigatable navigatable);
 
     void navigateTo(@NotNull final Navigatable navigatable);
+
+    EditorProviderId getEditorProviderId();
 }

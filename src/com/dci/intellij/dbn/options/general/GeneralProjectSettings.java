@@ -1,14 +1,18 @@
 package com.dci.intellij.dbn.options.general;
 
+import org.jetbrains.annotations.NotNull;
+
 import com.dci.intellij.dbn.common.environment.options.EnvironmentSettings;
 import com.dci.intellij.dbn.common.locale.options.RegionalSettings;
 import com.dci.intellij.dbn.common.options.CompositeProjectConfiguration;
 import com.dci.intellij.dbn.common.options.Configuration;
+import com.dci.intellij.dbn.options.ConfigId;
+import com.dci.intellij.dbn.options.ProjectSettingsManager;
+import com.dci.intellij.dbn.options.TopLevelConfig;
 import com.dci.intellij.dbn.options.general.ui.GeneralProjectSettingsForm;
 import com.intellij.openapi.project.Project;
-import org.jetbrains.annotations.NotNull;
 
-public class GeneralProjectSettings extends CompositeProjectConfiguration<GeneralProjectSettingsForm> {
+public class GeneralProjectSettings extends CompositeProjectConfiguration<GeneralProjectSettingsForm> implements TopLevelConfig {
     private RegionalSettings regionalSettings;
     private EnvironmentSettings environmentSettings;
 
@@ -19,7 +23,7 @@ public class GeneralProjectSettings extends CompositeProjectConfiguration<Genera
     }
 
     public static GeneralProjectSettings getInstance(Project project) {
-        return getGlobalProjectSettings(project).getGeneralSettings();
+        return ProjectSettingsManager.getSettings(project).getGeneralSettings();
     }
 
     @NotNull
@@ -30,6 +34,16 @@ public class GeneralProjectSettings extends CompositeProjectConfiguration<Genera
 
     public String getDisplayName() {
         return "General";
+    }
+
+    @Override
+    public ConfigId getConfigId() {
+        return ConfigId.GENERAL;
+    }
+
+    @Override
+    protected Configuration<GeneralProjectSettingsForm> getOriginalSettings() {
+        return getInstance(getProject());
     }
 
     /*********************************************************

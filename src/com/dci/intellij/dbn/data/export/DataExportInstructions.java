@@ -1,14 +1,12 @@
 package com.dci.intellij.dbn.data.export;
 
-import com.dci.intellij.dbn.common.options.setting.SettingsUtil;
-import com.intellij.openapi.util.InvalidDataException;
-import com.intellij.openapi.util.JDOMExternalizable;
-import com.intellij.openapi.util.WriteExternalException;
+import java.io.File;
 import org.jdom.Element;
 
-import java.io.File;
+import com.dci.intellij.dbn.common.options.setting.SettingsUtil;
+import com.dci.intellij.dbn.common.state.PersistentStateElement;
 
-public class DataExportInstructions implements JDOMExternalizable, Cloneable {
+public class DataExportInstructions extends SettingsUtil implements PersistentStateElement<Element>, Cloneable {
     private boolean createHeader = true;
     private boolean quoteValuesContainingSeparator = true;
     private boolean quoteAllValues = false;
@@ -119,31 +117,38 @@ public class DataExportInstructions implements JDOMExternalizable, Cloneable {
         return (DataExportInstructions) super.clone();
     }
 
-    /****************************************
-    *            JDOMExternalizable         *
-    *****************************************/
-    public void readExternal(Element element) throws InvalidDataException {
-        createHeader = SettingsUtil.getBoolean(element, "create-header", createHeader);
-        quoteValuesContainingSeparator = SettingsUtil.getBoolean(element, "quote-values-containing-separator", quoteValuesContainingSeparator);
-        quoteAllValues = SettingsUtil.getBoolean(element, "quote-all-values", quoteAllValues);
-        valueSeparator = SettingsUtil.getString(element, "value-separator", valueSeparator);
-        fileName = SettingsUtil.getString(element, "file-name", fileName);
-        fileLocation = SettingsUtil.getString(element, "file-location", fileLocation);
-        scope = Scope.valueOf(SettingsUtil.getString(element, "scope", scope.name()));
-        destination = Destination.valueOf(SettingsUtil.getString(element, "destination", destination.name()));
-        format = DataExportFormat.valueOf(SettingsUtil.getString(element, "format", format.name()));
+    /***********************************************
+     *            PersistentStateElement           *
+     ***********************************************/
+    @Override
+    public void writeState(Element element) {
+        Element child = new Element("export-instructions");
+        element.addContent(child);
+
+        setBoolean(child, "create-header", createHeader);
+        setBoolean(child, "quote-values-containing-separator", quoteValuesContainingSeparator);
+        setBoolean(child, "quote-all-values", quoteAllValues);
+        setString(child, "value-separator", valueSeparator);
+        setString(child, "file-name", fileName);
+        setString(child, "file-location", fileLocation);
+        setString(child, "scope", scope.name());
+        setString(child, "destination", destination.name());
+        setString(child, "format", format.name());
     }
 
     @Override
-    public void writeExternal(Element element) throws WriteExternalException {
-        SettingsUtil.setBoolean(element, "create-header", createHeader);
-        SettingsUtil.setBoolean(element, "quote-values-containing-separator", quoteValuesContainingSeparator);
-        SettingsUtil.setBoolean(element, "quote-all-values", quoteAllValues);
-        SettingsUtil.setString(element, "value-separator", valueSeparator);
-        SettingsUtil.setString(element, "file-name", fileName);
-        SettingsUtil.setString(element, "file-location", fileLocation);
-        SettingsUtil.setString(element, "scope", scope.name());
-        SettingsUtil.setString(element, "destination", destination.name());
-        SettingsUtil.setString(element, "format", format.name());
+    public void readState(Element element) {
+        Element child = element.getChild("export-instructions");
+        if (child != null) {
+            createHeader = getBoolean(child, "create-header", createHeader);
+            quoteValuesContainingSeparator = getBoolean(child, "quote-values-containing-separator", quoteValuesContainingSeparator);
+            quoteAllValues = getBoolean(child, "quote-all-values", quoteAllValues);
+            valueSeparator = getString(child, "value-separator", valueSeparator);
+            fileName = getString(child, "file-name", fileName);
+            fileLocation = getString(child, "file-location", fileLocation);
+            scope = Scope.valueOf(getString(child, "scope", scope.name()));
+            destination = Destination.valueOf(getString(child, "destination", destination.name()));
+            format = DataExportFormat.valueOf(getString(child, "format", format.name()));
+        }
     }
 }

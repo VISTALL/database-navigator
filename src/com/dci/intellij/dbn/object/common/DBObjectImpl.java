@@ -1,5 +1,18 @@
 package com.dci.intellij.dbn.object.common;
 
+import javax.swing.Icon;
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import com.dci.intellij.dbn.browser.DatabaseBrowserManager;
 import com.dci.intellij.dbn.browser.DatabaseBrowserUtils;
 import com.dci.intellij.dbn.browser.model.BrowserTreeChangeListener;
@@ -7,13 +20,13 @@ import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
 import com.dci.intellij.dbn.browser.model.LoadInProgressTreeNode;
 import com.dci.intellij.dbn.browser.ui.HtmlToolTipBuilder;
 import com.dci.intellij.dbn.browser.ui.ToolTipProvider;
-import com.dci.intellij.dbn.code.common.lookup.DBObjectLookupItemFactory;
-import com.dci.intellij.dbn.code.common.lookup.LookupItemFactory;
+import com.dci.intellij.dbn.code.common.lookup.LookupItemBuilder;
+import com.dci.intellij.dbn.code.common.lookup.ObjectLookupItemBuilder;
 import com.dci.intellij.dbn.code.sql.color.SQLTextAttributesKeys;
 import com.dci.intellij.dbn.common.content.DynamicContent;
 import com.dci.intellij.dbn.common.content.DynamicContentType;
-import com.dci.intellij.dbn.common.content.loader.DynamicContentLoader;
 import com.dci.intellij.dbn.common.dispose.DisposerUtil;
+import com.dci.intellij.dbn.common.dispose.FailsafeUtil;
 import com.dci.intellij.dbn.common.environment.EnvironmentType;
 import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.common.filter.Filter;
@@ -24,6 +37,7 @@ import com.dci.intellij.dbn.common.util.CollectionUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.ConnectionUtil;
 import com.dci.intellij.dbn.database.DatabaseCompatibilityInterface;
+import com.dci.intellij.dbn.database.DatabaseInterface;
 import com.dci.intellij.dbn.editor.DBContentType;
 import com.dci.intellij.dbn.language.common.DBLanguage;
 import com.dci.intellij.dbn.language.common.DBLanguageDialect;
@@ -44,29 +58,19 @@ import com.dci.intellij.dbn.object.lookup.DBObjectRef;
 import com.dci.intellij.dbn.object.properties.ConnectionPresentableProperty;
 import com.dci.intellij.dbn.object.properties.DBObjectPresentableProperty;
 import com.dci.intellij.dbn.object.properties.PresentableProperty;
-import com.dci.intellij.dbn.vfs.DatabaseObjectFile;
+import com.dci.intellij.dbn.vfs.DBObjectVirtualFile;
 import com.intellij.navigation.ItemPresentation;
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.FileStatus;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiInvalidElementAccessException;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import javax.swing.Icon;
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Types;
-import java.util.ArrayList;
-import java.util.List;
 
 public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBObject, ToolTipProvider {
-    private DBContentType contentType = DBContentType.NONE;
+    public static final List<DBObject> EMPTY_OBJECT_LIST = Collections.unmodifiableList(new ArrayList<DBObject>(0));
+    public static final List<BrowserTreeNode> EMPTY_TREE_NODE_LIST = Collections.unmodifiableList(new ArrayList<BrowserTreeNode>(0));
+
     private List<BrowserTreeNode> allPossibleTreeChildren;
     private List<BrowserTreeNode> visibleTreeChildren;
     private boolean treeChildrenLoaded;
@@ -74,16 +78,16 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
 
     protected String name;
     protected DBObjectRef objectRef;
+    protected DBObjectRef parentObject;
     private DBObjectProperties properties;
     private DBObjectListContainer childObjects;
     private DBObjectRelationListContainer childObjectRelations;
-    private DBObjectRef parentObject;
     private DBObjectBundle objectBundle;
 
-    private LookupItemFactory sqlLookupItemFactory;
-    private LookupItemFactory psqlLookupItemFactory;
+    private LookupItemBuilder sqlLookupItemBuilder;
+    private LookupItemBuilder psqlLookupItemBuilder;
 
-    protected DatabaseObjectFile virtualFile;
+    protected DBObjectVirtualFile virtualFile;
 
     private static final DBOperationExecutor NULL_OPERATION_EXECUTOR = new DBOperationExecutor() {
         public void executeOperation(DBOperationType operationType) throws SQLException, DBOperationNotSupportedException {
@@ -91,17 +95,13 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
         }
     };
 
-    protected Logger getLogger() {return Logger.getInstance(getClass().getName());}
-
-    public DBObjectImpl(DBObject parentObject, DBContentType contentType, ResultSet resultSet) throws SQLException {
-        this.parentObject = parentObject.getRef();
-        this.contentType = contentType;
+    public DBObjectImpl(DBObject parentObject, ResultSet resultSet) throws SQLException {
+        this.parentObject = DBObjectRef.from(parentObject);
         init(resultSet);
     }
 
-    public DBObjectImpl(DBObjectBundle objectBundle, DBContentType contentType, ResultSet resultSet) throws SQLException {
+    public DBObjectImpl(DBObjectBundle objectBundle, ResultSet resultSet) throws SQLException {
         this.objectBundle = objectBundle;
-        this.contentType = contentType;
         init(resultSet);
     }
 
@@ -116,7 +116,9 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
         initStatus(resultSet);
         initProperties();
         initLists();
-        objectRef = createRef();
+
+        checkConnection();
+        objectRef = new DBObjectRef(this);
     }
 
     protected abstract void initObject(ResultSet resultSet) throws SQLException;
@@ -136,12 +138,8 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
         return null;
     }
 
-    public void setContentType(DBContentType contentType) {
-        this.contentType = contentType;
-    }
-
     public DBContentType getContentType() {
-        return contentType;
+        return DBContentType.NONE;
     }
 
     @Override
@@ -149,14 +147,14 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
         return objectRef;
     }
 
-    protected DBObjectRef createRef() throws SQLException {
-        checkConnection();
-        return new DBObjectRef(this);
+    @Override
+    public boolean isParentOf(DBObject object) {
+        return this.equals(object.getParentObject());
     }
 
     protected void checkConnection() throws SQLException {
         ConnectionHandler connectionHandler = getConnectionHandler();
-        if (connectionHandler == null) throw DynamicContentLoader.DBN_INTERRUPTED_EXCEPTION;
+        if (connectionHandler == null) throw DatabaseInterface.DBN_INTERRUPTED_EXCEPTION;
     }
 
     public DBObjectProperties getProperties() {
@@ -183,7 +181,7 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
     }
 
     public DBObject getParentObject() {
-        return parentObject == null ? null : parentObject.get();
+        return DBObjectRef.get(parentObject);
     }
 
     public DBObject getDefaultNavigationObject() {
@@ -204,9 +202,15 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
     }
 
     @Override
+    public int getOverload() {
+        return 0;
+    }
+
+    @Override
     public String getQuotedName(boolean quoteAlways) {
         if (quoteAlways || needsNameQuoting()) {
-            char quoteChar = DatabaseCompatibilityInterface.getInstance(this).getIdentifierQuotes();
+            DatabaseCompatibilityInterface compatibilityInterface = DatabaseCompatibilityInterface.getInstance(this);
+            char quoteChar = compatibilityInterface.getIdentifierQuotes();
             return quoteChar + name + quoteChar;
         } else {
             return name;
@@ -220,6 +224,7 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
                 getLanguageDialect(SQLLanguage.INSTANCE).isReservedWord(name);
     }
 
+    @Nullable
     public Icon getIcon() {
         return getObjectType().getIcon();
     }
@@ -229,11 +234,7 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
     }
 
     public String getQualifiedNameWithType() {
-        return getTypeName() + " " + getQualifiedName();
-    }
-
-    public String getQualifiedNameWithConnectionId() {
-        return "[" + getConnectionHandler().getId() + "]" + getQualifiedName();
+        return objectRef.getQualifiedNameWithType();
     }
 
     public DBUser getOwner() {
@@ -251,8 +252,8 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
             return getTypeName();
         } else {
             return getTypeName() + " (" +
-                    parentObject.getTypeName() + " " +
-                    parentObject.getName() + ")";
+                    parentObject.getTypeName() + ' ' +
+                    parentObject.getName() + ')';
         }
     }
 
@@ -269,19 +270,23 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
     }
 
     public void buildToolTip(HtmlToolTipBuilder ttb) {
+        ConnectionHandler connectionHandler = getConnectionHandler();
         ttb.append(true, getQualifiedName(), false);
         ttb.append(true, "Connection: ", "-2", null, false );
-        ttb.append(false, getConnectionHandler().getPresentableText(), false);
+        ttb.append(false, connectionHandler == null ? "[unknown]" : connectionHandler.getPresentableText(), false);
     }
 
     public DBObjectAttribute[] getObjectAttributes(){return null;}
     public DBObjectAttribute getNameAttribute(){return null;}
 
+    @Nullable
     @Override
     public DBObjectBundle getObjectBundle() {
-        return getConnectionHandler().getObjectBundle();
+        ConnectionHandler connectionHandler = getConnectionHandler();
+        return connectionHandler == null ? null : connectionHandler.getObjectBundle();
     }
 
+    @Nullable
     public ConnectionHandler getConnectionHandler() {
         if (parentObject != null) {
             DBObject object = parentObject.get();
@@ -296,7 +301,8 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
 
     @Override
     public EnvironmentType getEnvironmentType() {
-        return getConnectionHandler().getEnvironmentType();
+        ConnectionHandler connectionHandler = getConnectionHandler();
+        return connectionHandler == null ? EnvironmentType.DEFAULT : connectionHandler.getEnvironmentType();
     }
 
     public DBLanguageDialect getLanguageDialect(DBLanguage language) {
@@ -341,26 +347,39 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
     }
 
     public DBObject getChildObject(DBObjectType objectType, String name, boolean lookupHidden) {
+        return getChildObject(objectType, name, 0, lookupHidden);
+    }
+
+    public DBObject getChildObject(DBObjectType objectType, String name, int overload, boolean lookupHidden) {
         if (childObjects == null) {
             return null;
         } else {
-            DBObject object = childObjects.getObject(objectType, name);
+            DBObject object = childObjects.getObject(objectType, name, overload);
             if (object == null && lookupHidden) {
-                object = childObjects.getHiddenObject(objectType, name);
+                object = childObjects.getHiddenObject(objectType, name, overload);
             }
             return object;
         }
     }
 
     public DBObject getChildObject(String name, boolean lookupHidden) {
+        return getChildObject(name, 0, lookupHidden);
+    }
+
+    public DBObject getChildObject(String name, int overload, boolean lookupHidden) {
         return childObjects == null ? null :
-                childObjects.getObjectForParentType(this.getObjectType(), name, lookupHidden);
+                childObjects.getObjectForParentType(this.getObjectType(), name, overload, lookupHidden);
     }
 
     public DBObject getChildObjectNoLoad(String name) {
-        return childObjects == null ? null : childObjects.getObjectNoLoad(name);
+        return getChildObjectNoLoad(name, 0);
     }
 
+    public DBObject getChildObjectNoLoad(String name, int overload) {
+        return childObjects == null ? null : childObjects.getObjectNoLoad(name, overload);
+    }
+
+    @NotNull
     public List<DBObject> getChildObjects(DBObjectType objectType) {
         if (objectType.getFamilyTypes().size() > 1) {
             List<DBObject> list = new ArrayList<DBObject>();
@@ -369,7 +388,7 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
                     List<DBObject> childObjects = getChildObjects(childObjectType);
                     list.addAll(childObjects);
                 } else {
-                    DBObjectList<DBObject> objectList = childObjects == null ? null : childObjects.getObjectList(objectType);
+                    DBObjectList<? extends DBObject> objectList = childObjects == null ? null : childObjects.getObjectList(objectType);
                     if (objectList != null) {
                         list.addAll(objectList.getObjects());
                     }
@@ -377,9 +396,26 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
             }
             return list;
         } else {
-            DBObjectList<DBObject> objectList = childObjects == null ? null : childObjects.getObjectList(objectType);
-            return objectList == null ? DBObject.EMPTY_LIST : objectList.getObjects();
+            if (objectType == DBObjectType.ANY) {
+                Collection<DBObjectList<DBObject>> objectLists = childObjects.getObjectLists();
+                if (objectLists != null) {
+                    List<DBObject> objects = new ArrayList<DBObject>();
+                    for (DBObjectList objectList : objectLists) {
+                        objects.addAll(objectList.getObjects());
+                    }
+                    return objects;
+                }
+                return EMPTY_OBJECT_LIST;
+            } else {
+                DBObjectList<DBObject> objectList = childObjects == null ? null : childObjects.getObjectList(objectType);
+                return objectList == null ? EMPTY_OBJECT_LIST : objectList.getObjects();
+            }
         }
+    }
+
+    @Override
+    public DBObjectList<? extends DBObject> getChildObjectList(DBObjectType objectType) {
+        return childObjects == null ? null : childObjects.getObjectList(objectType);
     }
 
     public List<DBObjectNavigationList> getNavigationLists() {
@@ -391,18 +427,18 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
         return null;
     }
 
-    public LookupItemFactory getLookupItemFactory(DBLanguage language) {
+    public LookupItemBuilder getLookupItemBuilder(DBLanguage language) {
         if (language == SQLLanguage.INSTANCE) {
-            if (sqlLookupItemFactory == null) {
-                sqlLookupItemFactory = new DBObjectLookupItemFactory(this, language);
+            if (sqlLookupItemBuilder == null) {
+                sqlLookupItemBuilder = new ObjectLookupItemBuilder(this, language);
             }
-            return sqlLookupItemFactory;
+            return sqlLookupItemBuilder;
         }
         if (language == PSQLLanguage.INSTANCE) {
-            if (psqlLookupItemFactory == null) {
-                psqlLookupItemFactory = new DBObjectLookupItemFactory(this, language);
+            if (psqlLookupItemBuilder == null) {
+                psqlLookupItemBuilder = new ObjectLookupItemBuilder(this, language);
             }
-            return psqlLookupItemFactory;
+            return psqlLookupItemBuilder;
         }
         return null;
     }
@@ -412,21 +448,24 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
         CallableStatement statement = null;
         Connection connection = null;
 
-        try {
-            connection = getConnectionHandler().getPoolConnection();
-            statement = connection.prepareCall("{? = call DBMS_METADATA.GET_DDL(?, ?, ?)}");
-            statement.registerOutParameter(1, Types.VARCHAR);
-            statement.setString(2, getTypeName().toUpperCase());
-            statement.setString(3, getName());
-            statement.setString(4, getParentObject().getName());
+        ConnectionHandler connectionHandler = getConnectionHandler();
+        if (connectionHandler != null) {
+            try {
+                connection = connectionHandler.getPoolConnection();
+                statement = connection.prepareCall("{? = call DBMS_METADATA.GET_DDL(?, ?, ?)}");
+                statement.registerOutParameter(1, Types.CLOB);
+                statement.setString(2, getTypeName().toUpperCase());
+                statement.setString(3, name);
+                statement.setString(4, getParentObject().getName());
 
-            statement.execute();
-            ddl = statement.getString(1);
-            ddl = ddl == null ? null : ddl.trim();
-            statement.close();
-        } finally{
-            ConnectionUtil.closeStatement(statement);
-            getConnectionHandler().freePoolConnection(connection);
+                statement.execute();
+                ddl = statement.getString(1);
+                ddl = ddl == null ? null : ddl.trim();
+                statement.close();
+            } finally{
+                ConnectionUtil.closeStatement(statement);
+                connectionHandler.freePoolConnection(connection);
+            }
         }
         return ddl;
     }
@@ -457,9 +496,9 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
     }
 
     @NotNull
-    public DatabaseObjectFile getVirtualFile() {
+    public DBObjectVirtualFile getVirtualFile() {
         if (virtualFile == null) {
-            virtualFile = new DatabaseObjectFile(this);
+            virtualFile = new DBObjectVirtualFile(this);
         }
         return virtualFile;
     }
@@ -497,7 +536,7 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
     }
 
     public boolean canExpand() {
-        return !isLeafTreeElement() && isTreeStructureLoaded() && getTreeChild(0).isTreeStructureLoaded();
+        return !isLeafTreeElement() && treeChildrenLoaded && getTreeChild(0).isTreeStructureLoaded();
     }
 
     public Icon getIcon(int flags) {
@@ -505,7 +544,7 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
     }
 
     public String getPresentableText() {
-        return getName();
+        return name;
     }
 
     public String getPresentableTextDetails() {
@@ -545,13 +584,15 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
         return allPossibleTreeChildren;
     }
 
+
+
     public List<? extends BrowserTreeNode> getTreeChildren() {
         if (visibleTreeChildren == null) {
             visibleTreeChildren = new ArrayList<BrowserTreeNode>();
             visibleTreeChildren.add(new LoadInProgressTreeNode(this));
 
-            new SimpleBackgroundTask() {
-                public void run() {
+            new SimpleBackgroundTask("load database objects") {
+                public void execute() {
                     if (!isDisposed()) buildTreeChildren();
                 }
             }.start();
@@ -561,53 +602,73 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
     }
 
     private void buildTreeChildren() {
-        Filter<BrowserTreeNode> filter = getConnectionHandler().getObjectFilter();
-        List<BrowserTreeNode> allPossibleTreeChildren = getAllPossibleTreeChildren();
-        List<BrowserTreeNode> newTreeChildren = allPossibleTreeChildren;
-        if (allPossibleTreeChildren.size() > 0) {
-            if (!filter.acceptsAll(allPossibleTreeChildren)) {
-                newTreeChildren = new ArrayList<BrowserTreeNode>();
-                for (BrowserTreeNode treeNode : allPossibleTreeChildren) {
-                    if (treeNode != null && filter.accepts(treeNode)) {
-                        DBObjectList objectList = (DBObjectList) treeNode;
-                        newTreeChildren.add(objectList);
+        ConnectionHandler connectionHandler = getConnectionHandler();
+        if (connectionHandler != null && !isDisposed) {
+            Filter<BrowserTreeNode> filter = connectionHandler.getObjectTypeFilter();
+            List<BrowserTreeNode> allPossibleTreeChildren = getAllPossibleTreeChildren();
+            List<BrowserTreeNode> newTreeChildren = allPossibleTreeChildren;
+            if (allPossibleTreeChildren.size() > 0) {
+                if (!filter.acceptsAll(allPossibleTreeChildren)) {
+                    newTreeChildren = new ArrayList<BrowserTreeNode>();
+                    for (BrowserTreeNode treeNode : allPossibleTreeChildren) {
+                        if (treeNode != null && filter.accepts(treeNode)) {
+                            DBObjectList objectList = (DBObjectList) treeNode;
+                            newTreeChildren.add(objectList);
+                        }
                     }
                 }
-            }
-            newTreeChildren = new ArrayList<BrowserTreeNode>(newTreeChildren);
+                newTreeChildren = new ArrayList<BrowserTreeNode>(newTreeChildren);
 
-            for (BrowserTreeNode treeNode : newTreeChildren) {
-                DBObjectList objectList = (DBObjectList) treeNode;
-                objectList.initTreeElement();
-            }
+                for (BrowserTreeNode treeNode : newTreeChildren) {
+                    DBObjectList objectList = (DBObjectList) treeNode;
+                    objectList.initTreeElement();
+                }
 
-            if (visibleTreeChildren.size() == 1 && visibleTreeChildren.get(0) instanceof LoadInProgressTreeNode) {
-                visibleTreeChildren.get(0).dispose();
-            }
-        }
-        visibleTreeChildren = newTreeChildren;
-        treeChildrenLoaded = true;
-
-
-        EventManager.notify(getProject(), BrowserTreeChangeListener.TOPIC).nodeChanged(this, TreeEventType.STRUCTURE_CHANGED);
-
-        new ConditionalLaterInvocator() {
-            public void execute() {
-                if (!isDisposed()) {
-                    DatabaseBrowserManager.scrollToSelectedElement(getConnectionHandler());
+                if (visibleTreeChildren.size() == 1 && visibleTreeChildren.get(0) instanceof LoadInProgressTreeNode) {
+                    visibleTreeChildren.get(0).dispose();
                 }
             }
-        }.start();
+            visibleTreeChildren = newTreeChildren;
+            treeChildrenLoaded = true;
+
+
+            Project project = getProject();
+            if (!isDisposed && !project.isDisposed()) {
+                EventManager.notify(project, BrowserTreeChangeListener.TOPIC).nodeChanged(this, TreeEventType.STRUCTURE_CHANGED);
+                new ConditionalLaterInvocator() {
+                    public void execute() {
+                        if (!isDisposed()) {
+                            DatabaseBrowserManager.scrollToSelectedElement(getConnectionHandler());
+                        }
+                    }
+                }.start();
+            }
+        }
+    }
+
+    @Override
+    public void refreshTreeChildren(@Nullable DBObjectType objectType) {
+        ConnectionHandler connectionHandler = getConnectionHandler();
+        if (connectionHandler != null && !isDisposed) {
+            if (visibleTreeChildren != null) {
+                for (BrowserTreeNode treeNode : visibleTreeChildren) {
+                    treeNode.refreshTreeChildren(objectType);
+                }
+            }
+        }
     }
 
     public void rebuildTreeChildren() {
-        Filter<BrowserTreeNode> filter = getConnectionHandler().getObjectFilter();
-        if (visibleTreeChildren != null && DatabaseBrowserUtils.treeVisibilityChanged(getAllPossibleTreeChildren(), visibleTreeChildren, filter)) {
-            buildTreeChildren();
-        }
-        if (visibleTreeChildren != null) {
-            for (BrowserTreeNode treeNode : visibleTreeChildren) {
-                treeNode.rebuildTreeChildren();
+        ConnectionHandler connectionHandler = getConnectionHandler();
+        if (connectionHandler != null && !isDisposed) {
+            Filter<BrowserTreeNode> filter = connectionHandler.getObjectTypeFilter();
+            if (visibleTreeChildren != null && DatabaseBrowserUtils.treeVisibilityChanged(getAllPossibleTreeChildren(), visibleTreeChildren, filter)) {
+                buildTreeChildren();
+            }
+            if (visibleTreeChildren != null) {
+                for (BrowserTreeNode treeNode : visibleTreeChildren) {
+                    treeNode.rebuildTreeChildren();
+                }
             }
         }
     }
@@ -616,8 +677,9 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
     public abstract List<BrowserTreeNode> buildAllPossibleTreeChildren();
 
     public boolean isLeafTreeElement() {
-        if (!isDisposed()) {
-            Filter<BrowserTreeNode> filter = getConnectionHandler().getObjectFilter();
+        ConnectionHandler connectionHandler = getConnectionHandler();
+        if (connectionHandler != null && !isDisposed) {
+            Filter<BrowserTreeNode> filter = connectionHandler.getObjectTypeFilter();
             for (BrowserTreeNode treeNode : getAllPossibleTreeChildren() ) {
                 if (treeNode != null && filter.accepts(treeNode)) {
                     return false;
@@ -656,19 +718,21 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
 
     @NotNull
     public Project getProject() throws PsiInvalidElementAccessException {
-        return getConnectionHandler().getProject();
+        ConnectionHandler connectionHandler = getConnectionHandler();
+        Project project = connectionHandler == null ? null : connectionHandler.getProject();
+        return FailsafeUtil.nvl(project);
     }
 
     public int compareTo(@NotNull Object o) {
         if (o instanceof DBObject) {
             DBObject object = (DBObject) o;
-            return getRef().compareTo(object.getRef());
+            return objectRef.compareTo(object.getRef());
         }
         return -1;
     }
 
     public String toString() {
-        return getName();
+        return name;
     }
 
     public List<PresentableProperty> getPresentableProperties() {
@@ -684,7 +748,7 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
     }
 
     public boolean isValid() {
-        return !isDisposed();
+        return !isDisposed;
     }
 
     /*********************************************************
@@ -697,8 +761,8 @@ public abstract class DBObjectImpl extends DBObjectPsiAbstraction implements DBO
             DisposerUtil.dispose(childObjectRelations);
             CollectionUtil.clearCollection(visibleTreeChildren);
             CollectionUtil.clearCollection(allPossibleTreeChildren);
-            DisposerUtil.dispose(sqlLookupItemFactory);
-            DisposerUtil.dispose(psqlLookupItemFactory);
+            DisposerUtil.dispose(sqlLookupItemBuilder);
+            DisposerUtil.dispose(psqlLookupItemBuilder);
             objectBundle = null;
         }
     }

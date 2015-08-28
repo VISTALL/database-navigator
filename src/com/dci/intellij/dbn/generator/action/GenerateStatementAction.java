@@ -1,11 +1,18 @@
 package com.dci.intellij.dbn.generator.action;
 
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
+import org.jetbrains.annotations.NotNull;
+
 import com.dci.intellij.dbn.common.thread.BackgroundTask;
 import com.dci.intellij.dbn.common.thread.CommandWriteActionRunner;
 import com.dci.intellij.dbn.common.thread.SimpleLaterInvocator;
 import com.dci.intellij.dbn.common.util.ActionUtil;
 import com.dci.intellij.dbn.common.util.EditorUtil;
 import com.dci.intellij.dbn.common.util.MessageUtil;
+import com.dci.intellij.dbn.connection.ConnectionAction;
+import com.dci.intellij.dbn.connection.ConnectionProvider;
 import com.dci.intellij.dbn.generator.StatementGeneratorResult;
 import com.dci.intellij.dbn.language.common.psi.PsiUtil;
 import com.dci.intellij.dbn.language.sql.SQLFileType;
@@ -15,30 +22,28 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorModificationUtil;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
-import org.jetbrains.annotations.NotNull;
 
-import java.awt.Toolkit;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.StringSelection;
-
-public abstract class GenerateStatementAction extends AnAction {
+public abstract class GenerateStatementAction extends AnAction implements ConnectionProvider {
     public GenerateStatementAction(String text) {
         super(text);
     }
 
-    public final void actionPerformed(AnActionEvent event) {
-        final Project project = ActionUtil.getProject(event);
-
+    public final void actionPerformed(AnActionEvent e) {
+        final Project project = ActionUtil.getProject(e);
         if (project != null) {
-            new BackgroundTask(project, "Extracting select statement", false, true) {
-                protected void execute(@NotNull ProgressIndicator progressIndicator) {
-                    initProgressIndicator(progressIndicator, true);
-                    StatementGeneratorResult result = generateStatement(project);
-                    if (result.getMessages().hasErrors()) {
-                        MessageUtil.showErrorDialog(result.getMessages(), "Error generating statement");
-                    } else {
-                        pasteStatement(result, project);
-                    }
+            new ConnectionAction(this) {
+                @Override
+                public void execute() {
+                    new BackgroundTask(project, "Extracting select statement", false, true) {
+                        protected void execute(@NotNull ProgressIndicator progressIndicator) {
+                            StatementGeneratorResult result = generateStatement(project);
+                            if (result.getMessages().hasErrors()) {
+                                MessageUtil.showErrorDialog(project, "Error generating statement", result.getMessages());
+                            } else {
+                                pasteStatement(result, project);
+                            }
+                        }
+                    }.start();
                 }
             }.start();
         }
@@ -51,18 +56,18 @@ public abstract class GenerateStatementAction extends AnAction {
                 Editor editor = EditorUtil.getSelectedEditor(project, SQLFileType.INSTANCE);
                 if (editor != null)
                     pasteToEditor(editor, result); else
-                    pasteToClipboard(result);
+                    pasteToClipboard(result, project);
             }
         }.start();
     }
 
-    private void pasteToClipboard(StatementGeneratorResult result) {
+    private static void pasteToClipboard(StatementGeneratorResult result, Project project) {
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
         clipboard.setContents(new StringSelection(result.getStatement()), null);
-        MessageUtil.showInfoMessage("SQL statement exported to clipboard.", "Statement extracted");
+        MessageUtil.showInfoDialog(project, "Statement extracted", "SQL statement exported to clipboard.");
     }
 
-    private void pasteToEditor(final Editor editor, final StatementGeneratorResult generatorResult) {
+    private static void pasteToEditor(final Editor editor, final StatementGeneratorResult generatorResult) {
         new CommandWriteActionRunner(editor.getProject(), "Extract statement") {
             @Override
             public void run() {

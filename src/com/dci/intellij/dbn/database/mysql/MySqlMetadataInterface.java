@@ -1,15 +1,14 @@
 package com.dci.intellij.dbn.database.mysql;
 
-import com.dci.intellij.dbn.database.DatabaseInterfaceProvider;
-import com.dci.intellij.dbn.database.DatabaseObjectTypeId;
-import com.dci.intellij.dbn.database.common.DatabaseMetadataInterfaceImpl;
-
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import com.dci.intellij.dbn.database.DatabaseInterfaceProvider;
+import com.dci.intellij.dbn.database.common.DatabaseMetadataInterfaceImpl;
 
 
 public class MySqlMetadataInterface extends DatabaseMetadataInterfaceImpl {
@@ -46,16 +45,14 @@ public class MySqlMetadataInterface extends DatabaseMetadataInterfaceImpl {
         return executeQuery(connection, "charsets");
     }
 
-    public String createDDLStatement(DatabaseObjectTypeId objectTypeId, String objectName, String code) {
-        return objectTypeId == DatabaseObjectTypeId.VIEW ? "create view " + objectName + " as\n" + code :
-               objectTypeId == DatabaseObjectTypeId.FUNCTION ? "create function " + objectName + " as\n" + code :
-                       "create or replace\n" + code;
-    }
-
     private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     public String createDateString(Date date) {
         String dateString = DATE_FORMAT.format(date);
         return "str_to_date('" + dateString + "', '%Y-%m-%d %T')";
     }
 
+    @Override
+    public void killSession(Object sessionId, Object serialNumber, boolean immediate, Connection connection) throws SQLException {
+        executeStatement(connection, "kill-session", sessionId);
+    }
 }

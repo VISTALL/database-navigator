@@ -1,14 +1,14 @@
 package com.dci.intellij.dbn.object.impl;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import com.dci.intellij.dbn.editor.DBContentType;
 import com.dci.intellij.dbn.object.DBProgram;
 import com.dci.intellij.dbn.object.DBType;
 import com.dci.intellij.dbn.object.DBTypeFunction;
 import com.dci.intellij.dbn.object.common.DBObjectType;
 import com.dci.intellij.dbn.object.common.property.DBObjectProperty;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
 
 public class DBTypeFunctionImpl extends DBFunctionImpl implements DBTypeFunction {
     public DBTypeFunctionImpl(DBType type, ResultSet resultSet) throws SQLException {
@@ -23,6 +23,11 @@ public class DBTypeFunctionImpl extends DBFunctionImpl implements DBTypeFunction
         getProperties().set(DBObjectProperty.NAVIGABLE);
     }
 
+    @Override
+    public DBContentType getContentType() {
+        return DBContentType.NONE;
+    }
+
     public DBType getType() {
         return (DBType) getParentObject();
     }
@@ -30,10 +35,6 @@ public class DBTypeFunctionImpl extends DBFunctionImpl implements DBTypeFunction
     @Override
     public DBProgram getProgram() {
         return getType();
-    }
-
-    public int getOverload() {
-        return overload;
     }
 
     public boolean isProgramMethod() {

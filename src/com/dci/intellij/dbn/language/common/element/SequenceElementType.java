@@ -1,39 +1,31 @@
 package com.dci.intellij.dbn.language.common.element;
 
-import com.dci.intellij.dbn.language.common.TokenType;
-
 import java.util.Set;
 
+import com.dci.intellij.dbn.language.common.TokenType;
+import com.dci.intellij.dbn.language.common.element.impl.ElementTypeRef;
+import com.dci.intellij.dbn.language.common.element.lookup.ElementLookupContext;
+
 public interface SequenceElementType extends ElementType {
-    ElementType[] getElementTypes();
+    ElementTypeRef[] getChildren();
 
-    int elementsCount();
+    public ElementTypeRef getFirstChild();
 
-    boolean isOptionalFromIndex(int index);
+    ElementTypeRef getChild(int index);
 
-    boolean isLast(int index);
-
-    boolean isFirst(int index);
-
-    boolean isOptional(int index);
-
-    boolean isOptional(ElementType elementType);
-
-    boolean canStartWithElement(ElementType elementType);
-
-    boolean shouldStartWithElement(ElementType elementType);
+    int getChildCount();
 
     boolean isExitIndex(int index);
 
     boolean containsLandmarkTokenFromIndex(TokenType tokenType, int index);
 
-    Set<TokenType> getFirstPossibleTokensFromIndex(int index);
+    Set<TokenType> getFirstPossibleTokensFromIndex(ElementLookupContext context, int index);
 
     boolean isPossibleTokenFromIndex(TokenType tokenType, int index);
+
+    int indexOf(LeafElementType elementType);
 
     int indexOf(ElementType elementType, int fromIndex);
 
     int indexOf(ElementType elementType);
-
-    boolean[] getOptionalElementsMap();
 }

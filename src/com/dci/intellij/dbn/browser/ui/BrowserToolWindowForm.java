@@ -4,15 +4,14 @@ import com.dci.intellij.dbn.browser.DatabaseBrowserManager;
 import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
 import com.dci.intellij.dbn.browser.options.BrowserDisplayMode;
 import com.dci.intellij.dbn.browser.options.DatabaseBrowserSettings;
+import com.dci.intellij.dbn.browser.options.listener.DisplayModeSettingsListener;
 import com.dci.intellij.dbn.common.event.EventManager;
-import com.dci.intellij.dbn.common.ui.DBNForm;
 import com.dci.intellij.dbn.common.ui.DBNFormImpl;
 import com.dci.intellij.dbn.common.ui.GUIUtil;
 import com.dci.intellij.dbn.common.util.ActionUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.object.common.DBObject;
 import com.dci.intellij.dbn.object.properties.ui.ObjectPropertiesForm;
-import com.dci.intellij.dbn.options.ProjectSettingsChangeListener;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
@@ -22,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 
-public class BrowserToolWindowForm extends DBNFormImpl implements DBNForm {
+public class BrowserToolWindowForm extends DBNFormImpl {
     private JPanel mainPanel;
     private JPanel actionsPanel;
     private JPanel browserPanel;
@@ -31,11 +30,10 @@ public class BrowserToolWindowForm extends DBNFormImpl implements DBNForm {
     private DatabaseBrowserForm browserForm;
 
     private BrowserDisplayMode displayMode;
-    private Project project;
     private ObjectPropertiesForm objectPropertiesForm;
 
     public BrowserToolWindowForm(Project project) {
-        this.project = project;
+        super(project);
         //toolWindow.setIcon(dbBrowser.getIcon(0));
         DatabaseBrowserManager browserManager = DatabaseBrowserManager.getInstance(project);
 
@@ -50,14 +48,13 @@ public class BrowserToolWindowForm extends DBNFormImpl implements DBNForm {
         closeActionPanel.add(objectPropertiesActionToolbar.getComponent(), BorderLayout.CENTER);*/
 
         objectPropertiesPanel.setVisible(browserManager.getShowObjectProperties().value());
-        objectPropertiesForm = new ObjectPropertiesForm(project);
+        objectPropertiesForm = new ObjectPropertiesForm(this);
         objectPropertiesPanel.add(objectPropertiesForm.getComponent());
         GuiUtils.replaceJSplitPaneWithIDEASplitter(mainPanel);
         GUIUtil.updateSplitterProportion(mainPanel, (float) 0.7);
 
 
-        EventManager.subscribe(project, ProjectSettingsChangeListener.TOPIC, projectSettingsChangeListener);
-        Disposer.register(this, objectPropertiesForm);
+        EventManager.subscribe(project, DisplayModeSettingsListener.TOPIC, displayModeSettingsListener);
     }
 
     private void initBrowserForm() {
@@ -66,9 +63,10 @@ public class BrowserToolWindowForm extends DBNFormImpl implements DBNForm {
         }
         browserPanel.removeAll();
 
+        Project project = getProject();
         browserForm =
-                displayMode == BrowserDisplayMode.TABBED ? new TabbedBrowserForm(project) :
-                displayMode == BrowserDisplayMode.SIMPLE ? new SimpleBrowserForm(project) : null;
+                displayMode == BrowserDisplayMode.TABBED ? new TabbedBrowserForm(this) :
+                displayMode == BrowserDisplayMode.SIMPLE ? new SimpleBrowserForm(this) : null;
 
 
         browserPanel.add(browserForm.getComponent(), BorderLayout.CENTER);
@@ -91,7 +89,7 @@ public class BrowserToolWindowForm extends DBNFormImpl implements DBNForm {
 
 
     public void showObjectProperties() {
-        DatabaseBrowserManager browserManager = DatabaseBrowserManager.getInstance(project);
+        DatabaseBrowserManager browserManager = DatabaseBrowserManager.getInstance(getProject());
         DatabaseBrowserTree activeBrowserTree = browserManager.getActiveBrowserTree();
         BrowserTreeNode treeNode = activeBrowserTree == null ? null : activeBrowserTree.getSelectedNode();
         if (treeNode instanceof DBObject) {
@@ -106,8 +104,12 @@ public class BrowserToolWindowForm extends DBNFormImpl implements DBNForm {
         objectPropertiesPanel.setVisible(false);
     }
 
-    private BrowserDisplayMode getConfigDisplayMode() {
-        return DatabaseBrowserSettings.getInstance(project).getGeneralSettings().getDisplayMode();
+    public BrowserDisplayMode getDisplayMode() {
+        return displayMode;
+    }
+
+    public void setDisplayMode(BrowserDisplayMode displayMode) {
+        this.displayMode = displayMode;
     }
 
     @Nullable
@@ -124,25 +126,25 @@ public class BrowserToolWindowForm extends DBNFormImpl implements DBNForm {
     }
 
     public void dispose() {
-        EventManager.unsubscribe(projectSettingsChangeListener);
+        EventManager.unsubscribe(displayModeSettingsListener);
         super.dispose();
         objectPropertiesForm = null;
         browserForm = null;
-        project = null;
     }
 
     /********************************************************
      *                       Listeners                      *
      ********************************************************/
-    private ProjectSettingsChangeListener projectSettingsChangeListener = new ProjectSettingsChangeListener() {
+    private DisplayModeSettingsListener displayModeSettingsListener = new DisplayModeSettingsListener() {
         @Override
-        public void projectSettingsChanged(Project project) {
-            BrowserDisplayMode configDisplayMode = getConfigDisplayMode();
-            if (displayMode != configDisplayMode) {
+        public void displayModeChanged(BrowserDisplayMode displayMode) {
+            if (getDisplayMode() != displayMode) {
                 Disposer.dispose(browserForm);
-                displayMode = configDisplayMode;
+                setDisplayMode(displayMode);
                 initBrowserForm();
-                browserPanel.updateUI();
+
+                browserPanel.revalidate();
+                browserPanel.repaint();
             }
         }
     };

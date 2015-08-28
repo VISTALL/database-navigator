@@ -1,22 +1,22 @@
 package com.dci.intellij.dbn.execution.common.message.ui.tree;
 
+import javax.swing.tree.TreePath;
+
 import com.dci.intellij.dbn.common.ui.tree.TreeEventType;
 import com.dci.intellij.dbn.common.ui.tree.TreeUtil;
 import com.dci.intellij.dbn.execution.method.MethodExecutionMessage;
 import com.dci.intellij.dbn.object.common.DBSchemaObject;
-import com.dci.intellij.dbn.vfs.DatabaseEditableObjectFile;
-
-import javax.swing.tree.TreePath;
+import com.dci.intellij.dbn.vfs.DBEditableObjectVirtualFile;
 
 public class MethodExecutionMessagesObjectNode extends BundleTreeNode {
-    private DatabaseEditableObjectFile databaseFile;
+    private DBEditableObjectVirtualFile databaseFile;
 
-    public MethodExecutionMessagesObjectNode(MethodExecutionMessagesNode parent, DatabaseEditableObjectFile databaseFile) {
+    public MethodExecutionMessagesObjectNode(MethodExecutionMessagesNode parent, DBEditableObjectVirtualFile databaseFile) {
         super(parent);
         this.databaseFile = databaseFile;
     }
 
-    public DatabaseEditableObjectFile getVirtualFile() {
+    public DBEditableObjectVirtualFile getVirtualFile() {
         return databaseFile;
     }
 
@@ -25,20 +25,28 @@ public class MethodExecutionMessagesObjectNode extends BundleTreeNode {
     }
 
     public TreePath addCompilerMessage(MethodExecutionMessage executionMessage) {
-        children.clear();
+        clearChildren();
         MethodExecutionMessageNode messageNode = new MethodExecutionMessageNode(this, executionMessage);
-        children.add(messageNode);
-        getTreeModel().notifyTreeModelListeners(this, TreeEventType.STRUCTURE_CHANGED);
-        return TreeUtil.createTreePath(messageNode);
+        addChild(messageNode);
+
+        TreePath treePath = TreeUtil.createTreePath(this);
+        getTreeModel().notifyTreeModelListeners(treePath, TreeEventType.STRUCTURE_CHANGED);
+        return treePath;
     }
 
     public TreePath getTreePath(MethodExecutionMessage executionMessage) {
-        for (MessagesTreeNode messageNode : children) {
+        for (MessagesTreeNode messageNode : getChildren()) {
             MethodExecutionMessageNode methodExecutionMessageNode = (MethodExecutionMessageNode) messageNode;
             if (methodExecutionMessageNode.getExecutionMessage() == executionMessage) {
                 return TreeUtil.createTreePath(methodExecutionMessageNode);
             }
         }
         return null;
+    }
+
+    @Override
+    public void dispose() {
+        super.dispose();
+        databaseFile = null;
     }
 }

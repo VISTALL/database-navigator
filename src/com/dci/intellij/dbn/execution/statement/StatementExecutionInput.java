@@ -1,70 +1,109 @@
 package com.dci.intellij.dbn.execution.statement;
 
+import java.util.List;
+import org.jetbrains.annotations.Nullable;
+
+import com.dci.intellij.dbn.common.dispose.DisposerUtil;
+import com.dci.intellij.dbn.common.thread.ReadActionRunner;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
+import com.dci.intellij.dbn.connection.ConnectionHandlerRef;
 import com.dci.intellij.dbn.execution.statement.processor.StatementExecutionProcessor;
+import com.dci.intellij.dbn.execution.statement.variables.StatementExecutionVariablesBundle;
+import com.dci.intellij.dbn.language.common.DBLanguageDialect;
+import com.dci.intellij.dbn.language.common.DBLanguagePsiFile;
+import com.dci.intellij.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dci.intellij.dbn.language.common.psi.ExecutableBundlePsiElement;
 import com.dci.intellij.dbn.language.common.psi.ExecutablePsiElement;
 import com.dci.intellij.dbn.language.sql.SQLLanguage;
 import com.dci.intellij.dbn.object.DBSchema;
+import com.dci.intellij.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiFileFactory;
 
 public class StatementExecutionInput implements Disposable {
     private StatementExecutionProcessor executionProcessor;
-    private ConnectionHandler connectionHandler;
-    private DBSchema schema;
+    private StatementExecutionVariablesBundle executionVariables;
+    private ConnectionHandlerRef connectionHandlerRef;
+    private DBObjectRef<DBSchema> currentSchemaRef;
 
-    private ExecutablePsiElement originalPsiElement;
-    private String originalStatement;
-    private String executeStatement;
+    private String originalStatementText;
+    private String executableStatementText;
+    private ExecutablePsiElement executablePsiElement;
+    private boolean isBulkExecution = false;
     private boolean isDisposed;
 
-    public StatementExecutionInput(String originalStatement, String executeStatement, StatementExecutionProcessor executionProcessor) {
+    public StatementExecutionInput(String originalStatementText, String executableStatementText, StatementExecutionProcessor executionProcessor) {
         this.executionProcessor = executionProcessor;
-        this.connectionHandler = executionProcessor.getActiveConnection();
-        this.schema = executionProcessor.getCurrentSchema();
-        this.originalStatement = originalStatement;
-        this.executeStatement = executeStatement;
+        this.connectionHandlerRef = ConnectionHandlerRef.from(executionProcessor.getConnectionHandler());
+        this.currentSchemaRef = DBObjectRef.from(executionProcessor.getCurrentSchema());
+        this.originalStatementText = originalStatementText;
+        this.executableStatementText = executableStatementText;
     }
 
-
-    public void setExecuteStatement(String executeStatement) {
-        this.executeStatement = executeStatement;
+    public String getOriginalStatementText() {
+        return originalStatementText;
     }
 
-    public String getExecuteStatement() {
-        return executeStatement;
+    public void setOriginalStatementText(String originalStatementText) {
+        this.originalStatementText = originalStatementText;
+        executablePsiElement = null;
     }
 
+    public void setExecutableStatementText(String executableStatementText) {
+        this.executableStatementText = executableStatementText;
+    }
+
+    public String getExecutableStatementText() {
+        return executableStatementText;
+    }
+
+    @Nullable
     public ExecutablePsiElement getExecutablePsiElement() {
-        if (originalPsiElement == null) {
-            PsiFileFactory psiFileFactory = PsiFileFactory.getInstance(executionProcessor.getProject());
-            PsiFile previewFile = psiFileFactory.createFileFromText("preview", connectionHandler.getLanguageDialect(SQLLanguage.INSTANCE), originalStatement);
+        if (executablePsiElement == null) {
+            final ConnectionHandler connectionHandler = getConnectionHandler();
+            final DBSchema currentSchema = getCurrentSchema();
+            if (connectionHandler != null) {
+                executablePsiElement = new ReadActionRunner<ExecutablePsiElement>() {
+                    @Override
+                    protected ExecutablePsiElement run() {
+                        DBLanguageDialect languageDialect = executionProcessor.getPsiFile().getLanguageDialect();
+                        DBLanguagePsiFile previewFile = DBLanguagePsiFile.createFromText(getProject(), "preview", languageDialect, originalStatementText, connectionHandler, currentSchema);
 
-            PsiElement firstChild = previewFile.getFirstChild();
-            if (firstChild instanceof ExecutableBundlePsiElement) {
-                ExecutableBundlePsiElement rootPsiElement = (ExecutableBundlePsiElement) firstChild;
-                originalPsiElement = rootPsiElement.getExecutablePsiElements().get(0);
+                        PsiElement firstChild = previewFile.getFirstChild();
+                        if (firstChild instanceof ExecutableBundlePsiElement) {
+                            ExecutableBundlePsiElement rootPsiElement = (ExecutableBundlePsiElement) firstChild;
+                            List<ExecutablePsiElement> executablePsiElements = rootPsiElement.getExecutablePsiElements();
+                            return executablePsiElements.isEmpty() ? null : executablePsiElements.get(0);
+                        }
+                        return null;
+                    }
+                }.start();
             }
         }
-        return originalPsiElement;
+        return executablePsiElement;
     }
 
-    public PsiFile getPreviewFile() {
-        PsiFileFactory psiFileFactory = PsiFileFactory.getInstance(executionProcessor.getProject());
-        return psiFileFactory.createFileFromText("preview", connectionHandler.getLanguageDialect(SQLLanguage.INSTANCE), executeStatement);
+    public StatementExecutionVariablesBundle getExecutionVariables() {
+        return executionVariables;
     }
 
-    public boolean isObsolete() {
-        return  executionProcessor == null || executionProcessor.isOrphan() ||
-                executionProcessor.getActiveConnection() != connectionHandler || // connection changed since execution
-                executionProcessor.getCurrentSchema() != schema || // current schema changed since execution
-                (executionProcessor.getExecutablePsiElement() != null &&
-                        executionProcessor.getExecutablePsiElement().matches(getExecutablePsiElement()) &&
-                        !executionProcessor.getExecutablePsiElement().equals(getExecutablePsiElement()));
+    public void setExecutionVariables(StatementExecutionVariablesBundle executionVariables) {
+        if (this.executionVariables != null) {
+            DisposerUtil.dispose(this.executionVariables);
+        }
+        this.executionVariables = executionVariables;
+    }
+
+    public PsiFile createPreviewFile() {
+        ConnectionHandler activeConnection = getConnectionHandler();
+        DBSchema currentSchema = getCurrentSchema();
+        DBLanguageDialect languageDialect = activeConnection == null ?
+                SQLLanguage.INSTANCE.getMainLanguageDialect() :
+                activeConnection.getLanguageDialect(SQLLanguage.INSTANCE);
+
+        return DBLanguagePsiFile.createFromText(getProject(), "preview", languageDialect, executableStatementText, activeConnection, currentSchema);
     }
 
     public StatementExecutionProcessor getExecutionProcessor() {
@@ -72,27 +111,53 @@ public class StatementExecutionInput implements Disposable {
     }
 
     public Project getProject() {
-        return executionProcessor.getProject();
+        return executionProcessor == null ? null : executionProcessor.getProject();
     }
 
+    @Nullable
     public ConnectionHandler getConnectionHandler() {
-        return connectionHandler;
+        return ConnectionHandlerRef.get(connectionHandlerRef);
     }
 
-    public DBSchema getSchema() {
-        return schema;
+    public void setConnectionHandler(ConnectionHandler connectionHandler) {
+        this.connectionHandlerRef = ConnectionHandlerRef.from(connectionHandler);
+    }
+
+    @Nullable
+    public DBSchema getCurrentSchema() {
+        return DBObjectRef.get(currentSchemaRef);
+    }
+
+    public void setCurrentSchema(DBSchema currentSchema) {
+        this.currentSchemaRef = DBObjectRef.from(currentSchema);
+    }
+
+    public boolean isBulkExecution() {
+        return isBulkExecution;
+    }
+
+    public void setBulkExecution(boolean isBulkExecution) {
+        this.isBulkExecution = isBulkExecution;
     }
 
     public void dispose() {
         if (!isDisposed) {
             isDisposed = true;
-            executionProcessor.reset();
             executionProcessor = null;
-            connectionHandler = null;
+            executablePsiElement = null;
         }
     }
 
     public boolean isDisposed() {
         return isDisposed;
+    }
+
+    public String getStatementDescription() {
+        ExecutablePsiElement executablePsiElement = getExecutablePsiElement();
+        return executablePsiElement == null ? "SQL Statement" : executablePsiElement.getPresentableText();
+    }
+
+    public boolean isDatabaseLogProducer() {
+        return executablePsiElement != null && executablePsiElement.getElementType().is(ElementTypeAttribute.DATABASE_LOG_PRODUCER);
     }
 }

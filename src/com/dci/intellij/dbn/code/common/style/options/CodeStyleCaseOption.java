@@ -1,10 +1,9 @@
 package com.dci.intellij.dbn.code.common.style.options;
 
+import org.jdom.Element;
+
 import com.dci.intellij.dbn.common.options.PersistentConfiguration;
 import com.dci.intellij.dbn.common.util.NamingUtil;
-import com.intellij.openapi.util.InvalidDataException;
-import com.intellij.openapi.util.WriteExternalException;
-import org.jdom.Element;
 
 public class CodeStyleCaseOption implements PersistentConfiguration {
     private String name;
@@ -30,7 +29,7 @@ public class CodeStyleCaseOption implements PersistentConfiguration {
         this.styleCase = styleCase;
     }
 
-    public String changeCase(String string) {
+    public String format(String string) {
         if (string != null) {
             switch (styleCase) {
                 case UPPER: return string.toUpperCase();
@@ -43,9 +42,9 @@ public class CodeStyleCaseOption implements PersistentConfiguration {
     }
 
     /*********************************************************
-     *                   JDOMExternalizable                  *
+     *                 PersistentConfiguration               *
      *********************************************************/
-    public void readConfiguration(Element element) throws InvalidDataException {
+    public void readConfiguration(Element element) {
         name = element.getAttributeValue("name");
         String style = element.getAttributeValue("value");
         styleCase =
@@ -55,7 +54,7 @@ public class CodeStyleCaseOption implements PersistentConfiguration {
                 style.equals("preserve") ? CodeStyleCase.PRESERVE : CodeStyleCase.PRESERVE;
     }
 
-    public void writeConfiguration(Element element) throws WriteExternalException {
+    public void writeConfiguration(Element element) {
         String value =
                 styleCase == CodeStyleCase.UPPER ? "upper" :
                 styleCase == CodeStyleCase.LOWER ? "lower" :

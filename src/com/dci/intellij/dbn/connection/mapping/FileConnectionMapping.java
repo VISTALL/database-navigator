@@ -1,18 +1,15 @@
 package com.dci.intellij.dbn.connection.mapping;
 
-import com.dci.intellij.dbn.common.options.PersistentConfiguration;
-import com.intellij.openapi.util.InvalidDataException;
-import com.intellij.openapi.util.WriteExternalException;
 import org.jdom.Element;
 
-public class FileConnectionMapping implements PersistentConfiguration {
+import com.dci.intellij.dbn.common.state.PersistentStateElement;
+
+public class FileConnectionMapping implements PersistentStateElement<Element> {
     String fileUrl = "";
     String connectionId = "";
     String currentSchema = "";
 
-    public FileConnectionMapping(Element element) throws InvalidDataException {                
-        readConfiguration(element);
-    }
+    public FileConnectionMapping(){}
 
     public FileConnectionMapping(String fileUrl, String connectionId, String currentSchema) {
         this.fileUrl = fileUrl;
@@ -44,10 +41,10 @@ public class FileConnectionMapping implements PersistentConfiguration {
         this.currentSchema = currentSchema;
     }
 
-    /***************************************
-     *          JDOMExternalizable         *
-     ***************************************/
-    public void readConfiguration(Element element) throws InvalidDataException {
+    /*********************************************
+     *            PersistentStateElement         *
+     *********************************************/
+    public void readState(Element element) {
         fileUrl = element.getAttributeValue("file-url");
         // fixme remove this backward compatibility 
         if (fileUrl == null) fileUrl = element.getAttributeValue("file-path");
@@ -55,7 +52,7 @@ public class FileConnectionMapping implements PersistentConfiguration {
         currentSchema = element.getAttributeValue("current-schema");
     }
 
-    public void writeConfiguration(Element element) throws WriteExternalException {
+    public void writeState(Element element) {
         element.setAttribute("file-url", fileUrl);
         element.setAttribute("connection-id", connectionId == null ? "" : connectionId);
         element.setAttribute("current-schema", currentSchema == null ? "" : currentSchema);

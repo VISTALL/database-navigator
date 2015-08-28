@@ -1,57 +1,67 @@
 package com.dci.intellij.dbn.execution.statement.result;
 
+import javax.swing.Icon;
+import org.jetbrains.annotations.NotNull;
+
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.message.MessageType;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.execution.common.result.ui.ExecutionResultForm;
+import com.dci.intellij.dbn.execution.compiler.CompilerResult;
 import com.dci.intellij.dbn.execution.statement.StatementExecutionInput;
 import com.dci.intellij.dbn.execution.statement.StatementExecutionMessage;
-import com.dci.intellij.dbn.execution.statement.processor.StatementExecutionBasicProcessor;
-import com.dci.intellij.dbn.execution.statement.result.ui.StatementViewerPopup;
+import com.dci.intellij.dbn.execution.statement.processor.StatementExecutionProcessor;
+import com.dci.intellij.dbn.object.common.DBSchemaObject;
+import com.dci.intellij.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.project.Project;
-
-import javax.swing.Icon;
+import com.intellij.openapi.util.Disposer;
+import com.intellij.psi.PsiFile;
 
 public class StatementExecutionBasicResult implements StatementExecutionResult{
     private String resultName;
     private StatementExecutionMessage executionMessage;
-    private StatementExecutionInput executionInput;
+    private StatementExecutionStatus executionStatus;
     private int executionDuration;
-    private int executionStatus;
-    private StatementViewerPopup statementViewerPopup;
+    private int updateCount;
+    private CompilerResult compilerResult;
+    private DBObjectRef<DBSchemaObject> affectedObjectRef;
+    private StatementExecutionProcessor executionProcessor;
+    private String loggingOutput;
+    private boolean loggingActive;
 
-    public StatementExecutionBasicResult(String resultName,
-            StatementExecutionInput executionInput) {
+    public StatementExecutionBasicResult(
+            @NotNull StatementExecutionProcessor executionProcessor,
+            @NotNull String resultName,
+            int updateCount) {
         this.resultName = resultName;
-        this.executionInput = executionInput;
+        this.executionProcessor = executionProcessor;
+        this.updateCount = updateCount;
     }
 
-    public String getResultName() {
+    @Override
+    public PsiFile createPreviewFile() {
+        return getExecutionInput().createPreviewFile();
+    }
+
+    @NotNull
+    public String getName() {
         return resultName;
     }
 
-    public Icon getResultIcon() {
-        return isOrphan() ? Icons.STMT_EXEC_RESULTSET_ORPHAN : Icons.STMT_EXEC_RESULTSET;
+    public Icon getIcon() {
+        return executionProcessor == null || executionProcessor.isDirty() ? Icons.STMT_EXEC_RESULTSET_ORPHAN : Icons.STMT_EXEC_RESULTSET;
     }
 
-    public StatementExecutionBasicProcessor getExecutionProcessor() {
-        return executionInput == null ? null : (StatementExecutionBasicProcessor) executionInput.getExecutionProcessor();
+    public StatementExecutionProcessor getExecutionProcessor() {
+        return executionProcessor;
     }
 
     public StatementExecutionMessage getExecutionMessage() {
         return executionMessage;
     }
 
-    public void setExecutionInput(StatementExecutionInput executionInput) {
-        this.executionInput = executionInput;
-    }
-
     public StatementExecutionInput getExecutionInput() {
-        return executionInput;
-    }
-
-    public boolean isOrphan() {
-        return getExecutionProcessor().isOrphan();
+        return executionProcessor == null ? null : executionProcessor.getExecutionInput();
     }
 
     public void navigateToEditor(boolean requestFocus) {
@@ -66,20 +76,17 @@ public class StatementExecutionBasicResult implements StatementExecutionResult{
         this.executionDuration = executionDuration;
     }
 
-    public int getExecutionStatus() {
+    public StatementExecutionStatus getExecutionStatus() {
         return executionStatus;
     }
 
-    public void setExecutionStatus(int executionStatus) {
+    public void setExecutionStatus(StatementExecutionStatus executionStatus) {
         this.executionStatus = executionStatus;
     }
 
-    public StatementViewerPopup getStatementViewerPopup() {
-        return statementViewerPopup;
-    }
-
-    public void setStatementViewerPopup(StatementViewerPopup statementViewerPopup) {
-        this.statementViewerPopup = statementViewerPopup;
+    @Override
+    public int getUpdateCount() {
+        return updateCount;
     }
 
     public void updateExecutionMessage(MessageType messageType, String message, String causeMessage) {
@@ -91,29 +98,77 @@ public class StatementExecutionBasicResult implements StatementExecutionResult{
     }
 
     public void clearExecutionMessage() {
-        executionMessage = null;
+        if (executionMessage != null) {
+            Disposer.dispose(executionMessage);
+            executionMessage = null;
+        }
     }
 
     public Project getProject() {
-        StatementExecutionBasicProcessor executionProcessor = getExecutionProcessor();
         return executionProcessor == null ? null : executionProcessor.getProject();
     }
 
     public ConnectionHandler getConnectionHandler() {
-        return executionInput.getConnectionHandler();
+        return executionProcessor == null ? null : executionProcessor.getConnectionHandler();
+    }
+
+    public ExecutionResultForm getForm(boolean create) {
+        return null;
+    }
+
+    @Override
+    public CompilerResult getCompilerResult() {
+        return compilerResult;
+    }
+
+    @Override
+    public boolean hasCompilerResult() {
+        return compilerResult != null;
+    }
+
+    @Override
+    public boolean isBulkExecution() {
+        StatementExecutionInput executionInput = getExecutionInput();
+        return executionInput != null && executionInput.isBulkExecution();
+    }
+
+    public void setCompilerResult(CompilerResult compilerResult) {
+        this.compilerResult = compilerResult;
+    }
+
+    @Override
+    public String getLoggingOutput() {
+        return loggingOutput;
+    }
+
+    @Override
+    public void setLoggingOutput(String loggingOutput) {
+        this.loggingOutput = loggingOutput;
+    }
+
+    @Override
+    public boolean isLoggingActive() {
+        return loggingActive;
+    }
+
+    @Override
+    public void setLoggingActive(boolean loggingActive) {
+        this.loggingActive = loggingActive;
+    }
+
+    /********************************************************
+     *                    Disposable                        *
+     ********************************************************/
+    private boolean disposed;
+
+    @Override
+    public boolean isDisposed() {
+        return disposed;
     }
 
     public void dispose() {
-        executionInput.dispose();
-        if (statementViewerPopup != null) {
-            statementViewerPopup.dispose();
-            statementViewerPopup = null;
-        }
-        executionInput = null;
+        disposed = true;
+        executionProcessor = null;
         executionMessage = null;
-    }
-
-    public ExecutionResultForm getResultPanel() {
-        return null;
     }
 }

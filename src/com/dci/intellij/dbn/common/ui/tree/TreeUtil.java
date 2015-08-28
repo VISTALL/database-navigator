@@ -3,12 +3,16 @@ package com.dci.intellij.dbn.common.ui.tree;
 import com.dci.intellij.dbn.common.LoggerFactory;
 import com.dci.intellij.dbn.common.thread.ConditionalLaterInvocator;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.progress.ProcessCanceledException;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JTree;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
+import java.awt.MouseInfo;
+import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -49,9 +53,11 @@ public class TreeUtil {
         while (true);
     }
 
-    public static void notifyTreeModelListeners(Object source, Set<TreeModelListener> treeModelListeners, TreePath path, TreeEventType eventType) {
-        TreeModelEvent event = new TreeModelEvent(source, path);
-        notifyTreeModelListeners(treeModelListeners, eventType, event);
+    public static void notifyTreeModelListeners(Object source, Set<TreeModelListener> treeModelListeners, @Nullable TreePath path, TreeEventType eventType) {
+        if (path != null) {
+            TreeModelEvent event = new TreeModelEvent(source, path);
+            notifyTreeModelListeners(treeModelListeners, eventType, event);
+        }
     }
 
     private static void notifyTreeModelListeners(final Set<TreeModelListener> treeModelListeners, final TreeEventType eventType, final TreeModelEvent event) {
@@ -59,18 +65,27 @@ public class TreeUtil {
             @Override
             public void execute() {
                 try {
-                    for (TreeModelListener treeModelListener : treeModelListeners) {
-                        switch (eventType) {
-                            case NODES_ADDED:       treeModelListener.treeNodesInserted(event);    break;
-                            case NODES_REMOVED:     treeModelListener.treeNodesRemoved(event);     break;
-                            case NODES_CHANGED:     treeModelListener.treeNodesChanged(event);     break;
-                            case STRUCTURE_CHANGED: treeModelListener.treeStructureChanged(event); break;
+                    if (event.getTreePath().getLastPathComponent() != null) {
+                        for (TreeModelListener treeModelListener : treeModelListeners) {
+                            switch (eventType) {
+                                case NODES_ADDED:       treeModelListener.treeNodesInserted(event);    break;
+                                case NODES_REMOVED:     treeModelListener.treeNodesRemoved(event);     break;
+                                case NODES_CHANGED:     treeModelListener.treeNodesChanged(event);     break;
+                                case STRUCTURE_CHANGED: treeModelListener.treeStructureChanged(event); break;
+                            }
                         }
                     }
+                } catch (ProcessCanceledException e) {
+
                 } catch (Exception e) {
-                    LOGGER.error("Error notifying tree model listeners", e);
+                    LOGGER.warn("Error notifying tree model listeners", e);
                 }
             }
         }.start();
+    }
+
+    public static TreePath getPathAtMousePosition(JTree tree) {
+        Point location = MouseInfo.getPointerInfo().getLocation();
+        return tree.getPathForLocation((int) location.getX(), (int) location.getY());
     }
 }

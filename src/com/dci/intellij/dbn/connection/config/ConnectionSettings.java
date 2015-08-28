@@ -1,31 +1,32 @@
 package com.dci.intellij.dbn.connection.config;
 
-import com.dci.intellij.dbn.common.options.CompositeConfiguration;
-import com.dci.intellij.dbn.common.options.Configuration;
-import com.dci.intellij.dbn.connection.ConnectionBundle;
-import com.dci.intellij.dbn.connection.config.ui.ConnectionSettingsForm;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.InvalidDataException;
-import com.intellij.openapi.util.WriteExternalException;
+import java.util.UUID;
 import org.jdom.Element;
-import org.jetbrains.annotations.NotNull;
 
-public class ConnectionSettings extends CompositeConfiguration<ConnectionSettingsForm> {
+import com.dci.intellij.dbn.common.options.CompositeProjectConfiguration;
+import com.dci.intellij.dbn.common.options.Configuration;
+import com.dci.intellij.dbn.connection.config.ui.ConnectionSettingsForm;
+
+public class ConnectionSettings extends CompositeProjectConfiguration<ConnectionSettingsForm> {
+    private ConnectionBundleSettings parent;
+
+    private String connectionId;
+    private boolean isNew;
+
     private ConnectionDatabaseSettings databaseSettings;
     private ConnectionDetailSettings detailSettings;
     private ConnectionFilterSettings filterSettings;
 
-    public ConnectionSettings(ConnectionBundle connectionBundle) {
-        Project project = connectionBundle.getProject();
-        databaseSettings = new GenericConnectionDatabaseSettings(connectionBundle);
-        detailSettings = new ConnectionDetailSettings(project);
-        filterSettings = new ConnectionFilterSettings(project);
+    public ConnectionSettings(ConnectionBundleSettings parent) {
+        super(parent.getProject());
+        this.parent = parent;
+        databaseSettings = new GenericConnectionDatabaseSettings(this);
+        detailSettings = new ConnectionDetailSettings(this);
+        filterSettings = new ConnectionFilterSettings(this);
     }
 
-    public ConnectionSettings(GenericConnectionDatabaseSettings databaseSettings, ConnectionDetailSettings detailSettings, ConnectionFilterSettings filterSettings) {
-        this.databaseSettings = databaseSettings;
-        this.detailSettings = detailSettings;
-        this.filterSettings = filterSettings;
+    public ConnectionBundleSettings getParent() {
+        return parent;
     }
 
     public ConnectionDatabaseSettings getDatabaseSettings() {
@@ -42,7 +43,18 @@ public class ConnectionSettings extends CompositeConfiguration<ConnectionSetting
 
     @Override
     protected Configuration[] createConfigurations() {
-        return new Configuration[] {databaseSettings, detailSettings, filterSettings};
+        return new Configuration[] {
+                databaseSettings,
+                detailSettings,
+                filterSettings};
+    }
+
+    public void generateNewId() {
+        connectionId =  UUID.randomUUID().toString();
+    }
+
+    public void setConnectionId(String connectionId) {
+        this.connectionId = connectionId;
     }
 
     @Override
@@ -50,39 +62,46 @@ public class ConnectionSettings extends CompositeConfiguration<ConnectionSetting
         return new ConnectionSettingsForm(this);
     }
 
-    @NotNull
+    public String getConnectionId() {
+        return connectionId;
+    }
+
     @Override
-    public String getId() {
-        return databaseSettings.getId();
+    public void readConfiguration(Element element) {
+        if (ConnectionBundleSettings.IS_IMPORT_EXPORT_ACTION.get()) {
+            generateNewId();
+        } else {
+            connectionId = element.getAttributeValue("id");
+        }
+        super.readConfiguration(element);
+    }
+
+    public boolean isNew() {
+        return isNew;
+    }
+
+    public void setNew(boolean isNew) {
+        this.isNew = isNew;
+    }
+
+    @Override
+    public void writeConfiguration(Element element) {
+        element.setAttribute("id", connectionId);
+        super.writeConfiguration(element);
     }
 
     public ConnectionSettings clone() {
         try {
             Element connectionElement = new Element("Connection");
             writeConfiguration(connectionElement);
-            ConnectionSettings clone = new ConnectionSettings(databaseSettings.getConnectionBundle());
+            ConnectionSettings clone = new ConnectionSettings(parent);
             clone.readConfiguration(connectionElement);
-            clone.getDatabaseSettings().setConnectivityStatus(databaseSettings.getConnectivityStatus());
-            clone.getDatabaseSettings().generateNewId();
+            clone.databaseSettings.setConnectivityStatus(databaseSettings.getConnectivityStatus());
+            clone.generateNewId();
             return clone;
         } catch (Exception e) {
+            return null;
         }
-        return null;
-    }
 
-
-    /*********************************************************
-     *                     Configuration                     *
-     *********************************************************/
-    public void readConfiguration(Element element) throws InvalidDataException {
-        readConfiguration(element, detailSettings);
-        readConfiguration(element, filterSettings);
-        databaseSettings.readConfiguration(element);
-    }
-
-    public void writeConfiguration(Element element) throws WriteExternalException {
-        writeConfiguration(element, detailSettings);
-        writeConfiguration(element, filterSettings);
-        databaseSettings.writeConfiguration(element);
     }
 }

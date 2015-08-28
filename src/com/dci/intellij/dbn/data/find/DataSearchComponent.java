@@ -1,38 +1,5 @@
 package com.dci.intellij.dbn.data.find;
 
-import com.dci.intellij.dbn.common.compatibility.CompatibilityUtil;
-import com.dci.intellij.dbn.common.util.StringUtil;
-import com.dci.intellij.dbn.data.find.action.CloseOnESCAction;
-import com.dci.intellij.dbn.data.find.action.NextOccurrenceAction;
-import com.dci.intellij.dbn.data.find.action.PrevOccurrenceAction;
-import com.dci.intellij.dbn.data.find.action.ShowHistoryAction;
-import com.dci.intellij.dbn.data.find.action.ToggleMatchCase;
-import com.dci.intellij.dbn.data.find.action.ToggleRegex;
-import com.dci.intellij.dbn.data.find.action.ToggleWholeWordsOnlyAction;
-import com.dci.intellij.dbn.data.model.DataModel;
-import com.dci.intellij.dbn.data.model.DataModelListener;
-import com.dci.intellij.dbn.data.ui.table.basic.BasicTable;
-import com.intellij.featureStatistics.FeatureUsageTracker;
-import com.intellij.find.FindManager;
-import com.intellij.find.FindModel;
-import com.intellij.find.FindSettings;
-import com.intellij.openapi.Disposable;
-import com.intellij.openapi.actionSystem.ActionManager;
-import com.intellij.openapi.actionSystem.ActionToolbar;
-import com.intellij.openapi.actionSystem.DefaultActionGroup;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.editor.event.SelectionEvent;
-import com.intellij.openapi.editor.event.SelectionListener;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.IconLoader;
-import com.intellij.openapi.util.SystemInfo;
-import com.intellij.openapi.wm.IdeFocusManager;
-import com.intellij.ui.LightColors;
-import com.intellij.ui.components.JBList;
-import com.intellij.ui.components.panels.NonOpaquePanel;
-import com.intellij.util.ArrayUtil;
-import com.intellij.util.ui.UIUtil;
-
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -62,6 +29,41 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.regex.Pattern;
 
+import com.dci.intellij.dbn.common.compatibility.CompatibilityUtil;
+import com.dci.intellij.dbn.common.util.StringUtil;
+import com.dci.intellij.dbn.data.find.action.CloseOnESCAction;
+import com.dci.intellij.dbn.data.find.action.NextOccurrenceAction;
+import com.dci.intellij.dbn.data.find.action.PrevOccurrenceAction;
+import com.dci.intellij.dbn.data.find.action.ShowHistoryAction;
+import com.dci.intellij.dbn.data.find.action.ToggleMatchCase;
+import com.dci.intellij.dbn.data.find.action.ToggleRegex;
+import com.dci.intellij.dbn.data.find.action.ToggleWholeWordsOnlyAction;
+import com.dci.intellij.dbn.data.grid.ui.table.basic.BasicTable;
+import com.dci.intellij.dbn.data.model.DataModel;
+import com.dci.intellij.dbn.data.model.DataModelListener;
+import com.dci.intellij.dbn.data.model.basic.BasicDataModel;
+import com.intellij.featureStatistics.FeatureUsageTracker;
+import com.intellij.find.FindManager;
+import com.intellij.find.FindModel;
+import com.intellij.find.FindSettings;
+import com.intellij.openapi.Disposable;
+import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.actionSystem.ActionToolbar;
+import com.intellij.openapi.actionSystem.DefaultActionGroup;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.editor.event.SelectionEvent;
+import com.intellij.openapi.editor.event.SelectionListener;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Disposer;
+import com.intellij.openapi.util.IconLoader;
+import com.intellij.openapi.util.SystemInfo;
+import com.intellij.openapi.wm.IdeFocusManager;
+import com.intellij.ui.LightColors;
+import com.intellij.ui.components.JBList;
+import com.intellij.ui.components.panels.NonOpaquePanel;
+import com.intellij.util.ArrayUtil;
+import com.intellij.util.ui.UIUtil;
+
 public class DataSearchComponent extends JPanel implements Disposable, SelectionListener, DataSearchResultListener, DataModelListener {
     private static final int MATCHES_LIMIT = 10000;
     private final Color BACKGROUND;
@@ -89,7 +91,7 @@ public class DataSearchComponent extends JPanel implements Disposable, Selection
     public DataSearchComponent(final SearchableDataComponent searchableComponent) {
         super(new BorderLayout(0, 0));
         this.searchableComponent = searchableComponent;
-        BasicTable table = searchableComponent.getTable();
+        BasicTable<? extends BasicDataModel> table = searchableComponent.getTable();
         DataModel dataModel = table.getModel();
         dataModel.addDataModelListener(this);
         initializeFindModel();
@@ -100,6 +102,8 @@ public class DataSearchComponent extends JPanel implements Disposable, Selection
         searchResultController = new DataSearchResultController(searchableComponent);
         searchResult.addListener(this);
         searchResultController.updateResult(findModel);
+
+        Disposer.register(this, searchResultController);
 
 
         GRADIENT_C1 = getBackground();
@@ -390,11 +394,13 @@ public class DataSearchComponent extends JPanel implements Disposable, Selection
         editorTextField.addFocusListener(new FocusListener() {
             @Override
             public void focusGained(final FocusEvent e) {
+                editorTextField.revalidate();
                 editorTextField.repaint();
             }
 
             @Override
             public void focusLost(final FocusEvent e) {
+                editorTextField.revalidate();
                 editorTextField.repaint();
             }
         });
@@ -480,6 +486,7 @@ public class DataSearchComponent extends JPanel implements Disposable, Selection
             nothingToSearchFor();
             searchableComponent.cancelEditActions();
             searchableComponent.getTable().clearSelection();
+            searchableComponent.getTable().revalidate();
             searchableComponent.getTable().repaint();
         } else {
 

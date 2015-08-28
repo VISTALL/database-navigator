@@ -1,15 +1,16 @@
 package com.dci.intellij.dbn.execution.compiler.options;
 
-import com.dci.intellij.dbn.common.options.Configuration;
-import com.dci.intellij.dbn.common.options.setting.SettingsUtil;
-import com.dci.intellij.dbn.execution.compiler.CompileType;
-import com.dci.intellij.dbn.execution.compiler.options.ui.CompilerSettingsForm;
-import com.intellij.openapi.util.InvalidDataException;
-import com.intellij.openapi.util.WriteExternalException;
 import org.jdom.Element;
 
+import com.dci.intellij.dbn.common.options.Configuration;
+import com.dci.intellij.dbn.common.options.setting.SettingsUtil;
+import com.dci.intellij.dbn.execution.compiler.CompileDependenciesOption;
+import com.dci.intellij.dbn.execution.compiler.CompileTypeOption;
+import com.dci.intellij.dbn.execution.compiler.options.ui.CompilerSettingsForm;
+
 public class CompilerSettings extends Configuration<CompilerSettingsForm>{
-    private CompileType compileType = CompileType.KEEP;
+    private CompileTypeOption compileTypeOption = CompileTypeOption.KEEP;
+    private CompileDependenciesOption compileDependenciesOption = CompileDependenciesOption.ASK;
     private boolean alwaysShowCompilerControls = false;
 
     public String getDisplayName() {
@@ -24,12 +25,20 @@ public class CompilerSettings extends Configuration<CompilerSettingsForm>{
     *                       Settings                        *
     *********************************************************/
 
-    public CompileType getCompileType() {
-        return compileType;
+    public CompileTypeOption getCompileTypeOption() {
+        return compileTypeOption;
     }
 
-    public void setCompileType(CompileType compileType) {
-        this.compileType = compileType;
+    public void setCompileTypeOption(CompileTypeOption compileTypeOption) {
+        this.compileTypeOption = compileTypeOption;
+    }
+
+    public CompileDependenciesOption getCompileDependenciesOption() {
+        return compileDependenciesOption;
+    }
+
+    public void setCompileDependenciesOption(CompileDependenciesOption compileDependenciesOption) {
+        this.compileDependenciesOption = compileDependenciesOption;
     }
 
     public boolean alwaysShowCompilerControls() {
@@ -52,13 +61,15 @@ public class CompilerSettings extends Configuration<CompilerSettingsForm>{
         return "compiler";
     }
 
-    public void readConfiguration(Element element) throws InvalidDataException {
-        compileType = CompileType.get(SettingsUtil.getString(element, "compile-type", compileType.name()));
+    public void readConfiguration(Element element) {
+        compileTypeOption = CompileTypeOption.get(SettingsUtil.getString(element, "compile-type", compileTypeOption.name()));
+        compileDependenciesOption = CompileDependenciesOption.get(SettingsUtil.getString(element, "compile-dependencies", compileDependenciesOption.name()));
         alwaysShowCompilerControls = SettingsUtil.getBoolean(element, "always-show-controls", alwaysShowCompilerControls);
     }
 
-    public void writeConfiguration(Element element) throws WriteExternalException {
-        SettingsUtil.setString(element, "compile-type", compileType.name());
+    public void writeConfiguration(Element element) {
+        SettingsUtil.setString(element, "compile-type", compileTypeOption.name());
+        SettingsUtil.setString(element, "compile-dependencies", compileDependenciesOption.name());
         SettingsUtil.setBoolean(element, "always-show-controls", alwaysShowCompilerControls);
     }
 }

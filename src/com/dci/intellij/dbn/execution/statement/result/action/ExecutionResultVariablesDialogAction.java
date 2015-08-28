@@ -1,13 +1,16 @@
 package com.dci.intellij.dbn.execution.statement.result.action;
 
+import org.jetbrains.annotations.NotNull;
+
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.thread.BackgroundTask;
+import com.dci.intellij.dbn.execution.statement.StatementExecutionManager;
 import com.dci.intellij.dbn.execution.statement.processor.StatementExecutionCursorProcessor;
 import com.dci.intellij.dbn.execution.statement.result.StatementExecutionCursorResult;
 import com.dci.intellij.dbn.execution.statement.variables.StatementExecutionVariablesBundle;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.progress.ProgressIndicator;
-import org.jetbrains.annotations.NotNull;
+import com.intellij.openapi.project.Project;
 
 public class ExecutionResultVariablesDialogAction extends AbstractExecutionResultAction {
     public ExecutionResultVariablesDialogAction() {
@@ -15,19 +18,19 @@ public class ExecutionResultVariablesDialogAction extends AbstractExecutionResul
     }
 
     @Override
-    public void actionPerformed(AnActionEvent e) {
+    public void actionPerformed(@NotNull AnActionEvent e) {
         final StatementExecutionCursorResult executionResult = getExecutionResult(e);
         if (executionResult != null) {
-            boolean continueExecution = executionResult.getExecutionProcessor().promptVariablesDialog();
-            if (continueExecution) {
-                new BackgroundTask(executionResult.getProject(), "Executing statement", false, true) {
-                    protected void execute(@NotNull ProgressIndicator progressIndicator) {
-                        initProgressIndicator(progressIndicator, true);
-                        StatementExecutionCursorProcessor executionProcessor = executionResult.getExecutionProcessor();
-                        executionProcessor.execute(progressIndicator);
-                    }
-                }.start();
-            }
+            final StatementExecutionCursorProcessor executionProcessor = executionResult.getExecutionProcessor();
+            final Project project = executionResult.getProject();
+            StatementExecutionManager statementExecutionManager = StatementExecutionManager.getInstance(project);
+            statementExecutionManager.promptVariablesDialog(executionProcessor,
+                    new BackgroundTask(project, "Executing " + executionResult.getExecutionProcessor().getStatementName(), false, true) {
+                        @Override
+                        protected void execute(@NotNull ProgressIndicator progressIndicator) throws InterruptedException {
+                            executionProcessor.execute(progressIndicator);
+                        }
+                    });
         }
     }
 
@@ -43,6 +46,6 @@ public class ExecutionResultVariablesDialogAction extends AbstractExecutionResul
             }
         }
         e.getPresentation().setVisible(visible);
-        e.getPresentation().setText("Open variables dialog");
+        e.getPresentation().setText("Open Variables Dialog");
     }
 }

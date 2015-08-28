@@ -1,23 +1,21 @@
 package com.dci.intellij.dbn.editor.data.state;
 
+import org.jdom.Element;
+import org.jetbrains.annotations.NotNull;
+
 import com.dci.intellij.dbn.common.options.setting.SettingsUtil;
 import com.dci.intellij.dbn.data.model.sortable.SortableDataModelState;
 import com.dci.intellij.dbn.editor.data.state.column.DatasetColumnSetup;
 import com.intellij.openapi.fileEditor.FileEditorState;
 import com.intellij.openapi.fileEditor.FileEditorStateLevel;
 import gnu.trove.THashMap;
-import org.jdom.Element;
-import org.jetbrains.annotations.NotNull;
 
 public class DatasetEditorState extends SortableDataModelState implements FileEditorState {
     public static final DatasetEditorState VOID = new DatasetEditorState();
     private DatasetColumnSetup columnSetup = new DatasetColumnSetup();
 
-    public DatasetEditorState() {
-    }
-
     public boolean canBeMergedWith(FileEditorState fileEditorState, FileEditorStateLevel fileEditorStateLevel) {
-        return false;
+        return fileEditorState instanceof DatasetEditorState && fileEditorStateLevel == FileEditorStateLevel.FULL;
     }
 
     public DatasetColumnSetup getColumnSetup() {
@@ -85,10 +83,33 @@ public class DatasetEditorState extends SortableDataModelState implements FileEd
         clone.setReadonly(isReadonly());
         clone.setRowCount(getRowCount());
         clone.setSortingState(getSortingState());
+        clone.columnSetup = columnSetup.clone();
         if (contentTypesMap != null) {
             clone.contentTypesMap = new THashMap<String, String>(contentTypesMap);
         }
 
         return clone;
+    }
+    /*****************************************************************
+     *                     equals / hashCode                         *
+     *****************************************************************/
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        DatasetEditorState that = (DatasetEditorState) o;
+
+        if (!columnSetup.equals(that.columnSetup)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + columnSetup.hashCode();
+        return result;
     }
 }

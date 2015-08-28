@@ -1,12 +1,16 @@
 package com.dci.intellij.dbn.execution.method.ui;
 
 import com.dci.intellij.dbn.common.Icons;
+import com.dci.intellij.dbn.common.dispose.DisposableProjectComponent;
 import com.dci.intellij.dbn.common.dispose.DisposerUtil;
+import com.dci.intellij.dbn.common.dispose.FailsafeUtil;
 import com.dci.intellij.dbn.common.ui.AutoCommitLabel;
-import com.dci.intellij.dbn.common.ui.DBNForm;
+import com.dci.intellij.dbn.common.ui.Borders;
 import com.dci.intellij.dbn.common.ui.DBNFormImpl;
 import com.dci.intellij.dbn.common.ui.DBNHeaderForm;
 import com.dci.intellij.dbn.common.ui.ValueSelector;
+import com.dci.intellij.dbn.common.ui.ValueSelectorListener;
+import com.dci.intellij.dbn.common.util.StringUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.database.DatabaseCompatibilityInterface;
 import com.dci.intellij.dbn.database.DatabaseFeature;
@@ -14,22 +18,19 @@ import com.dci.intellij.dbn.execution.method.MethodExecutionInput;
 import com.dci.intellij.dbn.object.DBArgument;
 import com.dci.intellij.dbn.object.DBMethod;
 import com.dci.intellij.dbn.object.DBSchema;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.ui.DocumentAdapter;
-import com.intellij.util.ui.UIUtil;
 
 import javax.swing.BoxLayout;
-import javax.swing.Icon;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -38,20 +39,19 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class MethodExecutionForm extends DBNFormImpl implements DBNForm {
+public class MethodExecutionForm extends DBNFormImpl<DisposableProjectComponent> {
     private JPanel mainPanel;
     private JPanel argumentsPanel;
     private JPanel headerPanel;
-    private JSeparator topSeparator;
     private JPanel executionSchemaActionPanel;
     private JLabel executionSchemaLabel;
     private JLabel noArgumentsLabel;
     private JCheckBox usePoolConnectionCheckBox;
     private JCheckBox commitCheckBox;
-    private JSeparator spacer;
     private JLabel connectionLabel;
     private JScrollPane argumentsScrollPane;
     private AutoCommitLabel autoCommitLabel;
+    private JCheckBox enableLoggingCheckBox;
 
 
     private List<MethodExecutionArgumentForm> argumentForms = new ArrayList<MethodExecutionArgumentForm>();
@@ -59,14 +59,14 @@ public class MethodExecutionForm extends DBNFormImpl implements DBNForm {
     private Set<ChangeListener> changeListeners = new HashSet<ChangeListener>();
     private boolean debug;
 
-    public MethodExecutionForm(MethodExecutionInput executionInput, boolean showHeader, boolean debug) {
+    public MethodExecutionForm(DisposableProjectComponent parentComponent, MethodExecutionInput executionInput, boolean showHeader, boolean debug) {
+        super(parentComponent);
         this.executionInput = executionInput;
         this.debug = debug;
         DBMethod method = executionInput.getMethod();
 
-        ConnectionHandler connectionHandler = executionInput.getConnectionHandler();
-        DatabaseCompatibilityInterface compatibilityInterface = DatabaseCompatibilityInterface.getInstance(connectionHandler);
-        if (compatibilityInterface.supportsFeature(DatabaseFeature.AUTHID_METHOD_EXECUTION)) {
+        ConnectionHandler connectionHandler = FailsafeUtil.get(executionInput.getConnectionHandler());
+        if (DatabaseFeature.AUTHID_METHOD_EXECUTION.isSupported(connectionHandler)) {
             //ActionToolbar actionToolbar = ActionUtil.createActionToolbar("", true, new SetExecutionSchemaComboBoxAction(executionInput));
             executionSchemaActionPanel.add(new SchemaSelector(), BorderLayout.CENTER);
         } else {
@@ -80,16 +80,7 @@ public class MethodExecutionForm extends DBNFormImpl implements DBNForm {
         //objectPanel.add(new ObjectDetailsPanel(method).getComponent(), BorderLayout.NORTH);
 
         if (showHeader) {
-            String headerTitle = method.getQualifiedName();
-            Icon headerIcon = method.getIcon();
-            Color headerBackground = UIUtil.getPanelBackground();
-            if (getEnvironmentSettings(method.getProject()).getVisibilitySettings().getDialogHeaders().value()) {
-                headerBackground = method.getEnvironmentType().getColor();
-            }
-            DBNHeaderForm headerForm = new DBNHeaderForm(
-                    headerTitle,
-                    headerIcon,
-                    headerBackground);
+            DBNHeaderForm headerForm = new DBNHeaderForm(method);
             headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
         }
         headerPanel.setVisible(showHeader);
@@ -98,13 +89,12 @@ public class MethodExecutionForm extends DBNFormImpl implements DBNForm {
         int[] metrics = new int[]{0, 0};
 
         //topSeparator.setVisible(false);
-        spacer.setVisible(false);
-        List<DBArgument> arguments = new ArrayList(method.getArguments());
+        List<DBArgument> arguments = new ArrayList<DBArgument>(method.getArguments());
         noArgumentsLabel.setVisible(arguments.size() == 0);
         for (DBArgument argument: arguments) {
             if (argument.isInput()) {
-                spacer.setVisible(true);
                 metrics = addArgumentPanel(argument, metrics);
+                argumentsScrollPane.setBorder(Borders.BOTTOM_LINE_BORDER);
                 //topSeparator.setVisible(true);
             }
         }
@@ -132,22 +122,35 @@ public class MethodExecutionForm extends DBNFormImpl implements DBNForm {
         commitCheckBox.addActionListener(actionListener);
         usePoolConnectionCheckBox.addActionListener(actionListener);
         usePoolConnectionCheckBox.setEnabled(!debug);
+
+        enableLoggingCheckBox.setEnabled(!debug);
+        enableLoggingCheckBox.setSelected(!debug && executionInput.isEnableLogging());
+        enableLoggingCheckBox.setVisible(DatabaseFeature.DATABASE_LOGGING.isSupported(connectionHandler));
+        DatabaseCompatibilityInterface compatibilityInterface = DatabaseCompatibilityInterface.getInstance(connectionHandler);
+        String databaseLogName = compatibilityInterface == null ? null : compatibilityInterface.getDatabaseLogName();
+        if (StringUtil.isNotEmpty(databaseLogName)) {
+            enableLoggingCheckBox.setText("Enable logging (" + databaseLogName + ")");
+        }
+
+        Disposer.register(this, autoCommitLabel);
     }
 
     private class SchemaSelector extends ValueSelector<DBSchema> {
         public SchemaSelector() {
-            super(Icons.DBO_SCHEMA, "Select schema...", executionInput.getExecutionSchema(), true);
+            super(Icons.DBO_SCHEMA, "Select Schema...", executionInput.getExecutionSchema(), true);
+            addListener(new ValueSelectorListener<DBSchema>() {
+                @Override
+                public void valueSelected(DBSchema schema) {
+                    executionInput.setExecutionSchema(schema);
+                    notifyChangeListeners();
+                }
+            });
         }
 
         @Override
         public List<DBSchema> loadValues() {
-            return executionInput.getConnectionHandler().getObjectBundle().getSchemas();
-        }
-
-        @Override
-        public void valueSelected(DBSchema schema) {
-            executionInput.setExecutionSchema(schema);
-            notifyChangeListeners();
+            ConnectionHandler connectionHandler = FailsafeUtil.get(executionInput.getConnectionHandler());
+            return connectionHandler.getObjectBundle().getSchemas();
         }
     }
 
@@ -167,7 +170,7 @@ public class MethodExecutionForm extends DBNFormImpl implements DBNForm {
     }
 
     private int[] addArgumentPanel(DBArgument argument, int[] gridMetrics) {
-        MethodExecutionArgumentForm argumentComponent = new MethodExecutionArgumentForm(argument, this);
+        MethodExecutionArgumentForm argumentComponent = new MethodExecutionArgumentForm(this, argument);
         argumentsPanel.add(argumentComponent.getComponent());
         argumentForms.add(argumentComponent);
         return argumentComponent.getMetrics(gridMetrics);
@@ -216,7 +219,6 @@ public class MethodExecutionForm extends DBNFormImpl implements DBNForm {
 
     public void dispose() {
         super.dispose();
-        autoCommitLabel.dispose();
         DisposerUtil.dispose(argumentForms);
         changeListeners.clear();
         argumentForms = null;

@@ -1,36 +1,22 @@
 package com.dci.intellij.dbn.language.common.psi;
 
-import com.dci.intellij.dbn.common.util.NamingUtil;
-import com.dci.intellij.dbn.execution.statement.StatementExecutionManager;
-import com.dci.intellij.dbn.execution.statement.processor.StatementExecutionBasicProcessor;
+import javax.swing.Icon;
+import java.lang.ref.WeakReference;
+import org.jetbrains.annotations.Nullable;
+
+import com.dci.intellij.dbn.code.common.style.options.CodeStyleCaseOption;
+import com.dci.intellij.dbn.code.common.style.options.CodeStyleCaseSettings;
+import com.dci.intellij.dbn.execution.statement.processor.StatementExecutionProcessor;
+import com.dci.intellij.dbn.language.common.element.ElementType;
 import com.dci.intellij.dbn.language.common.element.NamedElementType;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeAttribute;
+import com.dci.intellij.dbn.object.common.DBObjectType;
 import com.intellij.lang.ASTNode;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.psi.PsiElement;
-import gnu.trove.THashSet;
-import org.jetbrains.annotations.Nullable;
-
-import javax.swing.Icon;
-import java.util.Set;
 
 public class ExecutablePsiElement extends NamedPsiElement{
-    private StatementExecutionBasicProcessor executionProcessor;
-
-    public ExecutablePsiElement(ASTNode astNode, NamedElementType elementType) {
-        super(astNode, elementType);
-    }
-
-    public synchronized StatementExecutionBasicProcessor getExecutionProcessor() {
-        if (executionProcessor == null || !executionProcessor.matches(this, false)) {
-            StatementExecutionManager  statementExecutionManager = StatementExecutionManager.getInstance(getProject());
-            executionProcessor = statementExecutionManager.locateExecutionProcessor(this);
-            if (executionProcessor == null) {
-                executionProcessor = statementExecutionManager.createExecutionProcessor(this);
-            }
-        }
-        return executionProcessor;
-    }
+    private WeakReference<StatementExecutionProcessor> executionProcessor;
 
     public String prepareStatementText(){
         PsiElement lastChild = getLastChild();
@@ -47,11 +33,8 @@ public class ExecutablePsiElement extends NamedPsiElement{
         }
         return text;
     }
-
-    public String createResultName() {
-        Set<BasePsiElement> subjects = new THashSet<BasePsiElement>();
-        collectSubjectPsiElements(subjects);
-        return subjects.size() > 0 ? NamingUtil.createNamesList(subjects, 3) : null;
+    public ExecutablePsiElement(ASTNode astNode, NamedElementType elementType) {
+        super(astNode, elementType);
     }
 
     public NamedElementType getElementType() {
@@ -59,22 +42,21 @@ public class ExecutablePsiElement extends NamedPsiElement{
     }
 
     public boolean isQuery() {
-        return getElementType().is(ElementTypeAttribute.QUERY);
+        return getSpecificElementType().is(ElementTypeAttribute.QUERY);
     }
 
     public boolean isTransactional() {
-        return getElementType().is(ElementTypeAttribute.TRANSACTIONAL);
+        return getSpecificElementType().is(ElementTypeAttribute.TRANSACTIONAL);
     }
 
     public boolean isTransactionControl() {
-        return getElementType().is(ElementTypeAttribute.TRANSACTION_CONTROL);
+        return getSpecificElementType().is(ElementTypeAttribute.TRANSACTION_CONTROL);
     }
-
 
     public boolean isNestedExecutable() {
         PsiElement parent = getParent();
         while (parent != null && !(parent instanceof RootPsiElement)) {
-            if (parent instanceof ExecutablePsiElement) {
+            if (parent instanceof ExecutablePsiElement && parent.getTextOffset() != getTextOffset()) {
                 return true;
             }
             parent = parent.getParent();
@@ -84,6 +66,14 @@ public class ExecutablePsiElement extends NamedPsiElement{
 
     public boolean hasErrors() {
         return false;
+    }
+
+    public StatementExecutionProcessor getExecutionProcessor() {
+        return executionProcessor == null ? null : executionProcessor.get();
+    }
+
+    public void setExecutionProcessor(StatementExecutionProcessor executionProcessor) {
+        this.executionProcessor = new WeakReference<StatementExecutionProcessor>(executionProcessor);
     }
 
     public Object clone() {
@@ -96,13 +86,43 @@ public class ExecutablePsiElement extends NamedPsiElement{
      *                    ItemPresentation                   *
      *********************************************************/
     public String getPresentableText() {
-        String resultName = createResultName();
-        if (resultName != null) {
-            return getElementType().getDescription() + " (" + resultName + ")";
+        ElementType elementType = getSpecificElementType();
+        String subject = null;
+        String action = "";
+        String subjectType = "";
+        if (is(ElementTypeAttribute.DATA_DEFINITION)) {
+            IdentifierPsiElement subjectPsiElement = (IdentifierPsiElement) findFirstPsiElement(ElementTypeAttribute.SUBJECT);
+            if (subjectPsiElement != null) {
+                subject = subjectPsiElement.getUnquotedText().toString();
+            }
+            BasePsiElement actionPsiElement = findFirstPsiElement(ElementTypeAttribute.ACTION);
+            if (actionPsiElement != null) {
+                action = actionPsiElement.getText() + " ";
+                if (subjectPsiElement != null) {
+                    BasePsiElement compilableBlockPsiElement = findFirstPsiElement(ElementTypeAttribute.COMPILABLE_BLOCK);
+                    if (compilableBlockPsiElement != null) {
+                        DBObjectType objectType = subjectPsiElement.getObjectType();
+                        subjectType = objectType.getName().toUpperCase() + " ";
+                        if (compilableBlockPsiElement.is(ElementTypeAttribute.OBJECT_DECLARATION)) {
+                            subjectType += "BODY ";
+                        }
+                    }
+                }
+            }
         } else {
-            return getElementType().getDescription();
+            subject = createSubjectList();
         }
-
+        if (subject != null && isValid()) {
+            CodeStyleCaseSettings caseSettings = getLanguage().getCodeStyleSettings(getProject()).getCaseSettings();
+            CodeStyleCaseOption keywordCaseOption = caseSettings.getKeywordCaseOption();
+            CodeStyleCaseOption objectCaseOption = caseSettings.getObjectCaseOption();
+            action = keywordCaseOption.format(action);
+            subjectType = keywordCaseOption.format(subjectType);
+            subject = objectCaseOption.format(subject);
+            return elementType.getDescription() + " (" + action + subjectType + subject + ")";
+        } else {
+            return elementType.getDescription();
+        }
     }
 
     @Nullable

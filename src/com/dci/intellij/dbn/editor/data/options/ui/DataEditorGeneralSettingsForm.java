@@ -1,13 +1,13 @@
 package com.dci.intellij.dbn.editor.data.options.ui;
 
+import javax.swing.JCheckBox;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+
 import com.dci.intellij.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dci.intellij.dbn.common.options.ui.ConfigurationEditorUtil;
 import com.dci.intellij.dbn.editor.data.options.DataEditorGeneralSettings;
 import com.intellij.openapi.options.ConfigurationException;
-
-import javax.swing.JCheckBox;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
 
 public class DataEditorGeneralSettingsForm extends ConfigurationEditorForm<DataEditorGeneralSettings> {
     private JPanel mainPanel;
@@ -21,21 +21,16 @@ public class DataEditorGeneralSettingsForm extends ConfigurationEditorForm<DataE
     public DataEditorGeneralSettingsForm(DataEditorGeneralSettings settings) {
         super(settings);
         updateBorderTitleForeground(mainPanel);
-        resetChanges();
+        resetFormChanges();
 
-        registerComponent(trimWhitespacesCheckBox);
-        registerComponent(convertEmptyToNullCheckBox);
-        registerComponent(fetchBlockSizeTextField);
-        registerComponent(fetchTimeoutTextField);
-        registerComponent(selectContentOnEditCheckBox);
-        registerComponent(largeValuePreviewActiveCheckBox);
+        registerComponent(mainPanel);
     }
 
     public JPanel getComponent() {
         return mainPanel;
     }
 
-    public void applyChanges() throws ConfigurationException {
+    public void applyFormChanges() throws ConfigurationException {
         ConfigurationEditorUtil.validateIntegerInputValue(fetchBlockSizeTextField, "Fetch block size", 1, 10000, null);
         ConfigurationEditorUtil.validateIntegerInputValue(fetchTimeoutTextField, "Fetch timeout", 0, 300, "\nUse value 0 for no timeout");
 
@@ -48,7 +43,7 @@ public class DataEditorGeneralSettingsForm extends ConfigurationEditorForm<DataE
         settings.getLargeValuePreviewActive().applyChanges(largeValuePreviewActiveCheckBox);
     }
 
-    public void resetChanges() {
+    public void resetFormChanges() {
         DataEditorGeneralSettings settings = getConfiguration();
         settings.getFetchBlockSize().resetChanges(fetchBlockSizeTextField);
         settings.getFetchTimeout().resetChanges(fetchTimeoutTextField);

@@ -1,9 +1,14 @@
 package com.dci.intellij.dbn.language.common.psi;
 
+import java.util.Set;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.language.common.element.ElementType;
+import com.dci.intellij.dbn.language.common.element.LeafElementType;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeAttribute;
-import com.dci.intellij.dbn.language.common.psi.lookup.ObjectDefinitionLookupAdapter;
+import com.dci.intellij.dbn.language.common.psi.lookup.ObjectLookupAdapter;
 import com.dci.intellij.dbn.language.common.psi.lookup.PsiLookupAdapter;
 import com.dci.intellij.dbn.object.DBSchema;
 import com.dci.intellij.dbn.object.common.DBObject;
@@ -16,10 +21,6 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.util.IncorrectOperationException;
 import gnu.trove.THashSet;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.Set;
 
 public abstract class LeafPsiElement extends BasePsiElement implements PsiReference {
 
@@ -29,6 +30,11 @@ public abstract class LeafPsiElement extends BasePsiElement implements PsiRefere
 
     public int approximateLength() {
         return getTextLength() + 1;
+    }
+
+    @Override
+    public LeafElementType getElementType() {
+        return (LeafElementType) super.getElementType();
     }
 
     @Override
@@ -104,7 +110,7 @@ public abstract class LeafPsiElement extends BasePsiElement implements PsiRefere
 
             Set<BasePsiElement> parentObjectPsiElements = null;
             for (DBObjectType parentObjectType : parentTypes) {
-                PsiLookupAdapter lookupAdapter = new ObjectDefinitionLookupAdapter(lookupIssuer, parentObjectType, null);
+                PsiLookupAdapter lookupAdapter = new ObjectLookupAdapter(lookupIssuer, parentObjectType, null);
                 parentObjectPsiElements = !objectType.isSchemaObject() && parentObjectType.isSchemaObject() ?
                         lookupAdapter.collectInScope(sourceScope, parentObjectPsiElements) :
                         lookupAdapter.collectInParentScopeOf(sourceScope, parentObjectPsiElements);
@@ -137,19 +143,26 @@ public abstract class LeafPsiElement extends BasePsiElement implements PsiRefere
     }
 
     @Override
-    public BasePsiElement lookupPsiElementByAttribute(ElementTypeAttribute attribute) {
+    public BasePsiElement findPsiElementByAttribute(ElementTypeAttribute attribute) {
         return getElementType().is(attribute) ? this : null;
     }
 
-    public BasePsiElement lookupFirstPsiElement(ElementTypeAttribute attribute) {
+    public BasePsiElement findFirstPsiElement(ElementTypeAttribute attribute) {
         if (this.getElementType().is(attribute)) {
             return this;
         }
         return null;
     }
 
+    @Override
+    public BasePsiElement findFirstPsiElement(Class<? extends ElementType> clazz) {
+        if (this.getElementType().getClass().isAssignableFrom(clazz)) {
+            return this;
+        }
+        return null;
+    }
 
-    public BasePsiElement lookupFirstLeafPsiElement() {
+    public BasePsiElement findFirstLeafPsiElement() {
         return this;
     }
 }

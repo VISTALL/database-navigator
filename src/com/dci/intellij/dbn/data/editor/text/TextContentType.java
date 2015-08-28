@@ -1,11 +1,15 @@
 package com.dci.intellij.dbn.data.editor.text;
 
-import com.dci.intellij.dbn.common.ui.list.Selectable;
-import com.intellij.openapi.fileTypes.FileType;
-import com.intellij.openapi.fileTypes.FileTypeManager;
+import javax.swing.Icon;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.Icon;
+import com.dci.intellij.dbn.common.ui.list.Selectable;
+import com.dci.intellij.dbn.editor.data.options.DataEditorQualifiedEditorSettings;
+import com.dci.intellij.dbn.editor.data.options.DataEditorSettings;
+import com.intellij.openapi.fileTypes.FileType;
+import com.intellij.openapi.fileTypes.FileTypeManager;
+import com.intellij.openapi.project.Project;
 
 public class TextContentType implements Selectable<TextContentType> {
     private String name;
@@ -25,6 +29,16 @@ public class TextContentType implements Selectable<TextContentType> {
             return new TextContentType(name, fileType);
         }
         return null;
+    }
+
+    public static TextContentType get(Project project, String contentTypeName) {
+        DataEditorQualifiedEditorSettings qualifiedEditorSettings = DataEditorSettings.getInstance(project).getQualifiedEditorSettings();
+        TextContentType contentType = qualifiedEditorSettings.getContentType(contentTypeName);
+        return contentType == null ? getPlainText(project) : contentType;
+    }
+
+    public static TextContentType getPlainText(Project project) {
+        return get(project, "Text");
     }
 
     public String getName() {
@@ -56,7 +70,7 @@ public class TextContentType implements Selectable<TextContentType> {
     }
 
     @Override
-    public int compareTo(TextContentType remote) {
+    public int compareTo(@NotNull TextContentType remote) {
         return name.compareTo(remote.name);
     }
 }

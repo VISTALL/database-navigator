@@ -1,13 +1,17 @@
 package com.dci.intellij.dbn.debugger.execution;
 
+import java.util.HashSet;
+import java.util.Set;
+import org.jdom.Element;
+import org.jetbrains.annotations.NotNull;
+
 import com.dci.intellij.dbn.common.options.setting.SettingsUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
-import com.dci.intellij.dbn.database.DatabaseCompatibilityInterface;
 import com.dci.intellij.dbn.database.DatabaseFeature;
 import com.dci.intellij.dbn.execution.method.MethodExecutionInput;
 import com.dci.intellij.dbn.execution.method.MethodExecutionManager;
 import com.dci.intellij.dbn.object.DBMethod;
-import com.dci.intellij.dbn.object.lookup.DBMethodRef;
+import com.dci.intellij.dbn.object.lookup.DBObjectRef;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.Executor;
 import com.intellij.execution.configurations.ConfigurationFactory;
@@ -22,11 +26,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.InvalidDataException;
 import com.intellij.openapi.util.WriteExternalException;
 import gnu.trove.THashSet;
-import org.jdom.Element;
-import org.jetbrains.annotations.NotNull;
-
-import java.util.HashSet;
-import java.util.Set;
 
 public class DBProgramRunConfiguration extends RunConfigurationBase implements LocatableConfiguration {
     private MethodExecutionInput executionInput;
@@ -69,13 +68,12 @@ public class DBProgramRunConfiguration extends RunConfigurationBase implements L
 
         if (getMethod() == null) {
             throw new RuntimeConfigurationError(
-                    "Method " + executionInput.getMethodRef().getQualifiedMethodName() + " could not be resolved. " +
+                    "Method " + executionInput.getMethodRef().getQualifiedName() + " could not be resolved. " +
                     "The database connection is down or method has been dropped.");
         }
 
         ConnectionHandler connectionHandler = getMethod().getConnectionHandler();
-        DatabaseCompatibilityInterface compatibilityInterface = connectionHandler.getInterfaceProvider().getCompatibilityInterface();
-        if (!compatibilityInterface.supportsFeature(DatabaseFeature.DEBUGGING)){
+        if (connectionHandler != null && !DatabaseFeature.DEBUGGING.isSupported(connectionHandler)){
             throw new RuntimeConfigurationError(
                     "Debugging is not supported for " + connectionHandler.getDatabaseType().getDisplayName() +" databases.");
         }
@@ -120,13 +118,13 @@ public class DBProgramRunConfiguration extends RunConfigurationBase implements L
         SettingsUtil.setBoolean(element, "compile-dependencies", compileDependencies);
         if (executionInput != null) {
             Element methodIdentifierElement = new Element("method-identifier");
-            executionInput.getMethodRef().writeConfiguration(methodIdentifierElement);
+            executionInput.getMethodRef().writeState(methodIdentifierElement);
             element.addContent(methodIdentifierElement);
 
             Element methodIdentifierHistoryElement = new Element("method-identifier-history");
             for (MethodExecutionInput executionInput : methodSelectionHistory) {
                 methodIdentifierElement = new Element("method-identifier");
-                executionInput.getMethodRef().writeConfiguration(methodIdentifierElement);
+                executionInput.getMethodRef().writeState(methodIdentifierElement);
                 methodIdentifierHistoryElement.addContent(methodIdentifierElement);
             }
             element.addContent(methodIdentifierHistoryElement);
@@ -145,8 +143,8 @@ public class DBProgramRunConfiguration extends RunConfigurationBase implements L
         MethodExecutionManager executionManager = MethodExecutionManager.getInstance(getProject());
         Element methodIdentifierElement = element.getChild("method-identifier");
         if (methodIdentifierElement != null) {
-            DBMethodRef methodRef = new DBMethodRef();
-            methodRef.readConfiguration(methodIdentifierElement);
+            DBObjectRef<DBMethod> methodRef = new DBObjectRef<DBMethod>();
+            methodRef.readState(methodIdentifierElement);
 
             executionInput = executionManager.getExecutionInput(methodRef);
         }
@@ -155,8 +153,8 @@ public class DBProgramRunConfiguration extends RunConfigurationBase implements L
         if (methodIdentifierHistoryElement != null) {
             for (Object o : methodIdentifierHistoryElement.getChildren()) {
                 methodIdentifierElement = (Element) o;
-                DBMethodRef methodRef = new DBMethodRef();
-                methodRef.readConfiguration(methodIdentifierElement);
+                DBObjectRef<DBMethod> methodRef = new DBObjectRef<DBMethod>();
+                methodRef.readState(methodIdentifierElement);
 
                 MethodExecutionInput executionInput = executionManager.getExecutionInput(methodRef);
                 methodSelectionHistory.add(executionInput);

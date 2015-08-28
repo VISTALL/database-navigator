@@ -1,18 +1,27 @@
 package com.dci.intellij.dbn.common.options;
 
-import com.dci.intellij.dbn.common.options.ui.ConfigurationEditorForm;
-import com.intellij.openapi.options.ConfigurationException;
-import com.intellij.openapi.options.SearchableConfigurable;
+import javax.swing.Icon;
+import javax.swing.JComponent;
+import java.util.ArrayList;
+import java.util.List;
+import org.jdom.Element;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.Icon;
-import javax.swing.JComponent;
+import com.dci.intellij.dbn.common.options.ui.ConfigurationEditorForm;
+import com.dci.intellij.dbn.common.thread.ConditionalLaterInvocator;
+import com.dci.intellij.dbn.common.util.CommonUtil;
+import com.dci.intellij.dbn.common.util.ThreadLocalFlag;
+import com.intellij.openapi.options.ConfigurationException;
+import com.intellij.openapi.options.SearchableConfigurable;
+import com.intellij.openapi.util.Disposer;
 
 public abstract class Configuration<T extends ConfigurationEditorForm> extends ConfigurationUtil implements SearchableConfigurable, PersistentConfiguration {
+    public static ThreadLocalFlag IS_RESETTING = new ThreadLocalFlag(false);
+    public static ThreadLocal<List<SettingsChangeNotifier>> SETTINGS_CHANGE_NOTIFIERS = new ThreadLocal<List<SettingsChangeNotifier>>();
     private T configurationEditorForm;
-    private boolean isModified;
+    private boolean isModified = false;
 
     public String getHelpTopic() {
         return null;
@@ -29,7 +38,7 @@ public abstract class Configuration<T extends ConfigurationEditorForm> extends C
 
     @NotNull
     public String getId() {
-        return null;
+        return getClass().getName();
     }
 
     public Runnable enableSearch(String option) {
@@ -49,7 +58,25 @@ public abstract class Configuration<T extends ConfigurationEditorForm> extends C
     }
 
     public void setModified(boolean modified) {
-        isModified = modified;
+        if (modified && !isResetting()) {
+            isModified = true;
+        } else{
+            isModified = modified;
+        }
+    }
+
+    private static Boolean isResetting() {
+        return IS_RESETTING.get();
+    }
+
+    public static void registerChangeNotifier(SettingsChangeNotifier notifier) {
+        List<SettingsChangeNotifier> notifiers = SETTINGS_CHANGE_NOTIFIERS.get();
+        if (notifiers == null) {
+            notifiers = new ArrayList<SettingsChangeNotifier>();
+            SETTINGS_CHANGE_NOTIFIERS.set(notifiers);
+        }
+        notifiers.add(notifier);
+
     }
 
     public boolean isModified() {
@@ -57,18 +84,67 @@ public abstract class Configuration<T extends ConfigurationEditorForm> extends C
     }
 
     public void apply() throws ConfigurationException {
-        if (configurationEditorForm != null && !configurationEditorForm.isDisposed()) configurationEditorForm.applyChanges();
+        if (configurationEditorForm != null && !configurationEditorForm.isDisposed()) {
+            configurationEditorForm.applyFormChanges();
+        }
         isModified = false;
+
+        Configuration<T> settings = getOriginalSettings();
+        if (settings != null && settings != this) {
+            if (settings != this) {
+                Element settingsElement = new Element("settings");
+                writeConfiguration(settingsElement);
+                settings.readConfiguration(settingsElement);
+            }
+        }
+
+        if (!CommonUtil.isCalledThrough(Configuration.class)) {
+        // Notify only when all changes are set
+            notifyChanges();
+        }
+        onApply();
+    }
+
+    protected void notifyChanges() {
+        List<SettingsChangeNotifier> changeNotifiers = SETTINGS_CHANGE_NOTIFIERS.get();
+        if (changeNotifiers != null) {
+            try {
+                for (SettingsChangeNotifier changeNotifier : changeNotifiers) {
+                    changeNotifier.notifyChanges();
+                }
+            } finally {
+                SETTINGS_CHANGE_NOTIFIERS.set(null);
+            }
+        }
+    }
+
+    @Deprecated
+    protected void onApply() {}
+
+    protected Configuration<T> getOriginalSettings() {
+        return null;
     }
 
     public void reset() {
-        if (configurationEditorForm != null && !configurationEditorForm.isDisposed()) configurationEditorForm.resetChanges();
-        isModified = false;
+        new ConditionalLaterInvocator() {
+            @Override
+            public void execute() {
+                try {
+                    if (configurationEditorForm != null && !configurationEditorForm.isDisposed()) {
+                        IS_RESETTING.set(true);
+                        configurationEditorForm.resetFormChanges();
+                    }
+                } finally {
+                    isModified = false;
+                    IS_RESETTING.set(false);
+                }
+            }
+        }.start();
     }
 
     public void disposeUIResources() {
         if (configurationEditorForm != null) {
-            configurationEditorForm.dispose();
+            Disposer.dispose(configurationEditorForm);
             configurationEditorForm = null;
         }
     }

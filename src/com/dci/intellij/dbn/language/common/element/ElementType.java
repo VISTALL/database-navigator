@@ -1,18 +1,21 @@
 package com.dci.intellij.dbn.language.common.element;
 
+import javax.swing.Icon;
+import org.jetbrains.annotations.Nullable;
+
 import com.dci.intellij.dbn.code.common.style.formatting.FormattingDefinition;
 import com.dci.intellij.dbn.language.common.DBLanguage;
 import com.dci.intellij.dbn.language.common.DBLanguageDialect;
 import com.dci.intellij.dbn.language.common.element.impl.WrappingDefinition;
 import com.dci.intellij.dbn.language.common.element.lookup.ElementTypeLookupCache;
+import com.dci.intellij.dbn.language.common.element.parser.Branch;
 import com.dci.intellij.dbn.language.common.element.parser.ElementTypeParser;
+import com.dci.intellij.dbn.language.common.element.path.PathNode;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeAttributesBundle;
 import com.dci.intellij.dbn.object.common.DBObjectType;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
-
-import javax.swing.Icon;
 
 public interface ElementType {
 
@@ -40,15 +43,11 @@ public interface ElementType {
 
     boolean isVirtualObject();
 
-    boolean isVirtualObjectInsideLookup();    
-
     DBObjectType getVirtualObjectType();
 
     PsiElement createPsiElement(ASTNode astNode);
 
     ElementTypeBundle getElementBundle();
-
-    void registerVirtualObject(DBObjectType objectType);
 
     FormattingDefinition getFormatting();
 
@@ -57,4 +56,13 @@ public interface ElementType {
     ElementTypeAttributesBundle getAttributes();
 
     WrappingDefinition getWrapping();
+
+    boolean isWrappingBegin(LeafElementType elementType);
+
+    boolean isWrappingEnd(LeafElementType elementType);
+
+    int getIndexInParent(PathNode pathNode);
+
+    @Nullable
+    Branch getBranch();
 }

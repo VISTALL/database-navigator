@@ -12,6 +12,7 @@ public enum GenericDataType {
     CURSOR("Cursor"),
     OBJECT("Object"),
     ARRAY("Array"),
+    XMLTYPE("XML Type"),
     ;
 
     private String name;
@@ -19,7 +20,6 @@ public enum GenericDataType {
     private GenericDataType(String name) {
         this.name = name;
     }
-
     public String getName() {
         return name;
     }
@@ -32,6 +32,6 @@ public enum GenericDataType {
     }
 
     public boolean isLOB() {
-        return is(GenericDataType.BLOB, GenericDataType.CLOB);
+        return is(BLOB, CLOB, XMLTYPE);
     }
 }

@@ -22,12 +22,14 @@ public class TokenElementTypeLookupCache extends LeafElementTypeLookupCache<Toke
     public boolean containsToken(TokenType tokenType) {
         return getElementType().getTokenType() == tokenType;
     }
-    
-    public boolean isFirstPossibleLeaf(LeafElementType leaf, ElementType pathChild) {
+
+    @Override
+    boolean initAsFirstPossibleLeaf(LeafElementType leaf, ElementType source) {
         return false;
     }
 
-    public boolean isFirstRequiredLeaf(LeafElementType leaf, ElementType pathChild) {
+    @Override
+    boolean initAsFirstRequiredLeaf(LeafElementType leaf, ElementType source) {
         return false;
     }
 

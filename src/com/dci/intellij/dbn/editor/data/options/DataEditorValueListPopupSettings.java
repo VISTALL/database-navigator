@@ -1,14 +1,13 @@
 package com.dci.intellij.dbn.editor.data.options;
 
+import org.jdom.Element;
+
 import com.dci.intellij.dbn.common.options.Configuration;
 import com.dci.intellij.dbn.common.options.setting.SettingsUtil;
 import com.dci.intellij.dbn.editor.data.options.ui.DatatEditorValueListPopupSettingsForm;
-import com.intellij.openapi.util.InvalidDataException;
-import com.intellij.openapi.util.WriteExternalException;
-import org.jdom.Element;
 
 public class DataEditorValueListPopupSettings extends Configuration<DatatEditorValueListPopupSettingsForm> {
-    private boolean activeForPrimaryKeyColumns = false;
+    private boolean showPopupButton = true;
     private int elementCountThreshold = 1000;
     private int dataLengthThreshold = 250;
 
@@ -23,13 +22,12 @@ public class DataEditorValueListPopupSettings extends Configuration<DatatEditorV
     /*********************************************************
     *                       Settings                        *
     *********************************************************/
-
-    public boolean isActiveForPrimaryKeyColumns() {
-        return activeForPrimaryKeyColumns;
+    public boolean isShowPopupButton() {
+        return showPopupButton;
     }
 
-    public void setActiveForPrimaryKeyColumns(boolean activeForPrimaryKeyColumns) {
-        this.activeForPrimaryKeyColumns = activeForPrimaryKeyColumns;
+    public void setShowPopupButton(boolean showPopupButton) {
+        this.showPopupButton = showPopupButton;
     }
 
     public int getElementCountThreshold() {
@@ -60,14 +58,14 @@ public class DataEditorValueListPopupSettings extends Configuration<DatatEditorV
         return "values-list-popup";
     }
 
-    public void readConfiguration(Element element) throws InvalidDataException {
-        activeForPrimaryKeyColumns = SettingsUtil.getBoolean(element, "active-for-primary-keys", activeForPrimaryKeyColumns);
+    public void readConfiguration(Element element) {
+        showPopupButton = SettingsUtil.getBoolean(element, "show-popup-button", showPopupButton);
         elementCountThreshold = SettingsUtil.getInteger(element, "element-count-threshold", elementCountThreshold);
         dataLengthThreshold = SettingsUtil.getInteger(element, "data-length-threshold", dataLengthThreshold);
     }
 
-    public void writeConfiguration(Element element) throws WriteExternalException {
-        SettingsUtil.setBoolean(element, "active-for-primary-keys", activeForPrimaryKeyColumns);
+    public void writeConfiguration(Element element) {
+        SettingsUtil.setBoolean(element, "show-popup-button", showPopupButton);
         SettingsUtil.setInteger(element, "element-count-threshold", elementCountThreshold);
         SettingsUtil.setInteger(element, "data-length-threshold", dataLengthThreshold);
     }

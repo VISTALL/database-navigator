@@ -1,14 +1,24 @@
 package com.dci.intellij.dbn.object.impl;
 
+import javax.swing.Icon;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
 import com.dci.intellij.dbn.browser.ui.HtmlToolTipBuilder;
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.content.loader.DynamicContentLoader;
+import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.database.DatabaseMetadataInterface;
-import com.dci.intellij.dbn.editor.DBContentType;
 import com.dci.intellij.dbn.object.DBColumn;
 import com.dci.intellij.dbn.object.DBConstraint;
 import com.dci.intellij.dbn.object.DBDataset;
+import com.dci.intellij.dbn.object.DBSchema;
 import com.dci.intellij.dbn.object.common.DBObjectRelationType;
 import com.dci.intellij.dbn.object.common.DBObjectType;
 import com.dci.intellij.dbn.object.common.DBSchemaObjectImpl;
@@ -29,15 +39,6 @@ import com.dci.intellij.dbn.object.lookup.DBObjectRef;
 import com.dci.intellij.dbn.object.properties.DBObjectPresentableProperty;
 import com.dci.intellij.dbn.object.properties.PresentableProperty;
 import com.dci.intellij.dbn.object.properties.SimplePresentableProperty;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import javax.swing.Icon;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class DBConstraintImpl extends DBSchemaObjectImpl implements DBConstraint {
     private int constraintType;
@@ -47,7 +48,7 @@ public class DBConstraintImpl extends DBSchemaObjectImpl implements DBConstraint
     private DBObjectList<DBColumn> columns;
 
     public DBConstraintImpl(DBDataset dataset, ResultSet resultSet) throws SQLException {
-        super(dataset, DBContentType.NONE, resultSet);
+        super(dataset, resultSet);
     }
 
     @Override
@@ -70,9 +71,15 @@ public class DBConstraintImpl extends DBSchemaObjectImpl implements DBConstraint
         if (isForeignKey()) {
             String fkOwner = resultSet.getString("FK_CONSTRAINT_OWNER");
             String fkName = resultSet.getString("FK_CONSTRAINT_NAME");
-            foreignKeyConstraint = new DBObjectRef<DBConstraint>(getConnectionHandler()).
-                    append(DBObjectType.SCHEMA, fkOwner).
-                    append(DBObjectType.CONSTRAINT, fkName);
+
+            ConnectionHandler connectionHandler = getConnectionHandler();
+            if (connectionHandler != null) {
+                DBSchema schema = connectionHandler.getObjectBundle().getSchema(fkOwner);
+                if (schema != null) {
+                    DBObjectRef<DBSchema> schemaRef = schema.getRef();
+                    foreignKeyConstraint = new DBObjectRef<DBConstraint>(schemaRef, DBObjectType.CONSTRAINT, fkName);
+                }
+            }
         }
     }
 
@@ -99,6 +106,7 @@ public class DBConstraintImpl extends DBSchemaObjectImpl implements DBConstraint
         properties.set(DBObjectProperty.DISABLEABLE);
     }
 
+    @Nullable
     @Override
     public Icon getIcon() {
         boolean enabled = getStatus().is(DBObjectStatus.ENABLED);
@@ -164,7 +172,7 @@ public class DBConstraintImpl extends DBSchemaObjectImpl implements DBConstraint
 
     @Nullable
     public DBConstraint getForeignKeyConstraint() {
-        return foreignKeyConstraint == null ? null : foreignKeyConstraint.get();
+        return DBObjectRef.get(foreignKeyConstraint);
     }
 
     public void buildToolTip(HtmlToolTipBuilder ttb) {
@@ -222,7 +230,7 @@ public class DBConstraintImpl extends DBSchemaObjectImpl implements DBConstraint
          switch (constraintType) {
             case CHECK: return "Check (" + checkCondition + ")";
             case PRIMARY_KEY: return "Primary key";
-            case FOREIGN_KEY: return "Foreign key (" + foreignKeyConstraint.getPath() + ")";
+            case FOREIGN_KEY: return "Foreign key (" + (foreignKeyConstraint == null ? "" : foreignKeyConstraint.getPath()) + ")";
             case UNIQUE_KEY: return "Unique";
         }
         return null;
@@ -238,7 +246,7 @@ public class DBConstraintImpl extends DBSchemaObjectImpl implements DBConstraint
 
     @NotNull
     public List<BrowserTreeNode> buildAllPossibleTreeChildren() {
-        return BrowserTreeNode.EMPTY_LIST;
+        return EMPTY_TREE_NODE_LIST;
     }
 
     /*********************************************************
@@ -250,24 +258,27 @@ public class DBConstraintImpl extends DBSchemaObjectImpl implements DBConstraint
     public DBOperationExecutor getOperationExecutor() {
         return new DBOperationExecutor() {
             public void executeOperation(DBOperationType operationType) throws SQLException, DBOperationNotSupportedException {
-                Connection connection = getConnectionHandler().getStandaloneConnection(getSchema());
-                DatabaseMetadataInterface metadataInterface = getConnectionHandler().getInterfaceProvider().getMetadataInterface();
-                if (operationType == DBOperationType.ENABLE) {
-                    metadataInterface.enableConstraint(
-                            getSchema().getName(),
-                            getDataset().getName(),
-                            getName(),
-                            connection);
-                    getStatus().set(DBObjectStatus.ENABLED, true);
-                } else if (operationType == DBOperationType.DISABLE) {
-                    metadataInterface.disableConstraint(
-                            getSchema().getName(),
-                            getDataset().getName(),
-                            getName(),
-                            connection);
-                    getStatus().set(DBObjectStatus.ENABLED, false);
-                } else {
-                    throw new DBOperationNotSupportedException(operationType, getObjectType());
+                ConnectionHandler connectionHandler = getConnectionHandler();
+                if (connectionHandler != null) {
+                    Connection connection = connectionHandler.getStandaloneConnection(getSchema());
+                    DatabaseMetadataInterface metadataInterface = connectionHandler.getInterfaceProvider().getMetadataInterface();
+                    if (operationType == DBOperationType.ENABLE) {
+                        metadataInterface.enableConstraint(
+                                getSchema().getName(),
+                                getDataset().getName(),
+                                getName(),
+                                connection);
+                        getStatus().set(DBObjectStatus.ENABLED, true);
+                    } else if (operationType == DBOperationType.DISABLE) {
+                        metadataInterface.disableConstraint(
+                                getSchema().getName(),
+                                getDataset().getName(),
+                                getName(),
+                                connection);
+                        getStatus().set(DBObjectStatus.ENABLED, false);
+                    } else {
+                        throw new DBOperationNotSupportedException(operationType, getObjectType());
+                    }
                 }
             }
         };

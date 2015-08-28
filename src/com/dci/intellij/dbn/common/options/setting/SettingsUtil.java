@@ -1,10 +1,8 @@
 package com.dci.intellij.dbn.common.options.setting;
 
-import com.dci.intellij.dbn.common.ui.DBNColor;
-import com.dci.intellij.dbn.common.util.StringUtil;
 import org.jdom.Element;
 
-import java.awt.Color;
+import com.dci.intellij.dbn.common.util.StringUtil;
 
 public class SettingsUtil {
     public static boolean isDebugEnabled;
@@ -19,6 +17,12 @@ public class SettingsUtil {
         Element element = parent.getChild(childName);
         String stringValue = getStringValue(element);
         return stringValue == null ? originalValue : stringValue;
+    }
+
+    public static double getDouble(Element parent, String childName, double originalValue) {
+        Element element = parent.getChild(childName);
+        String stringValue = getStringValue(element);
+        return stringValue == null ? originalValue : Double.parseDouble(stringValue);
     }
 
     public static boolean getBoolean(Element parent, String childName, boolean originalValue) {
@@ -56,6 +60,12 @@ public class SettingsUtil {
         parent.addContent(element);
     }
 
+    public static void setDouble(Element parent, String childName, double value) {
+        Element element = new Element(childName);
+        element.setAttribute("value", Double.toString(value));
+        parent.addContent(element);
+    }
+
     public static void setBoolean(Element parent, String childName, boolean value) {
         Element element = new Element(childName);
         element.setAttribute("value", Boolean.toString(value));
@@ -89,36 +99,15 @@ public class SettingsUtil {
         element.setAttribute(attributeName, Integer.toString(value));
     }
 
-    public static DBNColor getColorAttribute(Element element, String attributeName, DBNColor defaultValue) {
-        String value = element.getAttributeValue(attributeName);
-        if (StringUtil.isEmptyOrSpaces(value)) return defaultValue;
-        int index = value.indexOf("/");
-        if (index > -1) {
-            int rgbBright = Integer.parseInt(value.substring(0, index));
-            int rgbDark = Integer.parseInt(value.substring(index + 1));
-            return new DBNColor(new Color(rgbBright), new Color(rgbDark));
-        } else {
-            int rgb = Integer.parseInt(value);
-            return new DBNColor(rgb, rgb);
-        }
-    }
 
-    public static void setColorAttribute(Element element, String attributeName, DBNColor value) {
-        if (value != null) {
-            int regularRgb = value.getRegularRgb();
-            int darkRgb = value.getDarkRgb();
-            String attributeValue = Integer.toString(regularRgb) + "/" + Integer.toString(darkRgb);
-            element.setAttribute(attributeName, attributeValue);
-        }
-    }
-    
-
+/*
     public static <T extends Enum<T>> T getEnumAttribute(Element element, String attributeName, T defaultValue) {
         String attributeValue = element.getAttributeValue(attributeName);
         Class<T> enumClass = (Class<T>) defaultValue.getClass();
         return StringUtil.isEmpty(attributeValue) ? defaultValue : T.valueOf(enumClass, attributeValue);
     }
 
+*/
     public static <T extends Enum<T>> T getEnumAttribute(Element element, String attributeName, Class<T> enumClass) {
         String attributeValue = element.getAttributeValue(attributeName);
         return StringUtil.isEmpty(attributeValue) ? null : T.valueOf(enumClass, attributeValue);

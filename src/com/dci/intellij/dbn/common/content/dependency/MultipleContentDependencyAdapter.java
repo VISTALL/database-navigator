@@ -4,32 +4,23 @@ import com.dci.intellij.dbn.common.content.DynamicContent;
 import com.dci.intellij.dbn.common.dispose.DisposerUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MultipleContentDependencyAdapter extends BasicDependencyAdapter implements ContentDependencyAdapter {
-    private Set<ContentDependency> dependencies = new HashSet<ContentDependency>();
-    private boolean isDisposed;
+    private List<ContentDependency> dependencies;
 
-    public MultipleContentDependencyAdapter(ConnectionHandler connectionHandler, DynamicContent... sourceContents) {
-        super(connectionHandler);
+    public MultipleContentDependencyAdapter(DynamicContent... sourceContents) {
         for (DynamicContent sourceContent : sourceContents) {
-            dependencies.add(new BasicContentDependency(sourceContent));
-        }
-    }
-
-    public boolean shouldLoad() {
-        // should reload if at least one dependency has been reloaded and is not dirty
-        for (ContentDependency dependency : dependencies) {
-            if (dependency.isDirty() && !dependency.getSourceContent().isDirty()) {
-                return true;
+            if (sourceContent != null) {
+                if (dependencies == null) dependencies = new ArrayList<ContentDependency>();
+                dependencies.add(new BasicContentDependency(sourceContent));
             }
         }
-        return false;
     }
 
-    public boolean shouldLoadIfDirty() {
-        if (isConnectionValid()) {
+    public boolean canLoad(ConnectionHandler connectionHandler) {
+        if (dependencies != null && canConnect(connectionHandler)) {
             for (ContentDependency dependency : dependencies) {
                 if (!dependency.getSourceContent().isLoaded()) {
                     return false;
@@ -41,9 +32,11 @@ public class MultipleContentDependencyAdapter extends BasicDependencyAdapter imp
     }
 
     public boolean isDirty() {
-        for (ContentDependency dependency : dependencies) {
-            if (dependency.isDirty()) {
-                return true;
+        if (dependencies != null) {
+            for (ContentDependency dependency : dependencies) {
+                if (dependency.isDirty()) {
+                    return true;
+                }
             }
         }
         return false;
@@ -51,9 +44,11 @@ public class MultipleContentDependencyAdapter extends BasicDependencyAdapter imp
 
     @Override
     public boolean canLoadFast() {
-        for (ContentDependency dependency : dependencies) {
-            if (!dependency.getSourceContent().isLoaded()) {
-                return false;
+        if (dependencies != null) {
+            for (ContentDependency dependency : dependencies) {
+                if (!dependency.getSourceContent().isLoaded()) {
+                    return false;
+                }
             }
         }
         return true;
@@ -62,15 +57,19 @@ public class MultipleContentDependencyAdapter extends BasicDependencyAdapter imp
     @Override
     public void beforeLoad() {
         // assuming all dependencies are hard, load them first
-        for (ContentDependency dependency : dependencies) {
-            dependency.getSourceContent().load(false);
+        if (dependencies != null) {
+            for (ContentDependency dependency : dependencies) {
+                dependency.getSourceContent().load(false);
+            }
         }
     }
 
     @Override
     public void afterLoad() {
-        for (ContentDependency dependency : dependencies) {
-            dependency.reset();
+        if (dependencies != null) {
+            for (ContentDependency dependency : dependencies) {
+                dependency.reset();
+            }
         }
     }
 
@@ -86,10 +85,8 @@ public class MultipleContentDependencyAdapter extends BasicDependencyAdapter imp
 
     @Override
     public void dispose() {
-        if (!isDisposed) {
-            isDisposed = true;
-            DisposerUtil.dispose(dependencies);
-            super.dispose();
-        }
+        DisposerUtil.dispose(dependencies);
+        dependencies = null;
+        super.dispose();
     }
 }

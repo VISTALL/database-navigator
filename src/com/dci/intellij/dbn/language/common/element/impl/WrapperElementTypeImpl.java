@@ -1,26 +1,27 @@
 package com.dci.intellij.dbn.language.common.element.impl;
 
+import java.util.List;
+import org.jdom.Element;
+
 import com.dci.intellij.dbn.code.common.style.formatting.FormattingDefinition;
 import com.dci.intellij.dbn.common.util.StringUtil;
 import com.dci.intellij.dbn.language.common.element.ElementType;
 import com.dci.intellij.dbn.language.common.element.ElementTypeBundle;
+import com.dci.intellij.dbn.language.common.element.SequenceElementType;
 import com.dci.intellij.dbn.language.common.element.TokenElementType;
+import com.dci.intellij.dbn.language.common.element.TokenPairTemplate;
 import com.dci.intellij.dbn.language.common.element.WrapperElementType;
-import com.dci.intellij.dbn.language.common.element.WrapperElementTypeTemplate;
 import com.dci.intellij.dbn.language.common.element.lookup.WrapperElementTypeLookupCache;
 import com.dci.intellij.dbn.language.common.element.parser.impl.WrapperElementTypeParser;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeDefinitionException;
 import com.dci.intellij.dbn.language.common.psi.SequencePsiElement;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
-import org.jdom.Element;
-
-import java.util.List;
 
 public class WrapperElementTypeImpl extends AbstractElementType implements WrapperElementType {
     private WrappingDefinition wrappingDefinition;
     private ElementType wrappedElement;
-    private boolean isWrappingOptional;
+    private boolean wrappedElementOptional;
 
     public WrapperElementTypeImpl(ElementTypeBundle bundle, ElementType parent, String id, Element def) throws ElementTypeDefinitionException {
         super(bundle, parent, id, def);
@@ -41,7 +42,7 @@ public class WrapperElementTypeImpl extends AbstractElementType implements Wrapp
             beginTokenElement = new TokenElementTypeImpl(bundle, this, startTokenId, "begin-token");
             endTokenElement = new TokenElementTypeImpl(bundle, this, endTokenId, "end-token");
         } else {
-            WrapperElementTypeTemplate template = WrapperElementTypeTemplate.valueOf(templateId);
+            TokenPairTemplate template = TokenPairTemplate.valueOf(templateId);
             beginTokenElement = new TokenElementTypeImpl(bundle, this, template.getBeginToken(), "begin-token");
             endTokenElement = new TokenElementTypeImpl(bundle, this, template.getEndToken(), "end-token");
 
@@ -64,8 +65,7 @@ public class WrapperElementTypeImpl extends AbstractElementType implements Wrapp
         Element child = (Element) children.get(0);
         String type = child.getName();
         wrappedElement = bundle.resolveElementDefinition(child, type, this);
-
-        isWrappingOptional = Boolean.parseBoolean(def.getAttributeValue("wrapping-optional"));
+        wrappedElementOptional = Boolean.parseBoolean(child.getAttributeValue("optional"));
 
         //getLookupCache().registerFirstLeaf(beginTokenElement, isOptional);
     }
@@ -96,8 +96,28 @@ public class WrapperElementTypeImpl extends AbstractElementType implements Wrapp
         return wrappedElement;
     }
 
-    public boolean isWrappingOptional() {
-        return isWrappingOptional;
+    @Override
+    public boolean isWrappedElementOptional() {
+        return wrappedElementOptional;
+    }
+
+    @Override
+    public boolean isStrong() {
+        if (getBeginTokenElement().getTokenType().isReservedWord()) {
+            return true;
+        }
+        if (getParent() instanceof SequenceElementType) {
+            SequenceElementType sequenceElementType = (SequenceElementType) getParent();
+            int index = sequenceElementType.indexOf(this);
+
+            ElementTypeRef child = sequenceElementType.getChild(index);
+            if (child.isOptional()) {
+                return false;
+            }
+
+            return index > 0 && !child.isOptionalToHere();
+        }
+        return false;
     }
 
     public String getDebugName() {

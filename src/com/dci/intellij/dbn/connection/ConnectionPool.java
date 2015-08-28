@@ -9,6 +9,8 @@ import com.dci.intellij.dbn.connection.config.ConnectionDetailSettings;
 import com.dci.intellij.dbn.database.DatabaseMetadataInterface;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.ref.WeakReference;
 import java.sql.Connection;
@@ -37,10 +39,12 @@ public class ConnectionPool implements Disposable {
     }
 
     public synchronized Connection getStandaloneConnection(boolean recover) throws SQLException {
-        if (standaloneConnection != null) {
-            if (recover && !standaloneConnection.isValid()) {
-                standaloneConnection = null;
-            }
+        if (connectionHandler == null || connectionHandler.isDisposed()) {
+            throw new SQLException("Connection handler is disposed");
+        }
+
+        if (standaloneConnection != null && recover && (standaloneConnection.isClosed() || !standaloneConnection.isValid())) {
+            standaloneConnection = null;
         }
 
         if (standaloneConnection == null) {
@@ -48,7 +52,7 @@ public class ConnectionPool implements Disposable {
                 Connection connection = ConnectionUtil.connect(connectionHandler);
                 standaloneConnection = new ConnectionWrapper(connection);
                 NotificationUtil.sendInfoNotification(
-                        connectionHandler.getProject(),
+                        getProject(),
                         Constants.DBN_TITLE_PREFIX + "Connected",
                         "Connected to database \"{0}\"",
                         connectionHandler.getName());
@@ -62,20 +66,25 @@ public class ConnectionPool implements Disposable {
 
     private void notifyStatusChange() {
         if (!isDisposed) {
-            ConnectionStatusListener changeListener = EventManager.notify(connectionHandler.getProject(), ConnectionStatusListener.TOPIC);
+            ConnectionStatusListener changeListener = EventManager.notify(getProject(), ConnectionStatusListener.TOPIC);
             changeListener.statusChanged(connectionHandler.getId());
         }
     }
 
+    @Nullable
+    private Project getProject() {
+        return connectionHandler == null ? null : connectionHandler.getProject();
+    }
+
     public synchronized Connection allocateConnection() throws SQLException {
+        lastAccessTimestamp = System.currentTimeMillis();
         ConnectionStatus connectionStatus = connectionHandler.getConnectionStatus();
         for (ConnectionWrapper connectionWrapper : poolConnections) {
             if (!connectionWrapper.isBusy()) {
                 connectionWrapper.setBusy(true);
-                if (connectionWrapper.isValid()) {
+                if (connectionWrapper.isValid() && !connectionWrapper.isClosed()) {
                     connectionStatus.setConnected(true);
                     connectionStatus.setValid(true);
-                    lastAccessTimestamp = System.currentTimeMillis();
                     return connectionWrapper.getConnection();
                 } else {
                     connectionWrapper.closeConnection();
@@ -88,7 +97,7 @@ public class ConnectionPool implements Disposable {
         ConnectionDetailSettings detailSettings = connectionHandler.getSettings().getDetailSettings();
         if (poolConnections.size() >= detailSettings.getMaxConnectionPoolSize()) {
             try {
-                Thread.currentThread().sleep(TimeUtil.ONE_SECOND);
+                Thread.sleep(TimeUtil.ONE_SECOND);
                 return allocateConnection();
             } catch (InterruptedException e) {
                 throw new SQLException("Could not allocate connection for '" + connectionName + "'. ");
@@ -248,7 +257,7 @@ public class ConnectionPool implements Disposable {
 
         public boolean isValid() {
             long currentTimeMillis = System.currentTimeMillis();
-            if (TimeUtil.isOlderThan(lastAccessTimestamp, TimeUtil.TEN_SECONDS)) {
+            if (TimeUtil.isOlderThan(lastCheckTimestamp, TimeUtil.THIRTY_SECONDS)) {
                 lastCheckTimestamp = currentTimeMillis;
                 DatabaseMetadataInterface metadataInterface = connectionHandler.getInterfaceProvider().getMetadataInterface();
                 isValid = metadataInterface.isValid(connection);

@@ -1,14 +1,17 @@
 package com.dci.intellij.dbn.object;
 
-import com.dci.intellij.dbn.object.common.DBObject;
-import com.dci.intellij.dbn.object.lookup.DBObjectRef;
-
+import java.sql.SQLException;
 import java.util.List;
+
+import com.dci.intellij.dbn.object.common.DBObject;
+import com.dci.intellij.dbn.object.common.DBObjectType;
+import com.dci.intellij.dbn.object.lookup.DBObjectRef;
 
 public interface DBSchema extends DBObject {
     boolean isPublicSchema();
     boolean isUserSchema();
     boolean isSystemSchema();
+    boolean isEmptySchema();
     List<DBDataset> getDatasets();
     List<DBTable> getTables();
     List<DBView> getViews();
@@ -19,7 +22,8 @@ public interface DBSchema extends DBObject {
     List<DBProcedure> getProcedures();
     List<DBFunction> getFunctions();
     List<DBPackage> getPackages();
-    List<DBTrigger> getTriggers();
+    List<DBDatasetTrigger> getDatasetTriggers();
+    List<DBDatabaseTrigger> getDatabaseTriggers();
     List<DBType> getTypes();
     List<DBDimension> getDimensions();
     List<DBCluster> getClusters();
@@ -33,14 +37,14 @@ public interface DBSchema extends DBObject {
     DBType getType(String name);
     DBPackage getPackage(String name);
     DBProgram getProgram(String name);
-    DBMethod getMethod(String name, String type, int overload);
+    DBMethod getMethod(String name, DBObjectType methodType, int overload);
     DBMethod getMethod(String name, int overload);
     DBProcedure getProcedure(String name, int overload);
     DBFunction getFunction(String name, int overload);
     DBCluster getCluster(String name);
     DBDatabaseLink getDatabaseLink(String name);
 
-    void refreshObjectsStatus();
+    void refreshObjectsStatus() throws SQLException;
 
     @Override
     DBObjectRef<DBSchema> getRef();

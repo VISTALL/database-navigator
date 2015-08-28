@@ -1,21 +1,20 @@
 package com.dci.intellij.dbn.connection.config;
 
-import com.dci.intellij.dbn.common.util.FileUtil;
-import com.dci.intellij.dbn.common.util.StringUtil;
-import com.dci.intellij.dbn.connection.ConnectionBundle;
-import com.dci.intellij.dbn.connection.config.ui.GenericDatabaseSettingsForm;
-import com.intellij.openapi.vfs.VirtualFile;
+import java.io.File;
 import org.jdom.Element;
 
-import java.io.File;
+import com.dci.intellij.dbn.common.util.FileUtil;
+import com.dci.intellij.dbn.common.util.StringUtil;
+import com.dci.intellij.dbn.connection.config.ui.GenericDatabaseSettingsForm;
+import com.intellij.openapi.vfs.VirtualFile;
 
 public class GenericConnectionDatabaseSettings extends ConnectionDatabaseSettings {
     protected String driverLibrary;
     protected String driver;
     protected String databaseUrl;
 
-    public GenericConnectionDatabaseSettings(ConnectionBundle connectionBundle) {
-        super(connectionBundle.getProject(), connectionBundle);
+    public GenericConnectionDatabaseSettings(ConnectionSettings connectionSettings) {
+        super(connectionSettings);
     }
 
     public GenericDatabaseSettingsForm createConfigurationEditor() {
@@ -47,16 +46,15 @@ public class GenericConnectionDatabaseSettings extends ConnectionDatabaseSetting
     }
 
     public void updateHashCode() {
-        hashCode = (name + driver + driverLibrary + databaseUrl + user + osAuthentication).hashCode();
+        hashCode = (name + driver + driverLibrary + databaseUrl + user + password + osAuthentication).hashCode();
     }
 
     public GenericConnectionDatabaseSettings clone() {
-        Element connectionElement = new Element("Connection");
+        Element connectionElement = new Element(getConfigElementName());
         writeConfiguration(connectionElement);
-        GenericConnectionDatabaseSettings clone = new GenericConnectionDatabaseSettings(connectionBundle);
+        GenericConnectionDatabaseSettings clone = new GenericConnectionDatabaseSettings(getParent());
         clone.readConfiguration(connectionElement);
         clone.setConnectivityStatus(getConnectivityStatus());
-        clone.generateNewId();
         return clone;
     }
 
@@ -68,20 +66,27 @@ public class GenericConnectionDatabaseSettings extends ConnectionDatabaseSetting
     }
 
    /*********************************************************
-    *                   JDOMExternalizable                 *
+    *                PersistentConfiguration                *
     *********************************************************/
     public void readConfiguration(Element element) {
-        driverLibrary = convertToAbsolutePath(element.getAttributeValue("driver-library"));
-        driver = element.getAttributeValue("driver");
-        databaseUrl = element.getAttributeValue("url");
         super.readConfiguration(element);
+        if (element.getName().equals(getConfigElementName())) {
+            driverLibrary = convertToAbsolutePath(getString(element, "driver-library", driverLibrary));
+            driver        = getString(element, "driver", driver);
+            databaseUrl   = getString(element, "url", databaseUrl);
+        } else {
+            // TODO: decommission (support old configuration)
+            driverLibrary = convertToAbsolutePath(element.getAttributeValue("driver-library"));
+            driver = element.getAttributeValue("driver");
+            databaseUrl = element.getAttributeValue("url");
+        }
     }
 
     public void writeConfiguration(Element element) {
-        element.setAttribute("driver-library", nvl(convertToRelativePath(driverLibrary)));
-        element.setAttribute("driver",         nvl(driver));
-        element.setAttribute("url",            nvl(databaseUrl));
         super.writeConfiguration(element);
+        setString(element, "driver-library", nvl(convertToRelativePath(driverLibrary)));
+        setString(element, "driver", nvl(driver));
+        setString(element, "url", nvl(databaseUrl));
     }
 
     private String convertToRelativePath(String path) {

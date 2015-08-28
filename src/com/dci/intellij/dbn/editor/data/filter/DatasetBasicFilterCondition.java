@@ -1,5 +1,10 @@
 package com.dci.intellij.dbn.editor.data.filter;
 
+import java.text.ParseException;
+import java.util.Date;
+import org.jdom.Element;
+
+import com.dci.intellij.dbn.common.dispose.FailsafeUtil;
 import com.dci.intellij.dbn.common.locale.options.RegionalSettings;
 import com.dci.intellij.dbn.common.options.Configuration;
 import com.dci.intellij.dbn.common.util.StringUtil;
@@ -10,12 +15,6 @@ import com.dci.intellij.dbn.database.DatabaseMetadataInterface;
 import com.dci.intellij.dbn.editor.data.filter.ui.DatasetBasicFilterConditionForm;
 import com.dci.intellij.dbn.object.DBColumn;
 import com.dci.intellij.dbn.object.DBDataset;
-import com.intellij.openapi.util.InvalidDataException;
-import com.intellij.openapi.util.WriteExternalException;
-import org.jdom.Element;
-
-import java.text.ParseException;
-import java.util.Date;
 
 public class DatasetBasicFilterCondition extends Configuration<DatasetBasicFilterConditionForm> {
 
@@ -113,9 +112,9 @@ public class DatasetBasicFilterCondition extends Configuration<DatasetBasicFilte
         else if (StringUtil.isNotEmptyOrSpaces(value)) {
             DBDataType dataType = column == null ? null : column.getDataType();
             if (dataType != null && dataType.isNative()) {
-                ConnectionHandler connectionHandler = dataset.getConnectionHandler();
+                ConnectionHandler connectionHandler = FailsafeUtil.get(dataset.getConnectionHandler());
                 RegionalSettings regionalSettings = RegionalSettings.getInstance(connectionHandler.getProject());
-                GenericDataType genericDataType = dataType.getNativeDataType().getBasicDataType();
+                GenericDataType genericDataType = dataType.getGenericDataType();
                 if (genericDataType == GenericDataType.LITERAL) {
                     value = com.intellij.openapi.util.text.StringUtil.replace(value, "'", "''");
                     value = "'" + value + "'";
@@ -134,12 +133,12 @@ public class DatasetBasicFilterCondition extends Configuration<DatasetBasicFilte
                         }
                     }
                 } else if (genericDataType == GenericDataType.NUMERIC) {
-                    /*try {
-                        regionalSettings.getFormatter().parseNumber(value);
-                    } catch (ParseException e) {
-                        e.printStackTrace();
+                /*try {
+                    regionalSettings.getFormatter().parseNumber(value);
+                } catch (ParseException e) {
+                    e.printStackTrace();
 
-                    }*/
+                }*/
                 }
             }
         }
@@ -158,14 +157,14 @@ public class DatasetBasicFilterCondition extends Configuration<DatasetBasicFilte
         return new DatasetBasicFilterConditionForm(dataset, this);
     }
 
-    public void readConfiguration(Element element) throws InvalidDataException {
+    public void readConfiguration(Element element) {
        columnName = element.getAttributeValue("column");
        operator = element.getAttributeValue("operator");
        value = element.getAttributeValue("value");
        active = Boolean.parseBoolean(element.getAttributeValue("active"));
     }
 
-    public void writeConfiguration(Element element) throws WriteExternalException {
+    public void writeConfiguration(Element element) {
         element.setAttribute("column", columnName);
         element.setAttribute("operator", operator);
         element.setAttribute("value", value);

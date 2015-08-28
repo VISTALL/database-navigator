@@ -1,12 +1,11 @@
 package com.dci.intellij.dbn.execution.statement.options;
 
+import org.jdom.Element;
+
 import com.dci.intellij.dbn.common.options.Configuration;
 import com.dci.intellij.dbn.common.options.setting.SettingsUtil;
 import com.dci.intellij.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dci.intellij.dbn.execution.statement.options.ui.StatementExecutionSettingsForm;
-import com.intellij.openapi.util.InvalidDataException;
-import com.intellij.openapi.util.WriteExternalException;
-import org.jdom.Element;
 
 public class StatementExecutionSettings extends Configuration{
     private int resultSetFetchBlockSize = 100;
@@ -14,7 +13,7 @@ public class StatementExecutionSettings extends Configuration{
     private boolean focusResult = false;
 
     public String getDisplayName() {
-        return "Data editor general settings";
+        return "Statement execution settings";
     }
 
     public String getHelpTopic() {
@@ -61,14 +60,14 @@ public class StatementExecutionSettings extends Configuration{
         return "statement-execution";
     }
 
-    public void readConfiguration(Element element) throws InvalidDataException {
+    public void readConfiguration(Element element) {
         resultSetFetchBlockSize = SettingsUtil.getInteger(element, "fetch-block-size", resultSetFetchBlockSize);
         executionTimeout = SettingsUtil.getInteger(element, "execution-timeout", executionTimeout);
         focusResult = SettingsUtil.getBoolean(element, "focus-result", focusResult);
 
     }
 
-    public void writeConfiguration(Element element) throws WriteExternalException {
+    public void writeConfiguration(Element element) {
         SettingsUtil.setInteger(element, "fetch-block-size", resultSetFetchBlockSize);
         SettingsUtil.setInteger(element, "execution-timeout", executionTimeout);
         SettingsUtil.setBoolean(element, "focus-result", focusResult);

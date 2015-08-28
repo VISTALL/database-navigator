@@ -1,40 +1,45 @@
 package com.dci.intellij.dbn.execution.statement.result;
 
-import com.dci.intellij.dbn.common.action.DBNDataKeys;
-import com.dci.intellij.dbn.common.thread.BackgroundTask;
-import com.dci.intellij.dbn.common.util.MessageUtil;
-import com.dci.intellij.dbn.data.model.resultSet.ResultSetDataModel;
-import com.dci.intellij.dbn.data.ui.table.resultSet.ResultSetTable;
-import com.dci.intellij.dbn.execution.common.options.ExecutionEngineSettings;
-import com.dci.intellij.dbn.execution.statement.StatementExecutionInput;
-import com.dci.intellij.dbn.execution.statement.options.StatementExecutionSettings;
-import com.dci.intellij.dbn.execution.statement.processor.StatementExecutionCursorProcessor;
-import com.dci.intellij.dbn.execution.statement.result.ui.StatementExecutionResultForm;
-import com.intellij.openapi.actionSystem.DataProvider;
-import com.intellij.openapi.actionSystem.PlatformDataKeys;
-import com.intellij.openapi.progress.ProgressIndicator;
-import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
-
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import com.dci.intellij.dbn.common.action.DBNDataKeys;
+import com.dci.intellij.dbn.common.thread.BackgroundTask;
+import com.dci.intellij.dbn.common.util.MessageUtil;
+import com.dci.intellij.dbn.connection.ConnectionHandler;
+import com.dci.intellij.dbn.data.grid.ui.table.resultSet.ResultSetTable;
+import com.dci.intellij.dbn.data.model.resultSet.ResultSetDataModel;
+import com.dci.intellij.dbn.execution.common.options.ExecutionEngineSettings;
+import com.dci.intellij.dbn.execution.statement.options.StatementExecutionSettings;
+import com.dci.intellij.dbn.execution.statement.processor.StatementExecutionCursorProcessor;
+import com.dci.intellij.dbn.execution.statement.processor.StatementExecutionProcessor;
+import com.dci.intellij.dbn.execution.statement.result.ui.StatementExecutionResultForm;
+import com.intellij.openapi.actionSystem.DataProvider;
+import com.intellij.openapi.actionSystem.PlatformDataKeys;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.util.Disposer;
 
 public class StatementExecutionCursorResult extends StatementExecutionBasicResult {
     private StatementExecutionResultForm resultPanel;
     private ResultSetDataModel dataModel;
 
     public StatementExecutionCursorResult(
-            String resultName,
-            StatementExecutionInput executionInput,
-            ResultSet resultSet) throws SQLException {
-        super(resultName, executionInput);
+            @NotNull StatementExecutionProcessor executionProcessor,
+            @NotNull String resultName,
+            ResultSet resultSet,
+            int updateCount) throws SQLException {
+        super(executionProcessor, resultName, updateCount);
         int fetchBlockSize = getQueryExecutionSettings().getResultSetFetchBlockSize();
-        dataModel = new ResultSetDataModel(resultSet, executionInput.getConnectionHandler(), fetchBlockSize);
+        dataModel = new ResultSetDataModel(resultSet, executionProcessor.getConnectionHandler(), fetchBlockSize);
         resultPanel = new StatementExecutionResultForm(this);
         resultPanel.updateVisibleComponents();
-        resultPanel.getResultTable().setName(getResultName());
+
+        Disposer.register(this, dataModel);
     }
 
     private StatementExecutionSettings getQueryExecutionSettings() {
@@ -43,9 +48,10 @@ public class StatementExecutionCursorResult extends StatementExecutionBasicResul
     }
 
     public StatementExecutionCursorResult(
-            String resultName,
-            StatementExecutionInput executionInput) throws SQLException {
-        super(resultName, executionInput);
+            StatementExecutionProcessor executionProcessor,
+            @NotNull String resultName,
+            int updateCount) throws SQLException {
+        super(executionProcessor, resultName, updateCount);
     }
 
     public StatementExecutionCursorProcessor getExecutionProcessor() {
@@ -60,14 +66,17 @@ public class StatementExecutionCursorResult extends StatementExecutionBasicResul
                 resultPanel.highlightLoading(true);
                 long startTimeMillis = System.currentTimeMillis();
                 try {
-                    Connection connection = getConnectionHandler().getStandaloneConnection(getExecutionProcessor().getCurrentSchema());
-                    Statement statement = connection.createStatement();
-                    statement.setQueryTimeout(getQueryExecutionSettings().getExecutionTimeout());
-                    statement.execute(getExecutionInput().getExecuteStatement());
-                    ResultSet resultSet = statement.getResultSet();
-                    loadResultSet(resultSet);
+                    ConnectionHandler connectionHandler = getConnectionHandler();
+                    if (connectionHandler != null) {
+                        Connection connection = connectionHandler.getStandaloneConnection(getExecutionProcessor().getCurrentSchema());
+                        Statement statement = connection.createStatement();
+                        statement.setQueryTimeout(getQueryExecutionSettings().getExecutionTimeout());
+                        statement.execute(getExecutionInput().getExecutableStatementText());
+                        ResultSet resultSet = statement.getResultSet();
+                        loadResultSet(resultSet);
+                    }
                 } catch (final SQLException e) {
-                    MessageUtil.showErrorDialog("Could not perform reload operation.", e);
+                    MessageUtil.showErrorDialog(getProject(), "Could not perform reload operation.", e);
                 }
                 setExecutionDuration((int) (System.currentTimeMillis() - startTimeMillis));
                 resultPanel.highlightLoading(false);
@@ -82,7 +91,7 @@ public class StatementExecutionCursorResult extends StatementExecutionBasicResul
         resultPanel.updateVisibleComponents();
     }
 
-    public StatementExecutionResultForm getResultPanel() {
+    public StatementExecutionResultForm getForm(boolean create) {
         return resultPanel;
     }
 
@@ -103,7 +112,7 @@ public class StatementExecutionCursorResult extends StatementExecutionBasicResul
                     }
 
                 } catch (SQLException e) {
-                    MessageUtil.showErrorDialog("Could not perform operation.", e);
+                    MessageUtil.showErrorDialog(getProject(), "Could not perform operation.", e);
                 } finally {
                     resultPanel.highlightLoading(false);
                 }
@@ -116,8 +125,9 @@ public class StatementExecutionCursorResult extends StatementExecutionBasicResul
         return dataModel;
     }
 
+    @Nullable
     public ResultSetTable getResultTable() {
-        return resultPanel.getResultTable();
+        return resultPanel == null ? null : resultPanel.getResultTable();
     }
 
     public boolean hasResult() {
@@ -133,9 +143,9 @@ public class StatementExecutionCursorResult extends StatementExecutionBasicResul
     @Override
     public void dispose() {
         super.dispose();
-        dataModel.dispose();
         dataModel = null;
         resultPanel = null;
+        dataProvider = null;
     }
 
 

@@ -1,8 +1,9 @@
 package com.dci.intellij.dbn.editor.console;
 
 import com.dci.intellij.dbn.common.editor.BasicTextEditorProvider;
+import com.dci.intellij.dbn.editor.EditorProviderId;
 import com.dci.intellij.dbn.editor.console.ui.SQLConsoleEditorToolbarForm;
-import com.dci.intellij.dbn.vfs.SQLConsoleFile;
+import com.dci.intellij.dbn.vfs.DBConsoleVirtualFile;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorPolicy;
 import com.intellij.openapi.fileEditor.FileEditorState;
@@ -18,7 +19,7 @@ import java.awt.BorderLayout;
 public class SQLConsoleEditorProvider extends BasicTextEditorProvider {
 
     public boolean accept(@NotNull Project project, @NotNull VirtualFile virtualFile) {
-        return virtualFile instanceof SQLConsoleFile;
+        return virtualFile instanceof DBConsoleVirtualFile;
     }
 
     @NotNull
@@ -37,8 +38,8 @@ public class SQLConsoleEditorProvider extends BasicTextEditorProvider {
 
     @NotNull
     public FileEditor createEditor(@NotNull Project project, @NotNull VirtualFile file) {
-        SQLConsoleEditor editor = new SQLConsoleEditor(project, (SQLConsoleFile) file, "SQL Console");
-        SQLConsoleEditorToolbarForm toolbarForm = new SQLConsoleEditorToolbarForm(editor);
+        SQLConsoleEditor editor = new SQLConsoleEditor(project, (DBConsoleVirtualFile) file, "SQL Console", getEditorProviderId());
+        SQLConsoleEditorToolbarForm toolbarForm = new SQLConsoleEditorToolbarForm(project, editor);
         editor.getComponent().add(toolbarForm.getComponent(), BorderLayout.NORTH);
         return editor;
     }
@@ -53,9 +54,9 @@ public class SQLConsoleEditorProvider extends BasicTextEditorProvider {
     }
 
     @NotNull
-    @NonNls
-    public String getEditorTypeId() {
-        return "SQLConsole";
+    @Override
+    public EditorProviderId getEditorProviderId() {
+        return EditorProviderId.CONSOLE;
     }
 
     /*********************************************************

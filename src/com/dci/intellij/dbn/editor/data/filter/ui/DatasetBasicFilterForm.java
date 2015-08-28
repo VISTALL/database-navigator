@@ -4,16 +4,19 @@ import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.compatibility.CompatibilityUtil;
 import com.dci.intellij.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dci.intellij.dbn.common.thread.WriteActionRunner;
+import com.dci.intellij.dbn.common.ui.Borders;
 import com.dci.intellij.dbn.common.ui.ValueSelector;
+import com.dci.intellij.dbn.common.ui.ValueSelectorListener;
 import com.dci.intellij.dbn.common.util.DocumentUtil;
 import com.dci.intellij.dbn.editor.data.filter.ConditionOperator;
 import com.dci.intellij.dbn.editor.data.filter.DatasetBasicFilter;
 import com.dci.intellij.dbn.editor.data.filter.DatasetBasicFilterCondition;
-import com.dci.intellij.dbn.language.sql.SQLFile;
+import com.dci.intellij.dbn.editor.data.filter.DatasetFilterVirtualFile;
 import com.dci.intellij.dbn.language.sql.SQLLanguage;
 import com.dci.intellij.dbn.object.DBColumn;
 import com.dci.intellij.dbn.object.DBDataset;
 import com.dci.intellij.dbn.object.lookup.DBObjectRef;
+import com.dci.intellij.dbn.vfs.DatabaseFileViewProvider;
 import com.intellij.ide.highlighter.HighlighterFactory;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorFactory;
@@ -23,7 +26,9 @@ import com.intellij.openapi.editor.colors.EditorColorsScheme;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.fileTypes.SyntaxHighlighter;
 import com.intellij.openapi.options.ConfigurationException;
-import com.intellij.psi.PsiFileFactory;
+import com.intellij.openapi.project.Project;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiManager;
 import com.intellij.util.PlatformIcons;
 import com.intellij.util.ui.UIUtil;
 
@@ -54,6 +59,8 @@ public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasic
     private JTextField nameTextField;
     private JLabel errorLabel;
     private JPanel previewPanel;
+    private JPanel addConditionsPanel;
+    private JPanel filterNamePanel;
 
     private DBObjectRef<DBDataset> datasetRef;
     private List<DatasetBasicFilterConditionForm> conditionForms = new ArrayList<DatasetBasicFilterConditionForm>();
@@ -69,6 +76,8 @@ public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasic
         nameTextField.setText(filter.getDisplayName());
 
         actionsPanel.add(new ColumnSelector(), BorderLayout.CENTER);
+        addConditionsPanel.setBorder(Borders.BOTTOM_LINE_BORDER);
+        filterNamePanel.setBorder(Borders.BOTTOM_LINE_BORDER);
 
         for (DatasetBasicFilterCondition condition : filter.getConditions()) {
             addConditionPanel(condition);
@@ -78,8 +87,7 @@ public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasic
         joinOrRadioButton.setSelected(filter.getJoinType() == DatasetBasicFilter.JOIN_TYPE_OR);
 
         nameTextField.addKeyListener(createKeyListener());
-        registerComponent(joinAndRadioButton);
-        registerComponent(joinOrRadioButton);
+        registerComponent(mainPanel);
 
         if (filter.getError() == null) {
             errorLabel.setText("");
@@ -94,6 +102,12 @@ public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasic
     private class ColumnSelector extends ValueSelector<DBColumn> {
         public ColumnSelector() {
             super(PlatformIcons.ADD_ICON, "Add Condition", null, false);
+            addListener(new ValueSelectorListener<DBColumn>() {
+                @Override
+                public void valueSelected(DBColumn column) {
+                    addConditionPanel(column);
+                }
+            });
         }
 
         @Override
@@ -102,11 +116,6 @@ public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasic
             List<DBColumn> columns = new ArrayList<DBColumn>(dataset.getColumns());
             Collections.sort(columns);
             return columns;
-        }
-
-        @Override
-        public void valueSelected(DBColumn column) {
-            addConditionPanel(column);
         }
     }
 
@@ -180,19 +189,14 @@ public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasic
             }
 
             if (previewDocument == null) {
-                PsiFileFactory psiFileFactory = PsiFileFactory.getInstance(dataset.getProject());
+                Project project = dataset.getProject();
+                DatasetFilterVirtualFile filterFile = new DatasetFilterVirtualFile(dataset, selectStatement.toString());
+                DatabaseFileViewProvider viewProvider = new DatabaseFileViewProvider(PsiManager.getInstance(project), filterFile, true);
+                PsiFile selectStatementFile = filterFile.initializePsiFile(viewProvider, SQLLanguage.INSTANCE);
 
-                SQLFile selectStatementFile = (SQLFile)
-                        psiFileFactory.createFileFromText(
-                                "filter.sql",
-                                dataset.getLanguageDialect(SQLLanguage.INSTANCE),
-                                selectStatement.toString());
-
-                selectStatementFile.setActiveConnection(dataset.getConnectionHandler());
-                selectStatementFile.setCurrentSchema(dataset.getSchema());
                 previewDocument = DocumentUtil.getDocument(selectStatementFile);
 
-                viewer = (EditorEx) EditorFactory.getInstance().createViewer(previewDocument, dataset.getProject());
+                viewer = (EditorEx) EditorFactory.getInstance().createViewer(previewDocument, project);
                 viewer.setEmbeddedIntoDialogWrapper(true);
                 JScrollPane viewerScrollPane = viewer.getScrollPane();
                 SyntaxHighlighter syntaxHighlighter = dataset.getLanguageDialect(SQLLanguage.INSTANCE).getSyntaxHighlighter();
@@ -241,7 +245,10 @@ public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasic
             conditionForm.setBasicFilterPanel(this);
             conditionForms.add(conditionForm);
             conditionsPanel.add(conditionForm.getComponent());
-            conditionsPanel.updateUI();
+
+            conditionsPanel.revalidate();
+            conditionsPanel.repaint();
+
             conditionForm.focus();
         }
     }
@@ -259,7 +266,8 @@ public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasic
         conditionForm.setBasicFilterPanel(null);
         conditionForms.remove(conditionForm);
         conditionsPanel.remove(conditionForm.getComponent());
-        conditionsPanel.updateUI();
+        conditionsPanel.revalidate();
+        conditionsPanel.repaint();
         updateNameAndPreview();
     }
 
@@ -271,7 +279,7 @@ public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasic
         return mainPanel;
     }
 
-    public void applyChanges() throws ConfigurationException {
+    public void applyFormChanges() throws ConfigurationException {
         updateGeneratedName();
         DatasetBasicFilter filter = getConfiguration();
         filter.setJoinType(joinAndRadioButton.isSelected() ?
@@ -280,13 +288,13 @@ public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasic
         filter.setCustomNamed(isCustomNamed);
         filter.getConditions().clear();
         for (DatasetBasicFilterConditionForm conditionForm : conditionForms) {
-            conditionForm.applyChanges();
+            conditionForm.applyFormChanges();
             filter.addCondition(conditionForm.getConfiguration());
         }
         filter.setName(nameTextField.getText());
     }
 
-    public void resetChanges() {
+    public void resetFormChanges() {
 
     }
 

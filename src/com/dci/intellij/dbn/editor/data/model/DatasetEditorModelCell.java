@@ -1,6 +1,13 @@
 package com.dci.intellij.dbn.editor.data.model;
 
 
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.table.TableCellEditor;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.common.locale.Formatter;
 import com.dci.intellij.dbn.common.thread.SimpleLaterInvocator;
@@ -9,19 +16,14 @@ import com.dci.intellij.dbn.common.util.MessageUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.data.model.resultSet.ResultSetDataModelCell;
 import com.dci.intellij.dbn.data.type.DBDataType;
-import com.dci.intellij.dbn.data.value.LazyLoadedValue;
+import com.dci.intellij.dbn.data.value.ValueAdapter;
+import com.dci.intellij.dbn.editor.EditorProviderId;
 import com.dci.intellij.dbn.editor.data.DatasetEditorError;
 import com.dci.intellij.dbn.editor.data.ui.DatasetEditorErrorForm;
 import com.dci.intellij.dbn.editor.data.ui.table.DatasetEditorTable;
 import com.dci.intellij.dbn.editor.data.ui.table.cell.DatasetTableCellEditor;
 import com.dci.intellij.dbn.object.DBDataset;
 import com.dci.intellij.dbn.vfs.DatabaseFileSystem;
-
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.table.TableCellEditor;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 
 public class DatasetEditorModelCell extends ResultSetDataModelCell implements ChangeListener {
     private Object originalUserValue;
@@ -38,34 +40,46 @@ public class DatasetEditorModelCell extends ResultSetDataModelCell implements Ch
         return (DatasetEditorColumnInfo) super.getColumnInfo();
     }
 
-    public void updateUserValue(Object userValue, boolean bulk) {
-        boolean sameValue = compareUserValues(userValue, getUserValue());
-        if (hasError() || !sameValue) {
+    public void updateUserValue(Object newUserValue, boolean bulk) {
+        boolean valueChanged = userValueChanged(newUserValue);
+        if (hasError() || valueChanged) {
             DatasetEditorModelRow row = getRow();
             ResultSet resultSet;
+            boolean isInsertRow = row.isInsert();
             try {
-                resultSet = row.isInsert() ? row.getResultSet() : row.scrollResultSet();
+                resultSet = isInsertRow ? row.getResultSet() : row.scrollResultSet();
             } catch (Exception e) {
                 e.printStackTrace();
-                MessageUtil.showErrorDialog("Could not update cell value for " + getColumnInfo().getName() + ".", e);
+                MessageUtil.showErrorDialog(getProject(), "Could not update cell value for " + getColumnInfo().getName() + ".", e);
                 return;
             }
-            DBDataType dataType = getColumnInfo().getDataType();
+            boolean isValueAdapter = userValue instanceof ValueAdapter || newUserValue instanceof ValueAdapter;
 
-            boolean isLargeObject = dataType.getNativeDataType().isLOB();
+            ConnectionHandler connectionHandler = getConnectionHandler();
             try {
                 clearError();
-                int columnIndex = getColumnInfo().getColumnIndex() + 1;
-                if (isLargeObject) {
-                    LazyLoadedValue lazyLoadedValue = (LazyLoadedValue) getUserValue();
-                    lazyLoadedValue.updateValue(resultSet, columnIndex, (String) userValue);
+                int columnIndex = getColumnInfo().getResultSetColumnIndex();
+
+                if (isValueAdapter) {
+                    if (userValue == null) {
+                        userValue = newUserValue.getClass().newInstance();
+                    }
+                    ValueAdapter valueAdapter = (ValueAdapter) userValue;
+                    Connection connection = connectionHandler.getStandaloneConnection();
+                    if (newUserValue instanceof ValueAdapter) {
+                        ValueAdapter newUserValueAdapter = (ValueAdapter) newUserValue;
+                        newUserValue = newUserValueAdapter.read();
+                    }
+                    valueAdapter.write(connection, resultSet, columnIndex, newUserValue);
+
                 } else {
-                    dataType.setValueToResultSet(resultSet, columnIndex, userValue);
+                    DBDataType dataType = getColumnInfo().getDataType();
+                    dataType.setValueToResultSet(resultSet, columnIndex, newUserValue);
                 }
 
-                if (!row.isInsert()) resultSet.updateRow();
+                if (!isInsertRow) resultSet.updateRow();
             } catch (Exception e) {
-                DatasetEditorError error = new DatasetEditorError(getConnectionHandler(), e);
+                DatasetEditorError error = new DatasetEditorError(connectionHandler, e);
 
                 // error may affect other cells in the row (e.g. foreign key constraint for multiple primary key)
                 if (e instanceof SQLException) getRow().notifyError(error, false, !bulk);
@@ -73,20 +87,38 @@ public class DatasetEditorModelCell extends ResultSetDataModelCell implements Ch
                 // if error was not notified yet on row level, notify it on cell isolation level
                 if (!error.isNotified()) notifyError(error, !bulk);
             } finally {
-                if (!sameValue) {
-                    if (!isLargeObject) {
-                        setUserValue(userValue);
+                if (valueChanged) {
+                    if (!isValueAdapter) {
+                        setUserValue(newUserValue);
                     }
-                    getConnectionHandler().notifyChanges(getDataset().getVirtualFile());
+                    connectionHandler.notifyChanges(getDataset().getVirtualFile());
                     EventManager.notify(getProject(), DatasetEditorModelCellValueListener.TOPIC).valueChanged(this);
                 }
-
+                try {
+                    if (!isInsertRow) resultSet.refreshRow();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
 
-            if (!row.isInsert() && !getConnectionHandler().isAutoCommit()) {
+            if (!isInsertRow && !connectionHandler.isAutoCommit()) {
                 isModified = true;
                 row.setModified(true);
             }
+        }
+    }
+
+    public void setUserValueToResultSet(ResultSet resultSet) throws SQLException {
+        boolean isValueAdapter = userValue instanceof ValueAdapter;
+        int columnIndex = getColumnInfo().getResultSetColumnIndex();
+        if (isValueAdapter) {
+            ValueAdapter valueAdapter = (ValueAdapter) userValue;
+            ConnectionHandler connectionHandler = getConnectionHandler();
+            Connection connection = connectionHandler.getStandaloneConnection();
+            valueAdapter.write(connection, resultSet, columnIndex, valueAdapter.read());
+        } else {
+            DBDataType dataType = getColumnInfo().getDataType();
+            dataType.setValueToResultSet(resultSet, columnIndex, userValue);
         }
     }
 
@@ -94,18 +126,27 @@ public class DatasetEditorModelCell extends ResultSetDataModelCell implements Ch
         return getRow().getModel().getDataset();
     }
 
-    private boolean compareUserValues(Object value1, Object value2) {
-        if (value1 != null && value2 != null) {
-            if (value1.equals(value2)) {
+    private boolean userValueChanged(Object newUserValue) {
+        if (userValue instanceof ValueAdapter) {
+            ValueAdapter valueAdapter = (ValueAdapter) userValue;
+            try {
+                return !CommonUtil.safeEqual(valueAdapter.read(), newUserValue);
+            } catch (SQLException e) {
                 return true;
             }
+        }
+
+        if (userValue != null && newUserValue != null) {
+            if (userValue.equals(newUserValue)) {
+                return false;
+            }
             // user input may not contain the entire precision (e.g. date time format)
-            String formattedValue1 = Formatter.getInstance(getProject()).formatObject(value1);
-            String formattedValue2 = Formatter.getInstance(getProject()).formatObject(value2);
-            return formattedValue1.equals(formattedValue2);
+            String formattedValue1 = Formatter.getInstance(getProject()).formatObject(userValue);
+            String formattedValue2 = Formatter.getInstance(getProject()).formatObject(newUserValue);
+            return !formattedValue1.equals(formattedValue2);
         }
         
-        return CommonUtil.safeEqual(value1, value2);
+        return !CommonUtil.safeEqual(userValue, newUserValue);
     }
 
     public void updateUserValue(Object userValue, String errorMessage) {
@@ -133,7 +174,7 @@ public class DatasetEditorModelCell extends ResultSetDataModelCell implements Ch
         return false;
     }
 
-    private ConnectionHandler getConnectionHandler() {
+    public ConnectionHandler getConnectionHandler() {
         return getRow().getModel().getConnectionHandler();
     }
 
@@ -142,23 +183,26 @@ public class DatasetEditorModelCell extends ResultSetDataModelCell implements Ch
     }
 
     public void edit() {
-        if (getIndex() > 0) {
+        int index = getEditorTable().convertColumnIndexToView(getIndex());
+        if (index > 0) {
             DatasetEditorTable table = getEditorTable();
-            table.editCellAt(getRow().getIndex(), getIndex());
+            table.editCellAt(getRow().getIndex(), index);
         }
     }
 
     public void editPrevious() {
-        if (getIndex() > 0) {
+        int index = getEditorTable().convertColumnIndexToView(getIndex());
+        if (index > 0) {
             DatasetEditorTable table = getEditorTable();
-            table.editCellAt(getRow().getIndex(), getIndex() -1);
+            table.editCellAt(getRow().getIndex(), index -1);
         }
     }
 
     public void editNext(){
-        if (getIndex() < getRow().getCells().size()-1) {
+        int index = getEditorTable().convertColumnIndexToView(getIndex());
+        if (index < getRow().getCells().size()-1) {
             DatasetEditorTable table = getEditorTable();
-            table.editCellAt(getRow().getIndex(), getIndex() + 1);
+            table.editCellAt(getRow().getIndex(), index + 1);
         }
     }
 
@@ -246,14 +290,22 @@ public class DatasetEditorModelCell extends ResultSetDataModelCell implements Ch
         new SimpleLaterInvocator() {
             public void execute() {
                 if (!isDisposed()) {
-                    DatasetEditorModel model = getRow().getModel();
-                    if (!model.getEditorTable().isShowing()) {
-                        DBDataset dataset = getDataset();
-                        DatabaseFileSystem.getInstance().openEditor(dataset);
-                    }
-                    if (error != null) {
-                        DatasetEditorErrorForm errorForm = new DatasetEditorErrorForm(DatasetEditorModelCell.this);
-                        errorForm.show();
+                    DatasetEditorModelRow row = getRow();
+                    if (row != null) {
+                        DatasetEditorModel model = row.getModel();
+                        if (model != null) {
+                            DatasetEditorTable editorTable = model.getEditorTable();
+                            if (editorTable != null) {
+                                if (!editorTable.isShowing()) {
+                                    DBDataset dataset = getDataset();
+                                    DatabaseFileSystem.getInstance().openEditor(dataset, EditorProviderId.DATA, true);
+                                }
+                                if (error != null) {
+                                    DatasetEditorErrorForm errorForm = new DatasetEditorErrorForm(DatasetEditorModelCell.this);
+                                    errorForm.show();
+                                }
+                            }
+                        }
                     }
                 }
             }

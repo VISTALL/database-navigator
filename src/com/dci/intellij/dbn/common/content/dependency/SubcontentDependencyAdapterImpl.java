@@ -2,14 +2,13 @@ package com.dci.intellij.dbn.common.content.dependency;
 
 import com.dci.intellij.dbn.common.content.DynamicContent;
 import com.dci.intellij.dbn.common.content.DynamicContentType;
+import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.GenericDatabaseElement;
 
 public class SubcontentDependencyAdapterImpl extends BasicDependencyAdapter implements SubcontentDependencyAdapter {
     private ContentDependency contentDependency;
-    private boolean isDisposed;
 
     public SubcontentDependencyAdapterImpl(GenericDatabaseElement sourceContentOwner, DynamicContentType sourceContentType) {
-        super(sourceContentOwner.getConnectionHandler());
         contentDependency = new LinkedContentDependency(sourceContentOwner, sourceContentType);
     }
 
@@ -19,15 +18,8 @@ public class SubcontentDependencyAdapterImpl extends BasicDependencyAdapter impl
     }
 
     @Override
-    public boolean shouldLoad() {
-        DynamicContent sourceContent = contentDependency.getSourceContent();
-        // should reload if the source has been reloaded and is not dirty
-        return !sourceContent.isDirty() && contentDependency.isDirty();
-    }
-
-    @Override
-    public boolean shouldLoadIfDirty() {
-        return isConnectionValid() && contentDependency.getSourceContent().isLoaded();
+    public boolean canLoad(ConnectionHandler connectionHandler) {
+        return canConnect(connectionHandler) && contentDependency.getSourceContent().isLoaded();
     }
 
     public boolean isDirty() {
@@ -71,12 +63,9 @@ public class SubcontentDependencyAdapterImpl extends BasicDependencyAdapter impl
     }
 
     public void dispose() {
-        if (!isDisposed) {
-            isDisposed = true;
-            contentDependency.dispose();
-            contentDependency = VoidContentDependency.INSTANCE;
-            super.dispose();
-        }
+        contentDependency.dispose();
+        contentDependency = VoidContentDependency.INSTANCE;
+        super.dispose();
     }
 
 

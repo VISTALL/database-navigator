@@ -1,5 +1,15 @@
 package com.dci.intellij.dbn.debugger;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
+import org.jdom.Element;
+import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import com.dci.intellij.dbn.common.AbstractProjectComponent;
 import com.dci.intellij.dbn.common.util.MessageUtil;
 import com.dci.intellij.dbn.common.util.NamingUtil;
@@ -10,13 +20,14 @@ import com.dci.intellij.dbn.debugger.execution.DBProgramRunConfigurationFactory;
 import com.dci.intellij.dbn.debugger.execution.DBProgramRunConfigurationType;
 import com.dci.intellij.dbn.debugger.execution.DBProgramRunner;
 import com.dci.intellij.dbn.object.DBMethod;
-import com.dci.intellij.dbn.object.DBPrivilege;
 import com.dci.intellij.dbn.object.DBSchema;
+import com.dci.intellij.dbn.object.DBSystemPrivilege;
 import com.dci.intellij.dbn.object.DBUser;
 import com.dci.intellij.dbn.object.common.DBObject;
 import com.dci.intellij.dbn.object.common.DBSchemaObject;
 import com.dci.intellij.dbn.object.common.status.DBObjectStatus;
 import com.intellij.execution.ExecutionException;
+import com.intellij.execution.Executor;
 import com.intellij.execution.RunManagerEx;
 import com.intellij.execution.RunnerAndConfigurationSettings;
 import com.intellij.execution.RunnerRegistry;
@@ -24,26 +35,25 @@ import com.intellij.execution.configurations.ConfigurationType;
 import com.intellij.execution.executors.DefaultDebugExecutor;
 import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.execution.runners.ProgramRunner;
+import com.intellij.openapi.components.PersistentStateComponent;
+import com.intellij.openapi.components.State;
+import com.intellij.openapi.components.Storage;
+import com.intellij.openapi.components.StoragePathMacros;
+import com.intellij.openapi.components.StorageScheme;
 import com.intellij.openapi.extensions.Extensions;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.InvalidDataException;
-import com.intellij.openapi.util.JDOMExternalizable;
-import com.intellij.openapi.util.WriteExternalException;
 import com.intellij.util.containers.ContainerUtil;
 import gnu.trove.THashSet;
-import org.jdom.Element;
-import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
-
-public class DatabaseDebuggerManager extends AbstractProjectComponent implements JDOMExternalizable {
+@State(
+    name = "DBNavigator.Project.DebuggerManager",
+    storages = {
+        @Storage(file = StoragePathMacros.PROJECT_CONFIG_DIR + "/dbnavigator.xml", scheme = StorageScheme.DIRECTORY_BASED),
+        @Storage(file = StoragePathMacros.PROJECT_FILE)}
+)
+public class DatabaseDebuggerManager extends AbstractProjectComponent implements PersistentStateComponent<Element> {
     private Set<ConnectionHandler> activeDebugSessions = new THashSet<ConnectionHandler>();
 
     private DatabaseDebuggerManager(Project project) {
@@ -60,8 +70,11 @@ public class DatabaseDebuggerManager extends AbstractProjectComponent implements
     }
 
     public boolean checkForbiddenOperation(ConnectionHandler connectionHandler) {
+        return checkForbiddenOperation(connectionHandler, null);
+    }
+    public boolean checkForbiddenOperation(ConnectionHandler connectionHandler, String message) {
         if (activeDebugSessions.contains(connectionHandler)) {
-            MessageUtil.showErrorDialog("Operation not supported during active debug session.");
+            MessageUtil.showErrorDialog(getProject(), message == null ? "Operation not supported during active debug session." : message);
             return false;
         }
         return true;
@@ -119,13 +132,20 @@ public class DatabaseDebuggerManager extends AbstractProjectComponent implements
 
         runManager.setSelectedConfiguration(runConfigurationSetting);
         ProgramRunner programRunner = RunnerRegistry.getInstance().findRunnerById(DBProgramRunner.RUNNER_ID);
-        try {
-            ExecutionEnvironment executionEnvironment = new ExecutionEnvironment(DefaultDebugExecutor.getDebugExecutorInstance(), programRunner, runConfigurationSetting, getProject());
-            programRunner.execute(executionEnvironment);
-        } catch (ExecutionException e) {
-            MessageUtil.showErrorDialog(
-                    "Could not start debugger for " + method.getQualifiedName() + ". \n" +
-                            "Reason: " + e.getMessage());
+        if (programRunner != null) {
+            try {
+                Executor executorInstance = DefaultDebugExecutor.getDebugExecutorInstance();
+                if (executorInstance == null) {
+                    throw new ExecutionException("Could not resolve debug executor");
+                }
+
+                ExecutionEnvironment executionEnvironment = new ExecutionEnvironment(executorInstance, programRunner, runConfigurationSetting, getProject());
+                programRunner.execute(executionEnvironment);
+            } catch (ExecutionException e) {
+                MessageUtil.showErrorDialog(
+                        getProject(), "Could not start debugger for " + method.getQualifiedName() + ". \n" +
+                                "Reason: " + e.getMessage());
+            }
         }
     }
 
@@ -162,8 +182,8 @@ public class DatabaseDebuggerManager extends AbstractProjectComponent implements
         String[] privilegeNames = connectionHandler.getInterfaceProvider().getDebuggerInterface().getRequiredPrivilegeNames();
         List<String> missingPrivileges = new ArrayList<String>();
         for (String privilegeName : privilegeNames) {
-            DBPrivilege privilege = connectionHandler.getObjectBundle().getPrivilege(privilegeName);
-            if (privilege == null || !user.hasPrivilege(privilege))  {
+            DBSystemPrivilege systemPrivilege = connectionHandler.getObjectBundle().getSystemPrivilege(privilegeName);
+            if (systemPrivilege == null || !user.hasSystemPrivilege(systemPrivilege))  {
                 missingPrivileges.add(privilegeName);
             }
         }
@@ -197,12 +217,17 @@ public class DatabaseDebuggerManager extends AbstractProjectComponent implements
         super.disposeComponent();
     }
 
-    /****************************************
-     *            JDOMExternalizable         *
-     *****************************************/
-    public void readExternal(Element element) throws InvalidDataException {
+    /*********************************************
+     *            PersistentStateComponent       *
+     *********************************************/
+    @Nullable
+    @Override
+    public Element getState() {
+        return null;
     }
 
-    public void writeExternal(Element element) throws WriteExternalException {
+    @Override
+    public void loadState(Element element) {
+
     }
 }

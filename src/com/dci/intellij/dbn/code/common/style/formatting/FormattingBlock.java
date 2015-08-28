@@ -1,12 +1,19 @@
 package com.dci.intellij.dbn.code.common.style.formatting;
 
+import java.util.ArrayList;
+import java.util.List;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import com.dci.intellij.dbn.code.common.style.options.CodeStyleCustomSettings;
 import com.dci.intellij.dbn.code.common.style.options.CodeStyleFormattingOption;
 import com.dci.intellij.dbn.code.common.style.presets.CodeStyleDefaultPresets;
 import com.dci.intellij.dbn.code.common.style.presets.CodeStylePreset;
 import com.dci.intellij.dbn.language.common.DBLanguage;
-import com.dci.intellij.dbn.language.common.DBLanguageFile;
+import com.dci.intellij.dbn.language.common.DBLanguagePsiFile;
 import com.dci.intellij.dbn.language.common.SharedTokenTypeBundle;
+import com.dci.intellij.dbn.language.common.SimpleTokenType;
+import com.dci.intellij.dbn.language.common.TokenType;
 import com.dci.intellij.dbn.language.common.element.ElementType;
 import com.dci.intellij.dbn.language.common.element.WrapperElementType;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeAttribute;
@@ -25,14 +32,9 @@ import com.intellij.formatting.Wrap;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiComment;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiErrorElement;
 import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.intellij.psi.impl.source.tree.TreeElement;
 
 public class FormattingBlock implements Block {
     private PsiElement psiElement;
@@ -113,7 +115,7 @@ public class FormattingBlock implements Block {
             return null;
         }
 
-        if (psiElement.getParent() instanceof DBLanguageFile) {
+        if (psiElement.getParent() instanceof DBLanguagePsiFile) {
             return Indent.getAbsoluteNoneIndent();
         }
 
@@ -125,7 +127,7 @@ public class FormattingBlock implements Block {
                 if (parentPsiElement != null && parentPsiElement.getElementType() instanceof WrapperElementType) {
                     WrapperElementType wrapperElementType = (WrapperElementType) parentPsiElement.getElementType();
                     SharedTokenTypeBundle sharedTokenTypes = parentPsiElement.getLanguage().getSharedTokenTypes();
-                    if (wrapperElementType.getBeginTokenElement().getTokenType() == sharedTokenTypes.getLeftParenthesis()) {
+                    if (wrapperElementType.getBeginTokenElement().getTokenType() == sharedTokenTypes.getChrLeftParenthesis()) {
                         //FormattingBlock parentStatementBlock = getParentBlock(this, ElementTypeAttribute.STATEMENT);
                         //Indent parentStatementIndent = parentStatementBlock.getIndent();
                         //return Indent.getIndent(Indent.Type.SPACES, -1, false, false);
@@ -191,11 +193,32 @@ public class FormattingBlock implements Block {
             return null;
         }
 
-        PsiElement leftPsiElement = leftBlock.getPsiElement();
-        PsiElement rightPsiElement = rightBlock.getPsiElement();
+        PsiElement leftPsiElement = leftBlock.psiElement;
+        PsiElement rightPsiElement = rightBlock.psiElement;
 
         if (leftPsiElement instanceof PsiComment || rightPsiElement instanceof PsiComment) {
             return null;
+        }
+
+        DBLanguage language = getLanguage();
+        if (language != null) {
+
+            // DOT, COMMA spacing
+            SharedTokenTypeBundle sharedTokenTypes = language.getSharedTokenTypes();
+            SimpleTokenType chrDot = sharedTokenTypes.getChrDot();
+            SimpleTokenType chrComma = sharedTokenTypes.getChrComma();
+            SimpleTokenType leftParenthesis = sharedTokenTypes.getChrLeftParenthesis();
+            SimpleTokenType rightParenthesis = sharedTokenTypes.getChrRightParenthesis();
+
+            if (is(leftPsiElement, chrDot)) return SpacingDefinition.NO_SPACE.getValue();
+            if (is(rightPsiElement, chrDot)) return SpacingDefinition.NO_SPACE.getValue();
+
+            if (is(leftPsiElement, chrComma)) return SpacingDefinition.MIN_ONE_SPACE.getValue();
+            if (is(rightPsiElement, chrComma)) return SpacingDefinition.NO_SPACE.getValue();
+
+            if (is(leftPsiElement, leftParenthesis)) return SpacingDefinition.NO_SPACE.getValue();
+            if (is(rightPsiElement, rightParenthesis)) return SpacingDefinition.NO_SPACE.getValue();
+
         }
 
         Spacing spacingAfter = leftBlock.getSpacingAfterAttribute();
@@ -234,7 +257,29 @@ public class FormattingBlock implements Block {
         return SpacingDefinition.ONE_SPACE.getValue();
     }
 
-    private BasePsiElement getParentPsiElement(PsiElement psiElement) {
+    private static boolean is(PsiElement psiElement, TokenType tokenType) {
+        if (psiElement instanceof TreeElement) {
+            TreeElement treeElement = (TreeElement) psiElement;
+            return treeElement.getElementType() == tokenType;
+        }
+        return false;
+    }
+
+    @Nullable
+    private DBLanguage getLanguage() {
+        if (psiElement instanceof DBLanguagePsiFile) {
+            DBLanguagePsiFile databasePsiFile = (DBLanguagePsiFile) psiElement;
+            return databasePsiFile.getDBLanguage();
+        }
+
+        if (psiElement instanceof BasePsiElement) {
+            BasePsiElement basePsiElement = (BasePsiElement) psiElement;
+            return basePsiElement.getLanguage();
+        }
+        return null;
+    }
+
+    private static BasePsiElement getParentPsiElement(PsiElement psiElement) {
         PsiElement parentPsiElement = psiElement.getParent();
         if (parentPsiElement instanceof BasePsiElement) {
             return (BasePsiElement) parentPsiElement;
@@ -242,9 +287,9 @@ public class FormattingBlock implements Block {
         return null;
     }
 
-    private FormattingBlock getParentBlock(FormattingBlock block, ElementTypeAttribute typeAttribute) {
+    private static FormattingBlock getParentBlock(FormattingBlock block, ElementTypeAttribute typeAttribute) {
         if (block.parentBlock != null) {
-            PsiElement psiElement = block.parentBlock.getPsiElement();
+            PsiElement psiElement = block.parentBlock.psiElement;
             if (psiElement instanceof BasePsiElement) {
                 BasePsiElement basePsiElement = (BasePsiElement) psiElement;
                 if (basePsiElement.getElementType().is(typeAttribute)) {
@@ -257,7 +302,7 @@ public class FormattingBlock implements Block {
     }
 
 
-    private ElementType getParentElementType(PsiElement psiElement) {
+    private static ElementType getParentElementType(PsiElement psiElement) {
         BasePsiElement parentPsiElement = getParentPsiElement(psiElement);
         if (parentPsiElement != null) {
             return parentPsiElement.getElementType();
@@ -275,7 +320,7 @@ public class FormattingBlock implements Block {
         if (childBlocks == null) {
             PsiElement child = psiElement.getFirstChild();
             while (child != null) {
-                if (!(child instanceof PsiWhiteSpace) && !(child instanceof PsiErrorElement) && child.getTextLength() > 0) {
+                if (!(child instanceof PsiWhiteSpace) /*&& !(child instanceof PsiErrorElement)*/ && child.getTextLength() > 0) {
                     if (childBlocks == null) childBlocks = new ArrayList<Block>();
                     CodeStyleCustomSettings codeStyleCustomSettings = getCodeStyleSettings(child);
                     FormattingBlock childBlock = new FormattingBlock(codeStyleSettings, codeStyleCustomSettings, child, this, index);

@@ -1,37 +1,27 @@
 package com.dci.intellij.dbn.execution.compiler.ui;
 
-import com.dci.intellij.dbn.common.Icons;
-import com.dci.intellij.dbn.common.ui.dialog.DBNDialog;
-import com.dci.intellij.dbn.execution.compiler.CompileType;
-import com.dci.intellij.dbn.object.common.DBSchemaObject;
-import com.intellij.openapi.project.Project;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import java.awt.event.ActionEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.JComponent;
-import java.awt.event.ActionEvent;
+import com.dci.intellij.dbn.common.Icons;
+import com.dci.intellij.dbn.common.ui.dialog.DBNDialog;
+import com.dci.intellij.dbn.execution.compiler.CompileTypeOption;
+import com.dci.intellij.dbn.object.common.DBSchemaObject;
+import com.intellij.openapi.project.Project;
 
-public class CompilerTypeSelectionDialog extends DBNDialog {
-    private CompilerTypeSelectionForm editorForm;
-    private CompileType selection;
+public class CompilerTypeSelectionDialog extends DBNDialog<CompilerTypeSelectionForm> {
+    private CompileTypeOption selection;
 
     public CompilerTypeSelectionDialog(Project project, @Nullable DBSchemaObject object) {
         super(project, "Compile Type", true);
         setModal(true);
         setResizable(false);
         //setVerticalStretch(0);
-        editorForm = new CompilerTypeSelectionForm(object);
+        component = new CompilerTypeSelectionForm(this, object);
         init();
-    }
-
-    protected String getDimensionServiceKey() {
-        return null;//"DBNavigator.CompileType";
-    }
-
-    public boolean rememberSelection() {
-        return editorForm.rememberSelection();
     }
 
     @NotNull
@@ -53,7 +43,7 @@ public class CompilerTypeSelectionDialog extends DBNDialog {
         }
 
         public void actionPerformed(ActionEvent e) {
-            selection = CompileType.KEEP;
+            selection = CompileTypeOption.KEEP;
             doOKAction();
         }
     }
@@ -65,7 +55,7 @@ public class CompilerTypeSelectionDialog extends DBNDialog {
         }
 
         public void actionPerformed(ActionEvent e) {
-            selection = CompileType.NORMAL;
+            selection = CompileTypeOption.NORMAL;
             doOKAction();
         }
     }
@@ -76,17 +66,12 @@ public class CompilerTypeSelectionDialog extends DBNDialog {
         }
 
         public void actionPerformed(ActionEvent e) {
-            selection = CompileType.DEBUG;
+            selection = CompileTypeOption.DEBUG;
             doOKAction();
         }
     }
 
-    @Nullable
-    protected JComponent createCenterPanel() {
-        return editorForm.getComponent();
-    }
-
-    public CompileType getSelection() {
+    public CompileTypeOption getSelection() {
         return selection;
     }
 }

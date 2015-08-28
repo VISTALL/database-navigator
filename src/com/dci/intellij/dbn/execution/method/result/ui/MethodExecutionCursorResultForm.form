@@ -18,9 +18,9 @@
           <color system-color="scrollbar"/>
         </border>
         <children>
-          <scrollpane id="cc5c4" class="com.intellij.ui.components.JBScrollPane" binding="resultScrollPane">
+          <scrollpane id="cc5c4" class="com.intellij.ui.components.JBScrollPane" binding="resultScrollPane" custom-create="true">
             <constraints>
-              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties/>
             <border type="line">
@@ -32,7 +32,7 @@
       </grid>
       <grid id="25a50" binding="actionsPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
         <constraints>
-          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="1" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties/>
         <border type="none"/>

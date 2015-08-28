@@ -14,15 +14,13 @@ import com.dci.intellij.dbn.editor.data.state.column.action.RevertColumnOrderAct
 import com.dci.intellij.dbn.editor.data.state.column.action.SelectAllColumnsAction;
 import com.dci.intellij.dbn.object.DBDataset;
 import com.intellij.openapi.actionSystem.ActionToolbar;
-import com.intellij.ui.components.JBScrollPane;
-import com.intellij.util.ui.UIUtil;
+import com.intellij.openapi.project.Project;
 
-import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.ListModel;
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -30,14 +28,15 @@ import java.util.List;
 public class DatasetColumnSetupForm extends DBNFormImpl {
     private JPanel mainPanel;
     private JPanel actionPanel;
-    private JBScrollPane columnListScrollPane;
+    private JScrollPane columnListScrollPane;
     private JPanel headerPanel;
     private CheckBoxList<ColumnStateSelectable> columnList;
     private DatasetColumnSetup columnSetup;
 
-    public DatasetColumnSetupForm(DatasetEditor datasetEditor) {
+    public DatasetColumnSetupForm(Project project, DatasetEditor datasetEditor) {
+        super(project);
         DBDataset dataset = datasetEditor.getDataset();
-        this.columnSetup = datasetEditor.getState().getColumnSetup();
+        columnSetup = datasetEditor.getColumnSetup();
         List<DatasetColumnState> columnStates = columnSetup.getColumnStates();
         List<ColumnStateSelectable> columnStateSel = new ArrayList<ColumnStateSelectable>();
         for (DatasetColumnState columnState : columnStates) {
@@ -61,16 +60,7 @@ public class DatasetColumnSetupForm extends DBNFormImpl {
     }
 
     private void createHeaderForm(DBDataset dataset) {
-        String headerTitle = dataset.getQualifiedName();
-        Icon headerIcon = dataset.getIcon();
-        Color headerBackground = UIUtil.getPanelBackground();
-        if (getEnvironmentSettings(dataset.getProject()).getVisibilitySettings().getDialogHeaders().value()) {
-            headerBackground = dataset.getEnvironmentType().getColor();
-        }
-        DBNHeaderForm headerForm = new DBNHeaderForm(
-                headerTitle,
-                headerIcon,
-                headerBackground);
+        DBNHeaderForm headerForm = new DBNHeaderForm(dataset);
         headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
     }
 

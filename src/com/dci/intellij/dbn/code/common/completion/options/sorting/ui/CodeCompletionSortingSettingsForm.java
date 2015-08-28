@@ -1,5 +1,16 @@
 package com.dci.intellij.dbn.code.common.completion.options.sorting.ui;
 
+import javax.swing.DefaultListModel;
+import javax.swing.JCheckBox;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.ListCellRenderer;
+import javax.swing.ListModel;
+import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.List;
+
 import com.dci.intellij.dbn.code.common.completion.options.sorting.CodeCompletionSortingItem;
 import com.dci.intellij.dbn.code.common.completion.options.sorting.CodeCompletionSortingSettings;
 import com.dci.intellij.dbn.code.common.completion.options.sorting.action.MoveDownAction;
@@ -13,17 +24,6 @@ import com.intellij.ui.ColoredListCellRenderer;
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.util.ui.UIUtil;
 
-import javax.swing.DefaultListModel;
-import javax.swing.JCheckBox;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.ListCellRenderer;
-import javax.swing.ListModel;
-import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.List;
-
 public class CodeCompletionSortingSettingsForm extends ConfigurationEditorForm<CodeCompletionSortingSettings> {
     private JPanel mainPanel;
     private JList sortingItemsList;
@@ -32,14 +32,14 @@ public class CodeCompletionSortingSettingsForm extends ConfigurationEditorForm<C
 
     public CodeCompletionSortingSettingsForm(CodeCompletionSortingSettings settings) {
         super(settings);
-        resetChanges();
+        resetFormChanges();
         sortingItemsList.setCellRenderer(LIST_CELL_RENDERER);
         sortingItemsList.setFont(UIUtil.getLabelFont());
         ActionToolbar actionToolbar = ActionUtil.createActionToolbar("", true,
                 new MoveUpAction(sortingItemsList, settings),
                 new MoveDownAction(sortingItemsList, settings));
         actionPanel.add(actionToolbar.getComponent(), BorderLayout.WEST);
-        registerComponent(enableCheckBox);
+        registerComponent(mainPanel);
         updateBorderTitleForeground(mainPanel);
     }
 
@@ -51,7 +51,7 @@ public class CodeCompletionSortingSettingsForm extends ConfigurationEditorForm<C
                 sortingItemsList.setEnabled(enableCheckBox.isSelected());
                 sortingItemsList.setBackground(
                         enableCheckBox.isSelected() ?
-                                UIUtil.getListBackground() :
+                                UIUtil.getTextFieldBackground() :
                                 UIUtil.getComboBoxDisabledBackground());
                 sortingItemsList.clearSelection();
             }
@@ -62,7 +62,7 @@ public class CodeCompletionSortingSettingsForm extends ConfigurationEditorForm<C
         return mainPanel;
     }
 
-    public void applyChanges() throws ConfigurationException {
+    public void applyFormChanges() throws ConfigurationException {
         List<CodeCompletionSortingItem> sortingItems = getConfiguration().getSortingItems();
         sortingItems.clear();
         ListModel model = sortingItemsList.getModel();
@@ -72,7 +72,7 @@ public class CodeCompletionSortingSettingsForm extends ConfigurationEditorForm<C
         getConfiguration().setEnabled(enableCheckBox.isSelected());
     }
 
-    public void resetChanges() {
+    public void resetFormChanges() {
         DefaultListModel model = new DefaultListModel();
         for (CodeCompletionSortingItem sortingItem : getConfiguration().getSortingItems()) {
             model.addElement(sortingItem);

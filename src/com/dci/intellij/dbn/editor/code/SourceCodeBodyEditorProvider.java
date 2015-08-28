@@ -1,21 +1,23 @@
 package com.dci.intellij.dbn.editor.code;
 
-import com.dci.intellij.dbn.editor.DBContentType;
-import com.dci.intellij.dbn.vfs.DatabaseEditableObjectFile;
-import com.intellij.openapi.fileEditor.FileEditorPolicy;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
+import javax.swing.Icon;
+
+import com.dci.intellij.dbn.editor.EditorProviderId;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
+import com.dci.intellij.dbn.editor.DBContentType;
+import com.dci.intellij.dbn.vfs.DBEditableObjectVirtualFile;
+import com.intellij.openapi.fileEditor.FileEditorPolicy;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VirtualFile;
 
 public class SourceCodeBodyEditorProvider extends BasicSourceCodeEditorProvider{
 
     public boolean accept(@NotNull Project project, @NotNull VirtualFile virtualFile) {
-        DatabaseEditableObjectFile databaseFile = null;
-        if (virtualFile instanceof DatabaseEditableObjectFile) {
-            databaseFile = (DatabaseEditableObjectFile) virtualFile;
+        DBEditableObjectVirtualFile databaseFile = null;
+        if (virtualFile instanceof DBEditableObjectVirtualFile) {
+            databaseFile = (DBEditableObjectVirtualFile) virtualFile;
         }
 
 /*
@@ -40,9 +42,9 @@ public class SourceCodeBodyEditorProvider extends BasicSourceCodeEditorProvider{
     }
 
     @NotNull
-    @NonNls
-    public String getEditorTypeId() {
-        return "2";
+    @Override
+    public EditorProviderId getEditorProviderId() {
+        return EditorProviderId.CODE_BODY;
     }
 
     public String getName() {

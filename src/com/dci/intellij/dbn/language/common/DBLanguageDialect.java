@@ -1,16 +1,18 @@
 package com.dci.intellij.dbn.language.common;
 
-import com.dci.intellij.dbn.language.common.element.ChameleonElementType;
-import com.intellij.lang.LanguageDialect;
-import com.intellij.psi.tree.IElementType;
-import com.intellij.psi.tree.IFileElementType;
-import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
-
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
+
+import com.dci.intellij.dbn.language.common.element.ChameleonElementType;
+import com.dci.intellij.dbn.language.common.element.TokenPairTemplate;
+import com.dci.intellij.dbn.language.common.element.parser.TokenPairRangeMonitor;
+import com.intellij.lang.LanguageDialect;
+import com.intellij.lang.PsiBuilder;
+import com.intellij.psi.tree.IFileElementType;
 
 public abstract class DBLanguageDialect extends LanguageDialect implements DBFileElementTypeProvider {
     private DBLanguageDialectIdentifier identifier;
@@ -19,8 +21,7 @@ public abstract class DBLanguageDialect extends LanguageDialect implements DBFil
     private IFileElementType fileElementType;
     private Set<ChameleonTokenType> chameleonTokens;
     private ChameleonElementType chameleonElementType;
-    private static Map<DBLanguageDialectIdentifier, DBLanguageDialect> register = new HashMap<DBLanguageDialectIdentifier, DBLanguageDialect>();
-    private IElementType nestedRangeElementType;
+    private static Map<DBLanguageDialectIdentifier, DBLanguageDialect> register = new EnumMap<DBLanguageDialectIdentifier, DBLanguageDialect>(DBLanguageDialectIdentifier.class);
 
     public DBLanguageDialect(@NonNls @NotNull DBLanguageDialectIdentifier identifier, @NotNull DBLanguage baseLanguage) {
         super(identifier.getValue(), baseLanguage);
@@ -93,17 +94,23 @@ public abstract class DBLanguageDialect extends LanguageDialect implements DBFil
             if (chameleonTokens == null) chameleonTokens = new HashSet<ChameleonTokenType>();
         }
         for (ChameleonTokenType chameleonToken : chameleonTokens) {
-            if (chameleonToken.getInjectedLanguage().getIdentifier() == dialectIdentifier) {
+            if (chameleonToken.getInjectedLanguage().identifier == dialectIdentifier) {
                 return chameleonToken;
             }
         }
         return null;
     }
 
-    public synchronized ChameleonElementType getChameleonElementType() {
+    public synchronized ChameleonElementType getChameleonElementType(DBLanguageDialect parentLanguage) {
         if (chameleonElementType == null) {
-            chameleonElementType = new ChameleonElementType(this);
+            chameleonElementType = new ChameleonElementType(this, parentLanguage);
         }
         return chameleonElementType;
+    }
+
+    public Map<TokenPairTemplate,TokenPairRangeMonitor> createTokenPairRangeMonitors(PsiBuilder builder){
+        Map<TokenPairTemplate,TokenPairRangeMonitor> tokenPairRangeMonitors = new EnumMap<TokenPairTemplate, TokenPairRangeMonitor>(TokenPairTemplate.class);
+        tokenPairRangeMonitors.put(TokenPairTemplate.PARENTHESES, new TokenPairRangeMonitor(builder, this, TokenPairTemplate.PARENTHESES));
+        return tokenPairRangeMonitors;
     }
 }

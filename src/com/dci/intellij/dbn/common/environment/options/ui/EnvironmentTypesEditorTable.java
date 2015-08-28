@@ -1,13 +1,5 @@
 package com.dci.intellij.dbn.common.environment.options.ui;
 
-import com.dci.intellij.dbn.common.environment.EnvironmentTypeBundle;
-import com.dci.intellij.dbn.common.thread.SimpleLaterInvocator;
-import com.dci.intellij.dbn.common.ui.table.DBNTable;
-import com.intellij.openapi.project.Project;
-import com.intellij.ui.ColorChooser;
-import com.intellij.ui.TableUtil;
-import com.intellij.util.ui.UIUtil;
-
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.EmptyBorder;
@@ -24,7 +16,15 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
-public class EnvironmentTypesEditorTable extends DBNTable {
+import com.dci.intellij.dbn.common.environment.EnvironmentTypeBundle;
+import com.dci.intellij.dbn.common.thread.SimpleLaterInvocator;
+import com.dci.intellij.dbn.common.ui.table.DBNTable;
+import com.intellij.openapi.project.Project;
+import com.intellij.ui.ColorChooser;
+import com.intellij.ui.TableUtil;
+import com.intellij.util.ui.UIUtil;
+
+public class EnvironmentTypesEditorTable extends DBNTable<EnvironmentTypesTableModel> {
 
     public EnvironmentTypesEditorTable(Project project, EnvironmentTypeBundle environmentTypes) {
         super(project, new EnvironmentTypesTableModel(project, environmentTypes), true);
@@ -110,12 +110,6 @@ public class EnvironmentTypesEditorTable extends DBNTable {
         }
     }
     
-    
-
-    private void stopCellEditing() {
-        if (isEditing()) getCellEditor().stopCellEditing();
-    }
-
     @Override
     public void editingStopped(ChangeEvent e) {
         super.editingStopped(e);
@@ -136,18 +130,15 @@ public class EnvironmentTypesEditorTable extends DBNTable {
         return textField;
     }
 
-    @Override
-    public EnvironmentTypesTableModel getModel() {
-        return (EnvironmentTypesTableModel) super.getModel();
-    }
-
     public void insertRow() {
         stopCellEditing();
         int rowIndex = getSelectedRow();
         rowIndex = getModel().getRowCount() == 0 ? 0 : rowIndex + 1;
         getModel().insertRow(rowIndex);
         getSelectionModel().setSelectionInterval(rowIndex, rowIndex);
-        updateUI();
+
+        revalidate();
+        repaint();
     }
 
 
@@ -155,7 +146,10 @@ public class EnvironmentTypesEditorTable extends DBNTable {
         stopCellEditing();
         int selectedRow = getSelectedRow();
         getModel().removeRow(selectedRow);
-        updateUI();
+
+        revalidate();
+        repaint();
+
         if (getModel().getRowCount() == selectedRow && selectedRow > 0) {
             getSelectionModel().setSelectionInterval(selectedRow -1, selectedRow -1);
         }

@@ -1,5 +1,9 @@
 package com.dci.intellij.dbn.ddl.options;
 
+import java.util.ArrayList;
+import java.util.List;
+import org.jdom.Element;
+
 import com.dci.intellij.dbn.common.options.Configuration;
 import com.dci.intellij.dbn.common.util.StringUtil;
 import com.dci.intellij.dbn.ddl.DDLFileType;
@@ -9,21 +13,14 @@ import com.dci.intellij.dbn.editor.DBContentType;
 import com.dci.intellij.dbn.language.psql.PSQLFileType;
 import com.dci.intellij.dbn.language.sql.SQLFileType;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.InvalidDataException;
-import com.intellij.openapi.util.WriteExternalException;
-import org.jdom.Element;
-import org.jetbrains.annotations.NotNull;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class DDLFileExtensionSettings extends Configuration<DDLFileExtensionSettingsForm> {
 
     private List<DDLFileType> fileTypes = new ArrayList<DDLFileType>();
 
-    private Project project;
-    public DDLFileExtensionSettings(Project project) {
-        this.project = project;
+    private DDLFileSettings parent;
+    public DDLFileExtensionSettings(DDLFileSettings parent) {
+        this.parent = parent;
         fileTypes.add(new DDLFileType(DDLFileTypeId.VIEW, "DDL File - View", "vw", SQLFileType.INSTANCE, DBContentType.CODE));
         fileTypes.add(new DDLFileType(DDLFileTypeId.TRIGGER, "DDL File - Trigger", "trg", PSQLFileType.INSTANCE, DBContentType.CODE));
         fileTypes.add(new DDLFileType(DDLFileTypeId.PROCEDURE, "DDL File - Procedure", "prc", PSQLFileType.INSTANCE, DBContentType.CODE));
@@ -34,12 +31,6 @@ public class DDLFileExtensionSettings extends Configuration<DDLFileExtensionSett
         fileTypes.add(new DDLFileType(DDLFileTypeId.TYPE, "DDL File - Type", "tpe", PSQLFileType.INSTANCE, DBContentType.CODE_SPEC_AND_BODY));
         fileTypes.add(new DDLFileType(DDLFileTypeId.TYPE_SPEC, "DDL File - Type Spec", "tps", PSQLFileType.INSTANCE, DBContentType.CODE_SPEC));
         fileTypes.add(new DDLFileType(DDLFileTypeId.TYPE_BODY, "DDL File - Type Body", "tpb", PSQLFileType.INSTANCE, DBContentType.CODE_BODY));
-    }
-
-    @NotNull
-    @Override
-    public String getId() {
-        return super.getId();
     }
 
     public String getDisplayName() {
@@ -69,7 +60,7 @@ public class DDLFileExtensionSettings extends Configuration<DDLFileExtensionSett
     }
 
     public Project getProject() {
-        return project;
+        return parent.getProject();
     }
 
     /*********************************************************
@@ -84,7 +75,7 @@ public class DDLFileExtensionSettings extends Configuration<DDLFileExtensionSett
         return "extensions";
     }
 
-    public void readConfiguration(Element element) throws InvalidDataException {
+    public void readConfiguration(Element element) {
         for (Object o : element.getChildren()) {
             Element fileTypeElement = (Element) o;
             String name = fileTypeElement.getAttributeValue("file-type-id");
@@ -99,8 +90,8 @@ public class DDLFileExtensionSettings extends Configuration<DDLFileExtensionSett
         }
     }
 
-    public void writeConfiguration(Element element) throws WriteExternalException {
-        for (DDLFileType fileType : getDDLFileTypes()) {
+    public void writeConfiguration(Element element) {
+        for (DDLFileType fileType : fileTypes) {
             Element fileTypeElement = new Element("mapping");
             fileTypeElement.setAttribute("file-type-id", fileType.getId());
             String extensions = StringUtil.concatenate(fileType.getExtensions(), ",");

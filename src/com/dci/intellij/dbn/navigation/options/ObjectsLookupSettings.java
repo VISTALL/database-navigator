@@ -1,5 +1,12 @@
 package com.dci.intellij.dbn.navigation.options;
 
+import javax.swing.Icon;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
+import org.jdom.Element;
+
 import com.dci.intellij.dbn.common.options.ProjectConfiguration;
 import com.dci.intellij.dbn.common.options.setting.BooleanSetting;
 import com.dci.intellij.dbn.common.ui.list.Selectable;
@@ -7,15 +14,6 @@ import com.dci.intellij.dbn.navigation.options.ui.ObjectsLookupSettingsForm;
 import com.dci.intellij.dbn.object.common.DBObjectType;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.InvalidDataException;
-import com.intellij.openapi.util.WriteExternalException;
-import gnu.trove.THashSet;
-import org.jdom.Element;
-
-import javax.swing.Icon;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 
 public class ObjectsLookupSettings extends ProjectConfiguration<ObjectsLookupSettingsForm> {
     private List<ObjectTypeEntry> lookupObjectTypes;
@@ -41,7 +39,7 @@ public class ObjectsLookupSettings extends ProjectConfiguration<ObjectsLookupSet
 
     public boolean isEnabled(DBObjectType objectType) {
         if (fastLookupObjectTypes == null) {
-            fastLookupObjectTypes = new THashSet<DBObjectType>();
+            fastLookupObjectTypes = EnumSet.noneOf(DBObjectType.class);
             for (ObjectTypeEntry objectTypeEntry : getLookupObjectTypes()) {
                 if (objectTypeEntry.isSelected()) {
                     fastLookupObjectTypes.add(objectTypeEntry.getObjectType());
@@ -88,7 +86,8 @@ public class ObjectsLookupSettings extends ProjectConfiguration<ObjectsLookupSet
             lookupObjectTypes.add(new ObjectTypeEntry(DBObjectType.COLUMN, false));
             lookupObjectTypes.add(new ObjectTypeEntry(DBObjectType.INDEX, true));
             lookupObjectTypes.add(new ObjectTypeEntry(DBObjectType.CONSTRAINT, true));
-            lookupObjectTypes.add(new ObjectTypeEntry(DBObjectType.TRIGGER, true));
+            lookupObjectTypes.add(new ObjectTypeEntry(DBObjectType.DATASET_TRIGGER, true));
+            lookupObjectTypes.add(new ObjectTypeEntry(DBObjectType.DATABASE_TRIGGER, true));
             lookupObjectTypes.add(new ObjectTypeEntry(DBObjectType.SYNONYM, false));
             lookupObjectTypes.add(new ObjectTypeEntry(DBObjectType.SEQUENCE, true));
             lookupObjectTypes.add(new ObjectTypeEntry(DBObjectType.PROCEDURE, true));
@@ -113,7 +112,7 @@ public class ObjectsLookupSettings extends ProjectConfiguration<ObjectsLookupSet
         return "lookup-filters";
     }
 
-    public void readConfiguration(Element element) throws InvalidDataException {
+    public void readConfiguration(Element element) {
         Element visibleObjectsElement = element.getChild("lookup-objects");
         for (Object o : visibleObjectsElement.getChildren()) {
             Element child = (Element) o;
@@ -122,7 +121,9 @@ public class ObjectsLookupSettings extends ProjectConfiguration<ObjectsLookupSet
             if (objectType != null) {
                 boolean enabled = Boolean.parseBoolean(child.getAttributeValue("enabled"));
                 ObjectTypeEntry objectTypeEntry = getObjectTypeEntry(objectType);
-                objectTypeEntry.setSelected(enabled);
+                if (objectTypeEntry != null) {
+                    objectTypeEntry.setSelected(enabled);
+                }
             }
         }
         forceDatabaseLoad.readConfiguration(element);
@@ -130,7 +131,7 @@ public class ObjectsLookupSettings extends ProjectConfiguration<ObjectsLookupSet
         promptSchemaSelection.readConfiguration(element);
     }
 
-    public void writeConfiguration(Element element) throws WriteExternalException {
+    public void writeConfiguration(Element element) {
         Element visibleObjectsElement = new Element("lookup-objects");
         element.addContent(visibleObjectsElement);
 

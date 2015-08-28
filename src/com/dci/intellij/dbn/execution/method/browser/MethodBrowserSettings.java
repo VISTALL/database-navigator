@@ -1,27 +1,25 @@
 package com.dci.intellij.dbn.execution.method.browser;
 
+import java.util.EnumMap;
+import java.util.EnumSet;
+import java.util.Map;
+import java.util.Set;
+import org.jdom.Element;
+import org.jetbrains.annotations.Nullable;
+
 import com.dci.intellij.dbn.common.options.PersistentConfiguration;
 import com.dci.intellij.dbn.connection.ConnectionCache;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.object.DBMethod;
 import com.dci.intellij.dbn.object.DBSchema;
 import com.dci.intellij.dbn.object.common.DBObjectType;
-import com.dci.intellij.dbn.object.lookup.DBMethodRef;
-import com.intellij.openapi.util.InvalidDataException;
-import com.intellij.openapi.util.WriteExternalException;
-import gnu.trove.THashMap;
-import gnu.trove.THashSet;
-import org.jdom.Element;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.Map;
-import java.util.Set;
+import com.dci.intellij.dbn.object.lookup.DBObjectRef;
 
 public class MethodBrowserSettings implements PersistentConfiguration {
     private String connectionId;
     private String schemaName;
-    private DBMethodRef method;
-    private Map<DBObjectType, Boolean> objectVisibility = new THashMap<DBObjectType, Boolean>();
+    private DBObjectRef<DBMethod> method;
+    private Map<DBObjectType, Boolean> objectVisibility = new EnumMap<DBObjectType, Boolean>(DBObjectType.class);
 
     public MethodBrowserSettings() {
         objectVisibility.put(DBObjectType.FUNCTION, true);
@@ -41,7 +39,7 @@ public class MethodBrowserSettings implements PersistentConfiguration {
     }
 
     public Set<DBObjectType> getVisibleObjectTypes() {
-        Set<DBObjectType> objectTypes = new THashSet<DBObjectType>();
+        Set<DBObjectType> objectTypes = EnumSet.noneOf(DBObjectType.class);
         for (DBObjectType objectType : objectVisibility.keySet()) {
             if (objectVisibility.get(objectType)) {
                 objectTypes.add(objectType);
@@ -72,27 +70,27 @@ public class MethodBrowserSettings implements PersistentConfiguration {
     }
 
     public void setMethod(DBMethod method) {
-        this.method = new DBMethodRef(method);
+        this.method = new DBObjectRef<DBMethod>(method);
     }
 
-    public void readConfiguration(Element element) throws InvalidDataException {
+    public void readConfiguration(Element element) {
         connectionId = element.getAttributeValue("connection-id");
         schemaName = element.getAttributeValue("schema");
 
         Element methodElement = element.getChild("selected-method");
         if (methodElement != null) {
-            method = new DBMethodRef();
-            method.readConfiguration(methodElement);
+            method = new DBObjectRef<DBMethod>();
+            method.readState(methodElement);
         }
     }
 
-    public void writeConfiguration(Element element) throws WriteExternalException {
+    public void writeConfiguration(Element element) {
         ConnectionHandler connectionHandler = getConnectionHandler();
         if (connectionHandler != null) element.setAttribute("connection-id", connectionHandler.getId());
         if (schemaName != null) element.setAttribute("schema", schemaName);
         if(method != null) {
             Element methodElement = new Element("selected-method");
-            method.writeConfiguration(methodElement);
+            method.writeState(methodElement);
             element.addContent(methodElement);
         }
     }

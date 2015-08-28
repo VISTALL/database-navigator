@@ -1,14 +1,14 @@
 package com.dci.intellij.dbn.editor.data.ui.table;
 
-import com.dci.intellij.dbn.data.ui.table.basic.BasicTableGutter;
-import com.dci.intellij.dbn.editor.data.ui.table.renderer.DatasetEditorTableGutterRenderer;
-
 import javax.swing.ListCellRenderer;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
-public class DatasetEditorTableGutter extends BasicTableGutter {
+import com.dci.intellij.dbn.data.grid.ui.table.basic.BasicTableGutter;
+import com.dci.intellij.dbn.editor.data.ui.table.renderer.DatasetEditorTableGutterRenderer;
+
+public class DatasetEditorTableGutter extends BasicTableGutter<DatasetEditorTable> {
     public DatasetEditorTableGutter(DatasetEditorTable table) {
         super(table);
         addMouseListener(mouseListener);
@@ -29,7 +29,11 @@ public class DatasetEditorTableGutter extends BasicTableGutter {
     };
 
     @Override
-    public DatasetEditorTable getTable() {
-        return (DatasetEditorTable) super.getTable();
+    public void dispose() {
+        if (!isDisposed()) {
+            removeMouseListener(mouseListener);
+            mouseListener = null;
+            super.dispose();
+        }
     }
 }

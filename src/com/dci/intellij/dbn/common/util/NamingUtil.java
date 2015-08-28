@@ -1,11 +1,11 @@
 package com.dci.intellij.dbn.common.util;
 
-import com.dci.intellij.dbn.language.common.psi.BasePsiElement;
-import com.dci.intellij.dbn.language.common.psi.IdentifierPsiElement;
-import com.dci.intellij.dbn.object.common.DBObject;
-
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import com.dci.intellij.dbn.language.common.psi.IdentifierPsiElement;
+import com.dci.intellij.dbn.object.common.DBObject;
 
 public class NamingUtil {
 
@@ -27,19 +27,24 @@ public class NamingUtil {
         return text.toString() + nr;
     }
 
-    public static String createNamesList(Set<BasePsiElement> identifiers, int maxItems) {
-        java.lang.Object[] array = identifiers.toArray();
-        StringBuilder buffer = new StringBuilder();
-        maxItems = Math.min(maxItems, array.length);
-
-        for (int i =0; i<maxItems; i++) {
-            IdentifierPsiElement psiElement = (IdentifierPsiElement) array[i];
-            StringUtil.appendToUpperCase(buffer, psiElement.getUnquotedText());
-            if (i<maxItems -1 ) {
-                buffer.append(", ");
+    public static String createNamesList(Set<IdentifierPsiElement> identifiers, int maxItems) {
+        boolean partial = false;
+        Set<String> names = new HashSet<String>();
+        for (IdentifierPsiElement identifier : identifiers) {
+            names.add(identifier.getUnquotedText().toString().toUpperCase());
+            if (names.size() >= maxItems) {
+                partial = identifiers.size() > maxItems;
+                break;
             }
         }
-        if (maxItems < array.length || maxItems == 0) {
+
+        StringBuilder buffer = new StringBuilder();
+        for (String name : names) {
+            if (buffer.length() > 0) buffer.append(", ");
+            buffer.append(name);
+        }
+
+        if (partial) {
             buffer.append("...");
         }
         return buffer.toString();
@@ -96,7 +101,7 @@ public class NamingUtil {
 
     public static boolean isVowel(char chr){
         chr  = Character.toLowerCase(chr);
-        String vowels = "aâáàäeêéèiîíìoôóòöuûúùü";
+        String vowels = "aï¿½ï¿½ï¿½ï¿½eï¿½ï¿½ï¿½iï¿½ï¿½ï¿½oï¿½ï¿½ï¿½ï¿½uï¿½ï¿½ï¿½ï¿½";
         return vowels.indexOf(chr) > -1;
     }
 
@@ -129,18 +134,20 @@ public class NamingUtil {
     }
 
     private static String duplicateCharacter(String name, char chr) {
-        int index = name.indexOf(chr);
-        if (index > -1) {
-            int startIndex = 0;
-            StringBuilder buffer  = new StringBuilder();
-            while(index > -1) {
-                buffer.append(name.substring(startIndex, index+1));
-                buffer.append(chr);
-                startIndex = index + 1;
-                index = name.indexOf(chr, startIndex);
+        if (name != null) {
+            int index = name.indexOf(chr);
+            if (index > -1) {
+                int startIndex = 0;
+                StringBuilder buffer  = new StringBuilder();
+                while(index > -1) {
+                    buffer.append(name.substring(startIndex, index+1));
+                    buffer.append(chr);
+                    startIndex = index + 1;
+                    index = name.indexOf(chr, startIndex);
+                }
+                buffer.append(name.substring(startIndex));
+                return buffer.toString();
             }
-            buffer.append(name.substring(startIndex));
-            return buffer.toString();
         }
         return name;
     }
@@ -175,7 +182,7 @@ public class NamingUtil {
     }
 
     public static String getClassName(Class clazz) {
-        int index = clazz.getName().lastIndexOf(".");
+        int index = clazz.getName().lastIndexOf('.');
         return clazz.getName().substring(index + 1);
     }
 }

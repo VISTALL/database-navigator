@@ -1,5 +1,13 @@
 package com.dci.intellij.dbn.object.impl;
 
+import javax.swing.Icon;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import com.dci.intellij.dbn.browser.DatabaseBrowserUtils;
 import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
 import com.dci.intellij.dbn.browser.ui.HtmlToolTipBuilder;
@@ -7,12 +15,11 @@ import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.content.loader.DynamicContentLoader;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.database.DatabaseCompatibilityInterface;
-import com.dci.intellij.dbn.editor.DBContentType;
 import com.dci.intellij.dbn.object.DBGrantedPrivilege;
 import com.dci.intellij.dbn.object.DBGrantedRole;
-import com.dci.intellij.dbn.object.DBPrivilege;
 import com.dci.intellij.dbn.object.DBRole;
 import com.dci.intellij.dbn.object.DBSchema;
+import com.dci.intellij.dbn.object.DBSystemPrivilege;
 import com.dci.intellij.dbn.object.DBUser;
 import com.dci.intellij.dbn.object.common.DBObject;
 import com.dci.intellij.dbn.object.common.DBObjectBundle;
@@ -24,13 +31,6 @@ import com.dci.intellij.dbn.object.common.list.DBObjectListContainer;
 import com.dci.intellij.dbn.object.common.list.DBObjectNavigationList;
 import com.dci.intellij.dbn.object.common.list.DBObjectNavigationListImpl;
 import com.dci.intellij.dbn.object.common.list.loader.DBObjectListFromRelationListLoader;
-import org.jetbrains.annotations.NotNull;
-
-import javax.swing.Icon;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class DBUserImpl extends DBObjectImpl implements DBUser {
     DBObjectList<DBGrantedRole> roles;
@@ -40,7 +40,7 @@ public class DBUserImpl extends DBObjectImpl implements DBUser {
     private boolean isLocked;
 
     public DBUserImpl(ConnectionHandler connectionHandler, ResultSet resultSet) throws SQLException {
-        super(connectionHandler.getObjectBundle(), DBContentType.NONE, resultSet);
+        super(connectionHandler.getObjectBundle(), resultSet);
     }
 
     @Override
@@ -76,11 +76,12 @@ public class DBUserImpl extends DBObjectImpl implements DBUser {
         return isExpired;
     }
 
+    @Nullable
     @Override
     public Icon getIcon() {
-        return isExpired() ?
-               (isLocked() ? Icons.DBO_USER_EXPIRED_LOCKED : Icons.DBO_USER_EXPIRED) :
-               (isLocked() ? Icons.DBO_USER_LOCKED : Icons.DBO_USER);
+        return isExpired ?
+               (isLocked ? Icons.DBO_USER_EXPIRED_LOCKED : Icons.DBO_USER_EXPIRED) :
+               (isLocked ? Icons.DBO_USER_LOCKED : Icons.DBO_USER);
     }
 
     @Override
@@ -100,16 +101,16 @@ public class DBUserImpl extends DBObjectImpl implements DBUser {
         return roles.getObjects();
     }
 
-    public boolean hasPrivilege(DBPrivilege privilege) {
+    public boolean hasSystemPrivilege(DBSystemPrivilege systemPrivilege) {
         for (DBGrantedPrivilege grantedPrivilege : getPrivileges()) {
-            if (grantedPrivilege.getPrivilege().equals(privilege)) {
+            if (grantedPrivilege.getPrivilege().equals(systemPrivilege)) {
                 return true;
             }
         }
         DatabaseCompatibilityInterface compatibilityInterface = getConnectionHandler().getInterfaceProvider().getCompatibilityInterface();
         if (compatibilityInterface.supportsObjectType(DBObjectType.GRANTED_ROLE.getTypeId())) {
             for (DBGrantedRole grantedRole : getRoles()) {
-                if (grantedRole.getRole().hasPrivilege(privilege)) {
+                if (grantedRole.getRole().hasPrivilege(systemPrivilege)) {
                     return true;
                 }
             }
@@ -128,10 +129,10 @@ public class DBUserImpl extends DBObjectImpl implements DBUser {
 
     public void buildToolTip(HtmlToolTipBuilder ttb) {
         ttb.append(true, getObjectType().getName(), true);
-        if (isLocked() || isExpired()) {
-            if (isLocked() && isExpired())
+        if (isLocked || isExpired) {
+            if (isLocked && isExpired)
                 ttb.append(false, " - expired & locked" , true);
-            else if (isLocked())
+            else if (isLocked)
                 ttb.append(false, " - locked" , true); else
                 ttb.append(false, " - expired" , true);
 

@@ -6,9 +6,10 @@ import com.dci.intellij.dbn.data.editor.text.TextContentType;
 import com.dci.intellij.dbn.data.model.ColumnInfo;
 import com.dci.intellij.dbn.data.model.DataModelCell;
 import com.dci.intellij.dbn.data.model.DataModelState;
-import com.dci.intellij.dbn.data.value.LazyLoadedValue;
-import com.dci.intellij.dbn.editor.data.options.DataEditorQualifiedEditorSettings;
-import com.dci.intellij.dbn.editor.data.options.DataEditorSettings;
+import com.dci.intellij.dbn.data.type.DBDataType;
+import com.dci.intellij.dbn.data.value.ArrayValue;
+import com.dci.intellij.dbn.data.value.LargeObjectValue;
+import com.dci.intellij.dbn.object.common.DBObjectType;
 import com.intellij.openapi.project.Project;
 
 public class BasicDataModelCell implements DataModelCell {
@@ -25,14 +26,20 @@ public class BasicDataModelCell implements DataModelCell {
     }
 
     public Project getProject() {
-        return row.getModel().getProject();
+        return row == null ? null : row.getProject();
     }
 
     public TextContentType getContentType() {
         DataModelState state = row.getModel().getState();
         String contentTypeName = state.getTextContentTypeName(getColumnInfo().getName());
-        DataEditorQualifiedEditorSettings qualifiedEditorSettings = DataEditorSettings.getInstance(getProject()).getQualifiedEditorSettings();
-        return qualifiedEditorSettings.getContentType(contentTypeName);
+        if (contentTypeName == null) {
+            DBDataType dataType = getColumnInfo().getDataType();
+            if (dataType.isNative()) {
+                contentTypeName = dataType.getNativeDataType().getDataTypeDefinition().getContentTypeName();
+            }
+        }
+
+        return TextContentType.get(getProject(), contentTypeName);
     }
 
     public void setContentType(TextContentType contentType) {
@@ -58,21 +65,34 @@ public class BasicDataModelCell implements DataModelCell {
     }
 
     public boolean isLobValue() {
-        return getUserValue() instanceof LazyLoadedValue;
+        return userValue instanceof LargeObjectValue;
+    }
+    public boolean isArrayValue() {
+        return userValue instanceof ArrayValue;
     }
 
     @Override
     public String getFormattedUserValue() {
-        if (formattedUserValue == null && userValue != null) {
-            RegionalSettings regionalSettings = RegionalSettings.getInstance(getProject());
+        if (userValue != null) {
+            RegionalSettings regionalSettings = getRow().getModel().getRegionalSettings();
             Formatter formatter = regionalSettings.getFormatter();
-            formattedUserValue = formatter.formatObject(userValue);
+            return formatter.formatObject(userValue);
         }
-        return formattedUserValue;
+        return null;
     }
 
     public String getName() {
         return getColumnInfo().getName();
+    }
+
+    @Override
+    public DBDataType getDataType() {
+        return getColumnInfo().getDataType();
+    }
+
+    @Override
+    public DBObjectType getObjectType() {
+        return DBObjectType.COLUMN;
     }
 
     public ColumnInfo getColumnInfo() {
@@ -96,9 +116,9 @@ public class BasicDataModelCell implements DataModelCell {
 
     @Override
     public boolean equals(Object obj) {
-        if (!isDisposed() && obj instanceof BasicDataModelCell) {
+        if (!isDisposed && obj instanceof BasicDataModelCell) {
             BasicDataModelCell cell = (BasicDataModelCell) obj;
-            return cell.getIndex() == getIndex() &&
+            return cell.index == index &&
                     cell.getRow().getIndex() == getRow().getIndex() &&
                     cell.getRow().getModel() == getRow().getModel();
         }

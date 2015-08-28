@@ -1,11 +1,19 @@
 package com.dci.intellij.dbn.navigation.psi;
 
+import javax.swing.Icon;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import com.dci.intellij.dbn.common.dispose.DisposerUtil;
+import com.dci.intellij.dbn.common.dispose.FailsafeUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.language.common.psi.EmptySearchScope;
 import com.dci.intellij.dbn.object.common.DBObject;
 import com.dci.intellij.dbn.object.common.list.DBObjectList;
-import com.dci.intellij.dbn.vfs.DatabaseConnectionFile;
+import com.dci.intellij.dbn.vfs.DBConnectionVirtualFile;
 import com.intellij.lang.ASTNode;
 import com.intellij.lang.Language;
 import com.intellij.navigation.ItemPresentation;
@@ -29,24 +37,17 @@ import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.PsiElementProcessor;
 import com.intellij.psi.search.SearchScope;
 import com.intellij.util.IncorrectOperationException;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import javax.swing.Icon;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 public class DBConnectionPsiDirectory implements PsiDirectory, Disposable {
-    private DatabaseConnectionFile virtualFile;
+    private DBConnectionVirtualFile virtualFile;
 
     public DBConnectionPsiDirectory(ConnectionHandler connectionHandler) {
-        this.virtualFile = new DatabaseConnectionFile(connectionHandler);
+        this.virtualFile = new DBConnectionVirtualFile(connectionHandler);
     }
 
     @NotNull
     public VirtualFile getVirtualFile() {
-        return virtualFile;
+        return FailsafeUtil.nvl(virtualFile);
     }
 
     @NotNull
@@ -87,7 +88,7 @@ public class DBConnectionPsiDirectory implements PsiDirectory, Disposable {
 
     @NotNull
     public Project getProject() throws PsiInvalidElementAccessException {
-        return virtualFile.getProject();
+        return FailsafeUtil.nvl(virtualFile == null ? null : virtualFile.getProject());
     }
 
     @NotNull
@@ -359,7 +360,7 @@ public class DBConnectionPsiDirectory implements PsiDirectory, Disposable {
     }
 
     public Icon getIcon(int flags) {
-        return virtualFile.getIcon();
+        return virtualFile == null ? null : virtualFile.getIcon();
     }
 
     public <T> T getUserData(@NotNull Key<T> key) {

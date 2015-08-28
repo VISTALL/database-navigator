@@ -1,14 +1,23 @@
 package com.dci.intellij.dbn.object.common.list;
 
+import javax.swing.Icon;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import com.dci.intellij.dbn.browser.DatabaseBrowserManager;
 import com.dci.intellij.dbn.browser.model.BrowserTreeChangeListener;
 import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
-import com.dci.intellij.dbn.code.sql.color.SQLTextAttributesKeys;
+import com.dci.intellij.dbn.browser.options.DatabaseBrowserSettings;
+import com.dci.intellij.dbn.browser.options.DatabaseBrowserSortingSettings;
 import com.dci.intellij.dbn.common.content.DynamicContent;
 import com.dci.intellij.dbn.common.content.DynamicContentImpl;
 import com.dci.intellij.dbn.common.content.DynamicContentType;
 import com.dci.intellij.dbn.common.content.dependency.ContentDependencyAdapter;
 import com.dci.intellij.dbn.common.content.loader.DynamicContentLoader;
+import com.dci.intellij.dbn.common.dispose.FailsafeUtil;
 import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.common.filter.Filter;
 import com.dci.intellij.dbn.common.ui.tree.TreeEventType;
@@ -16,20 +25,11 @@ import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.GenericDatabaseElement;
 import com.dci.intellij.dbn.object.common.DBObject;
 import com.dci.intellij.dbn.object.common.DBObjectType;
+import com.dci.intellij.dbn.object.common.sorting.DBObjectComparator;
 import com.intellij.navigation.ItemPresentation;
-import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.FileStatus;
-import org.jetbrains.annotations.NotNull;
-
-import javax.swing.Icon;
-import java.util.ArrayList;
-import java.util.List;
 
 public class DBObjectListImpl<T extends DBObject> extends DynamicContentImpl<T> implements DBObjectList<T> {
-    private boolean isHidden;
-    private boolean isTouched;
-
     private DBObjectType objectType = DBObjectType.UNKNOWN;
 
     public DBObjectListImpl(DBObjectType objectType, BrowserTreeNode treeParent, DynamicContentLoader<T> loader, ContentDependencyAdapter dependencyAdapter, boolean indexed) {
@@ -37,19 +37,11 @@ public class DBObjectListImpl<T extends DBObject> extends DynamicContentImpl<T> 
         this.objectType = objectType;
     }
 
-    public boolean isHidden() {
-        return isHidden;
-    }
-
-    public void setHidden(boolean hidden) {
-        isHidden = hidden;
-    }
-
     @Override
-    public Filter getFilter() {
+    public Filter<T> getFilter() {
         ConnectionHandler connectionHandler = getConnectionHandler();
-        return connectionHandler == null ? null :
-                connectionHandler.getSettings().getFilterSettings().getObjectNameFilterSettings().getFilter(objectType);
+        return connectionHandler == null || connectionHandler.isDisposed() || connectionHandler.isVirtual() ? null :
+                (Filter<T>) connectionHandler.getSettings().getFilterSettings().getNameFilter(objectType);
     }
 
     @NotNull
@@ -63,14 +55,18 @@ public class DBObjectListImpl<T extends DBObject> extends DynamicContentImpl<T> 
     }
 
     public void addObject(T object) {
-        if (elements == DynamicContentImpl.EMPTY_LIST) {
+        if (elements == EMPTY_CONTENT || elements == EMPTY_UNTOUCHED_CONTENT) {
             elements = new ArrayList<T>();
         }
         elements.add(object);
     }
 
     public T getObject(String name) {
-        return getElement(name);
+        return getElement(name, 0);
+    }
+
+    public T getObject(String name, int overload) {
+        return getElement(name, overload);
     }
 
     public T getObject(String name, String parentName) {
@@ -86,7 +82,17 @@ public class DBObjectListImpl<T extends DBObject> extends DynamicContentImpl<T> 
         return null;
     }
 
-
+    @Override
+    public void sortElements(List<T> elements) {
+        DatabaseBrowserSettings browserSettings = DatabaseBrowserSettings.getInstance(getProject());
+        DatabaseBrowserSortingSettings sortingSettings = browserSettings.getSortingSettings();
+        DBObjectComparator comparator = objectType == DBObjectType.ANY ? null : sortingSettings.getComparator(objectType);
+        if (comparator != null) {
+            Collections.sort(elements, comparator);
+        } else {
+            super.sortElements(elements);
+        }
+    }
 
     public String getName() {
         return objectType.getListName();
@@ -97,7 +103,9 @@ public class DBObjectListImpl<T extends DBObject> extends DynamicContentImpl<T> 
     }
 
     public Project getProject() {
-        return getParent().getProject();
+        GenericDatabaseElement parent = getParent();
+        Project project = parent == null ? null : parent.getProject();
+        return FailsafeUtil.nvl(project);
     }
 
     public GenericDatabaseElement getUndisposedElement() {
@@ -109,8 +117,9 @@ public class DBObjectListImpl<T extends DBObject> extends DynamicContentImpl<T> 
     }
 
     public void notifyChangeListeners() {
-        if (isTouched) {
-            EventManager.notify(getProject(), BrowserTreeChangeListener.TOPIC).nodeChanged(this, TreeEventType.STRUCTURE_CHANGED);
+        Project project = getProject();
+        if (isTouched() && project != null && !project.isDisposed()) {
+            EventManager.notify(project, BrowserTreeChangeListener.TOPIC).nodeChanged(this, TreeEventType.STRUCTURE_CHANGED);
         }
     }
 
@@ -133,11 +142,15 @@ public class DBObjectListImpl<T extends DBObject> extends DynamicContentImpl<T> 
      *********************************************************/
 
     public boolean isTreeStructureLoaded() {
-        return isTouched;
+        return isTouched();
+    }
+
+    public boolean isTouched() {
+        return elements != EMPTY_UNTOUCHED_CONTENT;
     }
 
     public boolean canExpand() {
-        return isTouched && getTreeChildCount() > 0;
+        return isTouched() && getTreeChildCount() > 0;
     }
 
     public int getTreeDepth() {
@@ -157,12 +170,27 @@ public class DBObjectListImpl<T extends DBObject> extends DynamicContentImpl<T> 
         if (isLoading()) {
             return elements;
         } else {
-            if (!isTouched) {
-                load(false);
-                isTouched = true;
+            boolean scroll = !isTouched();
+            if (!isLoaded()) {
+                loadInBackground(false);
+                return elements;
+            }
+            if (scroll) {
                 DatabaseBrowserManager.scrollToSelectedElement(getConnectionHandler());
             }
             return elements;
+        }
+    }
+
+    public void refreshTreeChildren(@Nullable DBObjectType objectType) {
+        if (isLoaded()) {
+            if (objectType == null || this.objectType == objectType) {
+                getElements();
+            }
+
+            for (DBObject object : getObjects()) {
+                object.refreshTreeChildren(objectType);
+            }
         }
     }
 
@@ -235,10 +263,6 @@ public class DBObjectListImpl<T extends DBObject> extends DynamicContentImpl<T> 
         return this;
     }
 
-    public FileStatus getFileStatus() {
-        return FileStatus.NOT_CHANGED;
-    }
-
     /*********************************************************
      *                 ItemPresentation                      *
      *********************************************************/
@@ -250,10 +274,6 @@ public class DBObjectListImpl<T extends DBObject> extends DynamicContentImpl<T> 
         return getIcon(0);
     }
 
-    public TextAttributesKey getTextAttributesKey() {
-        return SQLTextAttributesKeys.IDENTIFIER;
-    }
-
     public String toString() {
         /*if (getTreeParent() instanceof DBObject) {
             DBObject object = (DBObject) getTreeParent();
@@ -262,4 +282,8 @@ public class DBObjectListImpl<T extends DBObject> extends DynamicContentImpl<T> 
         return getName();
     }
 
+    @Override
+    public int compareTo(@NotNull DBObjectList objectList) {
+        return objectType.compareTo(objectList.getObjectType());
+    }
 }

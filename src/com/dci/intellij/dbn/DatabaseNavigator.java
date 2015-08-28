@@ -1,9 +1,6 @@
 package com.dci.intellij.dbn;
 
-import com.dci.intellij.dbn.common.Constants;
 import com.dci.intellij.dbn.common.options.setting.SettingsUtil;
-import com.dci.intellij.dbn.common.options.ui.ConfigurationEditorForm;
-import com.dci.intellij.dbn.common.thread.SimpleLaterInvocator;
 import com.dci.intellij.dbn.common.util.TimeUtil;
 import com.dci.intellij.dbn.execution.ExecutionManager;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
@@ -14,20 +11,26 @@ import com.intellij.notification.NotificationDisplayType;
 import com.intellij.notification.NotificationGroup;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ApplicationComponent;
-import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.util.InvalidDataException;
-import com.intellij.openapi.util.JDOMExternalizable;
-import com.intellij.openapi.util.WriteExternalException;
+import com.intellij.openapi.components.PersistentStateComponent;
+import com.intellij.openapi.components.State;
+import com.intellij.openapi.components.Storage;
+import com.intellij.openapi.components.StoragePathMacros;
+import com.intellij.openapi.extensions.PluginId;
+import com.intellij.util.proxy.CommonProxy;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.swing.Icon;
-import java.io.IOException;
+import java.net.ProxySelector;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class DatabaseNavigator implements ApplicationComponent, JDOMExternalizable {
+@State(
+    name = "DBNavigator.Application.Settings",
+    storages = {@Storage(file = StoragePathMacros.APP_CONFIG + "/other.xml")}
+)
+public class DatabaseNavigator implements ApplicationComponent, PersistentStateComponent<Element> {
     private static final String SQL_PLUGIN_ID = "com.intellij.sql";
     public static final String DBN_PLUGIN_ID = "DBN";
     /*static {
@@ -38,7 +41,7 @@ public class DatabaseNavigator implements ApplicationComponent, JDOMExternalizab
 
     @NotNull
     public String getComponentName() {
-        return "DBNavigator";
+        return "DBNavigator.Application.Settings";
     }
 
     private boolean debugModeEnabled;
@@ -61,52 +64,17 @@ public class DatabaseNavigator implements ApplicationComponent, JDOMExternalizab
 
         NotificationGroup notificationGroup = new NotificationGroup("Database Navigator", NotificationDisplayType.TOOL_WINDOW, true, ExecutionManager.TOOL_WINDOW_ID);
 
-        Timer updateChecker = new Timer("Plugin Update check task");
-        updateChecker.schedule(new PluginUpdateChecker(), TimeUtil.ONE_MINUTE, TimeUtil.ONE_HOUR);
+        Timer updateChecker = new Timer("DBN Plugin Update check task");
+        updateChecker.schedule(new PluginUpdateChecker(), TimeUtil.ONE_SECOND, TimeUtil.ONE_HOUR);
     }
 
-    private boolean sqlPluginActive() {
+    private static boolean sqlPluginActive() {
         for (IdeaPluginDescriptor pluginDescriptor : PluginManager.getPlugins()) {
             if (pluginDescriptor.getPluginId().getIdString().equals(SQL_PLUGIN_ID)) {
                 return !PluginManager.getDisabledPlugins().contains(SQL_PLUGIN_ID);
             }
         }
         return false;
-    }
-
-    private void resolvePluginConflict() {
-        if (showPluginConflictDialog && sqlPluginActive()) {
-            showPluginConflictDialog = false;
-            new SimpleLaterInvocator() {
-                public void execute() {
-                    List<String> disabledList = PluginManager.getDisabledPlugins();
-                    String message =
-                        "Database Navigator plugin (DBN) is not compatible with the IntelliJ IDEA built-in SQL functionality. " +
-                        "They both provide similar features but present quite different use-cases.\n" +
-                        "In order to have access to the full functionality of Database Navigator plugin and avoid usage confusions, we strongly advise you disable the IDEA SQL plugin. \n" +
-                        "You can enable it at any time from your plugin manager.\n\n" +
-                        "For more details about the plugin conflict, please visit the Database Navigator support page.\n" +
-                        "Note: IDEA will need to restart if you choose to make changes in the plugin configuration.\n\n" +
-                        "Please pick an option to proceed.";
-                    String title = Constants.DBN_TITLE_PREFIX + "Plugin Conflict";
-                    String[] options = {
-                            "Disable IDEA SQL plugin (restart)",
-                            "Disable DBN plugin (restart)",
-                            "Ignore and continue (not recommended)"};
-                    Icon icon = Messages.getWarningIcon();
-                    int exitCode = Messages.showDialog(message, title, options, 0, icon);
-                    if (exitCode == 0 || exitCode == 1) {
-                        try {
-                            disabledList.add(exitCode == 1 ? DBN_PLUGIN_ID : SQL_PLUGIN_ID);
-                            PluginManager.saveDisabledPlugins(disabledList, false);
-                            ApplicationManager.getApplication().restart();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-            }.start();
-        }
     }
 
     public static DatabaseNavigator getInstance() {
@@ -141,25 +109,13 @@ public class DatabaseNavigator implements ApplicationComponent, JDOMExternalizab
     public void disposeComponent() {
     }
 
-    public void readExternal(Element element) throws InvalidDataException {
-        debugModeEnabled = SettingsUtil.getBoolean(element, "enable-debug-mode", false);
-        developerModeEnabled = SettingsUtil.getBoolean(element, "enable-developer-mode", false);
-        showPluginConflictDialog = SettingsUtil.getBoolean(element, "show-plugin-conflict-dialog", true);
-        SettingsUtil.isDebugEnabled = debugModeEnabled;
-    }
-
-    public void writeExternal(Element element) throws WriteExternalException {
-        SettingsUtil.setBoolean(element, "enable-debug-mode", debugModeEnabled);
-        SettingsUtil.setBoolean(element, "enable-developer-mode", developerModeEnabled);
-        SettingsUtil.setBoolean(element, "show-plugin-conflict-dialog", showPluginConflictDialog);
-    }
-
     public String getName() {
         return null;
     }
 
-    public ConfigurationEditorForm createSettingsEditor() {
-        return null;
+    public String getPluginVersion() {
+        IdeaPluginDescriptor pluginDescriptor = PluginManager.getPlugin(PluginId.getId(DatabaseNavigator.DBN_PLUGIN_ID));
+        return pluginDescriptor.getVersion();
     }
 
     public String getRepositoryPluginVersion() {
@@ -168,17 +124,51 @@ public class DatabaseNavigator implements ApplicationComponent, JDOMExternalizab
 
     private class PluginUpdateChecker extends TimerTask {
         public void run() {
+            ProxySelector initialProxySelector = ProxySelector.getDefault();
+            CommonProxy defaultProxy = CommonProxy.getInstance();
+            boolean changeProxy = defaultProxy != initialProxySelector;
             try {
-                List<IdeaPluginDescriptor> descriptors = RepositoryHelper.loadPluginsFromRepository(null);
-                for (IdeaPluginDescriptor descriptor : descriptors) {
-                    if (descriptor.getPluginId().toString().equals(DatabaseNavigator.DBN_PLUGIN_ID)) {
-                        repositoryPluginVersion = descriptor.getVersion();
-                        break;
+                if (changeProxy) {
+                    ProxySelector.setDefault(defaultProxy);
+                }
+
+                List<IdeaPluginDescriptor> descriptors = RepositoryHelper.loadCachedPlugins();
+                if (descriptors != null) {
+                    for (IdeaPluginDescriptor descriptor : descriptors) {
+                        if (descriptor.getPluginId().toString().equals(DatabaseNavigator.DBN_PLUGIN_ID)) {
+                            repositoryPluginVersion = descriptor.getVersion();
+                            break;
+                        }
                     }
                 }
             } catch (Exception e) {
+            } finally {
+                if (changeProxy) {
+                    ProxySelector.setDefault(initialProxySelector);
+                }
             }
         }
+    }
+
+    /*********************************************
+     *            PersistentStateComponent       *
+     *********************************************/
+    @Nullable
+    @Override
+    public Element getState() {
+        Element element = new Element("state");
+        SettingsUtil.setBoolean(element, "enable-debug-mode", debugModeEnabled);
+        SettingsUtil.setBoolean(element, "enable-developer-mode", developerModeEnabled);
+        SettingsUtil.setBoolean(element, "show-plugin-conflict-dialog", showPluginConflictDialog);
+        return element;
+    }
+
+    @Override
+    public void loadState(Element element) {
+        debugModeEnabled = SettingsUtil.getBoolean(element, "enable-debug-mode", false);
+        developerModeEnabled = SettingsUtil.getBoolean(element, "enable-developer-mode", false);
+        showPluginConflictDialog = SettingsUtil.getBoolean(element, "show-plugin-conflict-dialog", true);
+        SettingsUtil.isDebugEnabled = debugModeEnabled;
     }
 }
 

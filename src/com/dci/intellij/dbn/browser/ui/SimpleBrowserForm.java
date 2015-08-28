@@ -4,12 +4,12 @@ import com.dci.intellij.dbn.browser.model.BrowserTreeModel;
 import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
 import com.dci.intellij.dbn.browser.model.SimpleBrowserTreeModel;
 import com.dci.intellij.dbn.browser.model.TabbedBrowserTreeModel;
-import com.dci.intellij.dbn.browser.options.ObjectDisplaySettingsListener;
+import com.dci.intellij.dbn.browser.options.listener.ObjectDetailSettingsListener;
+import com.dci.intellij.dbn.common.dispose.DisposableProjectComponent;
 import com.dci.intellij.dbn.common.event.EventManager;
 import com.dci.intellij.dbn.common.ui.tree.TreeEventType;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.ConnectionManager;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.util.IncorrectOperationException;
 
@@ -24,24 +24,22 @@ public class SimpleBrowserForm extends DatabaseBrowserForm{
     private JScrollPane browserScrollPane;
     private DatabaseBrowserTree browserTree;
 
-    public SimpleBrowserForm(Project project) {
-        this(new SimpleBrowserTreeModel(project, ConnectionManager.getInstance(project).getConnectionBundles()));
+    public SimpleBrowserForm(DisposableProjectComponent parentComponent) {
+        this(parentComponent, new SimpleBrowserTreeModel(parentComponent.getProject(), ConnectionManager.getInstance(parentComponent.getProject()).getConnectionBundle()));
     }
 
-    public SimpleBrowserForm(ConnectionHandler connectionHandler) {
-        this(new TabbedBrowserTreeModel(connectionHandler));
+    public SimpleBrowserForm(DisposableProjectComponent parentComponent, ConnectionHandler connectionHandler) {
+        this(parentComponent, new TabbedBrowserTreeModel(connectionHandler));
     }
 
-    private SimpleBrowserForm(BrowserTreeModel treeModel) {
-        super(treeModel.getProject());
-        Project project = getProject();
-
+    private SimpleBrowserForm(DisposableProjectComponent parentComponent, BrowserTreeModel treeModel) {
+        super(parentComponent);
         browserTree = new DatabaseBrowserTree(treeModel);
         browserScrollPane.setViewportView(browserTree);
         browserScrollPane.setBorder(new EmptyBorder(1,0,0,0));
         ToolTipManager.sharedInstance().registerComponent(browserTree);
 
-        EventManager.subscribe(project, ObjectDisplaySettingsListener.TOPIC, objectDisplaySettingsListener);
+        EventManager.subscribe(getProject(), ObjectDetailSettingsListener.TOPIC, objectDetailSettingsListener);
         Disposer.register(this, browserTree);
     }
     
@@ -65,7 +63,7 @@ public class SimpleBrowserForm extends DatabaseBrowserForm{
         browserTree.selectElement(treeNode, requestFocus);
     }
 
-    public void updateTree() {
+    public void rebuildTree() {
         browserTree.getModel().getRoot().rebuildTreeChildren();
     }
 
@@ -77,15 +75,16 @@ public class SimpleBrowserForm extends DatabaseBrowserForm{
 
     public void dispose() {
         super.dispose();
-        EventManager.unsubscribe(objectDisplaySettingsListener);
+        EventManager.unsubscribe(objectDetailSettingsListener);
     }
 
     /********************************************************
      *                       Listeners                      *
      ********************************************************/
-    private ObjectDisplaySettingsListener objectDisplaySettingsListener = new ObjectDisplaySettingsListener() {
+    private ObjectDetailSettingsListener objectDetailSettingsListener = new ObjectDetailSettingsListener() {
         @Override
         public void displayDetailsChanged() {
+            browserTree.revalidate();
             browserTree.repaint();
         }
     };

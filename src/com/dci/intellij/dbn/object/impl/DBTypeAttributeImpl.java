@@ -1,9 +1,14 @@
 package com.dci.intellij.dbn.object.impl;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import org.jetbrains.annotations.NotNull;
+
 import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
 import com.dci.intellij.dbn.browser.ui.HtmlToolTipBuilder;
 import com.dci.intellij.dbn.data.type.DBDataType;
-import com.dci.intellij.dbn.editor.DBContentType;
 import com.dci.intellij.dbn.object.DBType;
 import com.dci.intellij.dbn.object.DBTypeAttribute;
 import com.dci.intellij.dbn.object.common.DBObjectImpl;
@@ -12,26 +17,20 @@ import com.dci.intellij.dbn.object.common.list.DBObjectNavigationList;
 import com.dci.intellij.dbn.object.common.list.DBObjectNavigationListImpl;
 import com.dci.intellij.dbn.object.properties.DBDataTypePresentableProperty;
 import com.dci.intellij.dbn.object.properties.PresentableProperty;
-import org.jetbrains.annotations.NotNull;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class DBTypeAttributeImpl extends DBObjectImpl implements DBTypeAttribute {
     private DBDataType dataType;
     private int position;
 
     public DBTypeAttributeImpl(DBType parent, ResultSet resultSet) throws SQLException {
-        super(parent, DBContentType.NONE, resultSet);
+        super(parent, resultSet);
     }
 
     @Override
     protected void initObject(ResultSet resultSet) throws SQLException {
         name = resultSet.getString("ATTRIBUTE_NAME");
         position = resultSet.getInt("POSITION");
-        dataType = new DBDataType(this, resultSet);    }
+        dataType = DBDataType.get(this.getConnectionHandler(), resultSet);    }
 
     public int getPosition() {
         return position;
@@ -66,7 +65,7 @@ public class DBTypeAttributeImpl extends DBObjectImpl implements DBTypeAttribute
 
     @Override
     public String getPresentableTextConditionalDetails() {
-        return getDataType().getQualifiedName();
+        return dataType.getQualifiedName();
     }
 
     protected List<DBObjectNavigationList> createNavigationLists() {
@@ -83,7 +82,7 @@ public class DBTypeAttributeImpl extends DBObjectImpl implements DBTypeAttribute
         if (o instanceof DBTypeAttribute) {
             DBTypeAttribute typeAttribute = (DBTypeAttribute) o;
             if (getType().equals(typeAttribute.getType())) {
-                return getPosition() - typeAttribute.getPosition();
+                return position - typeAttribute.getPosition();
             }
         }
         return super.compareTo(o);
@@ -99,7 +98,7 @@ public class DBTypeAttributeImpl extends DBObjectImpl implements DBTypeAttribute
 
     @NotNull
     public List<BrowserTreeNode> buildAllPossibleTreeChildren() {
-        return BrowserTreeNode.EMPTY_LIST;
+        return EMPTY_TREE_NODE_LIST;
     }
 
 

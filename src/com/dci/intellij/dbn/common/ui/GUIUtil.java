@@ -1,16 +1,19 @@
 package com.dci.intellij.dbn.common.ui;
 
+import com.dci.intellij.dbn.common.Colors;
 import com.intellij.openapi.ui.Splitter;
+import com.intellij.openapi.ui.popup.JBPopup;
+import com.intellij.ui.awt.RelativePoint;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
-import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
-import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.MouseInfo;
 import java.awt.Point;
@@ -22,7 +25,6 @@ public class GUIUtil{
     public static final Font REGULAR_FONT = com.intellij.util.ui.UIUtil.getLabelFont();
     public static final Font BOLD_FONT = new Font(REGULAR_FONT.getName(), Font.BOLD, REGULAR_FONT.getSize());
     public static final String DARK_LAF_NAME = "Darcula";
-    public static final Border CONTAINER_BORDER = new LineBorder(com.intellij.util.ui.UIUtil.getBorderColor());
 
     public static void updateSplitterProportion(final JComponent root, final float proportion) {
         SwingUtilities.invokeLater(new Runnable() {
@@ -104,7 +106,7 @@ public class GUIUtil{
         if (border instanceof TitledBorder) {
             TitledBorder titledBorder = (TitledBorder) border;
             //titledBorder.setTitleColor(com.intellij.util.ui.GUIUtil.getLabelForeground());
-            titledBorder.setTitleColor(new DBNColor(new Color(-12029286), new Color(-10058060)));
+            titledBorder.setTitleColor(Colors.HINT_COLOR);
         }
     }
 
@@ -116,7 +118,7 @@ public class GUIUtil{
 
                 Class[] params = method.getParameterTypes();
                 if (params.length == 1) {
-                    EventListener[] listeners = null;
+                    EventListener[] listeners;
                     try {
                         listeners = comp.getListeners(params[0]);
                     } catch (Exception e) {
@@ -147,6 +149,16 @@ public class GUIUtil{
                 }
             }
         }
+    }
+
+    public static void showUnderneathOf(@NotNull JBPopup popup, @NotNull Component sourceComponent, int verticalShift, int maxHeight) {
+        JComponent popupContent = popup.getContent();
+        Dimension preferredSize = popupContent.getPreferredSize();
+        int width = Math.max((int) preferredSize.getWidth(), sourceComponent.getWidth());
+        int height = (int) Math.min(maxHeight, preferredSize.getHeight());
+        popupContent.setPreferredSize(new Dimension(width, height));
+
+        popup.show(new RelativePoint(sourceComponent, new Point(0, sourceComponent.getHeight() + verticalShift)));
     }
 
 }

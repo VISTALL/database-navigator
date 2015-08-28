@@ -25,11 +25,18 @@ public interface DatabaseMetadataInterface extends DatabaseInterface{
     ResultSet loadRoles(Connection connection) throws SQLException;
 
     /**
-     * Load all database privileges
+     * Load all database system privileges
      * Column names of the returned ResultSet
      *  <li> PRIVILEGE_NAME (char)
      */
-    ResultSet loadPrivileges(Connection connection) throws SQLException;
+    ResultSet loadSystemPrivileges(Connection connection) throws SQLException;
+
+    /**
+     * Load all database object privileges
+     * Column names of the returned ResultSet
+     *  <li> PRIVILEGE_NAME (char)
+     */
+    ResultSet loadObjectPrivileges(Connection connection) throws SQLException;
 
     /**
      * Load all user roles
@@ -268,6 +275,17 @@ public interface DatabaseMetadataInterface extends DatabaseInterface{
     ResultSet loadAllNestedTables(String ownerName, Connection connection) throws SQLException;
 
 
+    /**
+     * Loads the triggers of the given owner<br>
+     * Column names of the returned ResultSet
+     *  <li> TRIGGER_NAME (char)
+     *  <li> TRIGGER_TYPE (char)
+     *  <li> TRIGGERING_EVENT (INSERT/DELETE/UPDATE e.g. INSERT or UPDATE)
+     *  <li> IS_ENABLED (Y/N)
+     *  <li> IS_VALID (Y/N)
+     *  <li> IS_FOR_EACH_ROW (Y/N)
+     */
+    ResultSet loadDatabaseTriggers(String ownerName, Connection connection) throws SQLException;
 
     /**
      * Loads the triggers of the given dataset (can be a TABLE, VIEW or MATERIALIZED_VIEW)<br>
@@ -279,7 +297,7 @@ public interface DatabaseMetadataInterface extends DatabaseInterface{
      *  <li> IS_VALID (Y/N)
      *  <li> IS_FOR_EACH_ROW (Y/N)
      */
-    ResultSet loadTriggers(String ownerName, String datasetName, Connection connection) throws SQLException;
+    ResultSet loadDatasetTriggers(String ownerName, String datasetName, Connection connection) throws SQLException;
 
     /**
      * Loads the triggers of the given owner<br>
@@ -294,7 +312,7 @@ public interface DatabaseMetadataInterface extends DatabaseInterface{
      *
      * Sort by DATASET_NAME
      */
-    ResultSet loadAllTriggers(String ownerName, Connection connection) throws SQLException;
+    ResultSet loadAllDatasetTriggers(String ownerName, Connection connection) throws SQLException;
 
     /**
      * Loads the sequences of the given owner<br>
@@ -546,6 +564,8 @@ public interface DatabaseMetadataInterface extends DatabaseInterface{
      */
     ResultSet loadReferencedObjects(String ownerName, String objectName, Connection connection) throws SQLException;
 
+    ResultSet loadReferencingSchemas(String ownerName, String objectName, Connection connection) throws SQLException;
+
     /**
      * Loads the referencing objects for the given object (objects depending on it)
      * Column names of the returned ResultSet
@@ -566,7 +586,9 @@ public interface DatabaseMetadataInterface extends DatabaseInterface{
 
     ResultSet loadMaterializedViewSourceCode(String ownerName, String viewName, Connection connection) throws SQLException;
 
-    ResultSet loadTriggerSourceCode(String tableOwner, String tableName, String ownerName, String triggerName, Connection connection) throws SQLException;
+    ResultSet loadDatabaseTriggerSourceCode(String ownerName, String triggerName, Connection connection) throws SQLException;
+
+    ResultSet loadDatasetTriggerSourceCode(String tableOwner, String tableName, String ownerName, String triggerName, Connection connection) throws SQLException;
 
     /**
      * Loads the source code (select statement) for the given view;
@@ -607,8 +629,6 @@ public interface DatabaseMetadataInterface extends DatabaseInterface{
 
     ResultSet loadObjectChangeTimestamp(String ownerName, String objectName, String objectType, Connection connection) throws SQLException;
 
-    String createDDLStatement(DatabaseObjectTypeId objectTypeId, String objectName, String code);
-
     void enableTrigger(String ownerName, String triggerName, Connection connection) throws SQLException;
 
     void disableTrigger(String ownerName, String triggerName, Connection connection) throws SQLException;
@@ -616,6 +636,22 @@ public interface DatabaseMetadataInterface extends DatabaseInterface{
     void enableConstraint(String ownerName, String tableName, String constraintName, Connection connection) throws SQLException;
 
     void disableConstraint(String ownerName, String tableName, String constraintName, Connection connection) throws SQLException;
+
+    ResultSet loadSessions(Connection connection) throws SQLException;
+
+    ResultSet loadSessionCurrentSql(Object sessionId, Connection connection) throws SQLException;
+
+    void killSession(Object sessionId, Object serialNumber, boolean immediate, Connection connection) throws SQLException;
+
+    void disconnectSession(Object sessionId, Object serialNumber, boolean postTransaction, boolean immediate, Connection connection) throws SQLException;
+
+    ResultSet loadExplainPlan(Connection connection) throws SQLException;
+
+    void clearExplainPlanData(Connection connection) throws SQLException;
+
+    void enableLogger(Connection connection) throws SQLException;
+    void disableLogger(Connection connection) throws SQLException;
+    String readLoggerOutput(Connection connection) throws SQLException;
 
     boolean isValid(Connection connection);
 

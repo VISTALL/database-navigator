@@ -1,9 +1,13 @@
 package com.dci.intellij.dbn.language.common.element.parser.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import org.jetbrains.annotations.NotNull;
+
 import com.dci.intellij.dbn.language.common.ParseException;
 import com.dci.intellij.dbn.language.common.SharedTokenTypeBundle;
 import com.dci.intellij.dbn.language.common.TokenType;
-import com.dci.intellij.dbn.language.common.element.IdentifierElementType;
 import com.dci.intellij.dbn.language.common.element.LeafElementType;
 import com.dci.intellij.dbn.language.common.element.QualifiedIdentifierElementType;
 import com.dci.intellij.dbn.language.common.element.TokenElementType;
@@ -15,15 +19,8 @@ import com.dci.intellij.dbn.language.common.element.parser.ParseResultType;
 import com.dci.intellij.dbn.language.common.element.parser.ParserBuilder;
 import com.dci.intellij.dbn.language.common.element.parser.ParserContext;
 import com.dci.intellij.dbn.language.common.element.path.ParsePathNode;
-import com.dci.intellij.dbn.language.common.element.path.PathNode;
 import com.dci.intellij.dbn.language.common.element.util.ParseBuilderErrorHandler;
-import com.intellij.lang.PsiBuilder;
 import gnu.trove.THashSet;
-import org.jetbrains.annotations.NotNull;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 
 public class QualifiedIdentifierElementTypeParser extends AbstractElementTypeParser<QualifiedIdentifierElementType> {
     public QualifiedIdentifierElementTypeParser(QualifiedIdentifierElementType elementType) {
@@ -33,18 +30,15 @@ public class QualifiedIdentifierElementTypeParser extends AbstractElementTypePar
     public ParseResult parse(@NotNull ParsePathNode parentNode, boolean optional, int depth, ParserContext context) throws ParseException {
         ParserBuilder builder = context.getBuilder();
         logBegin(builder, optional, depth);
-        ParsePathNode node = createParseNode(parentNode, builder.getCurrentOffset());
+        ParsePathNode node = stepIn(parentNode, context);
 
         TokenElementType separatorToken = getElementType().getSeparatorToken();
-
-        PsiBuilder.Marker marker = builder.mark(node);
         int matchedTokens = 0;
 
         QualifiedIdentifierVariant variant = getMostProbableParseVariant(builder, node);
         if (variant != null) {
             LeafElementType[] elementTypes = variant.getLeafs();
 
-            int currentSiblingPosition = 0;
             for (LeafElementType elementType : elementTypes) {
                 ParseResult result = elementType.getParser().parse(node, true, depth + 1, context);
                 if (result.isNoMatch()) break;  else matchedTokens = matchedTokens + result.getMatchedTokens();
@@ -56,19 +50,19 @@ public class QualifiedIdentifierElementTypeParser extends AbstractElementTypePar
                 node.incrementIndex(builder.getCurrentOffset());
             }
 
-            if (variant.isIncomplete()) {
-                Set<TokenType> expected = new THashSet<TokenType>();
-                expected.add(separatorToken.getTokenType());
-                ParseBuilderErrorHandler.updateBuilderError(expected, context);
-                return stepOut(marker, depth, ParseResultType.PARTIAL_MATCH, matchedTokens, node, context);
-            } else {
-                return stepOut(marker, depth, ParseResultType.FULL_MATCH, matchedTokens, node, context);
+            if (matchedTokens > 0) {
+                if (variant.isIncomplete()) {
+                    Set<TokenType> expected = new THashSet<TokenType>();
+                    expected.add(separatorToken.getTokenType());
+                    ParseBuilderErrorHandler.updateBuilderError(expected, context);
+                    return stepOut(node, context, depth, ParseResultType.PARTIAL_MATCH, matchedTokens);
+                } else {
+                    return stepOut(node, context, depth, ParseResultType.FULL_MATCH, matchedTokens);
+                }
             }
-
-
-        } else {
-            return stepOut(marker, depth, ParseResultType.NO_MATCH, matchedTokens, node, context);
         }
+
+        return stepOut(node, context, depth, ParseResultType.NO_MATCH, matchedTokens);
     }
 
     private QualifiedIdentifierVariant getMostProbableParseVariant(ParserBuilder builder, ParsePathNode node) {
@@ -124,12 +118,12 @@ public class QualifiedIdentifierElementTypeParser extends AbstractElementTypePar
         return mostProbableVariant;
     }
 
-    private QualifiedIdentifierVariant getMostProbableParseVariant_(ParserBuilder builder, ParsePathNode node) {
+/*    private QualifiedIdentifierVariant getMostProbableParseVariant_(ParserBuilder builder, ParsePathNode node) {
 
         TokenElementType separatorToken = getElementType().getSeparatorToken();
 
         QualifiedIdentifierVariant mostProbableVariant = null;
-        int initialSiblingIndex = node.getCurrentSiblingIndex();
+        int initialCursorPosition = node.getCursorPosition();
 
         try {
             for (LeafElementType[] variants : getElementType().getVariants()) {
@@ -140,7 +134,7 @@ public class QualifiedIdentifierElementTypeParser extends AbstractElementTypePar
                     TokenType tokenType = builder.lookAhead(offset);
                     // if no mach -> consider as partial if not first element
 
-                    node.setCurrentSiblingIndex(i);
+                    node.setCursorPosition(i);
                     if (match(variants[i], tokenType, node, true)) {
                         matchedTokens++;
                         offset++;
@@ -189,19 +183,19 @@ public class QualifiedIdentifierElementTypeParser extends AbstractElementTypePar
             }
         }
         finally {
-            node.setCurrentSiblingIndex(initialSiblingIndex);
+            node.setCursorPosition(initialCursorPosition);
         }
 
         return mostProbableVariant;
     }
 
-    private boolean match(LeafElementType leafElementType, TokenType tokenType, PathNode node, boolean leniant) {
+    private boolean match(LeafElementType leafElementType, TokenType tokenType, ParsePathNode node, boolean leniant) {
         if (leafElementType instanceof IdentifierElementType) {
-            return tokenType != null && (tokenType.isIdentifier() || (leniant && isSuppressibleReservedWord(tokenType, node)));
+            return tokenType != null && (tokenType.isIdentifier() || (leniant && isSuppressibleReservedWord(tokenType, node, context)));
         } else if (leafElementType instanceof TokenElementType) {
             TokenElementType tokenElementType = (TokenElementType) leafElementType;
             return tokenElementType.getTokenType() == tokenType;
         }
         return false;
-    }
+    }*/
 }

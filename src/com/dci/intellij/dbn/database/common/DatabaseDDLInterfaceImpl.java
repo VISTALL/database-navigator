@@ -1,15 +1,19 @@
 package com.dci.intellij.dbn.database.common;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import com.dci.intellij.dbn.code.common.style.options.CodeStyleCaseOption;
+import com.dci.intellij.dbn.code.common.style.options.CodeStyleCaseSettings;
 import com.dci.intellij.dbn.database.DatabaseDDLInterface;
 import com.dci.intellij.dbn.database.DatabaseInterfaceProvider;
 import com.dci.intellij.dbn.database.DatabaseObjectTypeId;
 import com.dci.intellij.dbn.editor.code.SourceCodeContent;
 import com.dci.intellij.dbn.editor.code.SourceCodeOffsets;
-
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 
 public abstract class DatabaseDDLInterfaceImpl extends DatabaseInterfaceImpl implements DatabaseDDLInterface {
     public DatabaseDDLInterfaceImpl(String fileName, DatabaseInterfaceProvider provider) {
@@ -59,6 +63,40 @@ public abstract class DatabaseDDLInterfaceImpl extends DatabaseInterfaceImpl imp
    public void dropObject(String objectType, String objectName, Connection connection) throws SQLException {
        executeUpdate(connection, "drop-object", objectType, objectName);
    }
+
+   public void dropObjectBody(String objectType, String objectName, Connection connection) throws SQLException {
+       executeUpdate(connection, "drop-object-body", objectType, objectName);
+   }
+
+    protected String updateNameQualification(String code, boolean qualified, String objectType, String schemaName, String objectName, CodeStyleCaseSettings caseSettings) {
+        CodeStyleCaseOption kco = caseSettings.getKeywordCaseOption();
+        CodeStyleCaseOption oco = caseSettings.getObjectCaseOption();
+
+        StringBuffer buffer = new StringBuffer();
+        String q = "\\" + getProvider().getCompatibilityInterface().getIdentifierQuotes() + "?";
+        if (qualified) {
+            String regex = objectType + "\\s+(" + q + schemaName + q + "\\s*\\.)?\\s*" + q + objectName + q;
+            Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
+            Matcher matcher = pattern.matcher(code);
+            if (matcher.find()) {
+                String replacement = kco.format(objectType) + " " + oco.format(schemaName + "." + objectName);
+                matcher.appendReplacement(buffer, Matcher.quoteReplacement(replacement));
+                matcher.appendTail(buffer);
+                code = buffer.toString();
+            }
+        } else {
+            String regex = objectType + "\\s+(" + q + schemaName + q + "\\s*\\.)?\\s*" + q + objectName + q;
+            Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
+            Matcher matcher = pattern.matcher(code);
+            if (matcher.find()) {
+                String replacement = kco.format(objectType) + " " + oco.format(objectName);
+                matcher.appendReplacement(buffer, Matcher.quoteReplacement(replacement));
+                matcher.appendTail(buffer);
+                code = buffer.toString();
+            }
+        }
+        return code;
+    }
 
     @Override
     public void computeSourceCodeOffsets(SourceCodeContent content, DatabaseObjectTypeId objectTypeId, String objectName) {

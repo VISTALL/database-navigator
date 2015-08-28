@@ -2,7 +2,6 @@ package com.dci.intellij.dbn.data.record.ui;
 
 import com.dci.intellij.dbn.common.Icons;
 import com.dci.intellij.dbn.common.dispose.DisposerUtil;
-import com.dci.intellij.dbn.common.ui.DBNForm;
 import com.dci.intellij.dbn.common.ui.DBNFormImpl;
 import com.dci.intellij.dbn.common.ui.DBNHeaderForm;
 import com.dci.intellij.dbn.common.util.ActionUtil;
@@ -31,7 +30,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-public class RecordViewerForm extends DBNFormImpl implements DBNForm {
+public class RecordViewerForm extends DBNFormImpl<RecordViewerDialog> {
     private JPanel actionsPanel;
     private JPanel columnsPanel;
     private JPanel mainPanel;
@@ -42,10 +41,10 @@ public class RecordViewerForm extends DBNFormImpl implements DBNForm {
 
     private DatasetRecord record;
 
-    public RecordViewerForm(DatasetRecord record) {
+    public RecordViewerForm(RecordViewerDialog parentComponent, DatasetRecord record) {
+        super(parentComponent);
         this.record = record;
         DBDataset dataset = record.getDataset();
-        Project project = dataset.getProject();
 
         RecordViewInfo recordViewInfo = new RecordViewInfo(dataset.getQualifiedName(), dataset.getIcon());
 
@@ -53,8 +52,9 @@ public class RecordViewerForm extends DBNFormImpl implements DBNForm {
         String headerTitle = recordViewInfo.getTitle();
         Icon headerIcon = recordViewInfo.getIcon();
         Color headerBackground = UIUtil.getPanelBackground();
+        Project project = getProject();
         if (getEnvironmentSettings(project).getVisibilitySettings().getDialogHeaders().value()) {
-            headerBackground = dataset.getConnectionHandler().getEnvironmentType().getColor();
+            headerBackground = dataset.getEnvironmentType().getColor();
         }
         DBNHeaderForm headerForm = new DBNHeaderForm(
                 headerTitle,
@@ -97,7 +97,7 @@ public class RecordViewerForm extends DBNFormImpl implements DBNForm {
         columnsPanelScrollPane.getVerticalScrollBar().setUnitIncrement(scrollUnitIncrement);
     }
 
-    public JComponent getPreferredFocusComponent() {
+    public JComponent getPreferredFocusedComponent() {
         return columnForms.get(0).getViewComponent();
     }
 
@@ -123,7 +123,8 @@ public class RecordViewerForm extends DBNFormImpl implements DBNForm {
             for (RecordViewerColumnForm columnForm : columnForms) {
                 columnsPanel.add(columnForm.getComponent());
             }
-            columnsPanel.updateUI();
+            columnsPanel.revalidate();
+            columnsPanel.repaint();
         }
     }
 

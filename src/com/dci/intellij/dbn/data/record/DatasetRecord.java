@@ -1,19 +1,20 @@
 package com.dci.intellij.dbn.data.record;
 
 
-import com.dci.intellij.dbn.connection.ConnectionUtil;
-import com.dci.intellij.dbn.editor.data.filter.DatasetFilterInput;
-import com.dci.intellij.dbn.object.DBColumn;
-import com.dci.intellij.dbn.object.DBDataset;
-import com.intellij.openapi.Disposable;
-import gnu.trove.THashMap;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.Map;
+
+import com.dci.intellij.dbn.connection.ConnectionHandler;
+import com.dci.intellij.dbn.connection.ConnectionUtil;
+import com.dci.intellij.dbn.editor.data.filter.DatasetFilterInput;
+import com.dci.intellij.dbn.object.DBColumn;
+import com.dci.intellij.dbn.object.DBDataset;
+import com.intellij.openapi.Disposable;
+import gnu.trove.THashMap;
 
 public class DatasetRecord implements Disposable {
     private ResultSet resultSet;
@@ -56,26 +57,29 @@ public class DatasetRecord implements Disposable {
             }
         }
 
-        Connection connection = dataset.getConnectionHandler().getPoolConnection();
-        PreparedStatement statement = connection.prepareStatement(selectStatement.toString());
+        ConnectionHandler connectionHandler = dataset.getConnectionHandler();
+        if (connectionHandler != null) {
+            Connection connection = connectionHandler.getPoolConnection();
+            PreparedStatement statement = connection.prepareStatement(selectStatement.toString());
 
-        int index = 1;
-        iterator = filterInput.getColumns().iterator();
-        while (iterator.hasNext()) {
-            DBColumn column = iterator.next();
-            Object value = filterInput.getColumnValue(column);
-            column.getDataType().setValueToPreparedStatement(statement, index, value);
-            index++;
-        }
-
-        resultSet = statement.executeQuery();
-        if (resultSet.next()) {
-            index = 1;
-
-            for (DBColumn column : dataset.getColumns()) {
-                Object value = column.getDataType().getValueFromResultSet(resultSet, index);
-                values.put(column.getName(), value);
+            int index = 1;
+            iterator = filterInput.getColumns().iterator();
+            while (iterator.hasNext()) {
+                DBColumn column = iterator.next();
+                Object value = filterInput.getColumnValue(column);
+                column.getDataType().setValueToPreparedStatement(statement, index, value);
                 index++;
+            }
+
+            resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                index = 1;
+
+                for (DBColumn column : dataset.getColumns()) {
+                    Object value = column.getDataType().getValueFromResultSet(resultSet, index);
+                    values.put(column.getName(), value);
+                    index++;
+                }
             }
         }
     }

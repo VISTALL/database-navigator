@@ -14,28 +14,26 @@ import com.dci.intellij.dbn.common.util.NamingUtil;
 import com.dci.intellij.dbn.object.common.DBObject;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
-import com.intellij.ui.components.JBScrollPane;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
-public class ObjectPropertiesForm extends DBNFormImpl implements DBNForm, BrowserSelectionChangeListener {
+public class ObjectPropertiesForm extends DBNFormImpl<DBNForm> {
     private JPanel mainPanel;
     private JLabel objectLabel;
     private JLabel objectTypeLabel;
     private JTable objectPropertiesTable;
-    private JBScrollPane objectPropertiesScrollPane;
+    private JScrollPane objectPropertiesScrollPane;
     private JPanel closeActionPanel;
     private DBObject object;
-    private Project project;
 
-    public ObjectPropertiesForm(Project project) {
-        this.project = project;
+    public ObjectPropertiesForm(DBNForm parentForm) {
+        super(parentForm);
         //ActionToolbar objectPropertiesActionToolbar = ActionUtil.createActionToolbar("", true, "DBNavigator.ActionGroup.Browser.ObjectProperties");
         //closeActionPanel.add(objectPropertiesActionToolbar.getComponent(), BorderLayout.CENTER);
         objectPropertiesTable.setRowHeight(objectPropertiesTable.getRowHeight() + 2);
@@ -45,26 +43,29 @@ public class ObjectPropertiesForm extends DBNFormImpl implements DBNForm, Browse
         objectTypeLabel.setText("Object properties:");
         objectLabel.setText("(no object selected)");
 
-        EventManager.subscribe(project, BrowserSelectionChangeListener.TOPIC, this);
+        EventManager.subscribe(getProject(), BrowserSelectionChangeListener.TOPIC, browserSelectionChangeListener);
     }
 
     public JComponent getComponent() {
         return mainPanel;
     }
 
-    public void browserSelectionChanged() {
-        DatabaseBrowserManager browserManager = DatabaseBrowserManager.getInstance(project);
-        if (browserManager.getShowObjectProperties().value()) {
-            DatabaseBrowserTree activeBrowserTree = browserManager.getActiveBrowserTree();
-            if (activeBrowserTree != null) {
-                BrowserTreeNode treeNode = activeBrowserTree.getSelectedNode();
-                if (treeNode instanceof DBObject) {
-                    DBObject object = (DBObject) treeNode;
-                    setObject(object);
+    private BrowserSelectionChangeListener browserSelectionChangeListener = new BrowserSelectionChangeListener() {
+        @Override
+        public void browserSelectionChanged() {
+            DatabaseBrowserManager browserManager = DatabaseBrowserManager.getInstance(getProject());
+            if (browserManager.getShowObjectProperties().value()) {
+                DatabaseBrowserTree activeBrowserTree = browserManager.getActiveBrowserTree();
+                if (activeBrowserTree != null) {
+                    BrowserTreeNode treeNode = activeBrowserTree.getSelectedNode();
+                    if (treeNode instanceof DBObject) {
+                        DBObject object = (DBObject) treeNode;
+                        setObject(object);
+                    }
                 }
             }
         }
-    }
+    };
 
     public DBObject getObject() {
         return object;
@@ -77,8 +78,8 @@ public class ObjectPropertiesForm extends DBNFormImpl implements DBNForm, Browse
             new BackgroundTask(object.getProject(), "Rendering object properties", true) {
                 @Override
                 public void execute(@NotNull ProgressIndicator progressIndicator) {
-                    initProgressIndicator(progressIndicator, true);
                     final ObjectPropertiesTableModel tableModel = new ObjectPropertiesTableModel(object.getPresentableProperties());
+                    Disposer.register(ObjectPropertiesForm.this, tableModel);
 
                     new SimpleLaterInvocator() {
                         public void execute() {
@@ -87,9 +88,13 @@ public class ObjectPropertiesForm extends DBNFormImpl implements DBNForm, Browse
                             objectTypeLabel.setText(NamingUtil.capitalize(object.getTypeName()) + ":");
 
 
+                            ObjectPropertiesTableModel oldTableModel = (ObjectPropertiesTableModel) objectPropertiesTable.getModel();
                             objectPropertiesTable.setModel(tableModel);
                             ((DBNTable) objectPropertiesTable).accommodateColumnsSize();
+
+                            mainPanel.revalidate();
                             mainPanel.repaint();
+                            Disposer.dispose(oldTableModel);
                         }
                     }.start();
                 }
@@ -98,10 +103,9 @@ public class ObjectPropertiesForm extends DBNFormImpl implements DBNForm, Browse
     }
 
     public void dispose() {
-        EventManager.unsubscribe(this);
+        EventManager.unsubscribe(browserSelectionChangeListener);
         super.dispose();
         object = null;
-        project = null;
     }
 
     private void createUIComponents() {

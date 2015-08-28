@@ -1,16 +1,5 @@
 package com.dci.intellij.dbn.editor.data.ui.table.renderer;
 
-import com.dci.intellij.dbn.common.Icons;
-import com.dci.intellij.dbn.data.ui.table.basic.BasicTableGutter;
-import com.dci.intellij.dbn.data.ui.table.basic.BasicTableGutterCellRenderer;
-import com.dci.intellij.dbn.editor.data.model.DatasetEditorModel;
-import com.dci.intellij.dbn.editor.data.model.DatasetEditorModelRow;
-import com.dci.intellij.dbn.editor.data.ui.table.DatasetEditorTable;
-import com.intellij.openapi.editor.colors.EditorColorsManager;
-import com.intellij.openapi.editor.colors.EditorFontType;
-import com.intellij.ui.border.CustomLineBorder;
-import com.intellij.util.ui.UIUtil;
-
 import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -24,13 +13,25 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.Font;
+
+import com.dci.intellij.dbn.common.Icons;
+import com.dci.intellij.dbn.data.grid.ui.table.basic.BasicTableColors;
+import com.dci.intellij.dbn.data.grid.ui.table.basic.BasicTableGutter;
+import com.dci.intellij.dbn.editor.data.model.DatasetEditorModel;
+import com.dci.intellij.dbn.editor.data.model.DatasetEditorModelRow;
+import com.dci.intellij.dbn.editor.data.ui.table.DatasetEditorTable;
+import com.intellij.openapi.editor.colors.EditorColorsManager;
+import com.intellij.openapi.editor.colors.EditorFontType;
+import com.intellij.ui.border.CustomLineBorder;
+import com.intellij.util.ui.UIUtil;
 
 public class DatasetEditorTableGutterRenderer extends JPanel implements ListCellRenderer {
-    public static final Color PANEL_BACKGROUND = UIUtil.getPanelBackground();
     private JLabel textLabel;
     private JLabel imageLabel;
     private JPanel textPanel;
     private static final Cursor HAND_CURSOR = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR);
+    boolean isDarkScheme = UIUtil.isUnderDarcula();
 
     private Border border = new CompoundBorder(new CustomLineBorder(UIUtil.getPanelBackground(), 0, 0, 1, 1), new EmptyBorder(0, 3, 0, 3));
 
@@ -49,6 +50,12 @@ public class DatasetEditorTableGutterRenderer extends JPanel implements ListCell
         add(imageLabel, BorderLayout.EAST);
         textLabel.setHorizontalTextPosition(SwingConstants.RIGHT);
         textLabel.setCursor(HAND_CURSOR);
+    }
+
+    @Override
+    public void setFont(Font font) {
+        super.setFont(font);
+        if (textLabel != null) textLabel.setFont(font);
     }
 
     public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
@@ -73,13 +80,15 @@ public class DatasetEditorTableGutterRenderer extends JPanel implements ListCell
 
         boolean isCaretRow = table.getCellSelectionEnabled() && table.getSelectedRow() == index && table.getSelectedRowCount() == 1;
         Color background = isSelected ?
-                BasicTableGutterCellRenderer.Colors.SELECTION_BACKGROUND_COLOR :
-                isCaretRow ?
-                        BasicTableGutterCellRenderer.Colors.CARET_ROW_COLOR :
-                        PANEL_BACKGROUND;
+                BasicTableColors.getSelectionBackgroundColor() :
+                    isCaretRow ?
+                        BasicTableColors.getCaretRowColor() :
+                        UIUtil.getPanelBackground();
         setBackground(background);
         textPanel.setBackground(background);
-        textLabel.setForeground(isSelected ? BasicTableGutterCellRenderer.Colors.SELECTION_FOREGROUND_COLOR : BasicTableGutterCellRenderer.Colors.LINE_NUMBER_COLOR);
+        textLabel.setForeground(isSelected ?
+                BasicTableColors.getSelectionForegroundColor() :
+                BasicTableColors.getLineNumberColor());
         return this;
     }
 }

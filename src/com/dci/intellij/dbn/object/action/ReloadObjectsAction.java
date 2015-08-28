@@ -1,13 +1,15 @@
 package com.dci.intellij.dbn.object.action;
 
+import org.jetbrains.annotations.NotNull;
+
 import com.dci.intellij.dbn.common.thread.BackgroundTask;
 import com.dci.intellij.dbn.common.util.ActionUtil;
+import com.dci.intellij.dbn.connection.ConnectionAction;
 import com.dci.intellij.dbn.object.common.list.DBObjectList;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
-import org.jetbrains.annotations.NotNull;
 
 public class ReloadObjectsAction extends AnAction {
 
@@ -18,16 +20,21 @@ public class ReloadObjectsAction extends AnAction {
         this.objectList = objectList;
     }
 
-    public void actionPerformed(AnActionEvent event) {
-        Project project = ActionUtil.getProject(event);
+    public void actionPerformed(@NotNull AnActionEvent e) {
+        final Project project = ActionUtil.getProject(e);
         if (project != null) {
-            new BackgroundTask(project, "Reloading " + objectList.getObjectType().getListName(), false) {
+            new ConnectionAction(objectList){
                 @Override
-                public void execute(@NotNull ProgressIndicator progressIndicator) {
-                    initProgressIndicator(progressIndicator, false);
-                    objectList.reload();
+                public void execute() {
+                    new BackgroundTask(project, "Reloading " + objectList.getObjectType().getListName(), false) {
+                        @Override
+                        public void execute(@NotNull ProgressIndicator progressIndicator) {
+                            objectList.reload();
+                        }
+                    }.start();
                 }
             }.start();
+
         }
     }
 }

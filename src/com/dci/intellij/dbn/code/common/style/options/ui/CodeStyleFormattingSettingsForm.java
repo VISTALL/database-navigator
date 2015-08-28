@@ -1,29 +1,30 @@
 package com.dci.intellij.dbn.code.common.style.options.ui;
 
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.dci.intellij.dbn.code.common.style.options.CodeStyleFormattingOption;
 import com.dci.intellij.dbn.code.common.style.options.CodeStyleFormattingSettings;
 import com.dci.intellij.dbn.code.common.style.presets.CodeStylePreset;
 import com.dci.intellij.dbn.common.options.ui.ConfigurationEditorForm;
+import com.dci.intellij.dbn.common.ui.DBNComboBox;
 import com.intellij.openapi.options.ConfigurationException;
-import com.intellij.openapi.ui.ComboBox;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
-
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import java.awt.Insets;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class CodeStyleFormattingSettingsForm extends ConfigurationEditorForm<CodeStyleFormattingSettings> {
     private JPanel mainPanel;
     private JPanel settingsPanel;
     private JCheckBox enableCheckBox;
-    private Map<CodeStyleFormattingOption, JComboBox> mappings = new HashMap<CodeStyleFormattingOption, JComboBox>();
+    private Map<CodeStyleFormattingOption, DBNComboBox<CodeStylePreset>> mappings = new HashMap<CodeStyleFormattingOption, DBNComboBox<CodeStylePreset>>();
 
     public CodeStyleFormattingSettingsForm(CodeStyleFormattingSettings settings) {
         super(settings);
@@ -40,7 +41,8 @@ public class CodeStyleFormattingSettingsForm extends ConfigurationEditorForm<Cod
                             GridConstraints.SIZEPOLICY_FIXED,
                             GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
 
-            JComboBox comboBox = new ComboBox(option.getPresets().toArray(), -1);
+            DBNComboBox<CodeStylePreset> comboBox = new DBNComboBox<CodeStylePreset>(option.getPresets());
+            label.setLabelFor(comboBox);
 
             settingsPanel.add(comboBox,
                     new GridConstraints(i, 1, 1, 1,
@@ -51,38 +53,52 @@ public class CodeStyleFormattingSettingsForm extends ConfigurationEditorForm<Cod
 
             mappings.put(option, comboBox);
         }
-        resetChanges();
+
+        resetFormChanges();
+        enableDisableOptions();
         
-        for (JComboBox comboBox : mappings.values()) {
-            registerComponent(comboBox);
-        }
-        registerComponent(enableCheckBox);
         settingsPanel.add(new Spacer(),
                 new GridConstraints(options.size(), 1, 1, 1,
                         GridConstraints.ANCHOR_CENTER,
                         GridConstraints.FILL_VERTICAL, 1,
                         GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
 
+        registerComponent(mainPanel);
+        enableCheckBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                enableDisableOptions();
+            }
+        });
+
         //Shortcut[] basicShortcuts = KeyUtil.getShortcuts("ReformatCode");
         //useOnReformatCheckBox.setText("Use on reformat code (" + KeymapUtil.getShortcutsText(basicShortcuts) + ")");
+    }
+
+    private void enableDisableOptions() {
+        boolean selected = enableCheckBox.isSelected();
+        for (DBNComboBox<CodeStylePreset> optionComboBox : mappings.values()) {
+            optionComboBox.setEnabled(selected);
+        }
     }
 
     public JPanel getComponent() {
         return mainPanel;
     }
 
-    public void applyChanges() throws ConfigurationException {
+    public void applyFormChanges() throws ConfigurationException {
         for (CodeStyleFormattingOption option : mappings.keySet()) {
-            JComboBox comboBox = mappings.get(option);
-            option.setPreset((CodeStylePreset) comboBox.getSelectedItem());
+            DBNComboBox<CodeStylePreset> comboBox = mappings.get(option);
+            option.setPreset(comboBox.getSelectedValue());
         }
         getConfiguration().setEnabled(enableCheckBox.isSelected());
     }
 
-    public void resetChanges() {
+
+    public void resetFormChanges() {
         for (CodeStyleFormattingOption option : mappings.keySet()) {
-            JComboBox comboBox = mappings.get(option);
-            comboBox.setSelectedItem(option.getPreset());
+            DBNComboBox<CodeStylePreset> comboBox = mappings.get(option);
+            comboBox.setSelectedValue(option.getPreset());
         }
         enableCheckBox.setSelected(getConfiguration().isEnabled());
     }

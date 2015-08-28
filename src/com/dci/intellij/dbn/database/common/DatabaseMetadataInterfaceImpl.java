@@ -1,15 +1,16 @@
 package com.dci.intellij.dbn.database.common;
 
-import com.dci.intellij.dbn.common.options.setting.SettingsUtil;
-import com.dci.intellij.dbn.connection.ConnectionUtil;
-import com.dci.intellij.dbn.database.DatabaseInterfaceProvider;
-import com.dci.intellij.dbn.database.DatabaseMetadataInterface;
-import com.intellij.openapi.diagnostic.Logger;
-
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+
+import com.dci.intellij.dbn.common.options.setting.SettingsUtil;
+import com.dci.intellij.dbn.connection.ConnectionUtil;
+import com.dci.intellij.dbn.database.DatabaseInterfaceProvider;
+import com.dci.intellij.dbn.database.DatabaseMetadataInterface;
+import com.dci.intellij.dbn.database.common.logging.ExecutionLogOutput;
+import com.intellij.openapi.diagnostic.Logger;
 
 public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceImpl implements DatabaseMetadataInterface {
     private Logger logger = Logger.getInstance(getClass().getName());
@@ -56,8 +57,12 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceImp
     }
 
 
-    public ResultSet loadPrivileges(Connection connection) throws SQLException {
-        return executeQuery(connection, "privileges");
+    public ResultSet loadSystemPrivileges(Connection connection) throws SQLException {
+        return executeQuery(connection, "system-privileges");
+    }
+
+    public ResultSet loadObjectPrivileges(Connection connection) throws SQLException {
+        return executeQuery(connection, "object-privileges");
     }
 
     public ResultSet loadAllUserPrivileges(Connection connection) throws SQLException {
@@ -140,12 +145,17 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceImp
         return executeQuery(connection, "all-nested-tables", ownerName);
     }
 
-    public ResultSet loadTriggers(String ownerName, String datasetName, Connection connection) throws SQLException {
-        return executeQuery(connection, "triggers", ownerName, datasetName);
+    @Override
+    public ResultSet loadDatabaseTriggers(String ownerName, Connection connection) throws SQLException {
+        return executeQuery(connection, "database-triggers", ownerName);
     }
 
-    public ResultSet loadAllTriggers(String ownerName, Connection connection) throws SQLException {
-        return executeQuery(connection, "all-triggers", ownerName);
+    public ResultSet loadDatasetTriggers(String ownerName, String datasetName, Connection connection) throws SQLException {
+        return executeQuery(connection, "dataset-triggers", ownerName, datasetName);
+    }
+
+    public ResultSet loadAllDatasetTriggers(String ownerName, Connection connection) throws SQLException {
+        return executeQuery(connection, "all-dataset-triggers", ownerName);
     }
 
     public ResultSet loadFunctions(String ownerName, Connection connection) throws SQLException {
@@ -265,16 +275,19 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceImp
         return executeQuery(connection, "synonyms", ownerName);
     }
 
-   /*********************************************************
-    *                      REFERENCES                       *
-    *********************************************************/
-
+    /*********************************************************
+     *                      REFERENCES                       *
+     *********************************************************/
     public ResultSet loadReferencedObjects(String ownerName, String objectName, Connection connection) throws SQLException {
         return executeQuery(connection, "referenced-objects", ownerName, objectName);
     }
 
     public ResultSet loadReferencingObjects(String ownerName, String objectName, Connection connection) throws SQLException {
         return executeQuery(connection, "referencing-objects", ownerName, objectName);
+    }
+
+    public ResultSet loadReferencingSchemas(String ownerName, String objectName, Connection connection) throws SQLException {
+        return executeQuery(connection, "referencing-schemas", ownerName, objectName);
     }
 
 
@@ -289,8 +302,12 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceImp
         return executeQuery(connection, "materialized-view-source-code", ownerName, viewName);
    }
 
-    public ResultSet loadTriggerSourceCode(String tableOwner, String tableName, String ownerName, String triggerName, Connection connection) throws SQLException {
-        return executeQuery(connection, "trigger-source-code", tableOwner, tableName, ownerName, triggerName);
+    public ResultSet loadDatabaseTriggerSourceCode(String ownerName, String triggerName, Connection connection) throws SQLException {
+        return executeQuery(connection, "database-trigger-source-code", ownerName, triggerName);
+    }
+
+    public ResultSet loadDatasetTriggerSourceCode(String tableOwner, String tableName, String ownerName, String triggerName, Connection connection) throws SQLException {
+        return executeQuery(connection, "dataset-trigger-source-code", tableOwner, tableName, ownerName, triggerName);
     }
 
     public ResultSet loadObjectSourceCode(String ownerName, String objectName, String objectType, Connection connection) throws SQLException {
@@ -303,6 +320,7 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceImp
    /*********************************************************
     *                   MISCELLANEOUS                       *
     *********************************************************/
+
     public ResultSet loadObjectChangeTimestamp(String ownerName, String objectName, String objectType, Connection connection) throws SQLException {
         return executeQuery(connection, "object-change-timestamp", ownerName, objectName, objectType);
     }
@@ -311,39 +329,97 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceImp
         return executeQuery(connection, "invalid-objects", ownerName);
     }
 
+    @Override
     public ResultSet loadDebugObjects(String ownerName, Connection connection) throws SQLException {
         return executeQuery(connection, "debug-objects", ownerName);
     }
 
+    @Override
     public ResultSet loadCompileObjectErrors(String ownerName, String objectName, Connection connection) throws SQLException {
         return executeQuery(connection, "object-compile-errors", ownerName, objectName);
     }
 
 
+    @Override
     public void compileObject(String ownerName, String objectName, String objectType, boolean debug, Connection connection) throws SQLException {
-        executeQuery(connection, "compile-object", ownerName, objectName, objectType, debug ? "DEBUG" : "");
+        executeStatement(connection, "compile-object", ownerName, objectName, objectType, debug ? "DEBUG" : "");
     }
 
+    @Override
     public void compileObjectBody(String ownerName, String objectName, String objectType, boolean debug, Connection connection) throws SQLException {
-        executeQuery(connection, "compile-object-body", ownerName, objectName, objectType, debug ? "DEBUG" : "");
+        executeStatement(connection, "compile-object-body", ownerName, objectName, objectType, debug ? "DEBUG" : "");
     }
 
+    @Override
     public void enableTrigger(String ownerName, String triggerName, Connection connection) throws SQLException {
         executeQuery(connection, "enable-trigger", ownerName, triggerName);
     }
 
+    @Override
     public void disableTrigger(String ownerName, String triggerName, Connection connection) throws SQLException {
         executeQuery(connection, "disable-trigger", ownerName, triggerName);
     }
 
+    @Override
     public void enableConstraint(String ownerName, String tableName, String constraintName, Connection connection) throws SQLException {
         executeQuery(connection, "enable-constraint", ownerName, tableName, constraintName);
     }
 
+    @Override
     public void disableConstraint(String ownerName, String tableName, String constraintName, Connection connection) throws SQLException {
         executeQuery(connection, "disable-constraint", ownerName, tableName, constraintName);
     }
 
+    @Override
+    public ResultSet loadSessions(Connection connection) throws SQLException {
+        return executeQuery(connection, "sessions");
+    }
+
+    @Override
+    public ResultSet loadSessionCurrentSql(Object sessionId, Connection connection) throws SQLException {
+        return executeQuery(connection, "session-sql", sessionId);
+    }
+
+    @Override
+    public void killSession(Object sessionId, Object serialNumber, boolean immediate, Connection connection) throws SQLException {
+        String loaderId = immediate ? "kill-session-immediate" : "kill-session";
+        executeStatement(connection, loaderId, sessionId, serialNumber);
+    }
+
+    @Override
+    public void disconnectSession(Object sessionId, Object serialNumber, boolean postTransaction, boolean immediate, Connection connection) throws SQLException {
+        String loaderId =
+                postTransaction ? "disconnect-session-post-transaction" :
+                immediate ? "disconnect-session-immediate" : "disconnect-session";
+        executeStatement(connection, loaderId, sessionId, serialNumber);
+    }
+
+    @Override
+    public ResultSet loadExplainPlan(Connection connection) throws SQLException {
+        return executeQuery(connection, "explain-plan-result");
+    }
+
+    @Override
+    public void clearExplainPlanData(Connection connection) throws SQLException {
+        executeUpdate(connection, "clear-explain-plan-data");
+    }
+
+    @Override
+    public void enableLogger(Connection connection) throws SQLException {
+        executeCall(connection, null, "enable-log-output");
+    }
+
+    @Override
+    public void disableLogger(Connection connection) throws SQLException {
+        executeCall(connection, null, "disable-log-output");
+    }
+
+    @Override
+    public String readLoggerOutput(Connection connection) throws SQLException {
+        ExecutionLogOutput outputReader = new ExecutionLogOutput();
+        executeCall(connection, outputReader, "read-log-output");
+        return outputReader.getLog();
+    }
 
     public boolean isValid(Connection connection) {
         try {

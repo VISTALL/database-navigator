@@ -1,26 +1,27 @@
 package com.dci.intellij.dbn.execution.method.result.ui;
 
-import com.dci.intellij.dbn.common.Icons;
-import com.dci.intellij.dbn.common.ui.tree.DBNTree;
-import com.dci.intellij.dbn.common.util.TextAttributesUtil;
-import com.dci.intellij.dbn.data.editor.color.DataGridTextAttributesKeys;
-import com.dci.intellij.dbn.data.type.DBDataType;
-import com.dci.intellij.dbn.execution.method.ArgumentValue;
-import com.dci.intellij.dbn.object.DBArgument;
-import com.dci.intellij.dbn.object.DBMethod;
-import com.dci.intellij.dbn.object.DBTypeAttribute;
-import com.dci.intellij.dbn.object.lookup.DBArgumentRef;
-import com.dci.intellij.dbn.object.lookup.DBObjectRef;
-import com.intellij.ui.ColoredTreeCellRenderer;
-import com.intellij.ui.SimpleTextAttributes;
-import com.intellij.util.ui.UIUtil;
-
 import javax.swing.JTree;
 import java.awt.Color;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.ResultSet;
 import java.util.List;
+import org.jetbrains.annotations.NotNull;
+
+import com.dci.intellij.dbn.common.Icons;
+import com.dci.intellij.dbn.common.ui.tree.DBNTree;
+import com.dci.intellij.dbn.common.util.TextAttributesUtil;
+import com.dci.intellij.dbn.data.grid.color.DataGridTextAttributesKeys;
+import com.dci.intellij.dbn.data.type.DBDataType;
+import com.dci.intellij.dbn.execution.method.ArgumentValue;
+import com.dci.intellij.dbn.object.DBArgument;
+import com.dci.intellij.dbn.object.DBMethod;
+import com.dci.intellij.dbn.object.DBTypeAttribute;
+import com.dci.intellij.dbn.object.common.DBObjectType;
+import com.dci.intellij.dbn.object.lookup.DBObjectRef;
+import com.intellij.ui.ColoredTreeCellRenderer;
+import com.intellij.ui.SimpleTextAttributes;
+import com.intellij.util.ui.UIUtil;
 
 public class ArgumentValuesTree extends DBNTree{
     private MethodExecutionResultForm parentForm;
@@ -46,8 +47,8 @@ public class ArgumentValuesTree extends DBNTree{
                         DBArgument argument = argumentValue.getArgument();
                         if (argument.isOutput()) {
                             Object value = argumentValue.getValue();
-                            if (value instanceof ResultSet) {
-                                parentForm.selectCursorOutput(argument);
+                            if (value instanceof ResultSet || argumentValue.isLargeObject()) {
+                                parentForm.selectArgumentOutputTab(argument);
                             }
                         }
                     }
@@ -59,7 +60,7 @@ public class ArgumentValuesTree extends DBNTree{
 
     class CellRenderer extends ColoredTreeCellRenderer {
         @Override
-        public void customizeCellRenderer(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
+        public void customizeCellRenderer(@NotNull JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
             ArgumentValuesTreeNode treeNode = (ArgumentValuesTreeNode) value;
             Object userValue = treeNode.getUserValue();
             if (userValue instanceof DBMethod) {
@@ -74,11 +75,11 @@ public class ArgumentValuesTree extends DBNTree{
                         SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
             }
 
-            if (userValue instanceof DBArgumentRef) {
-                DBArgumentRef argumentRef = (DBArgumentRef) userValue;
+            if (userValue instanceof DBObjectRef) {
+                DBObjectRef<DBArgument> argumentRef = (DBObjectRef<DBArgument>) userValue;
                 DBArgument argument = DBObjectRef.get(argumentRef);
                 setIcon(argument == null ? Icons.DBO_ARGUMENT : argument.getIcon());
-                append(argumentRef.getName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
+                append(argumentRef.getObjectName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
             }
 
             if (userValue instanceof ArgumentValue) {
@@ -86,17 +87,22 @@ public class ArgumentValuesTree extends DBNTree{
                 DBArgument argument = argumentValue.getArgument();
                 DBTypeAttribute attribute = argumentValue.getAttribute();
                 Object originalValue = argumentValue.getValue();
-                String displayValue = originalValue instanceof ResultSet ? "" : "" + originalValue;
+                String displayValue = originalValue instanceof ResultSet || argumentValue.isLargeObject() ? "" : String.valueOf(originalValue);
 
                 if (attribute == null) {
-                    setIcon(argument.getIcon());
-                    append(argument.getName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
-                    append(" = ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
-                    DBDataType dataType = argument.getDataType();
-                    if (dataType != null) {
-                        append("{" + dataType.getName().toLowerCase() + "} " , SimpleTextAttributes.GRAY_ATTRIBUTES);
+                    if (argument == null) {
+                        setIcon(DBObjectType.ARGUMENT.getIcon());
+                        append("[unknown]", SimpleTextAttributes.REGULAR_ATTRIBUTES);
+                        append(" = ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
+                    } else{
+                        setIcon(argument.getIcon());
+                        append(argument.getName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
+                        append(" = ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
+                        DBDataType dataType = argument.getDataType();
+                        if (dataType != null) {
+                            append("{" + dataType.getName().toLowerCase() + "} " , SimpleTextAttributes.GRAY_ATTRIBUTES);
+                        }
                     }
-
                     append(displayValue, SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
                 } else {
                     setIcon(attribute.getIcon());

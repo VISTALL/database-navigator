@@ -5,6 +5,8 @@ import com.dci.intellij.dbn.data.export.DataExportException;
 import com.dci.intellij.dbn.data.export.DataExportFormat;
 import com.dci.intellij.dbn.data.export.DataExportInstructions;
 import com.dci.intellij.dbn.data.export.DataExportModel;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.ProgressManager;
 
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
@@ -21,11 +23,12 @@ public abstract class DataExportProcessor {
     public abstract boolean canCreateHeader();
     public abstract boolean canExportToClipboard();
     public abstract boolean canQuoteValues();
-    public abstract void performExport(DataExportModel model, DataExportInstructions instructions, ConnectionHandler connectionHandler) throws DataExportException;
+    public abstract void performExport(DataExportModel model, DataExportInstructions instructions, ConnectionHandler connectionHandler) throws DataExportException, InterruptedException;
 
     private static DataExportProcessor[] PROCESSORS =  new DataExportProcessor[] {
             new SQLDataExportProcessor(),
             new ExcelDataExportProcessor(),
+            new ExcelXDataExportProcessor(),
             new CSVDataExportProcessor(),
             new HTMLDataExportProcessor(),
             new XMLDataExportProcessor(),
@@ -43,7 +46,7 @@ public abstract class DataExportProcessor {
     public abstract String getFileExtension();
 
     public void export(DataExportModel model, DataExportInstructions instructions, ConnectionHandler connectionHandler)
-            throws DataExportException {
+            throws DataExportException, InterruptedException {
         try {
             if (model.getColumnCount() == 0 || model.getRowCount() == 0) {
                 throw new DataExportException("No content selected for export. Uncheck the Scope \"Selection\" if you want to export the entire content.");
@@ -51,6 +54,8 @@ public abstract class DataExportProcessor {
             String fileName = adjustFileName(instructions.getFileName());
             instructions.setFileName(fileName);
             performExport(model, instructions, connectionHandler);
+        } catch (InterruptedException e) {
+            throw e;
         } catch (DataExportException e) {
             throw e;
         } catch (Exception e) {
@@ -103,6 +108,16 @@ public abstract class DataExportProcessor {
             calendar.get(Calendar.MINUTE) != 0 ||
             calendar.get(Calendar.SECOND) != 0 ||
             calendar.get(Calendar.MILLISECOND) != 0;
+    }
+
+    protected void checkCancelled() throws InterruptedException {
+        ProgressManager progressManager = ProgressManager.getInstance();
+        ProgressIndicator progressIndicator = progressManager.getProgressIndicator();
+        if (progressIndicator != null) {
+            if (progressIndicator.isCanceled()) {
+                throw new InterruptedException();
+            }
+        }
     }
 
 }

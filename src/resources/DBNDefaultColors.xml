@@ -5,6 +5,12 @@
             <option name="BACKGROUND" value="FFFFFF"/>
         </value>
     </option>
+    <option name="DBNavigator.DefaultTextAttributes.DataEditor.TrackingData">
+        <value>
+            <option name="BACKGROUND" value="FFFFFF"/>
+            <option name="FOREGROUND" value="C4C4C4"/>
+        </value>
+    </option>
     <option name="DBNavigator.DefaultTextAttributes.DataEditor.ModifiedData">
         <value>
             <option name="FONT_TYPE" value="1"/>
@@ -54,6 +60,42 @@
     </option>
 
     <option name="DBNavigator.DefaultTextAttributes.DataEditor.Selection">
+        <value>
+            <option name="FOREGROUND" value="FFFFFF"/>
+            <option name="BACKGROUND" value="526DA5"/>
+        </value>
+    </option>
+
+    <option name="DBNavigator.DefaultTextAttributes.SessionBrowser.ActiveSession">
+        <value>
+            <option name="BACKGROUND" value="FFFFFF"/>
+        </value>
+    </option>
+    <option name="DBNavigator.DefaultTextAttributes.SessionBrowser.InactiveSession">
+        <value>
+            <option name="FOREGROUND" value="7F7F7F"/>
+            <option name="BACKGROUND" value="FFFFFF"/>
+        </value>
+    </option>
+    <option name="DBNavigator.DefaultTextAttributes.SessionBrowser.CachedSession">
+        <value>
+            <option name="FOREGROUND" value="3F6B3F"/>
+            <option name="BACKGROUND" value="FFFFFF"/>
+        </value>
+    </option>
+    <option name="DBNavigator.DefaultTextAttributes.SessionBrowser.SnipedSession">
+        <value>
+            <option name="FOREGROUND" value="4569A7"/>
+            <option name="BACKGROUND" value="FFFFFF"/>
+        </value>
+    </option>
+    <option name="DBNavigator.DefaultTextAttributes.SessionBrowser.KilledSession">
+        <value>
+            <option name="FOREGROUND" value="A96458"/>
+            <option name="BACKGROUND" value="FFFFFF"/>
+        </value>
+    </option>
+    <option name="DBNavigator.DefaultTextAttributes.SessionBrowser.Selection">
         <value>
             <option name="FOREGROUND" value="FFFFFF"/>
             <option name="BACKGROUND" value="526DA5"/>

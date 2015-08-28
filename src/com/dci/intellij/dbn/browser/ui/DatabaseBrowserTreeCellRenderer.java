@@ -4,8 +4,8 @@ import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
 import com.dci.intellij.dbn.browser.model.LoadInProgressTreeNode;
 import com.dci.intellij.dbn.browser.options.DatabaseBrowserSettings;
 import com.dci.intellij.dbn.common.util.StringUtil;
-import com.dci.intellij.dbn.connection.ModuleConnectionBundle;
-import com.dci.intellij.dbn.connection.ProjectConnectionBundle;
+import com.dci.intellij.dbn.connection.ConnectionBundle;
+import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.object.DBSchema;
 import com.dci.intellij.dbn.object.common.DBObject;
 import com.dci.intellij.dbn.object.common.DBObjectType;
@@ -14,19 +14,15 @@ import com.intellij.openapi.project.Project;
 import com.intellij.ui.ColoredTreeCellRenderer;
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.util.ui.UIUtil;
+import org.jetbrains.annotations.NotNull;
 
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JTree;
-import javax.swing.SwingConstants;
 import javax.swing.tree.TreeCellRenderer;
-import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Font;
 
 public class DatabaseBrowserTreeCellRenderer implements TreeCellRenderer {
     private DefaultTreeCellRenderer cellRenderer = new DefaultTreeCellRenderer();
-    //private static final LoaderCellRendererComponent LOADER_COMPONENT = new LoaderCellRendererComponent();
     private DatabaseBrowserSettings browserSettings;
 
     public DatabaseBrowserTreeCellRenderer(Project project) {
@@ -34,20 +30,7 @@ public class DatabaseBrowserTreeCellRenderer implements TreeCellRenderer {
     }
 
     public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
-        if (value instanceof LoadInProgressTreeNode) {
-            return new LoaderCellRendererComponent((LoadInProgressTreeNode) value);
-        } else {
-            return cellRenderer.getTreeCellRendererComponent(tree, value, selected, expanded, leaf, row, hasFocus);
-        }
-    }
-
-    private static class LoaderCellRendererComponent extends JPanel {
-        LoadInProgressTreeNode treeElement;
-        private LoaderCellRendererComponent(LoadInProgressTreeNode treeElement) {
-            setLayout(new BorderLayout());
-            add(new JLabel("Loading...", treeElement.getIcon(0), SwingConstants.LEFT), BorderLayout.WEST);
-            setBackground(UIUtil.getTreeTextBackground());
-        }
+        return cellRenderer.getTreeCellRendererComponent(tree, value, selected, expanded, leaf, row, hasFocus);
     }
 
     private class DefaultTreeCellRenderer extends ColoredTreeCellRenderer {
@@ -56,16 +39,20 @@ public class DatabaseBrowserTreeCellRenderer implements TreeCellRenderer {
             return font == null ? UIUtil.getTreeFont() : font;
         }
 
-        public void customizeCellRenderer(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
+        public void customizeCellRenderer(@NotNull JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
+            if (value instanceof LoadInProgressTreeNode) {
+                LoadInProgressTreeNode loadInProgressTreeNode = (LoadInProgressTreeNode) value;
+                setIcon(loadInProgressTreeNode.getIcon(0));
+                append("Loading...", SimpleTextAttributes.GRAY_ITALIC_ATTRIBUTES);
+                return;
+            }
+
             BrowserTreeNode treeNode = (BrowserTreeNode) value;
             setIcon(treeNode.getIcon(0));
 
-            boolean isLoading = false;
+            boolean isDirty = false;
             String displayName;
-            if (treeNode instanceof ModuleConnectionBundle) {
-                ModuleConnectionBundle connectionManager = (ModuleConnectionBundle) treeNode;
-                displayName = connectionManager.getModule().getName();
-            } else if (treeNode instanceof ProjectConnectionBundle) {
+            if (treeNode instanceof ConnectionBundle) {
                 displayName = "PROJECT";
             } else {
                 displayName = treeNode.getPresentableText();
@@ -74,9 +61,9 @@ public class DatabaseBrowserTreeCellRenderer implements TreeCellRenderer {
             if (treeNode instanceof DBObjectList) {
                 DBObjectList objectsList = (DBObjectList) treeNode;
                 boolean isEmpty = objectsList.getTreeChildCount() == 0;
-                isLoading = objectsList.isLoading();
+                isDirty = objectsList.isLoading() || (!objectsList.isLoaded() && !hasConnectivity(objectsList));
                 SimpleTextAttributes textAttributes =
-                        isLoading ? SimpleTextAttributes.GRAY_ITALIC_ATTRIBUTES :
+                        isDirty ? SimpleTextAttributes.GRAY_ITALIC_ATTRIBUTES :
                         isEmpty ? SimpleTextAttributes.REGULAR_ATTRIBUTES :
                         SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES;
 
@@ -97,12 +84,14 @@ public class DatabaseBrowserTreeCellRenderer implements TreeCellRenderer {
                 */
             } else {
                 boolean showBold = false;
+                boolean showGrey = false;
                 boolean isError = false;
                 if (treeNode instanceof DBObject) {
                     DBObject object = (DBObject) treeNode;
                     if (object.isOfType(DBObjectType.SCHEMA)) {
                         DBSchema schema = (DBSchema) object;
                         showBold = schema.isUserSchema();
+                        showGrey = schema.isEmptySchema();
                     }
 
                     isError = !object.isValid();
@@ -110,8 +99,8 @@ public class DatabaseBrowserTreeCellRenderer implements TreeCellRenderer {
 
                 SimpleTextAttributes textAttributes =
                         isError ? SimpleTextAttributes.ERROR_ATTRIBUTES :
-                        showBold ? SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES :
-                        SimpleTextAttributes.REGULAR_ATTRIBUTES;
+                        showBold ? (showGrey ? SimpleTextAttributes.GRAYED_BOLD_ATTRIBUTES : SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES) :
+                                (showGrey ? SimpleTextAttributes.GRAYED_ATTRIBUTES : SimpleTextAttributes.REGULAR_ATTRIBUTES);
 
                 if (displayName == null) displayName = "displayName null!!";
 
@@ -119,7 +108,7 @@ public class DatabaseBrowserTreeCellRenderer implements TreeCellRenderer {
             }
             String displayDetails = treeNode.getPresentableTextDetails();
             if (!StringUtil.isEmptyOrSpaces(displayDetails)) {
-                append(" " + displayDetails, isLoading ? SimpleTextAttributes.GRAY_ITALIC_ATTRIBUTES : SimpleTextAttributes.GRAY_ATTRIBUTES);
+                append(" " + displayDetails, isDirty ? SimpleTextAttributes.GRAY_ITALIC_ATTRIBUTES : SimpleTextAttributes.GRAY_ATTRIBUTES);
             }
 
 
@@ -130,6 +119,11 @@ public class DatabaseBrowserTreeCellRenderer implements TreeCellRenderer {
                 }
 
             }
+        }
+
+        private boolean hasConnectivity(DBObjectList objectsList) {
+            ConnectionHandler connectionHandler = objectsList.getConnectionHandler();
+            return connectionHandler != null && objectsList.getConnectionHandler().canConnect() && connectionHandler.isValid();
         }
     }
 }

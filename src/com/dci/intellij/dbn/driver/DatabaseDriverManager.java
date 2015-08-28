@@ -1,18 +1,5 @@
 package com.dci.intellij.dbn.driver;
 
-import com.dci.intellij.dbn.common.Constants;
-import com.dci.intellij.dbn.common.LoggerFactory;
-import com.dci.intellij.dbn.common.load.ProgressMonitor;
-import com.dci.intellij.dbn.common.util.ActionUtil;
-import com.dci.intellij.dbn.common.util.StringUtil;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.components.ApplicationComponent;
-import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.progress.ProgressManager;
-import com.intellij.openapi.project.Project;
-import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
-
 import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -25,6 +12,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
+
+import com.dci.intellij.dbn.common.Constants;
+import com.dci.intellij.dbn.common.LoggerFactory;
+import com.dci.intellij.dbn.common.load.ProgressMonitor;
+import com.dci.intellij.dbn.common.util.ActionUtil;
+import com.dci.intellij.dbn.common.util.StringUtil;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.components.ApplicationComponent;
+import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.project.Project;
 
 public class DatabaseDriverManager implements ApplicationComponent {
     private static final Logger LOGGER = LoggerFactory.createLogger();
@@ -78,8 +78,8 @@ public class DatabaseDriverManager implements ApplicationComponent {
             ProgressMonitor.setTaskDescription("Loading jdbc drivers from " + libraryName);
             try {
                 drivers = new ArrayList<Driver>();
-                URL[] urls = new URL[]{new File(libraryName).toURL()};
-                URLClassLoader classLoader = new URLClassLoader(urls);
+                URL[] urls = new URL[]{new File(libraryName).toURI().toURL()};
+                URLClassLoader classLoader = URLClassLoader.newInstance(urls, getClass().getClassLoader());
 
                 JarFile jarFile = new JarFile(libraryName);
                 Enumeration<JarEntry> entries = jarFile.entries();
@@ -108,7 +108,7 @@ public class DatabaseDriverManager implements ApplicationComponent {
                 }
                 driversCache.put(libraryName, drivers);
             } catch(Exception e) {
-                LOGGER.error("Error loading drivers from library " + libraryName, e);
+                LOGGER.warn("Error loading drivers from library " + libraryName, e);
             } finally {
                 ProgressMonitor.setTaskDescription(taskDescription);
             }

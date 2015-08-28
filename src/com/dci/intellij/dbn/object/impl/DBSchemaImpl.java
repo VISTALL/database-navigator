@@ -1,5 +1,16 @@
 package com.dci.intellij.dbn.object.impl;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import com.dci.intellij.dbn.browser.DatabaseBrowserUtils;
 import com.dci.intellij.dbn.browser.model.BrowserTreeChangeListener;
 import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
@@ -20,7 +31,9 @@ import com.dci.intellij.dbn.object.DBCluster;
 import com.dci.intellij.dbn.object.DBColumn;
 import com.dci.intellij.dbn.object.DBConstraint;
 import com.dci.intellij.dbn.object.DBDatabaseLink;
+import com.dci.intellij.dbn.object.DBDatabaseTrigger;
 import com.dci.intellij.dbn.object.DBDataset;
+import com.dci.intellij.dbn.object.DBDatasetTrigger;
 import com.dci.intellij.dbn.object.DBDimension;
 import com.dci.intellij.dbn.object.DBFunction;
 import com.dci.intellij.dbn.object.DBIndex;
@@ -37,7 +50,6 @@ import com.dci.intellij.dbn.object.DBSchema;
 import com.dci.intellij.dbn.object.DBSequence;
 import com.dci.intellij.dbn.object.DBSynonym;
 import com.dci.intellij.dbn.object.DBTable;
-import com.dci.intellij.dbn.object.DBTrigger;
 import com.dci.intellij.dbn.object.DBType;
 import com.dci.intellij.dbn.object.DBTypeAttribute;
 import com.dci.intellij.dbn.object.DBTypeFunction;
@@ -56,19 +68,9 @@ import com.dci.intellij.dbn.object.common.list.DBObjectNavigationList;
 import com.dci.intellij.dbn.object.common.list.DBObjectNavigationListImpl;
 import com.dci.intellij.dbn.object.common.list.DBObjectRelation;
 import com.dci.intellij.dbn.object.common.list.DBObjectRelationListContainer;
+import com.dci.intellij.dbn.object.common.property.DBObjectProperty;
 import com.dci.intellij.dbn.object.common.status.DBObjectStatus;
 import com.dci.intellij.dbn.object.common.status.DBObjectStatusHolder;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 public class DBSchemaImpl extends DBObjectImpl implements DBSchema {
     DBObjectList<DBTable> tables;
@@ -80,6 +82,7 @@ public class DBSchemaImpl extends DBObjectImpl implements DBSchema {
     DBObjectList<DBFunction> functions;
     DBObjectList<DBPackage> packages;
     DBObjectList<DBType> types;
+    DBObjectList<DBDatabaseTrigger> databaseTriggers;
     DBObjectList<DBDimension> dimensions;
     DBObjectList<DBCluster> clusters;
     DBObjectList<DBDatabaseLink> databaseLinks;
@@ -87,9 +90,10 @@ public class DBSchemaImpl extends DBObjectImpl implements DBSchema {
     boolean isUserSchema;
     boolean isPublicSchema;
     boolean isSystemSchema;
+    boolean isEmptySchema;
 
     public DBSchemaImpl(ConnectionHandler connectionHandler, ResultSet resultSet) throws SQLException {
-        super(connectionHandler.getObjectBundle(), DBContentType.NONE, resultSet);
+        super(connectionHandler.getObjectBundle(), resultSet);
     }
 
     @Override
@@ -97,6 +101,7 @@ public class DBSchemaImpl extends DBObjectImpl implements DBSchema {
         name = resultSet.getString("SCHEMA_NAME");
         isPublicSchema = resultSet.getString("IS_PUBLIC").equals("Y");
         isSystemSchema = resultSet.getString("IS_SYSTEM").equals("Y");
+        isEmptySchema = resultSet.getString("IS_EMPTY").equals("Y");
         isUserSchema = getName().equalsIgnoreCase(getConnectionHandler().getUserName());
     }
 
@@ -114,15 +119,16 @@ public class DBSchemaImpl extends DBObjectImpl implements DBSchema {
         functions = ol.createObjectList(DBObjectType.FUNCTION, this, FUNCTIONS_LOADER, true, false);
         packages = ol.createObjectList(DBObjectType.PACKAGE, this, PACKAGES_LOADER, true, false);
         types = ol.createObjectList(DBObjectType.TYPE, this, TYPES_LOADER, true, false);
+        databaseTriggers = ol.createObjectList(DBObjectType.DATABASE_TRIGGER, this, DATABASE_TRIGGERS_LOADER, true, false);
         dimensions = ol.createObjectList(DBObjectType.DIMENSION, this, DIMENSIONS_LOADER, true, false);
         clusters = ol.createObjectList(DBObjectType.CLUSTER, this, CLUSTERS_LOADER, true, false);
         databaseLinks = ol.createObjectList(DBObjectType.DBLINK, this, DATABASE_LINKS_LOADER, true, false);
 
         DBObjectList constraints = ol.createObjectList(DBObjectType.CONSTRAINT, this, CONSTRAINTS_LOADER, true, false);
         DBObjectList indexes = ol.createObjectList(DBObjectType.INDEX, this, INDEXES_LOADER, true, false);
-        DBObjectList triggers = ol.createObjectList(DBObjectType.TRIGGER, this, TRIGGERS_LOADER, true, false);
-        DBObjectList nestedTables = ol.createObjectList(DBObjectType.NESTED_TABLE, this, ALL_NESTED_TABLES_LOADER, true, false);
         DBObjectList columns = ol.createObjectList(DBObjectType.COLUMN, this, COLUMNS_LOADER, false, true);
+        ol.createObjectList(DBObjectType.DATASET_TRIGGER, this, DATASET_TRIGGERS_LOADER, true, false);
+        ol.createObjectList(DBObjectType.NESTED_TABLE, this, ALL_NESTED_TABLES_LOADER, true, false);
         ol.createObjectList(DBObjectType.PACKAGE_FUNCTION, this, ALL_PACKAGE_FUNCTIONS_LOADER, false, true);
         ol.createObjectList(DBObjectType.PACKAGE_PROCEDURE, this, ALL_PACKAGE_PROCEDURES_LOADER, false, true);
         ol.createObjectList(DBObjectType.PACKAGE_TYPE, this, ALL_PACKAGE_TYPES_LOADER, false, true);
@@ -173,15 +179,20 @@ public class DBSchemaImpl extends DBObjectImpl implements DBSchema {
     }
 
     @Override
+    public boolean isEmptySchema() {
+        return isEmptySchema;
+    }
+
+    @Override
     public DBObject getDefaultNavigationObject() {
         return getOwner();
     }
 
-    public DBObject getChildObject(DBObjectType objectType, String name, boolean lookupHidden) {
+    public DBObject getChildObject(DBObjectType objectType, String name, int overload, boolean lookupHidden) {
         if (objectType.isSchemaObject()) {
-            DBObject object = super.getChildObject(objectType, name, lookupHidden);
+            DBObject object = super.getChildObject(objectType, name, overload, lookupHidden);
             if (object == null) {
-                DBSynonym synonym = (DBSynonym) super.getChildObject(DBObjectType.SYNONYM, name, lookupHidden);
+                DBSynonym synonym = (DBSynonym) super.getChildObject(DBObjectType.SYNONYM, name, overload, lookupHidden);
                 if (synonym != null) {
                     DBObject underlyingObject = synonym.getUnderlyingObject();
                     if (underlyingObject != null && underlyingObject.isOfType(objectType)) {
@@ -255,8 +266,12 @@ public class DBSchemaImpl extends DBObjectImpl implements DBSchema {
         return packages.getObjects();
     }
 
-    public List<DBTrigger> getTriggers() {
-        return initChildObjects().getObjectList(DBObjectType.TRIGGER).getObjects();
+    public List<DBDatasetTrigger> getDatasetTriggers() {
+        return initChildObjects().getObjectList(DBObjectType.DATASET_TRIGGER).getObjects();
+    }
+
+    public List<DBDatabaseTrigger> getDatabaseTriggers() {
+        return initChildObjects().getObjectList(DBObjectType.DATABASE_TRIGGER).getObjects();
     }
 
     public List<DBType> getTypes() {
@@ -324,15 +339,15 @@ public class DBSchemaImpl extends DBObjectImpl implements DBSchema {
     }
 
     @Nullable
-    private DBSchemaObject getObjectFallbackOnSynonym(DBObjectList<? extends DBSchemaObject> objects, String name) {
-        DBSchemaObject object = objects.getObject(name);
+    private <T extends DBSchemaObject> T getObjectFallbackOnSynonym(DBObjectList<T> objects, String name) {
+        T object = objects.getObject(name);
         if (object == null && DatabaseCompatibilityInterface.getInstance(this).supportsObjectType(DBObjectType.SYNONYM.getTypeId())) {
             DBSynonym synonym = synonyms.getObject(name);
             if (synonym != null) {
                 DBObject underlyingObject = synonym.getUnderlyingObject();
                 if (underlyingObject != null) {
                     if (underlyingObject.getObjectType() == objects.getObjectType()) {
-                        return (DBSchemaObject) underlyingObject;
+                        return (T) underlyingObject;
                     }
                 }
             }
@@ -343,35 +358,23 @@ public class DBSchemaImpl extends DBObjectImpl implements DBSchema {
     }
 
     public DBType getType(String name) {
-        return (DBType) getObjectFallbackOnSynonym(types, name);
+        return getObjectFallbackOnSynonym(types, name);
     }
 
     public DBPackage getPackage(String name) {
-        return (DBPackage) getObjectFallbackOnSynonym(packages, name);
+        return getObjectFallbackOnSynonym(packages, name);
     }
 
     public DBProcedure getProcedure(String name, int overload) {
-        if (overload > 0) {
-            List<DBProcedure> procedures = this.procedures.getObjects(name);
-            if (procedures != null) {
-                for (DBProcedure procedure : procedures) {
-                    if (procedure.getOverload() == overload) return procedure;
-                }
-            }
-        }
-        return (DBProcedure) getObjectFallbackOnSynonym(procedures, name);
+        return overload > 0 ?
+                procedures.getObject(name, overload) :
+                getObjectFallbackOnSynonym(procedures, name);
     }
 
     public DBFunction getFunction(String name, int overload) {
-        if (overload > 0) {
-            List<DBFunction> functions = this.functions.getObjects(name);
-            if (functions != null) {
-                for (DBFunction function : functions) {
-                    if (function.getOverload() == overload) return function;
-                }
-            }
-        }
-        return (DBFunction) getObjectFallbackOnSynonym(functions, name);
+        return overload > 0 ?
+                functions.getObject(name, overload) :
+                getObjectFallbackOnSynonym(functions, name);
     }
 
     public DBProgram getProgram(String name) {
@@ -380,14 +383,14 @@ public class DBSchemaImpl extends DBObjectImpl implements DBSchema {
         return program;
     }
 
-    public DBMethod getMethod(String name, String type, int overload) {
-        if (type == null) {
+    public DBMethod getMethod(String name, DBObjectType methodType, int overload) {
+        if (methodType == null) {
             DBMethod method = getProcedure(name, overload);
             if (method == null) method = getFunction(name, overload);
             return method;
-        } else if (type.equalsIgnoreCase("PROCEDURE")) {
+        } else if (methodType == DBObjectType.PROCEDURE) {
             return getProcedure(name, overload);
-        } else if (type.equalsIgnoreCase("FUNCTION")) {
+        } else if (methodType == DBObjectType.FUNCTION) {
             return getFunction(name, overload);
         }
         return null;
@@ -397,68 +400,81 @@ public class DBSchemaImpl extends DBObjectImpl implements DBSchema {
         return getMethod(name, null, overload);
     }
 
-    public synchronized void refreshObjectsStatus() {
+    @Override
+    public boolean isParentOf(DBObject object) {
+        if (object instanceof DBSchemaObject) {
+            DBSchemaObject schemaObject = (DBSchemaObject) object;
+            return schemaObject.getProperties().is(DBObjectProperty.SCHEMA_OBJECT) && this.equals(schemaObject.getSchema());
+
+        }
+        return false;
+    }
+
+    public synchronized void refreshObjectsStatus() throws SQLException {
         final Set<BrowserTreeNode> refreshNodes = resetObjectsStatus();
         Connection connection = null;
         ResultSet resultSet = null;
-        try {
-            connection = getConnectionHandler().getPoolConnection();
-            resultSet = getConnectionHandler().getInterfaceProvider().getMetadataInterface().loadInvalidObjects(getName(), connection);
-            while (resultSet != null && resultSet.next()) {
-                String objectName = resultSet.getString("OBJECT_NAME");
-                DBSchemaObject schemaObject = (DBSchemaObject) getChildObjectNoLoad(objectName);
-                if (schemaObject != null && schemaObject.getStatus().has(DBObjectStatus.VALID)) {
-                    DBObjectStatusHolder objectStatus = schemaObject.getStatus();
-                    boolean statusChanged;
+        ConnectionHandler connectionHandler = getConnectionHandler();
+        if (connectionHandler != null) {
+            try {
+                connection = connectionHandler.getPoolConnection();
+                DatabaseMetadataInterface metadataInterface = connectionHandler.getInterfaceProvider().getMetadataInterface();
+                resultSet = metadataInterface.loadInvalidObjects(getName(), connection);
+                while (resultSet != null && resultSet.next()) {
+                    String objectName = resultSet.getString("OBJECT_NAME");
+                    DBSchemaObject schemaObject = (DBSchemaObject) getChildObjectNoLoad(objectName);
+                    if (schemaObject != null && schemaObject.getStatus().has(DBObjectStatus.VALID)) {
+                        DBObjectStatusHolder objectStatus = schemaObject.getStatus();
+                        boolean statusChanged;
 
-                    if (schemaObject.getContentType().isBundle()) {
-                        String objectType = resultSet.getString("OBJECT_TYPE");
-                        statusChanged = objectType.contains("BODY") ?
-                                objectStatus.set(DBContentType.CODE_BODY, DBObjectStatus.VALID, false) :
-                                objectStatus.set(DBContentType.CODE_SPEC, DBObjectStatus.VALID, false);
-                    }
-                    else {
-                        statusChanged = objectStatus.set(DBObjectStatus.VALID, false);
-                    }
-                    if (statusChanged) {
-                        refreshNodes.add(schemaObject.getTreeParent());
+                        if (schemaObject.getContentType().isBundle()) {
+                            String objectType = resultSet.getString("OBJECT_TYPE");
+                            statusChanged = objectType.contains("BODY") ?
+                                    objectStatus.set(DBContentType.CODE_BODY, DBObjectStatus.VALID, false) :
+                                    objectStatus.set(DBContentType.CODE_SPEC, DBObjectStatus.VALID, false);
+                        }
+                        else {
+                            statusChanged = objectStatus.set(DBObjectStatus.VALID, false);
+                        }
+                        if (statusChanged) {
+                            refreshNodes.add(schemaObject.getTreeParent());
+                        }
                     }
                 }
-            }
 
-            resultSet = getConnectionHandler().getInterfaceProvider().getMetadataInterface().loadDebugObjects(getName(), connection);
-            while (resultSet != null && resultSet.next()) {
-                String objectName = resultSet.getString("OBJECT_NAME");
-                DBSchemaObject schemaObject = (DBSchemaObject) getChildObjectNoLoad(objectName);
-                if (schemaObject != null && schemaObject.getStatus().has(DBObjectStatus.DEBUG)) {
-                    DBObjectStatusHolder objectStatus = schemaObject.getStatus();
-                    boolean statusChanged;
+                resultSet = metadataInterface.loadDebugObjects(getName(), connection);
+                while (resultSet != null && resultSet.next()) {
+                    String objectName = resultSet.getString("OBJECT_NAME");
+                    DBSchemaObject schemaObject = (DBSchemaObject) getChildObjectNoLoad(objectName);
+                    if (schemaObject != null && schemaObject.getStatus().has(DBObjectStatus.DEBUG)) {
+                        DBObjectStatusHolder objectStatus = schemaObject.getStatus();
+                        boolean statusChanged;
 
-                    if (schemaObject.getContentType().isBundle()) {
-                        String objectType = resultSet.getString("OBJECT_TYPE");
-                        statusChanged = objectType.contains("BODY") ?
-                                objectStatus.set(DBContentType.CODE_BODY, DBObjectStatus.DEBUG, true) :
-                                objectStatus.set(DBContentType.CODE_SPEC, DBObjectStatus.DEBUG, true);
-                    }
-                    else {
-                        statusChanged = objectStatus.set(DBObjectStatus.DEBUG, true);
-                    }
-                    if (statusChanged) {
-                        refreshNodes.add(schemaObject.getTreeParent());
+                        if (schemaObject.getContentType().isBundle()) {
+                            String objectType = resultSet.getString("OBJECT_TYPE");
+                            statusChanged = objectType.contains("BODY") ?
+                                    objectStatus.set(DBContentType.CODE_BODY, DBObjectStatus.DEBUG, true) :
+                                    objectStatus.set(DBContentType.CODE_SPEC, DBObjectStatus.DEBUG, true);
+                        }
+                        else {
+                            statusChanged = objectStatus.set(DBObjectStatus.DEBUG, true);
+                        }
+                        if (statusChanged) {
+                            refreshNodes.add(schemaObject.getTreeParent());
+                        }
                     }
                 }
+
+            } finally {
+                ConnectionUtil.closeResultSet(resultSet);
+                connectionHandler.freePoolConnection(connection);
             }
 
-        } catch (SQLException e) {
-            getLogger().error("Error loading data model. " + e.getMessage());
-        } finally {
-            ConnectionUtil.closeResultSet(resultSet);
-            getConnectionHandler().freePoolConnection(connection);
+            for (BrowserTreeNode treeNode : refreshNodes) {
+                EventManager.notify(getProject(), BrowserTreeChangeListener.TOPIC).nodeChanged(treeNode, TreeEventType.NODES_CHANGED);
+            }
         }
 
-        for (BrowserTreeNode treeNode : refreshNodes) {
-            EventManager.notify(getProject(), BrowserTreeChangeListener.TOPIC).nodeChanged(treeNode, TreeEventType.NODES_CHANGED);
-        }
     }
 
     private Set<BrowserTreeNode> resetObjectsStatus() {
@@ -521,6 +537,7 @@ public class DBSchemaImpl extends DBObjectImpl implements DBSchema {
                 functions,
                 packages,
                 types,
+                databaseTriggers,
                 dimensions,
                 clusters,
                 databaseLinks);
@@ -739,6 +756,20 @@ public class DBSchemaImpl extends DBObjectImpl implements DBSchema {
         }
     };
 
+
+    private static final DynamicContentLoader DATABASE_TRIGGERS_LOADER = new  DynamicContentResultSetLoader<DBDatabaseTrigger>() {
+        public ResultSet createResultSet(DynamicContent<DBDatabaseTrigger> dynamicContent, Connection connection) throws SQLException {
+            DatabaseMetadataInterface metadataInterface = dynamicContent.getConnectionHandler().getInterfaceProvider().getMetadataInterface();
+            DBSchema schema = (DBSchema) dynamicContent.getParent();
+            return metadataInterface.loadDatabaseTriggers(schema.getName(), connection);
+        }
+
+        public DBDatabaseTrigger createElement(DynamicContent<DBDatabaseTrigger> dynamicContent, ResultSet resultSet, LoaderCache loaderCache) throws SQLException {
+            DBSchema schema = (DBSchema) dynamicContent.getParent();
+            return new DBDatabaseTriggerImpl(schema, resultSet);
+        }
+    };
+
     private static final DynamicContentLoader DIMENSIONS_LOADER = new  DynamicContentResultSetLoader<DBDimension>() {
         public ResultSet createResultSet(DynamicContent<DBDimension> dynamicContent, Connection connection) throws SQLException {
             DatabaseMetadataInterface metadataInterface = dynamicContent.getConnectionHandler().getInterfaceProvider().getMetadataInterface();
@@ -843,14 +874,14 @@ public class DBSchemaImpl extends DBObjectImpl implements DBSchema {
         }
     };
 
-    private static final DynamicContentLoader TRIGGERS_LOADER = new  DynamicContentResultSetLoader<DBTrigger>() {
-        public ResultSet createResultSet(DynamicContent<DBTrigger> dynamicContent, Connection connection) throws SQLException {
+    private static final DynamicContentLoader DATASET_TRIGGERS_LOADER = new  DynamicContentResultSetLoader<DBDatasetTrigger>() {
+        public ResultSet createResultSet(DynamicContent<DBDatasetTrigger> dynamicContent, Connection connection) throws SQLException {
             DatabaseMetadataInterface metadataInterface = dynamicContent.getConnectionHandler().getInterfaceProvider().getMetadataInterface();
             DBSchema schema = (DBSchema) dynamicContent.getParent();
-            return metadataInterface.loadAllTriggers(schema.getName(), connection);
+            return metadataInterface.loadAllDatasetTriggers(schema.getName(), connection);
         }
 
-        public DBTrigger createElement(DynamicContent<DBTrigger> dynamicContent, ResultSet resultSet, LoaderCache loaderCache) throws SQLException {
+        public DBDatasetTrigger createElement(DynamicContent<DBDatasetTrigger> dynamicContent, ResultSet resultSet, LoaderCache loaderCache) throws SQLException {
             String datasetName = resultSet.getString("DATASET_NAME");
             DBDataset dataset = (DBDataset) loaderCache.getObject(datasetName);
             if (dataset == null) {
@@ -858,7 +889,7 @@ public class DBSchemaImpl extends DBObjectImpl implements DBSchema {
                 dataset = schema.getDataset(datasetName);
                 loaderCache.setObject(datasetName, dataset);
             }
-            return new DBTriggerImpl(dataset, resultSet);
+            return new DBDatasetTriggerImpl(dataset, resultSet);
         }
     };
 
@@ -1014,10 +1045,11 @@ public class DBSchemaImpl extends DBObjectImpl implements DBSchema {
 
             String cacheKey = methodName + methodType + overload;
             DBMethod method = (DBMethod) loaderCache.getObject(cacheKey);
+            DBObjectType objectType = DBObjectType.getObjectType(methodType);
 
             if (method == null || method.getProgram() != program || method.getOverload() != overload) {
                 if (programName == null) {
-                    method = schema.getMethod(methodName, methodType, overload);
+                    method = schema.getMethod(methodName, objectType, overload);
                 } else {
                     method = program == null ? null : program.getMethod(methodName, overload);
                 }

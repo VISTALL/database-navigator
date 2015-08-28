@@ -1,5 +1,14 @@
 package com.dci.intellij.dbn.navigation;
 
+import javax.swing.JList;
+import javax.swing.ListCellRenderer;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import com.dci.intellij.dbn.common.dispose.FailsafeUtil;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.connection.ConnectionManager;
 import com.dci.intellij.dbn.connection.VirtualConnectionHandler;
@@ -11,21 +20,13 @@ import com.dci.intellij.dbn.object.common.list.DBObjectList;
 import com.dci.intellij.dbn.object.common.list.DBObjectListContainer;
 import com.dci.intellij.dbn.object.common.list.DBObjectListVisitor;
 import com.dci.intellij.dbn.object.lookup.DBObjectRef;
-import com.dci.intellij.dbn.options.GlobalProjectSettings;
+import com.dci.intellij.dbn.options.ProjectSettingsManager;
 import com.intellij.ide.util.gotoByName.ChooseByNameModel;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.ColoredListCellRenderer;
 import com.intellij.ui.SimpleTextAttributes;
 import gnu.trove.THashSet;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import javax.swing.JList;
-import javax.swing.ListCellRenderer;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 
 public class GoToDatabaseObjectModel implements ChooseByNameModel {
     private Project project;
@@ -40,7 +41,7 @@ public class GoToDatabaseObjectModel implements ChooseByNameModel {
     public GoToDatabaseObjectModel(@NotNull Project project, @Nullable ConnectionHandler selectedConnection, DBSchema selectedSchema) {
         this.project = project;
         this.selectedConnection = selectedConnection;
-        objectsLookupSettings = GlobalProjectSettings.getInstance(project).getNavigationSettings().getObjectsLookupSettings();
+        objectsLookupSettings = ProjectSettingsManager.getSettings(project).getNavigationSettings().getObjectsLookupSettings();
     }
 
     public String getPromptText() {
@@ -114,7 +115,7 @@ public class GoToDatabaseObjectModel implements ChooseByNameModel {
     private void scanObjectLists(DBObjectListVisitor visitor) {
         if (selectedConnection == null || selectedConnection instanceof VirtualConnectionHandler) {
             ConnectionManager connectionManager = ConnectionManager.getInstance(project);
-            Set<ConnectionHandler> connectionHandlers = connectionManager.getConnectionHandlers();
+            List<ConnectionHandler> connectionHandlers = connectionManager.getConnectionHandlers();
             for (ConnectionHandler connectionHandler : connectionHandlers) {
                 if (breakLoad()) break;
                 DBObjectListContainer objectListContainer = connectionHandler.getObjectBundle().getObjectListContainer();
@@ -270,7 +271,8 @@ public class GoToDatabaseObjectModel implements ChooseByNameModel {
                 DBObject object = (DBObject) value;
                 setIcon(object.getIcon());
                 append(object.getName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
-                append(" [" + object.getConnectionHandler().getName() + "]", SimpleTextAttributes.GRAY_ATTRIBUTES);
+                ConnectionHandler connectionHandler = FailsafeUtil.get(object.getConnectionHandler());
+                append(" [" + connectionHandler.getName() + "]", SimpleTextAttributes.GRAY_ATTRIBUTES);
                 if (object.getParentObject() != null) {
                     append(" - " + object.getParentObject().getQualifiedName(), SimpleTextAttributes.GRAY_ATTRIBUTES);
                 }

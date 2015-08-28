@@ -1,16 +1,15 @@
 package com.dci.intellij.dbn.data.sorting;
 
-import com.dci.intellij.dbn.common.options.setting.SettingsUtil;
-import org.jdom.Element;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.jdom.Element;
+
+import com.dci.intellij.dbn.common.options.setting.SettingsUtil;
 
 public class SortingState{
-    private int maxColumns = 3;     
     private List<SortingInstruction> sortingInstructions = new ArrayList<SortingInstruction>();
 
-    public boolean applySorting(String columnName, SortDirection direction, boolean keepExisting) {
+    public boolean applySorting(String columnName, SortDirection direction, boolean keepExisting, int maxColumns) {
         SortingInstruction instruction = getInstruction(columnName);
         boolean isNewColumn = instruction == null;
         if (isNewColumn) {
@@ -28,6 +27,10 @@ public class SortingState{
 
 
         if (keepExisting) {
+            while (sortingInstructions.size() > maxColumns) {
+                sortingInstructions.remove(sortingInstructions.size()-1);
+            }
+
             if (isNewColumn) {
                 if (sortingInstructions.size()== maxColumns) {
                     sortingInstructions.remove(sortingInstructions.size()-1);
@@ -88,17 +91,6 @@ public class SortingState{
         return null;
     }
 
-    public int getMaxColumns() {
-        return maxColumns;
-    }
-
-    public void setMaxColumns(int maxColumns) {
-        this.maxColumns = maxColumns;
-        if (sortingInstructions.size() > maxColumns) {
-            sortingInstructions = new ArrayList<SortingInstruction>(sortingInstructions.subList(0, maxColumns));
-        }
-    }
-
     public boolean isValid() {
         return true;
     }
@@ -112,7 +104,7 @@ public class SortingState{
     }
 
     public void writeState(Element element) {
-        for (SortingInstruction sortingInstruction : getSortingInstructions()) {
+        for (SortingInstruction sortingInstruction : sortingInstructions) {
             String columnName = sortingInstruction.getColumnName();
             SortDirection sortDirection = sortingInstruction.getDirection();
             if (columnName != null && !sortDirection.isIndefinite()) {
@@ -140,5 +132,21 @@ public class SortingState{
 
     public int size() {
         return sortingInstructions.size();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        SortingState that = (SortingState) o;
+
+        return sortingInstructions.equals(that.sortingInstructions);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return sortingInstructions.hashCode();
     }
 }

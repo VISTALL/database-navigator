@@ -1,10 +1,18 @@
 package com.dci.intellij.dbn.object.common;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
+import org.jetbrains.annotations.NotNull;
+
 import com.dci.intellij.dbn.common.content.DynamicContent;
 import com.dci.intellij.dbn.common.content.loader.DynamicContentLoader;
 import com.dci.intellij.dbn.common.content.loader.DynamicContentResultSetLoader;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
-import com.dci.intellij.dbn.database.DatabaseCompatibilityInterface;
+import com.dci.intellij.dbn.connection.ConnectionUtil;
 import com.dci.intellij.dbn.database.DatabaseDDLInterface;
 import com.dci.intellij.dbn.database.DatabaseFeature;
 import com.dci.intellij.dbn.database.DatabaseMetadataInterface;
@@ -20,16 +28,8 @@ import com.dci.intellij.dbn.object.common.loader.DBObjectTimestampLoader;
 import com.dci.intellij.dbn.object.common.property.DBObjectProperties;
 import com.dci.intellij.dbn.object.common.property.DBObjectProperty;
 import com.dci.intellij.dbn.object.common.status.DBObjectStatusHolder;
-import com.dci.intellij.dbn.vfs.DatabaseEditableObjectFile;
+import com.dci.intellij.dbn.vfs.DBEditableObjectVirtualFile;
 import com.dci.intellij.dbn.vfs.DatabaseFileSystem;
-import org.jetbrains.annotations.NotNull;
-
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
 
 
 public abstract class DBSchemaObjectImpl extends DBObjectImpl implements DBSchemaObject {
@@ -37,12 +37,12 @@ public abstract class DBSchemaObjectImpl extends DBObjectImpl implements DBSchem
     private DBObjectList<DBObject> referencingObjects;
     private DBObjectStatusHolder objectStatus;
 
-    public DBSchemaObjectImpl(DBSchema schema, DBContentType contentType, ResultSet resultSet) throws SQLException {
-        super(schema, contentType, resultSet);
+    public DBSchemaObjectImpl(DBSchema schema, ResultSet resultSet) throws SQLException {
+        super(schema, resultSet);
     }
 
-    public DBSchemaObjectImpl(DBSchemaObject parent, DBContentType contentType, ResultSet resultSet) throws SQLException {
-        super(parent, contentType, resultSet);
+    public DBSchemaObjectImpl(DBSchemaObject parent, ResultSet resultSet) throws SQLException {
+        super(parent, resultSet);
     }
 
     protected void initProperties() {
@@ -86,8 +86,7 @@ public abstract class DBSchemaObjectImpl extends DBObjectImpl implements DBSchem
     }
 
     public Timestamp loadChangeTimestamp(DBContentType contentType) throws SQLException {
-        DatabaseCompatibilityInterface compatibilityInterface = DatabaseCompatibilityInterface.getInstance(this);
-        if (compatibilityInterface.supportsFeature(DatabaseFeature.OBJECT_CHANGE_TRACING)) {
+        if (DatabaseFeature.OBJECT_CHANGE_TRACING.isSupported(this)) {
             return getTimestampLoader(contentType).load(this);
         }
         return null;
@@ -95,11 +94,6 @@ public abstract class DBSchemaObjectImpl extends DBObjectImpl implements DBSchem
 
     public DBObjectTimestampLoader getTimestampLoader(DBContentType contentType) {
         return new DBObjectTimestampLoader(getTypeName().toUpperCase());
-    }
-
-    public String createDDLStatement(String code) {
-        return getConnectionHandler().getInterfaceProvider().getMetadataInterface().
-                createDDLStatement(getObjectType().getTypeId(), getName(), code);
     }
 
     public DDLFileType getDDLFileType(DBContentType contentType) {
@@ -123,18 +117,49 @@ public abstract class DBSchemaObjectImpl extends DBObjectImpl implements DBSchem
     }
 
     @NotNull
-    public DatabaseEditableObjectFile getVirtualFile() {
+    public DBEditableObjectVirtualFile getVirtualFile() {
         return DatabaseFileSystem.getInstance().findDatabaseFile(this);
+    }
+
+    @Override
+    public List<DBSchema> getReferencingSchemas() throws SQLException {
+        List<DBSchema> schemas = new ArrayList<DBSchema>();
+        ConnectionHandler connectionHandler = getConnectionHandler();
+        if (connectionHandler != null) {
+            Connection connection = connectionHandler.getPoolConnection(getSchema());
+            ResultSet resultSet = null;
+            try {
+                DatabaseMetadataInterface metadataInterface = connectionHandler.getInterfaceProvider().getMetadataInterface();
+                resultSet = metadataInterface.loadReferencingSchemas(getSchema().getName(), getName(), connection);
+                while (resultSet.next()) {
+                    String schemaName = resultSet.getString("SCHEMA_NAME");
+                    DBSchema schema = getConnectionHandler().getObjectBundle().getSchema(schemaName);
+                    if (schema != null)  {
+                        schemas.add(schema);
+                    }
+                }
+                if (schemas.isEmpty()) {
+                    schemas.add(getSchema());
+                }
+
+            } finally {
+                ConnectionUtil.closeResultSet(resultSet);
+                connectionHandler.freePoolConnection(connection);
+            }
+        }
+        return schemas;
     }
 
     public void executeUpdateDDL(DBContentType contentType, String oldCode, String newCode) throws SQLException {
         ConnectionHandler connectionHandler = getConnectionHandler();
-        Connection connection = connectionHandler.getPoolConnection(getSchema());
-        try {
-            DatabaseDDLInterface ddlInterface = connectionHandler.getInterfaceProvider().getDDLInterface();
-            ddlInterface.updateObject(getName(), getObjectType().getName(), oldCode,  newCode, connection);
-        } finally {
-            connectionHandler.freePoolConnection(connection);
+        if (connectionHandler != null) {
+            Connection connection = connectionHandler.getPoolConnection(getSchema());
+            try {
+                DatabaseDDLInterface ddlInterface = connectionHandler.getInterfaceProvider().getDDLInterface();
+                ddlInterface.updateObject(getName(), getObjectType().getName(), oldCode,  newCode, connection);
+            } finally {
+                connectionHandler.freePoolConnection(connection);
+            }
         }
     }
 
@@ -151,16 +176,23 @@ public abstract class DBSchemaObjectImpl extends DBObjectImpl implements DBSchem
         public DBObject createElement(DynamicContent dynamicContent, ResultSet resultSet, LoaderCache loaderCache) throws SQLException {
             String objectOwner = resultSet.getString("OBJECT_OWNER");
             String objectName = resultSet.getString("OBJECT_NAME");
-
-            DBSchemaObject schemaObject = (DBSchemaObject) dynamicContent.getParent();
+            String objectTypeName = resultSet.getString("OBJECT_TYPE");
+            DBObjectType objectType = DBObjectType.getObjectType(objectTypeName);
+            if (objectType == DBObjectType.PACKAGE_BODY) objectType = DBObjectType.PACKAGE;
+            if (objectType == DBObjectType.TYPE_BODY) objectType = DBObjectType.TYPE;
 
             DBSchema schema = (DBSchema) loaderCache.getObject(objectOwner);
+
             if (schema == null) {
-                schema = schemaObject.getConnectionHandler().getObjectBundle().getSchema(objectOwner);
-                loaderCache.setObject(objectOwner,  schema);
+                DBSchemaObject schemaObject = (DBSchemaObject) dynamicContent.getParent();
+                ConnectionHandler connectionHandler = schemaObject.getConnectionHandler();
+                if (connectionHandler != null) {
+                    schema = connectionHandler.getObjectBundle().getSchema(objectOwner);
+                    loaderCache.setObject(objectOwner,  schema);
+                }
             }
 
-            return schema.getChildObject(objectName, true);
+            return schema == null ? null : schema.getChildObject(objectType, objectName, 0, true);
         }
     };
 
@@ -174,10 +206,21 @@ public abstract class DBSchemaObjectImpl extends DBObjectImpl implements DBSchem
         public DBObject createElement(DynamicContent dynamicContent, ResultSet resultSet, LoaderCache loaderCache) throws SQLException {
             String objectOwner = resultSet.getString("OBJECT_OWNER");
             String objectName = resultSet.getString("OBJECT_NAME");
+            String objectTypeName = resultSet.getString("OBJECT_TYPE");
+            DBObjectType objectType = DBObjectType.getObjectType(objectTypeName);
+            if (objectType == DBObjectType.PACKAGE_BODY) objectType = DBObjectType.PACKAGE;
+            if (objectType == DBObjectType.TYPE_BODY) objectType = DBObjectType.TYPE;
 
-            DBSchemaObject schemaObject = (DBSchemaObject) dynamicContent.getParent();
-            DBSchema schema = schemaObject.getConnectionHandler().getObjectBundle().getSchema(objectOwner);
-            return schema == null ? null : schema.getChildObject(objectName, true);
+            DBSchema schema = (DBSchema) loaderCache.getObject(objectOwner);
+            if (schema == null) {
+                DBSchemaObject schemaObject = (DBSchemaObject) dynamicContent.getParent();
+                ConnectionHandler connectionHandler = schemaObject.getConnectionHandler();
+                if (connectionHandler != null) {
+                    schema = connectionHandler.getObjectBundle().getSchema(objectOwner);
+                    loaderCache.setObject(objectOwner,  schema);
+                }
+            }
+            return schema == null ? null : schema.getChildObject(objectType, objectName, 0, true);
         }
     };
 }

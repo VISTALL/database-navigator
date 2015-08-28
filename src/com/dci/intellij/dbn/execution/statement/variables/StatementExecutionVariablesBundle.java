@@ -1,41 +1,51 @@
 package com.dci.intellij.dbn.execution.statement.variables;
 
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import org.jetbrains.annotations.Nullable;
+
+import com.dci.intellij.dbn.common.dispose.Disposable;
 import com.dci.intellij.dbn.common.locale.options.RegionalSettings;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
 import com.dci.intellij.dbn.data.type.DBDataType;
 import com.dci.intellij.dbn.data.type.GenericDataType;
 import com.dci.intellij.dbn.database.DatabaseMetadataInterface;
+import com.dci.intellij.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dci.intellij.dbn.language.common.element.util.IdentifierCategory;
 import com.dci.intellij.dbn.language.common.psi.BasePsiElement;
 import com.dci.intellij.dbn.language.common.psi.ExecVariablePsiElement;
-import com.dci.intellij.dbn.language.common.psi.ExecutablePsiElement;
 import com.dci.intellij.dbn.language.common.psi.IdentifierPsiElement;
+import com.dci.intellij.dbn.language.common.psi.lookup.ObjectLookupAdapter;
 import com.dci.intellij.dbn.object.DBColumn;
-import com.dci.intellij.dbn.object.DBSchema;
 import com.dci.intellij.dbn.object.common.DBObject;
 import com.dci.intellij.dbn.object.common.DBObjectType;
 import com.intellij.openapi.util.text.StringUtil;
 import gnu.trove.THashMap;
 import gnu.trove.THashSet;
-import org.jetbrains.annotations.Nullable;
 
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-public class StatementExecutionVariablesBundle {
+public class StatementExecutionVariablesBundle implements Disposable{
+    public static final Comparator<StatementExecutionVariable> NAME_LENGTH_COMPARATOR = new Comparator<StatementExecutionVariable>() {
+        @Override
+        public int compare(StatementExecutionVariable o1, StatementExecutionVariable o2) {
+            return o2.getName().length() - o1.getName().length();
+        }
+    };
+    public static final Comparator<StatementExecutionVariable> OFFSET_COMPARATOR = new Comparator<StatementExecutionVariable>() {
+        @Override
+        public int compare(StatementExecutionVariable o1, StatementExecutionVariable o2) {
+            return o1.getOffset() - o2.getOffset();
+        }
+    };
     private Map<StatementExecutionVariable, String> errorMap;
     private Set<StatementExecutionVariable> variables = new THashSet<StatementExecutionVariable>();
-    private ConnectionHandler activeConnection;
-    private DBSchema currentSchema;
 
-    public StatementExecutionVariablesBundle(ConnectionHandler activeConnection, DBSchema currentSchema, Set<ExecVariablePsiElement> variablePsiElements) {
-        this.activeConnection = activeConnection;
-        this.currentSchema = currentSchema;
+    public StatementExecutionVariablesBundle(Set<ExecVariablePsiElement> variablePsiElements) {
         initialize(variablePsiElements);
     }
 
@@ -45,12 +55,14 @@ public class StatementExecutionVariablesBundle {
             StatementExecutionVariable variable = getVariable(variablePsiElement.getText());
             if (variable == null) {
                 variable = new StatementExecutionVariable(variablePsiElement);
+            } else {
+                variable.setOffset(variablePsiElement.getTextOffset());
             }
 
             if (variable.getDataType() == null) {
                 DBDataType dataType = lookupDataType(variablePsiElement);
                 if (dataType != null && dataType.isNative()) {
-                    variable.setDataType(dataType.getNativeDataType().getBasicDataType());
+                    variable.setDataType(dataType.getGenericDataType());
                 } else {
                     variable.setDataType(GenericDataType.LITERAL);
                 }
@@ -58,14 +70,6 @@ public class StatementExecutionVariablesBundle {
             newVariables.add(variable);
         }
         variables = newVariables;
-    }
-
-    public ConnectionHandler getActiveConnection() {
-        return activeConnection;
-    }
-
-    public DBSchema getCurrentSchema() {
-        return currentSchema;
     }
 
     public boolean isIncomplete() {
@@ -81,33 +85,20 @@ public class StatementExecutionVariablesBundle {
         return errorMap != null && errorMap.size() > 0;
     }
 
-    private DBDataType lookupDataType(ExecVariablePsiElement variablePsiElement) {
-        BasePsiElement parent = variablePsiElement.lookupEnclosingNamedPsiElement();
-        Set<BasePsiElement> bucket = null;
-        while (parent != null) {
-            bucket = parent.collectObjectPsiElements(bucket, DBObjectType.COLUMN.getFamilyTypes(), IdentifierCategory.REFERENCE);
-            if (bucket != null) {
-                if (bucket.size() > 1) {
-                    return null;
-                }
+    private static DBDataType lookupDataType(ExecVariablePsiElement variablePsiElement) {
+        BasePsiElement conditionPsiElement = variablePsiElement.findEnclosingPsiElement(ElementTypeAttribute.CONDITION);
 
-                if (bucket.size() == 1) {
-                    Object psiElement = bucket.toArray()[0];
-                    if (psiElement instanceof IdentifierPsiElement) {
-                        IdentifierPsiElement columnPsiElement = (IdentifierPsiElement) psiElement;
-                        DBObject object = columnPsiElement.resolveUnderlyingObject();
-                        if (object != null && object instanceof DBColumn) {
-                            DBColumn column = (DBColumn) object;
-                            return column.getDataType();
-                        }
-
-                    }
-                    return null;
+        if (conditionPsiElement != null) {
+            ObjectLookupAdapter lookupAdapter = new ObjectLookupAdapter(variablePsiElement, IdentifierCategory.REFERENCE, DBObjectType.COLUMN);
+            BasePsiElement basePsiElement = lookupAdapter.findInScope(conditionPsiElement);
+            if (basePsiElement instanceof IdentifierPsiElement) {
+                IdentifierPsiElement columnPsiElement = (IdentifierPsiElement) basePsiElement;
+                DBObject object = columnPsiElement.resolveUnderlyingObject();
+                if (object != null && object instanceof DBColumn) {
+                    DBColumn column = (DBColumn) object;
+                    return column.getDataType();
                 }
             }
-
-            parent = parent.lookupEnclosingNamedPsiElement();
-            if (parent instanceof ExecutablePsiElement) break;
         }
         return null;
     }
@@ -126,20 +117,20 @@ public class StatementExecutionVariablesBundle {
         return variables;
     }
 
-    public String prepareStatementText(ConnectionHandler connectionHandler, String statementText, boolean temporary) {
+    public String prepareStatementText(ConnectionHandler connectionHandler, String statementText, boolean forPreview) {
         errorMap = null;
         List<StatementExecutionVariable> variables = new ArrayList<StatementExecutionVariable>(this.variables);
-        Collections.sort(variables);
+        Collections.sort(variables, NAME_LENGTH_COMPARATOR);
         for (StatementExecutionVariable variable : variables) {
-            String value = temporary ? variable.getTemporaryValueProvider().getValue() : variable.getValue();
-            GenericDataType genericDataType = temporary ? variable.getTemporaryValueProvider().getDataType() : variable.getDataType();
+            String value = forPreview ? variable.getPreviewValueProvider().getValue() : variable.getValue();
+            GenericDataType genericDataType = forPreview ? variable.getPreviewValueProvider().getDataType() : variable.getDataType();
 
             if (!StringUtil.isEmpty(value)) {
                 RegionalSettings regionalSettings = RegionalSettings.getInstance(connectionHandler.getProject());
 
                 if (genericDataType == GenericDataType.LITERAL) {
                     value = StringUtil.replace(value, "'", "''");
-                    value = "'" + value + "'" ;
+                    value = '\'' + value + '\'';
                 } else if (genericDataType == GenericDataType.DATE_TIME){
                     DatabaseMetadataInterface metadataInterface = connectionHandler.getInterfaceProvider().getMetadataInterface();
                     try {
@@ -179,5 +170,17 @@ public class StatementExecutionVariablesBundle {
 
     public String getError(StatementExecutionVariable variable) {
         return errorMap == null ? null : errorMap.get(variable);
+    }
+
+    private boolean disposed;
+
+    @Override
+    public boolean isDisposed() {
+        return disposed;
+    }
+
+    @Override
+    public void dispose() {
+        disposed = true;
     }
 }

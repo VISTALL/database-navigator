@@ -1,7 +1,7 @@
 package com.dci.intellij.dbn.navigation.action;
 
-import com.dci.intellij.dbn.common.editor.BasicTextEditor;
 import com.dci.intellij.dbn.common.util.ClipboardUtil;
+import com.dci.intellij.dbn.common.util.EditorUtil;
 import com.dci.intellij.dbn.common.util.StringUtil;
 import com.dci.intellij.dbn.connection.ConnectionBundle;
 import com.dci.intellij.dbn.connection.ConnectionHandler;
@@ -11,7 +11,7 @@ import com.dci.intellij.dbn.navigation.options.ObjectsLookupSettings;
 import com.dci.intellij.dbn.object.DBSchema;
 import com.dci.intellij.dbn.object.common.DBObject;
 import com.dci.intellij.dbn.object.common.property.DBObjectProperty;
-import com.dci.intellij.dbn.options.GlobalProjectSettings;
+import com.dci.intellij.dbn.options.ProjectSettingsManager;
 import com.dci.intellij.dbn.vfs.DatabaseFileSystem;
 import com.intellij.ide.actions.GotoActionBase;
 import com.intellij.ide.util.gotoByName.ChooseByNamePopup;
@@ -21,43 +21,42 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.application.ModalityState;
+import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
-import com.intellij.openapi.fileEditor.TextEditor;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.ui.popup.ListPopup;
 import com.intellij.openapi.util.Condition;
 
-import java.util.List;
-
 public class GoToDatabaseObjectAction extends GotoActionBase implements DumbAware {
     private ConnectionHandler latestSelection; // todo move to data context
+    private String latestUsedText;
     private String latestPredefinedText;
+    private String latestClipboardText;
+    private ChooseByNamePopup popup;
     public void gotoActionPerformed(AnActionEvent event) {
         //FeatureUsageTracker.getInstance().triggerFeatureUsed("navigation.popup.file");
         Project project = event.getData(PlatformDataKeys.PROJECT);
 
         if (project != null) {
-            ObjectsLookupSettings objectsLookupSettings = GlobalProjectSettings.getInstance(project).getNavigationSettings().getObjectsLookupSettings();
+            ObjectsLookupSettings objectsLookupSettings = ProjectSettingsManager.getSettings(project).getNavigationSettings().getObjectsLookupSettings();
             if (objectsLookupSettings.getPromptConnectionSelection().value()) {
                 ConnectionHandler singleConnectionHandler = null;
                 DefaultActionGroup actionGroup = new DefaultActionGroup();
 
                 ConnectionManager connectionManager = ConnectionManager.getInstance(project);
-                List<ConnectionBundle> connectionBundles = connectionManager.getConnectionBundles();
-                for (ConnectionBundle connectionBundle : connectionBundles) {
-                    if (connectionBundle.getConnectionHandlers().size() > 0) {
-                        if ((actionGroup.getChildrenCount() > 1)) {
-                            actionGroup.addSeparator();
-                        }
+                ConnectionBundle connectionBundle = connectionManager.getConnectionBundle();
+                if (connectionBundle.getConnectionHandlers().size() > 0) {
+                    if ((actionGroup.getChildrenCount() > 1)) {
+                        actionGroup.addSeparator();
+                    }
 
-                        for (ConnectionHandler connectionHandler : connectionBundle.getConnectionHandlers()) {
-                            SelectConnectionAction connectionAction = new SelectConnectionAction(connectionHandler);
-                            actionGroup.add(connectionAction);
-                            singleConnectionHandler = connectionHandler;
-                        }
+                    for (ConnectionHandler connectionHandler : connectionBundle.getConnectionHandlers()) {
+                        SelectConnectionAction connectionAction = new SelectConnectionAction(connectionHandler);
+                        actionGroup.add(connectionAction);
+                        singleConnectionHandler = connectionHandler;
                     }
                 }
 
@@ -79,6 +78,28 @@ public class GoToDatabaseObjectAction extends GotoActionBase implements DumbAwar
                                     return latestSelection == selectConnectionAction.connectionHandler;
                                 }
                             });
+
+/*                    if (popupBuilder instanceof ListPopupImpl) {
+                        ListPopupImpl listPopup = (ListPopupImpl) popupBuilder;
+                        listPopup.getList().setCellRenderer(new DefaultListCellRenderer(){
+                            @Override
+                            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                                PopupFactoryImpl.ActionItem actionItem  = (PopupFactoryImpl.ActionItem) value;
+                                Component component = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                                if (component instanceof JLabel) {
+                                    JLabel label = (JLabel) component;
+                                    label.setIcon(actionItem.getIcon());
+                                    label.setText(actionItem.getText().replace("&", ""));
+                                    AnAction action = actionItem.getAction();
+                                    if (!isSelected && action instanceof SelectConnectionAction) {
+                                        SelectConnectionAction selectConnectionAction = (SelectConnectionAction) action;
+                                        label.setBackground(selectConnectionAction.connectionHandler.getEnvironmentType().getColor());
+                                    }
+                                }
+                                return component;
+                            }
+                        });
+                    }*/
 
                     popupBuilder.showCenteredInCurrentWindow(project);
                 } else {
@@ -107,6 +128,11 @@ public class GoToDatabaseObjectAction extends GotoActionBase implements DumbAwar
             showLookupPopup(e, project, connectionHandler, null);
             latestSelection = connectionHandler;
         }
+
+        @Override
+        public void update(AnActionEvent e) {
+            super.update(e);
+        }
     }
 
     private void showLookupPopup(AnActionEvent e, Project project, ConnectionHandler connectionHandler, DBSchema selectedSchema) {
@@ -117,7 +143,7 @@ public class GoToDatabaseObjectAction extends GotoActionBase implements DumbAwar
             GoToDatabaseObjectModel model = new GoToDatabaseObjectModel(project, connectionHandler, selectedSchema);
             String predefinedText = getPredefinedText(project);
 
-            ChooseByNamePopup popup = ChooseByNamePopup.createPopup(project, model, getPsiContext(e), predefinedText);
+            popup = ChooseByNamePopup.createPopup(project, model, getPsiContext(e), predefinedText);
             popup.invoke(new Callback(model), ModalityState.current(), false);
         }
     }
@@ -126,12 +152,9 @@ public class GoToDatabaseObjectAction extends GotoActionBase implements DumbAwar
         String predefinedText = null;
         FileEditor[] selectedEditors = FileEditorManager.getInstance(project).getSelectedEditors();
         for (FileEditor fileEditor : selectedEditors) {
-            if (fileEditor instanceof BasicTextEditor) {
-                BasicTextEditor textEditor = (BasicTextEditor) fileEditor;
-                predefinedText = textEditor.getEditor().getSelectionModel().getSelectedText();
-            } else if (fileEditor instanceof TextEditor) {
-                TextEditor textEditor = (TextEditor) fileEditor;
-                predefinedText = textEditor.getEditor().getSelectionModel().getSelectedText();
+            Editor editor = EditorUtil.getEditor(fileEditor);
+            if (editor != null) {
+                predefinedText = editor.getSelectionModel().getSelectedText();
             }
             if (isValidPredefinedText(predefinedText)) {
                 break;
@@ -140,23 +163,33 @@ public class GoToDatabaseObjectAction extends GotoActionBase implements DumbAwar
             }
         }
 
+        String clipboardText = StringUtil.trim(ClipboardUtil.getStringContent());
         if (predefinedText == null) {
-            predefinedText = ClipboardUtil.getStringContent();
-            if (!isValidPredefinedText(predefinedText)) {
+            if (isValidPredefinedText(clipboardText)) {
+                if (StringUtil.isNotEmpty(latestUsedText) &&
+                        clipboardText.equals(latestClipboardText) &&
+                        !latestUsedText.equals(clipboardText)) {
+
+                    predefinedText = latestUsedText;
+                } else {
+                    predefinedText = clipboardText;
+                }
+            } else {
                 predefinedText = latestPredefinedText;
+
             }
         }
 
-
+        latestClipboardText = clipboardText;
         latestPredefinedText = StringUtil.trim(predefinedText);
         return latestPredefinedText;
     }
 
-    private boolean isValidPredefinedText(String predefinedText) {
+    private static boolean isValidPredefinedText(String predefinedText) {
         return predefinedText != null && !predefinedText.contains("\n") && predefinedText.trim().length() < 50;
     }
 
-    private void removeActionLock() {
+    private static void removeActionLock() {
         if (GoToDatabaseObjectAction.class.equals(myInAction)) {
             myInAction = null;
         }
@@ -174,7 +207,7 @@ public class GoToDatabaseObjectAction extends GotoActionBase implements DumbAwar
             if (element instanceof DBObject) {
                 DBObject object = (DBObject) element;
                 if (object.getProperties().is(DBObjectProperty.EDITABLE)) {
-                    DatabaseFileSystem.getInstance().openEditor(object);
+                    DatabaseFileSystem.getInstance().openEditor(object, null, true);
                 } else {
                     object.navigate(true);
                 }
@@ -184,6 +217,8 @@ public class GoToDatabaseObjectAction extends GotoActionBase implements DumbAwar
         @Override
         public void onClose() {
             removeActionLock();
+            latestUsedText = popup.getEnteredText();
+            popup = null;
         }
     }
 

@@ -1,5 +1,15 @@
 package com.dci.intellij.dbn.language.common.element;
 
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
+import java.io.StringWriter;
+import java.util.Map;
+import java.util.Set;
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.output.XMLOutputter;
+
 import com.dci.intellij.dbn.language.common.DBLanguageDialect;
 import com.dci.intellij.dbn.language.common.TokenTypeBundle;
 import com.dci.intellij.dbn.language.common.element.impl.BasicElementTypeImpl;
@@ -8,12 +18,12 @@ import com.dci.intellij.dbn.language.common.element.impl.ExecVariableElementType
 import com.dci.intellij.dbn.language.common.element.impl.IdentifierElementTypeImpl;
 import com.dci.intellij.dbn.language.common.element.impl.IterationElementTypeImpl;
 import com.dci.intellij.dbn.language.common.element.impl.NamedElementTypeImpl;
-import com.dci.intellij.dbn.language.common.element.impl.NestedRangeElementType;
 import com.dci.intellij.dbn.language.common.element.impl.OneOfElementTypeImpl;
 import com.dci.intellij.dbn.language.common.element.impl.QualifiedIdentifierElementTypeImpl;
 import com.dci.intellij.dbn.language.common.element.impl.SequenceElementTypeImpl;
 import com.dci.intellij.dbn.language.common.element.impl.TokenElementTypeImpl;
 import com.dci.intellij.dbn.language.common.element.impl.WrapperElementTypeImpl;
+import com.dci.intellij.dbn.language.common.element.impl.WrappingDefinition;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeDefinition;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeDefinitionException;
@@ -21,30 +31,18 @@ import com.dci.intellij.dbn.object.common.DBObjectType;
 import com.intellij.openapi.diagnostic.Logger;
 import gnu.trove.THashMap;
 import gnu.trove.THashSet;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.output.XMLOutputter;
-
-import java.awt.Toolkit;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.StringSelection;
-import java.io.StringWriter;
-import java.util.Map;
-import java.util.Set;
 
 public class ElementTypeBundle {
     private final Logger log = Logger.getInstance(getClass().getName());
     private TokenTypeBundle tokenTypeBundle;
-    private NestedRangeElementType nestedRangeElementType;
     private BasicElementType unknownElementType;
     private NamedElementType rootElementType;
 
-    private Set<ElementType> complexElementTypes = new THashSet<ElementType>();
     private Set<LeafElementType> leafElementTypes = new THashSet<LeafElementType>();
     private Set<WrapperElementType> wrapperElementTypes = new THashSet<WrapperElementType>();
+    private Set<ElementType> wrappedElementTypes = new THashSet<ElementType>();
     private Set<OneOfElementType> oneOfElementTypes = new THashSet<OneOfElementType>();
     private final Map<String, NamedElementType> namedElementTypes = new THashMap<String, NamedElementType>();
-    private final Set<ElementType> virtualObjectElementTypes = new THashSet<ElementType>();
     private final DBLanguageDialect languageDialect;
     private boolean rewriteIndexes;
 
@@ -65,7 +63,7 @@ public class ElementTypeBundle {
                 if (!namedElementType.isDefinitionLoaded()) {
                     namedElementType.update(unknown);
                     //log.info("ERROR: element '" + namedElementType.getId() + "' not defined.");
-                    System.out.println("DEBUG - [" + getLanguageDialect().getID() + "] undefined element type: " + namedElementType.getId());
+                    System.out.println("DEBUG - [" + this.languageDialect.getID() + "] undefined element type: " + namedElementType.getId());
 /*
                     if (DatabaseNavigator.getInstance().isDebugModeEnabled()) {
                         System.out.println("WARNING - [" + getLanguageDialect().getID() + "] undefined element type: " + namedElementType.getId());
@@ -83,8 +81,10 @@ public class ElementTypeBundle {
                 wrapperElementType.getEndTokenElement().registerLeaf();
             }
 
-            for (ElementType virtualObjectElementType : virtualObjectElementTypes) {
-                virtualObjectElementType.registerVirtualObject(virtualObjectElementType.getVirtualObjectType());
+            for (ElementType wrappedElementType : wrappedElementTypes) {
+                WrappingDefinition wrapping = wrappedElementType.getWrapping();
+                wrapping.getBeginElementType().registerLeaf();
+                wrapping.getEndElementType().registerLeaf();
             }
 
             if (rewriteIndexes) {
@@ -105,20 +105,9 @@ public class ElementTypeBundle {
         }
     }
 
-    public Set<ElementType> getComplexElementTypes() {
-        return complexElementTypes;
-    }
-
     public TokenTypeBundle getTokenTypeBundle() {
         return tokenTypeBundle;
     }
-
-    private void warnAmbiguousBranches() {
-        for (OneOfElementType oneOfElementType : oneOfElementTypes) {
-            oneOfElementType.warnAmbiguousBranches();
-        }
-    }
-
 
     public void markIndexesDirty() {
         this.rewriteIndexes = true;
@@ -130,7 +119,7 @@ public class ElementTypeBundle {
 
     private void createNamedElementType(Element def) throws ElementTypeDefinitionException {
         String id = determineMandatoryAttribute(def, "id", "Invalid definition of named element type.");
-        log.debug("Updating complex element definition '" + id + "'");
+        log.debug("Updating complex element definition '" + id + '\'');
         NamedElementType elementType = getNamedElementType(id, null);
         elementType.loadDefinition(def);
         if (elementType.is(ElementTypeAttribute.ROOT)) {
@@ -189,16 +178,15 @@ public class ElementTypeBundle {
         } else if (ElementTypeDefinition.EXEC_VARIABLE.is(type)) {
             result = new ExecVariableElementTypeImpl(this, parent, createId(), def);            
         }  else {
-            throw new ElementTypeDefinitionException("Could not resolve element definition '" + type + "'");
+            throw new ElementTypeDefinitionException("Could not resolve element definition '" + type + '\'');
         }
-        if (result instanceof LeafElementType)
-            leafElementTypes.add((LeafElementType) result); else
-            complexElementTypes.add(result);
-
-        if (result.isVirtualObject()) {
-            virtualObjectElementTypes.add(result);
+        if (result instanceof LeafElementType) {
+            leafElementTypes.add((LeafElementType) result);
         }
-
+        WrappingDefinition wrapping = result.getWrapping();
+        if (wrapping != null) {
+            wrappedElementTypes.add(result);
+        }
         return result;
     }
 
@@ -206,7 +194,7 @@ public class ElementTypeBundle {
     public static DBObjectType resolveObjectType(String name) throws ElementTypeDefinitionException {
         DBObjectType objectType = DBObjectType.getObjectType(name);
         if (objectType == null)
-            throw new ElementTypeDefinitionException("Invalid object type '" + name + "'");
+            throw new ElementTypeDefinitionException("Invalid object type '" + name + '\'');
         return objectType;
     }
 
@@ -226,7 +214,7 @@ public class ElementTypeBundle {
         if (elementType == null) {
             elementType = new NamedElementTypeImpl(this, id);
             namedElementTypes.put(id, elementType);
-            log.debug("Created named element type '" + id + "'");
+            log.debug("Created named element type '" + id + '\'');
         }
         if (parent != null) elementType.addParent(parent);
         return elementType;
@@ -249,13 +237,6 @@ public class ElementTypeBundle {
             unknownElementType = new BasicElementTypeImpl(this);
         }
         return unknownElementType;
-    }
-
-    public NestedRangeElementType getNestedRangeElementType() {
-        if (nestedRangeElementType == null) {
-            nestedRangeElementType = new NestedRangeElementType(this);
-        }
-        return nestedRangeElementType;
     }
 
     public String createId() {

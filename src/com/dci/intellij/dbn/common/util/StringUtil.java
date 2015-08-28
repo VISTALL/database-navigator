@@ -1,11 +1,10 @@
 package com.dci.intellij.dbn.common.util;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class StringUtil extends com.intellij.openapi.util.text.StringUtil {
     @NotNull
@@ -157,7 +156,7 @@ public class StringUtil extends com.intellij.openapi.util.text.StringUtil {
         return unicodeString.toString();
     }
 
-    public static String trim(String message) {
+    public static @NotNull String trim(@Nullable String message) {
         return isEmptyOrSpaces(message) ? "" : message.trim();
     }
 
@@ -336,6 +335,31 @@ public class StringUtil extends com.intellij.openapi.util.text.StringUtil {
             }
         }
         return true;
+    }
+
+    public static String[] toStringArray(String separatedValues, String separator) {
+        String[] array = null;
+        if (separatedValues != null) {
+            StringTokenizer tokenizer = new StringTokenizer(separatedValues, separator);
+            array = new String[tokenizer.countTokens()];
+            int index = 0;
+            while (tokenizer.hasMoreTokens()) {
+                array[index] = tokenizer.nextToken().trim();
+                index++;
+            }
+        }
+        return array;
+    }
+    public static List<String> toStringList(String separatedValues, String separator) {
+        List<String> list = null;
+        if (separatedValues != null) {
+            StringTokenizer tokenizer = new StringTokenizer(separatedValues, separator);
+            list = new ArrayList<String>(tokenizer.countTokens());
+            while (tokenizer.hasMoreTokens()) {
+                list.add(tokenizer.nextToken().trim());
+            }
+        }
+        return list;
     }
 }
 

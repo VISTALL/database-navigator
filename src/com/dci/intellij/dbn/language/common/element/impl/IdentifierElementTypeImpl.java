@@ -1,5 +1,7 @@
 package com.dci.intellij.dbn.language.common.element.impl;
 
+import org.jdom.Element;
+
 import com.dci.intellij.dbn.code.common.style.formatting.FormattingDefinition;
 import com.dci.intellij.dbn.code.common.style.formatting.SpacingDefinition;
 import com.dci.intellij.dbn.language.common.element.ElementType;
@@ -8,15 +10,16 @@ import com.dci.intellij.dbn.language.common.element.IdentifierElementType;
 import com.dci.intellij.dbn.language.common.element.LeafElementType;
 import com.dci.intellij.dbn.language.common.element.lookup.IdentifierElementTypeLookupCache;
 import com.dci.intellij.dbn.language.common.element.parser.impl.IdentifierElementTypeParser;
+import com.dci.intellij.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeDefinition;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeDefinitionException;
 import com.dci.intellij.dbn.language.common.element.util.IdentifierCategory;
 import com.dci.intellij.dbn.language.common.element.util.IdentifierType;
 import com.dci.intellij.dbn.language.common.psi.IdentifierPsiElement;
+import com.dci.intellij.dbn.language.common.resolve.UnderlyingObjectResolver;
 import com.dci.intellij.dbn.object.common.DBObjectType;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
-import org.jdom.Element;
 
 
 public class IdentifierElementTypeImpl extends LeafElementTypeImpl implements IdentifierElementType {
@@ -25,6 +28,7 @@ public class IdentifierElementTypeImpl extends LeafElementTypeImpl implements Id
     private IdentifierType identifierType;
     private IdentifierCategory identifierCategory;
     private DBObjectType objectType;
+    private String underlyingObjectResolverId;
     private boolean referenceable; // is referenceable ()
     private boolean localReference; // is local reference
 
@@ -63,6 +67,8 @@ public class IdentifierElementTypeImpl extends LeafElementTypeImpl implements Id
 
         referenceable = Boolean.parseBoolean(def.getAttributeValue("referenceable"));
         localReference = Boolean.parseBoolean(def.getAttributeValue("local"));
+
+        underlyingObjectResolverId = def.getAttributeValue("underlying-object-resolver");
 
         if (isDefinition()) {
             setDefaultFormatting(FORMATTING);
@@ -152,10 +158,15 @@ public class IdentifierElementTypeImpl extends LeafElementTypeImpl implements Id
         return objectType.matches(type);
     }
 
+    @Override
+    public boolean isSubject() {
+        return is(ElementTypeAttribute.SUBJECT);
+    }
+
     public boolean isSameAs(LeafElementType elementType) {
         if (elementType instanceof IdentifierElementType) {
             IdentifierElementType identifierElementType = (IdentifierElementType) elementType;
-            return  identifierElementType.getObjectType() == objectType &&
+            return  identifierElementType.getObjectType().matches(objectType) &&
                     identifierElementType.getIdentifierType() == identifierType &&
                     identifierElementType.getIdentifierCategory() == identifierCategory;
         }
@@ -164,5 +175,10 @@ public class IdentifierElementTypeImpl extends LeafElementTypeImpl implements Id
 
     public boolean isIdentifier() {
         return true;
+    }
+
+    @Override
+    public UnderlyingObjectResolver getUnderlyingObjectResolver() {
+        return underlyingObjectResolverId == null ? null : UnderlyingObjectResolver.get(underlyingObjectResolverId);
     }
 }

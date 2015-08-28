@@ -1,5 +1,13 @@
 package com.dci.intellij.dbn.editor.data.ui.table.cell;
 
+import javax.swing.JLabel;
+import javax.swing.JTextField;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import java.awt.Color;
+import java.awt.Insets;
+import java.awt.event.KeyEvent;
+
 import com.dci.intellij.dbn.common.Colors;
 import com.dci.intellij.dbn.common.ui.KeyUtil;
 import com.dci.intellij.dbn.data.editor.ui.TextFieldWithTextEditor;
@@ -11,14 +19,6 @@ import com.intellij.openapi.actionSystem.IdeActions;
 import com.intellij.openapi.actionSystem.Shortcut;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.RoundedLineBorder;
-
-import javax.swing.JLabel;
-import javax.swing.JTextField;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
-import java.awt.Color;
-import java.awt.Insets;
-import java.awt.event.KeyEvent;
 
 public class DatasetTableCellEditorWithTextEditor extends DatasetTableCellEditor {
     private static final Insets EMPTY_INSETS = new Insets(0, 0, 0, 0);
@@ -60,15 +60,16 @@ public class DatasetTableCellEditorWithTextEditor extends DatasetTableCellEditor
         setCell(cell);
         ColumnInfo columnInfo = cell.getColumnInfo();
         DBDataType dataType = columnInfo.getDataType();
+        JTextField textField = getTextField();
         if (dataType.isNative()) {
             highlight(cell.hasError() ? HIGHLIGHT_TYPE_ERROR : HIGHLIGHT_TYPE_NONE);
-            if (dataType.getNativeDataType().isLOB()) {
+            if (dataType.getNativeDataType().isLargeObject()) {
                 setEditable(false);
             } else {
                 String userValue = (String) cell.getUserValue();
                 setEditable(userValue == null || (userValue.length() < 1000 && userValue.indexOf('\n') == -1));
             }
-            selectText(getTextField());
+            selectText(textField);
         }
     }
 

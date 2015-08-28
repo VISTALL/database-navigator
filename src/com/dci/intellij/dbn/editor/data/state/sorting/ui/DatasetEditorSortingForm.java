@@ -3,6 +3,7 @@ package com.dci.intellij.dbn.editor.data.state.sorting.ui;
 import com.dci.intellij.dbn.common.ui.DBNFormImpl;
 import com.dci.intellij.dbn.common.ui.DBNHeaderForm;
 import com.dci.intellij.dbn.common.ui.ValueSelector;
+import com.dci.intellij.dbn.common.ui.ValueSelectorListener;
 import com.dci.intellij.dbn.data.sorting.SortDirection;
 import com.dci.intellij.dbn.data.sorting.SortingInstruction;
 import com.dci.intellij.dbn.data.sorting.SortingState;
@@ -11,19 +12,16 @@ import com.dci.intellij.dbn.object.DBColumn;
 import com.dci.intellij.dbn.object.DBDataset;
 import com.dci.intellij.dbn.object.lookup.DBObjectRef;
 import com.intellij.util.PlatformIcons;
-import com.intellij.util.ui.UIUtil;
 
 import javax.swing.BoxLayout;
-import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class DatasetEditorSortingForm extends DBNFormImpl{
+public class DatasetEditorSortingForm extends DBNFormImpl<DatasetEditorSortingDialog>{
     private JPanel mainPanel;
     private JPanel sortingInstructionsPanel;
     private JPanel actionsPanel;
@@ -34,16 +32,17 @@ public class DatasetEditorSortingForm extends DBNFormImpl{
     private SortingState sortingState;
 
 
-    public DatasetEditorSortingForm(DatasetEditor datasetEditor) {
+    public DatasetEditorSortingForm(DatasetEditorSortingDialog parentComponent, DatasetEditor datasetEditor) {
+        super(parentComponent);
         DBDataset dataset = datasetEditor.getDataset();
-        sortingState = datasetEditor.getState().getSortingState();
+        sortingState = datasetEditor.getEditorState().getSortingState();
         this.datasetRef = DBObjectRef.from(dataset);
 
         BoxLayout sortingInstructionsPanelLayout = new BoxLayout(sortingInstructionsPanel, BoxLayout.Y_AXIS);
         sortingInstructionsPanel.setLayout(sortingInstructionsPanelLayout);
 
         for (SortingInstruction sortingInstruction : sortingState.getSortingInstructions()) {
-            DatasetSortingColumnForm sortingInstructionForm = new DatasetSortingColumnForm(this, sortingInstruction);
+            DatasetSortingColumnForm sortingInstructionForm = new DatasetSortingColumnForm(this, sortingInstruction.clone());
             sortingInstructionForms.add(sortingInstructionForm);
             sortingInstructionsPanel.add(sortingInstructionForm.getComponent());
         }
@@ -60,23 +59,25 @@ public class DatasetEditorSortingForm extends DBNFormImpl{
 */
     }
 
+    public List<DatasetSortingColumnForm> getSortingInstructionForms() {
+        return sortingInstructionForms;
+    }
+
     private void createHeaderForm(DBDataset dataset) {
-        String headerTitle = dataset.getQualifiedName();
-        Icon headerIcon = dataset.getIcon();
-        Color headerBackground = UIUtil.getPanelBackground();
-        if (getEnvironmentSettings(dataset.getProject()).getVisibilitySettings().getDialogHeaders().value()) {
-            headerBackground = dataset.getEnvironmentType().getColor();
-        }
-        DBNHeaderForm headerForm = new DBNHeaderForm(
-                headerTitle,
-                headerIcon,
-                headerBackground);
+        DBNHeaderForm headerForm = new DBNHeaderForm(dataset);
         headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
     }
 
     private class ColumnSelector extends ValueSelector<DBColumn> {
         public ColumnSelector() {
             super(PlatformIcons.ADD_ICON, "Add Sorting Column...", null, false);
+            addListener(new ValueSelectorListener<DBColumn>() {
+                @Override
+                public void valueSelected(DBColumn column) {
+                    addSortingColumn(column);
+                    resetValues();
+                }
+            });
         }
 
         @Override
@@ -88,8 +89,13 @@ public class DatasetEditorSortingForm extends DBNFormImpl{
         }
 
         @Override
-        public void valueSelected(DBColumn column) {
-            addSortingColumn(column);
+        public boolean isVisible(DBColumn value) {
+            for (DatasetSortingColumnForm sortingColumnForm : sortingInstructionForms) {
+                if (sortingColumnForm.getSortingInstruction().getColumnName().equalsIgnoreCase(value.getName())) {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 
@@ -110,7 +116,8 @@ public class DatasetEditorSortingForm extends DBNFormImpl{
             sortingInstructionForms.add(sortingInstructionForm);
             sortingInstructionsPanel.add(sortingInstructionForm.getComponent());
             updateIndexes();
-            sortingInstructionsPanel.updateUI();
+            sortingInstructionsPanel.revalidate();
+            sortingInstructionsPanel.repaint();
         }
     }
 
@@ -126,7 +133,8 @@ public class DatasetEditorSortingForm extends DBNFormImpl{
         sortingInstructionForms.remove(sortingInstructionForm);
         updateIndexes();
         sortingInstructionForm.dispose();
-        sortingInstructionsPanel.updateUI();
+        sortingInstructionsPanel.revalidate();
+        sortingInstructionsPanel.repaint();
     }
 
     public void applyChanges() {

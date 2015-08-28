@@ -1,5 +1,13 @@
 package com.dci.intellij.dbn.object.common.list;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import com.dci.intellij.dbn.browser.model.BrowserTreeNode;
 import com.dci.intellij.dbn.common.content.DynamicContentType;
 import com.dci.intellij.dbn.common.content.dependency.BasicDependencyAdapter;
@@ -14,11 +22,6 @@ import com.dci.intellij.dbn.database.DatabaseCompatibilityInterface;
 import com.dci.intellij.dbn.object.common.DBObject;
 import com.dci.intellij.dbn.object.common.DBObjectType;
 import com.intellij.openapi.Disposable;
-import gnu.trove.THashMap;
-
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
 
 public class DBObjectListContainer implements Disposable {
     private Map<DBObjectType, DBObjectList<DBObject>> objectLists;
@@ -28,7 +31,19 @@ public class DBObjectListContainer implements Disposable {
     public DBObjectListContainer(GenericDatabaseElement owner) {
         this.owner = owner;
     }
-    
+
+    public List<DBObjectList<DBObject>> getAllObjectLists() {
+        List<DBObjectList<DBObject>> allObjectLists = new ArrayList<DBObjectList<DBObject>>();
+        if (objectLists != null)  {
+            allObjectLists.addAll(objectLists.values());
+        }
+        if (hiddenObjectLists != null)  {
+            allObjectLists.addAll(hiddenObjectLists.values());
+        }
+        Collections.sort(allObjectLists);
+        return allObjectLists;
+    }
+
     public Collection<DBObjectList<DBObject>> getObjectLists() {
         return objectLists == null ? null : objectLists.values();
     }
@@ -55,16 +70,16 @@ public class DBObjectListContainer implements Disposable {
     }
 
 
-    public DBObject getObject(DBObjectType objectType, String name) {
+    public DBObject getObject(DBObjectType objectType, String name, int overload) {
         DBObjectList objectList = getObjectList(objectType);
         if (objectList != null) {
-            return objectList.getObject(name);
+            return objectList.getObject(name, overload);
         }
 
         if (objectType.getInheritingTypes().size() > 0) {
             Set<DBObjectType> objectTypes = objectType.getInheritingTypes();
             for (DBObjectType objType : objectTypes) {
-                DBObject object = getObject(objType, name);
+                DBObject object = getObject(objType, name, overload);
                 if (object != null) {
                     return object;
                 }
@@ -74,13 +89,13 @@ public class DBObjectListContainer implements Disposable {
         return null;
     }
 
-    public <T extends DBObject> T getHiddenObject(DBObjectType objectType, String name) {
+    public <T extends DBObject> T getHiddenObject(DBObjectType objectType, String name, int overload) {
         if (objectType.isGeneric()) {
             Set<DBObjectType> objectTypes = objectType.getInheritingTypes();
             for (DBObjectType objType : objectTypes) {
                 DBObjectList<T> objectList = getHiddenObjectList(objType);
                 if (objectList != null) {
-                    T object = objectList.getObject(name);
+                    T object = objectList.getObject(name, overload);
                     if (object != null) {
                         return object;
                     }
@@ -89,15 +104,15 @@ public class DBObjectListContainer implements Disposable {
         } else {
             DBObjectList<T> objectList = getHiddenObjectList(objectType);
             if (objectList != null) {
-                return objectList.getObject(name);
+                return objectList.getObject(name, overload);
             }
         }
         return null;
     }
 
-    public DBObject getObject(String name) {
+    public DBObject getObject(String name, int overload) {
         for (DBObjectList objectList : objectLists.values()) {
-            DBObject object = objectList.getObject(name);
+            DBObject object = objectList.getObject(name, overload);
             if (object != null) {
                 return object;
             }
@@ -105,33 +120,22 @@ public class DBObjectListContainer implements Disposable {
         return null;
     }
 
-    public DBObject getHiddenObject(String name) {
-        for (DBObjectList objectList : hiddenObjectLists.values()) {
-            DBObject object = objectList.getObject(name);
-            if (object != null) {
-                return object;
-            }
-        }
-        return null;
-    }
-
-
-    public DBObject getObjectForParentType(DBObjectType parentObjectType, String name, boolean lookupHidden) {
+    public DBObject getObjectForParentType(DBObjectType parentObjectType, String name, int overload, boolean lookupHidden) {
         for (DBObjectList objectList : objectLists.values()) {
             DBObjectType objectType = objectList.getObjectType();
             if (objectType.getParents().contains(parentObjectType)) {
-                DBObject object = objectList.getObject(name);
+                DBObject object = objectList.getObject(name, overload);
                 if (object != null) {
                     return object;
                 }
             }
         }
 
-        if (lookupHidden) {
+        if (hiddenObjectLists != null && lookupHidden) {
             for (DBObjectList objectList : hiddenObjectLists.values()) {
                 DBObjectType objectType = objectList.getObjectType();
                 if (objectType.getParents().contains(parentObjectType)) {
-                    DBObject object = objectList.getObject(name);
+                    DBObject object = objectList.getObject(name, overload);
                     if (object != null) {
                         return object;
                     }
@@ -147,12 +151,17 @@ public class DBObjectListContainer implements Disposable {
                 DatabaseCompatibilityInterface.getInstance(connectionHandler).supportsObjectType(objectType.getTypeId());
     }
 
-    public DBObject getObjectNoLoad(String name) {
+    public DBObject getObjectNoLoad(String name, int overload) {
         for (DBObjectList objectList : objectLists.values()) {
             if (objectList.isLoaded() && !objectList.isDirty()) {
-                DBObject object = objectList.getObject(name);
-                if (object != null && object.getParentObject().equals(owner)) {
-                    return object;
+                DBObject object = objectList.getObject(name, overload);
+                if (object != null) {
+                    if (owner instanceof DBObject) {
+                        DBObject ownerObject = (DBObject) owner;
+                        if (ownerObject.isParentOf(object)) {
+                            return object;
+                        }
+                    }
                 }
             }
         }
@@ -167,7 +176,7 @@ public class DBObjectListContainer implements Disposable {
              boolean indexed,
              boolean hidden) {
         if (isSupported(objectType)) {
-            ContentDependencyAdapter dependencyAdapter = new BasicDependencyAdapter(treeParent.getConnectionHandler());
+            ContentDependencyAdapter dependencyAdapter = new BasicDependencyAdapter();
             return createObjectList(objectType, treeParent, loader, dependencyAdapter, indexed, hidden);
         }
         return null;
@@ -180,7 +189,7 @@ public class DBObjectListContainer implements Disposable {
             DBObjectList[] sourceContents,
             boolean indexed, boolean hidden) {
         if (isSupported(objectType)) {
-            ContentDependencyAdapter dependencyAdapter = new MultipleContentDependencyAdapter(treeParent.getConnectionHandler(), sourceContents);
+            ContentDependencyAdapter dependencyAdapter = new MultipleContentDependencyAdapter(sourceContents);
             return createObjectList(objectType, treeParent, loader, dependencyAdapter, indexed, hidden);
         }
         return null;
@@ -233,20 +242,19 @@ public class DBObjectListContainer implements Disposable {
             boolean indexed,
             boolean hidden) {
         DBObjectList<T> objectList = new DBObjectListImpl<T>(objectType, treeParent, loader, dependencyAdapter, indexed);
-        objectList.setHidden(hidden);
-        addObjectList(objectList);
+        addObjectList(objectList, hidden);
 
         return objectList;
     }
 
-    public void addObjectList(DBObjectList objectList) {
+    public void addObjectList(DBObjectList objectList, boolean hidden) {
         if (objectList != null) {
             DBObjectType objectType = objectList.getObjectType();
-            if (objectList.isHidden()) {
-                if (hiddenObjectLists == null) hiddenObjectLists = new THashMap<DBObjectType, DBObjectList<DBObject>>();
+            if (hidden) {
+                if (hiddenObjectLists == null) hiddenObjectLists = new EnumMap<DBObjectType, DBObjectList<DBObject>>(DBObjectType.class);
                 hiddenObjectLists.put(objectType, objectList);
             } else {
-                if (objectLists == null) objectLists =  new THashMap<DBObjectType, DBObjectList<DBObject>>();
+                if (objectLists == null) objectLists = new EnumMap<DBObjectType, DBObjectList<DBObject>>(DBObjectType.class);
                 objectLists.put(objectType, objectList);
             }
         }
@@ -280,8 +288,18 @@ public class DBObjectListContainer implements Disposable {
         }
         if (hiddenObjectLists != null)  {
             for (DBObjectList objectList : hiddenObjectLists.values()) {
-                objectList.load(false);
+                if (objectList.getObjectType() != DBObjectType.ANY) {
+                    objectList.load(false);
+                }
             }
+        }
+    }
+
+    public void loadObjectList(DBObjectType objectType) {
+        DBObjectList objectList = getObjectList(objectType);
+        if (objectList == null) objectList = getHiddenObjectList(objectType);
+        if (objectList != null) {
+            objectList.getElements();
         }
     }
 }

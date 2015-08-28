@@ -1,5 +1,8 @@
 package com.dci.intellij.dbn.language.common.element.lookup;
 
+import java.util.Set;
+import org.jetbrains.annotations.Nullable;
+
 import com.dci.intellij.dbn.language.common.TokenType;
 import com.dci.intellij.dbn.language.common.element.ElementType;
 import com.dci.intellij.dbn.language.common.element.LeafElementType;
@@ -12,19 +15,18 @@ public class WrapperElementTypeLookupCache extends AbstractElementTypeLookupCach
         super(elementType);
     }
 
-    public boolean isFirstPossibleLeaf(LeafElementType leaf, ElementType pathChild) {
+    @Override
+    boolean initAsFirstPossibleLeaf(LeafElementType leaf, ElementType source) {
         ElementTypeLookupCache startTokenLC = getElementType().getBeginTokenElement().getLookupCache();
         ElementTypeLookupCache wrappedTokenLC = getElementType().getWrappedElement().getLookupCache();
-        return startTokenLC.canStartWithLeaf(leaf) ||
-               (getElementType().isWrappingOptional() && wrappedTokenLC.canStartWithLeaf(leaf));
+        return startTokenLC.couldStartWithLeaf(leaf) ||
+               (/*getElementType().isWrappingOptional() && */wrappedTokenLC.couldStartWithLeaf(leaf));
     }
 
-    public boolean isFirstRequiredLeaf(LeafElementType leaf, ElementType pathChild) {
+    @Override
+    boolean initAsFirstRequiredLeaf(LeafElementType leaf, ElementType source) {
         ElementTypeLookupCache startTokenLC = getElementType().getBeginTokenElement().getLookupCache();
-        ElementTypeLookupCache wrappedTokenLC = getElementType().getWrappedElement().getLookupCache();
-
-        return (!getElementType().isWrappingOptional() && startTokenLC.shouldStartWithLeaf(leaf)) ||
-               (getElementType().isWrappingOptional() && wrappedTokenLC.shouldStartWithLeaf(leaf));
+        return startTokenLC.shouldStartWithLeaf(leaf);
     }
 
     public boolean containsLandmarkToken(TokenType tokenType, PathNode node) {
@@ -35,8 +37,22 @@ public class WrapperElementTypeLookupCache extends AbstractElementTypeLookupCach
     }
 
     public boolean startsWithIdentifier(PathNode node) {
-        return getElementType().isWrappingOptional() &&
-                getElementType().getWrappedElement().getLookupCache().startsWithIdentifier(node);
+        return false;
     }
 
+    @Override
+    public Set<LeafElementType> collectFirstPossibleLeafs(ElementLookupContext context, @Nullable Set<LeafElementType> bucket) {
+        bucket = initBucket(bucket);
+        WrapperElementType elementType = getElementType();
+        bucket.add(elementType.getBeginTokenElement());
+        return bucket;
+    }
+
+    @Override
+    public Set<TokenType> collectFirstPossibleTokens(ElementLookupContext context, @Nullable Set<TokenType> bucket) {
+        bucket = initBucket(bucket);
+        WrapperElementType elementType = getElementType();
+        bucket.add(elementType.getBeginTokenElement().getTokenType());
+        return bucket;
+    }
 }

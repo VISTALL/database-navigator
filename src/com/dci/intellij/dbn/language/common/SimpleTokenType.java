@@ -1,14 +1,17 @@
 package com.dci.intellij.dbn.language.common;
 
-import com.dci.intellij.dbn.code.common.style.formatting.FormattingDefinition;
-import com.dci.intellij.dbn.code.common.style.formatting.FormattingDefinitionFactory;
-import com.dci.intellij.dbn.common.util.StringUtil;
-import com.intellij.lang.Language;
-import com.intellij.psi.tree.IElementType;
 import org.jdom.Element;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import com.dci.intellij.dbn.code.common.style.formatting.FormattingDefinition;
+import com.dci.intellij.dbn.code.common.style.formatting.FormattingDefinitionFactory;
+import com.dci.intellij.dbn.common.util.StringUtil;
+import com.dci.intellij.dbn.language.common.element.TokenPairTemplate;
+import com.dci.intellij.dbn.object.common.DBObjectType;
+import com.intellij.lang.Language;
+import com.intellij.psi.tree.IElementType;
 
 public class SimpleTokenType extends IElementType implements TokenType {
     private String id;
@@ -16,9 +19,11 @@ public class SimpleTokenType extends IElementType implements TokenType {
     private String description;
     private boolean isSuppressibleReservedWord;
     private TokenTypeCategory category;
+    private DBObjectType objectType;
     private int idx;
     private int hashCode;
     private FormattingDefinition formatting;
+    private TokenPairTemplate tokenPairTemplate;
 
     public SimpleTokenType(@NotNull @NonNls String debugName, @Nullable Language language) {
         super(debugName, language);
@@ -26,14 +31,16 @@ public class SimpleTokenType extends IElementType implements TokenType {
 
     public SimpleTokenType(SimpleTokenType source, Language language) {
         super(source.toString(), language);
-        this.id = source.getId();
+        this.id = source.id;
         this.value = source.getValue();
-        this.description = source.getDescription();
+        this.description = source.description;
         isSuppressibleReservedWord = source.isSuppressibleReservedWord();
-        this.category = source.getCategory();
-        this.idx = source.getIdx();
+        this.category = source.category;
+        this.objectType = source.objectType;
+        this.idx = source.idx;
 
         formatting = FormattingDefinitionFactory.cloneDefinition(source.getFormatting());
+        tokenPairTemplate = TokenPairTemplate.get(id);
     }
 
     public SimpleTokenType(Element element, Language language) {
@@ -52,7 +59,18 @@ public class SimpleTokenType extends IElementType implements TokenType {
         isSuppressibleReservedWord = isReservedWord() && !Boolean.parseBoolean(element.getAttributeValue("reserved"));
         hashCode = (language.getDisplayName() + id).hashCode();
 
+        String objectType = element.getAttributeValue("objectType");
+        if (StringUtil.isNotEmpty(objectType)) {
+            this.objectType = DBObjectType.getObjectType(objectType);
+        }
+
         formatting = FormattingDefinitionFactory.loadDefinition(element);
+        tokenPairTemplate = TokenPairTemplate.get(id);
+    }
+
+    @Override
+    public TokenPairTemplate getTokenPairTemplate() {
+        return tokenPairTemplate;
     }
 
     public void setDefaultFormatting(FormattingDefinition defaultFormatting) {
@@ -90,7 +108,7 @@ public class SimpleTokenType extends IElementType implements TokenType {
     }
 
     public boolean isIdentifier() {
-        return getSharedTokenTypes().isIdentifier(this);
+        return category == TokenTypeCategory.IDENTIFIER;
     }
 
     public boolean isVariable() {
@@ -117,22 +135,37 @@ public class SimpleTokenType extends IElementType implements TokenType {
         return category == TokenTypeCategory.DATATYPE;
     }
 
+    @Override
+    public boolean isLiteral() {
+        return category == TokenTypeCategory.LITERAL;
+    }
+
+    @Override
+    public boolean isNumeric() {
+        return category == TokenTypeCategory.NUMERIC;
+    }
+
+    @Override
     public boolean isCharacter() {
         return category == TokenTypeCategory.CHARACTER;
     }
 
+    @Override
     public boolean isOperator() {
         return category == TokenTypeCategory.OPERATOR;
     }
 
+    @Override
     public boolean isChameleon() {
         return category == TokenTypeCategory.CHAMELEON;
     }
 
+    @Override
     public boolean isReservedWord() {
         return isKeyword() || isFunction() || isParameter() || isDataType();
     }
 
+    @Override
     public boolean isParserLandmark() {
         return !isIdentifier();
         //return isKeyword() || isFunction() || isParameter() || isCharacter() || isOperator();
@@ -141,6 +174,12 @@ public class SimpleTokenType extends IElementType implements TokenType {
 
     public TokenTypeCategory getCategory() {
         return category;
+    }
+
+    @Nullable
+    @Override
+    public DBObjectType getObjectType() {
+        return objectType;
     }
 
     @Override
@@ -169,7 +208,7 @@ public class SimpleTokenType extends IElementType implements TokenType {
         if (obj instanceof SimpleTokenType) {
             SimpleTokenType simpleTokenType = (SimpleTokenType) obj;
             return simpleTokenType.getLanguage().equals(getLanguage()) &&
-                    simpleTokenType.getId().equals(getId());
+                    simpleTokenType.id.equals(id);
         }
         return false;
     }

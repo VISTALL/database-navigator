@@ -1,61 +1,98 @@
 package com.dci.intellij.dbn.execution.compiler.options.ui;
 
 import com.dci.intellij.dbn.common.options.ui.ConfigurationEditorForm;
-import com.dci.intellij.dbn.execution.compiler.CompileType;
+import com.dci.intellij.dbn.common.ui.DBNComboBox;
+import com.dci.intellij.dbn.common.ui.Presentable;
+import com.dci.intellij.dbn.execution.compiler.CompileDependenciesOption;
+import com.dci.intellij.dbn.execution.compiler.CompileTypeOption;
 import com.dci.intellij.dbn.execution.compiler.options.CompilerSettings;
 import com.intellij.openapi.options.ConfigurationException;
-import com.intellij.ui.ColoredListCellRenderer;
-import com.intellij.ui.SimpleTextAttributes;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.swing.JComboBox;
-import javax.swing.JList;
+import javax.swing.Icon;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 
 public class CompilerSettingsForm extends ConfigurationEditorForm<CompilerSettings> {
     private JPanel mainPanel;
-    private JComboBox compileTypeComboBox;
-    private JRadioButton showAlwaysRadioButton;
-    private JRadioButton showWhenInvalidRadioButton;
+    private DBNComboBox<CompileTypeOption> compileTypeComboBox;
+    private DBNComboBox<CompileDependenciesOption> compileDependenciesComboBox;
+    private DBNComboBox<ShowControlOption> showControlsComboBox;
+
 
     public CompilerSettingsForm(CompilerSettings settings) {
         super(settings);
-        compileTypeComboBox.addItem(CompileType.NORMAL);
-        compileTypeComboBox.addItem(CompileType.DEBUG);
-        compileTypeComboBox.addItem(CompileType.KEEP);
-        compileTypeComboBox.addItem(CompileType.ASK);
+
+        showControlsComboBox.setValues(
+                ShowControlOption.ALWAYS,
+                ShowControlOption.WHEN_INVALID);
+
+        compileTypeComboBox.setValues(
+                CompileTypeOption.NORMAL,
+                CompileTypeOption.DEBUG,
+                CompileTypeOption.KEEP,
+                CompileTypeOption.ASK);
+
+        compileDependenciesComboBox.setValues(
+                CompileDependenciesOption.YES,
+                CompileDependenciesOption.NO,
+                CompileDependenciesOption.ASK);
+
 
         updateBorderTitleForeground(mainPanel);
-        compileTypeComboBox.setRenderer(new ColoredListCellRenderer() {
-            protected void customizeCellRenderer(JList list, Object value, int index, boolean selected, boolean hasFocus) {
-                CompileType compileType = (CompileType) value;
-                setIcon(compileType.getIcon());
-                append(compileType.getDisplayName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
-            }
-        });
+        resetFormChanges();
 
-        resetChanges();
-
-        registerComponent(compileTypeComboBox);
-        registerComponent(showAlwaysRadioButton);
-        registerComponent(showWhenInvalidRadioButton);
+        registerComponent(mainPanel);
     }
 
     public JPanel getComponent() {
         return mainPanel;
     }
 
-    public void applyChanges() throws ConfigurationException {
+    public void applyFormChanges() throws ConfigurationException {
         CompilerSettings settings = getConfiguration();
-        settings.setCompileType((CompileType) compileTypeComboBox.getSelectedItem());
-        settings.setAlwaysShowCompilerControls(showAlwaysRadioButton.isSelected());
+        settings.setCompileTypeOption(compileTypeComboBox.getSelectedValue());
+        settings.setCompileDependenciesOption(compileDependenciesComboBox.getSelectedValue());
+        ShowControlOption showControlOption = showControlsComboBox.getSelectedValue();
+        settings.setAlwaysShowCompilerControls(showControlOption != null && showControlOption.getValue());
     }
 
-    public void resetChanges() {
+    public void resetFormChanges() {
         CompilerSettings settings = getConfiguration();
-        compileTypeComboBox.setSelectedItem(settings.getCompileType());
-        if (settings.alwaysShowCompilerControls())
-            showAlwaysRadioButton.setSelected(true); else
-            showWhenInvalidRadioButton.setSelected(true);
+        compileTypeComboBox.setSelectedValue(settings.getCompileTypeOption());
+        compileDependenciesComboBox.setSelectedValue(settings.getCompileDependenciesOption());
+        showControlsComboBox.setSelectedValue(
+                settings.alwaysShowCompilerControls() ?
+                        ShowControlOption.ALWAYS:
+                        ShowControlOption.WHEN_INVALID);
+    }
+
+    private enum ShowControlOption implements Presentable {
+        ALWAYS("Always", true),
+        WHEN_INVALID("When object invalid", false);
+
+        private String name;
+        private boolean value;
+
+        ShowControlOption(String name, boolean value) {
+            this.name = name;
+            this.value = value;
+        }
+
+        @NotNull
+        @Override
+        public String getName() {
+            return name;
+        }
+
+        @Nullable
+        @Override
+        public Icon getIcon() {
+            return null;
+        }
+
+        public boolean getValue() {
+            return value;
+        }
     }
 }

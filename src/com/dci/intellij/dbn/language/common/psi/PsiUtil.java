@@ -1,8 +1,15 @@
 package com.dci.intellij.dbn.language.common.psi;
 
+import java.util.Iterator;
+import java.util.Set;
+import org.jetbrains.annotations.Nullable;
+
+import com.dci.intellij.dbn.common.thread.ConditionalReadActionRunner;
 import com.dci.intellij.dbn.common.util.DocumentUtil;
 import com.dci.intellij.dbn.connection.mapping.FileConnectionMappingManager;
+import com.dci.intellij.dbn.language.common.element.ElementType;
 import com.dci.intellij.dbn.language.common.element.util.ElementTypeAttribute;
+import com.dci.intellij.dbn.language.common.psi.lookup.IdentifierLookupAdapter;
 import com.dci.intellij.dbn.language.common.psi.lookup.ObjectLookupAdapter;
 import com.dci.intellij.dbn.object.DBSchema;
 import com.dci.intellij.dbn.object.common.DBObjectType;
@@ -10,7 +17,6 @@ import com.intellij.lang.Language;
 import com.intellij.lang.LanguageDialect;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiComment;
@@ -22,17 +28,25 @@ import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiWhiteSpace;
 import gnu.trove.THashSet;
 
-import java.util.Iterator;
-import java.util.Set;
-
 public class PsiUtil {
 
     public static DBSchema getCurrentSchema(PsiElement psiElement) {
-        VirtualFile virtualFile = getVirtualFileForElement(psiElement);
-        FileConnectionMappingManager mappingManager = FileConnectionMappingManager.getInstance(psiElement.getProject());
-        return mappingManager.getCurrentSchema(virtualFile);
+        DBSchema currentSchema = null;
+        if (psiElement instanceof BasePsiElement) {
+            BasePsiElement basePsiElement = (BasePsiElement) psiElement;
+            currentSchema = basePsiElement.getCurrentSchema();
+        }
+        if (currentSchema == null) {
+            VirtualFile virtualFile = getVirtualFileForElement(psiElement);
+            if (virtualFile != null) {
+                FileConnectionMappingManager mappingManager = FileConnectionMappingManager.getInstance(psiElement.getProject());
+                currentSchema = mappingManager.getCurrentSchema(virtualFile);
+            }
+        }
+        return currentSchema;
     }
 
+    @Nullable
     public static VirtualFile getVirtualFileForElement(PsiElement psiElement) {
         PsiFile psiFile = null;
         try {
@@ -48,14 +62,14 @@ public class PsiUtil {
         PsiElement psiElement = aliasElement.isReference() ? aliasElement.resolve() : aliasElement; 
         if (psiElement instanceof BasePsiElement) {
             BasePsiElement basePsiElement = (BasePsiElement) psiElement;
-            BasePsiElement scope = basePsiElement.lookupEnclosingNamedPsiElement();
+            BasePsiElement scope = basePsiElement.findEnclosingNamedPsiElement();
 
             DBObjectType objectType = aliasElement.getObjectType();
-            ObjectLookupAdapter lookupInput = new ObjectLookupAdapter(aliasElement, objectType);
+            IdentifierLookupAdapter lookupInput = new IdentifierLookupAdapter(aliasElement, null, null, objectType, null);
 
             BasePsiElement objectPsiElement = lookupInput.findInScope(scope);
             if (objectPsiElement == null) {
-                scope = scope.lookupEnclosingSequencePsiElement();
+                scope = scope.findEnclosingSequencePsiElement();
                 if (scope != null)
                     objectPsiElement = lookupInput.findInScope(scope);
             }
@@ -75,7 +89,7 @@ public class PsiUtil {
     }
 
     public static IdentifierPsiElement lookupObjectPriorTo(BasePsiElement element, DBObjectType objectType) {
-        SequencePsiElement scope = element.lookupEnclosingSequencePsiElement();
+        SequencePsiElement scope = element.findEnclosingSequencePsiElement();
 
         Iterator<PsiElement> children = PsiUtil.getChildrenIterator(scope);
         while (children.hasNext()) {
@@ -93,10 +107,28 @@ public class PsiUtil {
         return null;
     }
 
-    public static ExecutablePsiElement lookupExecutableAtCaret(PsiFile file) {
+    @Nullable
+    public static ExecutablePsiElement lookupExecutableAtCaret(Editor editor, boolean lenient) {
         // GTK: PsiElement psiElement = PsiFile.findElementA(offset)
-        int offset = getCaretOffset(file);
-        PsiElement current = file.findElementAt(offset);
+
+        int offset = editor.getCaretModel().getOffset();
+
+        PsiFile file = DocumentUtil.getFile(editor);
+        PsiElement current = null;
+
+        if (lenient) {
+            int lineStart = editor.getCaretModel().getVisualLineStart();
+            int lineEnd = editor.getCaretModel().getVisualLineEnd();
+            current = file.findElementAt(lineStart);
+            while (ignore(current)) {
+                offset = current.getTextOffset() + current.getTextLength();
+                if (offset >= lineEnd) break;
+                current = file.findElementAt(offset);
+            }
+        } else {
+            current = file.findElementAt(offset);
+        }
+
         if (current != null) {
             PsiElement parent = current.getParent();
             while (parent != null) {
@@ -127,35 +159,7 @@ public class PsiUtil {
         return null;
     }
 
-    public static BasePsiElement lookupRootAtCaret(PsiFile file) {
-        int offset = getCaretOffset(file);
-        PsiElement current = file.findElementAt(offset);
-        if (current != null) {
-            PsiElement parent = current.getParent();
-            while (parent != null) {
-                if (parent instanceof BasePsiElement){
-                    BasePsiElement basePsiElement = (BasePsiElement) parent;
-                    if (basePsiElement.getElementType().is(ElementTypeAttribute.ROOT)) {
-                        return basePsiElement;
-                    }
-
-                }
-                parent = parent.getParent();
-            }
-        }
-        return null;
-    }
-
-
-    public static boolean introduceWhitespace(PsiFile file, int caretOffset) {
-        PsiFile originalFile = file.getOriginalFile();
-        if (originalFile != null && originalFile != file) {
-            PsiElement elementAtCaret = originalFile.findElementAt(caretOffset);
-            return !(elementAtCaret instanceof PsiWhiteSpace) || elementAtCaret.getNextSibling() == null;
-        }
-        return false;
-    }
-
+    @Nullable
     public static LeafPsiElement lookupLeafBeforeOffset(PsiFile file, int originalOffset) {
         int offset = originalOffset;
         if (offset > 0 && offset == file.getTextLength()) {
@@ -164,14 +168,15 @@ public class PsiUtil {
         PsiElement element = file.findElementAt(offset);
         while (element != null && offset >= 0) {
             int elementEndOffset = element.getTextOffset() + element.getTextLength();
-            if (elementEndOffset <= originalOffset && element.getParent() instanceof LeafPsiElement) {
-                LeafPsiElement leafPsiElement = (LeafPsiElement) element.getParent();
+            PsiElement parent = element.getParent();
+            if (elementEndOffset <= originalOffset && parent instanceof LeafPsiElement) {
+                LeafPsiElement leafPsiElement = (LeafPsiElement) parent;
                 if (leafPsiElement instanceof IdentifierPsiElement) {
                     if (elementEndOffset < originalOffset) {
                         return leafPsiElement;
                     }
                 } else {
-                    return (LeafPsiElement) element.getParent();
+                    return (LeafPsiElement) parent;
                 }
             }
             offset = element.getTextOffset() - 1;
@@ -206,31 +211,8 @@ public class PsiUtil {
         return null;
     }
 
-    public static int getCaretOffset(PsiFile file) {
-        PsiFile originalFile = file.getOriginalFile();
-        if (originalFile != null) file = originalFile;
-        Document document = DocumentUtil.getDocument(file);
-        Editor[] editors = EditorFactory.getInstance().getEditors(document);
-
-        //Editor editor = FileEditorManager.getInstance(file.getProject()).getSelectedTextEditor();
-
-        return editors.length == 0 ? -1 : editors[0].getCaretModel().getOffset();
-    }
-
-    public static int getCodeCompletionCaretOffset(PsiFile file) {
-        int caretOffset = getCaretOffset(file);
-        PsiElement elementAtCaret = file.findElementAt(caretOffset-1);
-
-        if (elementAtCaret != null && !(elementAtCaret instanceof PsiWhiteSpace || elementAtCaret.getTextLength() == 1) ) {
-            caretOffset = elementAtCaret.getTextOffset();
-        }
-        return caretOffset;
-    }
-
     public static void moveCaretOutsideExecutable(Editor editor) {
-        PsiFile file = DocumentUtil.getFile(editor);
-
-        ExecutablePsiElement executablePsiElement = lookupExecutableAtCaret(file);
+        ExecutablePsiElement executablePsiElement = lookupExecutableAtCaret(editor, false);
         if (executablePsiElement != null) {
             int offset = executablePsiElement.getTextOffset();
             editor.getCaretModel().moveToOffset(offset);
@@ -268,7 +250,7 @@ public class PsiUtil {
 
     public static PsiElement getNextSibling(PsiElement psiElement) {
         PsiElement nextPsiElement = psiElement.getNextSibling();
-        while (nextPsiElement instanceof PsiWhiteSpace || nextPsiElement instanceof PsiComment) {
+        while (ignore(nextPsiElement)) {
             nextPsiElement = nextPsiElement.getNextSibling();
         }
         return nextPsiElement;
@@ -279,8 +261,13 @@ public class PsiUtil {
         return psiDocumentManager == null ? null : psiDocumentManager.getPsiFile(document);
     }
 
-    public static PsiFile getPsiFile(Project project, VirtualFile virtualFile) {
-        return PsiManager.getInstance(project).findFile(virtualFile);
+    public static PsiFile getPsiFile(final Project project, final VirtualFile virtualFile) {
+        return new ConditionalReadActionRunner<PsiFile>() {
+            @Override
+            protected PsiFile run() {
+                return PsiManager.getInstance(project).findFile(virtualFile);
+            }
+        }.start();
     }
 
 
@@ -292,6 +279,15 @@ public class PsiUtil {
             psiElement = psiElement.getParent();
         }
 
+        return null;
+    }
+
+    @Nullable
+    public static ElementType getElementType(PsiElement psiElement) {
+        if (psiElement instanceof BasePsiElement) {
+            BasePsiElement basePsiElement = (BasePsiElement) psiElement;
+            return basePsiElement.getElementType();
+        }
         return null;
     }
 

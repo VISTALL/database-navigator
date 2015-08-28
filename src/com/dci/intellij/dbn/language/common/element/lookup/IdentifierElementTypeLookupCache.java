@@ -20,8 +20,11 @@ public class IdentifierElementTypeLookupCache extends LeafElementTypeLookupCache
         allPossibleTokens.add(quotedIdentifier);
         firstPossibleTokens.add(identifier);
         firstPossibleTokens.add(quotedIdentifier);
-        firstRequiredTokens.add(identifier);
-        firstRequiredTokens.add(quotedIdentifier);
+    }
+
+    @Override
+    public boolean couldStartWithToken(TokenType tokenType) {
+        return tokenType.isIdentifier();
     }
 
     @Override
@@ -30,11 +33,13 @@ public class IdentifierElementTypeLookupCache extends LeafElementTypeLookupCache
         return sharedTokenTypes.getIdentifier() == tokenType || sharedTokenTypes.getQuotedIdentifier() == tokenType;
     }
 
-    public boolean isFirstPossibleLeaf(LeafElementType leaf, ElementType pathChild) {
+    @Override
+    boolean initAsFirstPossibleLeaf(LeafElementType leaf, ElementType source) {
         return false;
     }
 
-    public boolean isFirstRequiredLeaf(LeafElementType leaf, ElementType pathChild) {
+    @Override
+    boolean initAsFirstRequiredLeaf(LeafElementType leaf, ElementType source) {
         return false;
     }
 

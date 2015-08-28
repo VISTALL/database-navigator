@@ -2,30 +2,37 @@ package com.dci.intellij.dbn.execution.statement.result;
 
 import com.dci.intellij.dbn.common.message.MessageType;
 import com.dci.intellij.dbn.execution.ExecutionResult;
+import com.dci.intellij.dbn.execution.compiler.CompilerResult;
 import com.dci.intellij.dbn.execution.statement.StatementExecutionInput;
 import com.dci.intellij.dbn.execution.statement.StatementExecutionMessage;
 import com.dci.intellij.dbn.execution.statement.processor.StatementExecutionProcessor;
-import com.dci.intellij.dbn.execution.statement.result.ui.StatementViewerPopup;
-import com.intellij.openapi.Disposable;
 
-public interface StatementExecutionResult extends ExecutionResult, Disposable {
-    int STATUS_SUCCESS = 0;
-    int STATUS_ERROR = 1;
-
-    boolean isOrphan();
+public interface StatementExecutionResult extends ExecutionResult {
     StatementExecutionProcessor getExecutionProcessor();
     StatementExecutionMessage getExecutionMessage();
     StatementExecutionInput getExecutionInput();
 
-    int getExecutionStatus();
+    StatementExecutionStatus getExecutionStatus();
 
-    void setExecutionStatus(int executionStatus);
+    void setExecutionStatus(StatementExecutionStatus executionStatus);
     void updateExecutionMessage(MessageType messageType, String message, String causeMessage);
     void updateExecutionMessage(MessageType messageType, String message);
     void clearExecutionMessage();
+    void setExecutionDuration(int executionDuration);
+    int getExecutionDuration();
+
+
 
     void navigateToEditor(boolean requestFocus);
 
-    StatementViewerPopup getStatementViewerPopup();
-    void setStatementViewerPopup(StatementViewerPopup statementViewerPopup);
+    int getUpdateCount();
+
+    CompilerResult getCompilerResult();
+    boolean hasCompilerResult();
+    boolean isBulkExecution();
+
+    String getLoggingOutput();
+    void setLoggingOutput(String loggerOutput);
+    boolean isLoggingActive();
+    void setLoggingActive(boolean databaseLogActive);
 }

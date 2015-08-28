@@ -25,11 +25,12 @@ public class ExecutionResultResumeAction extends AbstractExecutionResultAction {
 
         boolean enabled = executionResult != null &&
                 executionResult.hasResult() &&
+                executionResult.getResultTable() != null &&
                 !executionResult.getResultTable().isLoading() &&
                 !executionResult.getTableModel().isResultSetExhausted();
 
         Presentation presentation = e.getPresentation();
         presentation.setEnabled(enabled);
-        presentation.setText("Fetch next records");
+        presentation.setText("Fetch Next Records");
     }
 }
